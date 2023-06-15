@@ -1,32 +1,127 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
+import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import javax.inject.Inject
 
 class OutreachFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = OutreachFragment()
-    }
+    @Inject
+    lateinit var prefDao: PreferenceDao
+
+    private var _binding: FragmentOutreachBinding? = null
+    private val binding: FragmentOutreachBinding
+        get() = _binding!!
 
     private lateinit var viewModel: OutreachViewModel
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_outreach, container, false)
+    private val REQUEST_IMAGE_CAPTURE = 1
+
+    private val CAMERA_PERMISSION_REQUEST = 101
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_main)
+//
+//        imageView = findViewById(R.id.image_view)
+//
+//        button.setOnClickListener {
+//            requestCameraPermission()
+//        }
+//    }
+
+    private fun requestCameraPermission() {
+        requireContext()
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST
+            )
+        } else {
+            dispatchTakePictureIntent()
+        }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(OutreachViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent()
+            } else {
+                Toast.makeText(
+                    requireContext(), "Camera permission denied",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(packageManager) != null) {
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+//        }
+    }
+
+//    private fun dispatchTakePictureIntent() {
+//        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//
+//        if (takePictureIntent.resolveActivity(packageManager) != null) {
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+//        }
+//    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            binding.imageView.setImageBitmap(imageBitmap)
+        }
+    }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
+        return binding.root
+    }
+
+
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.imageView.setOnClickListener{
+            requestCameraPermission()
+        }
     }
 
 }

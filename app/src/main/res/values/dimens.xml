@@ -12,6 +12,7 @@
     <dimen name="padding_big">16dp</dimen>
     <dimen name="padding_huge">32dp</dimen>
     <dimen name="padding_wide">24dp</dimen>
+    <dimen name="padding_extra_wide">96dp</dimen>
 
     <dimen name="margin_huge">32dp</dimen>
     <dimen name="margin_wide">24dp</dimen>
@@ -31,5 +32,8 @@
     <dimen name="text_medium">16sp</dimen>
     <dimen name="text_normal">8sp</dimen>
     <dimen name="text_small">4sp</dimen>
+
+    <dimen name="photo_radius">75dp</dimen>
+    <dimen name="photo_size">150dp</dimen>
 
 </resources>

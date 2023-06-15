@@ -3,11 +3,12 @@
 
 
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="none"
     tools:context=".ui.login_activity.cho_login.ChoLoginFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -134,7 +135,7 @@
 
 <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-</FrameLayout>
+</ScrollView>
 
 
     <!--        app:endIconTint="@color/primaryColor"-->
