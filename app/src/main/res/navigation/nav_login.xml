@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_login"
+    app:startDestination="@id/username">
+
+    <fragment
+        android:id="@+id/username"
+        android:name="org.piramalswasthya.cho.ui.login_activity.username.UsernameFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_username" >
+        <action
+            android:id="@+id/action_signInFragment_to_ashaLogin"
+            app:destination="@id/ashaLogin" />
+        <action
+            android:id="@+id/action_signInFragment_to_choLogin"
+            app:destination="@id/choLogin" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/ashaLogin"
+        android:name="org.piramalswasthya.cho.ui.login_activity.asha_login.AshaLoginFragment"
+        android:label="fragment_asha_login"
+        tools:layout="@layout/fragment_asha_login" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/choLogin"
+        android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragment"
+        android:label="fragment_cho_login"
+        tools:layout="@layout/fragment_cho_login" >
+    </fragment>
+
+
+</navigation>

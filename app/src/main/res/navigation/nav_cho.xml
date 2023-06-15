@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_login"
+    app:startDestination="@id/hwc">
+
+    <fragment
+        android:id="@+id/hwc"
+        android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.hwc.HwcFragment"
+        android:label="fragment_hwc"
+        tools:layout="@layout/fragment_hwc" >
+        <action
+            android:id="@+id/action_to_outreach"
+            app:destination="@id/outreach"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/outreach"
+        android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachFragment"
+        android:label="fragment_outreach"
+        tools:layout="@layout/fragment_outreach" >
+        <action
+            android:id="@+id/action_to_hwc"
+            app:destination="@id/hwc"/>
+    </fragment>
+
+</navigation>
