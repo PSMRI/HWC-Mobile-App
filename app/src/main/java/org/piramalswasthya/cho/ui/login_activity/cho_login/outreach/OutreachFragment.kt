@@ -15,10 +15,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import javax.inject.Inject
 
 class OutreachFragment : Fragment() {
@@ -121,6 +123,11 @@ class OutreachFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.imageView.setOnClickListener{
             requestCameraPermission()
+        }
+        binding.btnOutreachLogin.setOnClickListener {
+            findNavController().navigate(
+                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+            )
         }
     }
 
