@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_home"
+    app:startDestination="@id/homeActivity">
+
+    <activity
+        android:id="@+id/homeActivity"
+        android:name="org.piramalswasthya.cho.ui.home_activity.HomeActivity"
+        android:label="activity_home_content"
+        tools:layout="@layout/activity_home">
+        <action
+            android:id="@+id/action_home_activity_to_add_patient"
+            app:destination="@id/addPatientActivity" />
+    </activity>
+
+    <activity
+        android:id="@+id/addPatientActivity"
+        android:name="org.piramalswasthya.cho.ui.add_patient_activity.AddPatientActivity"
+        android:label="activity_add_patient"
+        tools:layout="@layout/activity_add_patient">
+
+    </activity>
+
+</navigation>
