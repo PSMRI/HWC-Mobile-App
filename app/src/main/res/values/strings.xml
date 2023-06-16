@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">CHO</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
+    <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
+    <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

@@ -1,5 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    <size android:width="@dimen/photo_size"/>-->
-<!--    <size android:height="@dimen/photo_size"/>-->
-    <corners android:radius="@dimen/photo_radius"/> <!-- Radius for rounded corners -->
-</shape>

@@ -36,17 +36,17 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        editor.apply()
 //    }
 //
-//    fun getPrimaryApiToken(): String? {
-//        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-//        return pref.getString(prefKey, null)
-//    }
+    fun getPrimaryApiToken(): String? {
+        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
+        return pref.getString(prefKey, null)
+    }
 //
-//    fun registerPrimaryApiToken(token: String) {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-//        editor.putString(prefKey, token)
-//        editor.apply()
-//    }
+    fun registerPrimaryApiToken(token: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
+        editor.putString(prefKey, token)
+        editor.apply()
+    }
 //
 //    fun deleteD2DApiToken() {
 //        val editor = pref.edit()

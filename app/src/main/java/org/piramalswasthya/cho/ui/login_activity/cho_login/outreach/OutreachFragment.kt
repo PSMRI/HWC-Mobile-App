@@ -2,11 +2,32 @@ package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
+import android.content.pm.ChangedPackages
+import android.content.pm.FeatureInfo
+import android.content.pm.InstrumentationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
+import android.content.pm.PermissionGroupInfo
+import android.content.pm.PermissionInfo
+import android.content.pm.ProviderInfo
+import android.content.pm.ResolveInfo
+import android.content.pm.ServiceInfo
+import android.content.pm.SharedLibraryInfo
+import android.content.pm.VersionedPackage
+import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.os.UserHandle
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -85,8 +106,8 @@ class OutreachFragment : Fragment() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
 
-//        // Ensure that there's a camera activity to handle the intent
-//        if (takePictureIntent.resolveActivity(packageManager) != null) {
+//        //Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(CustomPackageManager()) != null) {
 //            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
 //        }
     }
@@ -114,9 +135,6 @@ class OutreachFragment : Fragment() {
         _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
-
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.imageView.setOnClickListener{
