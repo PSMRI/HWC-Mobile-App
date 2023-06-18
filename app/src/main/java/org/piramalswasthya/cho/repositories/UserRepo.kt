@@ -9,6 +9,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.network.AmritApiService
+//import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 //import org.piramalswasthya.sakhi.database.room.dao.BenDao
@@ -27,7 +28,7 @@ import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachView
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 //import org.piramalswasthya.sakhi.network.D2DAuthUserRequest
-import org.piramalswasthya.sakhi.network.TmcAuthUserRequest
+import org.piramalswasthya.cho.network.TmcAuthUserRequest
 //import org.piramalswasthya.sakhi.network.TmcLocationDetailsRequest
 //import org.piramalswasthya.sakhi.network.TmcUserDetailsRequest
 //import org.piramalswasthya.sakhi.network.TmcUserVanSpDetailsRequest
@@ -577,41 +578,41 @@ class UserRepo @Inject constructor(
 //
     private suspend fun getTokenTmc(userName: String, password: String) {
         withContext(Dispatchers.IO) {
-            try {
-                val response =
-                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, password))
-                Timber.d("JWT : $response")
-                if (!response.isSuccessful) {
-                    return@withContext
-                }
-                val responseBody = JSONObject(
-                    response.body()?.string()
-                        ?: throw IllegalStateException("Response success but data missing @ $response")
-                )
-                val responseStatusCode = responseBody.getInt("statusCode")
-                if (responseStatusCode == 200) {
-                    val data = responseBody.getJSONObject("data")
-                    val token = data.getString("key")
-                    val userId = data.getInt("userID")
-
-                    val privilegesArray = data.getJSONArray("previlegeObj")
-                    val privilegesObject = privilegesArray.getJSONObject(0)
-
-                    user = UserNetwork(userId, userName, password)
-                    val serviceId = privilegesObject.getInt("serviceID")
-                    user?.serviceId = serviceId
-                    val serviceMapId =
-                        privilegesObject.getInt("providerServiceMapID")
-                    user?.serviceMapId = serviceMapId
-                    TokenInsertTmcInterceptor.setToken(token)
-                    preferenceDao.registerPrimaryApiToken(token)
-                } else {
-                    val errorMessage = responseBody.getString("errorMessage")
-                    Timber.d("Error Message $errorMessage")
-                }
-            } catch (e: retrofit2.HttpException) {
-                Timber.d("Auth Failed!")
-            }
+//            try {
+//                val response =
+//                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, password))
+//                Timber.d("JWT : $response")
+//                if (!response.isSuccessful) {
+//                    return@withContext
+//                }
+//                val responseBody = JSONObject(
+//                    response.body()?.string()
+//                        ?: throw IllegalStateException("Response success but data missing @ $response")
+//                )
+//                val responseStatusCode = responseBody.getInt("statusCode")
+//                if (responseStatusCode == 200) {
+//                    val data = responseBody.getJSONObject("data")
+//                    val token = data.getString("key")
+//                    val userId = data.getInt("userID")
+//
+//                    val privilegesArray = data.getJSONArray("previlegeObj")
+//                    val privilegesObject = privilegesArray.getJSONObject(0)
+//
+//                    user = UserNetwork(userId, userName, password)
+//                    val serviceId = privilegesObject.getInt("serviceID")
+//                    user?.serviceId = serviceId
+//                    val serviceMapId =
+//                        privilegesObject.getInt("providerServiceMapID")
+//                    user?.serviceMapId = serviceMapId
+//                    TokenInsertTmcInterceptor.setToken(token)
+//                    preferenceDao.registerPrimaryApiToken(token)
+//                } else {
+//                    val errorMessage = responseBody.getString("errorMessage")
+//                    Timber.d("Error Message $errorMessage")
+//                }
+//            } catch (e: retrofit2.HttpException) {
+//                Timber.d("Auth Failed!")
+//            }
 
 
         }

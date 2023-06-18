@@ -1,4 +1,4 @@
-package org.piramalswasthya.sakhi.network
+package org.piramalswasthya.cho.network
 
 import com.squareup.moshi.JsonClass
 

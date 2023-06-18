@@ -3,7 +3,19 @@ package org.piramalswasthya.cho.database.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import org.piramalswasthya.cho.model.LocationEntity
+import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
+
+@Dao
+interface UserAuthDao {
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(user: UserAuth)
+
+    @Query("SELECT COUNT(*) FROM USER_AUTH")
+    fun getRowCount(): Int
+
+}
 
 @Dao
 interface UserDao {

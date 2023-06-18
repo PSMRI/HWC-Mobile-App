@@ -8,15 +8,16 @@ import androidx.room.TypeConverters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.piramalswasthya.cho.database.room.dao.UserDao
-import org.piramalswasthya.sakhi.database.converters.LocationEntityListConverter
-import org.piramalswasthya.sakhi.database.converters.SyncStateConverter
-import org.piramalswasthya.cho.database.room.dao.*
+import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
+import org.piramalswasthya.cho.database.converters.SyncStateConverter
+import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.model.*
 import timber.log.Timber
 
 @Database(
     entities = [
         UserCache::class,
+        UserAuth::class
     ],
 //    views = [BenBasicCache::class],
     version = 3, exportSchema = false
@@ -28,6 +29,7 @@ abstract class InAppDb : RoomDatabase() {
 
     abstract val userDao: UserDao
 
+    abstract val userAuthDao: UserAuthDao
 
     companion object {
         @Volatile
@@ -42,7 +44,7 @@ abstract class InAppDb : RoomDatabase() {
                         appContext,
                         InAppDb::class.java,
                         "CHO-1.0-In-app-database"
-                    )
+                    ).allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

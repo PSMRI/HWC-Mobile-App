@@ -11,13 +11,16 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AmritApiService
+//import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.AbhaApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
@@ -45,13 +48,13 @@ object AppModule {
             .addInterceptor(ContentTypeInterceptor())
             .build()
 
-//    @Singleton
-//    @Provides
-//    fun provideMoshiInstance(): Moshi {
-//        return Moshi.Builder()
-//            .add(KotlinJsonAdapterFactory())
-//            .build()
-//    }
+    @Singleton
+    @Provides
+    fun provideMoshiInstance(): Moshi {
+        return Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+    }
 
 //    @Singleton
 //    @Provides
@@ -66,18 +69,18 @@ object AppModule {
 //            .build()
 //    }
 //
-//    @Singleton
-//    @Provides
-//    @Named("uatClient")
-//    fun provideTmcHttpClient(): OkHttpClient {
-//        return baseClient
-//            .newBuilder()
-//            .connectTimeout(30, TimeUnit.SECONDS)
-//            .readTimeout(30, TimeUnit.SECONDS)
-//            .writeTimeout(30, TimeUnit.SECONDS)
-//            .addInterceptor(TokenInsertTmcInterceptor())
-//            .build()
-//    }
+    @Singleton
+    @Provides
+    @Named("uatClient")
+    fun provideTmcHttpClient(): OkHttpClient {
+        return baseClient
+            .newBuilder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(TokenInsertTmcInterceptor())
+            .build()
+    }
 //
 //    @Singleton
 //    @Provides
@@ -107,20 +110,20 @@ object AppModule {
 //            .create(D2DApiService::class.java)
 //    }
 //
-//    @Singleton
-//    @Provides
-//    fun provideAmritApiService(
-//        moshi: Moshi,
-//        @Named("uatClient") httpClient: OkHttpClient
-//    ): AmritApiService {
-//        return Retrofit.Builder()
-//            .addConverterFactory(MoshiConverterFactory.create(moshi))
-//            //.addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl(baseTmcUrl)
-//            .client(httpClient)
-//            .build()
-//            .create(AmritApiService::class.java)
-//    }
+    @Singleton
+    @Provides
+    fun provideAmritApiService(
+        moshi: Moshi,
+        @Named("uatClient") httpClient: OkHttpClient
+    ): AmritApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            //.addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseTmcUrl)
+            .client(httpClient)
+            .build()
+            .create(AmritApiService::class.java)
+    }
 //
 //    @Singleton
 //    @Provides
@@ -144,6 +147,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideUserDao(database : InAppDb) : UserDao = database.userDao
+
+    @Singleton
+    @Provides
+    fun provideUserAuthDao(database : InAppDb) : UserAuthDao = database.userAuthDao
 
 //    @Singleton
 //    @Provides

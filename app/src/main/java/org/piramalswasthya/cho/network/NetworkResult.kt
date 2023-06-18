@@ -1,4 +1,4 @@
-package org.piramalswasthya.sakhi.network
+package org.piramalswasthya.cho.network
 
 sealed class NetworkResult<out T : Any> {
     data class Success<out T : Any>(val data: T) : NetworkResult<T>()

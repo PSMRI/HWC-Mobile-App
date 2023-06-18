@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.os.UserHandle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -36,13 +37,19 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.repositories.UserAuthRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import javax.inject.Inject
 
-class OutreachFragment : Fragment() {
+@AndroidEntryPoint
+class OutreachFragment  : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -51,7 +58,8 @@ class OutreachFragment : Fragment() {
     private val binding: FragmentOutreachBinding
         get() = _binding!!
 
-    private lateinit var viewModel: OutreachViewModel
+    private val viewModel: OutreachViewModel by viewModels()
+
 
     private val REQUEST_IMAGE_CAPTURE = 1
 
@@ -139,6 +147,11 @@ class OutreachFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.imageView.setOnClickListener{
             requestCameraPermission()
+        }
+        binding.btnChoLogin.setOnClickListener {
+
+            Log.i("tag", "---------Login clicked--------");
+            viewModel.dummyAuthUser("user", "pass");
         }
     }
 
