@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,11 +16,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -125,10 +130,12 @@ class OutreachFragment  : Fragment() {
         binding.imageView.setOnClickListener{
             requestCameraPermission()
         }
-        binding.btnChoLogin.setOnClickListener {
-
-            Log.i("tag", "---------Login clicked--------");
-            viewModel.dummyAuthUser("user", "pass");
+        binding.btnOutreachLogin.setOnClickListener {
+//            Log.i("tag", "---------Login clicked--------");
+//            viewModel.dummyAuthUser("user", "pass");
+            findNavController().navigate(
+                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+            )
         }
     }
 

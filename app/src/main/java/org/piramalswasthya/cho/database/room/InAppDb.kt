@@ -44,7 +44,8 @@ abstract class InAppDb : RoomDatabase() {
                         appContext,
                         InAppDb::class.java,
                         "CHO-1.0-In-app-database"
-                    ).allowMainThreadQueries()
+                    )
+//                        .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {
