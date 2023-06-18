@@ -15,15 +15,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
-import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import javax.inject.Inject
 
-class OutreachFragment : Fragment() {
+@AndroidEntryPoint
+class OutreachFragment  : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -32,7 +32,8 @@ class OutreachFragment : Fragment() {
     private val binding: FragmentOutreachBinding
         get() = _binding!!
 
-    private lateinit var viewModel: OutreachViewModel
+    private val viewModel: OutreachViewModel by viewModels()
+
 
     private val REQUEST_IMAGE_CAPTURE = 1
 
@@ -87,8 +88,8 @@ class OutreachFragment : Fragment() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
 
-//        // Ensure that there's a camera activity to handle the intent
-//        if (takePictureIntent.resolveActivity(packageManager) != null) {
+//        //Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(CustomPackageManager()) != null) {
 //            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
 //        }
     }
@@ -124,10 +125,10 @@ class OutreachFragment : Fragment() {
         binding.imageView.setOnClickListener{
             requestCameraPermission()
         }
-        binding.btnOutreachLogin.setOnClickListener {
-            findNavController().navigate(
-                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
-            )
+        binding.btnChoLogin.setOnClickListener {
+
+            Log.i("tag", "---------Login clicked--------");
+            viewModel.dummyAuthUser("user", "pass");
         }
     }
 
