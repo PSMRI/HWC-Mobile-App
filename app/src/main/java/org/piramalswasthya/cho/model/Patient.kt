@@ -28,7 +28,6 @@ data class PatientDetails(
     val dosage: String,
     val frequency: String,
 
-
 )
 
 

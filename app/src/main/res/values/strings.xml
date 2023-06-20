@@ -26,4 +26,10 @@
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
     <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
+    <string name="abha_number">ABHA Number:</string>
+    <string name="name">Name:</string>
+    <string name="age">Age:</string>
+    <string name="phone_no">Phone No:</string>
+    <string name="gender">Gender:</string>
+
 </resources>
