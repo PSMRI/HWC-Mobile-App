@@ -16,7 +16,9 @@ import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirec
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import javax.inject.Inject
 
-class HwcFragment : Fragment() {
+class HwcFragment constructor(
+    private val userName: String,
+): Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao

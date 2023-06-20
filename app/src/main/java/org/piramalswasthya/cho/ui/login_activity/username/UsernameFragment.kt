@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -29,14 +31,17 @@ class UsernameFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnNxt.setOnClickListener {
             findNavController().navigate(
-                UsernameFragmentDirections.actionSignInFragmentToChoLogin()
+                UsernameFragmentDirections.actionSignInFragmentToChoLogin(binding.etUsername.text.toString()),
             )
         }
     }
 
 
 }
+
+//private fun NavController.navigate(putString: Unit) {
+//
+//}

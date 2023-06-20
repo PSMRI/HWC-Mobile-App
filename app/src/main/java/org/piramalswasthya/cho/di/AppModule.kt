@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
@@ -118,7 +119,7 @@ object AppModule {
     ): AmritApiService {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
-            //.addConverterFactory(GsonConverterFactory.create())
+//            .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(baseTmcUrl)
             .client(httpClient)
             .build()

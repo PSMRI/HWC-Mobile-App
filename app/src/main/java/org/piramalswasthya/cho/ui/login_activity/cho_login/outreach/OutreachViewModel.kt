@@ -37,7 +37,9 @@ class OutreachViewModel @Inject constructor(
     }
 
     fun dummyAuthUser(username: String, password: String) {
-        userAuthRepo.authenticateUser(username, password);
+        viewModelScope.launch {
+            userAuthRepo.dummyAuth(username, password,)
+        }
     }
 
     fun authUser(username: String, password: String, state: String) {

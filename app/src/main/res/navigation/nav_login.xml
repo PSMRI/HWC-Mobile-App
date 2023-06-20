@@ -24,6 +24,9 @@
         android:name="org.piramalswasthya.cho.ui.login_activity.asha_login.AshaLoginFragment"
         android:label="fragment_asha_login"
         tools:layout="@layout/fragment_asha_login" >
+        <argument
+            android:name="userName"
+            app:argType="string" />
         <action
             android:id="@+id/action_signin_to_home_from_asha"
             app:destination="@id/homeActivity" />
@@ -34,6 +37,9 @@
         android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragment"
         android:label="fragment_cho_login"
         tools:layout="@layout/fragment_cho_login" >
+        <argument
+            android:name="userName"
+            app:argType="string" />
         <action
             android:id="@+id/actionSignInToHomeFromCho"
             app:destination="@id/homeActivity" />
@@ -51,6 +57,9 @@
         android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.hwc.HwcFragment"
         android:label="fragment_hwc"
         tools:layout="@layout/fragment_hwc" >
+        <argument
+            android:name="userName"
+            app:argType="string" />
         <action
             android:id="@+id/action_signin_to_home_from_hwc"
             app:destination="@id/homeActivity" />
@@ -61,6 +70,9 @@
         android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachFragment"
         android:label="fragment_outreach"
         tools:layout="@layout/fragment_outreach" >
+        <argument
+            android:name="userName"
+            app:argType="string"/>
         <action
             android:id="@+id/action_signin_to_home_from_outreach"
             app:destination="@id/homeActivity" />

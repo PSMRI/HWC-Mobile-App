@@ -14,7 +14,7 @@ class UserAuth(
     @ColumnInfo(name = "username")
     val userName: String,
 
-    @ColumnInfo(name = "Password")
+    @ColumnInfo(name = "password")
     val password: String,
 ){
     fun asDomainModel() : UserAuth{

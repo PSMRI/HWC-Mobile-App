@@ -25,10 +25,13 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class OutreachFragment  : Fragment() {
+class OutreachFragment constructor(
+    private val userName: String,
+): Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -39,21 +42,9 @@ class OutreachFragment  : Fragment() {
 
     private val viewModel: OutreachViewModel by viewModels()
 
-
     private val REQUEST_IMAGE_CAPTURE = 1
 
     private val CAMERA_PERMISSION_REQUEST = 101
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
-//
-//        imageView = findViewById(R.id.image_view)
-//
-//        button.setOnClickListener {
-//            requestCameraPermission()
-//        }
-//    }
 
     private fun requestCameraPermission() {
         requireContext()
@@ -92,7 +83,6 @@ class OutreachFragment  : Fragment() {
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-
 //        //Ensure that there's a camera activity to handle the intent
 //        if (takePictureIntent.resolveActivity(CustomPackageManager()) != null) {
 //            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
@@ -127,12 +117,13 @@ class OutreachFragment  : Fragment() {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.imageView.setOnClickListener{
+        Timber.tag("Outreach username").i(userName);
+        binding.imageView.setOnClickListener {
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-//            Log.i("tag", "---------Login clicked--------");
-//            viewModel.dummyAuthUser("user", "pass");
+            Log.i("tag", "---------Login clicked--------");
+            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
             findNavController().navigate(
                 ChoLoginFragmentDirections.actionSignInToHomeFromCho()
             )
