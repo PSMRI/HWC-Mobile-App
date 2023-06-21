@@ -54,9 +54,9 @@ class HomeActivity : AppCompatActivity() {
         // Set the adapter to the ListView
         binding.listView.adapter = adapter
 
-        binding.fab.setOnClickListener {
-            val intent = Intent(this, AddPatientActivity::class.java)
-            startActivity(intent)
-        }
+//        binding.fab.setOnClickListener {
+//            val intent = Intent(this, AddPatientActivity::class.java)
+//            startActivity(intent)
+//        }
     }
 }
