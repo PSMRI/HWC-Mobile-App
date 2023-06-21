@@ -6,4 +6,4 @@
     android:layout_height="match_parent"
     tools:context=".ui.add_patient_activity.AddPatientActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout >
