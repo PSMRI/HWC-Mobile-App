@@ -64,7 +64,7 @@ class VisitDetailsFragment : Fragment() {
     }
     private fun setupUnitSpinner(view: View) {
         val categoriesSpinner: Spinner = view.findViewById(R.id.spUnitOfDuration)
-        val categories = arrayOf("Hr","Min")
+        val categories = arrayOf("Hours","Minutes")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categoriesSpinner.adapter = adapter

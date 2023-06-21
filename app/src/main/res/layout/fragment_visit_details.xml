@@ -36,6 +36,7 @@
         android:id="@+id/etDuration"
         style="@style/EditTextField"
         android:layout_marginBottom="16dp"
+        android:hint="@string/duration"
         android:maxLength="2"
         android:inputType="number"/>
 

@@ -51,6 +51,7 @@
 
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
+    <string name="duration">Duration</string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
