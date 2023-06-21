@@ -26,10 +26,37 @@
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
     <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
-    <string name="abha_number">ABHA Number:</string>
-    <string name="name">Name:</string>
-    <string name="age">Age:</string>
-    <string name="phone_no">Phone No:</string>
-    <string name="gender">Gender:</string>
+    <string name="personal_details">Personal Details</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name_surname">Last Name/Surname</string>
+    <string name="contact_no">Contact No</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="select_subcategory">Select Subcategory</string>
+    <string-array name="subcategories_array">
+        <item>Management of Common Communicable Diseases</item>
+        <item>Outpatient Care for Acute Simple Illnesses &amp; Minor Ailments</item>
+    </string-array>
+
+    <string name="select_category">Select Category</string>
+    <string-array name="categories_array">
+        <item>General OPD Care</item>
+    </string-array>
+
+    <string name="select_reason_for_visit">Select Reason for Visit</string>
+    <string-array name="reason_for_visit_array">
+        <item>New Chief Complaint(s)</item>
+        <item>Follow up</item>
+    </string-array>
+
+    <string name="select_unit_of_duration">Select Unit of Duration</string>
+    <string name="visit_details">Visit Details</string>
+    <string name="duration">Duration</string>
+    <string-array name="unit_of_duration_array">
+        <item>hr</item>
+    </string-array>
+    <string name="abha_number">ABHA Number</string>
+    <string name="name">Name</string>
+    <string name="phone_no">Phone No</string>
 
 </resources>
