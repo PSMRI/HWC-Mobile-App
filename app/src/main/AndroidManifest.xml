@@ -22,17 +22,14 @@
         android:theme="@style/Theme.CHO"
         tools:targetApi="31">
         <activity
-            android:name=".ui.patient_details_activity.PatientDetailsActivity"
+            android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.add_patient_activity.AddPatientActivity"
+            android:name=".ui.register_patient_activity.RegisterPatientActivity"
             android:exported="false" />
         <activity
             android:name=".ui.home_activity.HomeActivity"
             android:exported="false" /> <!-- <activity -->
-        <!-- android:name=".ui.login_activity.LoginActivity" -->
-        <!-- android:exported="false" -->
-        <!-- android:label="@string/title_activity_login" /> -->
         <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
@@ -41,13 +38,12 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="" />
+                android:value=""/>
         </activity>
     </application>
 

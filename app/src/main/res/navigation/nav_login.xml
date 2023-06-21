@@ -18,7 +18,6 @@
             app:destination="@id/choLoginFragment" />
     </fragment>
 
-
     <fragment
         android:id="@+id/ashaLoginFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.asha_login.AshaLoginFragment"

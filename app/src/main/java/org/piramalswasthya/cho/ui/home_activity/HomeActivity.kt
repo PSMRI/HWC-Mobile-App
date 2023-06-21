@@ -1,21 +1,16 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import androidx.navigation.fragment.findNavController
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.ActivityAddPatientBinding
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
-import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
+import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
-import org.piramalswasthya.cho.ui.add_patient_activity.AddPatientActivity
-import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -24,6 +19,8 @@ class HomeActivity : AppCompatActivity() {
 
     private val binding: ActivityHomeBinding
         get() = _binding!!
+
+    val patientDetails = PatientDetails()
 
 //    override fun onCreateView(
 //        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,9 +51,13 @@ class HomeActivity : AppCompatActivity() {
         // Set the adapter to the ListView
         binding.listView.adapter = adapter
 
-//        binding.fab.setOnClickListener {
-//            val intent = Intent(this, AddPatientActivity::class.java)
-//            startActivity(intent)
-//        }
+        binding.registration.setOnClickListener {
+            val intent = Intent(this, EditPatientDetailsActivity::class.java)
+            val gson = Gson()
+            val patientDetailsGson = gson.toJson(patientDetails)
+            intent.putExtra("patientDetails", patientDetailsGson)
+            startActivity(intent)
+        }
+
     }
 }

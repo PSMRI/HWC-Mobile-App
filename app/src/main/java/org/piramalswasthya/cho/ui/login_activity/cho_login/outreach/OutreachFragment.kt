@@ -122,8 +122,8 @@ class OutreachFragment constructor(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-            Log.i("tag", "---------Login clicked--------");
-            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
+//            Log.i("tag", "---------Login clicked--------");
+//            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
             findNavController().navigate(
                 ChoLoginFragmentDirections.actionSignInToHomeFromCho()
             )

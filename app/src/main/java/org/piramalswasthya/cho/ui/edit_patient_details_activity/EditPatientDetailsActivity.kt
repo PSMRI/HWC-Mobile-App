@@ -1,6 +1,5 @@
-package org.piramalswasthya.cho.ui.patient_details_activity
+package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,33 +9,52 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.ActivityPatientDetailsBinding
+import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
+import org.piramalswasthya.cho.model.PatientDetails
+import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.edit_personal_details.EditPersonalDetailsFragment
 
-class PatientDetailsActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: PatientDetailsViewModel
+@AndroidEntryPoint
+class EditPatientDetailsActivity: AppCompatActivity() {
 
-    private var _binding : ActivityPatientDetailsBinding? = null
+    private lateinit var viewModel: EditPatientDetailsViewModel
 
-    private val binding  : ActivityPatientDetailsBinding
+    private val currFragment: Int = R.id.fragment_personal_details;
+
+    private var _binding : ActivityEditPatientDetailsBinding? = null
+
+    private val binding  : ActivityEditPatientDetailsBinding
         get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_patient_details)
+        _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this).get(PatientDetailsViewModel::class.java)
+        val gson = Gson()
+        val patientDetails: PatientDetails = gson.fromJson(intent.getStringExtra("patientDetails"), PatientDetails::class.java)
 
-        // Populate the spinner with options
-        genderSpinner()
+        viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-        val btnSubmit = findViewById<Button>(R.id.btnSubmit)
-        btnSubmit.setOnClickListener {
-            // Call the method to retrieve and save the data
-            getFormData()
-        }
+        val fragmentPersonalDetails = EditPersonalDetailsFragment(patientDetails);
+        supportFragmentManager.beginTransaction().replace(binding.patientDetails.id, fragmentPersonalDetails).commit()
+
+//        // Populate the spinner with options
+//        genderSpinner()
+//
+//
+//
+//        val btnSubmit = findViewById<Button>(R.id.btnSubmit)
+//        btnSubmit.setOnClickListener {
+//            // Call the method to retrieve and save the data
+//            getFormData()
+//        }
     }
     private fun genderSpinner(){
         val genderSpinner: Spinner = findViewById(R.id.spGender)
@@ -53,7 +71,7 @@ class PatientDetailsActivity : AppCompatActivity() {
                     // Gender is selected, proceed with the chosen value
                 } else {
                     // Prompt user to select a gender
-                    Toast.makeText(this@PatientDetailsActivity, "Please select a gender", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EditPatientDetailsActivity, "Please select a gender", Toast.LENGTH_SHORT).show()
                 }
             }
 

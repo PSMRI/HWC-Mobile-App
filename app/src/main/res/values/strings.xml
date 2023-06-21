@@ -58,5 +58,7 @@
     <string name="abha_number">ABHA Number</string>
     <string name="name">Name</string>
     <string name="phone_no">Phone No</string>
+    <string name="registration">Registration</string>
+    <string name="advance_search">Advance Search</string>
 
 </resources>

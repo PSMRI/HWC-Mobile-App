@@ -1,9 +1,9 @@
-package org.piramalswasthya.cho.ui.patient_details_activity
+package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 
-class PatientDetailsViewModel : ViewModel() {
+class EditPatientDetailsViewModel : ViewModel() {
     data class PatientDetails(
         val firstName: String,
         val lastName: String,

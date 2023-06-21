@@ -32,15 +32,19 @@
                 android:paddingEnd="@dimen/padding_normal">
 
                 <Button
+                    android:id="@+id/registration"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/padding_normal"/>
+                    android:layout_marginEnd="@dimen/padding_normal"
+                    android:text="@string/registration"/>
 
                 <Button
+                    android:id="@+id/advance_search"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:text="@string/advance_search"/>
 
             </LinearLayout>
 <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->

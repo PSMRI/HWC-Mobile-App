@@ -1,3 +1,5 @@
+package org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
