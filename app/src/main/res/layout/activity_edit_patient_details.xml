@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ui.register_patient_activity.RegisterPatientActivity">
+    tools:context=".ui.edit_patient_details_activity.EditPatientDetailsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <FrameLayout
-            android:id="@+id/patient_registration"
+            android:id="@+id/patient_detalis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -31,20 +31,6 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnNext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_background"
-                android:paddingStart="32dp"
-                android:paddingEnd="32dp"
-                android:text="Cancel"
-                android:textColor="#FFFFFF" />
-
-            <Space
-                android:layout_width="32dp"
-                android:layout_height="match_parent" />
 
             <Button
                 android:id="@+id/btnSubmit"

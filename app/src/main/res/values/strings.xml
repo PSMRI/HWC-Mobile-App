@@ -61,4 +61,21 @@
     <string name="registration">Registration</string>
     <string name="advance_search">Advance Search</string>
 
+    <string name="medication_form">Form</string>
+    <string name="medicine_text">Medicine</string>
+    <string name="dosage_text">Dosage</string>
+    <string name="submit_btn_text">Submit</string>
+    <string name="frequency_text">Frequency</string>
+    <string name="vitals_text">Vitals</string>
+    <string name="weight_kg_text">Weight(kg)</string>
+    <string name="temperature_f_text">Temperature(F)</string>
+    <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
+    <string name="bp_mmhg_systolic_text">BP (mmHg) Systolic</string>
+    <string name="submit_to_doctor_text">Submit to Doctor</string>
+    <string name="prescription_text">Prescription</string>
+    <string name="add_text">Add</string>
+    <string name="stock_warning_text">Stock Unavailable</string>
+    <string name="view_prescription_text">View Prescription</string>
+
+
 </resources>

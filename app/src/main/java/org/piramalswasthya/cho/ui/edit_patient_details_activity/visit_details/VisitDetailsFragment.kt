@@ -10,8 +10,11 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.PatientDetails
 
-class VisitDetailsFragment : Fragment() {
+class VisitDetailsFragment constructor(
+    private val patientDetails: PatientDetails,
+): Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

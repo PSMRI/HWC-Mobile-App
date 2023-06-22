@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_vitals_form"
+    tools:context=".ui.edit_patient_details_activity.vitals_form.VitalsFormFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/rounded_corner_view"
+            android:text="@string/vitals_text"
+            android:textAlignment="center"
+            android:textSize="32sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold" />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Anthropometry"
+    android:layout_marginHorizontal="15dp"
+    android:textStyle="bold" />
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/weightEditText"
+            android:layout_marginHorizontal="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:background="@drawable/round_edit_text"
+            android:layout_marginTop="8dp"
+            android:paddingStart="2dp"
+            android:hint="@string/weight_kg_text" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+
+            android:text="Vitals"
+            android:layout_marginHorizontal="15dp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/temperatureEditText"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:paddingStart="2dp"
+            android:background="@drawable/round_edit_text"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="8dp"
+            android:hint="@string/temperature_f_text" />
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/bpSystolicEditText"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:background="@drawable/round_edit_text"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:paddingStart="2dp"
+            android:hint="@string/bp_mmhg_systolic_text" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/bpDiastolicEditText"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="15dp"
+            android:layout_height="32dp"
+            android:background="@drawable/round_edit_text"
+            android:layout_marginTop="20dp"
+            android:paddingStart="2dp"
+            android:hint="@string/bp_mmhg_diastolic_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#db4b27"
+            android:text="@string/submit_to_doctor_text" />
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="form_options">
+        <item>Tablet</item>
+        <item>Capsule</item>
+    </string-array>
+
+    <string-array name="frequency_options">
+        <item>Daily</item>
+        <item>Monthly</item>
+    </string-array>
+
+    <string-array name="dosage_options">
+        <item>One</item>
+        <item>Half</item>
+    </string-array>
+</resources>

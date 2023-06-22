@@ -17,7 +17,9 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.edit_personal_details.EditPersonalDetailsFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.prescription.PrescriptionFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.vitals_form.VitalsFormFragment
 
 
 @AndroidEntryPoint
@@ -25,7 +27,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private lateinit var viewModel: EditPatientDetailsViewModel
 
-    private val currFragment: Int = R.id.fragment_personal_details;
+    private var currFragment: Int = R.id.fragment_personal_details;
 
     private var _binding : ActivityEditPatientDetailsBinding? = null
 
@@ -42,8 +44,33 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-        val fragmentPersonalDetails = EditPersonalDetailsFragment(patientDetails);
-        supportFragmentManager.beginTransaction().replace(binding.patientDetails.id, fragmentPersonalDetails).commit()
+        val fragment = PersonalDetailsFragment(patientDetails);
+        supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
+
+        binding.btnSubmit.setOnClickListener {
+            when (currFragment){
+                R.id.fragment_personal_details -> {
+                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
+                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
+                    currFragment = R.id.fragment_visit_details
+                }
+                R.id.fragment_visit_details -> {
+                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
+                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
+                    currFragment = R.id.fragment_vitals_form
+                }
+                R.id.fragment_vitals_form -> {
+                    val fragmentPrescription = PrescriptionFragment(patientDetails);
+                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPrescription).commit()
+                    currFragment = R.id.fragment_prescription
+                }
+                R.id.fragment_prescription -> {
+                    val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
+                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
+                    currFragment = R.id.fragment_personal_details
+                }
+            }
+        }
 
 //        // Populate the spinner with options
 //        genderSpinner()
