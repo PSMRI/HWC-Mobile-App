@@ -2,14 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_prescription"
     tools:context=".ui.edit_patient_details_activity.prescription.PrescriptionFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:outlineProvider="paddedBounds"
         android:padding="16dp">
@@ -17,273 +18,357 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
             android:layout_marginTop="40dp"
-            android:layout_marginBottom="35dp"
+            android:layout_marginBottom="25dp"
             android:background="@drawable/rounded_corner_view"
             android:outlineProvider="none"
             android:text="@string/prescription_text"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/white"
             android:textSize="32sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/stockWarning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp">
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/stockWarning"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginHorizontal="15dp">-->
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:contentDescription="Red Cross"
-                android:src="@drawable/red_cross" />
+        <!--            <ImageView-->
+        <!--                android:layout_width="48dp"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                android:contentDescription="Red Cross"-->
+        <!--                android:src="@drawable/red_cross" />-->
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/stock_warning_text"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <!--            <TextView-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:text="@string/stock_warning_text"-->
+        <!--                android:textSize="15sp"-->
+        <!--                android:textStyle="bold" />-->
+        <!--        </LinearLayout>-->
+
+
+        <!--        <com.google.android.material.textfield.TextInputLayout-->
+        <!--            android:id="@+id/til_form_dropdown"-->
+        <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:hint="Form"-->
+        <!--            android:paddingBottom="@dimen/padding_small"-->
+        <!--            android:labelFor="@id/actv_form_dropdown"-->
+        <!--            android:orientation="horizontal">-->
+        <!--            <AutoCompleteTextView-->
+        <!--                android:id="@+id/actv_form_dropdown"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:inputType="none"-->
+        <!--                tools:ignore="SpeakableTextPresentCheck" />-->
+        <!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+        <!--        <com.google.android.material.textfield.TextInputLayout-->
+        <!--            android:id="@+id/til_weight_edit_text"-->
+        <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:hint="@string/medicine_text"-->
+        <!--            android:paddingBottom="@dimen/padding_small"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:endIconMode="custom">-->
+
+        <!--        <com.google.android.material.textfield.TextInputEditText-->
+        <!--            android:id="@+id/medicineEditText"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />-->
+
+        <!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+        <!--        <com.google.android.material.textfield.TextInputLayout-->
+        <!--            android:id="@+id/til_dose_dropdown"-->
+        <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:paddingBottom="@dimen/padding_small"-->
+
+        <!--            android:hint="Dosage"-->
+        <!--            android:labelFor="@id/actv_form_dropdown"-->
+        <!--            android:orientation="horizontal">-->
+        <!--            <AutoCompleteTextView-->
+        <!--                android:id="@+id/actv_dose_dropdown"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:inputType="none"-->
+        <!--                tools:ignore="SpeakableTextPresentCheck" />-->
+        <!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+        <!--        <com.google.android.material.textfield.TextInputLayout-->
+        <!--            android:id="@+id/til_frequency_dropdown"-->
+        <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:hint="Frequency"-->
+        <!--            android:paddingBottom="@dimen/padding_small"-->
+
+        <!--            android:labelFor="@id/actv_form_dropdown"-->
+        <!--            android:orientation="horizontal">-->
+        <!--            <AutoCompleteTextView-->
+        <!--                android:id="@+id/actv_frequency_dropdown"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:inputType="none"-->
+        <!--                tools:ignore="SpeakableTextPresentCheck" />-->
+        <!--        </com.google.android.material.textfield.TextInputLayout>-->
 
         <TextView
             android:id="@+id/medication_formTv"
+            style="@style/HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:layout_marginTop="25dp"
-            android:paddingStart="7dp"
             android:text="@string/medication_form" />
-
 
         <Spinner
             android:id="@+id/formSpinner"
+            style="@style/EditTextField"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:entries="@array/form_options" />
 
+        <TextView
+            android:id="@+id/medicineTv"
+            style="@style/HeadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/medicine_text" />
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/medicineEditText"
+            style="@style/EditTextField"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_marginHorizontal="15dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/round_edit_text"
-            android:hint="@string/medicine_text"
-            android:paddingStart="2dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp" />
+
+        <!--        <com.google.android.material.textfield.TextInputLayout-->
+        <!--            android:id="@+id/til_weight_edit_text"-->
+        <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:hint="@string/medicine_text"-->
+        <!--            android:paddingBottom="@dimen/padding_small"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:endIconMode="custom">-->
+
+        <!--            <com.google.android.material.textfield.TextInputEditText-->
+        <!--                android:id="@+id/medicineEditText"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />-->
+
+        <!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+        <!--        <com.google.android.material.textfield.TextInputEditText-->
+        <!--            android:id="@+id/medicineEditText"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="32dp"-->
+        <!--            android:layout_marginHorizontal="15dp"-->
+        <!--            android:layout_marginBottom="20dp"-->
+        <!--            android:background="@drawable/round_edit_text"-->
+        <!--            android:hint="@string/medicine_text"-->
+        <!--            android:paddingStart="2dp" />-->
 
         <TextView
             android:id="@+id/dosageTextView"
+            style="@style/HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:paddingStart="7dp"
-
             android:text="@string/dosage_text" />
 
         <Spinner
             android:id="@+id/dosageSpinner"
+            style="@style/EditTextField"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:entries="@array/dosage_options" />
 
         <TextView
             android:id="@+id/frequencyTextView"
+            style="@style/HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:paddingStart="7dp"
             android:text="@string/frequency_text" />
 
         <Spinner
             android:id="@+id/frequencySpinner"
+            style="@style/EditTextField"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:entries="@array/frequency_options" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/addButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="#db4b27"
+            android:layout_gravity="right"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#50AF93"
             android:text="@string/add_text" />
-        <LinearLayout
-            android:layout_width="wrap_content"
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/prescriptionDetailsCard"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center"
-            android:layout_marginTop="7dp"
-            android:layout_marginBottom="5dp"
-            android:padding="5dp"
-            android:background="@drawable/border_layout"
-
-            >
-
-        <TextView
-            android:id="@+id/selectedForm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="MedicineName"
-            android:padding="5dp"
-            android:textStyle="bold"
-            android:background="@drawable/rounded_corner_view"
-            android:backgroundTint="#bac6d9"
-            android:textSize="18sp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:padding="2dp"
-            android:layout_height="61dp"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
-            android:layout_gravity="center"
-
-            android:orientation="horizontal">
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardMaxElevation="12dp"
+            app:cardPreventCornerOverlap="true"
+            app:contentPadding="12dp">
 
             <LinearLayout
-                android:id="@+id/form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:gravity="start"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/formTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="7dp"
-                    android:background="@drawable/rounded_corner_view"
-                    android:backgroundTint="#bac6d9"
-                    android:padding="5dp"
-                    android:layout_marginBottom="3dp"
-                    android:textStyle="bold"
-                    android:text="@string/medication_form" />
 
-                <TextView
-                    android:id="@+id/formValue"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/round_edit_text"
-                    android:paddingStart="3dp"
-                    android:text="FormValue" />
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/padding_big">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        tools:ignore="RtlSymmetry">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="8dp"
+
+                                android:text="Medicine"
+                                android:textStyle="bold"
+                                tools:ignore="RtlSymmetry"></TextView>
+
+                            <TextView
+                                android:id="@+id/medValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:ignore="RtlSymmetry"></TextView>
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="6dp"
+                                android:text="Form"
+                                android:textStyle="bold"
+                                tools:ignore="RtlSymmetry"></TextView>
+
+                            <TextView
+                                android:id="@+id/formValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:ignore="RtlSymmetry"></TextView>
+                        </LinearLayout>
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/padding_big">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        tools:ignore="RtlSymmetry">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="4dp"
+                                android:text="Dosage"
+                                android:textStyle="bold"
+                                tools:ignore="RtlSymmetry"></TextView>
+
+                            <TextView
+                                android:id="@+id/doseValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:ignore="RtlSymmetry"></TextView>
+                        </LinearLayout>
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="4dp"
+                                android:text="Frequency"
+                                android:textStyle="bold"
+                                tools:ignore="RtlSymmetry"></TextView>
+
+                            <TextView
+                                android:id="@+id/freqValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:ignore="RtlSymmetry"></TextView>
+                        </LinearLayout>
+                    </FrameLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/frequency"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
+        </androidx.cardview.widget.CardView>
 
-                android:orientation="vertical"
-                >
-
-                <TextView
-                    android:id="@+id/frequencyTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:background="@drawable/rounded_corner_view"
-                    android:backgroundTint="#bac6d9"
-                    android:paddingStart="7dp"
-                    android:padding="5dp"
-                    android:layout_marginBottom="3dp"
-                    android:text="@string/frequency_text" />
-
-                <TextView
-                    android:id="@+id/freqValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/round_edit_text"
-                    android:paddingStart="7dp"
-                    android:text="FrequencyValue" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/dose"
-                android:gravity="end"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:orientation="vertical"
-                >
-
-                <TextView
-                    android:id="@+id/doseTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:background="@drawable/rounded_corner_view"
-                    android:backgroundTint="#bac6d9"
-                    android:padding="5dp"
-                    android:layout_marginBottom="3dp"
-                    android:text="@string/dosage_text" />
-
-                <TextView
-                    android:id="@+id/doseValue"
-                    android:layout_width="wrap_content"
-                    android:paddingStart="7dp"
-                    android:background="@drawable/round_edit_text"
-                    android:layout_height="wrap_content"
-                    android:text="DosageValue" />
-            </LinearLayout>
-        </LinearLayout>
-
-        </LinearLayout>
-        <!--        <LinearLayout-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginTop="5dp">-->
-        <!--            -->
-        <!--            <TextView-->
-        <!--                android:id="@+id/frequency"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_marginHorizontal="15dp"-->
-        <!--                android:paddingStart="7dp"-->
-        <!--                android:text="FrequencyValue" />-->
-        <!--      -->
-        <!--        </LinearLayout>-->
-
-        <!--        <com.google.android.material.button.MaterialButton-->
-        <!--            android:id="@+id/viewPrescriptionButton"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:backgroundTint="#db4b27"-->
-        <!--            android:layout_gravity="center"-->
-        <!--            android:layout_marginTop="20dp"-->
-        <!--            android:text="@string/view_prescription_text" />-->
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/submitButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:backgroundTint="#50AF93"-->
+<!--            android:text="@string/submit_btn_text" />-->
 
 
-        <!--        <LinearLayout-->
-        <!--            android:layout_marginHorizontal="15dp"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginTop="20dp"-->
-        <!--            android:gravity="center"-->
-        <!--            >-->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/submitButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="#db4b27"
-            android:text="@string/submit_btn_text" />
-
-        <!--        </LinearLayout>-->
     </LinearLayout>
 
 </FrameLayout>

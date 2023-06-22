@@ -11,13 +11,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/rounded_corner_view"
+        android:outlineProvider="none"
         android:text="@string/visit_details"
-        android:textColor="#000000"
-        android:textSize="28sp"
-        android:gravity="center"
-        android:background="@color/primary"
-        android:padding="16dp"
-        android:layout_marginBottom="32dp"/>
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvCategoriesHeading"

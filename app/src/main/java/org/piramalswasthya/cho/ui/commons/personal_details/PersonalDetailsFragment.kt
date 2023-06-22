@@ -35,7 +35,11 @@ class PersonalDetailsFragment constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setOnChangeListener()
+        setInitialValues()
+    }
 
+    private fun setInitialValues(){
         if(patientDetails.firstName != null)
             binding.etFirstName.setText(patientDetails.firstName)
 
@@ -47,12 +51,9 @@ class PersonalDetailsFragment constructor(
 
         if(patientDetails.contactNo != null)
             binding.etContactNo.setText(patientDetails.contactNo)
-
-        setVariableValues()
-
     }
 
-    fun setVariableValues(){
+    private fun setOnChangeListener(){
 
         binding.etFirstName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

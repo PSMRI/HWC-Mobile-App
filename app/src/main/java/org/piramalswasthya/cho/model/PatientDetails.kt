@@ -19,13 +19,11 @@ class PatientDetails constructor() {
     var duration: Int? = null
     var unitOfDuration: String? = null
 
-//    // chief complaint
-//    var chiefComplaints: List<ChiefComplaint> = emptyList()
-
     // vitals
-    var weight: Float? = null
-    var temperature: Float? = null
-    var bloodPressure: Float? = null
+    var weight: Int? = null
+    var temperature: Int? = null
+    var bpSystolic: Int? = null
+    var bpDiastolic: Int? = null
 
     // prescription
     var form: String? = null

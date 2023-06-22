@@ -83,6 +83,7 @@
     <string name="DurationInUnit">Duration In Unit</string>
     <string name="cancel">Cancel</string>
     <string name="previous">Previous</string>
+    <string name="anthropometry">Anthropometry</string>
 
 
 </resources>

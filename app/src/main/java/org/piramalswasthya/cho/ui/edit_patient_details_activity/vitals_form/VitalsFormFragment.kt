@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity.vitals_form
 //
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -29,37 +31,76 @@ class VitalsFormFragment constructor(
         return binding.root
     }
 
-//    companion object {
-//        fun newInstance(): VitalsFormFragment {
-//            return VitalsFormFragment()
-//        }
-//    }
-
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        return inflater.inflate(R.layout.fragment_vitals_form, container, false)
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.submitButton.setOnClickListener {
-                findNavController().navigate(R.id.action_vitalsFormFragment_to_prescriptionFragment)
-
-
-//
-//
-//                val patient = PatientDetails(
-//                    weight = binding.weightEditText.text.toString().toFloat(),
-//                    temperature = binding.temperatureEditText.text.toString().toFloat(),
-//                    bloodPressureDiastolic = binding.bpDiastolicEditText.text.toString().toFloat(),
-//                    bloodPressureSystolic = binding.bpSystolicEditText.text.toString().toFloat()
-//                )
-
-
-
-        }
+        setOnChangeListener()
+        setInitialValues()
     }
+
+    private fun setInitialValues(){
+        if(patientDetails.weight != null)
+            binding.weightEditText.setText(patientDetails.weight.toString())
+
+        if(patientDetails.temperature != null)
+            binding.temperatureEditText.setText(patientDetails.temperature.toString())
+
+        if(patientDetails.bpSystolic != null)
+            binding.bpSystolicEditText.setText(patientDetails.bpSystolic.toString())
+
+        if(patientDetails.bpDiastolic != null)
+            binding.bpDiastolicEditText.setText(patientDetails.bpDiastolic.toString())
+    }
+
+    private fun setOnChangeListener(){
+
+        binding.weightEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called before the text is changed
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                patientDetails.weight = binding.weightEditText.text.toString().toInt()
+            }
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+
+        binding.temperatureEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called before the text is changed
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                patientDetails.temperature = binding.temperatureEditText.text.toString().toInt()
+            }
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+
+        binding.bpDiastolicEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called before the text is changed
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                patientDetails.bpDiastolic = binding.bpDiastolicEditText.text.toString().toInt()
+            }
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+
+        binding.bpSystolicEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called before the text is changed
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                patientDetails.bpSystolic = binding.bpSystolicEditText.text.toString().toInt()
+            }
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+
+    }
+
 }

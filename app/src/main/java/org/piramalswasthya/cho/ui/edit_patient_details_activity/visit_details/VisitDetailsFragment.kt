@@ -10,10 +10,8 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.databinding.FragmentVisitDetailsBinding
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsViewModel
@@ -53,29 +51,12 @@ class VisitDetailsFragment constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        binding.spCategories.onItemSelectedListener()
-//
-        if(patientDetails.serviceCategory != null)
-            Log.i("serviceCategory", patientDetails.serviceCategory!!)
-
-        if(patientDetails.subCategory != null)
-            Log.i("subCategory", patientDetails.subCategory!!)
-
-        if(patientDetails.reasonForVisit != null)
-            Log.i("reasonForVisit", patientDetails.reasonForVisit!!)
-
-        if(patientDetails.duration != null)
-            binding.etDuration.setText(patientDetails.duration.toString())
-
-        if(patientDetails.unitOfDuration != null)
-            Log.i("unitOfDuration", patientDetails.unitOfDuration!!)
-
-        setVariableValues()
+        setOnChangedListener()
+        setInitialValues()
 
     }
 
-    fun setVariableValues(){
+    fun setOnChangedListener(){
 
         binding.spCategories.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -124,41 +105,45 @@ class VisitDetailsFragment constructor(
 
             }
         }
-//        binding.spCategories.setOnItemSelectedListener(AdapterView.OnItemSelectedListener {
-//            @Override
-//            public void onItemSelected(
-//                AdapterView<?> parentView,
-//                View selectedItemView,
-//                int position,
-//                long id
-//            ) {
-//                // your code here
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parentView) {
-//                // your code here
-//            }
-//
-//        });
+
     }
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        // Inflate the layout for this fragment
-//        val view = inflater.inflate(R.layout.fragment_visit_details, container, false)
-//
-//        setupSubcategoriesSpinner(view)
-//        setupCategoriesSpinner(view)
-//        setupReasonForVisitSpinner(view)
-//        setupUnitSpinner(view)
-//        return view
-//    }
+    fun setInitialValues(){
+        if(patientDetails.serviceCategory != null)
+            binding.spCategories.setSelection(
+                (binding.spCategories.adapter as ArrayAdapter<String?>).getPosition(
+                    patientDetails.serviceCategory
+                )
+            )
+
+        if(patientDetails.subCategory != null)
+            binding.spSubcategories.setSelection(
+                (binding.spSubcategories.adapter as ArrayAdapter<String>).getPosition(
+                    patientDetails.subCategory
+                )
+            )
+
+        if(patientDetails.reasonForVisit != null)
+            binding.spReasonForVisit.setSelection(
+                (binding.spReasonForVisit.adapter as ArrayAdapter<String>).getPosition(
+                    patientDetails.reasonForVisit
+                )
+            )
+
+        if(patientDetails.duration != null)
+            binding.etDuration.setText(patientDetails.duration.toString())
+
+        if(patientDetails.unitOfDuration != null)
+            binding.spUnitOfDuration.setSelection(
+                (binding.spUnitOfDuration.adapter as ArrayAdapter<String>).getPosition(
+                    patientDetails.unitOfDuration
+                )
+            )
+
+    }
 
     private fun setupSubcategoriesSpinner(view: View) {
-        val subcategoriesSpinner: Spinner = view.findViewById(R.id.spSubcategories)
+        val subcategoriesSpinner = binding.spSubcategories
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategories)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         subcategoriesSpinner.adapter = adapter
@@ -176,22 +161,13 @@ class VisitDetailsFragment constructor(
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, reasons)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         reasonForVisitSpinner.adapter = adapter
-
-//        reasonForVisitSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                val selectedReason = reasons[position]
-//                Toast.makeText(requireContext(), "Selected reason: $selectedReason", Toast.LENGTH_SHORT).show()
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // Do nothing
-//            }
-//        }
     }
+
     private fun setupUnitSpinner(view: View) {
         val categoriesSpinner: Spinner = view.findViewById(R.id.spUnitOfDuration)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, duration)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categoriesSpinner.adapter = adapter
     }
+
 }
