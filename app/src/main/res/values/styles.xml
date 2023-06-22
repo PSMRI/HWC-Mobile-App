@@ -79,4 +79,9 @@
         <item name="android:dividerHeight">0dp</item>
     </style>
 
+    <style name="HeadingText">
+        <item name="android:textSize">18sp</item> <!-- Adjust the text size as per your preference -->
+        <item name="android:textStyle">bold</item> <!-- Optional: Add text style if desired -->
+    </style>
+
 </resources>

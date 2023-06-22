@@ -37,6 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
+                android:background="@drawable/nav_bar_button"
                 android:text="@string/registration" />
 
             <Button
@@ -44,6 +45,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/nav_bar_button"
                 android:text="@string/advance_search" />
 
         </LinearLayout>

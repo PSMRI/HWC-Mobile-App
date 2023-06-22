@@ -25,6 +25,7 @@
     <dimen name="status_button_width">60dp</dimen>
 
     <dimen name="btn_radius">28dp</dimen>
+    <dimen name="btn_height_small">36dp</dimen>
     <dimen name="btn_height">56dp</dimen>
 
     <dimen name="text_huge">32sp</dimen>

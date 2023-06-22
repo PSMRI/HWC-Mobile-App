@@ -96,7 +96,7 @@
                 android:id="@+id/btn_outreach_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_button"
+                android:background="@drawable/nav_bar_button"
                 android:text="@string/login"
                 android:textSize="@dimen/text_big" />
 

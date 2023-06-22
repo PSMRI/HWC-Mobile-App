@@ -16,8 +16,11 @@ class PatientDetails constructor() {
     var subCategory: String? = null
     var reasonForVisit: String? = null
 
-    // chief complaint
-    var chiefComplaints: List<ChiefComplaint> = emptyList()
+    var duration: Int? = null
+    var unitOfDuration: String? = null
+
+//    // chief complaint
+//    var chiefComplaints: List<ChiefComplaint> = emptyList()
 
     // vitals
     var weight: Float? = null

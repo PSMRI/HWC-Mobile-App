@@ -50,7 +50,7 @@
                 android:layout_marginTop="@dimen/margin_big"
                 android:layout_height="wrap_content"
                 android:text="@string/next"
-                android:background="@drawable/rounded_button"
+                android:background="@drawable/nav_bar_button"
                 android:textSize="@dimen/text_big"/>
 
         </LinearLayout>

@@ -77,6 +77,12 @@
     <string name="stock_warning_text">Stock Unavailable</string>
     <string name="view_prescription_text">View Prescription</string>
     <string name="submit">Submit</string>
+    <string name="categories_heading">Category</string>
+    <string name="categories_subheading">Sub Heading</string>
+    <string name="categories_reasonFV">Reason For Visit</string>
+    <string name="DurationInUnit">Duration In Unit</string>
+    <string name="cancel">Cancel</string>
+    <string name="previous">Previous</string>
 
 
 </resources>

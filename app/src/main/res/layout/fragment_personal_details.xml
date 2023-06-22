@@ -18,85 +18,76 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:background="#FF8C00"
+            android:background="@color/primary"
             android:gravity="center"
             android:padding="16dp"
             android:text="@string/personal_details"
             android:textColor="#000000"
             android:textSize="28sp" />
 
+        <TextView
+            android:id="@+id/first_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/first_name"
+            style="@style/HeadingText" />
+
         <EditText
             android:id="@+id/etFirstName"
             style="@style/EditTextField"
-            android:layout_marginBottom="16dp"
-            android:hint="@string/first_name" />
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/last_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/last_name_surname"
+            style="@style/HeadingText" />
 
         <EditText
             android:id="@+id/etLastName"
             style="@style/EditTextField"
-            android:layout_marginBottom="16dp"
-            android:hint="@string/last_name_surname" />
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/phone_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/contact_no"
+            style="@style/HeadingText" />
 
         <EditText
             android:id="@+id/etContactNo"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp"
-            android:digits="0123456789"
-            android:hint="@string/contact_no"
             android:inputType="phone"
-            android:maxLength="10" />
+            android:digits="0123456789"
+            android:maxLength="10"
+            style="@style/EditTextField"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/gender_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gender"
+            style="@style/HeadingText" />
 
         <Spinner
             android:id="@+id/spGender"
             style="@style/EditTextField"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/etAge_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/age"
+            style="@style/HeadingText" />
 
         <EditText
             android:id="@+id/etAge"
+            android:inputType="number"
             style="@style/EditTextField"
-            android:layout_marginBottom="16dp"
-            android:hint="@string/age"
-            android:inputType="number" />
-
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1" />-->
-
-<!--        <Space-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="32dp" />-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:gravity="center"-->
-<!--            android:orientation="horizontal">-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnNext"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/button_background"-->
-<!--                android:paddingStart="32dp"-->
-<!--                android:paddingEnd="32dp"-->
-<!--                android:text="Cancel"-->
-<!--                android:textColor="#FFFFFF" />-->
-
-<!--            <Space-->
-<!--                android:layout_width="32dp"-->
-<!--                android:layout_height="match_parent" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/btnSubmit"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/button_background"-->
-<!--                android:paddingStart="32dp"-->
-<!--                android:paddingEnd="32dp"-->
-<!--                android:text="Next"-->
-<!--                android:textColor="#FFFFFF" />-->
-<!--        </LinearLayout>-->
+            android:layout_marginBottom="16dp"/>
 
     </LinearLayout>
 
