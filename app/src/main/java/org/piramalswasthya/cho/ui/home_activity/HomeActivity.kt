@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
+import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
 
 @AndroidEntryPoint
@@ -46,16 +48,13 @@ class HomeActivity : AppCompatActivity() {
         dataList.add("Item 3")
 
         // Create an ArrayAdapter to bind the data to the ListView
-        var adapter = PatientListAdapter(this, dataList)
+        var adapter = PatientListAdapter(this, benificiaryList)
 
         // Set the adapter to the ListView
         binding.listView.adapter = adapter
 
         binding.registration.setOnClickListener {
-            val intent = Intent(this, EditPatientDetailsActivity::class.java)
-            val gson = Gson()
-            val patientDetailsGson = gson.toJson(patientDetails)
-            intent.putExtra("patientDetails", patientDetailsGson)
+            val intent = Intent(this, RegisterPatientActivity::class.java)
             startActivity(intent)
         }
 

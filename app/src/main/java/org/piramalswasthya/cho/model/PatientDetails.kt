@@ -5,30 +5,30 @@ import android.os.Parcelable
 
 class PatientDetails constructor() {
     // personal information
-    val firstName: String = ""
-    val lastName: String = ""
-    val contactNo: String = ""
-    val gender: String = ""
-    val age: Int = 0
+    var firstName: String? = null
+    var lastName: String? = null
+    var contactNo: String? = null
+    var gender: String? = null
+    var age: Int? = null
 
     // visit details
-    val serviceCategory: String = ""
-    val subCategory: String = ""
-    val reasonForVisit: String = ""
+    var serviceCategory: String? = null
+    var subCategory: String? = null
+    var reasonForVisit: String? = null
 
     // chief complaint
-    val chiefComplaints: List<ChiefComplaint> = emptyList()
+    var chiefComplaints: List<ChiefComplaint> = emptyList()
 
     // vitals
-    val weight: Float = 0.0F
-    val temperature: Float = 0.0F
-    val bloodPressure: Float = 0.0F
+    var weight: Float? = null
+    var temperature: Float? = null
+    var bloodPressure: Float? = null
 
     // prescription
-    val form: String = ""
-    val medicine: String = ""
-    val dosage: String = ""
-    val frequency: String = ""
+    var form: String? = null
+    var medicine: String? = null
+    var dosage: String? = null
+    var frequency: String? = null
 
 //    constructor(parcel: Parcel) : this() {
 //

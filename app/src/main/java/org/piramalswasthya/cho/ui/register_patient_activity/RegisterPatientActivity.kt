@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.AttributeSet
@@ -11,8 +12,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
+import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {
@@ -31,6 +34,13 @@ class RegisterPatientActivity : AppCompatActivity() {
 
         val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
         supportFragmentManager.beginTransaction().replace(binding.patientRegistration.id, fragmentPersonalDetails).commit()
+
+        binding.btnSubmit.setOnClickListener {
+            benificiaryList.add(patientDetails)
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
 }

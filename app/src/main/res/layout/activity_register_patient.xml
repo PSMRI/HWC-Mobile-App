@@ -34,7 +34,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnNext"
+                android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_background"
@@ -54,7 +54,7 @@
                 android:background="@drawable/button_background"
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
-                android:text="Next"
+                android:text="@string/submit"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
 

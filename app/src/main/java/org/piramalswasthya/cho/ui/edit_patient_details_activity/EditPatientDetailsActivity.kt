@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
+import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.prescription.PrescriptionFragment
@@ -31,6 +32,8 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private var _binding : ActivityEditPatientDetailsBinding? = null
 
+    private val defaultValue = -1
+
     private val binding  : ActivityEditPatientDetailsBinding
         get() = _binding!!
 
@@ -38,11 +41,15 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val gson = Gson()
-        val patientDetails: PatientDetails = gson.fromJson(intent.getStringExtra("patientDetails"), PatientDetails::class.java)
-
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
+
+
+        var patientDetails = PatientDetails()
+        val index: Int = intent.getIntExtra("index", defaultValue)
+
+        if(index != defaultValue){
+            patientDetails = benificiaryList[index];
+        }
 
         val fragment = PersonalDetailsFragment(patientDetails);
         supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()

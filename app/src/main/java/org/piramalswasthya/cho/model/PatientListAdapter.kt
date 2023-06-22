@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.model
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,14 @@ import android.widget.TextView
 import android.text.Html
 import android.text.Spanned
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
+import com.google.gson.Gson
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 
-class PatientListAdapter(context: Context, private val dataList: List<String>) :
-    ArrayAdapter<String>(context, 0, dataList) {
+class PatientListAdapter(context: Context, private val dataList: List<PatientDetails>) :
+    ArrayAdapter<PatientDetails>(context, 0, dataList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -29,7 +34,18 @@ class PatientListAdapter(context: Context, private val dataList: List<String>) :
 
         itemView?.setOnClickListener {
             // Handle the onclick event for the item at the given position
-            Toast.makeText(context, "Clicked item at index $position", Toast.LENGTH_SHORT).show()
+//            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//            intent.putExtra("key", "value")
+//            startActivity(intent)
+
+            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//            val gson = Gson()
+//            val patientDetailsGson = gson.toJson(dataList[position])
+//            intent.putExtra("patientDetails", patientDetailsGson)
+            intent.putExtra("index", position)
+            startActivity(context, intent, null)
+
+//            Toast.makeText(context, "Clicked item at index $position", Toast.LENGTH_SHORT).show()
         }
 
         val customObject = dataList[position]
@@ -49,7 +65,7 @@ class PatientListAdapter(context: Context, private val dataList: List<String>) :
         var htmlString = "<b>Bold text</b>"
         var spannedText: Spanned = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
 
-        fun bind(customObject: String) {
+        fun bind(customObject: PatientDetails) {
             htmlString = "<b>Name: </b>" + "Dummy Name"
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             name.text = spannedText

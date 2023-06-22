@@ -19,35 +19,35 @@
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/listView">
-<!--        <androidx.constraintlayout.widget.ConstraintLayout -->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingStart="@dimen/padding_normal"
-                android:paddingEnd="@dimen/padding_normal">
+        app:layout_constraintBottom_toBottomOf="parent">
+        <!--        <androidx.constraintlayout.widget.ConstraintLayout -->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent">-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_normal"
+            android:paddingEnd="@dimen/padding_normal">
 
-                <Button
-                    android:id="@+id/registration"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/padding_normal"
-                    android:text="@string/registration"/>
+            <Button
+                android:id="@+id/registration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/padding_normal"
+                android:layout_weight="1"
+                android:text="@string/registration" />
 
-                <Button
-                    android:id="@+id/advance_search"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/advance_search"/>
+            <Button
+                android:id="@+id/advance_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/advance_search" />
 
-            </LinearLayout>
-<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+        </LinearLayout>
+        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
 

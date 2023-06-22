@@ -76,6 +76,7 @@
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
     <string name="view_prescription_text">View Prescription</string>
+    <string name="submit">Submit</string>
 
 
 </resources>
