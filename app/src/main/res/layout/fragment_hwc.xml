@@ -44,9 +44,9 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_hwc_login"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_marginTop="@dimen/margin_big"
-                android:background="@drawable/nav_bar_button"
+                android:backgroundTint="@color/primary"
                 android:text="@string/login"
                 android:textSize="@dimen/text_big" />
 

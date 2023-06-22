@@ -65,8 +65,8 @@ class PatientListAdapter(context: Context, private val dataList: List<PatientDet
         var htmlString = "<b>Bold text</b>"
         var spannedText: Spanned = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
 
-        fun bind(customObject: PatientDetails) {
-            htmlString = "<b>Name: </b>" + "Dummy Name"
+        fun bind(patientDetails: PatientDetails) {
+            htmlString = "<b>Name: </b>" + patientDetails.firstName  + " " + patientDetails.lastName
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             name.text = spannedText
 
@@ -74,15 +74,15 @@ class PatientListAdapter(context: Context, private val dataList: List<PatientDet
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             abhaNumber.text = spannedText
 
-            htmlString = "<b>Age: </b>" + "24"
+            htmlString = "<b>Age: </b>" + patientDetails.age.toString()
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             age.text = spannedText
 
-            htmlString = "<b>Phone No: </b>" + "8989898989"
+            htmlString = "<b>Phone No: </b>" + patientDetails.contactNo
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             phoneNo.text = spannedText
 
-            htmlString = "<b>Gender: </b>" + "Male"
+            htmlString = "<b>Gender: </b>" + patientDetails.gender
             spannedText = Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY)
             gender.text = spannedText
         }

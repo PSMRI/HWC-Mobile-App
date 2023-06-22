@@ -29,11 +29,17 @@
 
 <!--    </LinearLayout>-->
 
-    <FrameLayout
-        android:id="@+id/patient_registration"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:id="@+id/patient_registration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
          android:id="@+id/bottom_navigation"
@@ -52,18 +58,19 @@
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:visibility="gone"
+                android:backgroundTint="@color/primary"
                 android:text="@string/cancel" />
 
             <Button
                 android:id="@+id/btnSubmit"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:backgroundTint="@color/primary"
                 android:text="@string/submit" />
 
         </LinearLayout>

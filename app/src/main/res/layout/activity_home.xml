@@ -6,13 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".ui.home_activity.HomeActivity">
 
+    <TextView
+        android:id="@+id/benificiary_list"
+        style="@style/HeadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/benificiary_list"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginHorizontal="@dimen/padding_big"
+        android:layout_marginVertical="@dimen/padding_normal"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ListView
-        android:id="@+id/listView" style="@style/NoDividerListView"
+        android:id="@+id/listView"
+        style="@style/NoDividerListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/benificiary_list"
         tools:listitem="@layout/patient_details_card" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -34,18 +46,18 @@
             <Button
                 android:id="@+id/registration"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:backgroundTint="@color/primary"
                 android:text="@string/registration" />
 
             <Button
                 android:id="@+id/advance_search"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:backgroundTint="@color/primary"
                 android:text="@string/advance_search" />
 
         </LinearLayout>

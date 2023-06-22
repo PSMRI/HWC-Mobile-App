@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.core.widget.addTextChangedListener
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
@@ -26,10 +28,13 @@ class PersonalDetailsFragment constructor(
 
     private lateinit var viewModel: PersonalDetailsViewModel
 
+    val genders = arrayOf("Male", "Female", "Transgender")
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonalDetailsBinding.inflate(layoutInflater, container, false)
+        setupGenderSpinner(binding.root)
         return binding.root
     }
 
@@ -37,6 +42,13 @@ class PersonalDetailsFragment constructor(
         super.onViewCreated(view, savedInstanceState)
         setOnChangeListener()
         setInitialValues()
+    }
+
+    private fun setupGenderSpinner(view: View) {
+        val subGenderSpinner = binding.spGender
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, genders)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        subGenderSpinner.adapter = adapter
     }
 
     private fun setInitialValues(){
@@ -51,6 +63,13 @@ class PersonalDetailsFragment constructor(
 
         if(patientDetails.contactNo != null)
             binding.etContactNo.setText(patientDetails.contactNo)
+
+        if(patientDetails.gender != null)
+            binding.spGender.setSelection(
+                (binding.spGender.adapter as ArrayAdapter<String>).getPosition(
+                    patientDetails.gender
+                )
+            )
     }
 
     private fun setOnChangeListener(){
@@ -101,7 +120,17 @@ class PersonalDetailsFragment constructor(
             override fun afterTextChanged(s: Editable?) {
 
             }
+
         })
+
+        binding.spGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                patientDetails.gender = genders[position]
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
 
     }
 

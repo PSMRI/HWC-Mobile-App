@@ -54,7 +54,7 @@
         <FrameLayout
             android:id="@+id/patient_detalis"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
     </ScrollView>
 
 
@@ -75,18 +75,19 @@
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:visibility="gone"
+                android:backgroundTint="@color/primary"
                 android:text="@string/previous" />
 
             <Button
                 android:id="@+id/btnSubmit"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:background="@drawable/nav_bar_button"
+                android:backgroundTint="@color/primary"
                 android:text="@string/next" />
 
         </LinearLayout>
