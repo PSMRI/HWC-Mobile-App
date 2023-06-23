@@ -44,9 +44,9 @@ android {
     buildFeatures {
         viewBinding true
     }
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
+//    lint {
+//        baseline = file("lint-baseline.xml")
+//    }
 }
 
 dependencies {
@@ -65,7 +65,7 @@ dependencies {
     def room_version = "2.5.0"
     def lifecycle_version = "2.5.1"
     def coroutine_version = "1.6.4"
-//    def work_version = "2.8.0"
+    def work_version = "2.8.0"
     def hilt_version = "2.44"
     def retrofit_version = "2.9.0"
     def moshi_version = "1.13.0"
@@ -100,7 +100,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
 
     //Work Manager
-//    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"

@@ -28,12 +28,16 @@
             android:textStyle="bold" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anthropometry"
                 android:layout_marginBottom="20dp"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:padding="@dimen/margin_small"
+                android:textColor="@color/black"
+                android:background="@drawable/vitals"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
         <TextView
             android:id="@+id/weightTv"
@@ -50,35 +54,37 @@
             android:inputType="number"
             style="@style/EditTextField" />
 
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/til_weight_edit_text"-->
-<!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+<!--        <Space-->
 <!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginHorizontal="15dp"-->
-<!--            android:hint="@string/weight_kg_text"-->
-<!--            app:errorEnabled="true"-->
-<!--            android:paddingBottom="@dimen/padding_small"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:endIconMode="custom">-->
+<!--            android:layout_height="40dp"/>-->
+<!--        <View-->
 
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/weightEditText"-->
 <!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />-->
+<!--            android:layout_height="1dp"-->
+<!--            android:background="@android:color/darker_gray" />-->
 
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
             android:text="@string/vitals_text"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="20dp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:padding="@dimen/margin_small"
+            android:textColor="@color/black"
+            android:background="@drawable/vitals"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="20dp"-->
+<!--            android:text="@string/vitals_text"-->
+<!--            android:textSize="24sp"-->
+<!--            android:textStyle="bold" />-->
         <TextView
             android:id="@+id/tempTv"
             android:layout_width="wrap_content"
