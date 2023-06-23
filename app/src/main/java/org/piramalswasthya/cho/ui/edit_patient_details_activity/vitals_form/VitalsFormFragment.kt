@@ -58,7 +58,13 @@ class VitalsFormFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.weight = binding.weightEditText.text.toString().toInt()
+                val text = binding.weightEditText.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.weight = null
+                }
+                else{
+                    patientDetails.weight = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 
@@ -70,7 +76,13 @@ class VitalsFormFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.temperature = binding.temperatureEditText.text.toString().toInt()
+                val text = binding.temperatureEditText.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.temperature = null
+                }
+                else{
+                    patientDetails.temperature = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 
@@ -82,7 +94,13 @@ class VitalsFormFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.bpDiastolic = binding.bpDiastolicEditText.text.toString().toInt()
+                val text = binding.bpDiastolicEditText.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.bpDiastolic = null
+                }
+                else{
+                    patientDetails.bpDiastolic = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 
@@ -94,7 +112,13 @@ class VitalsFormFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.bpSystolic = binding.bpSystolicEditText.text.toString().toInt()
+                val text = binding.bpSystolicEditText.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.bpSystolic = null
+                }
+                else{
+                    patientDetails.bpSystolic = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 

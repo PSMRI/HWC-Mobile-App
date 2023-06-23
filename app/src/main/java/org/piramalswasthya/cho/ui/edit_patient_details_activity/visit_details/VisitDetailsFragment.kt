@@ -90,7 +90,13 @@ class VisitDetailsFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.duration = binding.etDuration.text.toString().toInt()
+                val text = binding.etDuration.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.duration = null
+                }
+                else{
+                    patientDetails.duration = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 

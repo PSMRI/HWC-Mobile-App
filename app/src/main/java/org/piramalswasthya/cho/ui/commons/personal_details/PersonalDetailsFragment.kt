@@ -115,7 +115,13 @@ class PersonalDetailsFragment constructor(
                 // This method is called before the text is changed
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.age = binding.etAge.text.toString().toInt()
+                val text = binding.etAge.text.toString();
+                if(text.isEmpty()){
+                    patientDetails.age = null
+                }
+                else{
+                    patientDetails.age = text.toInt()
+                }
             }
             override fun afterTextChanged(s: Editable?) {
 
