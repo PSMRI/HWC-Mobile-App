@@ -7,4 +7,6 @@ data class ChiefComplaint(
     val duration: Int,
     val unitOfDuration: String,
 
-    )
+    ){
+
+}

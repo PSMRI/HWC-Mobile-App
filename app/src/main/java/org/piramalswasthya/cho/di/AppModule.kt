@@ -13,6 +13,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
@@ -155,6 +156,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideUserAuthDao(database : InAppDb) : UserAuthDao = database.userAuthDao
+
+    @Singleton
+    @Provides
+    fun provideLoginSettingsDataDao(database : InAppDb) : LoginSettingsDataDao = database.loginSettingsDataDao
 
     @Singleton
     @Provides

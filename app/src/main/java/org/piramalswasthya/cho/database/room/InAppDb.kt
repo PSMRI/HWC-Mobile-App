@@ -7,10 +7,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
+import org.piramalswasthya.cho.database.converters.DistrictConverter
+import org.piramalswasthya.cho.database.converters.LocationConverter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
+import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
+import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
+import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
@@ -22,6 +29,8 @@ import timber.log.Timber
 @Database(
     entities = [
         UserCache::class,
+        UserAuth::class,
+        LoginSettingsData::class
         UserAuth::class,
         Language::class,
         VisitReason::class,
@@ -43,7 +52,18 @@ import timber.log.Timber
     version = 10, exportSchema = false
 )
 
-@TypeConverters(LocationEntityListConverter::class, SyncStateConverter::class, MasterDataListConverter::class)
+
+@TypeConverters(LocationEntityListConverter::class,
+    SyncStateConverter::class,
+    StateConverter::class,
+    LoginSettingsDataConverter::class,
+    StateConverter::class,
+    DistrictConverter::class,
+    DistrictBlockConverter::class,
+    VillageConverter::class,
+    MasterDataListConverter::class,
+    LocationConverter::class
+)
 
 abstract class InAppDb : RoomDatabase() {
 
@@ -53,6 +73,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val languageDao: LanguageDao
     abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
     abstract val registrarMasterDataDao:RegistrarMasterDataDao
+
+    abstract val loginSettingsDataDao: LoginSettingsDataDao
 
     companion object {
         @Volatile

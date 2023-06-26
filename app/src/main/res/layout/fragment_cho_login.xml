@@ -50,6 +50,14 @@
             android:id="@+id/select_activity_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+        <ImageButton
+            android:id="@+id/login_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:src="@android:drawable/ic_menu_preferences" />
+
 
 <!--        <androidx.fragment.app.FragmentContainerView-->
 <!--            android:id="@+id/nav_host_fragment_cho"-->

@@ -1,11 +1,13 @@
 package org.piramalswasthya.cho.network
 
 import okhttp3.ResponseBody
+import org.piramalswasthya.cho.model.LocationRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface AmritApiService {
 
@@ -15,6 +17,23 @@ interface AmritApiService {
 
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
+    suspend fun getStates(@Body request: LocationRequest): StateResponseData
+
+    @GET("hwc-facility-service/location/get/districtMaster/{stateId}")
+    suspend fun getDistricts(@Path("stateId") stateId: Int): DistrictResponse
+
+    @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
+    suspend fun getDistrictBlocks(
+        @Path("districtId") districtId: Int
+    ): DistrictBlockResponse
+
+    @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
+    suspend fun getVillages(
+        @Path("blockId") blockId: Int,
+    ): VillageMasterResponse
+
 
     @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
     suspend fun getLanguagesList(): Response<ResponseBody>

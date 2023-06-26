@@ -18,6 +18,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.vision.face.Contour.LEFT_EYE
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
@@ -46,6 +52,11 @@ class OutreachFragment constructor(
 
     private val CAMERA_PERMISSION_REQUEST = 101
 
+    var validImage: Boolean? = false
+
+    var image: Bitmap? = null
+
+    private lateinit var faceDetector: FirebaseVisionFaceDetector
     private fun requestCameraPermission() {
         requireContext()
         if (ContextCompat.checkSelfPermission(
@@ -101,7 +112,8 @@ class OutreachFragment constructor(
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            binding.imageView.setImageBitmap(imageBitmap)
+            image = imageBitmap
+            processImage(imageBitmap)
         }
     }
 
@@ -110,11 +122,77 @@ class OutreachFragment constructor(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
+        val options = FirebaseVisionFaceDetectorOptions.Builder()
+            .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
+            .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+            .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+            .build()
+
+        faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
+
         return binding.root
     }
 
+    private fun processImage(image: Bitmap) {
+        val firebaseImage = FirebaseVisionImage.fromBitmap(image)
 
+        faceDetector.detectInImage(firebaseImage)
+            .addOnSuccessListener { faces ->
+                if(faces.size ==0){
+                    Timber.d("Invalid Image!")
+                    validImage = false
+                    Toast.makeText(requireContext(),"Invalid Image! Try Again",Toast.LENGTH_SHORT).show()
+                }
+                if(faces.size >1) {
+                    Timber.d("Invalid Image! Multiple faces detected")
+                    validImage = false
+                    binding.imageView.setImageResource(R.drawable.placeholder_image)
+                    Toast.makeText(requireContext(),"Invalid Image! Multiple Faces Detected",Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    processDetectedFaces(faces)
+                }
+//                for (face in faces) {
+//                    Timber.d("face found is $face")
+////                    Toast.makeText(context,"Valid Image",Toast.LENGTH_SHORT).show()
+//
+//                    // Access face information (e.g., bounding box, landmarks, etc.)
+//                    val bounds = face.boundingBox
+//                    // ...
+//                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle any errors
+                validImage = false
+                binding.imageView.setImageResource(R.drawable.placeholder_image)
+                Toast.makeText(context,"Exception! Image Processing Failed",Toast.LENGTH_SHORT).show()
+            }
+    }
 
+    private fun processDetectedFaces(faces: List<FirebaseVisionFace>) {
+        for (face in faces) {
+            val bounds = face.boundingBox
+
+            // Check if both eyes are open
+            val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
+            val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
+
+            if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
+                Timber.d("Eyes Are Open")
+                validImage = true
+                binding.imageView.setImageBitmap(image)
+                // Both eyes are open, liveness confirmed
+                // Implement your logic for a live face
+            } else {
+                Timber.d("Eyes Are Closed")
+                validImage = false
+                binding.imageView.setImageResource(R.drawable.placeholder_image)
+                Toast.makeText(requireContext(),"Eyes Closed! Try Again",Toast.LENGTH_SHORT).show()
+                // At least one eye is closed, possibly not live face
+                // Implement your logic for an inactive or spoofed face
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.tag("Outreach username").i(userName);
