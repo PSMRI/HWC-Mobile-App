@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.GenderMaster
@@ -13,7 +14,9 @@ import org.piramalswasthya.cho.model.IncomeMaster
 import org.piramalswasthya.cho.model.LiteracyStatus
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
+import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
+import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.TmcLocationDetails
@@ -27,7 +30,7 @@ class RegistrarMasterDataRepo @Inject constructor(
 
 ) {
     private suspend fun registrarMasterService(): JSONObject? {
-        val response = apiService.getRegistrarMasterData(TmcLocationDetails(1))
+        val response = apiService.getRegistrarMasterData(TmcLocationDetailsRequest(1,1))
 //        val statusCode = response.code()
 //        if (statusCode == 200) {
         val responseString = response.body()?.string()
@@ -214,29 +217,63 @@ private suspend fun otherGovIdEntityMasterService(): List<OtherGovIdEntityMaster
         return registrarMasterDataDao.getRelationshipMaster()
     }
 
-    //OCCUPATION MASTER
-//    private suspend fun relationshipMasterService(): List<RelationshipMaster> {
-//        val relationshipMasterList = registrarMasterService()?.getJSONArray("relationshipMaster")
-//        return MasterDataListConverter.toRelationshipMasterList(relationshipMasterList.toString())
-//    }
-//
-//    suspend fun saveRelationshipMasterResponseToCache() {
-//        relationshipMasterService().forEach { relationshipMaster: RelationshipMaster ->
-//            withContext(Dispatchers.IO) {
-//                registrarMasterDataDao.insertRelationshipMaster(relationshipMaster)
-//            }
-//            Timber.tag("relationshipMasterItem").d(relationshipMaster.toString())
-//        }
-//    }
-//
-//    suspend fun getRelationshipMasterCachedResponse(): List<RelationshipMaster> {
-//        return registrarMasterDataDao.getRelationshipMaster()
-//    }
+//    OCCUPATION MASTER
+    private suspend fun occupationMasterService(): List<OccupationMaster> {
+        val occupationMasterList = registrarMasterService()?.getJSONArray("occupationMaster")
+        return MasterDataListConverter.toOccupationMasterList(occupationMasterList.toString())
+    }
+
+    suspend fun saveOccupationMasterResponseToCache() {
+        occupationMasterService().forEach { occupationMaster: OccupationMaster ->
+            withContext(Dispatchers.IO) {
+                registrarMasterDataDao.insertOccupationMaster(occupationMaster)
+            }
+            Timber.tag("occupationMasterItem").d(occupationMaster.toString())
+        }
+    }
+
+    suspend fun getOccupationMasterCachedResponse(): List<OccupationMaster> {
+        return registrarMasterDataDao.getOccupationMaster()
+    }
+
+    //    RELIGION MASTER
+    private suspend fun religionMasterService(): List<ReligionMaster> {
+        val religionMasterList = registrarMasterService()?.getJSONArray("religionMaster")
+        return MasterDataListConverter.toReligionMasterList(religionMasterList.toString())
+    }
+
+    suspend fun saveReligionMasterResponseToCache() {
+        religionMasterService().forEach { religionMaster: ReligionMaster ->
+            withContext(Dispatchers.IO) {
+                registrarMasterDataDao.insertReligionMaster(religionMaster)
+            }
+            Timber.tag("religionMasterItem").d(religionMaster.toString())
+        }
+    }
+
+    suspend fun getReligionMasterCachedResponse(): List<ReligionMaster> {
+        return registrarMasterDataDao.getReligionMaster()
+    }
 
 
+    //    QUALIFICATION MASTER
+    private suspend fun qualificationMasterService(): List<QualificationMaster> {
+        val qualificationMasterList = registrarMasterService()?.getJSONArray("qualificationMaster")
+        return MasterDataListConverter.toQualificationMasterList(qualificationMasterList.toString())
+    }
 
+    suspend fun saveQualificationMasterResponseToCache() {
+        qualificationMasterService().forEach { qualificationMaster: QualificationMaster ->
+            withContext(Dispatchers.IO) {
+                registrarMasterDataDao.insertQualificationMaster(qualificationMaster)
+            }
+            Timber.tag("qualificationMasterItem").d(qualificationMaster.toString())
+        }
+    }
 
-
+    suspend fun getQualificationMasterCachedResponse(): List<QualificationMaster> {
+        return registrarMasterDataDao.getQualificationMaster()
+    }
 
 
 

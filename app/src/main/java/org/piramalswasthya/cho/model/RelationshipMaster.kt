@@ -12,5 +12,5 @@ import com.squareup.moshi.JsonClass
 data class RelationshipMaster (
     @PrimaryKey val benRelationshipID: Int,
     @ColumnInfo(name = "benRelationship_Type") val benRelationshipType: String,
-    @ColumnInfo(name = "gender") val gender: String
+    @ColumnInfo(name = "gender") val gender: String?
 )

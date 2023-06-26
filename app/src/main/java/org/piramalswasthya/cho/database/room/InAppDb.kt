@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
 import timber.log.Timber
 
@@ -33,9 +34,13 @@ import timber.log.Timber
         MaritalStatusMaster::class,
         GovIdEntityMaster::class,
         OtherGovIdEntityMaster::class,
+        RelationshipMaster::class,
+        QualificationMaster::class,
+        ReligionMaster::class,
+        OccupationMaster::class,
     ],
 //    views = [BenBasicCache::class],
-    version = 8, exportSchema = false
+    version = 10, exportSchema = false
 )
 
 @TypeConverters(LocationEntityListConverter::class, SyncStateConverter::class, MasterDataListConverter::class)
