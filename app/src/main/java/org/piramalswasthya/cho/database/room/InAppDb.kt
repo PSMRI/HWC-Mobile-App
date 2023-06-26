@@ -30,7 +30,7 @@ import timber.log.Timber
     entities = [
         UserCache::class,
         UserAuth::class,
-        LoginSettingsData::class
+        LoginSettingsData::class,
         UserAuth::class,
         Language::class,
         VisitReason::class,

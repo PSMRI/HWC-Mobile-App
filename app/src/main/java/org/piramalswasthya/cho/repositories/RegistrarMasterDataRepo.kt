@@ -17,9 +17,7 @@ import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
-import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.network.TmcLocationDetails
 import org.piramalswasthya.cho.network.TmcLocationDetailsRequest
 import timber.log.Timber
 import javax.inject.Inject

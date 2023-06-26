@@ -42,7 +42,7 @@ interface AmritApiService {
     suspend fun getVisitReasonAndCategories(): Response<ResponseBody>
 
     @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
-    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetails) : Response<ResponseBody>
+    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
 
 
 //
