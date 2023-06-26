@@ -1,3 +1,91 @@
 <resources>
     <string name="app_name">CHO</string>
+    <string name="PREF_NAME" translatable="false">cho-pref-1</string>
+    <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
+    <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
+    <string name="til_username_hint_text">Username</string>
+    <string name="login_failed">"Login failed"</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="next">Next</string>
+    <string name="til_password_hint_text">Password</string>
+    <string name="login">Login</string>
+    <string name="app_title">HWC Mobile App</string>
+    <string name="hwc">HWC</string>
+    <string name="outreach">Outreach</string>
+    <string name="wellness_activity">Wellness Activity</string>
+    <string name="training">Training</string>
+    <string name="health_mela">Health Mela</string>
+    <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
+    <string name="login_settings">login_settings</string>
+    <string name="personal_details">Personal Details</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name_surname">Last Name/Surname</string>
+    <string name="contact_no">Contact No</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="select_subcategory">Select Subcategory</string>
+    <string-array name="subcategories_array">
+        <item>Management of Common Communicable Diseases</item>
+        <item>Outpatient Care for Acute Simple Illnesses &amp; Minor Ailments</item>
+    </string-array>
+
+    <string name="select_category">Select Category</string>
+    <string-array name="categories_array">
+        <item>General OPD Care</item>
+    </string-array>
+
+    <string name="select_reason_for_visit">Select Reason for Visit</string>
+    <string-array name="reason_for_visit_array">
+        <item>New Chief Complaint(s)</item>
+        <item>Follow up</item>
+    </string-array>
+
+    <string name="select_unit_of_duration">Select Unit of Duration</string>
+    <string name="visit_details">Visit Details</string>
+    <string name="duration">Duration</string>
+    <string-array name="unit_of_duration_array">
+        <item>hr</item>
+    </string-array>
+    <string name="abha_number">ABHA Number</string>
+    <string name="name">Name</string>
+    <string name="phone_no">Phone No</string>
+    <string name="registration">Registration</string>
+    <string name="advance_search">Advance Search</string>
+
+    <string name="medication_form">Form</string>
+    <string name="medicine_text">Medicine</string>
+    <string name="dosage_text">Dosage</string>
+    <string name="submit_btn_text">Submit</string>
+    <string name="frequency_text">Frequency</string>
+    <string name="vitals_text">Vitals</string>
+    <string name="weight_kg_text">Weight(kg)</string>
+    <string name="temperature_f_text">Temperature(F)</string>
+    <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
+    <string name="bp_mmhg_systolic_text">BP (mmHg) Systolic</string>
+    <string name="submit_to_doctor_text">Submit to Doctor</string>
+    <string name="prescription_text">Prescription</string>
+    <string name="add_text">Add</string>
+    <string name="stock_warning_text">Stock Unavailable</string>
+    <string name="view_prescription_text">View Prescription</string>
+    <string name="submit">Submit</string>
+    <string name="categories_heading">Category</string>
+    <string name="categories_subcategory">Sub Category</string>
+    <string name="categories_reasonFV">Reason For Visit</string>
+    <string name="DurationInUnit">Duration In Unit</string>
+    <string name="cancel">Cancel</string>
+    <string name="previous">Previous</string>
+    <string name="anthropometry">Anthropometry</string>
+    <string name="benificiary_list">Benificiary List</string>
+
+
 </resources>

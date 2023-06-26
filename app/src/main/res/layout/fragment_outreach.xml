@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.login_activity.cho_login.outreach.OutreachFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="@dimen/photo_size"
+                android:layout_height="@dimen/photo_size"
+                android:layout_marginBottom="@dimen/margin_big"
+                app:cardCornerRadius="@dimen/photo_radius">
+
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="@dimen/photo_size"
+                    android:layout_height="@dimen/photo_size"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/placeholder_image"/>
+            </androidx.cardview.widget.CardView>
+
+            <RadioGroup
+                android:id="@+id/select_program"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/wellness_activity"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/padding_extra_wide"
+                android:layout_marginBottom="@dimen/margin_big"
+                android:weightSum="4"
+                tools:ignore="RtlSymmetry">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/wellness_activity"
+                    style="@style/radio_item_lang"
+                    android:text="@string/wellness_activity"
+                    android:value="@string/wellness_activity" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/training"
+                    style="@style/radio_item_lang"
+                    android:text="@string/training"
+                    android:value="@string/training" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/health_mela"
+                    style="@style/radio_item_lang"
+                    android:text="@string/health_mela"
+                    android:value="@string/health_mela" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/vhsnc_vhsnd"
+                    style="@style/radio_item_lang"
+                    android:text="@string/vhsnc_vhsnd"
+                    android:value="@string/vhsnc_vhsnd" />
+
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_password"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/til_password_hint_text"
+                android:layout_marginBottom="@dimen/margin_big"
+                tools:layout_editor_absoluteX="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawablePadding="@dimen/padding_normal"
+                    android:inputType="textPassword"
+                    android:singleLine="true"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_outreach_login"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/btn_height"
+                android:backgroundTint="@color/primary"
+                android:text="@string/login"
+                android:textSize="@dimen/text_big" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

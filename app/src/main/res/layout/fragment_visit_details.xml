@@ -1,0 +1,88 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_visit_details"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/rounded_corner_view"
+        android:outlineProvider="none"
+        android:text="@string/visit_details"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvCategoriesHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/categories_heading"
+        style="@style/HeadingText" />
+
+    <Spinner
+        android:id="@+id/spCategories"
+        style="@style/EditTextField"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvCategorieSubHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/categories_subcategory"
+        style="@style/HeadingText" />
+
+    <Spinner
+        android:id="@+id/spSubcategories"
+        style="@style/EditTextField"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvReasonForVisit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/categories_reasonFV"
+        style="@style/HeadingText" />
+
+    <Spinner
+        android:id="@+id/spReasonForVisit"
+        style="@style/EditTextField"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/duration"
+        style="@style/HeadingText" />
+
+    <EditText
+        android:id="@+id/etDuration"
+        android:inputType="phone"
+        android:digits="0123456789"
+        android:maxLength="10"
+        style="@style/EditTextField"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvDurationInUnit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/DurationInUnit"
+        style="@style/HeadingText" />
+
+    <Spinner
+        android:id="@+id/spUnitOfDuration"
+        style="@style/EditTextField"
+        android:layout_marginBottom="16dp"/>
+
+</LinearLayout>

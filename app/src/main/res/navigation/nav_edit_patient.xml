@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_edit_patient"
+    app:startDestination="@id/editPersonalDetails">
+
+
+    <fragment
+        android:id="@+id/editPersonalDetails"
+        android:name="org.piramalswasthya.cho.ui.edit_patient_details_activity.edit_personal_details.EditPersonalDetailsFragment"
+        android:label="fragment_edit_personal_details"
+        tools:layout="@layout/fragment_edit_personal_details" >
+        <argument
+            android:name="patientDetails"
+            app:argType="org.piramalswasthya.cho.model.PatientDetails" />
+        <action
+            android:id="@+id/action_editPersonalDetails_to_visitDetails"
+            app:destination="@id/visitDetails" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/visitDetails"
+        android:name="org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment"
+        android:label="fragment_edit_personal_details"
+        tools:layout="@layout/fragment_visit_details" >
+        <argument
+            android:name="patientDetails"
+            app:argType="org.piramalswasthya.cho.model.PatientDetails" />
+    </fragment>
+
+
+
+</navigation>
