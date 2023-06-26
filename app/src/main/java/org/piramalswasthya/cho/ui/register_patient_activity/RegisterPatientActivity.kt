@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
+import org.piramalswasthya.cho.ui.home.add_patient_fragment.AddPatientFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
@@ -32,7 +33,8 @@ class RegisterPatientActivity : AppCompatActivity() {
         _binding = ActivityRegisterPatientBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
+
+        val fragmentPersonalDetails = AddPatientFragment();
         supportFragmentManager.beginTransaction().replace(binding.patientRegistration.id, fragmentPersonalDetails).commit()
 
         binding.btnSubmit.setOnClickListener {
