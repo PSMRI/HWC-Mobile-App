@@ -26,6 +26,7 @@
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
     <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
+    <string name="login_settings">login_settings</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name</string>
     <string name="last_name_surname">Last Name/Surname</string>

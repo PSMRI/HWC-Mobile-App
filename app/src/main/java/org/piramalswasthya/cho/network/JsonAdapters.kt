@@ -316,4 +316,93 @@ data class MapHIDtoBeneficiary(
     val createdBy: String?
 )
 
+//  For getting VanSpDetails
+@JsonClass(generateAdapter = true)
+data class VanSpDetailsResponse(
+    val data: VanSpDetailsData?,
+    val statusCode: Int,
+    val errorMessage: String,
+    val status: String
+)
+
+@JsonClass(generateAdapter = true)
+data class VanSpDetailsData(
+    val userVanSpDetails: List<UserVanSpDetails>?
+)
+
+@JsonClass(generateAdapter = true)
+data class UserVanSpDetails(
+    val ID: Int,
+    val userID: Int,
+    val vanID: Int,
+    val vanNoAndType: String,
+    val vanSession: Int,
+    val servicePointID: Int,
+    val servicePointName: String,
+    val parkingPlaceID: Int,
+    val facilityID: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class StateResponseData(
+    val data: StateList,
+    val statusCode: Int,
+    val errorMessage: String,
+    val status: String
+)
+
+@JsonClass(generateAdapter = true)
+data class StateList(
+    val stateMaster: List<State>
+)
+
+@JsonClass(generateAdapter = true)
+data class State(
+    val stateID: Int,
+    val stateName: String
+)
+
+@JsonClass(generateAdapter = true)
+data class DistrictResponse(
+    val data: List<District>,
+    val statusCode: Int,
+    val errorMessage: String,
+    val status: String
+)
+
+@JsonClass(generateAdapter = true)
+data class District(
+    val districtID: Int,
+    val districtName: String
+)
+
+@JsonClass(generateAdapter = true)
+data class DistrictBlockResponse(
+    val data: List<DistrictBlock>,
+    val statusCode: Int,
+    val errorMessage: String,
+    val status: String
+)
+@JsonClass(generateAdapter = true)
+data class DistrictBlock(
+    val blockID: Int,
+    val blockName: String,
+    val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
+)
+
+@JsonClass(generateAdapter = true)
+data class VillageMasterResponse(
+    val data: List<Village>,
+    val statusCode: Int,
+    val errorMessage: String,
+    val status: String
+)
+@JsonClass(generateAdapter = true)
+data class Village(
+    val districtBranchID: Int,
+    val villageName: String,
+    val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
+)
+
+
 

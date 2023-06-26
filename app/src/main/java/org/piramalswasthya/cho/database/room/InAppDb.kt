@@ -7,9 +7,16 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
+import org.piramalswasthya.cho.database.converters.DistrictConverter
+import org.piramalswasthya.cho.database.converters.LocationConverter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
+import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
+import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
+import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.model.*
 import timber.log.Timber
@@ -17,19 +24,31 @@ import timber.log.Timber
 @Database(
     entities = [
         UserCache::class,
-        UserAuth::class
+        UserAuth::class,
+        LoginSettingsData::class
     ],
 //    views = [BenBasicCache::class],
-    version = 3, exportSchema = false
+    version = 4, exportSchema = false
 )
 
-@TypeConverters(LocationEntityListConverter::class, SyncStateConverter::class)
+@TypeConverters(LocationEntityListConverter::class,
+    SyncStateConverter::class,
+    StateConverter::class,
+    LoginSettingsDataConverter::class,
+    StateConverter::class,
+    DistrictConverter::class,
+    DistrictBlockConverter::class,
+    VillageConverter::class,
+    LocationConverter::class
+)
 
 abstract class InAppDb : RoomDatabase() {
 
     abstract val userDao: UserDao
 
     abstract val userAuthDao: UserAuthDao
+
+    abstract val loginSettingsDataDao: LoginSettingsDataDao
 
     companion object {
         @Volatile

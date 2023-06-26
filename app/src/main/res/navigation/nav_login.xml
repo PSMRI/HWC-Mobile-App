@@ -17,6 +17,19 @@
             android:id="@+id/action_signInFragment_to_choLogin"
             app:destination="@id/choLoginFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/loginSettingsFragment"
+        android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment"
+        android:label="fragment_login_settings"
+        tools:layout="@layout/fragment_login_setting" >
+        <argument
+            android:name="userName"
+            app:argType="string" />
+        <action
+            android:id="@+id/actionLoginSettingsToChoLogin"
+            app:destination="@id/choLoginFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/ashaLoginFragment"
@@ -48,6 +61,9 @@
         <action
             android:id="@+id/actionChoToHwc"
             app:destination="@id/hwcLoginFragment" />
+        <action
+            android:id="@+id/actionChoLoginToLoginSettings"
+            app:destination="@id/loginSettingsFragment" />
     </fragment>
 
 

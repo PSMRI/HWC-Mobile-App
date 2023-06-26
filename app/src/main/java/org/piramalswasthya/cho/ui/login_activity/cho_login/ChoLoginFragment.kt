@@ -8,14 +8,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
+import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.UserAuthRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.hwc.HwcFragment
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachFragment
+import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -25,7 +30,9 @@ class ChoLoginFragment : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
-
+    @Inject
+    lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
+    private var loginSettingsData: LoginSettingsData? = null
     private var _binding: FragmentChoLoginBinding? = null
 
     private val binding: FragmentChoLoginBinding
@@ -75,6 +82,31 @@ class ChoLoginFragment : Fragment() {
         binding.selectProgram.setOnCheckedChangeListener { _, programId ->
             setActivityContainer(programId)
         }
+        val userName = (arguments?.getString("userName", ""))!!;
+
+        lifecycleScope.launch {
+            loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
+
+            if (loginSettingsData==null) {
+                binding.loginSettings.visibility = View.VISIBLE
+
+                binding.loginSettings.setOnClickListener{
+                    try {
+                        findNavController().navigate(
+                            ChoLoginFragmentDirections.actionChoLoginToLoginSettings(userName),
+                        )
+                    }catch (e: Exception){
+                        Timber.d("Failed to navigate"+e.message)
+                    }
+
+                }
+            } else {
+                binding.loginSettings.visibility = View.INVISIBLE
+            }
+        }
+
+
+
     }
 
 }

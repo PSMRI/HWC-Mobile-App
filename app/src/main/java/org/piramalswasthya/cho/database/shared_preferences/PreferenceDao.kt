@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
+import org.piramalswasthya.cho.model.LoginSettingsData
 //import org.piramalswasthya.sakhi.helpers.Languages
 //import org.piramalswasthya.sakhi.model.LocationRecord
 import timber.log.Timber
@@ -46,6 +47,19 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         editor.putString(prefKey, token)
         editor.apply()
+    }
+
+    fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.login_settings)
+        val loginSettingsJson = Gson().toJson(loginSettingsData)
+        editor.putString(prefKey, loginSettingsJson)
+        editor.apply()
+    }
+    fun getLoginSettingsRecord(): LoginSettingsData? {
+        val prefKey = context.getString(R.string.login_settings)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, LoginSettingsData::class.java)
     }
 //
 //    fun deleteD2DApiToken() {
@@ -100,7 +114,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        editor.putString(prefKey, locationRecordJson)
 //        editor.apply()
 //    }
-//
 //    fun getLocationRecord(): LocationRecord? {
 //        val prefKey = context.getString(R.string.PREF_location_record_entry)
 //        val json = pref.getString(prefKey, null)

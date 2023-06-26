@@ -11,6 +11,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -152,6 +153,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideUserAuthDao(database : InAppDb) : UserAuthDao = database.userAuthDao
+
+    @Singleton
+    @Provides
+    fun provideLoginSettingsDataDao(database : InAppDb) : LoginSettingsDataDao = database.loginSettingsDataDao
 
 //    @Singleton
 //    @Provides

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "655690913186",
+    "project_id": "org-piramalswasthya-cho",
+    "storage_bucket": "org-piramalswasthya-cho.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:655690913186:android:112ee5bd135851b9c40efb",
+        "android_client_info": {
+          "package_name": "org.piramalswasthya.cho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "655690913186-u2v40o4aiaro1m3ck7h887uukgpn30ij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu28czca5tNdVtUR9V_ijRrnuLVaPd-do"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "655690913186-u2v40o4aiaro1m3ck7h887uukgpn30ij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
