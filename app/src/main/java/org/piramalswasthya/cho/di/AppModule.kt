@@ -11,8 +11,11 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
+import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.cho.network.AmritApiService
@@ -152,6 +155,18 @@ object AppModule {
     @Singleton
     @Provides
     fun provideUserAuthDao(database : InAppDb) : UserAuthDao = database.userAuthDao
+
+    @Singleton
+    @Provides
+    fun provideLanguageDao(database : InAppDb) : LanguageDao = database.languageDao
+
+    @Singleton
+    @Provides
+    fun provideVisitReasonsAndCategoriesDao(database : InAppDb) : VisitReasonsAndCategoriesDao = database.visitReasonsAndCategoriesDao
+
+    @Singleton
+    @Provides
+    fun provideRegistrarMasterDataDao(database : InAppDb) : RegistrarMasterDataDao = database.registrarMasterDataDao
 
 //    @Singleton
 //    @Provides

@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -14,6 +15,17 @@ interface AmritApiService {
 
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
+
+    @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
+    suspend fun getLanguagesList(): Response<ResponseBody>
+
+    @GET("/hwc-facility-service/master/get/visitReasonAndCategories?apiKey=undefined")
+    suspend fun getVisitReasonAndCategories(): Response<ResponseBody>
+
+    @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
+    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetails) : Response<ResponseBody>
+
+
 //
 //
 //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
