@@ -28,60 +28,67 @@
 <!--            android:layout_height="32dp" />-->
 
 <!--    </LinearLayout>-->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.home_activity.HomeActivity">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/patient_registration"
+    <TextView
+        android:id="@+id/header_text_register_patient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner_view"
+        android:outlineProvider="none"
+        android:layout_marginHorizontal="@dimen/margin_big"
+        android:layout_marginVertical="@dimen/margin_big"
+        android:text="@string/personal_details"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/patient_registration"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@+id/header_text_register_patient" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_normal"
+            android:paddingEnd="@dimen/padding_normal">
 
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginEnd="@dimen/padding_normal"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:backgroundTint="@color/primary"
+                android:text="@string/cancel" />
 
-<!--        <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--            android:id="@+id/bottom_navigation"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent">-->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="1"
+                android:backgroundTint="@color/primary"
+                android:text="@string/submit" />
 
-<!--            <LinearLayout-->
-<!--                android:id="@+id/linear_layout"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:gravity="center"-->
-<!--                android:paddingStart="@dimen/padding_normal"-->
-<!--                android:paddingEnd="@dimen/padding_normal">-->
+        </LinearLayout>
 
-<!--                <Button-->
-<!--                    android:id="@+id/btnCancel"-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="@dimen/btn_height"-->
-<!--                    android:layout_marginEnd="@dimen/padding_normal"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:backgroundTint="@color/primary"-->
-<!--                    android:text="@string/cancel" />-->
-
-<!--                <Button-->
-<!--                    android:id="@+id/btnSubmit"-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="@dimen/btn_height"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:backgroundTint="@color/primary"-->
-<!--                    android:text="@string/submit" />-->
-
-<!--            </LinearLayout>-->
-
-<!--        </com.google.android.material.bottomnavigation.BottomNavigationView>-->
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
 
 <!--    <ScrollView-->
 <!--        android:layout_width="match_parent"-->

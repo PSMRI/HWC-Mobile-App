@@ -6,6 +6,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {
@@ -22,7 +23,7 @@ class RegisterPatientActivity : AppCompatActivity() {
         _binding = ActivityRegisterPatientBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val fragmentPersonalDetails = FhirAddPatientFragment();
+        val fragmentPersonalDetails = FhirVisitDetailsFragment();
         supportFragmentManager.beginTransaction().replace(binding.patientRegistration.id, fragmentPersonalDetails).commit()
 
 //        binding.btnSubmit.setOnClickListener {

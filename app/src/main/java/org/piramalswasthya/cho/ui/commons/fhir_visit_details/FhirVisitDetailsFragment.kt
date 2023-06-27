@@ -1,48 +1,47 @@
-package org.piramalswasthya.cho.ui.commons.fhir_add_patient
+package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.fhir.datacapture.QuestionnaireFragment
-
-import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
-import org.piramalswasthya.cho.databinding.FragmentVitalsFormBinding
+import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import timber.log.Timber
 
+//R.layout.fragment_fhir_visit_details
 
-/** A fragment class to show patient registration screen. */
-class FhirAddPatientFragment : Fragment() {
+class FhirVisitDetailsFragment : Fragment() {
 
-    private var _binding: FragmentFhirAddPatientBinding? = null
+    private var _binding: FragmentFhirVisitDetailsBinding? = null
 
-    private val binding: FragmentFhirAddPatientBinding
+    private val binding: FragmentFhirVisitDetailsBinding
         get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFhirAddPatientBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentFhirVisitDetailsBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
-    private val viewModel: FhirAddPatientViewModel by viewModels()
-
+    private val viewModel: FhirVisitDetailsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.d("initiated")
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar()
         setHasOptionsMenu(true)
-         updateArguments()
+        updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
@@ -58,15 +57,15 @@ class FhirAddPatientFragment : Fragment() {
 
     private fun updateArguments() {
         arguments = Bundle()
-        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
+        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "patient-visit-details-paginated.json")
     }
 
     private fun addQuestionnaireFragment() {
         childFragmentManager.commit {
             add(
-                R.id.add_patient_container,
+                R.id.patient_visit_details_container,
                 QuestionnaireFragment.builder().setQuestionnaire(viewModel.questionnaire).build(),
-                QUESTIONNAIRE_FRAGMENT_TAG
+                FhirAddPatientFragment.QUESTIONNAIRE_FRAGMENT_TAG
             )
         }
     }
@@ -96,4 +95,5 @@ class FhirAddPatientFragment : Fragment() {
         const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
         const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
     }
+
 }

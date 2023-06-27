@@ -1,11 +1,10 @@
-package org.piramalswasthya.cho.ui.commons.fhir_add_patient
-
-
+package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.FhirVersionEnum
@@ -17,14 +16,12 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
-import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import java.util.UUID
 
-
-/** ViewModel for patient registration screen {@link AddPatientFragment}. */
-class FhirAddPatientViewModel(application: Application, private val state: SavedStateHandle) :
+class FhirVisitDetailsViewModel (application: Application, private val state: SavedStateHandle) :
     AndroidViewModel(application) {
 
     val questionnaire: String
@@ -73,10 +70,11 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
         questionnaireJson?.let {
             return it
         }
-        questionnaireJson = readFileFromAssets(state[FhirAddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
+        questionnaireJson = readFileFromAssets(state[FhirVisitDetailsFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
         var questionnaireJsonObject = JSONObject(questionnaireJson!!)
 
 //        jsonObject.getJSONArray("item")[0].get("answerOption")[0].get("valueCoding").put("display", "OPD")
+
         questionnaireJsonObject
             .getJSONArray("item")
             .getJSONObject(0)
@@ -84,8 +82,9 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
             .getJSONObject(0)
             .getJSONObject("valueCoding")
             .put("display", "OPD")
-//        itemArray.getJSONObject(0).getJSONArray("")
 
+//        questionnaireJsonObject.put("item", emptyArray())
+//        itemArray.getJSONObject(0).getJSONArray("")
 
         return questionnaireJsonObject.toString()
     }
@@ -99,4 +98,5 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
     private fun generateUuid(): String {
         return UUID.randomUUID().toString()
     }
+
 }
