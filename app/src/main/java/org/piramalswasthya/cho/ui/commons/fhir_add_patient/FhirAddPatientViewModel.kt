@@ -1,4 +1,4 @@
-package org.piramalswasthya.cho.ui.home.add_patient_fragment
+package org.piramalswasthya.cho.ui.commons.fhir_add_patient
 
 
 
@@ -21,7 +21,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.CHOApplication
 
 /** ViewModel for patient registration screen {@link AddPatientFragment}. */
-class AddPatientViewModel(application: Application, private val state: SavedStateHandle) :
+class FhirAddPatientViewModel(application: Application, private val state: SavedStateHandle) :
     AndroidViewModel(application) {
 
     val questionnaire: String
@@ -70,7 +70,7 @@ class AddPatientViewModel(application: Application, private val state: SavedStat
         questionnaireJson?.let {
             return it
         }
-        questionnaireJson = readFileFromAssets(state[AddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
+        questionnaireJson = readFileFromAssets(state[FhirAddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
         return questionnaireJson!!
     }
 

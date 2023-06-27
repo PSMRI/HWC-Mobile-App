@@ -1,28 +1,24 @@
-package org.piramalswasthya.cho.ui.home.add_patient_fragment
+package org.piramalswasthya.cho.ui.commons.fhir_add_patient
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.fhir.datacapture.QuestionnaireFragment
-import dagger.hilt.android.AndroidEntryPoint
 
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
 import timber.log.Timber
 
 
 /** A fragment class to show patient registration screen. */
-class AddPatientFragment : Fragment(R.layout.activity_add_patient) {
+class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
 
-    private val viewModel: AddPatientViewModel by viewModels()
+    private val viewModel: FhirAddPatientViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         savedInstanceState
@@ -49,8 +45,8 @@ class AddPatientFragment : Fragment(R.layout.activity_add_patient) {
     }
 
     private fun updateArguments() {
+        arguments = Bundle()
         requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
-//        requireArguments().getString(QUESTIONNAIRE_FILE_PATH_KEY)
     }
 
     private fun addQuestionnaireFragment() {
