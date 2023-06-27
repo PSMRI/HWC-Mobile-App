@@ -47,6 +47,8 @@ interface AmritApiService {
     suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
 
 
+    @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
+    suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
 //
 //
 //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")

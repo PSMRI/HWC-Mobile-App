@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.UserAuthRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import timber.log.Timber
 import javax.inject.Inject
@@ -25,6 +26,7 @@ class OutreachViewModel @Inject constructor(
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
     private val stateMasterRepo: StateMasterRepo,
+    private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val userAuthRepo: UserAuthRepo,
     private val pref: PreferenceDao
 ) : ViewModel() {
@@ -69,6 +71,8 @@ class OutreachViewModel @Inject constructor(
             registrarMasterDataRepo.saveOccupationMasterResponseToCache()
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             stateMasterRepo.saveStateMasterResponseToCache()
+            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
         }
     }
     fun dummyAuthUser(username: String, password: String) {

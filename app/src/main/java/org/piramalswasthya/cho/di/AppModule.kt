@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
+import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AmritApiService
@@ -177,6 +178,9 @@ object AppModule {
     @Singleton
     @Provides
     fun provideStateMasterDao(database : InAppDb) : StateMasterDao = database.stateMasterDao
+    @Singleton
+    @Provides
+    fun provideVaccinationTypeAndDoseDao(database : InAppDb) : VaccinationTypeAndDoseDao = database.vaccinationTypeAndDoseDao
 //    @Singleton
 //    @Provides
 //    fun provideBenIdDao(database : InAppDb) : BeneficiaryIdsAvailDao = database.benIdGenDao

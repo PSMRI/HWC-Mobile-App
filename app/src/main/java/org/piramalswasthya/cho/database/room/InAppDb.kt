@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
+import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
@@ -48,9 +49,12 @@ import timber.log.Timber
         ReligionMaster::class,
         OccupationMaster::class,
         StateMaster::class,
+        DoseType::class,
+        VaccineType::class,
+
     ],
 //    views = [BenBasicCache::class],
-    version = 11, exportSchema = false
+    version = 13, exportSchema = false
 )
 
 
@@ -73,6 +77,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val userAuthDao: UserAuthDao
     abstract val languageDao: LanguageDao
     abstract val stateMasterDao: StateMasterDao
+    abstract val vaccinationTypeAndDoseDao: VaccinationTypeAndDoseDao
     abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
     abstract val registrarMasterDataDao:RegistrarMasterDataDao
 

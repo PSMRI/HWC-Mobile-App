@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.CommunityMaster
+import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
 import org.piramalswasthya.cho.model.IncomeMaster
@@ -17,6 +18,7 @@ import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.VaccineType
 import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitReason
 
@@ -113,6 +115,16 @@ object MasterDataListConverter {
     @TypeConverter
     fun toRelationshipMasterList(value: String?): List<RelationshipMaster> {
         val listType = object : TypeToken<List<RelationshipMaster?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+    @TypeConverter
+    fun toVaccineTypeList(value: String): List<VaccineType> {
+        val listType = object : TypeToken<List<VaccineType?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+    @TypeConverter
+    fun toDoseTypeList(value: String): List<DoseType> {
+        val listType = object : TypeToken<List<DoseType?>?>() {}.type
         return Gson().fromJson(value, listType)
     }
 

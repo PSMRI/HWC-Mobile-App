@@ -13,9 +13,9 @@ data class VaccineType (
     @PrimaryKey
     val covidVaccineTypeID: Int,
     @ColumnInfo(name = "vaccine_type") val vaccineType: String,
-    @ColumnInfo(name = "deleted") val deleted: Boolean,
-    @ColumnInfo(name = "processed") val processed: String,
-    @ColumnInfo(name = "created_by") val createdBy: String,
-    @ColumnInfo(name = "created_date") val createdDate: String,
-    @ColumnInfo(name = "last_mod_date") val lastModDate: String,
+    @ColumnInfo(name = "deleted") val deleted: Boolean?,
+    @ColumnInfo(name = "processed") val processed: String?,
+    @ColumnInfo(name = "created_by") val createdBy: String?,
+    @ColumnInfo(name = "created_date") val createdDate: String?,
+    @ColumnInfo(name = "last_mod_date") val lastModDate: String?,
 )

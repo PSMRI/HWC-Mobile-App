@@ -12,10 +12,10 @@ import com.squareup.moshi.JsonClass
 data class DoseType (
     @PrimaryKey
     val covidDoseTypeID: Int,
-    @ColumnInfo(name = "doseType") val doseType: String,
-    @ColumnInfo(name = "deleted") val deleted: Boolean,
-    @ColumnInfo(name = "processed") val processed: String,
-    @ColumnInfo(name = "created_by") val createdBy: String,
-    @ColumnInfo(name = "created_date") val createdDate: String,
-    @ColumnInfo(name = "last_mod_date") val lastModDate: String,
+    @ColumnInfo(name = "dose_type") val doseType: String,
+    @ColumnInfo(name = "deleted") val deleted: Boolean?,
+    @ColumnInfo(name = "processed") val processed: String?,
+    @ColumnInfo(name = "created_by") val createdBy: String?,
+    @ColumnInfo(name = "created_date") val createdDate: String?,
+    @ColumnInfo(name = "last_mod_date") val lastModDate: String?,
 )
