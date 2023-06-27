@@ -46,6 +46,9 @@ class OutreachViewModel @Inject constructor(
     fun loginInClicked() {
         _state.value = State.LOADING
     }
+
+
+    //TODO: JUST FOR TESTING, NEEDS TO BE MOVED WHEN APPROPRIATE VIEW MODELS ARE READY
     init {
         Timber.tag("initMethod").d("initMethod inside")
         viewModelScope.launch {
