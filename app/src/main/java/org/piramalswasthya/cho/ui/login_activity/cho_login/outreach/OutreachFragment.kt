@@ -46,7 +46,7 @@ class OutreachFragment constructor(
     private val binding: FragmentOutreachBinding
         get() = _binding!!
 
-    private val viewModel: OutreachViewModel by viewModels()
+    private lateinit var viewModel: OutreachViewModel
 
     private val REQUEST_IMAGE_CAPTURE = 1
 
@@ -73,6 +73,8 @@ class OutreachFragment constructor(
             dispatchTakePictureIntent()
         }
     }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -121,6 +123,7 @@ class OutreachFragment constructor(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        viewModel = ViewModelProvider(this).get(OutreachViewModel::class.java)
         _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
         val options = FirebaseVisionFaceDetectorOptions.Builder()
             .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)

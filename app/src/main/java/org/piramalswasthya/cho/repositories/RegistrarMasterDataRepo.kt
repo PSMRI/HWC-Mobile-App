@@ -29,14 +29,15 @@ class RegistrarMasterDataRepo @Inject constructor(
 ) {
     private suspend fun registrarMasterService(): JSONObject? {
         val response = apiService.getRegistrarMasterData(TmcLocationDetailsRequest(1,1))
-//        val statusCode = response.code()
-//        if (statusCode == 200) {
-        val responseString = response.body()?.string()
-        val responseJson = responseString?.let { JSONObject(it) }
-        Timber.tag("dataJson").d(responseJson.toString())
-
-        return responseJson?.getJSONObject("data")
-
+        val statusCode = response.code()
+        if (statusCode == 200) {
+            val responseString = response.body()?.string()
+            val responseJson = responseString?.let { JSONObject(it) }
+            Timber.tag("dataJson").d(responseJson.toString())
+            return responseJson?.getJSONObject("data")
+        }else{
+            throw Exception("Failed to get data!")
+        }
     }
 
 

@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
@@ -173,6 +174,9 @@ object AppModule {
     @Provides
     fun provideRegistrarMasterDataDao(database : InAppDb) : RegistrarMasterDataDao = database.registrarMasterDataDao
 
+    @Singleton
+    @Provides
+    fun provideStateMasterDao(database : InAppDb) : StateMasterDao = database.stateMasterDao
 //    @Singleton
 //    @Provides
 //    fun provideBenIdDao(database : InAppDb) : BeneficiaryIdsAvailDao = database.benIdGenDao

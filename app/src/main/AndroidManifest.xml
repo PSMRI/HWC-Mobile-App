@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:name="android.hardware.camera" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -11,7 +11,6 @@
 
     <application
         android:name=".CHOApplication"
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:configChanges="locale|orientation"
         android:dataExtractionRules="@xml/data_extraction_rules"

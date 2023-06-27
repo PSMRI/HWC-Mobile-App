@@ -35,6 +35,8 @@ interface AmritApiService {
     ): VillageMasterResponse
 
 
+    @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
+    suspend fun getStatesMasterList(): Response<ResponseBody>
     @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
     suspend fun getLanguagesList(): Response<ResponseBody>
 

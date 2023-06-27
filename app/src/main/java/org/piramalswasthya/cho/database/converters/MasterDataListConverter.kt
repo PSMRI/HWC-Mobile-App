@@ -16,10 +16,17 @@ import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
+import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitReason
 
 object MasterDataListConverter {
+
+    @TypeConverter
+    fun toStatesMasterList(value: String?): List<StateMaster> {
+        val listType = object : TypeToken<List<StateMaster?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
     @TypeConverter
     fun toLanguageList(value: String?): List<Language> {
         val listType = object : TypeToken<List<Language?>?>() {}.type

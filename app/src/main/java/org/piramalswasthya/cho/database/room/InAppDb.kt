@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
@@ -29,7 +30,6 @@ import timber.log.Timber
 @Database(
     entities = [
         UserCache::class,
-        UserAuth::class,
         LoginSettingsData::class,
         UserAuth::class,
         Language::class,
@@ -47,9 +47,10 @@ import timber.log.Timber
         QualificationMaster::class,
         ReligionMaster::class,
         OccupationMaster::class,
+        StateMaster::class,
     ],
 //    views = [BenBasicCache::class],
-    version = 10, exportSchema = false
+    version = 11, exportSchema = false
 )
 
 
@@ -71,6 +72,7 @@ abstract class InAppDb : RoomDatabase() {
 
     abstract val userAuthDao: UserAuthDao
     abstract val languageDao: LanguageDao
+    abstract val stateMasterDao: StateMasterDao
     abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
     abstract val registrarMasterDataDao:RegistrarMasterDataDao
 

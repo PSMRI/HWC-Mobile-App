@@ -23,14 +23,16 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
     //VISIT REASONS
     private suspend fun visitReasonsService(): List<VisitReason> {
         val response  = apiService.getVisitReasonAndCategories()
-//        val statusCode = response.code()
-//        if (statusCode == 200) {
-        val responseString = response.body()?.string()
-        val responseJson = responseString?.let { JSONObject(it) }
-        val data = responseJson?.getJSONObject("data")
-        val visitReasonList = data?.getJSONArray("visitReasons")
-        return MasterDataListConverter.toVisitReasonsList(visitReasonList.toString())
-
+        val statusCode = response.code()
+        if (statusCode == 200) {
+            val responseString = response.body()?.string()
+            val responseJson = responseString?.let { JSONObject(it) }
+            val data = responseJson?.getJSONObject("data")
+            val visitReasonList = data?.getJSONArray("visitReasons")
+            return MasterDataListConverter.toVisitReasonsList(visitReasonList.toString())
+        } else{
+            throw Exception("Failed to get data!")
+        }
     }
     suspend fun saveVisitReasonResponseToCache() {
         visitReasonsService().forEach { visitReason: VisitReason ->
@@ -52,13 +54,16 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
     //VISIT CATEGORIES
     private suspend fun visitCategoriesService(): List<VisitCategory> {
         val response  = apiService.getVisitReasonAndCategories()
-//        val statusCode = response.code()
-//        if (statusCode == 200) {
-        val responseString = response.body()?.string()
-        val responseJson = responseString?.let { JSONObject(it) }
-        val data = responseJson?.getJSONObject("data")
-        val visitCategoryList = data?.getJSONArray("visitCategories")
-        return MasterDataListConverter.toVisitCategoryList(visitCategoryList.toString())
+        val statusCode = response.code()
+        if (statusCode == 200) {
+            val responseString = response.body()?.string()
+            val responseJson = responseString?.let { JSONObject(it) }
+            val data = responseJson?.getJSONObject("data")
+            val visitCategoryList = data?.getJSONArray("visitCategories")
+            return MasterDataListConverter.toVisitCategoryList(visitCategoryList.toString())
+        }else{
+            throw Exception("Failed to get data!")
+        }
 
     }
     suspend fun saveVisitCategoriesResponseToCache() {
