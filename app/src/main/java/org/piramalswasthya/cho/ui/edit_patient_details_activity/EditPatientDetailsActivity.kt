@@ -57,64 +57,64 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         val fragment = PersonalDetailsFragment(patientDetails);
         supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
 
-        binding.btnSubmit.setOnClickListener {
-            when (currFragment){
-                R.id.fragment_personal_details -> {
-                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
-                    currFragment = R.id.fragment_visit_details
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_visit_details -> {
-                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
-                    currFragment = R.id.fragment_vitals_form
-                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_vitals_form -> {
-                    val fragmentPrescription = PrescriptionFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPrescription).commit()
-                    currFragment = R.id.fragment_prescription
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_prescription -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-            }
-        }
+//        binding.btnSubmit.setOnClickListener {
+//            when (currFragment){
+//                R.id.fragment_personal_details -> {
+//                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
+//                    currFragment = R.id.fragment_visit_details
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
+//                R.id.fragment_visit_details -> {
+//                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
+//                    currFragment = R.id.fragment_vitals_form
+//                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
+//                R.id.fragment_vitals_form -> {
+//                    val fragmentPrescription = PrescriptionFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPrescription).commit()
+//                    currFragment = R.id.fragment_prescription
+//                    binding.btnSubmit.text = resources.getString(R.string.submit)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
+//                R.id.fragment_prescription -> {
+//                    val intent = Intent(this, HomeActivity::class.java)
+//                    startActivity(intent)
+//                }
+//            }
+//        }
 
-        binding.btnCancel.setOnClickListener {
-            when (currFragment){
-                R.id.fragment_personal_details -> {
-
-                }
-                R.id.fragment_visit_details -> {
-                    val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
-                    currFragment = R.id.fragment_personal_details
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.GONE
-                }
-                R.id.fragment_vitals_form -> {
-                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
-                    currFragment = R.id.fragment_visit_details
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_prescription -> {
-                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
-                    currFragment = R.id.fragment_vitals_form
-                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-            }
-        }
+//        binding.btnCancel.setOnClickListener {
+//            when (currFragment){
+//                R.id.fragment_personal_details -> {
+//
+//                }
+//                R.id.fragment_visit_details -> {
+//                    val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
+//                    currFragment = R.id.fragment_personal_details
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.visibility = View.GONE
+//                }
+//                R.id.fragment_vitals_form -> {
+//                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
+//                    currFragment = R.id.fragment_visit_details
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
+//                R.id.fragment_prescription -> {
+//                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
+//                    currFragment = R.id.fragment_vitals_form
+//                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
+//            }
+//        }
     }
 
     override fun onDestroy() {

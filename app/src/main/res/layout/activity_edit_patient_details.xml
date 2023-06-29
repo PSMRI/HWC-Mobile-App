@@ -26,45 +26,45 @@
         android:id="@+id/patient_detalis"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_text_edit_patient" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent">
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottom_navigation"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent">-->
 
-        <LinearLayout
-            android:id="@+id/linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:paddingStart="@dimen/padding_normal"
-            android:paddingEnd="@dimen/padding_normal">
+<!--        <LinearLayout-->
+<!--            android:id="@+id/linear_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:gravity="center"-->
+<!--            android:paddingStart="@dimen/padding_normal"-->
+<!--            android:paddingEnd="@dimen/padding_normal">-->
 
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height"
-                android:layout_marginEnd="@dimen/padding_normal"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:backgroundTint="@color/primary"
-                android:text="@string/cancel" />
+<!--            <Button-->
+<!--                android:id="@+id/btnCancel"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_marginEnd="@dimen/padding_normal"-->
+<!--                android:layout_weight="1"-->
+<!--                android:visibility="gone"-->
+<!--                android:backgroundTint="@color/primary"-->
+<!--                android:text="@string/cancel" />-->
 
-            <Button
-                android:id="@+id/btnSubmit"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height"
-                android:layout_weight="1"
-                android:backgroundTint="@color/primary"
-                android:text="@string/submit" />
+<!--            <Button-->
+<!--                android:id="@+id/btnSubmit"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:backgroundTint="@color/primary"-->
+<!--                android:text="@string/submit" />-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+<!--    </com.google.android.material.bottomnavigation.BottomNavigationView>-->
 
 
     <!--    <LinearLayout-->
