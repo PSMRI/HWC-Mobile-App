@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.WebView
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ class WebViewFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.d("here is the url: $webUrl")
+        Log.d("aaaaaaaaaaaa","adfdf")
         webView.settings.javaScriptEnabled = true
         webView.webViewClient = WebViewClient()
         webView.loadUrl(webUrl)

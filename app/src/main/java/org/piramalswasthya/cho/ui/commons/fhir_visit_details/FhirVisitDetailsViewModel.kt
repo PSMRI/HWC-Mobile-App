@@ -1,28 +1,58 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.FhirVersionEnum
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.json.JSONObject
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
+import timber.log.Timber
 import java.util.UUID
+import javax.inject.Inject
 
-class FhirVisitDetailsViewModel (application: Application, private val state: SavedStateHandle) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class FhirVisitDetailsViewModel @Inject
+constructor(
+     @ApplicationContext private val application : Context,
+     private val apiService : AmritApiService,
+    private val state: SavedStateHandle
+     ) :
+    ViewModel() {
+
+    enum class LoadState{
+        IDLE,
+        LOADING,
+        SUCCESS,
+        FAIL
+    }
+
+    private val _state = MutableLiveData<String?>(null)
+    val loadState  : LiveData<String?>
+        get() = _state
 
     val questionnaire: String
         get() = getQuestionnaireJson()
@@ -45,7 +75,7 @@ class FhirVisitDetailsViewModel (application: Application, private val state: Sa
             if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
                     questionnaireResource,
                     questionnaireResponse,
-                    getApplication()
+                    context = application
                 )
                     .values
                     .flatten()
@@ -90,13 +120,40 @@ class FhirVisitDetailsViewModel (application: Application, private val state: Sa
     }
 
     private fun readFileFromAssets(filename: String): String {
-        return getApplication<Application>().assets.open(filename).bufferedReader().use {
+        return application.assets.open(filename).bufferedReader().use {
             it.readText()
         }
     }
 
     private fun generateUuid(): String {
         return UUID.randomUUID().toString()
+    }
+
+    fun launchESanjeenvani(networkBody : NetworkBody  ){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                try {
+                    val response = apiService.getAuthRefIdForWebView(networkBody)
+                    Log.d("Resp", "$response")
+                    if (response != null) {
+                        var referenceId = response.model.referenceId
+                        var url =
+                            "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
+                        Timber.d("$url")
+                        _state.postValue(url)
+
+                    }
+                } catch (e: Exception) {
+                    _state.postValue(null)
+                    Timber.d("Not able to fetch the data due to $e")
+                }
+            }
+
+        }
+    }
+
+    fun resetLoadState() {
+        _state.value = null
     }
 
 }

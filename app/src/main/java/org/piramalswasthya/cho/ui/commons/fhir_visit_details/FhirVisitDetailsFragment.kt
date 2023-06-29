@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +14,17 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.network.AmritApiService
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsViewModel.LoadState.*
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
 import java.security.MessageDigest
@@ -28,6 +32,7 @@ import javax.inject.Inject
 
 //R.layout.fragment_fhir_visit_details
 
+@AndroidEntryPoint
 class FhirVisitDetailsFragment : Fragment() {
 
     private var _binding: FragmentFhirVisitDetailsBinding? = null
@@ -61,6 +66,7 @@ class FhirVisitDetailsFragment : Fragment() {
         observePatientSaveAction()
         // button for navigate to web-view page of eSanjeevani
         binding.btnWebview.setOnClickListener {
+            Timber.tag("URL").d("erere")
             var user = "Cdac@1234";
             var token = "token"
             var passWord = encryptSHA512(encryptSHA512(user) + encryptSHA512(token))
@@ -72,25 +78,21 @@ class FhirVisitDetailsFragment : Fragment() {
                 "token",
                 "11001"
             )
-            var response: ModelObject
-
+            Timber.tag("Request").d("$networkBody")
             // calling getAuthRefIdForWebView() in coroutine scope for getting referenceId
-            coroutineScope.launch {
-                try {
-                    response = apiService.getAuthRefIdForWebView(networkBody)
-                    if(response != null){
-                        var referenceId = response.model.referenceId
-                        var url = "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
-                        Timber.d("$url")
-                        findNavController().navigate(
-                            UsernameFragmentDirections.actionWebviewFragment(url)
-                        )
-                    }
-                } catch (e : Exception){
-                    Timber.d("Not able to fetch the data due to $e")
-                }
-            }
+            viewModel.launchESanjeenvani(networkBody)
         }
+
+        viewModel.loadState.observe(viewLifecycleOwner){
+            it?.let {
+                Timber.d("Loaded at loadState : $it")
+                findNavController().navigate(
+                    FhirVisitDetailsFragmentD.actionWebviewFragment(it)
+                )
+                viewModel.resetLoadState()
+            }
+
+            }
     }
 
     private fun setUpActionBar() {

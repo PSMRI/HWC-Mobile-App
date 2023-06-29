@@ -263,10 +263,10 @@ data class ModelObject(
     val msgCode : Int,
     val message : String,
     val model : Model,
-    val lstModel: String,
-    val token : String,
+    val lstModel: String?,
+    val token : String?,
     val totalRecords: Int,
-    val msgType : String
+    val msgType : String?
 )
 
 data class Model(
