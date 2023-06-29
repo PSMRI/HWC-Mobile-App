@@ -8,15 +8,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.network.AmritApiService
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
 import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
+import org.piramalswasthya.cho.model.ModelObject
+import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
+import java.security.MessageDigest
+import javax.inject.Inject
 
 //R.layout.fragment_fhir_visit_details
 
@@ -26,6 +37,11 @@ class FhirVisitDetailsFragment : Fragment() {
 
     private val binding: FragmentFhirVisitDetailsBinding
         get() = _binding!!
+
+    @Inject
+    lateinit var apiService: AmritApiService
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -46,6 +62,38 @@ class FhirVisitDetailsFragment : Fragment() {
             addQuestionnaireFragment()
         }
         observePatientSaveAction()
+        // button for navigate to web-view page of eSanjeevani
+        binding.btnWebview.setOnClickListener {
+            var user = "Cdac@1234";
+            var token = "token"
+            var passWord = encryptSHA512(encryptSHA512(user) + encryptSHA512(token))
+
+            //creating object using encrypted Password and other details
+            var networkBody = NetworkBody(
+                "8501258162",
+                passWord,
+                "token",
+                "11001"
+            )
+            var response: ModelObject
+
+            // calling getAuthRefIdForWebView() in coroutine scope for getting referenceId
+            coroutineScope.launch {
+                try {
+                    response = apiService.getAuthRefIdForWebView(networkBody)
+                    if(response != null){
+                        var referenceId = response.model.referenceId
+                        var url = "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
+                        Timber.d("$url")
+                        findNavController().navigate(
+                            UsernameFragmentDirections.actionWebviewFragment(url)
+                        )
+                    }
+                } catch (e : Exception){
+                    Timber.d("Not able to fetch the data due to $e")
+                }
+            }
+        }
     }
 
     private fun setUpActionBar() {
@@ -94,6 +142,11 @@ class FhirVisitDetailsFragment : Fragment() {
     companion object {
         const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
         const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
+    }
+    private fun encryptSHA512(input: String): String {
+        val digest = MessageDigest.getInstance("SHA-512")
+        val hashBytes = digest.digest(input.toByteArray())
+        return hashBytes.joinToString("") { "%02x".format(it) }
     }
 
 }
