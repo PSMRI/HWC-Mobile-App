@@ -168,7 +168,6 @@ internal fun Patient.toPatientItem(position: Int): PersonalDetailsViewModel.Pati
     val city = if (hasAddress()) address[0].city else ""
     val country = if (hasAddress()) address[0].country else ""
     val isActive = active
-    val html: String = if (hasText()) text.div.valueAsString else ""
 
     return PersonalDetailsViewModel.PatientItem(
             id = position.toString(),
