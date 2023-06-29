@@ -251,3 +251,26 @@ data class UserNetwork(
     }
 }
 
+data class NetworkBody(
+    val userName: String,
+    val password : String,
+    val salt : String,
+    val Source : String
+)
+
+data class ModelObject(
+    val success : Boolean,
+    val msgCode : Int,
+    val message : String,
+    val model : Model,
+    val lstModel: String,
+    val token : String,
+    val totalRecords: Int,
+    val msgType : String
+)
+
+data class Model(
+    val id : String,
+    val referenceId : String,
+    val token : String
+)
