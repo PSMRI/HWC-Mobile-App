@@ -10,7 +10,7 @@ import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+//import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
 
@@ -51,7 +51,7 @@ class HomeActivity : AppCompatActivity() {
         var adapter = PatientListAdapter(this, benificiaryList)
 
         // Set the adapter to the ListView
-        binding.listView.adapter = adapter
+//        binding.listView.adapter = adapter
 
         binding.registration.setOnClickListener {
             val intent = Intent(this, RegisterPatientActivity::class.java)

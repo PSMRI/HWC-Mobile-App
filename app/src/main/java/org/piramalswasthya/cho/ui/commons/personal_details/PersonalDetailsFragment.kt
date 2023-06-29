@@ -24,6 +24,7 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemRecyclerViewAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.ui.home_activity.HomeActivityDirections
 import timber.log.Timber
 
 class PersonalDetailsFragment : Fragment() {
@@ -61,18 +62,18 @@ class PersonalDetailsFragment : Fragment() {
                 )
                         .get(PersonalDetailsViewModel::class.java)
         val recyclerView: RecyclerView = binding.patientListContainer.patientList
-        val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(
-                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
-                    setDrawable(ColorDrawable(Color.LTGRAY))
-                }
-        )
-
-        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
-            Timber.d("Submitting ${it.count()} patient records")
-            adapter.submitList(it)
-        }
+//        val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
+//        recyclerView.adapter = adapter
+//        recyclerView.addItemDecoration(
+//                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
+//                    setDrawable(ColorDrawable(Color.LTGRAY))
+//                }
+//        )
+//
+//        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+//            Timber.d("Submitting ${it.count()} patient records")
+//            adapter.submitList(it)
+//        }
 
         patientListViewModel.patientCount.observe(viewLifecycleOwner) {
             binding.patientListContainer.patientCount.text = "$it Patient(s)"
@@ -142,9 +143,9 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
 
-    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
-        findNavController()
-                .navigate(.navigateToProductDetail(patientItem.resourceId))
-    }
+//    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
+//        findNavController()
+//                .navigate(HomeActivityDirections.navigate(patientItem.resourceId))
+//    }
 
 }

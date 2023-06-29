@@ -14,7 +14,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
 import com.google.gson.Gson
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+//import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 
 class PatientListAdapter(context: Context, private val dataList: List<PatientDetails>) :
     ArrayAdapter<PatientDetails>(context, 0, dataList) {
@@ -38,12 +38,12 @@ class PatientListAdapter(context: Context, private val dataList: List<PatientDet
 //            intent.putExtra("key", "value")
 //            startActivity(intent)
 
-            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//            val intent = Intent(context, EditPatientDetailsActivity::class.java)
 //            val gson = Gson()
 //            val patientDetailsGson = gson.toJson(dataList[position])
 //            intent.putExtra("patientDetails", patientDetailsGson)
-            intent.putExtra("index", position)
-            startActivity(context, intent, null)
+//            intent.putExtra("index", position)
+//            startActivity(context, intent, null)
 
 //            Toast.makeText(context, "Clicked item at index $position", Toast.LENGTH_SHORT).show()
         }
