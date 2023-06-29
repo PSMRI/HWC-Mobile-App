@@ -20,7 +20,18 @@
             android:id="@+id/action_webview_fragment"
             app:destination="@+id/webviewFragment"/>
     </fragment>
-
+    <fragment
+        android:id="@+id/webviewFragment"
+        android:name="org.piramalswasthya.cho.ui.WebView.WebViewFragment"
+        android:label="Web View"
+        tools:layout="@layout/fragment_web_view">
+        <argument
+            android:name="webUrl"
+            app:argType="string"/>
+        <action
+            android:id="@+id/backtopreviousFragment"
+            app:destination="@id/usernameFragment"/>
+    </fragment>
     <fragment
         android:id="@+id/loginSettingsFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment"
