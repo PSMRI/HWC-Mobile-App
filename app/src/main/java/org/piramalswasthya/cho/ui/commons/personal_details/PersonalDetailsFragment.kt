@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -51,6 +52,10 @@ class PersonalDetailsFragment : Fragment() {
             title = resources.getString(R.string.title_patient_list)
             setDisplayHomeAsUpEnabled(true)
         }
+
+        binding.patientListContainer.patientList.adapter = PatientItemRecyclerViewAdapter(){
+            Log.d("Rv click", "$it")
+        }
         fhirEngine = CHOApplication.fhirEngine(requireContext())
         patientListViewModel =
                 ViewModelProvider(
@@ -77,6 +82,10 @@ class PersonalDetailsFragment : Fragment() {
 
         patientListViewModel.patientCount.observe(viewLifecycleOwner) {
             binding.patientListContainer.patientCount.text = "$it Patient(s)"
+        }
+        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+            (binding.patientListContainer.patientList.adapter as PatientItemRecyclerViewAdapter)
+                    .submitList(it)
         }
 
         searchView = binding.search
@@ -126,7 +135,8 @@ class PersonalDetailsFragment : Fragment() {
 //            }
 //        }
     }
-//    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
+
+    //    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
 //        findNavController()
 //            .navigate(PatientListFragmentDirections.navigateToProductDetail(patientItem.resourceId))
 //    }
@@ -142,6 +152,7 @@ class PersonalDetailsFragment : Fragment() {
                 searchView.clearFocus()
                 true
             }
+
             else -> false
         }
     }

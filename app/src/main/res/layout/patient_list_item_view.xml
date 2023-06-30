@@ -14,24 +14,27 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:paddingVertical="@dimen/fab_margin"
->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <ImageView
+  <data>
+
+  </data>
+
+  <RelativeLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingVertical="@dimen/fab_margin">
+
+    <ImageView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/text_margin"
         android:layout_marginTop="@dimen/status_margin"
-        android:gravity="center_vertical"
-    />
+        android:gravity="center_vertical" />
 
-  <TextView
+    <TextView
         android:layout_alignWithParentIfMissing="true"
         android:id="@+id/name"
         android:layout_width="wrap_content"
@@ -44,10 +47,9 @@
         android:layout_toEndOf="@id/status"
         android:textAppearance="?attr/textAppearanceSubtitle1"
         android:textStyle="bold"
-        tools:text="Navya Patel"
-    />
+        tools:text="Navya Patel" />
 
-  <TextView
+    <TextView
         android:id="@+id/field_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,10 +60,9 @@
         android:layout_alignStart="@id/name"
         android:singleLine="true"
         android:textAppearance="?attr/textAppearanceBody2"
-        tools:text="50 years old"
-    />
+        tools:text="50 years old" />
 
-  <TextView
+    <TextView
         android:id="@+id/id"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -72,6 +73,6 @@
         android:layout_marginEnd="@dimen/small_text_margin"
         android:layout_toEndOf="@id/status"
         android:textAppearance="?attr/textAppearanceBody2"
-        tools:text="Id: #...456"
-    />
-</RelativeLayout>
+        tools:text="Id: #...456" />
+  </RelativeLayout>
+</layout>

@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.personal_details
 
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.RiskAssessment
+import timber.log.Timber
 
 /**
  * The ViewModel helper class for PatientItemRecyclerViewAdapter, that is responsible for preparing
@@ -49,6 +51,7 @@ class PersonalDetailsViewModel(application: Application, private val fhirEngine:
     ) {
         viewModelScope.launch {
             liveSearchedPatients.value = search()
+            Log.d("sjdlkfj","Data  : ${liveSearchedPatients.value}")
             patientCount.value = count()
         }
     }
