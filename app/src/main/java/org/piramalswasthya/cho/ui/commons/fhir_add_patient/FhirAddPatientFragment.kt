@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
+
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -15,10 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.fhir.datacapture.QuestionnaireFragment
 
 import org.hl7.fhir.r4.model.QuestionnaireResponse
-import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import timber.log.Timber
 
 
 /** A fragment class to show patient registration screen. */
@@ -33,7 +30,7 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-//        observePatientSaveAction()
+        observePatientSaveAction()
 
         val submitButton = view.findViewById<Button>(R.id.btn_submit)
         submitButton.setOnClickListener {

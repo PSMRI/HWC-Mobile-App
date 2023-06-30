@@ -11,6 +11,8 @@ import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
+import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
 //import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
@@ -37,6 +39,8 @@ class HomeActivity : AppCompatActivity() {
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val fragmentVisitDetails = PersonalDetailsFragment();
+        supportFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
         // Create an ArrayList to hold your data
         val dataList = ArrayList<String>()
         dataList.add("Item 1")

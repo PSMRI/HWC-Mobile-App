@@ -33,7 +33,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/patient_list"
         android:layout_below="@+id/patient_count"
-        android:name="com.google.fhirengine.example.PatientListFragment"
+        android:name="org.piramalswasthaya.cho.ui.commons.personal_details.PatientListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
