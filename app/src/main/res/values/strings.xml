@@ -87,6 +87,7 @@
     <string name="previous">Previous</string>
     <string name="anthropometry">Anthropometry</string>
     <string name="benificiary_list">Benificiary List</string>
+    <string name="title_activity_visit_details">VisitDetailsActivity</string>
 
 
 </resources>

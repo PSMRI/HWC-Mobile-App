@@ -205,9 +205,9 @@ class OutreachFragment constructor(
         binding.btnOutreachLogin.setOnClickListener {
 //            Log.i("tag", "---------Login clicked--------");
 //            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
-            findNavController().navigate(
-                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
-            )
+//            findNavController().navigate(
+//                OutreachFragmentDirections.actionOutreachLoginFragmentToFhirVitalsFragment()
+//            )
         }
     }
 
