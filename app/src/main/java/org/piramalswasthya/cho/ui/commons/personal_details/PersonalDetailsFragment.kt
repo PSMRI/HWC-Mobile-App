@@ -61,19 +61,19 @@ class PersonalDetailsFragment : Fragment() {
                         )
                 )
                         .get(PersonalDetailsViewModel::class.java)
-        val recyclerView: RecyclerView = binding.patientListContainer.patientList
-        val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(
-                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
-                    setDrawable(ColorDrawable(Color.LTGRAY))
-                }
-        )
-
-        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
-            Timber.d("Submitting ${it.count()} patient records")
-            adapter.submitList(it)
-        }
+//        val recyclerView: RecyclerView = binding.patientListContainer.patientList
+//        val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
+//        recyclerView.adapter = adapter
+//        recyclerView.addItemDecoration(
+//                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
+//                    setDrawable(ColorDrawable(Color.LTGRAY))
+//                }
+//        )
+//
+//        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+//            Timber.d("Submitting ${it.count()} patient records")
+//            adapter.submitList(it)
+//        }
 
         patientListViewModel.patientCount.observe(viewLifecycleOwner) {
             binding.patientListContainer.patientCount.text = "$it Patient(s)"
@@ -126,10 +126,10 @@ class PersonalDetailsFragment : Fragment() {
 //            }
 //        }
     }
-    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
-        findNavController()
-            .navigate(PatientListFragmentDirections.navigateToProductDetail(patientItem.resourceId))
-    }
+//    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
+//        findNavController()
+//            .navigate(PatientListFragmentDirections.navigateToProductDetail(patientItem.resourceId))
+//    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

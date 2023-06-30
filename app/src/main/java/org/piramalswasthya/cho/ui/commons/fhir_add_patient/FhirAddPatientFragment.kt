@@ -66,7 +66,7 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
 
     private fun updateArguments() {
         val bundle = Bundle()
-        bundle.putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
+        bundle.putString(QUESTIONNAIRE_FILE_PATH_KEY, "patient-visit-details-paginated.json")
         arguments = bundle
     }
 
