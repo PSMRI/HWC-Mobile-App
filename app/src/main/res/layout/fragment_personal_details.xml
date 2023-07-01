@@ -1,98 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_personal_details"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".ui.register_patient_activity.RegisterPatientActivity">
+    android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-
-        <TextView
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/rounded_corner_view"
-            android:outlineProvider="none"
-            android:text="@string/personal_details"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/white"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            android:background="@drawable/searchview_background"
+            android:padding="8dp"
+            app:iconifiedByDefault="false"
+            android:paddingTop="10dp"
+            app:queryHint="@string/query_hint_patient_search" />
 
-        <TextView
-            android:id="@+id/first_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/first_name"
-            style="@style/HeadingText" />
 
-        <EditText
-            android:id="@+id/etFirstName"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/last_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/last_name_surname"
-            style="@style/HeadingText" />
-
-        <EditText
-            android:id="@+id/etLastName"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:id="@+id/phone_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/contact_no"
-            style="@style/HeadingText" />
-
-        <EditText
-            android:id="@+id/etContactNo"
-            android:inputType="phone"
-            android:digits="0123456789"
-            android:maxLength="10"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/gender_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/gender"
-            style="@style/HeadingText" />
-
-        <Spinner
-            android:id="@+id/spGender"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/etAge_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/age"
-            style="@style/HeadingText" />
-
-        <EditText
-            android:id="@+id/etAge"
-            android:inputType="number"
-            style="@style/EditTextField"
-            android:layout_marginBottom="16dp"/>
-
+        <include
+            android:id="@+id/patient_list_container"
+            layout="@layout/patient_list_view" />
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout >
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

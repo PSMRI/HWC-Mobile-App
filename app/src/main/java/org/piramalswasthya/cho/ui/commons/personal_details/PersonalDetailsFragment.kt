@@ -1,149 +1,165 @@
 package org.piramalswasthya.cho.ui.commons.personal_details
 
-import androidx.lifecycle.ViewModelProvider
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.core.widget.addTextChangedListener
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.fhir.FhirEngine
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.adapter.PatientItemRecyclerViewAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
-import org.piramalswasthya.cho.model.PatientDetails
+import org.piramalswasthya.cho.ui.home_activity.HomeActivityDirections
+import timber.log.Timber
 
-class PersonalDetailsFragment constructor(
-    private val patientDetails: PatientDetails,
-): Fragment() {
-
+class PersonalDetailsFragment : Fragment() {
+    private lateinit var fhirEngine: FhirEngine
+    private lateinit var patientListViewModel: PersonalDetailsViewModel
+    private lateinit var searchView: SearchView
     private var _binding: FragmentPersonalDetailsBinding? = null
-
-    private val binding: FragmentPersonalDetailsBinding
+    private val binding
         get() = _binding!!
 
-    private lateinit var viewModel: PersonalDetailsViewModel
-
-    val genders = arrayOf("Male", "Female", "Transgender")
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPersonalDetailsBinding.inflate(layoutInflater, container, false)
-        setupGenderSpinner(binding.root)
+        _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setOnChangeListener()
-        setInitialValues()
-    }
-
-    private fun setupGenderSpinner(view: View) {
-        val subGenderSpinner = binding.spGender
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, genders)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        subGenderSpinner.adapter = adapter
-    }
-
-    private fun setInitialValues(){
-        if(patientDetails.firstName != null)
-            binding.etFirstName.setText(patientDetails.firstName)
-
-        if(patientDetails.lastName != null)
-            binding.etLastName.setText(patientDetails.lastName)
-
-        if(patientDetails.age != null)
-            binding.etAge.setText(patientDetails.age.toString())
-
-        if(patientDetails.contactNo != null)
-            binding.etContactNo.setText(patientDetails.contactNo)
-
-        if(patientDetails.gender != null)
-            binding.spGender.setSelection(
-                (binding.spGender.adapter as ArrayAdapter<String>).getPosition(
-                    patientDetails.gender
-                )
-            )
-    }
-
-    private fun setOnChangeListener(){
-
-        binding.etFirstName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // This method is called before the text is changed
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.firstName = binding.etFirstName.text.toString()
-            }
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-        })
-
-        binding.etLastName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // This method is called before the text is changed
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.lastName = binding.etLastName.text.toString()
-            }
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-        })
-
-        binding.etContactNo.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // This method is called before the text is changed
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                patientDetails.contactNo = binding.etContactNo.text.toString()
-            }
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-        })
-
-        binding.etAge.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // This method is called before the text is changed
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val text = binding.etAge.text.toString();
-                if(text.isEmpty()){
-                    patientDetails.age = null
-                }
-                else{
-                    patientDetails.age = text.toInt()
-                }
-            }
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
-        })
-
-        binding.spGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                patientDetails.gender = genders[position]
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
+        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
+            title = resources.getString(R.string.title_patient_list)
+            setDisplayHomeAsUpEnabled(true)
         }
 
+        binding.patientListContainer.patientList.adapter = PatientItemRecyclerViewAdapter(){
+            Log.d("Rv click", "$it")
+        }
+        fhirEngine = CHOApplication.fhirEngine(requireContext())
+        patientListViewModel =
+                ViewModelProvider(
+                        this,
+                        PersonalDetailsViewModel.PatientListViewModelFactory(
+                                requireActivity().application,
+                                fhirEngine
+                        )
+                )
+                        .get(PersonalDetailsViewModel::class.java)
+//        val recyclerView: RecyclerView = binding.patientListContainer.patientList
+//        val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
+//        recyclerView.adapter = adapter
+//        recyclerView.addItemDecoration(
+//                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
+//                    setDrawable(ColorDrawable(Color.LTGRAY))
+//                }
+//        )
+//
+//        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+//            Timber.d("Submitting ${it.count()} patient records")
+//            adapter.submitList(it)
+//        }
+
+        patientListViewModel.patientCount.observe(viewLifecycleOwner) {
+            binding.patientListContainer.patientCount.text = "$it Patient(s)"
+        }
+        patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+            (binding.patientListContainer.patientList.adapter as PatientItemRecyclerViewAdapter)
+                    .submitList(it)
+        }
+
+        searchView = binding.search
+        searchView.setOnQueryTextListener(
+                object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextChange(newText: String): Boolean {
+                        patientListViewModel.searchPatientsByName(newText)
+                        return true
+                    }
+
+                    override fun onQueryTextSubmit(query: String): Boolean {
+                        patientListViewModel.searchPatientsByName(query)
+                        return true
+                    }
+                }
+        )
+        searchView.setOnQueryTextFocusChangeListener { view, focused ->
+            if (!focused) {
+                // hide soft keyboard
+                (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                        .hideSoftInputFromWindow(view.windowToken, 0)
+            }
+        }
+        requireActivity()
+                .onBackPressedDispatcher.addCallback(
+                        viewLifecycleOwner,
+                        object : OnBackPressedCallback(true) {
+                            override fun handleOnBackPressed() {
+                                if (searchView.query.isNotEmpty()) {
+                                    searchView.setQuery("", true)
+                                } else {
+                                    isEnabled = false
+                                    activity?.onBackPressed()
+                                }
+                            }
+                        }
+                )
+        setHasOptionsMenu(true)
+
+//        lifecycleScope.launch {
+//            mainActivityViewModel.pollState.collect {
+//                Timber.d("onViewCreated: pollState Got status $it")
+//                // After the sync is successful, update the patients list on the page.
+//                if (it is State.Finished) {
+//                    patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+//                }
+//            }
+//        }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
-        // TODO: Use the ViewModel
+    //    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
+//        findNavController()
+//            .navigate(PatientListFragmentDirections.navigateToProductDetail(patientItem.resourceId))
+//    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                // hide the soft keyboard when the navigation drawer is shown on the screen.
+                searchView.clearFocus()
+                true
+            }
+
+            else -> false
+        }
+    }
+
+//    private fun onPatientItemClicked(patientItem: PersonalDetailsViewModel.PatientItem) {
+//        findNavController()
+//                .navigate(HomeActivityDirections.navigate(patientItem.resourceId))
+//    }
 
 }
