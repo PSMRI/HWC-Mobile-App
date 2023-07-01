@@ -32,10 +32,10 @@ import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 
 class PatientItemViewHolder(binding: PatientListItemViewBinding) :
   RecyclerView.ViewHolder(binding.root) {
-  private val statusView: ImageView = binding.status
   private val nameView: TextView = binding.name
-  private val ageView: TextView = binding.fieldName
-  private val idView: TextView = binding.id
+  private val ageView: TextView = binding.age
+  private val phoneView: TextView = binding.phoneNo
+  private val gender: TextView = binding.gender
 
   @RequiresApi(Build.VERSION_CODES.O)
   fun bindTo(
@@ -44,7 +44,8 @@ class PatientItemViewHolder(binding: PatientListItemViewBinding) :
   ) {
     this.nameView.text = patientItem.name
     this.ageView.text = getFormattedAge(patientItem, ageView.context.resources)
-    this.idView.text = "Id: #---${getTruncatedId(patientItem)}"
+    this.phoneView.text = patientItem.phone
+    this.gender.text = patientItem.gender
     this.itemView.setOnClickListener { onItemClicked(patientItem) }
   }
 
