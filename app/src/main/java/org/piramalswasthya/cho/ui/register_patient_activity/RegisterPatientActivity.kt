@@ -1,11 +1,13 @@
 package org.piramalswasthya.cho.ui.register_patient_activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.visit_details_activity.VisitDetailsActivity
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {
@@ -25,11 +27,11 @@ class RegisterPatientActivity : AppCompatActivity() {
         val fragmentPersonalDetails = FhirAddPatientFragment();
         supportFragmentManager.beginTransaction().replace(binding.patientRegistration.id, fragmentPersonalDetails).commit()
 
-//        binding.btnSubmit.setOnClickListener {
+        binding.btnSubmit.setOnClickListener {
 //            benificiaryList.add(patientDetails)
-//            val intent = Intent(this, HomeActivity::class.java)
-//            startActivity(intent)
-//        }
+            val intent = Intent(this, VisitDetailsActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 

@@ -81,13 +81,13 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
         var questionnaireJsonObject = JSONObject(questionnaireJson!!)
 
 //        jsonObject.getJSONArray("item")[0].get("answerOption")[0].get("valueCoding").put("display", "OPD")
-        questionnaireJsonObject
-            .getJSONArray("item")
-            .getJSONObject(0)
-            .getJSONArray("answerOption")
-            .getJSONObject(0)
-            .getJSONObject("valueCoding")
-            .put("display", "OPD")
+//        questionnaireJsonObject
+//            .getJSONArray("item")
+//            .getJSONObject(0)
+//            .getJSONArray("answerOption")
+//            .getJSONObject(0)
+//            .getJSONObject("valueCoding")
+//            .put("display", "OPD")
 //        itemArray.getJSONObject(0).getJSONArray("")
 
 
