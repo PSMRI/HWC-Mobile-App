@@ -60,7 +60,8 @@
               android:id="@+id/abha_number_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Abha Number:" />
+              android:text="Abha Number:"
+              android:textStyle="bold" />
 
           <TextView
               android:id="@+id/abha_number"
@@ -84,7 +85,8 @@
               android:id="@+id/age_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Age:" />
+              android:text="Age:"
+              android:textStyle="bold" />
 
           <TextView
               android:id="@+id/age"
@@ -109,20 +111,20 @@
             android:orientation="horizontal">
 
           <TextView
-              android:id="@+id/gender_label"
+              android:id="@+id/phone_no_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Gender:" />
+              android:text="Phone Number:"
+              android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/gender"
+              android:id="@+id/phone_no"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@string/gender"
+              android:text="@string/phone_no"
               android:layout_marginStart="8dp" />
 
         </LinearLayout>
-
         <Space
             android:layout_width="24dp"
             android:layout_height="match_parent" />
@@ -133,16 +135,17 @@
             android:orientation="horizontal">
 
           <TextView
-              android:id="@+id/phone_no_label"
+              android:id="@+id/gender_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Phone Number:" />
+              android:text="Gender:"
+              android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/phone_no"
+              android:id="@+id/gender"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@string/phone_no"
+              android:text="@string/gender"
               android:layout_marginStart="8dp" />
 
         </LinearLayout>
