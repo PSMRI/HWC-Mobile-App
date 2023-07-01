@@ -34,6 +34,22 @@ interface AmritApiService {
         @Path("blockId") blockId: Int,
     ): VillageMasterResponse
 
+
+    @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
+    suspend fun getStatesMasterList(): Response<ResponseBody>
+    @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
+    suspend fun getLanguagesList(): Response<ResponseBody>
+
+    @GET("/hwc-facility-service/master/get/visitReasonAndCategories?apiKey=undefined")
+    suspend fun getVisitReasonAndCategories(): Response<ResponseBody>
+
+    @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
+    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
+
+
+    @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
+    suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
+//
 //
 //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
 //    suspend fun getTMVanSpDetails(

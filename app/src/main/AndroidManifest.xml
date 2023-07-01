@@ -4,6 +4,7 @@
 
     <uses-feature android:name="android.hardware.camera" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -25,6 +26,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.visit_details_activity.VisitDetailsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_visit_details"
+            android:theme="@style/Theme.CHO" />
+        <activity android:name=".ui.patient_vitals_activity.PatientVitalsActivity"
+            android:exported="false"
+            />
+        <activity android:name=".ui.patient_revisit_activity.PatientRevisitActivity"
+            android:exported="false"
+            />
+        <activity
             android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
             android:exported="false" />
         <activity
@@ -41,12 +53,13 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
-                android:value=""/>
+                android:value="" />
         </activity>
     </application>
 

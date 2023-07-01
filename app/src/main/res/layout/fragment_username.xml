@@ -50,7 +50,7 @@
                 android:layout_marginTop="@dimen/margin_big"
                 android:layout_height="@dimen/btn_height"
                 android:text="@string/next"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:textSize="@dimen/text_big"/>
 
         </LinearLayout>

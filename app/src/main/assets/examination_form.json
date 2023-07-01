@@ -1,0 +1,509 @@
+{
+  "resourceType": "Questionnaire",
+  "title": "Examination",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "General Examination",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "1.1",
+          "text": "Consciousness",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0005",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0005",
+                "code": "Conscious",
+                "display": "Conscious"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0005",
+                "code": "SemiConscious",
+                "display": "SemiConscious"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0005",
+                "code": "UnConscious",
+                "display": "UnConscious"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.2",
+          "text": "Danger Signs",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.3",
+          "text": "Danger Signs Details",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "enableWhen": [
+            {
+              "question": "1.2",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            }
+          ],
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "FastBreathing",
+                "display": "Fast breathing"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "ChestWithdrawing",
+                "display": "Chest withdrawing"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Stridor",
+                "display": "Stridor"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Grunt",
+                "display": "Grunt"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Respiratory Distress",
+                "display": "Respiratory Distress"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Cold and Calm Peripheral Pulses",
+                "display": "Cold and Calm Peripheral Pulses"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Convulsions",
+                "display": "Convulsions"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Hypothermia",
+                "display": "Hypothermia"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Delirium",
+                "display": "Delirium"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Drowsy",
+                "display": "Drowsy"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Uncontrolled Bleeding",
+                "display": "Uncontrolled Bleeding"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Hemetemesis",
+                "display": "Hemetemesis"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Refusal of Fits",
+                "display": "Refusal of Fits"
+              }
+            }
+          ],
+          "repeats": true
+        },
+        {
+          "linkId": "1.4",
+          "text": "Pallor",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.5",
+          "text": "Jaundice",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.6",
+          "text": "Cyanosis",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.7",
+          "text": "Clubbing",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.8",
+          "text": "Lymphadenopathy",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.9",
+          "text": "Lymph Nodes Involved",
+          "type": "choice",
+          "answerValueSet": "http://example.com/lymph-nodes",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "CervicalLN",
+                "display": "Cervical LN"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "AxillaryLN",
+                "display": "Axillary LN"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "InguinalLN",
+                "display": "Inguinal LN"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "GeneralisedLN",
+                "display": "Generalised LN"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.10",
+          "text": "Type of Lymphadenopathy",
+          "type": "choice",
+          "answerValueSet": "http://example.com/lymph-nodes",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Soft",
+                "display": "Soft"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Firm",
+                "display": "Firm"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Hard",
+                "display": "Hard"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Fluctuant",
+                "display": "Fluctuant"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Matting",
+                "display": "Matting"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Fixed",
+                "display": "Fixed"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/lymph-nodes",
+                "code": "Mobile",
+                "display": "Mobile"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.11",
+          "text": "Edema",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "No",
+                "display": "No"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.12",
+          "text": "Extent Of edema",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "enableWhen": [
+            {
+              "question": "1.11",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            }
+          ],
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Foot",
+                "display": "Foot"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Leg",
+                "display": "Leg"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "FacialPuffiness",
+                "display": "Facial puffiness"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Generalised",
+                "display": "Generalised"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.13",
+          "text": "Type Of Edema",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "enableWhen": [
+            {
+              "question": "1.11",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Yes",
+                "display": "Yes"
+              }
+            }
+          ],
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Pitting",
+                "display": "Pitting"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://example.com/danger-signs",
+                "code": "Non-Pitting",
+                "display": "Non-Pitting"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Head to Toe Examination",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "2.1",
+          "text": "Head to Toe Examination",
+          "type": "choice",
+          "answerValueSet": "http://terminology.hl7.org/ValueSet/v2-0136",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Normal",
+                "display": "Normal"
+              }
+            },
+            {
+              "valueCoding": {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0136",
+                "code": "Abnormal",
+                "display": "Abnormal"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

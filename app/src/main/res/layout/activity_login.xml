@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:background="@color/primary"
+                android:background="@color/purple"
                 android:padding="16dp"
                 android:text="@string/app_title"
                 android:textColor="#FFFFFF"

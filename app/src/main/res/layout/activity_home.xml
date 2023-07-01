@@ -49,7 +49,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:text="@string/registration" />
 
             <Button
@@ -57,7 +57,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:text="@string/advance_search" />
 
         </LinearLayout>
