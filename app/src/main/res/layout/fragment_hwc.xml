@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginTop="@dimen/margin_big"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:text="@string/login"
                 android:textSize="@dimen/text_big" />
 
