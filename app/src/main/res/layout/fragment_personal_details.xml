@@ -1,26 +1,29 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/searchview_background"
+            android:padding="8dp"
             app:iconifiedByDefault="false"
-            app:queryHint="@string/query_hint_patient_search"
-            />
+            android:paddingTop="10dp"
+            app:queryHint="@string/query_hint_patient_search" />
+
+
         <include
             android:id="@+id/patient_list_container"
-            layout="@layout/patient_list_view"
-            />
+            layout="@layout/patient_list_view" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
