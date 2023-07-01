@@ -65,6 +65,10 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
             val patient = entry.resource as Patient
             patient.id = generateUuid()
             fhirEngine.create(patient)
+//            patient.
+//            val patient1 = fhirEngine.get(Patient::class.java, patient.id)
+            fhirEngine.get(patient.resourceType, patient.id )
+            fhirEngine.update()
             isPatientSaved.value = true
         }
     }

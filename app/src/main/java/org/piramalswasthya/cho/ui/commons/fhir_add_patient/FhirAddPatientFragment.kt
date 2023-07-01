@@ -71,15 +71,15 @@ class FhirAddPatientFragment : Fragment() {
         }
     }
 
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-//
-//    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-//        viewModel.savePatient(questionnaireResponse)
-//    }
+    private fun onSubmitAction() {
+        val questionnaireFragment =
+            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+        savePatient(questionnaireFragment.getQuestionnaireResponse())
+    }
+
+    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+        viewModel.savePatient(questionnaireResponse)
+    }
 
     private fun observePatientSaveAction() {
         viewModel.isPatientSaved.observe(viewLifecycleOwner) {

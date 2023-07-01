@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
 import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
@@ -45,7 +47,7 @@ class FhirVisitDetailsFragment : Fragment() {
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-        observePatientSaveAction()
+//        observePatientSaveAction()
     }
 
     private fun setUpActionBar() {
@@ -70,15 +72,16 @@ class FhirVisitDetailsFragment : Fragment() {
         }
     }
 
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-//
-//    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-//        viewModel.savePatient(questionnaireResponse)
-//    }
+    public fun onSubmitAction() {
+        Log.i("first", "first")
+        val questionnaireFragment =
+            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+        savePatient(questionnaireFragment.getQuestionnaireResponse())
+    }
+
+    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+        viewModel.savePatient(questionnaireResponse)
+    }
 
     private fun observePatientSaveAction() {
         viewModel.isPatientSaved.observe(viewLifecycleOwner) {

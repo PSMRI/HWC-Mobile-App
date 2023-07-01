@@ -1,6 +1,10 @@
 {
   "resourceType": "Questionnaire",
   "status": "active",
+  "subjectType": [
+    "Questionnaire"
+  ],
+
   "item": [
     {
       "linkId": "category",
