@@ -1,10 +1,12 @@
 package org.piramalswasthya.cho.ui.commons.personal_details
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -25,6 +27,8 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemRecyclerViewAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.home_activity.HomeActivityDirections
 import timber.log.Timber
 
@@ -54,6 +58,8 @@ class PersonalDetailsFragment : Fragment() {
         }
 
         binding.patientListContainer.patientList.adapter = PatientItemRecyclerViewAdapter(){
+            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+            startActivity(intent)
             Log.d("Rv click", "$it")
         }
         fhirEngine = CHOApplication.fhirEngine(requireContext())
@@ -80,6 +86,7 @@ class PersonalDetailsFragment : Fragment() {
 //            adapter.submitList(it)
 //        }
 
+
         patientListViewModel.patientCount.observe(viewLifecycleOwner) {
             binding.patientListContainer.patientCount.text = "$it Patient(s)"
         }
@@ -87,6 +94,12 @@ class PersonalDetailsFragment : Fragment() {
             (binding.patientListContainer.patientList.adapter as PatientItemRecyclerViewAdapter)
                     .submitList(it)
         }
+
+//        binding.patientListContainer.patientList.setOnClickListener {
+//            Timber.tag("Outreach username").i("view clicked!!!!!");
+//            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//            startActivity(intent)
+//        }
 
         searchView = binding.search
         searchView.setOnQueryTextListener(

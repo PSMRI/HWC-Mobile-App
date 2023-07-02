@@ -13,6 +13,8 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.ActivityHomeBinding
+import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import java.util.*
 
@@ -20,6 +22,10 @@ import java.util.*
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
+    private var _binding: ActivityLoginBinding? = null
+
+    private val binding: ActivityLoginBinding
+        get() = _binding!!
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -37,8 +43,10 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        _binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         print("app started")
-        setContentView(R.layout.activity_login)
+
         // createSyncServiceNotificationChannel()
 //        setUpCurrentLanguage()
 

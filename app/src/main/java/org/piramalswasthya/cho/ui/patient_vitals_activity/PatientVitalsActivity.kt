@@ -25,7 +25,6 @@ class PatientVitalsActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().replace(binding.patientVitalsContainer.id, fragmentPatientVitals).commit()
 
         binding.btnSubmitVitals.setOnClickListener {
-//            benificiaryList.add(patientDetails)
             val intent = Intent(this, PatientRevisitActivity::class.java)
             startActivity(intent)
         }

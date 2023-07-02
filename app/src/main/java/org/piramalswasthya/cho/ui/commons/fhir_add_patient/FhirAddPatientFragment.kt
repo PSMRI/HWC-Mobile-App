@@ -32,12 +32,12 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-        observePatientSaveAction()
+//        observePatientSaveAction()
 
-        val submitButton = view.findViewById<Button>(R.id.btn_submit)
-        submitButton.setOnClickListener {
-            onSubmitAction()
-        }
+//        val submitButton = view.findViewById<Button>(R.id.btn_submit)
+//        submitButton.setOnClickListener {
+//            onSubmitAction()
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -83,7 +83,7 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
         }
     }
 
-    private fun onSubmitAction() {
+    public fun onSubmitAction() {
         val questionnaireFragment =
             childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
         savePatient(questionnaireFragment.getQuestionnaireResponse())

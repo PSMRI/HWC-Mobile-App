@@ -1,9 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_revisit_form
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,8 +10,6 @@ import androidx.fragment.app.viewModels
 import com.google.android.fhir.datacapture.QuestionnaireFragment
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment
-import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsViewModel
 import timber.log.Timber
 
 /**
@@ -21,7 +17,7 @@ import timber.log.Timber
  * Use the [FhirRevisitFormFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FhirRevisitFormFragment : Fragment(R.layout.fragment_revisit_form) {
+class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form) {
 
     private val viewModel: FhirRevisitViewModel by viewModels()
 
