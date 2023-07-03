@@ -2,6 +2,8 @@ package org.piramalswasthya.cho.network
 
 import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.ModelObject
+import org.piramalswasthya.cho.model.NetworkBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -10,7 +12,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AmritApiService {
-
+    @Suppress("SpellCheckingInspection")
+    private companion object ApiMappings{
+        const val authenticate = "authenticateReference"
+    }
     @Headers("No-Auth: true")
     @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
@@ -51,6 +56,11 @@ interface AmritApiService {
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
 //
 //
+
+
+    @POST(authenticate)
+    suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
+
 //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
 //    suspend fun getTMVanSpDetails(
 //        @Body vanServiceType: TmcUserVanSpDetailsRequest

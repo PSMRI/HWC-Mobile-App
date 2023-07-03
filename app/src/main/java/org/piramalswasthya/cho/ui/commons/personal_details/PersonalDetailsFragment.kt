@@ -29,7 +29,6 @@ import org.piramalswasthya.cho.adapter.PatientItemRecyclerViewAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.home_activity.HomeActivityDirections
 import timber.log.Timber
 
 class PersonalDetailsFragment : Fragment() {

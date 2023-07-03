@@ -18,6 +18,18 @@
             app:destination="@id/choLoginFragment" />
     </fragment>
     <fragment
+        android:id="@+id/webviewFragment"
+        android:name="org.piramalswasthya.cho.ui.WebView.WebViewFragment"
+        android:label="Web View"
+        tools:layout="@layout/fragment_web_view">
+        <argument
+            android:name="webUrl"
+            app:argType="string"/>
+        <action
+            android:id="@+id/backtopreviousFragment"
+            app:destination="@id/fhirVisitDetailsFragment"/>
+    </fragment>
+    <fragment
         android:id="@+id/loginSettingsFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment"
         android:label="fragment_login_settings"
@@ -97,7 +109,19 @@
         android:id="@+id/homeActivity"
         android:name="org.piramalswasthya.cho.ui.home_activity.HomeActivity"
         android:label="activity_home_content"
-        tools:layout="@layout/activity_home" />
+        tools:layout="@layout/activity_home" >
+    </activity>
+
+    <fragment
+        android:id="@+id/fhirVisitDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment"
+        android:label="fragment_fhir_visit_details"
+        tools:layout="@layout/fragment_fhir_visit_details">
+        <action
+            android:id="@+id/action_webview_fragment"
+            app:destination="@+id/webviewFragment"/>
+    </fragment>
+
 
 
 </navigation>
