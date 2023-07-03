@@ -24,63 +24,63 @@ import org.piramalswasthya.cho.CHOApplication
 class FhirAddPatientViewModel(application: Application, private val state: SavedStateHandle) :
     AndroidViewModel(application) {
 
-val questionnaire: String
-    get() = getQuestionnaireJson()
-val isPatientSaved = MutableLiveData<Boolean>()
+    val questionnaire: String
+        get() = getQuestionnaireJson()
+    val isPatientSaved = MutableLiveData<Boolean>()
 
-private val questionnaireResource: Questionnaire
-    get() =
-        FhirContext.forCached(FhirVersionEnum.R4).newJsonParser().parseResource(questionnaire)
-                as Questionnaire
-private var fhirEngine: FhirEngine = CHOApplication.fhirEngine(application.applicationContext)
-private var questionnaireJson: String? = null
+    private val questionnaireResource: Questionnaire
+        get() =
+            FhirContext.forCached(FhirVersionEnum.R4).newJsonParser().parseResource(questionnaire)
+                    as Questionnaire
+    private var fhirEngine: FhirEngine = CHOApplication.fhirEngine(application.applicationContext)
+    private var questionnaireJson: String? = null
 
-/**
- * Saves patient registration questionnaire response into the application database.
- *
- * @param questionnaireResponse patient registration questionnaire response
- */
-fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-    viewModelScope.launch {
-        if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
-                questionnaireResource,
-                questionnaireResponse,
-                getApplication()
-            )
-                .values
-                .flatten()
-                .any { it is Invalid }
-        ) {
-            isPatientSaved.value = false
-            return@launch
+    /**
+     * Saves patient registration questionnaire response into the application database.
+     *
+     * @param questionnaireResponse patient registration questionnaire response
+     */
+    fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+        viewModelScope.launch {
+            if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
+                    questionnaireResource,
+                    questionnaireResponse,
+                    getApplication()
+                )
+                    .values
+                    .flatten()
+                    .any { it is Invalid }
+            ) {
+                isPatientSaved.value = false
+                return@launch
+            }
+
+            val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse).entryFirstRep
+            if (entry.resource !is Patient) {
+                return@launch
+            }
+            val patient = entry.resource as Patient
+            patient.id = generateUuid()
+            fhirEngine.create(patient)
+            isPatientSaved.value = true
         }
+    }
 
-        val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse).entryFirstRep
-        if (entry.resource !is Patient) {
-            return@launch
+    private fun getQuestionnaireJson(): String {
+        questionnaireJson?.let {
+            return it
         }
-        val patient = entry.resource as Patient
-        patient.id = generateUuid()
-        fhirEngine.create(patient)
-        isPatientSaved.value = true
+        questionnaireJson = readFileFromAssets(state[FhirAddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
+        return questionnaireJson!!
     }
-}
 
-private fun getQuestionnaireJson(): String {
-    questionnaireJson?.let {
-        return it
+    private fun readFileFromAssets(filename: String): String {
+        return getApplication<Application>().assets.open(filename).bufferedReader().use {
+            it.readText()
+        }
     }
-    questionnaireJson = readFileFromAssets(state[FhirAddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
-    return questionnaireJson!!
-}
 
-private fun readFileFromAssets(filename: String): String {
-    return getApplication<Application>().assets.open(filename).bufferedReader().use {
-        it.readText()
+    private fun generateUuid(): String {
+        return UUID.randomUUID().toString()
     }
-}
-
-private fun generateUuid(): String {
-    return UUID.randomUUID().toString()
-}
 }
