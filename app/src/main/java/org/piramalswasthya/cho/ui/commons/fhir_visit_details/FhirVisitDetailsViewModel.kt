@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.FhirVersionEnum
+import ca.uhn.fhir.model.api.annotation.Extension
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.instance.model.api.IBaseResource
 import kotlinx.coroutines.withContext
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
@@ -29,6 +30,7 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import timber.log.Timber
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
 import java.util.UUID
@@ -72,16 +74,18 @@ constructor(
      */
     fun savePatient(questionnaireResponse: QuestionnaireResponse) {
         viewModelScope.launch {
+            Log.i("before launch", "launch")
             if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
                     questionnaireResource,
                     questionnaireResponse,
-                    context = application
+                    getApplication()
                 )
                     .values
                     .flatten()
                     .any { it is Invalid }
             ) {
                 isPatientSaved.value = false
+                Log.i("launch1", "launch1")
                 return@launch
             }
 
@@ -92,6 +96,8 @@ constructor(
             val patient = entry.resource as Patient
             patient.id = generateUuid()
             fhirEngine.create(patient)
+            isPatientSaved.value = true
+
             isPatientSaved.value = true
         }
     }
@@ -120,7 +126,7 @@ constructor(
     }
 
     private fun readFileFromAssets(filename: String): String {
-        return application.assets.open(filename).bufferedReader().use {
+        return getApplication<Application>().assets.open(filename).bufferedReader().use {
             it.readText()
         }
     }

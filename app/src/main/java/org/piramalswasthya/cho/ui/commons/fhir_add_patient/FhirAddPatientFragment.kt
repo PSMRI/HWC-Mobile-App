@@ -2,9 +2,11 @@ package org.piramalswasthya.cho.ui.commons.fhir_add_patient
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+
 import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -14,40 +16,48 @@ import com.google.android.fhir.datacapture.QuestionnaireFragment
 
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
-import org.piramalswasthya.cho.databinding.FragmentVitalsFormBinding
 import timber.log.Timber
 
 
 /** A fragment class to show patient registration screen. */
-class FhirAddPatientFragment : Fragment() {
-
-    private var _binding: FragmentFhirAddPatientBinding? = null
-
-    private val binding: FragmentFhirAddPatientBinding
-        get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentFhirAddPatientBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
+class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient) {
 
     private val viewModel: FhirAddPatientViewModel by viewModels()
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.d("initiated")
         super.onViewCreated(view, savedInstanceState)
         setUpActionBar()
-        setHasOptionsMenu(true)
-         updateArguments()
+        updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-        observePatientSaveAction()
+//        observePatientSaveAction()
+
+//        val submitButton = view.findViewById<Button>(R.id.btn_submit)
+//        submitButton.setOnClickListener {
+//            onSubmitAction()
+//        }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.add_patient_fragment_menu, menu)
+    }
+
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.action_add_patient_submit -> {
+//                onSubmitAction()
+//                true
+//            }
+//            android.R.id.home -> {
+//                NavHostFragment.findNavController(this).navigateUp()
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     private fun setUpActionBar() {
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
@@ -57,9 +67,11 @@ class FhirAddPatientFragment : Fragment() {
     }
 
     private fun updateArguments() {
-        arguments = Bundle()
-        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
+        val bundle = Bundle()
+        bundle.putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
+        arguments = bundle
     }
+
 
     private fun addQuestionnaireFragment() {
         childFragmentManager.commit {
@@ -71,15 +83,15 @@ class FhirAddPatientFragment : Fragment() {
         }
     }
 
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-//
-//    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-//        viewModel.savePatient(questionnaireResponse)
-//    }
+    public fun onSubmitAction() {
+        val questionnaireFragment =
+            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+        savePatient(questionnaireFragment.getQuestionnaireResponse())
+    }
+
+    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+        viewModel.savePatient(questionnaireResponse)
+    }
 
     private fun observePatientSaveAction() {
         viewModel.isPatientSaved.observe(viewLifecycleOwner) {

@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import org.hl7.fhir.r4.model.QuestionnaireResponse
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirVisitDetailsBinding
@@ -39,11 +40,6 @@ class FhirVisitDetailsFragment : Fragment() {
 
     private val binding: FragmentFhirVisitDetailsBinding
         get() = _binding!!
-
-    @Inject
-    lateinit var apiService: AmritApiService
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -117,15 +113,16 @@ class FhirVisitDetailsFragment : Fragment() {
         }
     }
 
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-//
-//    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-//        viewModel.savePatient(questionnaireResponse)
-//    }
+    public fun onSubmitAction() {
+        Log.i("first", "first")
+        val questionnaireFragment =
+            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+        savePatient(questionnaireFragment.getQuestionnaireResponse())
+    }
+
+    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+        viewModel.savePatient(questionnaireResponse)
+    }
 
     private fun observePatientSaveAction() {
         viewModel.isPatientSaved.observe(viewLifecycleOwner) {

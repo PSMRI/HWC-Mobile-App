@@ -26,7 +26,8 @@
 
     <dimen name="btn_radius">28dp</dimen>
     <dimen name="btn_height_small">36dp</dimen>
-    <dimen name="btn_height">56dp</dimen>
+    <dimen name="btn_height">48dp</dimen>
+    <dimen name="bottom_nav_height">56dp</dimen>
 
     <dimen name="text_huge">32sp</dimen>
     <dimen name="text_big">24sp</dimen>
@@ -36,5 +37,15 @@
 
     <dimen name="photo_radius">75dp</dimen>
     <dimen name="photo_size">150dp</dimen>
+
+    <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="item_width">200dp</dimen>
+    <dimen name="large_text_margin">24dp</dimen>
+    <dimen name="text_margin">20dp</dimen>
+    <dimen name="small_text_margin">2dp</dimen>
+    <dimen name="status_margin">5dp</dimen>
+    <dimen name="header_height">170dp</dimen>
+
+
 
 </resources>

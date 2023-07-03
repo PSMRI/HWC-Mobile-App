@@ -1,0 +1,105 @@
+{
+  "resourceType": "Questionnaire",
+  "title": "FHIR Form - Vitals Details",
+  "status": "active",
+  "item": [
+    {
+      "linkId": "Heading",
+      "text": "Vitals",
+      "type": "group",
+      "item": [
+    {
+      "linkId": "1",
+      "text": "Anthropometry",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "height",
+          "text": "Height(cm)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "weight",
+          "text": "Weight(kg)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "bmi",
+          "text": "BMI",
+          "type": "decimal"
+        },
+        {
+          "linkId": "waistCircumference",
+          "text": "Waist Circumference(cm)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "hipCircumference",
+          "text": "Hip Circumference(cm)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "waistToHipRatio",
+          "text": "Waist to Hip Ratio(WHR)",
+          "type": "decimal"
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Vitals",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "temperature",
+          "text": "Temperature(F)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "pulseRate",
+          "text": "Pulse Rate(per min)",
+          "type": "integer"
+        },
+        {
+          "linkId": "spo2",
+          "text": "SPO2(%)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "bpSystolic",
+          "text": "BP(mmHg) Systolic",
+          "type": "integer"
+        },
+        {
+          "linkId": "bpDiastolic",
+          "text": "BP(mmHg) Diastolic",
+          "type": "integer"
+        },
+        {
+          "linkId": "respiratoryRate",
+          "text": "Respiratory Rate(per min)",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Random Glucose Test",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "rbsResult",
+          "text": "RBS Result(mg/dl)",
+          "type": "decimal"
+        },
+        {
+          "linkId": "rbsTestRemark",
+          "text": "RBS Test Remark",
+          "type": "string"
+        }
+      ]
+    }
+        ]
+        }
+  ]
+}
