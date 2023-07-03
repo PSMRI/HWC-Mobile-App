@@ -8,13 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragmentDirections
 import timber.log.Timber
 
-class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals) {
+class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAdapter {
     private val viewModel: FhirVitalsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,11 +67,11 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals) {
     }
 
 
-    private fun onSubmitAction() {
-        val questionnaireFragment =
-            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-        savePatient(questionnaireFragment.getQuestionnaireResponse())
-    }
+//    private fun onSubmitAction() {
+//        val questionnaireFragment =
+//            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+//        savePatient(questionnaireFragment.getQuestionnaireResponse())
+//    }
 
     private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
         viewModel.savePatient(questionnaireResponse)
@@ -81,5 +84,26 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals) {
     companion object {
         const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
         const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
+    }
+
+    override fun getFragmentId(): Int {
+        return R.id.fragment_fhir_vitals;
+    }
+
+    override fun onSubmitAction() {
+//        val questionnaireFragment =
+//            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+//        savePatient(questionnaireFragment.getQuestionnaireResponse())
+        findNavController().navigate(
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirRevisitFormFragment()
+        )
+    }
+
+    override fun onCancelAction() {
+//        requireActivity().supportFragmentManager.popBackStack()
+//        getFragmentManager()?.popBackStack()
+        findNavController().navigate(
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+        )
     }
 }

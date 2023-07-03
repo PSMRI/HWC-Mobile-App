@@ -24,8 +24,11 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_detalis"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_edit_patient"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
         app:layout_constraintTop_toBottomOf="@+id/header_text_edit_patient" />
 
@@ -50,9 +53,8 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:backgroundTint="@color/purple"
-                android:text="@string/cancel" />
+                android:text="@string/esanjeevni" />
 
             <Button
                 android:id="@+id/btnSubmit"

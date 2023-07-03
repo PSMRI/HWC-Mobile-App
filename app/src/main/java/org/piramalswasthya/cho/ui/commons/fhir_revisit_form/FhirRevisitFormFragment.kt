@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_revisit_form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -7,9 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragmentDirections
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 
 /**
@@ -17,7 +22,7 @@ import timber.log.Timber
  * Use the [FhirRevisitFormFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form) {
+class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), NavigationAdapter {
 
     private val viewModel: FhirRevisitViewModel by viewModels()
 
@@ -76,11 +81,11 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form) {
     }
 
 
-    private fun onSubmitAction() {
-        val questionnaireFragment =
-            childFragmentManager.findFragmentByTag(FhirRevisitFormFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-        savePatient(questionnaireFragment.getQuestionnaireResponse())
-    }
+//    private fun onSubmitAction() {
+//        val questionnaireFragment =
+//            childFragmentManager.findFragmentByTag(FhirRevisitFormFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
+//        savePatient(questionnaireFragment.getQuestionnaireResponse())
+//    }
 
     private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
         viewModel.savePatient(questionnaireResponse)
@@ -94,4 +99,20 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form) {
         const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
         const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
     }
+
+    override fun getFragmentId(): Int {
+        return R.id.fragment_fhir_revisit_form;
+    }
+
+    override fun onSubmitAction() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
+    }
+
+    override fun onCancelAction() {
+        findNavController().navigate(
+            FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToFhirVitalsFragment()
+        )
+    }
+
 }

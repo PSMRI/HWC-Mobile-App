@@ -38,42 +38,40 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_visit_details_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-80dp" />
+        android:layout_height="match_parent"/>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent">
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottom_navigation"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent">-->
 
-        <LinearLayout
-            android:id="@+id/linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:paddingStart="@dimen/padding_normal"
-            android:paddingEnd="@dimen/padding_normal">
+<!--        <LinearLayout-->
+<!--            android:id="@+id/linear_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:gravity="center"-->
+<!--            android:paddingStart="@dimen/padding_normal"-->
+<!--            android:paddingEnd="@dimen/padding_normal">-->
 
-            <Button
-                android:id="@+id/btn_webview"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height"
-                android:layout_weight="1"
-                android:text="E Sanjeevni" />
+<!--            <Button-->
+<!--                android:id="@+id/btn_webview"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="E Sanjeevni" />-->
 
 
-            <Button
-                android:id="@+id/btn_submit"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height"
-                android:layout_weight="1"
-                android:text="@string/submit" />
+<!--            <Button-->
+<!--                android:id="@+id/btn_submit"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="@string/submit" />-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
+<!--    </com.google.android.material.bottomnavigation.BottomNavigationView>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

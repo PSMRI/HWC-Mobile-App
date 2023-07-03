@@ -3,32 +3,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_edit_patient"
-    app:startDestination="@id/editPersonalDetails">
+    app:startDestination="@id/fhirVisitDetailsFragment">
 
 
     <fragment
-        android:id="@+id/editPersonalDetails"
-        android:name="org.piramalswasthya.cho.ui.edit_patient_details_activity.edit_personal_details.EditPersonalDetailsFragment"
-        android:label="fragment_edit_personal_details"
-        tools:layout="@layout/fragment_edit_personal_details" >
-        <argument
-            android:name="patientDetails"
-            app:argType="org.piramalswasthya.cho.model.PatientDetails" />
+        android:id="@+id/fhirVisitDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment"
+        android:label="fragment_fhir_visit_details"
+        tools:layout="@layout/fragment_fhir_visit_details" >
         <action
-            android:id="@+id/action_editPersonalDetails_to_visitDetails"
-            app:destination="@id/visitDetails" />
+            android:id="@+id/action_fhirVisitDetailsFragment_to_fhirVitalsFragment"
+            app:destination="@id/fhirVitalsFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/visitDetails"
-        android:name="org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment"
-        android:label="fragment_edit_personal_details"
-        tools:layout="@layout/fragment_visit_details" >
-        <argument
-            android:name="patientDetails"
-            app:argType="org.piramalswasthya.cho.model.PatientDetails" />
+        android:id="@+id/fhirVitalsFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment"
+        android:label="fragment_fhir_vitals"
+        tools:layout="@layout/fragment_fhir_vitals" >
+        <action
+            android:id="@+id/action_fhirVitalsFragment_to_fhirRevisitFormFragment"
+            app:destination="@id/fhirRevisitFormFragment" />
+        <action
+            android:id="@+id/action_fhirVitalsFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/fhirRevisitFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment"
+        android:label="fragment_fhir_revisit_form"
+        tools:layout="@layout/fragment_fhir_revisit_form" >
+        <action
+            android:id="@+id/action_fhirRevisitFormFragment_to_fhirVitalsFragment"
+            app:destination="@id/fhirVitalsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment"
+        android:label="WebViewFragment">
+        <argument
+            android:name="webUrl"
+            app:argType="string"/>
+    </fragment>
 
 
 </navigation>
