@@ -79,16 +79,16 @@ interface AmritApiService {
 //    @POST("identity-0.0.1/id/getByBenId")
 //    suspend fun getBeneficiaryWithId(@Query("benId") benId: Long) : Response<ResponseBody>
 //
-//    @POST("fhirapi-v1.0/healthIDWithUID/createHealthIDWithUID")
-//    suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthID/mapHealthIDToBeneficiary")
-//    suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthIDCard/generateOTP")
-//    suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthIDCard/verifyOTPAndGenerateHealthCard")
-//    suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
+    @POST("fhirapi-v1.0/healthIDWithUID/createHealthIDWithUID")
+    suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthID/mapHealthIDToBeneficiary")
+    suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthIDCard/generateOTP")
+    suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthIDCard/verifyOTPAndGenerateHealthCard")
+    suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
 
 }

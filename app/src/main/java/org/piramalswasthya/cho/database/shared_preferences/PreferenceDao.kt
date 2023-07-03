@@ -177,15 +177,15 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        return uriString?.let { Uri.parse(it) }
 //    }
 //
-//    fun savePublicKeyForAbha(publicKey: String) {
-//        val key = "AUTH_CERT"
-//        val editor = pref.edit()
-//        editor.putString(key, publicKey)
-//        editor.apply()
-//    }
-//
-//    fun getPublicKeyForAbha(): String? {
-//        val key = "AUTH_CERT"
-//        return pref.getString(key, null)
-//    }
+    fun savePublicKeyForAbha(publicKey: String) {
+        val key = "AUTH_CERT"
+        val editor = pref.edit()
+        editor.putString(key, publicKey)
+        editor.apply()
+    }
+
+    fun getPublicKeyForAbha(): String? {
+        val key = "AUTH_CERT"
+        return pref.getString(key, null)
+    }
 }

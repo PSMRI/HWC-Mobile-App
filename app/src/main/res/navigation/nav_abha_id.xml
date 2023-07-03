@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_abha_id"
+    app:startDestination="@id/aadhaarIdFragment">
+
+    <fragment
+        android:id="@+id/aadhaarIdFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.AadhaarIdFragment"
+        android:label="Enter Aadhaar Number"
+        tools:layout="@layout/fragment_aadhaar_id">
+        <action
+            android:id="@+id/action_aadhaarIdFragment_to_aadhaarOtpFragment"
+            app:destination="@id/aadhaarOtpFragment" />
+        <action
+            android:id="@+id/action_aadhaarIdFragment_to_createAbhaFragment"
+            app:destination="@id/createAbhaFragment" />
+        <action
+            android:id="@+id/action_aadhaarIdFragment_to_generateMobileOtpFragment"
+            app:destination="@id/generateMobileOtpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aadhaarOtpFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_otp.AadhaarOtpFragment"
+        android:label="Verify Aadhaar Number"
+        tools:layout="@layout/fragment_aadhaar_otp">
+        <argument
+            android:name="txnId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_aadhaarOtpFragment_to_generateMobileOtpFragment"
+            app:destination="@id/generateMobileOtpFragment"
+            app:popUpTo="@id/aadhaarOtpFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="mobileNumber"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/generateMobileOtpFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.generate_mobile_otp.GenerateMobileOtpFragment"
+        android:label="Verify Mobile Number"
+        tools:layout="@layout/fragment_generate_mobile_otp">
+        <action
+            android:id="@+id/action_generateMobileOtpFragment_to_verifyMobileOtpFragment"
+            app:destination="@id/verifyMobileOtpFragment" />
+        <argument
+            android:name="txnId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_generateMobileOtpFragment_to_createAbhaFragment"
+            app:destination="@id/createAbhaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/verifyMobileOtpFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.verify_mobile_otp.VerifyMobileOtpFragment"
+        android:label="Verify Mobile Number"
+        tools:layout="@layout/fragment_verify_mobile_otp">
+        <action
+            android:id="@+id/action_verifyMobileOtpFragment_to_createAbhaFragment"
+            app:destination="@id/createAbhaFragment"
+            app:popUpTo="@id/verifyMobileOtpFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="txnId"
+            app:argType="string" />
+        <argument
+            android:name="phoneNum"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/createAbhaFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.create_abha_id.CreateAbhaFragment"
+        android:label="@string/generate_abha_id"
+        tools:layout="@layout/fragment_create_abha">
+        <argument
+            android:name="txnId"
+            app:argType="string" />
+    </fragment>
+</navigation>
