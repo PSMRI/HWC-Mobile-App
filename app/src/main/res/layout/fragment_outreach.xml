@@ -95,7 +95,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_outreach_login"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/btn_height"
+                android:layout_height="@dimen/login_btn_height"
                 android:backgroundTint="@color/purple"
                 android:text="@string/login"
                 android:textSize="@dimen/text_big" />

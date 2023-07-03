@@ -48,7 +48,7 @@
                 android:id="@+id/btn_nxt"
                 android:layout_width="wrap_content"
                 android:layout_marginTop="@dimen/margin_big"
-                android:layout_height="@dimen/btn_height"
+                android:layout_height="@dimen/login_btn_height"
                 android:text="@string/next"
                 android:backgroundTint="@color/purple"
                 android:textSize="@dimen/text_big"/>

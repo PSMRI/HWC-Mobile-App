@@ -13,7 +13,7 @@
         android:outlineProvider="none"
         android:layout_marginHorizontal="@dimen/margin_big"
         android:layout_marginVertical="@dimen/margin_big"
-        android:text="@string/personal_details"
+        android:text="@string/visit_details"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/white"

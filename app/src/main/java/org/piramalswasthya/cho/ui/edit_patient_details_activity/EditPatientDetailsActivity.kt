@@ -35,7 +35,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private lateinit var viewModel: EditPatientDetailsViewModel
 
-    private var currFragment: Int = R.id.fragment_fhir_add_patient;
+    private var currFragment: Int = R.id.fragment_fhir_visit_details;
 
     private var _binding : ActivityEditPatientDetailsBinding? = null
 
@@ -58,19 +58,19 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            patientDetails = benificiaryList[index];
 //        }
 
-        val fragment = FhirAddPatientFragment();
+        val fragment = FhirVisitDetailsFragment();
         supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
 
         binding.btnSubmit.setOnClickListener {
             when (currFragment){
-                R.id.fragment_fhir_add_patient -> {
-                    val fragmentVisitDetails = FhirVisitDetailsFragment();
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
-                    currFragment = R.id.fragment_fhir_visit_details
-                    binding.headerTextEditPatient.text = "Visit Details"
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
+//                R.id.fragment_fhir_add_patient -> {
+//                    val fragmentVisitDetails = FhirVisitDetailsFragment();
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
+//                    currFragment = R.id.fragment_fhir_visit_details
+//                    binding.headerTextEditPatient.text = "Visit Details"
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.visibility = View.VISIBLE
+//                }
                 R.id.fragment_fhir_visit_details -> {
                     val fragmentVitalsForm = FhirVitalsFragment();
                     supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
@@ -96,16 +96,16 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         binding.btnCancel.setOnClickListener {
             when (currFragment){
-                R.id.fragment_fhir_add_patient -> {
-
-                }
+//                R.id.fragment_fhir_add_patient -> {
+//
+//                }
                 R.id.fragment_fhir_visit_details -> {
-                    val fragmentPersonalDetails = FhirAddPatientFragment();
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
-                    currFragment = R.id.fragment_fhir_add_patient
-                    binding.headerTextEditPatient.text = "Personal Details"
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.GONE
+//                    val fragmentPersonalDetails = FhirAddPatientFragment();
+//                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
+//                    currFragment = R.id.fragment_fhir_add_patient
+//                    binding.headerTextEditPatient.text = "Personal Details"
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.visibility = View.GONE
                 }
                 R.id.fragment_fhir_vitals -> {
                     val fragmentVisitDetails = FhirVisitDetailsFragment();
@@ -113,7 +113,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     currFragment = R.id.fragment_fhir_visit_details
                     binding.headerTextEditPatient.text = "Visit Details"
                     binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
+                    binding.btnCancel.visibility = View.GONE
                 }
                 R.id.fragment_fhir_revisit_form -> {
                     val fragmentVitalsForm = FhirVitalsFragment();
