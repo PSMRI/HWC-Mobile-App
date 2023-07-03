@@ -83,7 +83,7 @@ class FhirVisitDetailsFragment : Fragment() {
             it?.let {
                 Timber.d("Loaded at loadState : $it")
                 findNavController().navigate(
-                    FhirVisitDetailsFragmentD.actionWebviewFragment(it)
+                    FhirVisitDetailsFragmentDirections.actionWebviewFragment(it)
                 )
                 viewModel.resetLoadState()
             }

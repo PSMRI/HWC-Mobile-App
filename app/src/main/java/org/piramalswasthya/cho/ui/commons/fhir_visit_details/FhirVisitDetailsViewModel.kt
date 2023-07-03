@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -16,6 +17,7 @@ import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
+import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -29,9 +31,6 @@ import org.json.JSONObject
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
-import timber.log.Timber
-import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
@@ -39,8 +38,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FhirVisitDetailsViewModel @Inject
 constructor(
-     @ApplicationContext private val application : Context,
-     private val apiService : AmritApiService,
+    @ApplicationContext private val application : Context,
+    private val apiService : AmritApiService,
     private val state: SavedStateHandle
      ) :
     ViewModel() {
@@ -78,7 +77,7 @@ constructor(
             if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
                     questionnaireResource,
                     questionnaireResponse,
-                    getApplication()
+                    getApplication(application)
                 )
                     .values
                     .flatten()
@@ -126,7 +125,7 @@ constructor(
     }
 
     private fun readFileFromAssets(filename: String): String {
-        return getApplication<Application>().assets.open(filename).bufferedReader().use {
+        return getApplication(application).assets.open(filename).bufferedReader().use {
             it.readText()
         }
     }
