@@ -7,9 +7,10 @@
     tools:context=".ui.web_view_activity.WebViewActivity">
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/we"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
