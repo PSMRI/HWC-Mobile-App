@@ -235,6 +235,13 @@
                 "display": "Widow/Widower"
               }
             }
+          ],
+          "enableWhen": [
+            {
+              "question": "patient-0-age",
+              "operator": ">",
+              "answerInteger": 12
+            }
           ]
         },
         {
@@ -350,6 +357,14 @@
               "valueCoding": {
                 "code": "transgender",
                 "display": "Transgender"
+              }
+            }
+          ],
+          "initial": [
+            {
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
               }
             }
           ]
