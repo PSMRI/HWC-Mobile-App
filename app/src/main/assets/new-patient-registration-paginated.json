@@ -330,7 +330,16 @@
                     "url": "http://hl7.org/fhir/StructureDefinition/translation"
                   }
                 ]
-              }
+              },
+              "maxLength": 10,
+              "pattern": "[986]\\d{9}",
+              "constraint": [
+                {
+                  "key": "phone-validation",
+                  "severity": "error",
+                  "human": "The phone number should be 10 digits and start with 9, 8, or 6."
+                }
+              ]
             }
           ]
         },
