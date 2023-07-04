@@ -67,6 +67,7 @@ class FhirVisitDetailsFragment : Fragment(R.layout.fragment_fhir_visit_details) 
             addQuestionnaireFragment()
         }
         observePatientSaveAction()
+
         // button for navigate to web-view page of eSanjeevani
 //        binding.btnWebview.setOnClickListener {
 //            Timber.tag("URL").d("erere")

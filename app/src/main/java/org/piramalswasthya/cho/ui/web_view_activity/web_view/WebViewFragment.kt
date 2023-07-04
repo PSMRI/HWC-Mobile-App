@@ -32,22 +32,17 @@ class WebViewFragment: Fragment(R.layout.fragment_web_view) {
     ): View? {
 
         var view : View = inflater.inflate(R.layout.fragment_web_view, container, false)
-        webView = view.findViewById(R.id.webview)
-
-        btn = view.findViewById(R.id.back_btn)
+//        webView = view.findViewById(R.id.webview)
+//
+//        btn = view.findViewById(R.id.back_btn)
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Timber.d("here is the url: $webUrl")
-        Log.d("aaaaaaaaaaaa","adfdf")
-        webView.settings.javaScriptEnabled = true
-        webView.webViewClient = WebViewClient()
-        webView.loadUrl(webUrl)
-        btn.setOnClickListener{
-//            findNavController().navigate(
-//                WebViewFragmentDirections.backtopreviousFragment()
-//            )
-        }
+//        Timber.d("here is the url: $webUrl")
+//        Log.d("aaaaaaaaaaaa","adfdf")
+//        webView.settings.javaScriptEnabled = true
+//        webView.webViewClient = WebViewClient()
+//        webView.loadUrl(webUrl)
     }
 }
