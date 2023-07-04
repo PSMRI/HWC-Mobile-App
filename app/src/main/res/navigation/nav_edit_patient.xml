@@ -14,9 +14,6 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_fhirVitalsFragment"
             app:destination="@id/fhirVitalsFragment" />
-        <action
-            android:id="@+id/action_fhirVisitDetailsFragment_to_webViewFragment"
-            app:destination="@id/webViewFragment" />
     </fragment>
 
     <fragment
@@ -25,11 +22,11 @@
         android:label="fragment_fhir_vitals"
         tools:layout="@layout/fragment_fhir_vitals" >
         <action
-            android:id="@+id/action_fhirVitalsFragment_to_fhirRevisitFormFragment"
-            app:destination="@id/fhirRevisitFormFragment" />
-        <action
             android:id="@+id/action_fhirVitalsFragment_to_fhirVisitDetailsFragment"
             app:destination="@id/fhirVisitDetailsFragment" />
+        <action
+            android:id="@+id/action_fhirVitalsFragment_to_fhirPrescriptionFragment"
+            app:destination="@id/fhirPrescriptionFragment" />
     </fragment>
     <fragment
         android:id="@+id/fhirRevisitFormFragment"
@@ -37,8 +34,8 @@
         android:label="fragment_fhir_revisit_form"
         tools:layout="@layout/fragment_fhir_revisit_form" >
         <action
-            android:id="@+id/action_fhirRevisitFormFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            android:id="@+id/action_fhirRevisitFormFragment_to_fhirPrescriptionFragment"
+            app:destination="@id/fhirPrescriptionFragment" />
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
@@ -47,6 +44,18 @@
         <argument
             android:name="webUrl"
             app:argType="string"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fhirPrescriptionFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_prescription.FhirPrescriptionFragment"
+        android:label="fragment_fhir_prescription"
+        tools:layout="@layout/fragment_fhir_prescription" >
+        <action
+            android:id="@+id/action_fhirPrescriptionFragment_to_fhirVitalsFragment"
+            app:destination="@id/fhirVitalsFragment" />
+        <action
+            android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
+            app:destination="@id/fhirRevisitFormFragment" />
     </fragment>
 
 

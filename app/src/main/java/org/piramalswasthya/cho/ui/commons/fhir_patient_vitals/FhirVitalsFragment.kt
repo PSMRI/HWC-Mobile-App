@@ -95,7 +95,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
 //            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
 //        savePatient(questionnaireFragment.getQuestionnaireResponse())
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirRevisitFormFragment()
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirPrescriptionFragment()
         )
     }
 

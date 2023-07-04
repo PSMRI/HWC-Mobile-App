@@ -90,9 +90,9 @@ class FhirVisitDetailsFragment : Fragment(R.layout.fragment_fhir_visit_details) 
         viewModel.loadState.observe(viewLifecycleOwner){
             it?.let {
                 Timber.d("Loaded at loadState : $it")
-                findNavController().navigate(
-                    FhirVisitDetailsFragmentDirections.actionFhirVisitDetailsFragmentToWebViewFragment(it)
-                )
+//                findNavController().navigate(
+//                    FhirVisitDetailsFragmentDirections.actionFhirVisitDetailsFragmentToWebViewFragment(it)
+//                )
                 viewModel.resetLoadState()
             }
         }
