@@ -326,6 +326,33 @@
               }
             }
           ]
+        },
+        {
+          "linkId": "patient-0-gender",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
+          "type": "choice",
+          "required": true,
+          "text": "Gender",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "female",
+                "display": "Female"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "transgender",
+                "display": "Transgender"
+              }
+            }
+          ]
         }
       ]
     }
