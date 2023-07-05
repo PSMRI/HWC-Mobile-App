@@ -15,7 +15,6 @@ import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
 //import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 

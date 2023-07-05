@@ -26,9 +26,6 @@ import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment
 import org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.prescription.PrescriptionFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.vitals_form.VitalsFormFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
