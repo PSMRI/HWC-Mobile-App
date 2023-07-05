@@ -1,4 +1,4 @@
-package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
+package org.piramalswasthya.cho.ui.commons.fhir_prescription
 
 import android.os.Bundle
 import android.view.View
@@ -7,18 +7,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragmentDirections
+import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragmentDirections
+import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsViewModel
 import timber.log.Timber
 
-class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAdapter {
-    private val viewModel: FhirVitalsViewModel by viewModels()
+
+class FhirPrescriptionFragment : Fragment(R.layout.fragment_fhir_prescription), NavigationAdapter {
+    private val viewModel: FhirPrescriptionViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.d("initiated")
@@ -42,7 +42,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
 
     private fun updateArguments() {
         arguments = Bundle()
-        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "vitals-page.json")
+        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "prescription_form.json")
     }
 
     private fun observePatientSaveAction() {
@@ -59,7 +59,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
     private fun addQuestionnaireFragment() {
         childFragmentManager.commit {
             add(
-                R.id.patient_vitals_container,
+                R.id.prescription_container,
                 QuestionnaireFragment.builder().setQuestionnaire(viewModel.questionnaire).build(),
                 QUESTIONNAIRE_FRAGMENT_TAG
             )
@@ -87,7 +87,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_fhir_vitals;
+        return R.id.fragment_fhir_prescription;
     }
 
     override fun onSubmitAction() {
@@ -95,7 +95,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
 //            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
 //        savePatient(questionnaireFragment.getQuestionnaireResponse())
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirPrescriptionFragment()
+            FhirPrescriptionFragmentDirections.actionFhirPrescriptionFragmentToFhirRevisitFormFragment()
         )
     }
 
@@ -103,7 +103,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
 //        requireActivity().supportFragmentManager.popBackStack()
 //        getFragmentManager()?.popBackStack()
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+            FhirPrescriptionFragmentDirections.actionFhirPrescriptionFragmentToFhirVitalsFragment()
         )
     }
 }

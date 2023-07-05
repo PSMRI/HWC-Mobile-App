@@ -3,14 +3,17 @@ package org.piramalswasthya.cho.ui.home_activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
@@ -65,6 +68,9 @@ class HomeActivity : AppCompatActivity() {
 
             startActivity(intent)
         }
+//        binding.advanceSearch.setOnClickListener {view->
+//           findNavController(view.id).navigate( HomeActivityDirections.actionFhirVisitDetailFragment())
+//        }
 
     }
 }

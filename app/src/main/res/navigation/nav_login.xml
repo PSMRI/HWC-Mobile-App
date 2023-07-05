@@ -97,7 +97,8 @@
         android:id="@+id/homeActivity"
         android:name="org.piramalswasthya.cho.ui.home_activity.HomeActivity"
         android:label="activity_home_content"
-        tools:layout="@layout/activity_home" />
+        tools:layout="@layout/activity_home" >
+    </activity>
 
 
 </navigation>

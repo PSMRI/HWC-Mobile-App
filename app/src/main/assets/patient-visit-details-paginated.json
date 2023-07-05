@@ -1,10 +1,6 @@
 {
   "resourceType": "Questionnaire",
   "status": "active",
-  "subjectType": [
-    "Questionnaire"
-  ],
-
   "item": [
     {
       "linkId": "category",
@@ -85,8 +81,34 @@
             "code": "minutes",
             "display": "Minutes"
           }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "days",
+            "display": "Days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "weeks",
+            "display": "Weeks"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "months",
+            "display": "Months"
+          }
         }
       ]
+    },
+    {
+      "linkId": "description",
+      "text": "Description",
+      "type": "text"
     }
   ]
 }

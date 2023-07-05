@@ -1,0 +1,398 @@
+{
+  "resourceType": "Questionnaire",
+  "status": "active",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Form",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "tablet",
+            "display": "Tablet"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "capsule",
+            "display": "Capsule"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "syrup",
+            "display": "Syrup"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "suspension",
+            "display": "Suspension"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "oral-drops",
+            "display": "Oral Drops"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "ointment",
+            "display": "Ointment"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "cream",
+            "display": "Cream"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "lotion",
+            "display": "Lotion"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "eye-drops",
+            "display": "Eye Drops"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/form-codes",
+            "code": "ear-drops",
+            "display": "Ear Drops"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Medicine",
+      "type": "string"
+    },
+    {
+      "linkId": "3",
+      "text": "Dosage",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/dosage-codes",
+            "code": "half-tab",
+            "display": "Half Tab"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/dosage-codes",
+            "code": "one-and-half-tab",
+            "display": "One and Half Tab"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/dosage-codes",
+            "code": "1-tablet",
+            "display": "1 Tablet"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/dosage-codes",
+            "code": "2-tablets",
+            "display": "2 Tablets"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Frequency",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/frequency-codes",
+            "code": "4-times-a-day",
+            "display": "4 times a day (QID)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/frequency-codes",
+            "code": "once-daily",
+            "display": "Once daily (OD)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/frequency-codes",
+            "code": "once-a-week",
+            "display": "Once in a week"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/frequency-codes",
+            "code": "single-dose",
+            "display": "Single Dose"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/frequency-codes",
+            "code": "sos",
+            "display": "SOS"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "text": "Duration",
+      "type": "string"
+    },
+    {
+      "linkId": "6",
+      "text": "Instruction",
+      "type": "string"
+    },
+    {
+      "linkId": "7",
+      "text": "Unit",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/unit-codes",
+            "code": "day",
+            "display": "Day"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/unit-codes",
+            "code": "month",
+            "display": "Month"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/unit-codes",
+            "code": "week",
+            "display": "Week"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "text": "Route",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "ears",
+            "display": "Ears"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "eyes/ear",
+            "display": "Eyes/Ear"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "eyes",
+            "display": "Eyes"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "id",
+            "display": "ID"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "im",
+            "display": "IM"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "local-application",
+            "display": "Local Application"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "nostrils",
+            "display": "Nostrils"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "oral",
+            "display": "Oral"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/route-codes",
+            "code": "rectal",
+            "display": "Rectal"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "9",
+      "text": "Counseling",
+      "type": "choice",
+      "answerValueSet": "http://hl7.org/fhir/ValueSet/questionnaire-answers",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "adherence-to-treatment-regimen",
+            "display": "Adherence to Treatment Regimen"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "avoidance-of-substance-abuse",
+            "display": "Avoidance of Substance Abuse"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "complication-readiness",
+            "display": "Complication Readiness (Warning Symptoms and Signs)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "cough-etiquette",
+            "display": "Cough Etiquette (Respiratory Hygiene)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "follow-up-instructions",
+            "display": "Follow Up Instructions"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "hand-wash",
+            "display": "Hand Wash"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "health-and-nutrition",
+            "display": "Health and Nutrition"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "healthy-lifestyle",
+            "display": "Healthy Lifestyle"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "lifestyle-modification",
+            "display": "Lifestyle Modification"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "home-isolation",
+            "display": "Home Isolation"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "menstrual-hygiene",
+            "display": "Menstrual Hygiene"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "personal-hygiene",
+            "display": "Personal Hygiene"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "personal-protective-measures",
+            "display": "Personal Protective Measures"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "preventive-measures",
+            "display": "Preventive Measures"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "rest-and-physical-activity",
+            "display": "Rest and Physical Activity"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/counseling-codes",
+            "code": "safe-sexual-practices",
+            "display": "Safe Sexual Practices"
+          }
+        }
+      ]
+    }
+  ]
+}

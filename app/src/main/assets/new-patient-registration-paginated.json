@@ -21,7 +21,6 @@
     {
       "linkId": "PR",
       "type": "group",
-      "text": "Client info",
       "_text": {
         "extension": [
           {
@@ -94,7 +93,7 @@
               "definition": "http://hl7.org/fhir/StructureDefinition/datatypes#HumanName.family",
               "type": "string",
               "required": true,
-              "text": "Family Name",
+              "text": "Last Name/Surname",
               "_text": {
                 "extension": [
                   {
@@ -116,7 +115,6 @@
           ]
         },
         {
-
           "extension": [
             {
               "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
@@ -151,60 +149,129 @@
           }
         },
         {
-          "linkId": "patient-0-gender",
-          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
+          "linkId": "patient-0-age",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.age",
+          "type": "integer",
+          "required": true,
+          "text": "Age",
+          "maxLength": 3,
+          "min": 0,
+          "max": 150
+        },
+        {
+          "linkId": "patient-0-age-unit",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.age.unit",
           "type": "choice",
-          "text": "Gender",
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-              "valueExpression": {
-                "system": "http://hl7.org/fhir/administrative-gender",
-                "language": "text/fhirpath",
-                "expression": "Patient.gender",
-                "name": "patientGender"
-              }
-            },
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
-              "valueCodeableConcept": {
-                "coding": [
-                  {
-                    "system": "http://hl7.org/fhir/questionnaire-item-control",
-                    "code": "radio-button",
-                    "display": "Radio Button"
-                  }
-                ]
-              }
-            },
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation",
-              "valueCode": "horizontal"
-            }
-          ],
+          "required": true,
+          "text": "Age in Unit",
           "answerOption": [
             {
               "valueCoding": {
-                "system": "http://hl7.org/fhir/administrative-gender",
-                "code": "female",
-                "display": "Female",
-                "designation": [
-                  {
-                    "language": "sw",
-                    "value": "Mwanamke"
-                  }]
+                "code": "days",
+                "display": "Days"
               }
             },
             {
               "valueCoding": {
-                "system": "http://hl7.org/fhir/administrative-gender",
-                "code": "male",
-                "display": "Male",
-                "designation": [
-                  {
-                    "language": "sw",
-                    "value": "Mwanaume"
-                  }]
+                "code": "weeks",
+                "display": "Weeks"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "months",
+                "display": "Months"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "years",
+                "display": "Years"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "patient-0-age",
+              "operator": "<=",
+              "answerInteger": 12
+            }
+          ]
+        },
+        {
+          "linkId": "patient-0-marital-status",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.maritalStatus",
+          "type": "choice",
+          "required": true,
+          "text": "Marital Status",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "married",
+                "display": "Married"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "not-applicable",
+                "display": "Not Applicable"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "separated",
+                "display": "Separated"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "unmarried",
+                "display": "Unmarried"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "widow-widower",
+                "display": "Widow/Widower"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "patient-0-age",
+              "operator": ">",
+              "answerInteger": 12
+            }
+          ]
+        },
+        {
+          "linkId": "patient-0-spouse-name",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.spouseName",
+          "type": "string",
+          "text": "Spouse Name",
+          "enableWhen": [
+            {
+              "question": "patient-0-marital-status",
+              "operator": "=",
+              "answerCoding": {
+                "code": "married",
+                "display": "Married"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "patient-0-age-at-marriage",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.ageAtMarriage",
+          "type": "string",
+          "text": "Age at Marriage",
+          "enableWhen": [
+            {
+              "question": "patient-0-marital-status",
+              "operator": "=",
+              "answerCoding": {
+                "code": "married",
+                "display": "Married"
               }
             }
           ]
@@ -263,117 +330,53 @@
                     "url": "http://hl7.org/fhir/StructureDefinition/translation"
                   }
                 ]
-              }
+              },
+              "maxLength": 10,
+              "pattern": "[986]\\d{9}",
+              "constraint": [
+                {
+                  "key": "phone-validation",
+                  "severity": "error",
+                  "human": "The phone number should be 10 digits and start with 9, 8, or 6."
+                }
+              ]
             }
           ]
         },
         {
-          "linkId": "PR-address",
-          "type": "group",
-          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address",
-          "item": [
+          "linkId": "patient-0-gender",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
+          "type": "choice",
+          "required": true,
+          "text": "Gender",
+          "answerOption": [
             {
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-                  "valueExpression": {
-                    "language": "text/fhirpath",
-                    "expression": "Patient.address.city",
-                    "name": "patientCity"
-                  }
-                }
-              ],
-              "linkId": "PR-address-city",
-              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.city",
-              "type": "string",
-              "required": true,
-              "text": "City",
-              "_text": {
-                "extension": [
-                  {
-                    "extension": [
-                      {
-                        "url": "lang",
-                        "valueCode": "sw"
-                      },
-                      {
-                        "url": "content",
-                        "valueString": "Mji"
-                      }
-                    ],
-                    "url": "http://hl7.org/fhir/StructureDefinition/translation"
-                  }
-                ]
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
               }
             },
             {
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-                  "valueExpression": {
-                    "language": "text/fhirpath",
-                    "expression": "Patient.address.country",
-                    "name": "patientCity"
-                  }
-                }
-              ],
-              "linkId": "PR-address-country",
-              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.address.country",
-              "type": "string",
-              "required": true,
-              "text": "Country",
-              "_text": {
-                "extension": [
-                  {
-                    "extension": [
-                      {
-                        "url": "lang",
-                        "valueCode": "sw"
-                      },
-                      {
-                        "url": "content",
-                        "valueString": "Nchi"
-                      }
-                    ],
-                    "url": "http://hl7.org/fhir/StructureDefinition/translation"
-                  }
-                ]
+              "valueCoding": {
+                "code": "female",
+                "display": "Female"
               }
-            }
-          ]
-        },
-        {
-          "extension": [
+            },
             {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-              "valueExpression": {
-                "language": "text/fhirpath",
-                "expression": "Patient.active",
-                "name": "patientActive"
+              "valueCoding": {
+                "code": "transgender",
+                "display": "Transgender"
               }
             }
           ],
-          "linkId": "PR-active",
-          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.active",
-          "type": "boolean",
-          "text": "Is Active?",
-          "_text": {
-            "extension": [
-              {
-                "extension": [
-                  {
-                    "url": "lang",
-                    "valueCode": "sw"
-                  },
-                  {
-                    "url": "content",
-                    "valueString": "Inatumika?"
-                  }
-                ],
-                "url": "http://hl7.org/fhir/StructureDefinition/translation"
+          "initial": [
+            {
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
               }
-            ]
-          }
+            }
+          ]
         }
       ]
     }

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.commons.fhir_revisit_form.FhirRevisitFormFragment">
     <androidx.fragment.app.FragmentContainerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/revisit_from_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

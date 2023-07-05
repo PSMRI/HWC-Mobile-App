@@ -1,32 +1,40 @@
-package org.piramalswasthya.cho.ui.commons.fhir_add_patient
-
-
+package org.piramalswasthya.cho.ui.commons.fhir_prescription
 
 import android.app.Application
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.FhirVersionEnum
 import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.datacapture.QuestionnaireFragment
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
-import java.util.UUID
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.R
 
-/** ViewModel for patient registration screen {@link AddPatientFragment}. */
-class FhirAddPatientViewModel(application: Application, private val state: SavedStateHandle) :
+import timber.log.Timber
+import java.util.UUID
+
+
+class FhirPrescriptionViewModel(application: Application, private val state: SavedStateHandle) :
     AndroidViewModel(application) {
-
     val questionnaire: String
         get() = getQuestionnaireJson()
-    val isPatientSaved = MutableLiveData<Boolean>()
 
     private val questionnaireResource: Questionnaire
         get() =
@@ -34,12 +42,9 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
                     as Questionnaire
     private var fhirEngine: FhirEngine = CHOApplication.fhirEngine(application.applicationContext)
     private var questionnaireJson: String? = null
+    val isPatientSaved = MutableLiveData<Boolean>()
 
-    /**
-     * Saves patient registration questionnaire response into the application database.
-     *
-     * @param questionnaireResponse patient registration questionnaire response
-     */
+
     fun savePatient(questionnaireResponse: QuestionnaireResponse) {
         viewModelScope.launch {
             if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
@@ -66,13 +71,15 @@ class FhirAddPatientViewModel(application: Application, private val state: Saved
         }
     }
 
+
     private fun getQuestionnaireJson(): String {
         questionnaireJson?.let {
             return it
         }
-        questionnaireJson = readFileFromAssets(state[FhirAddPatientFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
+        questionnaireJson = readFileFromAssets(state[FhirPrescriptionFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
         return questionnaireJson!!
     }
+
 
     private fun readFileFromAssets(filename: String): String {
         return getApplication<Application>().assets.open(filename).bufferedReader().use {

@@ -27,6 +27,7 @@
     <dimen name="btn_radius">28dp</dimen>
     <dimen name="btn_height_small">36dp</dimen>
     <dimen name="btn_height">48dp</dimen>
+    <dimen name="login_btn_height">56dp</dimen>
     <dimen name="bottom_nav_height">56dp</dimen>
 
     <dimen name="text_huge">32sp</dimen>

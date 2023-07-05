@@ -50,6 +50,7 @@ object AppModule {
     "http://uatamrit.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/aus/api/ThirdPartyAuth/"
 
     private val baseClient =
         OkHttpClient.Builder()
@@ -128,7 +129,7 @@ object AppModule {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(baseTmcUrl)
+            .baseUrl(sanjeevaniApi)
             .client(httpClient)
             .build()
             .create(AmritApiService::class.java)

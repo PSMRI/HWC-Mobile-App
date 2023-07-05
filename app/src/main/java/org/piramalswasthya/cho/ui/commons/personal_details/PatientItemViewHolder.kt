@@ -45,7 +45,7 @@ class PatientItemViewHolder(binding: PatientListItemViewBinding) :
     this.nameView.text = patientItem.name
     this.ageView.text = getFormattedAge(patientItem, ageView.context.resources)
     this.phoneView.text = patientItem.phone
-    this.gender.text = patientItem.gender
+    this.gender.text = getGender(patientItem.gender)
     this.itemView.setOnClickListener { onItemClicked(patientItem) }
   }
 
@@ -67,5 +67,13 @@ class PatientItemViewHolder(binding: PatientListItemViewBinding) :
   /** The new ui just shows shortened id with just last 3 characters. */
   private fun getTruncatedId(patientItem: PersonalDetailsViewModel.PatientItem): String {
     return patientItem.resourceId.takeLast(3)
+  }
+  private fun getGender(string: String): String{
+     if(string.equals("male"))
+       return "Male"
+    else if(string.equals("female"))
+      return "Female"
+      else
+        return "Transgender"
   }
 }
