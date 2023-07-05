@@ -91,10 +91,10 @@ class CreateAbhaFragment : Fragment() {
 
         val intent = requireActivity().intent
 
-        viewModel.createHID(
-            intent.getLongExtra("benId", 0),
-            intent.getLongExtra("benRegId", 0)
-        )
+//        viewModel.createHID(
+//            intent.getLongExtra("benId", 0),
+//            intent.getLongExtra("benRegId", 0)
+//        )
 
         binding.tietAadhaarOtp.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -109,7 +109,7 @@ class CreateAbhaFragment : Fragment() {
         })
 
         binding.btnVerifyOTP.setOnClickListener {
-            viewModel.verifyOtp(binding.tietAadhaarOtp.text.toString())
+//            viewModel.verifyOtp(binding.tietAadhaarOtp.text.toString())
         }
 
         binding.btnDownloadAbhaNo.setOnClickListener{
@@ -175,7 +175,7 @@ class CreateAbhaFragment : Fragment() {
             }
         }
         binding.btnDownloadAbhaYes.setOnClickListener {
-            viewModel.generateOtp()
+//            viewModel.generateOtp()
             binding.clDownloadAbha.visibility = View.GONE
         }
     }

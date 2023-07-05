@@ -11,6 +11,7 @@ import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
 //import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -59,7 +60,9 @@ class HomeActivity : AppCompatActivity() {
 //        binding.listView.adapter = adapter
 
         binding.registration.setOnClickListener {
-            val intent = Intent(this, RegisterPatientActivity::class.java)
+//            val intent = Intent(this, RegisterPatientActivity::class.java)
+            val intent = Intent(this, AbhaIdActivity::class.java)
+
             startActivity(intent)
         }
 

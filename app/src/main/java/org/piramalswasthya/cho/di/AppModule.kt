@@ -20,12 +20,14 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.AbhaApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
@@ -89,19 +91,19 @@ object AppModule {
             .build()
     }
 //
-//    @Singleton
-//    @Provides
-//    @Named("abhaClient")
-//    fun provideAbhaHttpClient(): OkHttpClient {
-//        return baseClient
-//            .newBuilder()
-//            .connectTimeout(20, TimeUnit.SECONDS)
-//            .readTimeout(20, TimeUnit.SECONDS)
-//            .writeTimeout(20, TimeUnit.SECONDS)
-//            .addInterceptor(TokenInsertAbhaInterceptor())
-//            .build()
-//    }
-//
+    @Singleton
+    @Provides
+    @Named("abhaClient")
+    fun provideAbhaHttpClient(): OkHttpClient {
+        return baseClient
+            .newBuilder()
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .addInterceptor(TokenInsertAbhaInterceptor())
+            .build()
+    }
+
 //    @Singleton
 //    @Provides
 //    fun provideD2DApiService(
@@ -116,7 +118,7 @@ object AppModule {
 //            .build()
 //            .create(D2DApiService::class.java)
 //    }
-//
+
     @Singleton
     @Provides
     fun provideAmritApiService(
@@ -132,20 +134,20 @@ object AppModule {
             .create(AmritApiService::class.java)
     }
 //
-//    @Singleton
-//    @Provides
-//    fun provideAbhaApiService(
-//        moshi: Moshi,
-//        @Named("abhaClient") httpClient: OkHttpClient
-//    ): AbhaApiService {
-//        return Retrofit.Builder()
-//            .addConverterFactory(MoshiConverterFactory.create(moshi))
-//            //.addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl(baseAbhaUrl)
-//            .client(httpClient)
-//            .build()
-//            .create(AbhaApiService::class.java)
-//    }
+    @Singleton
+    @Provides
+    fun provideAbhaApiService(
+        moshi: Moshi,
+        @Named("abhaClient") httpClient: OkHttpClient
+    ): AbhaApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            //.addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseAbhaUrl)
+            .client(httpClient)
+            .build()
+            .create(AbhaApiService::class.java)
+    }
 
     @Singleton
     @Provides
