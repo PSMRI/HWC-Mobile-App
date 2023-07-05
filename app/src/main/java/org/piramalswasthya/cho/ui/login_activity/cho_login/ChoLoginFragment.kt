@@ -45,7 +45,7 @@ class ChoLoginFragment : Fragment() {
         return binding.root
     }
 
-    fun setActivityContainer(programId: Int){
+    private fun setActivityContainer(programId: Int){
         val userName = (arguments?.getString("userName", ""))!!;
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
