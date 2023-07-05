@@ -1,0 +1,139 @@
+{
+  "resourceType": "Questionnaire",
+  "title": "Revisit & Refer",
+  "item": [
+    {
+      "linkId": "Heading",
+      "text": "Revisit & Refer",
+      "type": "group",
+      "item": [
+    {
+      "linkId": "1",
+      "text": "Higher Center",
+      "type": "choice",
+      "answerValueSet": {
+        "reference": "http://terminology.hl7.org/ValueSet/v3-RoleCode"
+      },
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "CHC",
+            "display": "CHC"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "FRU",
+            "display": "FRU"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "Other",
+            "display": "Other"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "RH",
+            "display": "RH"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "SDH",
+            "display": "SDH"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "Ph",
+            "display": "Ph"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "UPHC",
+            "display": "UPHC"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "PHC",
+            "display": "PHC"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Reason for referral",
+      "type": "string"
+    },
+    {
+      "linkId": "3",
+      "text": "Revisit Date",
+      "type": "date"
+    },
+    {
+      "linkId": "4",
+      "text": "Linkage with other health services",
+      "type": "choice",
+      "answerValueSet": {
+        "reference": "http://terminology.hl7.org/ValueSet/v3-ActCode"
+      },
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "104",
+            "display": "104"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "HIHL",
+            "display": "HIHL"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "1097 Naco Helpline",
+            "display": "1097 Naco Helpline"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "ICTCCentre",
+            "display": "ICTC Centre"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "ART Centre",
+            "display": "ART Centre"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "MCTSECDCallCentre",
+            "display": "MCTS/ECD Call Centre"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "ICDSServices",
+            "display": "ICDS (AWC) Services"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "Others",
+            "display": "Others"
+          }
+        }
+      ]
+    }
+        ]
+        }
+  ]
+}

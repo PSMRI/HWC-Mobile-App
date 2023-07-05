@@ -14,22 +14,49 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
 import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
 import org.piramalswasthya.cho.database.converters.StateConverter
+import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
+import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
+import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
 import timber.log.Timber
 
 @Database(
     entities = [
         UserCache::class,
+        LoginSettingsData::class,
         UserAuth::class,
-        LoginSettingsData::class
+        Language::class,
+        VisitReason::class,
+        VisitCategory::class,
+        GenderMaster::class,
+        AgeUnit::class,
+        IncomeMaster::class,
+        LiteracyStatus::class,
+        CommunityMaster::class,
+        MaritalStatusMaster::class,
+        GovIdEntityMaster::class,
+        OtherGovIdEntityMaster::class,
+        RelationshipMaster::class,
+        QualificationMaster::class,
+        ReligionMaster::class,
+        OccupationMaster::class,
+        StateMaster::class,
+        DoseType::class,
+        VaccineType::class,
+
     ],
 //    views = [BenBasicCache::class],
-    version = 4, exportSchema = false
+    version = 13, exportSchema = false
 )
+
 
 @TypeConverters(LocationEntityListConverter::class,
     SyncStateConverter::class,
@@ -39,6 +66,7 @@ import timber.log.Timber
     DistrictConverter::class,
     DistrictBlockConverter::class,
     VillageConverter::class,
+    MasterDataListConverter::class,
     LocationConverter::class
 )
 
@@ -47,6 +75,11 @@ abstract class InAppDb : RoomDatabase() {
     abstract val userDao: UserDao
 
     abstract val userAuthDao: UserAuthDao
+    abstract val languageDao: LanguageDao
+    abstract val stateMasterDao: StateMasterDao
+    abstract val vaccinationTypeAndDoseDao: VaccinationTypeAndDoseDao
+    abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
+    abstract val registrarMasterDataDao:RegistrarMasterDataDao
 
     abstract val loginSettingsDataDao: LoginSettingsDataDao
 

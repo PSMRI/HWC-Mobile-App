@@ -1,0 +1,114 @@
+{
+  "resourceType": "Questionnaire",
+  "status": "active",
+  "item": [
+    {
+      "linkId": "category",
+      "text": "Category",
+      "type": "choice",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/category",
+            "code": "general-opd",
+            "display": "General OPD Care"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "sub-category",
+      "text": "Sub Category",
+      "type": "choice",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/sub-category",
+            "code": "communicable-diseases",
+            "display": "Management of Common Communicable Diseases"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/sub-category",
+            "code": "outpatient-care",
+            "display": "Outpatient Care for Acute Simple Illnesses Minor Ailments"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "reason-for-visit",
+      "text": "Reason for visit",
+      "type": "choice",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/reason-for-visit",
+            "code": "chief-complaint",
+            "display": "New Chief Complaint(s)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/reason-for-visit",
+            "code": "follow-up",
+            "display": "Follow up"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "duration",
+      "text": "Duration",
+      "type": "integer"
+    },
+    {
+      "linkId": "duration-unit",
+      "text": "Duration in Unit",
+      "type": "choice",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "hours",
+            "display": "Hours"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "minutes",
+            "display": "Minutes"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "days",
+            "display": "Days"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "weeks",
+            "display": "Weeks"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://example.com/fhir/ValueSet/duration-unit",
+            "code": "months",
+            "display": "Months"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "description",
+      "text": "Description",
+      "type": "text"
+    }
+  ]
+}

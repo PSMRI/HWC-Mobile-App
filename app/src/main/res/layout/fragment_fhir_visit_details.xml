@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_fhir_visit_details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.commons.fhir_visit_details.FhirVisitDetailsFragment">
+
+    <!--    <Button-->
+<!--        android:id="@+id/btn_webview"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="46dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="32dp"-->
+<!--        android:text="ESanjeevni"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.0"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintWidth_default="spread" />-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_submit"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="46dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="32dp"-->
+<!--        android:text="Submit"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.91"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintWidth_default="spread" />-->
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/patient_visit_details_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottom_navigation"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent">-->
+
+<!--        <LinearLayout-->
+<!--            android:id="@+id/linear_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:gravity="center"-->
+<!--            android:paddingStart="@dimen/padding_normal"-->
+<!--            android:paddingEnd="@dimen/padding_normal">-->
+
+<!--            <Button-->
+<!--                android:id="@+id/btn_webview"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="E Sanjeevni" />-->
+
+
+<!--            <Button-->
+<!--                android:id="@+id/btn_submit"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="@string/submit" />-->
+
+<!--        </LinearLayout>-->
+
+<!--    </com.google.android.material.bottomnavigation.BottomNavigationView>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

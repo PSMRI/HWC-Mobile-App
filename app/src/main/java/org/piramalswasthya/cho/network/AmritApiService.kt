@@ -2,6 +2,8 @@ package org.piramalswasthya.cho.network
 
 import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.ModelObject
+import org.piramalswasthya.cho.model.NetworkBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -10,7 +12,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AmritApiService {
-
+    @Suppress("SpellCheckingInspection")
+    private companion object ApiMappings{
+        const val authenticate = "authenticateReference"
+    }
     @Headers("No-Auth: true")
     @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
@@ -34,7 +39,28 @@ interface AmritApiService {
         @Path("blockId") blockId: Int,
     ): VillageMasterResponse
 
+
+    @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
+    suspend fun getStatesMasterList(): Response<ResponseBody>
+    @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
+    suspend fun getLanguagesList(): Response<ResponseBody>
+
+    @GET("/hwc-facility-service/master/get/visitReasonAndCategories?apiKey=undefined")
+    suspend fun getVisitReasonAndCategories(): Response<ResponseBody>
+
+    @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
+    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
+
+
+    @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
+    suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
 //
+//
+
+
+    @POST(authenticate)
+    suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
+
 //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
 //    suspend fun getTMVanSpDetails(
 //        @Body vanServiceType: TmcUserVanSpDetailsRequest

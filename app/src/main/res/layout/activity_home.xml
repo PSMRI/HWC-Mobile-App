@@ -17,24 +17,29 @@
         android:layout_marginVertical="@dimen/padding_normal"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/listView"
-        style="@style/NoDividerListView"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/patient_list_fragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/benificiary_list"
-        tools:listitem="@layout/patient_details_card" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@+id/benificiary_list" />
+
+<!--    <ListView-->
+<!--        android:id="@+id/listView"-->
+<!--        style="@style/NoDividerListView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/benificiary_list"-->
+<!--        tools:listitem="@layout/patient_details_card" />-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/bottom_nav_height"
         app:layout_constraintBottom_toBottomOf="parent">
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout -->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent">-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -49,7 +54,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:text="@string/registration" />
 
             <Button
@@ -57,7 +62,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/purple"
                 android:text="@string/advance_search" />
 
         </LinearLayout>

@@ -11,13 +11,20 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment
+import org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.prescription.PrescriptionFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.visit_details.VisitDetailsFragment
@@ -31,7 +38,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     private lateinit var viewModel: EditPatientDetailsViewModel
 
-    private var currFragment: Int = R.id.fragment_personal_details;
+    private lateinit var currFragment: NavigationAdapter
+
+    private lateinit var navHostFragment: NavHostFragment
 
     private var _binding : ActivityEditPatientDetailsBinding? = null
 
@@ -44,77 +53,90 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
+        navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
 
-        var patientDetails = PatientDetails()
-        val index: Int = intent.getIntExtra("index", defaultValue)
 
-        if(index != defaultValue){
-            patientDetails = benificiaryList[index];
-        }
+//        var patientDetails = PatientDetails()
+//        val index: Int = intent.getIntExtra("index", defaultValue)
+//
+//        if(index != defaultValue){
+//            patientDetails = benificiaryList[index];
+//        }
 
-        val fragment = PersonalDetailsFragment(patientDetails);
-        supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
+//        val fragment = FhirVisitDetailsFragment();
+//        supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
 
         binding.btnSubmit.setOnClickListener {
-            when (currFragment){
-                R.id.fragment_personal_details -> {
-                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
-                    currFragment = R.id.fragment_visit_details
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_visit_details -> {
-                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
-                    currFragment = R.id.fragment_vitals_form
+
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+
+            Log.d("aaaaaaaaaaaa",R.id.fragment_fhir_visit_details.toString())
+            Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
+
+            when (currFragment.getFragmentId()){
+                R.id.fragment_fhir_visit_details -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
-                    binding.btnCancel.visibility = View.VISIBLE
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_vitals_form -> {
-                    val fragmentPrescription = PrescriptionFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPrescription).commit()
-                    currFragment = R.id.fragment_prescription
+                R.id.fragment_fhir_vitals -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.visibility = View.VISIBLE
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_prescription -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
+                R.id.fragment_fhir_prescription -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_fhir_revisit_form -> {
+
                 }
             }
+
+            currFragment.onSubmitAction()
+
         }
 
         binding.btnCancel.setOnClickListener {
-            when (currFragment){
-                R.id.fragment_personal_details -> {
+
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+
+            Log.d("aaaaaaaaaaaa",R.id.fragment_fhir_visit_details.toString())
+            Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
+
+            when (currFragment.getFragmentId()){
+                R.id.fragment_fhir_visit_details -> {
 
                 }
-                R.id.fragment_visit_details -> {
-                    val fragmentPersonalDetails = PersonalDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentPersonalDetails).commit()
-                    currFragment = R.id.fragment_personal_details
+                R.id.fragment_fhir_vitals -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.GONE
+                    binding.btnCancel.text = resources.getString(R.string.esanjeevni)
                 }
-                R.id.fragment_vitals_form -> {
-                    val fragmentVisitDetails = VisitDetailsFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVisitDetails).commit()
-                    currFragment = R.id.fragment_visit_details
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.visibility = View.VISIBLE
-                }
-                R.id.fragment_prescription -> {
-                    val fragmentVitalsForm = VitalsFormFragment(patientDetails);
-                    supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragmentVitalsForm).commit()
-                    currFragment = R.id.fragment_vitals_form
+                R.id.fragment_fhir_prescription -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
-                    binding.btnCancel.visibility = View.VISIBLE
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_fhir_revisit_form -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }
+
+            currFragment.onCancelAction()
+
         }
+
+    }
+
+    override fun onBackPressed() {
+        finish()
     }
 
     override fun onDestroy() {
