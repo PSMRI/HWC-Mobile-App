@@ -88,6 +88,7 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+//    implementation 'org.hl7:hapi-fhir-kotlin:5.7.1'
 
     def nav_version = "2.5.3"
     def frag_version = "1.5.5"
