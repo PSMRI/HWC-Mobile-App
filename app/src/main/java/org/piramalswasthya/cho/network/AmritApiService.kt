@@ -23,6 +23,20 @@ interface AmritApiService {
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
 
+    @POST("commonapi-v1.0/user/getLoginResponse")
+    suspend fun getLoginResponse() : Response<ResponseBody>
+
+    @POST("hwc-facility-service/user/getUserVanSpDetails?apiKey=undefined")
+    suspend fun getUserVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
+
+    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
+    suspend fun getTMVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
     @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
     suspend fun getStates(@Body request: LocationRequest): StateResponseData
 
@@ -61,15 +75,11 @@ interface AmritApiService {
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 
-//    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
-//    suspend fun getTMVanSpDetails(
-//        @Body vanServiceType: TmcUserVanSpDetailsRequest
-//    ): Response<ResponseBody>
-//
-//    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
-//    suspend fun getLocationDetails(
-//        @Body locationDetails: TmcLocationDetailsRequest
-//    ): Response<ResponseBody>
+
+    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
+    suspend fun getLocationDetails(
+        @Body locationDetails: TmcLocationDetailsRequest
+    ): Response<ResponseBody>
 //
 //    @POST("bengenapi-v1.0/generateBeneficiaryController/generateBeneficiaryIDs/")
 //    suspend fun generateBeneficiaryIDs(

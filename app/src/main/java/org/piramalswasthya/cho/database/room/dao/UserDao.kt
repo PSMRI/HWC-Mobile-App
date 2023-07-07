@@ -5,6 +5,7 @@ import androidx.room.*
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
 @Dao
 interface UserAuthDao {
@@ -40,4 +41,7 @@ interface UserDao {
 
     @Delete
     suspend fun logout(loggedInUser: UserCache)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
 }

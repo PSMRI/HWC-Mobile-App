@@ -18,20 +18,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.work.Operation.State.SUCCESS
 import com.google.android.gms.vision.face.Contour.LEFT_EYE
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,6 +51,8 @@ class OutreachFragment constructor(
 
     @Inject
     lateinit var prefDao: PreferenceDao
+    @Inject
+    lateinit var userDao: UserDao
 
     private var _binding: FragmentOutreachBinding? = null
     private val binding: FragmentOutreachBinding
@@ -203,7 +215,19 @@ class OutreachFragment constructor(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-//            Log.i("tag", "---------Login clicked--------");
+//            viewModel.loginInClicked()
+            Log.i("tag", "---------Login clicked--------");
+            viewModel.authUser(userName, binding.etPassword.text.toString())
+
+            val radioGroup = binding.selectProgram
+            val selectedOptionId = radioGroup.checkedRadioButtonId
+            val selectedOption = view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
+            val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val selectedOutreachProgram = SelectedOutreachProgram(option = selectedOption, timestamp = timestamp)
+            GlobalScope.launch(Dispatchers.IO) {
+                userDao.insertOutreachProgram(selectedOutreachProgram)
+            }
+        }
 //            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
 //            findNavController().navigate(
 //                OutreachFragmentDirections.actionOutreachLoginFragmentToFhirVitalsFragment()
@@ -211,4 +235,3 @@ class OutreachFragment constructor(
         }
     }
 
-}

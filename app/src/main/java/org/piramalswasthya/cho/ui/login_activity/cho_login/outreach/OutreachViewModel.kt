@@ -83,11 +83,12 @@ class OutreachViewModel @Inject constructor(
 
 
 
-    fun authUser(username: String, password: String, state: String) {
+    fun authUser(username: String, password: String) {
+        Timber.d("HERE 123")
         viewModelScope.launch {
             //Temporary Placement - need to move to  assets and load from there.
-            _state.value = userRepo.authenticateUser(username, password, state)
-
+            _state.value = userRepo.authenticateUser(username, password)
+            Timber.d("tokkkken",pref.getPrimaryApiToken())
         }
     }
 

@@ -43,8 +43,8 @@ class HomeActivity : AppCompatActivity() {
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val fragmentVisitDetails = PersonalDetailsFragment();
-        supportFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
+        val fragmentPersonalDetails = PersonalDetailsFragment()
+        supportFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentPersonalDetails).commit()
         // Create an ArrayList to hold your data
         val dataList = ArrayList<String>()
         dataList.add("Item 1")
@@ -63,8 +63,8 @@ class HomeActivity : AppCompatActivity() {
 //        binding.listView.adapter = adapter
 
         binding.registration.setOnClickListener {
-//            val intent = Intent(this, RegisterPatientActivity::class.java)
-            val intent = Intent(this, AbhaIdActivity::class.java)
+            val intent = Intent(this, RegisterPatientActivity::class.java)
+//            val intent = Intent(this, AbhaIdActivity::class.java)
 
             startActivity(intent)
         }

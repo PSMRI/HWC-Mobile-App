@@ -1,12 +1,15 @@
 package org.piramalswasthya.cho.repositories
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.LocationEntity
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.cho.network.AmritApiService
@@ -29,6 +32,9 @@ import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachView
 //import org.piramalswasthya.sakhi.network.D2DApiService
 //import org.piramalswasthya.sakhi.network.D2DAuthUserRequest
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
+import org.piramalswasthya.cho.network.TmcLocationDetailsRequest
+import org.piramalswasthya.cho.network.TmcUserDetailsRequest
+import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 //import org.piramalswasthya.sakhi.network.TmcLocationDetailsRequest
 //import org.piramalswasthya.sakhi.network.TmcUserDetailsRequest
 //import org.piramalswasthya.sakhi.network.TmcUserVanSpDetailsRequest
@@ -180,20 +186,23 @@ class UserRepo @Inject constructor(
 //    }
 //
 //
-//    suspend fun getLoggedInUser(): UserDomain? {
-//        return withContext(Dispatchers.IO) {
-//            userDao.getLoggedInUser()?.asDomainModel()
-//        }
-//    }
+    suspend fun getLoggedInUser(): UserDomain? {
+        return withContext(Dispatchers.IO) {
+            userDao.getLoggedInUser()?.asDomainModel()
+        }
+    }
 
 
-    suspend fun authenticateUser(userName: String, password: String, state: String): OutreachViewModel.State {
+    suspend fun authenticateUser(userName: String, password: String): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             val loggedInUser = userDao.getLoggedInUser()
+            Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
+                Timber.d("here inside let")
                 if (it.userName == userName && it.password == password) {
 //                    val tokenA = preferenceDao.getD2DApiToken()
                     val tokenB = preferenceDao.getPrimaryApiToken()
+                    Timber.d("Tokennn", tokenB.toString())
 //                    TokenInsertD2DInterceptor.setToken(
 //                        tokenA
 //                            ?: throw IllegalStateException("User logging offline without pref saved token A!")
@@ -209,6 +218,7 @@ class UserRepo @Inject constructor(
             }
 
             try {
+                Timber.d("inside try")
 //                if (getTokenD2D(userName, password)) {
                     getTokenTmc(userName, password)
                     if (user != null) {
@@ -240,77 +250,78 @@ class UserRepo @Inject constructor(
         }
     }
 
-//    private suspend fun getUserDetails(stateToggle: String): Boolean {
-//        return withContext(Dispatchers.IO) {
-//            val response =
-//                tmcNetworkApiService.getUserDetailsById(TmcUserDetailsRequest(user!!.userId))
-//            Timber.d("User Details : $response")
-//            val statusCode = response.code()
-//            if (statusCode == 200) {
-//                //pDialog.dismiss();
-//
-//                //pDialog.dismiss();
-//                val responseString = response.body()?.string() ?: return@withContext false
-//                val responseJson = JSONObject(responseString)
-//                val data = responseJson.getJSONObject("data")
-//                val user = data.getJSONObject("user")
-//                val emergencyContactNo = user.getString("emergencyContactNo")
-//                this@UserRepo.user?.emergencyContactNo = emergencyContactNo
-//                val userId = user.getInt("userID")
-//                //val userName = user.getString("userName")
-//
-//                val healthInstitution = data.getJSONObject("healthInstitution")
-//                val state = healthInstitution.getJSONObject("state")
-//                val stateId = state.getInt("stateID")
-//                val stateName = state.getString("stateName")
-//                val district = healthInstitution.getJSONArray("districts").getJSONObject(0)
-//                val districtId = district.getInt("districtID")
-//                val districtName = district.getString("districtName")
-//                val block = healthInstitution.getJSONArray("blockids").getJSONObject(0)
-//                val blockId = block.getInt("blockID")
-//                val blockName = block.getString("blockName")
-//                val countryId = state.getInt("countryID")
-//                this@UserRepo.user?.apply {
-//                    if (stateToggle != "Assam") {
-//                        this.states.add(
-//                            LocationEntity(
-//                                stateId,
-//                                stateName,
-//                            )
-//                        )
-//                        this.districts.add(
-//                            LocationEntity(
-//                                districtId,
-//                                districtName,
-//                            )
-//                        )
-//                        this.blocks.add(
-//                            LocationEntity(
-//                                blockId,
-//                                blockName,
-//                            )
-//                        )
-//                    }
-//                    this.country = LocationEntity(
-//                        countryId, "India"
-//                    )
-//                }
-//                val roleJsonArray = data.getJSONArray("roleids")
-//                val role =
-//                    if (roleJsonArray.getJSONObject(0)["designationName"].toString()
-//                            .equals("Nurse", ignoreCase = true)
-//                    ) {
-//                        "ANM"
-//                    } else {
-//                        "ASHA"
-//                    }
-//                this@UserRepo.user?.userType = role
+    private suspend fun getUserDetails(stateToggle: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response =
+                tmcNetworkApiService.getUserDetailsById(TmcUserDetailsRequest(user!!.userId))
+            Timber.d("User Details : $response")
+            val statusCode = response.code()
+            if (statusCode == 200) {
+                //pDialog.dismiss();
+
+                //pDialog.dismiss();
+                val responseString = response.body()?.string() ?: return@withContext false
+                val responseJson = JSONObject(responseString)
+                val data = responseJson.getJSONObject("data")
+                val user = data.getJSONObject("user")
+                val emergencyContactNo = user.getString("emergencyContactNo")
+                this@UserRepo.user?.emergencyContactNo = emergencyContactNo
+                val userId = user.getInt("userID")
+                //val userName = user.getString("userName")
+
+                val healthInstitution = data.getJSONObject("healthInstitution")
+                val state = healthInstitution.getJSONObject("state")
+                val stateId = state.getInt("stateID")
+                val stateName = state.getString("stateName")
+                val district = healthInstitution.getJSONArray("districts").getJSONObject(0)
+                val districtId = district.getInt("districtID")
+                val districtName = district.getString("districtName")
+                val block = healthInstitution.getJSONArray("blockids").getJSONObject(0)
+                val blockId = block.getInt("blockID")
+                val blockName = block.getString("blockName")
+                val countryId = state.getInt("countryID")
+                this@UserRepo.user?.apply {
+                    if (stateToggle != "Assam") {
+                        this.states.add(
+                            LocationEntity(
+                                stateId,
+                                stateName,
+                            )
+                        )
+                        this.districts.add(
+                            LocationEntity(
+                                districtId,
+                                districtName,
+                            )
+                        )
+                        this.blocks.add(
+                            LocationEntity(
+                                blockId,
+                                blockName,
+                            )
+                        )
+                    }
+                    this.country = LocationEntity(
+                        countryId, "India"
+                    )
+                }
+                val roleJsonArray = data.getJSONArray("roleids")
+                val role =
+                    if (roleJsonArray.getJSONObject(0)["designationName"].toString()
+                            .equals("Nurse", ignoreCase = true)
+                    ) {
+                        "ANM"
+                    } else {
+                        "ASHA"
+                    }
+                this@UserRepo.user?.userType = role
+                return@withContext true
 //                getUserVillageDetails(userId, stateToggle)
-//                // usertype = role
-//            } else
-//                false
-//        }
-//    }
+                // usertype = role
+            } else
+                false
+        }
+    }
 
 //    private suspend fun getUserVillageDetails(userId: Int, state: String): Boolean {
 //        return when (state) {
@@ -319,7 +330,7 @@ class UserRepo @Inject constructor(
 //            else -> throw IllegalStateException("No State Passed to Repo ! ! !")
 //        }
 //    }
-//
+
 //    private suspend fun getVillageDetailsForAssam(userId: Int): Boolean {
 //        return withContext(Dispatchers.IO) {
 //            val response = d2dNetworkApi.getVillageDataForAssam(userId)
@@ -426,78 +437,78 @@ class UserRepo @Inject constructor(
 //        }
 //    }
 //
-//    private suspend fun getUserVanSpDetails(): Boolean {
-//        return withContext(Dispatchers.IO) {
-//            val response = tmcNetworkApiService.getTMVanSpDetails(
-//                TmcUserVanSpDetailsRequest(
-//                    user!!.userId,
-//                    user!!.serviceMapId
-//                )
-//            )
-//            Timber.d("User Van Sp Details : $response")
-//            val statusCode = response.code()
-//            if (statusCode == 200) {
-//                val responseString = response.body()?.string() ?: return@withContext false
-//                val responseJson = JSONObject(responseString)
-//                val data = responseJson.getJSONObject("data")
-//                val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
-////                val vanId =
-////                    vanSpDetailsArray.getJSONObject(0).getInt("vanID")
-////                val servicePointID =
-////                    vanSpDetailsArray.getJSONObject(0).getInt("servicePointID")
-////                val servicePointName =
-////                    vanSpDetailsArray.getJSONObject(0).getString("servicePointName")
-////                val parkingPlaceID =
-////                    vanSpDetailsArray.getJSONObject(0).getInt("parkingPlaceID")
-//                for (i in 0 until vanSpDetailsArray.length()) {
-//                    val vanSp = vanSpDetailsArray.getJSONObject(i)
-//                    val vanId = vanSp.getInt("vanID")
-//                    user?.vanId = vanId
-//                    //val name = vanSp.getString("vanNoAndType")
-//                    val servicePointId = vanSp.getInt("servicePointID")
-//                    user?.servicePointId = servicePointId
-//                    val servicePointName = vanSp.getString("servicePointName")
-//                    user?.servicePointName = servicePointName
-//                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
-//
-//                }
-//                getLocationDetails()
-//            } else {
-//                false
-//            }
-//        }
-//    }
-//
-//    private suspend fun getLocationDetails(): Boolean {
-//        return withContext(Dispatchers.IO) {
-//            val response = tmcNetworkApiService.getLocationDetails(
-//                TmcLocationDetailsRequest(
-//                    user!!.servicePointId,
-//                    user!!.serviceMapId
-//                )
-//            )
-//            Timber.d("User Van Sp Details : $response")
-//            val statusCode = response.code()
-//            if (statusCode == 200) {
-//                val responseString = response.body()?.string() ?: return@withContext false
-//                val responseJson = JSONObject(responseString)
-//                val dataJson = responseJson.getJSONObject("data")
-//                val otherLocation = dataJson.getJSONObject("otherLoc")
-//                val parkingPlaceName = otherLocation.getString("parkingPlaceName")
-//                val zoneId = otherLocation.getInt("zoneID")
-//                val parkingPlaceId = otherLocation.getInt("parkingPlaceID")
-//                val zoneName = otherLocation.getString("zoneName")
-//                this@UserRepo.user?.apply {
-//                    this.parkingPlaceId = parkingPlaceId
-//                    this.parkingPlaceName = parkingPlaceName
-//                    this.zoneName = zoneName
-//                    this.zoneId = zoneId
-//                }
-//                true
-//            } else
-//                false
-//        }
-//    }
+    private suspend fun getUserVanSpDetails(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getUserVanSpDetails(
+                TmcUserVanSpDetailsRequest(
+                    user!!.userId,
+                    user!!.serviceMapId
+                )
+            )
+            Timber.d("User Van Sp Details : $response")
+            val statusCode = response.code()
+            if (statusCode == 200) {
+                val responseString = response.body()?.string() ?: return@withContext false
+                val responseJson = JSONObject(responseString)
+                val data = responseJson.getJSONObject("data")
+                val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
+//                val vanId =
+//                    vanSpDetailsArray.getJSONObject(0).getInt("vanID")
+//                val servicePointID =
+//                    vanSpDetailsArray.getJSONObject(0).getInt("servicePointID")
+//                val servicePointName =
+//                    vanSpDetailsArray.getJSONObject(0).getString("servicePointName")
+//                val parkingPlaceID =
+//                    vanSpDetailsArray.getJSONObject(0).getInt("parkingPlaceID")
+                for (i in 0 until vanSpDetailsArray.length()) {
+                    val vanSp = vanSpDetailsArray.getJSONObject(i)
+                    val vanId = vanSp.getInt("vanID")
+                    user?.vanId = vanId
+                    //val name = vanSp.getString("vanNoAndType")
+                    val servicePointId = vanSp.getInt("servicePointID")
+                    user?.servicePointId = servicePointId
+                    val servicePointName = vanSp.getString("servicePointName")
+                    user?.servicePointName = servicePointName
+                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+
+                }
+                getLocationDetails()
+            } else {
+                false
+            }
+        }
+    }
+
+    private suspend fun getLocationDetails(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getLocationDetails(
+                TmcLocationDetailsRequest(
+                    user!!.servicePointId,
+                    user!!.serviceMapId
+                )
+            )
+            Timber.d("User Van Sp Details : $response")
+            val statusCode = response.code()
+            if (statusCode == 200) {
+                val responseString = response.body()?.string() ?: return@withContext false
+                val responseJson = JSONObject(responseString)
+                val dataJson = responseJson.getJSONObject("data")
+                val otherLocation = dataJson.getJSONObject("otherLoc")
+                val parkingPlaceName = otherLocation.getString("parkingPlaceName")
+                val zoneId = otherLocation.getInt("zoneID")
+                val parkingPlaceId = otherLocation.getInt("parkingPlaceID")
+                val zoneName = otherLocation.getString("zoneName")
+                this@UserRepo.user?.apply {
+                    this.parkingPlaceId = parkingPlaceId
+                    this.parkingPlaceName = parkingPlaceName
+                    this.zoneName = zoneName
+                    this.zoneId = zoneId
+                }
+                true
+            } else
+                false
+        }
+    }
 //
 //    private suspend fun getTokenD2D(userName: String, password: String): Boolean {
 //        return withContext(Dispatchers.IO) {
@@ -578,48 +589,58 @@ class UserRepo @Inject constructor(
 //
     private suspend fun getTokenTmc(userName: String, password: String) {
         withContext(Dispatchers.IO) {
-//            try {
-//                val response =
-//                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, password))
-//                Timber.d("JWT : $response")
-//                if (!response.isSuccessful) {
-//                    return@withContext
-//                }
-//                val responseBody = JSONObject(
-//                    response.body()?.string()
-//                        ?: throw IllegalStateException("Response success but data missing @ $response")
-//                )
-//                val responseStatusCode = responseBody.getInt("statusCode")
-//                if (responseStatusCode == 200) {
-//                    val data = responseBody.getJSONObject("data")
-//                    val token = data.getString("key")
-//                    val userId = data.getInt("userID")
-//
-//                    val privilegesArray = data.getJSONArray("previlegeObj")
-//                    val privilegesObject = privilegesArray.getJSONObject(0)
-//
-//                    user = UserNetwork(userId, userName, password)
-//                    val serviceId = privilegesObject.getInt("serviceID")
-//                    user?.serviceId = serviceId
-//                    val serviceMapId =
-//                        privilegesObject.getInt("providerServiceMapID")
-//                    user?.serviceMapId = serviceMapId
-//                    TokenInsertTmcInterceptor.setToken(token)
-//                    preferenceDao.registerPrimaryApiToken(token)
-//                } else {
-//                    val errorMessage = responseBody.getString("errorMessage")
-//                    Timber.d("Error Message $errorMessage")
-//                }
-//            } catch (e: retrofit2.HttpException) {
-//                Timber.d("Auth Failed!")
-//            }
+            try {
+                val encryptedPassword = encrypt(password)
+
+                val response =
+                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, encryptedPassword))
+                Timber.d("msg", response.toString())
+                if (!response.isSuccessful) {
+                    Log.d("tagggg res", "FAILED")
+                    return@withContext
+                }
+                Log.d("tagggg res", "successs")
+
+                val responseBody = JSONObject(
+                    response.body()?.string()
+                        ?: throw IllegalStateException("Response success but data missing @ $response")
+                )
+                val responseStatusCode = responseBody.getInt("statusCode")
+                if (responseStatusCode == 200) {
+                    val data = responseBody.getJSONObject("data")
+                    val token = data.getString("key")
+                    val userId = data.getInt("userID")
+                    Timber.d("Token",  token.toString())
+                    val privilegesArray = data.getJSONArray("previlegeObj")
+                    val privilegesObject = privilegesArray.getJSONObject(0)
+
+                    user = UserNetwork(userId, userName, password)
+                    val serviceId = privilegesObject.getInt("serviceID")
+                    user?.serviceId = serviceId
+                    val serviceMapId =
+                        privilegesObject.getInt("providerServiceMapID")
+                    user?.serviceMapId = serviceMapId
+                    TokenInsertTmcInterceptor.setToken(token)
+                    preferenceDao.registerPrimaryApiToken(token)
+                    Timber.d("token 123",preferenceDao.getPrimaryApiToken())
+                    getUserVanSpDetails()
+                } else {
+                    val errorMessage = responseBody.getString("errorMessage")
+                    Timber.d("Error Message $errorMessage")
+                }
+            } catch (e: retrofit2.HttpException) {
+                Timber.d("Auth Failed!")
+            }
 
 
         }
 
     }
 
-
+    private fun encrypt(password: String): String {
+        val util = CryptoUtil()
+        return util.encrypt(password)
+    }
 //
 //    suspend fun logout() {
 //        withContext(Dispatchers.IO) {
