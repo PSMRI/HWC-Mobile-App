@@ -1,7 +1,10 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -10,80 +13,49 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import dagger.hilt.android.AndroidEntryPoint
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
+import org.piramalswasthya.cho.databinding.FragmentFhirVitalsBinding
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewModel
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragmentDirections
 import timber.log.Timber
 
-class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAdapter {
-    private val viewModel: FhirVitalsViewModel by viewModels()
+@AndroidEntryPoint
+class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragmentService, NavigationAdapter {
+
+    private var _binding: FragmentFhirVitalsBinding? = null
+
+    private val binding: FragmentFhirVitalsBinding
+        get() = _binding!!
+
+    override val viewModel: FhirVitalsViewModel by viewModels()
+
+    override var fragment: Fragment = this;
+
+    override var fragmentContainerId = 0;
+
+    override val jsonFile : String = "vitals-page.json"
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFhirVitalsBinding.inflate(layoutInflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Timber.d("initiated")
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar()
-        setHasOptionsMenu(true)
+        fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-        observePatientSaveAction()
-    }
-
-    private fun setUpActionBar() {
-        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-            title = "Patient Vitals"
-            setDisplayHomeAsUpEnabled(true)
-        }
-    }
-
-
-    private fun updateArguments() {
-        arguments = Bundle()
-        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "vitals-page.json")
-    }
-
-    private fun observePatientSaveAction() {
-        viewModel.isPatientSaved.observe(viewLifecycleOwner) {
-            if (!it) {
-                Toast.makeText(requireContext(), "Inputs are missing.", Toast.LENGTH_SHORT).show()
-                return@observe
-            }
-            Toast.makeText(requireContext(), "Patient is saved.", Toast.LENGTH_SHORT).show()
-//            NavHostFragment.findNavController(this).navigateUp()
-        }
-    }
-
-    private fun addQuestionnaireFragment() {
-        childFragmentManager.commit {
-            add(
-                R.id.patient_vitals_container,
-                QuestionnaireFragment.builder().setQuestionnaire(viewModel.questionnaire).build(),
-                QUESTIONNAIRE_FRAGMENT_TAG
-            )
-        }
-    }
-
-
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-
-    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-        viewModel.savePatient(questionnaireResponse)
-    }
-
-
-
-
-
-    companion object {
-        const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
-        const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
+        observeEntitySaveAction("Inputs are missing.", "Vitals is saved.")
     }
 
     override fun getFragmentId(): Int {
@@ -91,19 +63,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), NavigationAd
     }
 
     override fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(FhirVitalsFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
+        navigateNext()
+    }
+
+    override fun onCancelAction() {
+        findNavController().navigate(
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+        )
+    }
+
+    override fun navigateNext() {
         findNavController().navigate(
             FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirPrescriptionFragment()
         )
     }
 
-    override fun onCancelAction() {
-//        requireActivity().supportFragmentManager.popBackStack()
-//        getFragmentManager()?.popBackStack()
-        findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-        )
-    }
 }

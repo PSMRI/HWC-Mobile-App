@@ -1,37 +1,29 @@
 package org.piramalswasthya.cho.ui.commons.fhir_add_patient
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.fragment.NavHostFragment
-import com.google.android.fhir.datacapture.QuestionnaireFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
-import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
-import org.piramalswasthya.cho.ui.commons.FragmentContainerId
-import timber.log.Timber
+import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 
 /** A fragment class to show patient registration screen. */
 
 @AndroidEntryPoint
-class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), FragmentContainerId, FhirFragmentService {
+class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), FhirFragmentService, NavigationAdapter {
 
     private var _binding: FragmentFhirAddPatientBinding? = null
 
@@ -44,7 +36,7 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), Fra
 
     override var fragmentContainerId = 0;
 
-    private val jsonFile : String = "new-patient-registration-paginated.json"
+    override val jsonFile : String = "new-patient-registration-paginated.json"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -55,91 +47,28 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), Fra
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         fragmentContainerId = binding.fragmentContainer.id
-
-//        fhirFragmentService = FhirFragmentService(this, this.viewModel)
-
-        updateArguments(jsonFile)
+        updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-
-//        observePatientSaveAction()
-
-//        val submitButton = view.findViewById<Button>(R.id.btn_submit)
-//        submitButton.setOnClickListener {
-//            onSubmitAction()
-//        }
+        observeEntitySaveAction("Inputs are missing.", "Patient is saved.")
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        super.onCreateOptionsMenu(menu, inflater)
-//        inflater.inflate(R.menu.add_patient_fragment_menu, menu)
-//    }
-
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.action_add_patient_submit -> {
-//                onSubmitAction()
-//                true
-//            }
-//            android.R.id.home -> {
-//                NavHostFragment.findNavController(this).navigateUp()
-//                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
-
-//    private fun setUpActionBar() {
-//        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-//            title = requireContext().getString(R.string.add_patient)
-//            setDisplayHomeAsUpEnabled(true)
-//        }
-//    }
-
-//    private fun updateArguments() {
-//        val bundle = Bundle()
-//        bundle.putString(QUESTIONNAIRE_FILE_PATH_KEY, "new-patient-registration-paginated.json")
-//        arguments = bundle
-//    }
-//
-//
-//    private fun addQuestionnaireFragment() {
-//        childFragmentManager.commit {
-//            add(
-//                R.id.add_patient_container,
-//                QuestionnaireFragment.builder().setQuestionnaire(viewModel.questionnaire).build(),
-//                QUESTIONNAIRE_FRAGMENT_TAG
-//            )
-//        }
-//    }
-
-    fun onSubmitAction() {
-        val questionnaireFragment =
-            childFragmentManager.findFragmentByTag(QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-        savePatient(questionnaireFragment.getQuestionnaireResponse())
+    override fun getFragmentId(): Int {
+        return R.id.fragment_fhir_add_patient;
     }
 
-    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-        viewModel.savePatient(questionnaireResponse)
+    override fun onSubmitAction() {
+        saveEntity()
     }
 
-    private fun observePatientSaveAction() {
-        viewModel.isPatientSaved.observe(viewLifecycleOwner) {
-            if (!it) {
-                Toast.makeText(requireContext(), "Inputs are missing.", Toast.LENGTH_SHORT).show()
-                return@observe
-            }
-            Toast.makeText(requireContext(), "Patient is saved.", Toast.LENGTH_SHORT).show()
-            NavHostFragment.findNavController(this).navigateUp()
-        }
+    override fun onCancelAction() {
+
     }
 
-    companion object {
-        const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
-        const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
+    override fun navigateNext() {
+        Log.i("navigate up Pressed", "asdsad")
     }
 
 }
