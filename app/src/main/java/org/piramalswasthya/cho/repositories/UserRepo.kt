@@ -11,6 +11,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
@@ -191,18 +192,23 @@ class UserRepo @Inject constructor(
             userDao.getLoggedInUser()?.asDomainModel()
         }
     }
+    private suspend fun setOutreachProgram(selectedOption:String, timestamp:String){
+        var userId = userDao.getLoggedInUser()?.userId
+        val selectedOutreachProgram = SelectedOutreachProgram(userId = userId,
+            option = selectedOption, timestamp = timestamp)
+        userDao.insertOutreachProgram(selectedOutreachProgram)
+    }
 
-
-    suspend fun authenticateUser(userName: String, password: String): OutreachViewModel.State {
+    suspend fun authenticateUser(userName: String, password: String,selectedOption: String, timestamp:String): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             val loggedInUser = userDao.getLoggedInUser()
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
-                Timber.d("here inside let")
+                Log.d("msg","here inside let")
                 if (it.userName == userName && it.password == password) {
 //                    val tokenA = preferenceDao.getD2DApiToken()
                     val tokenB = preferenceDao.getPrimaryApiToken()
-                    Timber.d("Tokennn", tokenB.toString())
+                    Log.d("Tokennn", tokenB.toString())
 //                    TokenInsertD2DInterceptor.setToken(
 //                        tokenA
 //                            ?: throw IllegalStateException("User logging offline without pref saved token A!")
@@ -212,7 +218,7 @@ class UserRepo @Inject constructor(
                             ?: throw IllegalStateException("User logging offline without pref saved token B!")
                     )
                     Timber.w("User Logged in!")
-
+                    setOutreachProgram(selectedOption, timestamp)
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -232,7 +238,8 @@ class UserRepo @Inject constructor(
                                 userDao.resetAllUsersLoggedInState()
                                 userDao.insert(user!!.asCacheModel())
                             }
-                            return@withContext OutreachViewModel.State.SUCCESS
+                        setOutreachProgram(selectedOption, timestamp)
+                        return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                     }
                     return@withContext OutreachViewModel.State.ERROR_SERVER
@@ -250,78 +257,78 @@ class UserRepo @Inject constructor(
         }
     }
 
-    private suspend fun getUserDetails(stateToggle: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            val response =
-                tmcNetworkApiService.getUserDetailsById(TmcUserDetailsRequest(user!!.userId))
-            Timber.d("User Details : $response")
-            val statusCode = response.code()
-            if (statusCode == 200) {
-                //pDialog.dismiss();
-
-                //pDialog.dismiss();
-                val responseString = response.body()?.string() ?: return@withContext false
-                val responseJson = JSONObject(responseString)
-                val data = responseJson.getJSONObject("data")
-                val user = data.getJSONObject("user")
-                val emergencyContactNo = user.getString("emergencyContactNo")
-                this@UserRepo.user?.emergencyContactNo = emergencyContactNo
-                val userId = user.getInt("userID")
-                //val userName = user.getString("userName")
-
-                val healthInstitution = data.getJSONObject("healthInstitution")
-                val state = healthInstitution.getJSONObject("state")
-                val stateId = state.getInt("stateID")
-                val stateName = state.getString("stateName")
-                val district = healthInstitution.getJSONArray("districts").getJSONObject(0)
-                val districtId = district.getInt("districtID")
-                val districtName = district.getString("districtName")
-                val block = healthInstitution.getJSONArray("blockids").getJSONObject(0)
-                val blockId = block.getInt("blockID")
-                val blockName = block.getString("blockName")
-                val countryId = state.getInt("countryID")
-                this@UserRepo.user?.apply {
-                    if (stateToggle != "Assam") {
-                        this.states.add(
-                            LocationEntity(
-                                stateId,
-                                stateName,
-                            )
-                        )
-                        this.districts.add(
-                            LocationEntity(
-                                districtId,
-                                districtName,
-                            )
-                        )
-                        this.blocks.add(
-                            LocationEntity(
-                                blockId,
-                                blockName,
-                            )
-                        )
-                    }
-                    this.country = LocationEntity(
-                        countryId, "India"
-                    )
-                }
-                val roleJsonArray = data.getJSONArray("roleids")
-                val role =
-                    if (roleJsonArray.getJSONObject(0)["designationName"].toString()
-                            .equals("Nurse", ignoreCase = true)
-                    ) {
-                        "ANM"
-                    } else {
-                        "ASHA"
-                    }
-                this@UserRepo.user?.userType = role
-                return@withContext true
-//                getUserVillageDetails(userId, stateToggle)
-                // usertype = role
-            } else
-                false
-        }
-    }
+//    private suspend fun getUserDetails(stateToggle: String): Boolean {
+//        return withContext(Dispatchers.IO) {
+//            val response =
+//                tmcNetworkApiService.getUserDetailsById(TmcUserDetailsRequest(user!!.userId))
+//            Timber.d("User Details : $response")
+//            val statusCode = response.code()
+//            if (statusCode == 200) {
+//                //pDialog.dismiss();
+//
+//                //pDialog.dismiss();
+//                val responseString = response.body()?.string() ?: return@withContext false
+//                val responseJson = JSONObject(responseString)
+//                val data = responseJson.getJSONObject("data")
+//                val user = data.getJSONObject("user")
+//                val emergencyContactNo = user.getString("emergencyContactNo")
+//                this@UserRepo.user?.emergencyContactNo = emergencyContactNo
+//                val userId = user.getInt("userID")
+//                //val userName = user.getString("userName")
+//
+//                val healthInstitution = data.getJSONObject("healthInstitution")
+//                val state = healthInstitution.getJSONObject("state")
+//                val stateId = state.getInt("stateID")
+//                val stateName = state.getString("stateName")
+//                val district = healthInstitution.getJSONArray("districts").getJSONObject(0)
+//                val districtId = district.getInt("districtID")
+//                val districtName = district.getString("districtName")
+//                val block = healthInstitution.getJSONArray("blockids").getJSONObject(0)
+//                val blockId = block.getInt("blockID")
+//                val blockName = block.getString("blockName")
+//                val countryId = state.getInt("countryID")
+//                this@UserRepo.user?.apply {
+//                    if (stateToggle != "Assam") {
+//                        this.states.add(
+//                            LocationEntity(
+//                                stateId,
+//                                stateName,
+//                            )
+//                        )
+//                        this.districts.add(
+//                            LocationEntity(
+//                                districtId,
+//                                districtName,
+//                            )
+//                        )
+//                        this.blocks.add(
+//                            LocationEntity(
+//                                blockId,
+//                                blockName,
+//                            )
+//                        )
+//                    }
+//                    this.country = LocationEntity(
+//                        countryId, "India"
+//                    )
+//                }
+//                val roleJsonArray = data.getJSONArray("roleids")
+//                val role =
+//                    if (roleJsonArray.getJSONObject(0)["designationName"].toString()
+//                            .equals("Nurse", ignoreCase = true)
+//                    ) {
+//                        "ANM"
+//                    } else {
+//                        "ASHA"
+//                    }
+//                this@UserRepo.user?.userType = role
+//                return@withContext true
+////                getUserVillageDetails(userId, stateToggle)
+//                // usertype = role
+//            } else
+//                false
+//        }
+//    }
 
 //    private suspend fun getUserVillageDetails(userId: Int, state: String): Boolean {
 //        return when (state) {
@@ -452,14 +459,7 @@ class UserRepo @Inject constructor(
                 val responseJson = JSONObject(responseString)
                 val data = responseJson.getJSONObject("data")
                 val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
-//                val vanId =
-//                    vanSpDetailsArray.getJSONObject(0).getInt("vanID")
-//                val servicePointID =
-//                    vanSpDetailsArray.getJSONObject(0).getInt("servicePointID")
-//                val servicePointName =
-//                    vanSpDetailsArray.getJSONObject(0).getString("servicePointName")
-//                val parkingPlaceID =
-//                    vanSpDetailsArray.getJSONObject(0).getInt("parkingPlaceID")
+
                 for (i in 0 until vanSpDetailsArray.length()) {
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
                     val vanId = vanSp.getInt("vanID")
@@ -472,43 +472,44 @@ class UserRepo @Inject constructor(
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
                 }
-                getLocationDetails()
+                    true
+//                getLocationDetails()
             } else {
                 false
             }
         }
     }
 
-    private suspend fun getLocationDetails(): Boolean {
-        return withContext(Dispatchers.IO) {
-            val response = tmcNetworkApiService.getLocationDetails(
-                TmcLocationDetailsRequest(
-                    user!!.servicePointId,
-                    user!!.serviceMapId
-                )
-            )
-            Timber.d("User Van Sp Details : $response")
-            val statusCode = response.code()
-            if (statusCode == 200) {
-                val responseString = response.body()?.string() ?: return@withContext false
-                val responseJson = JSONObject(responseString)
-                val dataJson = responseJson.getJSONObject("data")
-                val otherLocation = dataJson.getJSONObject("otherLoc")
-                val parkingPlaceName = otherLocation.getString("parkingPlaceName")
-                val zoneId = otherLocation.getInt("zoneID")
-                val parkingPlaceId = otherLocation.getInt("parkingPlaceID")
-                val zoneName = otherLocation.getString("zoneName")
-                this@UserRepo.user?.apply {
-                    this.parkingPlaceId = parkingPlaceId
-                    this.parkingPlaceName = parkingPlaceName
-                    this.zoneName = zoneName
-                    this.zoneId = zoneId
-                }
-                true
-            } else
-                false
-        }
-    }
+//    private suspend fun getLocationDetails(): Boolean {
+//        return withContext(Dispatchers.IO) {
+//            val response = tmcNetworkApiService.getLocationDetails(
+//                TmcLocationDetailsRequest(
+//                    user!!.servicePointId,
+//                    user!!.serviceMapId
+//                )
+//            )
+//            Timber.d("User Van Sp Details : $response")
+//            val statusCode = response.code()
+//            if (statusCode == 200) {
+//                val responseString = response.body()?.string() ?: return@withContext false
+//                val responseJson = JSONObject(responseString)
+//                val dataJson = responseJson.getJSONObject("data")
+//                val otherLocation = dataJson.getJSONObject("otherLoc")
+//                val parkingPlaceName = otherLocation.getString("parkingPlaceName")
+//                val zoneId = otherLocation.getInt("zoneID")
+//                val parkingPlaceId = otherLocation.getInt("parkingPlaceID")
+//                val zoneName = otherLocation.getString("zoneName")
+//                this@UserRepo.user?.apply {
+//                    this.parkingPlaceId = parkingPlaceId
+//                    this.parkingPlaceName = parkingPlaceName
+//                    this.zoneName = zoneName
+//                    this.zoneId = zoneId
+//                }
+//                true
+//            } else
+//                false
+//        }
+//    }
 //
 //    private suspend fun getTokenD2D(userName: String, password: String): Boolean {
 //        return withContext(Dispatchers.IO) {

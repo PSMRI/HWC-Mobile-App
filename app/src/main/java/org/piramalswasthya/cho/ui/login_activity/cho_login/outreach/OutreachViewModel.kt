@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
@@ -28,6 +29,7 @@ class OutreachViewModel @Inject constructor(
     private val stateMasterRepo: StateMasterRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val userAuthRepo: UserAuthRepo,
+    private val userDao: UserDao,
     private val pref: PreferenceDao
 ) : ViewModel() {
     // TODO: Implement the ViewModel
@@ -81,15 +83,32 @@ class OutreachViewModel @Inject constructor(
         }
     }
 
+//    suspend fun setOutreachProgram(selectedOption:String, timestamp:String){
+//        var userId = userDao.getLoggedInUser()?.userId
+//        val selectedOutreachProgram = SelectedOutreachProgram(userId = userId,
+//            option = selectedOption, timestamp = timestamp)
+//        userDao.insertOutreachProgram(selectedOutreachProgram)
+//    }
 
 
-    fun authUser(username: String, password: String) {
+    fun authUser(
+        username: String,
+        password: String,
+        selectedOption: String,
+        timestamp: String
+    ) {
         Timber.d("HERE 123")
         viewModelScope.launch {
             //Temporary Placement - need to move to  assets and load from there.
-            _state.value = userRepo.authenticateUser(username, password)
-            Timber.d("tokkkken",pref.getPrimaryApiToken())
+            _state.value = userRepo.authenticateUser(username, password,selectedOption,timestamp)
+
+            Log.d("state", userRepo.authenticateUser(username, password,selectedOption,timestamp).toString())
+//            Timber.d("tokkkken",pref.getPrimaryApiToken())
         }
+    }
+
+    fun resetState() {
+        _state.value = State.IDLE
     }
 
 }

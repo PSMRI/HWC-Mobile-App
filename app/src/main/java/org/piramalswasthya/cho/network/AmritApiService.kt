@@ -68,18 +68,16 @@ interface AmritApiService {
 
     @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
-//
-//
 
 
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 
 
-    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
-    suspend fun getLocationDetails(
-        @Body locationDetails: TmcLocationDetailsRequest
-    ): Response<ResponseBody>
+//    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
+//    suspend fun getLocationDetails(
+//        @Body locationDetails: TmcLocationDetailsRequest
+//    ): Response<ResponseBody>
 //
 //    @POST("bengenapi-v1.0/generateBeneficiaryController/generateBeneficiaryIDs/")
 //    suspend fun generateBeneficiaryIDs(
