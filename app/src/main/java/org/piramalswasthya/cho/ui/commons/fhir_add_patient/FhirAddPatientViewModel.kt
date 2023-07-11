@@ -90,6 +90,7 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
             val patient = entry.resource as Patient
             patient.id = generateUuid()
             fhirEngine.create(patient)
+            Log.i("patient id ", patient.id)
 //            val resp = service.createPatient(patient)
 //            Log.i("patient", resp.toString())
 //            var pat= fhirEngine.get(ResourceType.Patient,patient.id)

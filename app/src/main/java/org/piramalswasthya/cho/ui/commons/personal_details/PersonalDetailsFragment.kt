@@ -18,17 +18,22 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.sync.SyncJobStatus
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemRecyclerViewAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.home_activity.HomeActivityViewModel
 import timber.log.Timber
 
 class PersonalDetailsFragment : Fragment() {
@@ -36,6 +41,9 @@ class PersonalDetailsFragment : Fragment() {
     private lateinit var patientListViewModel: PersonalDetailsViewModel
     private lateinit var searchView: SearchView
     private var _binding: FragmentPersonalDetailsBinding? = null
+
+    private val mainActivityViewModel: HomeActivityViewModel by activityViewModels()
+
     private val binding
         get() = _binding!!
 
@@ -121,6 +129,8 @@ class PersonalDetailsFragment : Fragment() {
                         .hideSoftInputFromWindow(view.windowToken, 0)
             }
         }
+
+
         requireActivity()
                 .onBackPressedDispatcher.addCallback(
                         viewLifecycleOwner,
@@ -136,6 +146,35 @@ class PersonalDetailsFragment : Fragment() {
                         }
                 )
         setHasOptionsMenu(true)
+
+        lifecycleScope.launch {
+            mainActivityViewModel.pollState.collect {
+                Timber.d("onViewCreated: pollState Got status $it")
+                when (it) {
+                    is SyncJobStatus.Started -> {
+                        Timber.i("Sync: ${it::class.java.simpleName}")
+                    }
+                    is SyncJobStatus.InProgress -> {
+                        Timber.i("Sync: ${it::class.java.simpleName} with data $it")
+                    }
+                    is SyncJobStatus.Finished -> {
+                        Timber.i("Sync: ${it::class.java.simpleName} at ${it.timestamp}")
+                        patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+                        mainActivityViewModel.updateLastSyncTimestamp()
+                    }
+                    is SyncJobStatus.Failed -> {
+                        Timber.i("Sync: ${it::class.java.simpleName} at ${it.timestamp}")
+                        patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+                        mainActivityViewModel.updateLastSyncTimestamp()
+                    }
+                    else -> {
+                        Timber.i("Sync: Unknown state.")
+                        patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+                        mainActivityViewModel.updateLastSyncTimestamp()
+                    }
+                }
+            }
+        }
 
 //        lifecycleScope.launch {
 //            mainActivityViewModel.pollState.collect {
