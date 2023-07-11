@@ -79,7 +79,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/til_password_hint_text"
                 android:layout_marginBottom="@dimen/margin_big"
-                tools:layout_editor_absoluteX="16dp">
+                tools:layout_editor_absoluteX="16dp"
+                app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_password"

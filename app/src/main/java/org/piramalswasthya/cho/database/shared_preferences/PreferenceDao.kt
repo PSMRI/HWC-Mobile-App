@@ -69,16 +69,16 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        editor.apply()
 //    }
 //
-//    fun registerLoginCred(userName: String, password: String, state : String) {
-//        val editor = pref.edit()
-//        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
-//        val prefUserPwdKey = context.getString(R.string.PREF_rem_me_pwd)
-//        val prefUserStateKey = context.getString(R.string.PREF_rem_me_state)
-//        editor.putString(prefUserKey, userName)
-//        editor.putString(prefUserPwdKey, password)
-//        editor.putString(prefUserStateKey, state)
-//        editor.apply()
-//    }
+    fun registerLoginCred(userName: String) {
+        val editor = pref.edit()
+        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
+        editor.putString(prefUserKey, userName)
+        editor.apply()
+    }
+    fun getRememberedUserName(): String? {
+        val key = context.getString(R.string.PREF_rem_me_uname)
+        return pref.getString(key, null)
+    }
 //
 //    fun deleteForLogout() {
 //        pref.edit().clear().apply()
@@ -93,10 +93,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        editor.apply()
 //    }
 //
-//    fun getRememberedUserName(): String? {
-//        val key = context.getString(R.string.PREF_rem_me_uname)
-//        return pref.getString(key, null)
-//    }
+
 //
 //    fun getRememberedPassword(): String? {
 //        val key = context.getString(R.string.PREF_rem_me_pwd)

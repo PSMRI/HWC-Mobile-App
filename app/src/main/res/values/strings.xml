@@ -139,6 +139,7 @@
     <string name="generate_abha_id">Create ABHA Number</string>
 
     <string name="aadhar_consent_text">I hereby confirm that I have explained the below mentioned consent process to the individual for the creation of the ABHA Number using he individual\'s aadhar number</string>
+    <string name="PREF_rem_me_uname">user-name-local-saved</string>
 
 
 </resources>

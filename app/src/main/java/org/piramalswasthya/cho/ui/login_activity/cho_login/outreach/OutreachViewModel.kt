@@ -6,7 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -43,7 +45,7 @@ class OutreachViewModel @Inject constructor(
         SUCCESS
     }
 
-    private val _state = MutableLiveData(State.IDLE)
+     val _state = MutableLiveData(State.IDLE)
     val state: LiveData<State>
         get() = _state
 
@@ -83,13 +85,6 @@ class OutreachViewModel @Inject constructor(
         }
     }
 
-//    suspend fun setOutreachProgram(selectedOption:String, timestamp:String){
-//        var userId = userDao.getLoggedInUser()?.userId
-//        val selectedOutreachProgram = SelectedOutreachProgram(userId = userId,
-//            option = selectedOption, timestamp = timestamp)
-//        userDao.insertOutreachProgram(selectedOutreachProgram)
-//    }
-
 
     fun authUser(
         username: String,
@@ -97,16 +92,18 @@ class OutreachViewModel @Inject constructor(
         selectedOption: String,
         timestamp: String
     ) {
-        Timber.d("HERE 123")
         viewModelScope.launch {
-            //Temporary Placement - need to move to  assets and load from there.
             _state.value = userRepo.authenticateUser(username, password,selectedOption,timestamp)
-
             Log.d("state", userRepo.authenticateUser(username, password,selectedOption,timestamp).toString())
-//            Timber.d("tokkkken",pref.getPrimaryApiToken())
         }
     }
-
+    fun rememberUser(username: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.registerLoginCred(username)
+            }
+        }
+    }
     fun resetState() {
         _state.value = State.IDLE
     }

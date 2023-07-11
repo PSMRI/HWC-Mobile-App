@@ -28,10 +28,12 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -217,23 +219,23 @@ class OutreachFragment constructor(
             viewModel.authUser(userName, binding.etPassword.text.toString(),selectedOption,timestamp)
 
             viewModel.state.observe(viewLifecycleOwner) { state ->
+                Log.d("stateLogIn",state.toString())
                 when (state!!) {
                     OutreachViewModel.State.SUCCESS -> {
-                        Log.d("navMsg", "Navigation to take place")
-//                        findNavController().navigate(
-//                            OutreachFragmentDirections.actionSigninToHomeFromOutreach())
+                        findNavController().navigate(
+                            ChoLoginFragmentDirections.actionSignInToHomeFromCho())
                         viewModel.resetState()
+                        activity?.finish()
                     }
-                    OutreachViewModel.State.ERROR_INPUT,
+                    OutreachViewModel.State.ERROR_SERVER,
                     OutreachViewModel.State.ERROR_NETWORK-> {
                         Toast.makeText(requireContext(), "Error while logging in!!",Toast.LENGTH_LONG).show()
+                        viewModel.resetState()
                     }
-
                     else -> {}
                 }
 
                     }
-//                activity?.finish()
 
             }
 

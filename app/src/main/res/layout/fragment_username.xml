@@ -43,7 +43,14 @@
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
+            <CheckBox
+                android:id="@+id/cb_remember"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="?attr/colorPrimary"
+                android:text="Remember Me"
+                app:layout_constraintTop_toBottomOf="@id/et_username"
+                />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_nxt"
                 android:layout_width="wrap_content"

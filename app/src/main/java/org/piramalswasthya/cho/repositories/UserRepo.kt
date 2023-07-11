@@ -192,7 +192,7 @@ class UserRepo @Inject constructor(
             userDao.getLoggedInUser()?.asDomainModel()
         }
     }
-    private suspend fun setOutreachProgram(selectedOption:String, timestamp:String){
+     private suspend fun setOutreachProgram(selectedOption:String, timestamp:String){
         var userId = userDao.getLoggedInUser()?.userId
         val selectedOutreachProgram = SelectedOutreachProgram(userId = userId,
             option = selectedOption, timestamp = timestamp)
