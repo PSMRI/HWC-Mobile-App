@@ -1,0 +1,138 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "location-information",
+  "status": "active",
+  "subjectType": ["Location"],
+  "item": [
+    {
+      "linkId": "state",
+      "type": "choice",
+      "text": "State",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "sikkim",
+            "display": "Sikkim"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "district",
+      "type": "choice",
+      "text": "District/Town/City",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "east-district",
+            "display": "East District"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "west-district",
+            "display": "West District"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "north-district",
+            "display": "North District"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "south-district",
+            "display": "South District"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "taluk",
+      "type": "choice",
+      "text": "Taluk/Tehsil",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "chungthang",
+            "display": "Chungthang"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "mangan",
+            "display": "Mangan"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "street",
+      "type": "choice",
+      "text": "Street/Panchayat",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "code": "chungthang",
+            "display": "Chungthang"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "lachung",
+            "display": "Lachung"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "lachung-forest-block",
+            "display": "Lachung Forest Block"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "lachen",
+            "display": "Lachen"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "lachen-forest-block",
+            "display": "Lachen Forest Block"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "mangshila-tshungthang",
+            "display": "Mangshila Tshungthang"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "shipgyer",
+            "display": "Shipgyer"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "thangu-forest-block",
+            "display": "Thangu Forest Block"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "tshungthang-forest-block",
+            "display": "Tshungthang Forest Block"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "tung",
+            "display": "Tung"
+          }
+        }
+      ]
+    }
+  ]
+}
