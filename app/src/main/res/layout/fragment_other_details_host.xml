@@ -6,14 +6,14 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/header_text_register_patient"
+        android:id="@+id/header_text_other_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_view"
         android:outlineProvider="none"
         android:layout_marginHorizontal="@dimen/margin_big"
         android:layout_marginVertical="@dimen/margin_big"
-        android:text="@string/personal_details"
+        android:text="Other Details"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/white"
@@ -23,11 +23,11 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/patient_registration"
+        android:id="@+id/patient_other_details"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/header_text_register_patient" />
+        app:layout_constraintTop_toBottomOf="@+id/header_text_other_detail" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -59,7 +59,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
                 android:backgroundTint="@color/purple"
-                android:text="Next" />
+                android:text="Submit" />
 
         </LinearLayout>
 

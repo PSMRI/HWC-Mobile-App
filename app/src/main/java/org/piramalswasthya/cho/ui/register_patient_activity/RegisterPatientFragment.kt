@@ -9,6 +9,7 @@ import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment.FhirLocationFragment
 
 class RegisterPatientFragment : Fragment() {
 
@@ -32,8 +33,8 @@ class RegisterPatientFragment : Fragment() {
             findNavController().navigate(RegisterPatientFragmentDirections.actionRegisterPatientFragmentToHomeFragment())
         }
         binding.btnSubmit.setOnClickListener {
-            fragmentAddPatient.onSubmitAction()
-            findNavController().navigate(RegisterPatientFragmentDirections.actionRegisterPatientFragmentToHomeFragment())
+//            fragmentAddPatient.onSubmitAction()
+            findNavController().navigate(RegisterPatientFragmentDirections.actionRegisterPatientFragmentToLocationDetailsFragment())
         }
     }
 

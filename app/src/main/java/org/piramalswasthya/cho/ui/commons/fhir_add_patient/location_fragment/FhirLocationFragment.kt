@@ -40,6 +40,7 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
@@ -48,7 +49,7 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_fhir_add_patient;
+        return R.id.fragment_fhir_add_patient_location;
     }
 
     override fun onSubmitAction() {

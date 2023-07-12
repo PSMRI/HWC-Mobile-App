@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_home"
     app:startDestination="@id/homeFragment">
 
@@ -18,6 +19,31 @@
         android:label="RegisterPatientFragment" >
         <action
             android:id="@+id/action_registerPatientFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_registerPatientFragment_to_locationDetailsFragment"
+            app:destination="@id/locationDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.LocationDetailsFragment"
+        android:label="LocationDetailsFragment" >
+        <action
+            android:id="@+id/action_locationDetailsFragment_to_registerPatientFragment"
+            app:destination="@id/registerPatientFragment" />
+        <action
+            android:id="@+id/action_locationDetailsFragment_to_otherDetailsFragment"
+            app:destination="@id/otherDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.OtherDetailsFragment"
+        android:label="OtherDetailsFragment" >
+        <action
+            android:id="@+id/action_otherDetailsFragment_to_locationDetailsFragment"
+            app:destination="@id/locationDetailsFragment" />
+        <action
+            android:id="@+id/action_otherDetailsFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
 </navigation>
