@@ -206,13 +206,8 @@ class UserRepo @Inject constructor(
             loggedInUser?.let {
                 Log.d("msg","here inside let")
                 if (it.userName == userName && it.password == password) {
-//                    val tokenA = preferenceDao.getD2DApiToken()
                     val tokenB = preferenceDao.getPrimaryApiToken()
-                    Log.d("Tokennn", tokenB.toString())
-//                    TokenInsertD2DInterceptor.setToken(
-//                        tokenA
-//                            ?: throw IllegalStateException("User logging offline without pref saved token A!")
-//                    )
+
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
                             ?: throw IllegalStateException("User logging offline without pref saved token B!")
@@ -225,11 +220,9 @@ class UserRepo @Inject constructor(
 
             try {
                 Timber.d("inside try")
-//                if (getTokenD2D(userName, password)) {
                     getTokenTmc(userName, password)
                     if (user != null) {
-//                        val result = getUserDetails(state)
-//                        if (result) {
+
                             Timber.d("User Auth Complete!!!!")
                             user?.loggedIn = true
                             if (userDao.getLoggedInUser()?.userName == userName) {

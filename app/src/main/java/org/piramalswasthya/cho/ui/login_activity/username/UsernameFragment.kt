@@ -9,10 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
+import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -20,6 +25,10 @@ class UsernameFragment : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
+    @Inject
+    lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
+    private var loginSettingsData: LoginSettingsData? = null
+
     private lateinit var viewModel: UsernameViewModel
 
     private var _binding: FragmentUsernameBinding? = null
@@ -31,11 +40,20 @@ class UsernameFragment : Fragment() {
     ): View {
         viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
+        binding.loginSettings.visibility = View.INVISIBLE
+
+        if(!viewModel.fetchRememberedUserName().isNullOrBlank()) {
+            viewModel.fetchRememberedUserName()?.let {
+                binding.etUsername.setText(it)
+            }
+        }
+        if(binding.etUsername.text.isNullOrBlank())
+            binding.btnNxt.isEnabled = false
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val cbRememberUsername:Boolean = binding.cbRemember.isChecked
         binding.etUsername .addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
@@ -45,19 +63,50 @@ class UsernameFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
-            }
+                val userName = (s.toString())!!;
+                if(!s.isNullOrBlank()){
+                    lifecycleScope.launch {
+                        loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
+
+                        if (loginSettingsData==null) {
+
+                            binding.loginSettings.visibility = View.VISIBLE
+
+                            binding.loginSettings.setOnClickListener{
+                                try {
+                                    findNavController().navigate(
+                                        UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
+                                    )
+                                }catch (e: Exception){
+                                    Timber.d("Failed to navigate"+e.message)
+                                }
+
+                            }
+                        } else {
+                            binding.loginSettings.visibility = View.INVISIBLE
+                            binding.btnNxt.isEnabled = true
+                        }
+                    }
+                }
+                else{
+                    binding.loginSettings.visibility = View.INVISIBLE
+                    binding.btnNxt.isEnabled = false
+                }
+
+
+
+        }
         })
         binding.btnNxt.setOnClickListener {
-//            if(cbRememberUsername.isChecked) {
-//                viewModel.rememberUser(binding.etUsername.text.toString())
-//                viewModel.fetchRememberedUserName()?.let {
-//                    binding.etUsername.setText(it)
-//                }
-//            }
-            if(!binding.etUsername.text.toString().isNullOrBlank())
-            findNavController().navigate(
-                UsernameFragmentDirections.actionSignInFragmentToChoLogin(binding.etUsername.text.toString())
-            )
+            if(!binding.etUsername.text.toString().isNullOrBlank()) {
+                var cbRememberUsername:Boolean = binding.cbRemember.isChecked
+                findNavController().navigate(
+                    UsernameFragmentDirections.actionSignInFragmentToChoLogin(
+                        binding.etUsername.text.toString(),
+                        cbRememberUsername
+                    )
+                )
+            }
             else
                 Toast.makeText(requireContext(), "Invalid Username!!", Toast.LENGTH_LONG).show()
         }

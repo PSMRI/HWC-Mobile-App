@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +15,8 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
-import org.piramalswasthya.cho.repositories.UserAuthRepo
-import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.hwc.HwcFragment
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachFragment
-import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -47,10 +43,11 @@ class ChoLoginFragment : Fragment() {
 
     fun setActivityContainer(programId: Int){
         val userName = (arguments?.getString("userName", ""))!!;
+        val rememberUsername:Boolean = (arguments?.getBoolean("rememberUsername"))!!
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
         val hwcFragment  = HwcFragment(userName)
-        val outreachFragment = OutreachFragment(userName);
+        val outreachFragment = OutreachFragment(userName,rememberUsername);
         when (programId){
             binding.btnHwc.id -> {
                 fragmentTransaction.replace(binding.selectActivityContainer.id, hwcFragment)
@@ -82,28 +79,28 @@ class ChoLoginFragment : Fragment() {
         binding.selectProgram.setOnCheckedChangeListener { _, programId ->
             setActivityContainer(programId)
         }
-        val userName = (arguments?.getString("userName", ""))!!;
-
-        lifecycleScope.launch {
-            loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
-
-            if (loginSettingsData==null) {
-                binding.loginSettings.visibility = View.VISIBLE
-
-                binding.loginSettings.setOnClickListener{
-                    try {
-                        findNavController().navigate(
-                            ChoLoginFragmentDirections.actionChoLoginToLoginSettings(userName),
-                        )
-                    }catch (e: Exception){
-                        Timber.d("Failed to navigate"+e.message)
-                    }
-
-                }
-            } else {
-                binding.loginSettings.visibility = View.INVISIBLE
-            }
-        }
+//        val userName = (arguments?.getString("userName", ""))!!;
+//
+//        lifecycleScope.launch {
+//            loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
+//
+//            if (loginSettingsData==null) {
+//                binding.loginSettings.visibility = View.VISIBLE
+//
+//                binding.loginSettings.setOnClickListener{
+//                    try {
+//                        findNavController().navigate(
+//                            ChoLoginFragmentDirections.actionChoLoginToLoginSettings(userName),
+//                        )
+//                    }catch (e: Exception){
+//                        Timber.d("Failed to navigate"+e.message)
+//                    }
+//
+//                }
+//            } else {
+//                binding.loginSettings.visibility = View.INVISIBLE
+//            }
+//        }
 
 
 

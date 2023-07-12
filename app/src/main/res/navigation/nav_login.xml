@@ -15,7 +15,17 @@
             app:destination="@id/ashaLoginFragment" />
         <action
             android:id="@+id/action_signInFragment_to_choLogin"
-            app:destination="@id/choLoginFragment" />
+            app:destination="@id/choLoginFragment" >
+            <argument
+                android:name="userName"
+                app:argType="string" />
+            <argument
+                android:name="rememberUsername"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/action_usernameFragment_to_loginSettings"
+            app:destination="@id/loginSettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginSettingsFragment"
@@ -25,10 +35,12 @@
         <argument
             android:name="userName"
             app:argType="string" />
+<!--        <action-->
+<!--            android:id="@+id/actionLoginSettingsToChoLogin"-->
+<!--            app:destination="@id/choLoginFragment"-->
         <action
-            android:id="@+id/actionLoginSettingsToChoLogin"
-            app:destination="@id/choLoginFragment" />
-
+            android:id="@+id/actionLoginSettingsToUsername"
+            app:destination="@id/usernameFragment" />
     </fragment>
 
     <fragment
@@ -57,13 +69,17 @@
             app:destination="@id/homeActivity" />
         <action
             android:id="@+id/actionChoToOutreach"
-            app:destination="@id/outreachLoginFragment" />
+            app:destination="@id/outreachLoginFragment" >
+            <argument
+                android:name="rememberUsername"
+                app:argType="boolean" />
+        </action>
         <action
             android:id="@+id/actionChoToHwc"
             app:destination="@id/hwcLoginFragment" />
-        <action
-            android:id="@+id/actionChoLoginToLoginSettings"
-            app:destination="@id/loginSettingsFragment" />
+<!--        <action-->
+<!--            android:id="@+id/actionChoLoginToLoginSettings"-->
+<!--            app:destination="@id/loginSettingsFragment" />-->
     </fragment>
 
 

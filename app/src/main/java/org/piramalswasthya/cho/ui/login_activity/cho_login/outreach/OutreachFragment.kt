@@ -33,13 +33,13 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class OutreachFragment constructor(
+class OutreachFragment(
     private val userName: String,
-): Fragment() {
+    private val rememberUsername: Boolean,
+    ): Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -208,8 +208,6 @@ class OutreachFragment constructor(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-//            viewModel.loginInClicked()
-            Log.i("tag", "---------Login clicked--------");
 
             val radioGroup = binding.selectProgram
             val selectedOptionId = radioGroup.checkedRadioButtonId
@@ -219,9 +217,13 @@ class OutreachFragment constructor(
             viewModel.authUser(userName, binding.etPassword.text.toString(),selectedOption,timestamp)
 
             viewModel.state.observe(viewLifecycleOwner) { state ->
-                Log.d("stateLogIn",state.toString())
                 when (state!!) {
                     OutreachViewModel.State.SUCCESS -> {
+                        if(rememberUsername)
+                            viewModel.rememberUser(userName)
+                        else {
+                            viewModel.forgetUser()
+                        }
                         findNavController().navigate(
                             ChoLoginFragmentDirections.actionSignInToHomeFromCho())
                         viewModel.resetState()

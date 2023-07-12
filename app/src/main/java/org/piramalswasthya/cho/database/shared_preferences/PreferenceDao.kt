@@ -84,14 +84,12 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        pref.edit().clear().apply()
 //    }
 //
-//    fun deleteLoginCred() {
-//        val editor = pref.edit()
-//        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
-//        val prefUserPwdKey = context.getString(R.string.PREF_rem_me_pwd)
-//        editor.remove(prefUserKey)
-//        editor.remove(prefUserPwdKey)
-//        editor.apply()
-//    }
+    fun deleteLoginCred() {
+        val editor = pref.edit()
+        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
+        editor.remove(prefUserKey)
+        editor.apply()
+    }
 //
 
 //
