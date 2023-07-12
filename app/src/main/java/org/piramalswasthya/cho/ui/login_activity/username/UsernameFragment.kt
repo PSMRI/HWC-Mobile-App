@@ -45,10 +45,13 @@ class UsernameFragment : Fragment() {
         if(!viewModel.fetchRememberedUserName().isNullOrBlank()) {
             viewModel.fetchRememberedUserName()?.let {
                 binding.etUsername.setText(it)
+                binding.cbRemember.isChecked = true
             }
         }
-        if(binding.etUsername.text.isNullOrBlank())
+        if(binding.etUsername.text.isNullOrBlank()) {
             binding.btnNxt.isEnabled = false
+            binding.cbRemember.isChecked = false
+        }
         return binding.root
     }
 
@@ -92,9 +95,6 @@ class UsernameFragment : Fragment() {
                     binding.loginSettings.visibility = View.INVISIBLE
                     binding.btnNxt.isEnabled = false
                 }
-
-
-
         }
         })
         binding.btnNxt.setOnClickListener {

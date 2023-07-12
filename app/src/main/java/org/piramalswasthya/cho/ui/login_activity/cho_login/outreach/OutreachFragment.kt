@@ -232,6 +232,7 @@ class OutreachFragment(
                     OutreachViewModel.State.ERROR_SERVER,
                     OutreachViewModel.State.ERROR_NETWORK-> {
                         Toast.makeText(requireContext(), "Error while logging in!!",Toast.LENGTH_LONG).show()
+//                        viewModel.forgetUser()
                         viewModel.resetState()
                     }
                     else -> {}

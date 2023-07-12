@@ -94,7 +94,6 @@ class OutreachViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _state.value = userRepo.authenticateUser(username, password,selectedOption,timestamp)
-            Log.d("state", userRepo.authenticateUser(username, password,selectedOption,timestamp).toString())
         }
     }
     fun rememberUser(username: String) {
