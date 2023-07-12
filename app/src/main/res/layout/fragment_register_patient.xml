@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.register_patient_activity.RegisterPatientActivity">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/header_text_register_patient"
@@ -51,7 +50,6 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:backgroundTint="@color/purple"
                 android:text="@string/cancel" />
 

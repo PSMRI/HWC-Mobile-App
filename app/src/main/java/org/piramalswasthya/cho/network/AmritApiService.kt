@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.network
 
 import okhttp3.ResponseBody
+import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -16,9 +17,14 @@ interface AmritApiService {
     private companion object ApiMappings{
         const val authenticate = "authenticateReference"
     }
+
     @Headers("No-Auth: true")
     @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
+
+    @Headers("No-Auth: true")
+    @POST("fhir/Patient")
+    suspend fun createPatient(@Body json: Patient): Response<ResponseBody>
 
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>

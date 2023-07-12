@@ -8,7 +8,6 @@ import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.visit_details_activity.VisitDetailsActivity
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {

@@ -13,7 +13,6 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import java.util.*

@@ -41,7 +41,7 @@ class ChoLoginFragment : Fragment() {
         return binding.root
     }
 
-    fun setActivityContainer(programId: Int){
+    private fun setActivityContainer(programId: Int){
         val userName = (arguments?.getString("userName", ""))!!;
         val rememberUsername:Boolean = (arguments?.getBoolean("rememberUsername"))!!
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager

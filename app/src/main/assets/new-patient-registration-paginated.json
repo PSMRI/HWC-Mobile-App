@@ -56,6 +56,11 @@
                 }
               ],
               "linkId": "PR-name-text",
+              "initial": [
+                {
+                  "valueString": "John Doe"
+                }
+              ],
               "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
               "type": "string",
               "required": true,

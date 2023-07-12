@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.ui.commons.fhir_prescription
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -11,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import ca.uhn.fhir.context.FhirContext
@@ -20,43 +23,46 @@ import com.google.android.fhir.datacapture.QuestionnaireFragment
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
+import dagger.hilt.android.internal.Contexts.getApplication
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
 
 import timber.log.Timber
 import java.util.UUID
+import javax.inject.Inject
 
+@HiltViewModel
+class FhirPrescriptionViewModel @Inject constructor(@ApplicationContext private val application : Context, savedStateHandle: SavedStateHandle) :
+    ViewModel(), FhirQuestionnaireService {
 
-class FhirPrescriptionViewModel(application: Application, private val state: SavedStateHandle) :
-    AndroidViewModel(application) {
-    val questionnaire: String
-        get() = getQuestionnaireJson()
+    override var questionnaireJson: String? = null
 
-    private val questionnaireResource: Questionnaire
-        get() =
-            FhirContext.forCached(FhirVersionEnum.R4).newJsonParser().parseResource(questionnaire)
-                    as Questionnaire
-    private var fhirEngine: FhirEngine = CHOApplication.fhirEngine(application.applicationContext)
-    private var questionnaireJson: String? = null
-    val isPatientSaved = MutableLiveData<Boolean>()
+    @SuppressLint("StaticFieldLeak")
+    override val context: Context = application.applicationContext
 
+    override val state = savedStateHandle
 
-    fun savePatient(questionnaireResponse: QuestionnaireResponse) {
+    override val isEntitySaved = MutableLiveData<Boolean>()
+
+    override fun saveEntity(questionnaireResponse: QuestionnaireResponse) {
         viewModelScope.launch {
             if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
                     questionnaireResource,
                     questionnaireResponse,
-                    getApplication()
+                    getApplication(application)
                 )
                     .values
                     .flatten()
                     .any { it is Invalid }
             ) {
-                isPatientSaved.value = false
+                isEntitySaved.value = false
                 return@launch
             }
 
@@ -67,27 +73,8 @@ class FhirPrescriptionViewModel(application: Application, private val state: Sav
             val patient = entry.resource as Patient
             patient.id = generateUuid()
             fhirEngine.create(patient)
-            isPatientSaved.value = true
+            isEntitySaved.value = true
         }
     }
 
-
-    private fun getQuestionnaireJson(): String {
-        questionnaireJson?.let {
-            return it
-        }
-        questionnaireJson = readFileFromAssets(state[FhirPrescriptionFragment.QUESTIONNAIRE_FILE_PATH_KEY]!!)
-        return questionnaireJson!!
-    }
-
-
-    private fun readFileFromAssets(filename: String): String {
-        return getApplication<Application>().assets.open(filename).bufferedReader().use {
-            it.readText()
-        }
-    }
-
-    private fun generateUuid(): String {
-        return UUID.randomUUID().toString()
-    }
 }

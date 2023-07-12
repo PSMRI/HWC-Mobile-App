@@ -2,7 +2,9 @@ package org.piramalswasthya.cho.ui.commons.fhir_revisit_form
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -10,10 +12,15 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import dagger.hilt.android.AndroidEntryPoint
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.databinding.FragmentFhirRevisitFormBinding
+import org.piramalswasthya.cho.databinding.FragmentFhirVitalsBinding
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragmentDirections
+import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 
@@ -22,82 +29,37 @@ import timber.log.Timber
  * Use the [FhirRevisitFormFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), NavigationAdapter {
+@AndroidEntryPoint
+class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), FhirFragmentService, NavigationAdapter {
 
-    private val viewModel: FhirRevisitViewModel by viewModels()
+    private var _binding: FragmentFhirRevisitFormBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
+    private val binding: FragmentFhirRevisitFormBinding
+        get() = _binding!!
 
-        }
+    override val viewModel: FhirRevisitViewModel by viewModels()
+
+    override var fragment: Fragment = this;
+
+    override var fragmentContainerId = 0;
+
+    override val jsonFile : String = "revisit_form.json"
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFhirRevisitFormBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Timber.d("initiated")
         super.onViewCreated(view, savedInstanceState)
-        setUpActionBar()
-        setHasOptionsMenu(true)
+        fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
-        observePatientSaveAction()
-    }
-
-    private fun setUpActionBar() {
-        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-            title = "Revisit and Refer"
-            setDisplayHomeAsUpEnabled(true)
-        }
-    }
-
-
-    private fun updateArguments() {
-        arguments = Bundle()
-        requireArguments().putString(QUESTIONNAIRE_FILE_PATH_KEY, "revisit_form.json")
-    }
-
-    private fun observePatientSaveAction() {
-        viewModel.isPatientSaved.observe(viewLifecycleOwner) {
-            if (!it) {
-                Toast.makeText(requireContext(), "Inputs are missing.", Toast.LENGTH_SHORT).show()
-                return@observe
-            }
-            Toast.makeText(requireContext(), "Patient is saved.", Toast.LENGTH_SHORT).show()
-//            NavHostFragment.findNavController(this).navigateUp()
-        }
-    }
-
-    private fun addQuestionnaireFragment() {
-        childFragmentManager.commit {
-            add(
-                R.id.revisit_from_container,
-                QuestionnaireFragment.builder().setQuestionnaire(viewModel.questionnaire).build(),
-                QUESTIONNAIRE_FRAGMENT_TAG
-            )
-        }
-    }
-
-
-//    private fun onSubmitAction() {
-//        val questionnaireFragment =
-//            childFragmentManager.findFragmentByTag(FhirRevisitFormFragment.QUESTIONNAIRE_FRAGMENT_TAG) as QuestionnaireFragment
-//        savePatient(questionnaireFragment.getQuestionnaireResponse())
-//    }
-
-    private fun savePatient(questionnaireResponse: QuestionnaireResponse) {
-        viewModel.savePatient(questionnaireResponse)
-    }
-
-
-
-
-
-    companion object {
-        const val QUESTIONNAIRE_FILE_PATH_KEY = "questionnaire-file-path-key"
-        const val QUESTIONNAIRE_FRAGMENT_TAG = "questionnaire-fragment-tag"
+        observeEntitySaveAction("Inputs are missing.", "Revisit form is saved.")
     }
 
     override fun getFragmentId(): Int {
@@ -105,14 +67,18 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), N
     }
 
     override fun onSubmitAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
+        navigateNext()
     }
 
     override fun onCancelAction() {
         findNavController().navigate(
             FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToFhirPrescriptionFragment()
         )
+    }
+
+    override fun navigateNext() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
     }
 
 }

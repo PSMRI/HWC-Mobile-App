@@ -52,7 +52,7 @@ object AppModule {
          private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
-    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/aus/api/ThirdPartyAuth/"
+    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
 
     private val baseClient =
         OkHttpClient.Builder()
