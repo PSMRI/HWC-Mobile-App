@@ -6,9 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
@@ -28,6 +31,7 @@ class OutreachViewModel @Inject constructor(
     private val stateMasterRepo: StateMasterRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val userAuthRepo: UserAuthRepo,
+    private val userDao: UserDao,
     private val pref: PreferenceDao
 ) : ViewModel() {
     // TODO: Implement the ViewModel
@@ -41,7 +45,7 @@ class OutreachViewModel @Inject constructor(
         SUCCESS
     }
 
-    private val _state = MutableLiveData(State.IDLE)
+     val _state = MutableLiveData(State.IDLE)
     val state: LiveData<State>
         get() = _state
 
@@ -75,20 +79,35 @@ class OutreachViewModel @Inject constructor(
 //            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
 //        }
 //    }
-    fun dummyAuthUser(username: String, password: String) {
+
+
+
+    fun authUser(
+        username: String,
+        password: String,
+        selectedOption: String,
+        timestamp: String
+    ) {
         viewModelScope.launch {
-            userAuthRepo.dummyAuth(username, password,)
+            _state.value = userRepo.authenticateUser(username, password,selectedOption,timestamp)
         }
     }
-
-
-
-    fun authUser(username: String, password: String, state: String) {
+    fun rememberUser(username: String) {
         viewModelScope.launch {
-            //Temporary Placement - need to move to  assets and load from there.
-            _state.value = userRepo.authenticateUser(username, password, state)
-
+            withContext(Dispatchers.IO) {
+                pref.registerLoginCred(username)
+            }
         }
+    }
+    fun forgetUser() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.deleteLoginCred()
+            }
+        }
+    }
+    fun resetState() {
+        _state.value = State.IDLE
     }
 
 }

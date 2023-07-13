@@ -29,6 +29,20 @@ interface AmritApiService {
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
 
+    @POST("commonapi-v1.0/user/getLoginResponse")
+    suspend fun getLoginResponse() : Response<ResponseBody>
+
+    @POST("hwc-facility-service/user/getUserVanSpDetails?apiKey=undefined")
+    suspend fun getUserVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
+
+    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
+    suspend fun getTMVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
     @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
     suspend fun getStates(@Body request: LocationRequest): StateResponseData
 
@@ -60,18 +74,12 @@ interface AmritApiService {
 
     @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
-//
-//
 
 
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 
-//    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
-//    suspend fun getTMVanSpDetails(
-//        @Body vanServiceType: TmcUserVanSpDetailsRequest
-//    ): Response<ResponseBody>
-//
+
 //    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
 //    suspend fun getLocationDetails(
 //        @Body locationDetails: TmcLocationDetailsRequest
@@ -95,16 +103,16 @@ interface AmritApiService {
 //    @POST("identity-0.0.1/id/getByBenId")
 //    suspend fun getBeneficiaryWithId(@Query("benId") benId: Long) : Response<ResponseBody>
 //
-//    @POST("fhirapi-v1.0/healthIDWithUID/createHealthIDWithUID")
-//    suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthID/mapHealthIDToBeneficiary")
-//    suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthIDCard/generateOTP")
-//    suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
-//
-//    @POST("fhirapi-v1.0/healthIDCard/verifyOTPAndGenerateHealthCard")
-//    suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
+    @POST("fhirapi-v1.0/healthIDWithUID/createHealthIDWithUID")
+    suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthID/mapHealthIDToBeneficiary")
+    suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthIDCard/generateOTP")
+    suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
+
+    @POST("fhirapi-v1.0/healthIDCard/verifyOTPAndGenerateHealthCard")
+    suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
 
 }

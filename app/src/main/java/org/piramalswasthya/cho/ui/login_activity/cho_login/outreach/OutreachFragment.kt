@@ -16,9 +16,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.vision.face.Contour.LEFT_EYE
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
@@ -26,21 +25,27 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.database.room.dao.UserAuthDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class OutreachFragment constructor(
+class OutreachFragment(
     private val userName: String,
-): Fragment() {
+    private val rememberUsername: Boolean,
+) : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
+
+    @Inject
+    lateinit var userDao: UserDao
 
     private var _binding: FragmentOutreachBinding? = null
     private val binding: FragmentOutreachBinding
@@ -73,7 +78,6 @@ class OutreachFragment constructor(
             dispatchTakePictureIntent()
         }
     }
-
 
 
     override fun onRequestPermissionsResult(
@@ -141,18 +145,22 @@ class OutreachFragment constructor(
 
         faceDetector.detectInImage(firebaseImage)
             .addOnSuccessListener { faces ->
-                if(faces.size ==0){
+                if (faces.size == 0) {
                     Timber.d("Invalid Image!")
                     validImage = false
-                    Toast.makeText(requireContext(),"Invalid Image! Try Again",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Invalid Image! Try Again", Toast.LENGTH_SHORT)
+                        .show()
                 }
-                if(faces.size >1) {
+                if (faces.size > 1) {
                     Timber.d("Invalid Image! Multiple faces detected")
                     validImage = false
                     binding.imageView.setImageResource(R.drawable.placeholder_image)
-                    Toast.makeText(requireContext(),"Invalid Image! Multiple Faces Detected",Toast.LENGTH_SHORT).show()
-                }
-                else{
+                    Toast.makeText(
+                        requireContext(),
+                        "Invalid Image! Multiple Faces Detected",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
                     processDetectedFaces(faces)
                 }
 //                for (face in faces) {
@@ -168,7 +176,8 @@ class OutreachFragment constructor(
                 // Handle any errors
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(context,"Exception! Image Processing Failed",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Exception! Image Processing Failed", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -190,12 +199,14 @@ class OutreachFragment constructor(
                 Timber.d("Eyes Are Closed")
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(requireContext(),"Eyes Closed! Try Again",Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT)
+                    .show()
                 // At least one eye is closed, possibly not live face
                 // Implement your logic for an inactive or spoofed face
             }
         }
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.tag("Outreach username").i(userName);
@@ -203,12 +214,57 @@ class OutreachFragment constructor(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-//            Log.i("tag", "---------Login clicked--------");
-//            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
-//            findNavController().navigate(
-//                OutreachFragmentDirections.actionOutreachLoginFragmentToFhirVitalsFragment()
-//            )
+
+            val radioGroup = binding.selectProgram
+            val selectedOptionId = radioGroup.checkedRadioButtonId
+            val selectedOption =
+                view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
+            val timestamp =
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+
+            viewModel.authUser(
+                userName,
+                binding.etPassword.text.toString(),
+                selectedOption,
+                timestamp
+            )
+
+            viewModel.state.observe(viewLifecycleOwner) { state ->
+                when (state!!) {
+                    OutreachViewModel.State.SUCCESS -> {
+                        if (rememberUsername)
+                            viewModel.rememberUser(userName)
+                        else {
+                            viewModel.forgetUser()
+                        }
+                        findNavController().navigate(
+                            ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+                        )
+                        viewModel.resetState()
+                        activity?.finish()
+                    }
+
+                    OutreachViewModel.State.ERROR_SERVER,
+                    OutreachViewModel.State.ERROR_NETWORK -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error while logging in!!",
+                            Toast.LENGTH_LONG
+                        ).show()
+//                        viewModel.forgetUser()
+                        viewModel.resetState()
+                    }
+
+                    else -> {}
+                }
+
+            }
+
         }
+
+
     }
 
 }
+
+

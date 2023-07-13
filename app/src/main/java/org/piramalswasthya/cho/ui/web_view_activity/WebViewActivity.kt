@@ -12,6 +12,7 @@ import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.databinding.ActivityWebViewBinding
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment
 import org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment
 import timber.log.Timber
@@ -21,8 +22,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WebViewActivity : AppCompatActivity() {
 
+//    @Inject
+//    lateinit var apiService : AmritApiService
     @Inject
-    lateinit var apiService : AmritApiService
+    lateinit var apiService : ESanjeevaniApiService
 
     private var _binding : ActivityWebViewBinding? = null
 

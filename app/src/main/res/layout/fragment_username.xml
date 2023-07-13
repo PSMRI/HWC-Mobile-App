@@ -31,19 +31,32 @@
                 android:paddingTop="@dimen/padding_normal"
                 android:paddingBottom="@dimen/padding_normal"
                 tools:layout_editor_absoluteX="16dp">
-                <!--        app:endIconTint="@color/primaryColor"-->
-                <!--        app:layout_constraintTop_toBottomOf="@id/toggleStates"-->
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:drawablePadding="@dimen/padding_normal"
+                    android:drawableEnd="@drawable/ic_person"
                     android:singleLine="true"
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
+            <CheckBox
+                android:id="@+id/cb_remember"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="?attr/colorPrimary"
+                android:text="Remember Me"
+                app:layout_constraintTop_toBottomOf="@id/et_username"
+                />
+            <ImageButton
+                android:id="@+id/login_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:visibility="invisible"
+                android:src="@drawable/baseline_settings_24" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_nxt"
                 android:layout_width="wrap_content"
@@ -52,15 +65,6 @@
                 android:text="@string/next"
                 android:backgroundTint="@color/purple"
                 android:textSize="@dimen/text_big"/>
-
-<!--            <com.google.android.material.button.MaterialButton-->
-<!--                android:id="@+id/btn_webview"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_marginTop="@dimen/margin_big"-->
-<!--                android:layout_height="@dimen/btn_height"-->
-<!--                android:text="Web Page"-->
-<!--                android:backgroundTint="@color/primary"-->
-<!--                android:textSize="@dimen/text_big"/>-->
 
         </LinearLayout>
 
