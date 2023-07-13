@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
+import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientFragment
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding

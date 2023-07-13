@@ -78,6 +78,7 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), F
 
     override fun navigateNext() {
         val intent = Intent(context, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
 
