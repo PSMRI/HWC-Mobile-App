@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.hl7.fhir.r4.model.Address
+import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.R
 
 import org.piramalswasthya.cho.databinding.FragmentFhirLocationBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragmentDirections
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirLocationViewModel
 
 @AndroidEntryPoint
@@ -30,7 +34,7 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     override var fragmentContainerId = 0;
 
     override val jsonFile : String = "location_information.json"
-
+    lateinit var pat : Patient
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,6 +44,8 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pat= FhirLocationFragmentArgs.fromBundle(requireArguments()).patientDetails
+        Log.d("Patient Details","${pat.gender}")
         fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
@@ -54,13 +60,30 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
 
     override fun onSubmitAction() {
         saveEntity()
+        navigateNext()
     }
 
     override fun onCancelAction() {
-
+        findNavController().navigate(
+            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment(Patient())
+        )
     }
 
     override fun navigateNext() {
-        Log.i("navigate up Pressed", "asdsad")
+        var locationDetails = viewModel.registerLocation
+//        var patient = Patient()
+//        var address = Address()
+//        address.city = locationDetails.city
+//        address.state = locationDetails.state
+//        var addressList : List<Address>
+//        addressList = mutableListOf(address)
+//        patient.gender = pat.gender
+//        patient.name = pat.name
+//        patient.contact = pat.contact
+//        patient.birthDate = pat.birthDate
+//        patient.address = addressList
+        findNavController().navigate(
+            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirOtherInformationFragment()
+        )
     }
 }

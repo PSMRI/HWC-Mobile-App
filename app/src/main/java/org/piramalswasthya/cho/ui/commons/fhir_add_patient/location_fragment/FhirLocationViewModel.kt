@@ -24,6 +24,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
+import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CanonicalType
 import org.hl7.fhir.r4.model.ElementDefinition
@@ -62,6 +63,8 @@ class FhirLocationViewModel @Inject constructor(@ApplicationContext private val 
 
     override val isEntitySaved = MutableLiveData<Boolean>()
 
+     var registerLocation = Address()
+
     /**
      * Saves patient registration questionnaire response into the application database.
      *
@@ -87,9 +90,10 @@ class FhirLocationViewModel @Inject constructor(@ApplicationContext private val 
                 return@launch
             }
 
-            val patient = entry.resource as Patient
-            patient.id = generateUuid()
-            fhirEngine.create(patient)
+            val address = entry.resource as Address
+            address.id = generateUuid()
+            registerLocation = address
+//            fhirEngine.create(patient)
 //            val resp = service.createPatient(patient)
 //            Log.i("patient", resp.toString())
 //            var pat= fhirEngine.get(ResourceType.Patient,patient.id)

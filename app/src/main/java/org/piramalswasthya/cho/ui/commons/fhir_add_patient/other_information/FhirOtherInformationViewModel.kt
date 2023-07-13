@@ -89,11 +89,7 @@ class FhirOtherInformationViewModel @Inject constructor(@ApplicationContext priv
 
             val patient = entry.resource as Patient
             patient.id = generateUuid()
-            fhirEngine.create(patient)
-//            val resp = service.createPatient(patient)
-//            Log.i("patient", resp.toString())
-//            var pat= fhirEngine.get(ResourceType.Patient,patient.id)
-//            fhirEngine.update()
+//            fhirEngine.create(patient)
             isEntitySaved.value = true
         }
     }

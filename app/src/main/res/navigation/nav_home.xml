@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_homeFragment_to_registerPatientFragment"
             app:destination="@id/registerPatientFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_editPatientDetailsFragment"
+            app:destination="@id/editPatientDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/registerPatientFragment"
@@ -20,30 +23,13 @@
         <action
             android:id="@+id/action_registerPatientFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
-        <action
-            android:id="@+id/action_registerPatientFragment_to_locationDetailsFragment"
-            app:destination="@id/locationDetailsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/locationDetailsFragment"
-        android:name="org.piramalswasthya.cho.ui.register_patient_activity.LocationDetailsFragment"
-        android:label="LocationDetailsFragment" >
+        android:id="@+id/editPatientDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsFragment"
+        android:label="EditPatientDetailsFragment" >
         <action
-            android:id="@+id/action_locationDetailsFragment_to_registerPatientFragment"
-            app:destination="@id/registerPatientFragment" />
-        <action
-            android:id="@+id/action_locationDetailsFragment_to_otherDetailsFragment"
-            app:destination="@id/otherDetailsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/otherDetailsFragment"
-        android:name="org.piramalswasthya.cho.ui.register_patient_activity.OtherDetailsFragment"
-        android:label="OtherDetailsFragment" >
-        <action
-            android:id="@+id/action_otherDetailsFragment_to_locationDetailsFragment"
-            app:destination="@id/locationDetailsFragment" />
-        <action
-            android:id="@+id/action_otherDetailsFragment_to_homeFragment"
+            android:id="@+id/action_editPatientDetailsFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
 </navigation>

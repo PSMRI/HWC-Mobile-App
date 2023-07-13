@@ -61,6 +61,7 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
     override val state = savedStateHandle
 
     override val isEntitySaved = MutableLiveData<Boolean>()
+    var pat = Patient()
 
     /**
      * Saves patient registration questionnaire response into the application database.
@@ -89,11 +90,8 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
 
             val patient = entry.resource as Patient
             patient.id = generateUuid()
-            fhirEngine.create(patient)
-//            val resp = service.createPatient(patient)
-//            Log.i("patient", resp.toString())
-//            var pat= fhirEngine.get(ResourceType.Patient,patient.id)
-//            fhirEngine.update()
+            pat = patient
+//            fhirEngine.create(patient)
             isEntitySaved.value = true
         }
     }

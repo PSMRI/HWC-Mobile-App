@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_add_patient.other_information
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirOtherInformationBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
 class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_information), FhirFragmentService, NavigationAdapter{
@@ -29,6 +33,8 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
 
     override val jsonFile : String = "other_information.json"
 
+    lateinit var patient: Patient
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,6 +45,7 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fragmentContainerId = binding.fragmentContainer.id
+//        patient = FhirOtherInformationFragmentArgs.fromBundle(requireArguments()).patientDetails
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
@@ -52,13 +59,20 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
 
     override fun onSubmitAction() {
         saveEntity()
+        navigateNext()
     }
 
     override fun onCancelAction() {
-
+        findNavController().navigate(
+            FhirOtherInformationFragmentDirections.actionFhirOtherInformationFragmentToFhirLocationFragment(
+            Patient()
+            )
+        )
     }
 
     override fun navigateNext() {
-        Log.i("navigate up Pressed", "asdsad")
+        Log.i("Patient details with location" ,"${patient.address}  ${patient.birthDate} ${patient.name}")
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
     }
 }

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_add_patient
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 
 import org.hl7.fhir.r4.model.QuestionnaireResponse
@@ -18,6 +20,7 @@ import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 
 /** A fragment class to show patient registration screen. */
@@ -61,14 +64,19 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), Fhi
 
     override fun onSubmitAction() {
         saveEntity()
+        navigateNext()
     }
 
     override fun onCancelAction() {
-
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
     }
 
     override fun navigateNext() {
-        Log.i("navigate up Pressed", "asdsad")
+        var pat = viewModel.pat
+        findNavController().navigate(
+            FhirAddPatientFragmentDirections.actionFhirAddPatientFragmentToFhirLocationFragment(pat)
+        )
     }
 
 }

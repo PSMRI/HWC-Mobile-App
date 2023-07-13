@@ -24,6 +24,9 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_registration"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/register_nav"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
