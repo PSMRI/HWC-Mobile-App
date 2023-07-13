@@ -5,6 +5,10 @@ import org.hl7.fhir.r4.model.CanonicalType
 import org.hl7.fhir.r4.model.ElementDefinition
 import org.hl7.fhir.r4.model.StructureDefinition
 
+// definition : "http://hl7.org/fhir/StructureDefinition/Patient#Patient.extensionname"
+// path : "Patient.extension"
+// id : ":extensionname"
+
 class ProfileLoaderImpl : ProfileLoader {
 
     private val structureDefinition = StructureDefinition()
