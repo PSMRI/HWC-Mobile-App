@@ -79,11 +79,7 @@ class OutreachViewModel @Inject constructor(
 //            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
 //        }
 //    }
-//    fun dummyAuthUser(username: String, password: String) {
-//        viewModelScope.launch {
-//            userAuthRepo.dummyAuth(username, password,)
-//        }
-//    }
+
 
 
     fun authUser(

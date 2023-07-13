@@ -39,10 +39,11 @@ import javax.inject.Inject
 class OutreachFragment(
     private val userName: String,
     private val rememberUsername: Boolean,
-    ): Fragment() {
+) : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
+
     @Inject
     lateinit var userDao: UserDao
 
@@ -77,7 +78,6 @@ class OutreachFragment(
             dispatchTakePictureIntent()
         }
     }
-
 
 
     override fun onRequestPermissionsResult(
@@ -145,18 +145,22 @@ class OutreachFragment(
 
         faceDetector.detectInImage(firebaseImage)
             .addOnSuccessListener { faces ->
-                if(faces.size ==0){
+                if (faces.size == 0) {
                     Timber.d("Invalid Image!")
                     validImage = false
-                    Toast.makeText(requireContext(),"Invalid Image! Try Again",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Invalid Image! Try Again", Toast.LENGTH_SHORT)
+                        .show()
                 }
-                if(faces.size >1) {
+                if (faces.size > 1) {
                     Timber.d("Invalid Image! Multiple faces detected")
                     validImage = false
                     binding.imageView.setImageResource(R.drawable.placeholder_image)
-                    Toast.makeText(requireContext(),"Invalid Image! Multiple Faces Detected",Toast.LENGTH_SHORT).show()
-                }
-                else{
+                    Toast.makeText(
+                        requireContext(),
+                        "Invalid Image! Multiple Faces Detected",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
                     processDetectedFaces(faces)
                 }
 //                for (face in faces) {
@@ -172,7 +176,8 @@ class OutreachFragment(
                 // Handle any errors
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(context,"Exception! Image Processing Failed",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Exception! Image Processing Failed", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -194,7 +199,8 @@ class OutreachFragment(
                 Timber.d("Eyes Are Closed")
                 validImage = false
                 binding.imageView.setImageResource(R.drawable.placeholder_image)
-                Toast.makeText(requireContext(),"Eyes Closed! Try Again",Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT)
+                    .show()
                 // At least one eye is closed, possibly not live face
                 // Implement your logic for an inactive or spoofed face
             }
@@ -211,44 +217,54 @@ class OutreachFragment(
 
             val radioGroup = binding.selectProgram
             val selectedOptionId = radioGroup.checkedRadioButtonId
-            val selectedOption = view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
-            val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val selectedOption =
+                view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
+            val timestamp =
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
-            viewModel.authUser(userName, binding.etPassword.text.toString(),selectedOption,timestamp)
+            viewModel.authUser(
+                userName,
+                binding.etPassword.text.toString(),
+                selectedOption,
+                timestamp
+            )
 
             viewModel.state.observe(viewLifecycleOwner) { state ->
                 when (state!!) {
                     OutreachViewModel.State.SUCCESS -> {
-                        if(rememberUsername)
+                        if (rememberUsername)
                             viewModel.rememberUser(userName)
                         else {
                             viewModel.forgetUser()
                         }
                         findNavController().navigate(
-                            ChoLoginFragmentDirections.actionSignInToHomeFromCho())
+                            ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+                        )
                         viewModel.resetState()
                         activity?.finish()
                     }
+
                     OutreachViewModel.State.ERROR_SERVER,
-                    OutreachViewModel.State.ERROR_NETWORK-> {
-                        Toast.makeText(requireContext(), "Error while logging in!!",Toast.LENGTH_LONG).show()
+                    OutreachViewModel.State.ERROR_NETWORK -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error while logging in!!",
+                            Toast.LENGTH_LONG
+                        ).show()
 //                        viewModel.forgetUser()
                         viewModel.resetState()
                     }
+
                     else -> {}
                 }
 
-                    }
-
             }
 
-
-
-            }
-//            viewModel.dummyAuthUser(userName, binding.etPassword.text.toString());
-//            findNavController().navigate(
-//                OutreachFragmentDirections.actionOutreachLoginFragmentToFhirVitalsFragment()
-//            )
         }
+
+
+    }
+
+}
 
 
