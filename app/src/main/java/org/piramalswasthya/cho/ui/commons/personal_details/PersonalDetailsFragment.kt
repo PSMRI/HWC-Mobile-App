@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -52,7 +53,8 @@ class PersonalDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-            title = resources.getString(R.string.title_patient_list)
+//            title = resources.getString(R.string.title_patient_list)
+            title = Html.fromHtml("<font color='#FFFFFF'>Registered Patients</font>")
             setDisplayHomeAsUpEnabled(true)
         }
 
