@@ -71,8 +71,8 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
     }
 
     override fun navigateNext() {
-        Log.i("Patient details with location" ,"${patient.address}  ${patient.birthDate} ${patient.name}")
         val intent = Intent(context, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
 }

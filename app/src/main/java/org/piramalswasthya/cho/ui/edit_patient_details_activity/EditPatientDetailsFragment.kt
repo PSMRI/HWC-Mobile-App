@@ -11,6 +11,7 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
+import org.piramalswasthya.cho.databinding.FragmentEditPatientDetailsBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
@@ -22,11 +23,11 @@ class EditPatientDetailsFragment : Fragment() {
 
     private lateinit var navHostFragment: NavHostFragment
 
-    private var _binding: ActivityEditPatientDetailsBinding? = null
+    private var _binding: FragmentEditPatientDetailsBinding? = null
 
     private val defaultValue = -1
 
-    private val binding: ActivityEditPatientDetailsBinding
+    private val binding: FragmentEditPatientDetailsBinding
         get() = _binding!!
 
     override fun onCreateView(
@@ -34,7 +35,7 @@ class EditPatientDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = ActivityEditPatientDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentEditPatientDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
