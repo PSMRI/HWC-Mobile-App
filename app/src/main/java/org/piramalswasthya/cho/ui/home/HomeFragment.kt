@@ -1,19 +1,19 @@
 package org.piramalswasthya.cho.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
-@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
@@ -33,7 +33,9 @@ class HomeFragment : Fragment() {
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
         binding.registration.setOnClickListener {
-            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToRegisterPatientFragment())
+            val intent = Intent(context, RegisterPatientActivity::class.java)
+            startActivity(intent)
+//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToRegisterPatientFragment())
         }
         binding.advanceSearch.setOnClickListener {
 

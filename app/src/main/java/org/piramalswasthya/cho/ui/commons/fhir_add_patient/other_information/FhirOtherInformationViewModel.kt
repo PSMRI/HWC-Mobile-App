@@ -23,6 +23,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CanonicalType
@@ -38,6 +40,7 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.FhirService
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
+import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.repositories.UserAuthRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
@@ -61,6 +64,7 @@ class FhirOtherInformationViewModel @Inject constructor(@ApplicationContext priv
     override val state = savedStateHandle
 
     override val isEntitySaved = MutableLiveData<Boolean>()
+
 
     /**
      * Saves patient registration questionnaire response into the application database.
@@ -87,11 +91,25 @@ class FhirOtherInformationViewModel @Inject constructor(@ApplicationContext priv
                 return@launch
             }
 
-            val patient = entry.resource as Patient
-            patient.id = generateUuid()
-//            fhirEngine.create(patient)
+            val tmpPatient = entry.resource as Patient
+            for (ext in tmpPatient.extension) {
+                patient.addExtension(ext)
+            }
+            val asdas = patient
+            asdas.addExtension()
+            fhirEngine.create(patient)
+            val ctx = FhirContext.forR4()
+            val jsonBody = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient)
+            val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), jsonBody);
+            service.createPatient(requestBody)
             isEntitySaved.value = true
         }
     }
+
+//    HashSet<String> demograph = new HashSet<String>();
+//    demograph.add("registrarState");
+//    demograph.add("registrarDistrict");
+//    demograph.add("registrarTaluk");
+//    demograph.add("registrarStreet");
 
 }

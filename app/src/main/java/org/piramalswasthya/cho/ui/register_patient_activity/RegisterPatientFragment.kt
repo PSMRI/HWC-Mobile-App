@@ -65,32 +65,32 @@ class RegisterPatientFragment : Fragment() {
         }
 
 
-    binding.btnCancel.setOnClickListener {
+        binding.btnCancel.setOnClickListener {
 
-        currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
 
-        when (currFragment.getFragmentId()){
-            R.id.fragment_fhir_add_patient -> {
+            when (currFragment.getFragmentId()){
+                R.id.fragment_fhir_add_patient -> {
 
+                }
+
+                R.id.fragment_fhir_add_patient_location -> {
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.personal_details)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_fhir_add_patient_other_details ->{
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.location_details)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
             }
 
-            R.id.fragment_fhir_add_patient_location -> {
-                binding.headerTextRegisterPatient.text =
-                    resources.getString(R.string.personal_details)
-                binding.btnSubmit.text = resources.getString(R.string.next)
-                binding.btnCancel.text = resources.getString(R.string.cancel)
-            }
-            R.id.fragment_fhir_add_patient_other_details ->{
-                binding.headerTextRegisterPatient.text =
-                    resources.getString(R.string.location_details)
-                binding.btnSubmit.text = resources.getString(R.string.next)
-                binding.btnCancel.text = resources.getString(R.string.cancel)
-            }
+            currFragment.onCancelAction()
+
         }
-
-        currFragment.onCancelAction()
-
-    }
     }
 
     override fun onDestroyView() {

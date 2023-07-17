@@ -10,24 +10,28 @@
         android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment"
         android:label="fragment_fhir_add_patient"
         tools:layout="@layout/fragment_fhir_add_patient" >
-        <argument
-            android:name="patientDetails"
-            app:argType="org.hl7.fhir.r4.model.Patient"/>
         <action
             android:id="@+id/action_fhirAddPatientFragment_to_fhirLocationFragment"
             app:destination="@id/fhirLocationFragment" />
+<!--            <argument-->
+<!--                android:name="patientDetails"-->
+<!--                android:defaultValue="null" />-->
+<!--        </action>-->
     </fragment>
     <fragment
         android:id="@+id/fhirLocationFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment.FhirLocationFragment"
         android:label="FhirLocationFragment" >
-        <argument
-            android:name="patientDetails"
-            app:argType="org.hl7.fhir.r4.model.Patient"/>
-
+<!--        <argument-->
+<!--            android:name="patientDetails"-->
+<!--            app:argType="org.hl7.fhir.r4.model.Patient"/>-->
         <action
             android:id="@+id/action_fhirLocationFragment_to_fhirOtherInformationFragment"
             app:destination="@id/fhirOtherInformationFragment" />
+<!--            <argument-->
+<!--                android:name="patientDetails"-->
+<!--                android:defaultValue="null" />-->
+<!--        </action>-->
         <action
             android:id="@+id/action_fhirLocationFragment_to_fhirAddPatientFragment"
             app:destination="@id/fhirAddPatientFragment" />
@@ -36,6 +40,9 @@
         android:id="@+id/fhirOtherInformationFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.other_information.FhirOtherInformationFragment"
         android:label="FhirOtherInformationFragment" >
+<!--        <argument-->
+<!--            android:name="patientDetails"-->
+<!--            app:argType="org.hl7.fhir.r4.model.Patient"/>-->
         <action
             android:id="@+id/action_fhirOtherInformationFragment_to_fhirLocationFragment"
             app:destination="@id/fhirLocationFragment" />

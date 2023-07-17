@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.network
 
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.LocationRequest
@@ -24,7 +25,7 @@ interface AmritApiService {
 
     @Headers("No-Auth: true")
     @POST("fhir/Patient")
-    suspend fun createPatient(@Body json: Patient): Response<ResponseBody>
+    suspend fun createPatient(@Body json: RequestBody): Response<ResponseBody>
 
     @POST("commonapi-v1.0/doortodoorapp/getUserDetails")
     suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
@@ -67,11 +68,12 @@ interface AmritApiService {
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 
-//    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
-//    suspend fun getTMVanSpDetails(
-//        @Body vanServiceType: TmcUserVanSpDetailsRequest
-//    ): Response<ResponseBody>
-//
+    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
+    suspend fun getTMVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
+
 //    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID/")
 //    suspend fun getLocationDetails(
 //        @Body locationDetails: TmcLocationDetailsRequest

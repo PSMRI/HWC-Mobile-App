@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
@@ -17,7 +16,6 @@ import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirec
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class HwcFragment constructor(
     private val userName: String,
 ): Fragment() {

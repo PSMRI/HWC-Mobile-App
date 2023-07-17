@@ -18,6 +18,14 @@
     }
   ],
   "item": [
+//
+    {
+      "linkId": "PR",
+      "type": "group",
+      repeats : true
+      ["Id", "Number"]
+
+    },
     {
       "linkId": "PR",
       "type": "group",
@@ -56,6 +64,11 @@
                 }
               ],
               "linkId": "PR-name-text",
+              "initial": [
+                {
+                  "valueString": "John Doe"
+                }
+              ],
               "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
               "type": "string",
               "required": true,
@@ -163,6 +176,7 @@
           "definition": "http://example.com/StructureDefinition/Patient#Patient.age.unit",
           "type": "choice",
           "required": true,
+
           "text": "Age in Unit",
           "answerOption": [
             {
@@ -246,7 +260,7 @@
         },
         {
           "linkId": "patient-0-spouse-name",
-          "definition": "http://example.com/StructureDefinition/Patient#Patient.spouseName",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.govtIdNumber",
           "type": "string",
           "text": "Spouse Name",
           "enableWhen": [
@@ -332,12 +346,12 @@
                 ]
               },
               "maxLength": 10,
-              "pattern": "[0-9]*",
+              "pattern": "[986]\\d{9}",
               "constraint": [
                 {
                   "key": "phone-validation",
                   "severity": "error",
-                  "human": "The phone number should only contain digits."
+                  "human": "The phone number should be 10 digits and start with 9, 8, or 6."
                 }
               ]
             }

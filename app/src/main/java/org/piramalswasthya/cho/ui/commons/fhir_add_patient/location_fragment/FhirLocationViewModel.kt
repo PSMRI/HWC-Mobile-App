@@ -39,6 +39,7 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.FhirService
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
+import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.repositories.UserAuthRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
@@ -62,8 +63,6 @@ class FhirLocationViewModel @Inject constructor(@ApplicationContext private val 
     override val state = savedStateHandle
 
     override val isEntitySaved = MutableLiveData<Boolean>()
-
-     var registerLocation = Address()
 
     /**
      * Saves patient registration questionnaire response into the application database.
@@ -90,14 +89,10 @@ class FhirLocationViewModel @Inject constructor(@ApplicationContext private val 
                 return@launch
             }
 
-            val address = entry.resource as Address
-            address.id = generateUuid()
-            registerLocation = address
-//            fhirEngine.create(patient)
-//            val resp = service.createPatient(patient)
-//            Log.i("patient", resp.toString())
-//            var pat= fhirEngine.get(ResourceType.Patient,patient.id)
-//            fhirEngine.update()
+            val tmpPatient = entry.resource as Patient
+            for (ext in tmpPatient.extension) {
+                patient.addExtension(ext)
+            }
             isEntitySaved.value = true
         }
     }

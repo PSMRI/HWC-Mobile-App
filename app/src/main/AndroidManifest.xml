@@ -32,6 +32,17 @@
             android:label="@string/title_activity_web_view"
             android:theme="@style/Theme.CHO" />
         <activity
+            android:name=".ui.visit_details_activity.VisitDetailsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_visit_details"
+            android:theme="@style/Theme.CHO" />
+        <activity
+            android:name=".ui.patient_vitals_activity.PatientVitalsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.patient_revisit_activity.PatientRevisitActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
             android:exported="false" />
         <activity

@@ -37,19 +37,19 @@ class HomeActivityViewModel (application: Application) : AndroidViewModel(applic
         get() = _pollState
 
     init {
-        Log.i("view model is launched", "")
-        viewModelScope.launch {
-            Sync.periodicSync<DemoFhirSyncWorker>(
-                application.applicationContext,
-                periodicSyncConfiguration =
-                PeriodicSyncConfiguration(
-                    syncConstraints = Constraints.Builder().build(),
-                    repeat = RepeatInterval(interval = 1, timeUnit = TimeUnit.MINUTES)
-                )
-            )
-                .shareIn(this, SharingStarted.Eagerly, 10)
-                .collect { _pollState.emit(it) }
-        }
+//        Log.i("view model is launched", "")
+//        viewModelScope.launch {
+//            Sync.periodicSync<DemoFhirSyncWorker>(
+//                application.applicationContext,
+//                periodicSyncConfiguration =
+//                PeriodicSyncConfiguration(
+//                    syncConstraints = Constraints.Builder().build(),
+//                    repeat = RepeatInterval(interval = 1, timeUnit = TimeUnit.MINUTES)
+//                )
+//            )
+//                .shareIn(this, SharingStarted.Eagerly, 10)
+//                .collect { _pollState.emit(it) }
+//        }
     }
 
     fun triggerOneTimeSync() {

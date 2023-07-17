@@ -13,17 +13,62 @@ class ProfileLoaderImpl : ProfileLoader {
 
     private val structureDefinition = StructureDefinition()
 
-    private val elementDefinition = ElementDefinition()
+    private var elementDefinition = ElementDefinition()
 
     private fun getElementDefinition(): ElementDefinition{
-        elementDefinition.id = "Patient:extended"
+        elementDefinition.id = "Patient:extensionname"
         elementDefinition.path = "Patient.extension"
         return elementDefinition
     }
 
     private fun getStructureDefinition(): StructureDefinition{
         structureDefinition.snapshot.element.clear()
-        structureDefinition.snapshot.element.add(getElementDefinition())
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":registrarState"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":registrarDistrict"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":registrarTaluk"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":registrarStreet"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":abhaGenerationMode"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":govtIdType"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":govtIdNumber"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":govtHealthProgramType"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":govtHealthProgramId"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
         return structureDefinition
     }
 

@@ -9,14 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.hl7.fhir.r4.model.Address
-import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.R
 
 import org.piramalswasthya.cho.databinding.FragmentFhirLocationBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragmentDirections
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirLocationViewModel
 
 @AndroidEntryPoint
@@ -34,7 +31,7 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     override var fragmentContainerId = 0;
 
     override val jsonFile : String = "location_information.json"
-    lateinit var pat : Patient
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,14 +41,13 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pat= FhirLocationFragmentArgs.fromBundle(requireArguments()).patientDetails
-        Log.d("Patient Details","${pat.gender}")
         fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
         observeEntitySaveAction("Inputs are missing.", "Patient is saved.")
+//        viewModel.patient = FhirLocationFragmentArgs.fromBundle(requireArguments()).patientDetails
     }
 
     override fun getFragmentId(): Int {
@@ -60,17 +56,17 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
 
     override fun onSubmitAction() {
         saveEntity()
-        navigateNext()
+//        navigateNext()
     }
 
     override fun onCancelAction() {
         findNavController().navigate(
-            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment(Patient())
+            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment()
         )
     }
 
     override fun navigateNext() {
-        var locationDetails = viewModel.registerLocation
+//        var locationDetails = viewModel.registerLocation
 //        var patient = Patient()
 //        var address = Address()
 //        address.city = locationDetails.city
