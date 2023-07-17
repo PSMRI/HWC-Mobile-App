@@ -165,20 +165,7 @@
           android:weightSum="3"
        >
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_abha"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:backgroundTint="@color/green"
-            android:onClick="@{()-> clickListener.onClickABHA(ben)}"
-            android:text="ABHA"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="@color/black"
-            app:cornerRadius="@dimen/padding_normal"
-            app:layout_constraintBottom_toBottomOf="@+id/ll_phone_gender"
-            app:strokeColor="@color/green" />
+
       </LinearLayout>
     </LinearLayout>
 

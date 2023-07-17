@@ -56,7 +56,7 @@ class HomeActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_dehaze_24)
+//        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_dehaze_24)
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
