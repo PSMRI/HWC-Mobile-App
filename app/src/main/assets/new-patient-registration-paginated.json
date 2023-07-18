@@ -18,14 +18,6 @@
     }
   ],
   "item": [
-//
-    {
-      "linkId": "PR",
-      "type": "group",
-      repeats : true
-      ["Id", "Number"]
-
-    },
     {
       "linkId": "PR",
       "type": "group",

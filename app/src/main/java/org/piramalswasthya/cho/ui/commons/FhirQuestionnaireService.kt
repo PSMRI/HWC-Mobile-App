@@ -39,15 +39,15 @@ interface FhirQuestionnaireService {
         }
         questionnaireJson = readFileFromAssets(state[FhirFragmentService.QUESTIONNAIRE_FILE_PATH_KEY]!!)
 
-        var questionnaireJsonObject = JSONObject(questionnaireJson!!)
-
-        questionnaireJsonObject
-            .getJSONArray("item")
-            .getJSONObject(0)
-            .getJSONArray("answerOption")
-            .getJSONObject(0)
-            .getJSONObject("valueCoding")
-            .put("display", "OPD")
+//        var questionnaireJsonObject = JSONObject(questionnaireJson!!)
+//
+//        questionnaireJsonObject
+//            .getJSONArray("item")
+//            .getJSONObject(0)
+//            .getJSONArray("answerOption")
+//            .getJSONObject(0)
+//            .getJSONObject("valueCoding")
+//            .put("display", "OPD")
 
         return questionnaireJson!!
     }

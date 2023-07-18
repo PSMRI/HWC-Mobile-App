@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.google.android.fhir.getResourceClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
@@ -52,11 +53,13 @@ import timber.log.Timber
         StateMaster::class,
         DoseType::class,
         VaccineType::class,
-        SelectedOutreachProgram::class
-
+        SelectedOutreachProgram::class,
+        DistrictMaster::class,
+        BlockMaster::class,
+        VillageMaster::class
     ],
 //    views = [BenBasicCache::class],
-    version = 18, exportSchema = false
+    version = 20, exportSchema = false
 )
 
 
