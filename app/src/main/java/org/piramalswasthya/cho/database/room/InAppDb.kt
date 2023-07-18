@@ -18,12 +18,15 @@ import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
+import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
@@ -82,11 +85,16 @@ abstract class InAppDb : RoomDatabase() {
     abstract val userAuthDao: UserAuthDao
     abstract val languageDao: LanguageDao
     abstract val stateMasterDao: StateMasterDao
+
     abstract val vaccinationTypeAndDoseDao: VaccinationTypeAndDoseDao
     abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
     abstract val registrarMasterDataDao:RegistrarMasterDataDao
 
     abstract val loginSettingsDataDao: LoginSettingsDataDao
+
+    abstract val districtMasterDao: DistrictMasterDao
+    abstract val blockMasterDao: BlockMasterDao
+    abstract val villageMasterDao: VillageMasterDao
 
     companion object {
         @Volatile

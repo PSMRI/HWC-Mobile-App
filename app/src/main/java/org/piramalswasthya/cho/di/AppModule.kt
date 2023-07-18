@@ -11,6 +11,8 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -18,6 +20,7 @@ import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
+import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AbhaApiService
@@ -209,9 +212,24 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideStateMasterDao(database : InAppDb) : StateMasterDao = database.stateMasterDao
+
     @Singleton
     @Provides
     fun provideVaccinationTypeAndDoseDao(database : InAppDb) : VaccinationTypeAndDoseDao = database.vaccinationTypeAndDoseDao
+
+    @Singleton
+    @Provides
+    fun provideDistrictMasterDao(database : InAppDb) : DistrictMasterDao = database.districtMasterDao
+
+    @Singleton
+    @Provides
+    fun provideBlockMasterDao(database : InAppDb) : BlockMasterDao = database.blockMasterDao
+
+    @Singleton
+    @Provides
+    fun provideVillageMasterDao(database : InAppDb) : VillageMasterDao = database.villageMasterDao
+
+
 //    @Singleton
 //    @Provides
 //    fun provideBenIdDao(database : InAppDb) : BeneficiaryIdsAvailDao = database.benIdGenDao
