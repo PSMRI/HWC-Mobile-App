@@ -20,12 +20,15 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.ESanjeevaniApiService
 //import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.AbhaApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
@@ -44,8 +47,9 @@ object AppModule {
     private const val baseD2DUrl = "http://d2dapi.piramalswasthya.org:9090/api/"
     //"http://117.245.141.41:9090/api/"
 
-    private const val baseTmcUrl = // "http://assamtmc.piramalswasthya.org:8080/"
-    "http://uatamrit.piramalswasthya.org:8080/"
+    private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
+//         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
+         private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
     private const val sanjeevaniApi = "http://192.168.5.129:8080/"
@@ -77,6 +81,7 @@ object AppModule {
 //            .build()
 //    }
 //
+
     @Singleton
     @Provides
     @Named("uatClient")
@@ -89,20 +94,32 @@ object AppModule {
             .addInterceptor(TokenInsertTmcInterceptor())
             .build()
     }
+    @Singleton
+    @Provides
+    @Named("eSanjeevaniClient")
+    fun provideESanjeevaniHttpClient(): OkHttpClient {
+        return baseClient
+            .newBuilder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(TokenInsertTmcInterceptor())
+            .build()
+    }
 //
-//    @Singleton
-//    @Provides
-//    @Named("abhaClient")
-//    fun provideAbhaHttpClient(): OkHttpClient {
-//        return baseClient
-//            .newBuilder()
-//            .connectTimeout(20, TimeUnit.SECONDS)
-//            .readTimeout(20, TimeUnit.SECONDS)
-//            .writeTimeout(20, TimeUnit.SECONDS)
-//            .addInterceptor(TokenInsertAbhaInterceptor())
-//            .build()
-//    }
-//
+    @Singleton
+    @Provides
+    @Named("abhaClient")
+    fun provideAbhaHttpClient(): OkHttpClient {
+        return baseClient
+            .newBuilder()
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .addInterceptor(TokenInsertAbhaInterceptor())
+            .build()
+    }
+
 //    @Singleton
 //    @Provides
 //    fun provideD2DApiService(
@@ -117,7 +134,20 @@ object AppModule {
 //            .build()
 //            .create(D2DApiService::class.java)
 //    }
-//
+@Singleton
+@Provides
+fun provideESanjeevaniApiService(
+    moshi: Moshi,
+    @Named("eSanjeevaniClient") httpClient: OkHttpClient
+): ESanjeevaniApiService {
+    return Retrofit.Builder()
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+//            .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl(sanjeevaniApi)
+        .client(httpClient)
+        .build()
+        .create(ESanjeevaniApiService::class.java)
+}
     @Singleton
     @Provides
     fun provideAmritApiService(
@@ -127,26 +157,26 @@ object AppModule {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(sanjeevaniApi)
+            .baseUrl(baseAmritUrl)
             .client(httpClient)
             .build()
             .create(AmritApiService::class.java)
     }
 //
-//    @Singleton
-//    @Provides
-//    fun provideAbhaApiService(
-//        moshi: Moshi,
-//        @Named("abhaClient") httpClient: OkHttpClient
-//    ): AbhaApiService {
-//        return Retrofit.Builder()
-//            .addConverterFactory(MoshiConverterFactory.create(moshi))
-//            //.addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl(baseAbhaUrl)
-//            .client(httpClient)
-//            .build()
-//            .create(AbhaApiService::class.java)
-//    }
+    @Singleton
+    @Provides
+    fun provideAbhaApiService(
+        moshi: Moshi,
+        @Named("abhaClient") httpClient: OkHttpClient
+    ): AbhaApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            //.addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseAbhaUrl)
+            .client(httpClient)
+            .build()
+            .create(AbhaApiService::class.java)
+    }
 
     @Singleton
     @Provides

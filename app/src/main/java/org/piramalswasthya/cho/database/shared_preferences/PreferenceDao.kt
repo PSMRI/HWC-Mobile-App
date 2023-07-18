@@ -69,34 +69,29 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        editor.apply()
 //    }
 //
-//    fun registerLoginCred(userName: String, password: String, state : String) {
-//        val editor = pref.edit()
-//        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
-//        val prefUserPwdKey = context.getString(R.string.PREF_rem_me_pwd)
-//        val prefUserStateKey = context.getString(R.string.PREF_rem_me_state)
-//        editor.putString(prefUserKey, userName)
-//        editor.putString(prefUserPwdKey, password)
-//        editor.putString(prefUserStateKey, state)
-//        editor.apply()
-//    }
+    fun registerLoginCred(userName: String) {
+        val editor = pref.edit()
+        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
+        editor.putString(prefUserKey, userName)
+        editor.apply()
+    }
+    fun getRememberedUserName(): String? {
+        val key = context.getString(R.string.PREF_rem_me_uname)
+        return pref.getString(key, null)
+    }
 //
 //    fun deleteForLogout() {
 //        pref.edit().clear().apply()
 //    }
 //
-//    fun deleteLoginCred() {
-//        val editor = pref.edit()
-//        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
-//        val prefUserPwdKey = context.getString(R.string.PREF_rem_me_pwd)
-//        editor.remove(prefUserKey)
-//        editor.remove(prefUserPwdKey)
-//        editor.apply()
-//    }
+    fun deleteLoginCred() {
+        val editor = pref.edit()
+        val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
+        editor.remove(prefUserKey)
+        editor.apply()
+    }
 //
-//    fun getRememberedUserName(): String? {
-//        val key = context.getString(R.string.PREF_rem_me_uname)
-//        return pref.getString(key, null)
-//    }
+
 //
 //    fun getRememberedPassword(): String? {
 //        val key = context.getString(R.string.PREF_rem_me_pwd)
@@ -177,15 +172,15 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        return uriString?.let { Uri.parse(it) }
 //    }
 //
-//    fun savePublicKeyForAbha(publicKey: String) {
-//        val key = "AUTH_CERT"
-//        val editor = pref.edit()
-//        editor.putString(key, publicKey)
-//        editor.apply()
-//    }
-//
-//    fun getPublicKeyForAbha(): String? {
-//        val key = "AUTH_CERT"
-//        return pref.getString(key, null)
-//    }
+    fun savePublicKeyForAbha(publicKey: String) {
+        val key = "AUTH_CERT"
+        val editor = pref.edit()
+        editor.putString(key, publicKey)
+        editor.apply()
+    }
+
+    fun getPublicKeyForAbha(): String? {
+        val key = "AUTH_CERT"
+        return pref.getString(key, null)
+    }
 }

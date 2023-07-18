@@ -5,5 +5,10 @@
     <color name="purple">#6434BA</color>
     <color name="primary">#50AF93</color>
     <color name="green_heading">#50AF93</color>
+    <color name="red">#FF910000</color>
+    <color name="green">#FF009302</color>
+    <color name="primaryTextColor">#000000</color>
+
+    <color name="secondaryColor">#ffffff</color>
     <color name="colorAccent">#175adf</color>
 </resources>

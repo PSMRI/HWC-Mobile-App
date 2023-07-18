@@ -8,8 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".CHOApplication"
@@ -27,6 +27,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.abha_id_activity.AbhaIdActivity"
+            android:exported="false"
+            android:label="@string/title_activity_abha_id"
+            android:theme="@style/Theme.CHO" />
+        <activity
             android:name=".ui.web_view_activity.WebViewActivity"
             android:exported="false"
             android:label="@string/title_activity_web_view"
@@ -36,12 +41,12 @@
             android:exported="false"
             android:label="@string/title_activity_visit_details"
             android:theme="@style/Theme.CHO" />
-        <activity
-            android:name=".ui.patient_vitals_activity.PatientVitalsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.patient_revisit_activity.PatientRevisitActivity"
-            android:exported="false" />
+        <activity android:name=".ui.patient_vitals_activity.PatientVitalsActivity"
+            android:exported="false"
+            />
+        <activity android:name=".ui.patient_revisit_activity.PatientRevisitActivity"
+            android:exported="false"
+            />
         <activity
             android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
             android:exported="false" />

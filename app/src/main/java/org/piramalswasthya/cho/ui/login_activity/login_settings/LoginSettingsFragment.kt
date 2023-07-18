@@ -98,7 +98,8 @@ class LoginSettingsFragment : Fragment() {
                 }
                 Toast.makeText(context,"Settings Saved to Repository",Toast.LENGTH_SHORT).show()
                 findNavController().navigate(
-                    LoginSettingsFragmentDirections.actionLoginSettingsToChoLogin(userName)
+//                    LoginSettingsFragmentDirections.actionLoginSettingsToChoLogin(userName)
+                    LoginSettingsFragmentDirections.actionLoginSettingsToUsername()
                 )
             }
             else{

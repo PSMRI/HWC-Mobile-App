@@ -26,6 +26,7 @@ import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import timber.log.Timber
 
 @Database(
@@ -51,10 +52,11 @@ import timber.log.Timber
         StateMaster::class,
         DoseType::class,
         VaccineType::class,
+        SelectedOutreachProgram::class
 
     ],
 //    views = [BenBasicCache::class],
-    version = 13, exportSchema = false
+    version = 18, exportSchema = false
 )
 
 
