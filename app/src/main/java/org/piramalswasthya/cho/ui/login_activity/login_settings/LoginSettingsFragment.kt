@@ -37,6 +37,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.async
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -44,6 +45,7 @@ import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
@@ -73,6 +75,8 @@ class LoginSettingsFragment : Fragment() {
 
     @Inject
     lateinit var userDao: UserDao
+
+    private var userInfo: UserCache? = null
 
 //    @Inject
 //    lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
@@ -110,6 +114,10 @@ class LoginSettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         fetchStates()
         val userName = (arguments?.getString("userName", ""))!!;
+
+        lifecycleScope.launch {
+            userInfo = userDao.getLoggedInUser()
+        }
         binding.continueButton.setOnClickListener{
             // Save Login Settings Data with location to preferences
             val loginSettingsData = myLocation?.let { it1 ->
@@ -155,6 +163,23 @@ class LoginSettingsFragment : Fragment() {
                     stateList = stateData.data.stateMaster
                     val stateNames = stateList!!.map { it.stateName }.toTypedArray()
                     binding.dropdownState.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, stateNames))
+                    binding.dropdownState.setSelection(0)
+//                    binding.dropdownState.text = (state.stateName)
+//                    if(stateNames.isNotEmpty()) {
+//                        if(userInfo != null && userInfo!!.stateID != null){
+//                            Log.i("state if", "")
+//                            for(state in stateList!!){
+//                                if(state.stateID == userInfo!!.stateID){
+//                                    binding.dropdownState.setText(state.stateName)
+//                                }
+//                            }
+//                        }
+//                        else{
+//                            Log.i("state else", "")
+//                            binding.dropdownState.setText(stateList!![0].stateName)
+//                            updateUserStateId(stateList!![0].stateID)
+//                        }
+//                    }
                     binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
                         val selectedStateName = parent.getItemAtPosition(position) as String
                         selectedState = stateList?.find { it.stateName == selectedStateName }
@@ -206,6 +231,19 @@ class LoginSettingsFragment : Fragment() {
                         val districtNames = districtList!!.map { it.districtName }.toTypedArray()
                         Log.i("Dist" ,"$districtNames")
                         binding.dropdownDist.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down, districtNames))
+                        if(districtNames.isNotEmpty()) {
+                            if(userInfo != null && userInfo!!.districtID != null){
+                                for(district in districtList!!){
+                                    if(district.districtID == userInfo!!.districtID){
+                                        binding.dropdownDist.setText(district.districtName)
+                                    }
+                                }
+                            }
+                            else{
+                                binding.dropdownDist.setText(districtList!![0].districtName)
+                                updateUserDistrictId(districtList!![0].districtID)
+                            }
+                        }
                         binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
                             val selectedDistrictName = parent.getItemAtPosition(position) as String
 
@@ -259,6 +297,19 @@ class LoginSettingsFragment : Fragment() {
                         addBlocksToDb(districtId)
                         val blockNames = blockList!!.map { it.blockName }.toTypedArray()
                         binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))
+                        if(blockNames.isNotEmpty()) {
+                            if(userInfo != null && userInfo!!.blockID != null){
+                                for(block in blockList!!){
+                                    if(block.blockID == userInfo!!.blockID){
+                                        binding.dropdownTaluk.setText(block.blockName)
+                                    }
+                                }
+                            }
+                            else{
+                                binding.dropdownTaluk.setText(blockList!![0].blockName)
+                                updateUserBlockId(blockList!![0].blockID)
+                            }
+                        }
                         binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
                             val selectedTaluk = parent.getItemAtPosition(position) as String
                             selectedBlock = blockList?.find { it.blockName == selectedTaluk }
@@ -326,6 +377,19 @@ class LoginSettingsFragment : Fragment() {
                         getVillagesByBlockIdAndAddToDb()
                         val villageNames = villageList!!.map { it.villageName }.toTypedArray()
                         binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))
+                        if(villageNames.isNotEmpty()) {
+                            if(userInfo != null && userInfo!!.districtBranchID != null){
+                                for(village in villageList!!){
+                                    if(village.districtBranchID == userInfo!!.districtBranchID){
+                                        binding.dropdownPanchayat.setText(village.villageName)
+                                    }
+                                }
+                            }
+                            else{
+                                binding.dropdownPanchayat.setText(villageList!![0].villageName)
+                                updateUserVillageId(villageList!![0].districtBranchID)
+                            }
+                        }
 //                        binding.dropdownPanchayat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 //                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
 //                                val selectedVillageName = binding.dropdownPanchayat.adapter.getItem(position) as String
