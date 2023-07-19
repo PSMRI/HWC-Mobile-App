@@ -211,19 +211,6 @@ class LoginSettingsFragment : Fragment() {
                         villageList = response?.data
                         val villageNames = villageList!!.map { it.villageName }.toTypedArray()
                         binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))
-//                        binding.dropdownPanchayat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                                val selectedVillageName = binding.dropdownPanchayat.adapter.getItem(position) as String
-////                                 Fetch Village/Area/Street based on the selected value
-//
-//                                selectedVillage = villageList?.find { it.villageName == selectedVillageName }
-//
-//                            }
-//                            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                                // Do nothing
-//                            }
-//                        }
-
                         binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
                             val selectedVillageName = parent.getItemAtPosition(position) as String
 
