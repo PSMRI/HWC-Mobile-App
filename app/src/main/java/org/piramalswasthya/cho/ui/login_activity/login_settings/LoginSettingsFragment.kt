@@ -32,6 +32,7 @@ import org.piramalswasthya.cho.network.Village
 import timber.log.Timber
 import javax.inject.Inject
 import android.provider.Settings
+import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -123,17 +124,9 @@ class LoginSettingsFragment : Fragment() {
                     stateList = stateData.data.stateMaster
                     val stateNames = stateList!!.map { it.stateName }.toTypedArray()
                     binding.dropdownState.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, stateNames))
-                    binding.dropdownState.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            val selectedState = binding.dropdownState.adapter.getItem(position) as String
-
-                            // Fetch districts based on the selected state ID
-                            fetchDistricts(selectedState)
-                        }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {
-                            // Do nothing
-                        }
+                    binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+                        val selectedState = parent.getItemAtPosition(position) as String
+                        fetchDistricts(selectedState)
                     }
                 }
 
@@ -158,16 +151,11 @@ class LoginSettingsFragment : Fragment() {
                     if (response!=null) {
                         districtList = response?.data
                         val districtNames = districtList!!.map { it.districtName }.toTypedArray()
+                        Log.i("Dist" ,"$districtNames")
                         binding.dropdownDist.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down, districtNames))
-                        binding.dropdownDist.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                val selectedDistrict = binding.dropdownDist.adapter.getItem(position) as String
-//                                 Fetch Taluks based on the selected value
-                                fetchTaluks(selectedDistrict)
-                            }
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // Do nothing
-                            }
+                        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
+                            val selectedDistrict = parent.getItemAtPosition(position) as String
+                            fetchTaluks(selectedDistrict)
                         }
                     }
                 }
@@ -194,15 +182,9 @@ class LoginSettingsFragment : Fragment() {
                         blockList = response?.data
                         val blockNames = blockList!!.map { it.blockName }.toTypedArray()
                         binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))
-                        binding.dropdownTaluk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                val selectedBlock = binding.dropdownTaluk.adapter.getItem(position) as String
-//                                 Fetch Village/Area/Street based on the selected value
-                                fetchVillageMaster(selectedBlock)
-                            }
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // Do nothing
-                            }
+                        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+                            val selectedTaluk = parent.getItemAtPosition(position) as String
+                            fetchVillageMaster(selectedTaluk)
                         }
                     }
                 }
@@ -229,18 +211,26 @@ class LoginSettingsFragment : Fragment() {
                         villageList = response?.data
                         val villageNames = villageList!!.map { it.villageName }.toTypedArray()
                         binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))
-                        binding.dropdownPanchayat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                val selectedVillageName = binding.dropdownPanchayat.adapter.getItem(position) as String
-//                                 Fetch Village/Area/Street based on the selected value
+//                        binding.dropdownPanchayat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                                val selectedVillageName = binding.dropdownPanchayat.adapter.getItem(position) as String
+////                                 Fetch Village/Area/Street based on the selected value
+//
+//                                selectedVillage = villageList?.find { it.villageName == selectedVillageName }
+//
+//                            }
+//                            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                                // Do nothing
+//                            }
+//                        }
 
-                                selectedVillage = villageList?.find { it.villageName == selectedVillageName }
+                        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
+                            val selectedVillageName = parent.getItemAtPosition(position) as String
 
-                            }
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // Do nothing
-                            }
+                            selectedVillage = villageList?.find { it.villageName == selectedVillageName }
                         }
+
+
                     }
                 }
 
