@@ -16,7 +16,4 @@ interface StateMasterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStates(stateMaster: StateMaster)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDistrict(districtMaster: DistrictMaster)
-
 }

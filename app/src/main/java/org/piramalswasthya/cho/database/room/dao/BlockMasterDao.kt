@@ -14,6 +14,6 @@ interface BlockMasterDao {
     suspend fun getBlocks(districtID: Int) : List<BlockMaster>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVillage(villageMaster: VillageMaster)
+    suspend fun insertBlock(blockMaster: BlockMaster)
 
 }

@@ -33,6 +33,10 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
+import org.piramalswasthya.cho.repositories.BlockMasterRepo
+import org.piramalswasthya.cho.repositories.DistrictMasterRepo
+import org.piramalswasthya.cho.repositories.StateMasterRepo
+import org.piramalswasthya.cho.repositories.VillageMasterRepo
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
@@ -228,6 +232,22 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideVillageMasterDao(database : InAppDb) : VillageMasterDao = database.villageMasterDao
+
+//    @Singleton
+//    @Provides
+//    fun provideStateMasterRepo(database : InAppDb) : StateMasterRepo = database.stateMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideDistrictMasterRepo(database : InAppDb) : DistrictMasterRepo = database.districtMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideBlockMasterRepo(database : InAppDb) : BlockMasterRepo = database.blockMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideVillageMasterRepo(database : InAppDb) : VillageMasterRepo = database.villageMasterRepo
 
 
 //    @Singleton

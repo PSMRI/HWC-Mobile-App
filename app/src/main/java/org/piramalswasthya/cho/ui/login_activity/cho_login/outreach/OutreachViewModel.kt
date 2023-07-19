@@ -55,30 +55,30 @@ class OutreachViewModel @Inject constructor(
 
 
     //TODO: JUST FOR TESTING, NEEDS TO BE MOVED WHEN APPROPRIATE VIEW MODELS ARE READY
-//    init {
-//        Timber.tag("initMethod").d("initMethod inside")
-//        viewModelScope.launch {
-//            languageRepo.saveResponseToCacheLang()
-//            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-//            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-//            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-//            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-//            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-//            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-//            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-//            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-//            stateMasterRepo.saveStateMasterResponseToCache()
-//            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-//            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-//        }
-//    }
+    init {
+        Timber.tag("initMethod").d("initMethod inside")
+        viewModelScope.launch {
+            languageRepo.saveResponseToCacheLang()
+            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
+            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
+            registrarMasterDataRepo.saveGenderMasterResponseToCache()
+            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
+            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
+            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
+            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
+            registrarMasterDataRepo.saveReligionMasterResponseToCache()
+            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
+            stateMasterRepo.saveStateMasterResponseToCache()
+            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+        }
+    }
 
 
 

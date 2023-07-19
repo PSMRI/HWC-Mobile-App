@@ -51,18 +51,14 @@ interface AmritApiService {
     suspend fun getDistricts(@Path("stateId") stateId: Int): DistrictResponse
 
     @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
-    suspend fun getDistrictBlocks(
-        @Path("districtId") districtId: Int
-    ): DistrictBlockResponse
+    suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): DistrictBlockResponse
 
     @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
-    suspend fun getVillages(
-        @Path("blockId") blockId: Int,
-    ): VillageMasterResponse
-
+    suspend fun getVillages(@Path("blockId") blockId: Int, ): VillageMasterResponse
 
     @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
     suspend fun getStatesMasterList(): Response<ResponseBody>
+
     @GET("commonapi-v1.0/beneficiary/getLanguageList?apiKey=undefined")
     suspend fun getLanguagesList(): Response<ResponseBody>
 

@@ -62,7 +62,7 @@ import timber.log.Timber
         VillageMaster::class
     ],
 //    views = [BenBasicCache::class],
-    version = 20, exportSchema = false
+    version = 22, exportSchema = false
 )
 
 

@@ -32,10 +32,25 @@ import org.piramalswasthya.cho.network.Village
 import timber.log.Timber
 import javax.inject.Inject
 import android.provider.Settings
+import android.util.Log
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.async
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BlockMaster
+import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.VillageMaster
+import org.piramalswasthya.cho.repositories.BlockMasterRepo
+import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
+import org.piramalswasthya.cho.repositories.VillageMasterRepo
+import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewModel
+import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 
 
 @AndroidEntryPoint
@@ -43,6 +58,24 @@ class LoginSettingsFragment : Fragment() {
 
     @Inject
     lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
+
+    @Inject
+    lateinit var stateMasterDao: StateMasterDao
+
+    @Inject
+    lateinit var districtMasterRepo: DistrictMasterRepo
+
+    @Inject
+    lateinit var blockMasterRepo: BlockMasterRepo
+
+    @Inject
+    lateinit var villageMasterRepo: VillageMasterRepo
+
+    @Inject
+    lateinit var userDao: UserDao
+
+//    @Inject
+//    lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
 
     @Inject
     lateinit var apiService: AmritApiService
@@ -66,11 +99,13 @@ class LoginSettingsFragment : Fragment() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    private lateinit var viewModel: LoginSettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        viewModel = ViewModelProvider(this).get(LoginSettingsViewModel::class.java)
         getCurrentLocation()
         return binding.root
     }
@@ -113,6 +148,20 @@ class LoginSettingsFragment : Fragment() {
         super.onDestroy()
         coroutineScope.cancel() // Cancel the coroutine scope when the fragment is destroyed
     }
+
+    private suspend fun addStatesToDb(){
+        try {
+            stateList?.let{
+                for(state in stateList!!){
+                    stateMasterDao.insertStates(StateMaster(stateID = state.stateID, stateName = state.stateName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in district", e.toString())
+        }
+    }
+
     private fun fetchStates() {
         coroutineScope.launch {
             try {
@@ -120,14 +169,18 @@ class LoginSettingsFragment : Fragment() {
                 val stateData = apiService.getStates(request)
                 if (stateData != null){
                     stateList = stateData.data.stateMaster
+//                    async { addStatesToDb() }.await()
+                    addStatesToDb()
                     val stateNames = stateList!!.map { it.stateName }.toTypedArray()
                     binding.dropdownState.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, stateNames)
                     binding.dropdownState.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                            val selectedState = binding.dropdownState.adapter.getItem(position) as String
-
+//                            Log.i("state is selected", "")
+                            val selectedStateName = binding.dropdownState.adapter.getItem(position) as String
+                            selectedState = stateList?.find { it.stateName == selectedStateName }
+                            coroutineScope.launch { updateUserStateId(selectedState!!.stateID) }
                             // Fetch districts based on the selected state ID
-                            fetchDistricts(selectedState)
+                            fetchDistricts(selectedStateName)
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -140,6 +193,23 @@ class LoginSettingsFragment : Fragment() {
                 Timber.d("Fetching states failed ${e.message}")
             }
         }
+    }
+
+    private suspend fun addDistrictsToDb(stateId : Int){
+        try {
+            districtList?.let{
+                for(district in districtList!!){
+                    districtMasterRepo.insertDistrict(DistrictMaster(district.districtID, stateId, district.districtName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in district", e.toString())
+        }
+    }
+
+    private suspend fun updateUserStateId(stateId : Int){
+        userDao.updateUserStateId(stateId)
     }
 
     private fun fetchDistricts(selectedStateName: String) {
@@ -156,13 +226,20 @@ class LoginSettingsFragment : Fragment() {
 
                     if (response!=null) {
                         districtList = response?.data
+//                        async { addDistrictsToDb(stateId) }.await()
+                        addDistrictsToDb(stateId)
                         val districtNames = districtList!!.map { it.districtName }.toTypedArray()
                         binding.dropdownDistrict.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, districtNames)
                         binding.dropdownDistrict.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                val selectedDistrict = binding.dropdownDistrict.adapter.getItem(position) as String
+//                                Log.i("district is selected", "")
+                                val selectedDistrictName = binding.dropdownDistrict.adapter.getItem(position) as String
+
+                                selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
+                                coroutineScope.launch { updateUserDistrictId(selectedDistrict!!.districtID) }
+
 //                                 Fetch Taluks based on the selected value
-                                fetchTaluks(selectedDistrict)
+                                fetchTaluks(selectedDistrictName)
                             }
                             override fun onNothingSelected(parent: AdapterView<*>?) {
                                 // Do nothing
@@ -177,6 +254,24 @@ class LoginSettingsFragment : Fragment() {
         }
     }
 
+    private suspend fun addBlocksToDb(districtId : Int){
+        try {
+            blockList?.let{
+                for(block in blockList!!){
+                    Log.i("adding blocks", block.blockID.toString() + " " + districtId)
+                    blockMasterRepo.insertBlock(BlockMaster(blockID = block.blockID, districtID = districtId, blockName = block.blockName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in block", e.toString())
+        }
+    }
+
+    private suspend fun updateUserDistrictId(districtId : Int){
+        userDao.updateUserDistrictId(districtId)
+    }
+
     private fun fetchTaluks(selectedDistrictName: String) {
 
         coroutineScope.launch {
@@ -188,16 +283,20 @@ class LoginSettingsFragment : Fragment() {
                 selectedDistrict?.let {
                     val districtId = it.districtID
                     val response = apiService.getDistrictBlocks(districtId)
-
                     if (response!=null) {
                         blockList = response?.data
+//                        async { addBlocksToDb(districtId) }.await()
+                        addBlocksToDb(districtId)
                         val blockNames = blockList!!.map { it.blockName }.toTypedArray()
                         binding.dropdownTaluk.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, blockNames)
                         binding.dropdownTaluk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                val selectedBlock = binding.dropdownTaluk.adapter.getItem(position) as String
-//                                 Fetch Village/Area/Street based on the selected value
-                                fetchVillageMaster(selectedBlock)
+//                                Log.i("block is selected", "")
+                                val selectedBlockName = binding.dropdownTaluk.adapter.getItem(position) as String
+
+                                selectedBlock = blockList?.find { it.blockName == selectedBlockName }
+                                coroutineScope.launch { updateUserBlockId(selectedBlock!!.blockID) }
+                                fetchVillageMaster(selectedBlockName)
                             }
                             override fun onNothingSelected(parent: AdapterView<*>?) {
                                 // Do nothing
@@ -212,7 +311,40 @@ class LoginSettingsFragment : Fragment() {
         }
     }
 
-    private fun fetchVillageMaster(selectedBlockName: String) {
+    private suspend fun getVillagesByBlockIdAndAddToDb(){
+        try {
+            blockList?.let {
+                for (block in blockList!!){
+                    val response = apiService.getVillages(block.blockID)
+                    if (response != null) {
+                        addVillagesToDb(response.data, block.blockID)
+                    }
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in village", e.toString())
+        }
+    }
+
+    private suspend fun addVillagesToDb(currVillageList : List<Village>,  blockId : Int){
+        try {
+            currVillageList?.let{
+                for(village in currVillageList){
+                    villageMasterRepo.insertVillage(VillageMaster(districtBranchID = village.districtBranchID, blockID = blockId, villageName = village.villageName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in village", e.toString())
+        }
+    }
+
+    private suspend fun updateUserBlockId(blockId : Int){
+        userDao.updateUserBlockId(blockId)
+    }
+
+    private fun fetchVillageMaster(selectedBlockName: String, ) {
 
         coroutineScope.launch {
             try {
@@ -223,18 +355,18 @@ class LoginSettingsFragment : Fragment() {
                 selectedBlock?.let {
                     val blockId = it.blockID
                     val response = apiService.getVillages(blockId)
-
                     if (response!=null) {
                         villageList = response?.data
+//                        async { getVillagesByBlockIdAndAddToDb() }.await()
+                        getVillagesByBlockIdAndAddToDb()
                         val villageNames = villageList!!.map { it.villageName }.toTypedArray()
                         binding.dropdownStreet.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, villageNames)
                         binding.dropdownStreet.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                                Log.i("state is selected", "")
                                 val selectedVillageName = binding.dropdownStreet.adapter.getItem(position) as String
-//                                 Fetch Village/Area/Street based on the selected value
-
                                 selectedVillage = villageList?.find { it.villageName == selectedVillageName }
-
+                                coroutineScope.launch { updateUserVillageId(selectedVillage!!.districtBranchID) }
                             }
                             override fun onNothingSelected(parent: AdapterView<*>?) {
                                 // Do nothing
@@ -247,6 +379,10 @@ class LoginSettingsFragment : Fragment() {
                 Timber.d("Fetching villages failed ${e.message}")
             }
         }
+    }
+
+    private suspend fun updateUserVillageId(districtBranchId : Int){
+        userDao.updateUserVillageId(districtBranchId)
     }
 
     private fun getCurrentLocation() {

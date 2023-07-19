@@ -18,7 +18,7 @@ class StateMasterRepo @Inject constructor(
 
 ){
 
-    private suspend fun stateMasterService(): List<StateMaster> {
+    suspend fun stateMasterService(): List<StateMaster> {
         val response  = apiService.getStatesMasterList()
         val statusCode = response.code()
         if (statusCode == 200) {
@@ -32,6 +32,7 @@ class StateMasterRepo @Inject constructor(
             throw Exception("Failed to get data!")
         }
     }
+
     suspend fun saveStateMasterResponseToCache() {
         stateMasterService().forEach { stateMaster : StateMaster ->
             withContext(Dispatchers.IO) {
@@ -39,6 +40,10 @@ class StateMasterRepo @Inject constructor(
             }
             Timber.tag("itemStateMaster").d(stateMaster.toString())
         }
+    }
+
+    suspend fun insertStateMaster(stateMaster: StateMaster){
+        stateMasterDao.insertStates(stateMaster)
     }
 
     suspend fun getCachedResponseLang(): List<StateMaster> {

@@ -15,6 +15,6 @@ interface DistrictMasterDao {
     suspend fun getDistricts(stateID: Int) : List<DistrictMaster>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBlock(blockMaster: BlockMaster)
+    suspend fun insertDistrict(districtMaster: DistrictMaster)
 
 }
