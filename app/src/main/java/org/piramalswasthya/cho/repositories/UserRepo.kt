@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcLocationDetailsRequest
 import org.piramalswasthya.cho.network.TmcUserDetailsRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
+import retrofit2.HttpException
 
 import timber.log.Timber
 import java.net.ConnectException
@@ -196,10 +197,48 @@ class UserRepo @Inject constructor(
 
     }
 
-    private fun encrypt(password: String): String {
+     fun encrypt(password: String): String {
         val util = CryptoUtil()
         return util.encrypt(password)
     }
+
+    suspend fun refreshTokenTmc(userName: String, password: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response =
+                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, password))
+                Timber.d("JWT : $response")
+                if (!response.isSuccessful) {
+                    return@withContext false
+                }
+                val responseBody = JSONObject(
+                    response.body()?.string()
+                        ?: throw IllegalStateException("Response success but data missing @ $response")
+                )
+                val responseStatusCode = responseBody.getInt("statusCode")
+                if (responseStatusCode == 200) {
+                    val data = responseBody.getJSONObject("data")
+                    val token = data.getString("key")
+                    TokenInsertTmcInterceptor.setToken(token)
+                    preferenceDao.registerAmritToken(token)
+                    return@withContext true
+                } else {
+                    val errorMessage = responseBody.getString("errorMessage")
+                    Timber.d("Error Message $errorMessage")
+                }
+                return@withContext false
+            } catch (se: SocketTimeoutException) {
+                return@withContext refreshTokenTmc(userName, password)
+            } catch (e: HttpException) {
+                Timber.d("Auth Failed!")
+                return@withContext false
+            }
+
+
+        }
+
+    }
+
 //
 //    suspend fun logout() {
 //        withContext(Dispatchers.IO) {

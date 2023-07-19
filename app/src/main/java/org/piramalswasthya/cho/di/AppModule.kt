@@ -48,8 +48,8 @@ object AppModule {
     //"http://117.245.141.41:9090/api/"
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
-//         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
-         private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
+         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
+//         private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
     private const val sanjeevaniApi = "http://192.168.5.129:8080/"

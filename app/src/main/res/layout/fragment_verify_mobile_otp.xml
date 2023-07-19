@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_weight="1"
-                    android:text="TextView"
+                    android:text="Incorrect Otp!"
                     android:textColor="@color/red"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -70,7 +70,7 @@
                 android:text="Verify OTP"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/secondaryColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/til_verify_mobile_otp" />
