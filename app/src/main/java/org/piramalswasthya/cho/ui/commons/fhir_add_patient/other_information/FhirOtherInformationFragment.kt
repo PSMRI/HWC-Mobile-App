@@ -61,9 +61,9 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirOtherInformationFragmentDirections.actionFhirOtherInformationFragmentToFhirLocationFragment()
-        )
+//        findNavController().navigate(
+//            FhirOtherInformationFragmentDirections.actionFhirOtherInformationFragmentToFhirLocationFragment()
+//        )
     }
 
     override fun navigateNext() {

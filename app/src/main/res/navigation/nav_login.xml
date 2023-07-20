@@ -106,7 +106,9 @@
             app:argType="string"/>
         <action
             android:id="@+id/action_signin_to_home_from_outreach"
-            app:destination="@id/homeActivity" />
+            app:destination="@id/homeActivity"
+            app:launchSingleTop="false"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <activity

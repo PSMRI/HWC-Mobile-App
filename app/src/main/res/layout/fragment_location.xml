@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/fragment_add_patient_location"
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/fragment_add_patient_location"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_margin="8dp"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.register_patient_activity.location_details.LocationFragment"
+    xmlns:tools="http://schemas.android.com/tools">
     <TextView
         android:id="@+id/dropdown_label_state"
         android:layout_width="fill_parent"

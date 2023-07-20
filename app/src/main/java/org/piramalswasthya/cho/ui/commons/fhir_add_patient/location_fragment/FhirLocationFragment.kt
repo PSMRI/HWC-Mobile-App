@@ -60,9 +60,9 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment()
-        )
+//        findNavController().navigate(
+//            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment()
+//        )
     }
 
     override fun navigateNext() {
@@ -78,8 +78,8 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
 //        patient.contact = pat.contact
 //        patient.birthDate = pat.birthDate
 //        patient.address = addressList
-        findNavController().navigate(
-            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirOtherInformationFragment()
-        )
+//        findNavController().navigate(
+//            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirOtherInformationFragment()
+//        )
     }
 }

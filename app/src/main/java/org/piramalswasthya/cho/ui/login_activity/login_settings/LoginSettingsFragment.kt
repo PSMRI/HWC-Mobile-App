@@ -116,7 +116,8 @@ class LoginSettingsFragment : Fragment() {
         val userName = (arguments?.getString("userName", ""))!!;
 
         lifecycleScope.launch {
-            userInfo = userDao.getLoggedInUser()
+            async { userInfo = userDao.getLoggedInUser() }.await()
+            fetchStates()
         }
         binding.continueButton.setOnClickListener{
             // Save Login Settings Data with location to preferences
@@ -162,30 +163,42 @@ class LoginSettingsFragment : Fragment() {
                 if (stateData != null){
                     stateList = stateData.data.stateMaster
                     val stateNames = stateList!!.map { it.stateName }.toTypedArray()
-                    binding.dropdownState.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, stateNames))
-                    binding.dropdownState.setSelection(0)
-//                    binding.dropdownState.text = (state.stateName)
-//                    if(stateNames.isNotEmpty()) {
-//                        if(userInfo != null && userInfo!!.stateID != null){
-//                            Log.i("state if", "")
-//                            for(state in stateList!!){
-//                                if(state.stateID == userInfo!!.stateID){
-//                                    binding.dropdownState.setText(state.stateName)
-//                                }
-//                            }
-//                        }
-//                        else{
-//                            Log.i("state else", "")
+                    binding.dropdownState.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, stateNames)//                    binding.dropdownState.text = (state.stateName)
+                    if(stateNames.isNotEmpty()) {
+                        if(userInfo != null && userInfo!!.stateID != null){
+                            Log.i("state if", "")
+                            for(index in stateList!!.indices){
+                                if(stateList!![index].stateID == userInfo!!.stateID){
+                                    binding.dropdownState.setSelection(index)
+                                }
+                            }
+                        }
+                        else{
+                            Log.i("state else", "")
 //                            binding.dropdownState.setText(stateList!![0].stateName)
 //                            updateUserStateId(stateList!![0].stateID)
-//                        }
+                        }
+                    }
+//                    binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+//                        val selectedStateName = parent.getItemAtPosition(position) as String
+//                        selectedState = stateList?.find { it.stateName == selectedStateName }
+//                        coroutineScope.launch { updateUserStateId(selectedState!!.stateID) }
+//                        // Fetch districts based on the selected state ID
+//                        fetchDistricts(selectedStateName)
 //                    }
-                    binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
-                        val selectedStateName = parent.getItemAtPosition(position) as String
-                        selectedState = stateList?.find { it.stateName == selectedStateName }
-                        coroutineScope.launch { updateUserStateId(selectedState!!.stateID) }
-                        // Fetch districts based on the selected state ID
-                        fetchDistricts(selectedStateName)
+
+                    binding.dropdownState.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            val selectedStateName = binding.dropdownState.adapter.getItem(position) as String
+                            selectedState = stateList?.find { it.stateName == selectedStateName }
+                            coroutineScope.launch { updateUserStateId(selectedState!!.stateID) }
+                            // Fetch districts based on the selected state ID
+                            fetchDistricts(selectedStateName)
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            // Do nothing
+                        }
                     }
                 }
 
@@ -230,27 +243,40 @@ class LoginSettingsFragment : Fragment() {
                         addDistrictsToDb(stateId)
                         val districtNames = districtList!!.map { it.districtName }.toTypedArray()
                         Log.i("Dist" ,"$districtNames")
-                        binding.dropdownDist.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down, districtNames))
+                        binding.dropdownDistrict.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, districtNames)
                         if(districtNames.isNotEmpty()) {
                             if(userInfo != null && userInfo!!.districtID != null){
-                                for(district in districtList!!){
-                                    if(district.districtID == userInfo!!.districtID){
-                                        binding.dropdownDist.setText(district.districtName)
+                                for(index in districtList!!.indices){
+                                    if(districtList!![index].districtID == userInfo!!.districtID){
+                                        binding.dropdownDistrict.setSelection(index)
                                     }
                                 }
                             }
                             else{
-                                binding.dropdownDist.setText(districtList!![0].districtName)
-                                updateUserDistrictId(districtList!![0].districtID)
+//                                binding.dropdownDistrict.setText(districtList!![0].districtName)
+//                                updateUserDistrictId(districtList!![0].districtID)
                             }
                         }
-                        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
-                            val selectedDistrictName = parent.getItemAtPosition(position) as String
+//                        binding.dropdownDistrict.setOnItemClickListener { parent, _, position, _ ->
+//                            val selectedDistrictName = parent.getItemAtPosition(position) as String
+//
+//                            selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
+//                            coroutineScope.launch { updateUserDistrictId(selectedDistrict!!.districtID) }
+//
+//                            fetchTaluks(selectedDistrictName)
+//                        }
 
-                            selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
-                            coroutineScope.launch { updateUserDistrictId(selectedDistrict!!.districtID) }
-
-                            fetchTaluks(selectedDistrictName)
+                        binding.dropdownDistrict.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                                val selectedDistrictName = binding.dropdownDistrict.adapter.getItem(position) as String
+//                                 Fetch Taluks based on the selected value
+                                selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
+                                coroutineScope.launch { updateUserDistrictId(selectedDistrict!!.districtID) }
+                                fetchTaluks(selectedDistrictName)
+                            }
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Do nothing
+                            }
                         }
                     }
                 }
@@ -296,26 +322,40 @@ class LoginSettingsFragment : Fragment() {
 //                        async { addBlocksToDb(districtId) }.await()
                         addBlocksToDb(districtId)
                         val blockNames = blockList!!.map { it.blockName }.toTypedArray()
-                        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))
+                        binding.dropdownTaluk.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, blockNames)
+//                        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))
                         if(blockNames.isNotEmpty()) {
                             if(userInfo != null && userInfo!!.blockID != null){
-                                for(block in blockList!!){
-                                    if(block.blockID == userInfo!!.blockID){
-                                        binding.dropdownTaluk.setText(block.blockName)
+                                for(index in blockList!!.indices){
+                                    if(blockList!![index].blockID == userInfo!!.blockID){
+                                        binding.dropdownTaluk.setSelection(index)
                                     }
                                 }
                             }
                             else{
-                                binding.dropdownTaluk.setText(blockList!![0].blockName)
-                                updateUserBlockId(blockList!![0].blockID)
+//                                binding.dropdownTaluk.setText(blockList!![0].blockName)
+//                                updateUserBlockId(blockList!![0].blockID)
                             }
                         }
-                        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
-                            val selectedTaluk = parent.getItemAtPosition(position) as String
-                            selectedBlock = blockList?.find { it.blockName == selectedTaluk }
-                            coroutineScope.launch { updateUserBlockId(selectedBlock!!.blockID) }
+//                        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+//                            val selectedTaluk = parent.getItemAtPosition(position) as String
+//                            selectedBlock = blockList?.find { it.blockName == selectedTaluk }
+//                            coroutineScope.launch { updateUserBlockId(selectedBlock!!.blockID) }
+//
+//                            fetchVillageMaster(selectedTaluk)
+//                        }
 
-                            fetchVillageMaster(selectedTaluk)
+                        binding.dropdownTaluk.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                                val selectedBlockName = binding.dropdownTaluk.adapter.getItem(position) as String
+//                                 Fetch Village/Area/Street based on the selected value
+                                selectedBlock = blockList?.find { it.blockName == selectedBlockName }
+                                coroutineScope.launch { updateUserBlockId(selectedBlock!!.blockID) }
+                                fetchVillageMaster(selectedBlockName)
+                            }
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Do nothing
+                            }
                         }
                     }
                 }
@@ -376,18 +416,18 @@ class LoginSettingsFragment : Fragment() {
 //                        async { getVillagesByBlockIdAndAddToDb() }.await()
                         getVillagesByBlockIdAndAddToDb()
                         val villageNames = villageList!!.map { it.villageName }.toTypedArray()
-                        binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))
+                        binding.dropdownStreet.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, villageNames)
+//                        binding.dropdownStreet.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))
                         if(villageNames.isNotEmpty()) {
                             if(userInfo != null && userInfo!!.districtBranchID != null){
-                                for(village in villageList!!){
-                                    if(village.districtBranchID == userInfo!!.districtBranchID){
-                                        binding.dropdownPanchayat.setText(village.villageName)
+                                for(index  in villageList!!.indices){
+                                    if(villageList!![index].districtBranchID == userInfo!!.districtBranchID){
+                                        binding.dropdownStreet.setSelection(index)
                                     }
                                 }
                             }
                             else{
-                                binding.dropdownPanchayat.setText(villageList!![0].villageName)
-                                updateUserVillageId(villageList!![0].districtBranchID)
+//                                updateUserVillageId(villageList!![0].districtBranchID)
                             }
                         }
 //                        binding.dropdownPanchayat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -403,11 +443,24 @@ class LoginSettingsFragment : Fragment() {
 //                            }
 //                        }
 
-                        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
-                            val selectedVillageName = parent.getItemAtPosition(position) as String
+//                        binding.dropdownStreet.setOnItemClickListener { parent, _, position, _ ->
+//                            val selectedVillageName = parent.getItemAtPosition(position) as String
+//
+//                            selectedVillage = villageList?.find { it.villageName == selectedVillageName }
+//                            coroutineScope.launch { updateUserVillageId(selectedVillage!!.districtBranchID) }
+//                        }
+                        binding.dropdownStreet.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                                val selectedVillageName = binding.dropdownStreet.adapter.getItem(position) as String
+//                                 Fetch Village/Area/Street based on the selected value
 
-                            selectedVillage = villageList?.find { it.villageName == selectedVillageName }
-                            coroutineScope.launch { updateUserVillageId(selectedVillage!!.districtBranchID) }
+                                selectedVillage = villageList?.find { it.villageName == selectedVillageName }
+                                coroutineScope.launch { updateUserVillageId(selectedVillage!!.districtBranchID) }
+
+                            }
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Do nothing
+                            }
                         }
 
 
