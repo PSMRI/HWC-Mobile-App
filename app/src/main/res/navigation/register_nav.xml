@@ -33,7 +33,7 @@
         <!--        </action>-->
     </fragment>
 
-<!--    <fragment-->
+    <!--    <fragment-->
 <!--        android:id="@+id/fhirLocationFragment"-->
 <!--        android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment.FhirLocationFragment"-->
 <!--        android:label="FhirLocationFragment" >-->
