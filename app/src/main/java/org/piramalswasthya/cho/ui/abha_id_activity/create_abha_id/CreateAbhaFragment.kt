@@ -288,7 +288,7 @@ class CreateAbhaFragment : Fragment() {
                     requireContext(),
                     0,
                     Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(uri, "application/pdf")
+                        setDataAndType(uri, "image/png")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     },
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
