@@ -205,8 +205,9 @@ class UserRepo @Inject constructor(
     suspend fun refreshTokenTmc(userName: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                val encryptedPassword = encrypt(password)
                 val response =
-                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, password))
+                    tmcNetworkApiService.getJwtToken(TmcAuthUserRequest(userName, encryptedPassword))
                 Timber.d("JWT : $response")
                 if (!response.isSuccessful) {
                     return@withContext false
@@ -221,6 +222,7 @@ class UserRepo @Inject constructor(
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerAmritToken(token)
+                    Log.d("key", token)
                     return@withContext true
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
