@@ -69,11 +69,11 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     val fhirEngine: FhirEngine
         get() = CHOApplication.fhirEngine(requireContext())
 
-    var selectedAbhaGenType : Map.Entry<Int, String>? = null
+    private lateinit var selectedAbhaGenType : AbhaGenType
 
-    var selectedGovtIdType : Map.Entry<Int, String>? = null
+    private lateinit var selectedGovtIdType : GovIdEntityMaster
 
-    var selectedGovtHealthProgType : Map.Entry<Int, String>? = null
+    private lateinit var selectedGovtHealthProgType : OtherGovIdEntityMaster
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -98,12 +98,12 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
                 val abhaIdNames = abhaGenTypeMap.values.toTypedArray()
                 binding.dropdownAbhaGenMode.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, abhaIdNames))
                 if(abhaIdNames.isNotEmpty()) {
-                    selectedAbhaGenType = abhaGenTypeMap!!.entries.toList()[0]
-                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType!!.value, false)
+                    selectedAbhaGenType = AbhaGenType(abhaGenTypeMap!!.entries.toList()[0].key, abhaGenTypeMap!!.entries.toList()[0].value)
+                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType.identityType, false)
                 }
                 binding.dropdownAbhaGenMode.setOnItemClickListener { parent, _, position, _ ->
-                    selectedAbhaGenType = abhaGenTypeMap!!.entries.toList()[position]
-                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType!!.value, false)
+                    selectedAbhaGenType = AbhaGenType(abhaGenTypeMap!!.entries.toList()[position].key, abhaGenTypeMap!!.entries.toList()[position].value)
+                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType.identityType, false)
                 }
             }
 
@@ -126,12 +126,12 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
                 val govtIdNames = govtIdMap.values.toTypedArray()
                 binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, govtIdNames))
                 if(govtIdNames.isNotEmpty()) {
-                    selectedGovtIdType = govtIdMap!!.entries.toList()[0]
-                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.value, false)
+                    selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[0].key, govtIdMap!!.entries.toList()[0].value)
+                    binding.dropdownGovtIdType.setText(selectedGovtIdType.identityType, false)
                 }
                 binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
-                    selectedGovtIdType = govtIdMap!!.entries.toList()[position]
-                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.value, false)
+                    selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[position].key, govtIdMap!!.entries.toList()[position].value)
+                    binding.dropdownGovtIdType.setText(selectedGovtIdType.identityType, false)
                 }
             }
         }
@@ -158,14 +158,14 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
             val otherGovtIdMap = otherGovIdEntityMasterRepo.getOtherGovtEntityAsMap()
             if(otherGovtIdMap != null){
                 val otherGovtIdNames = otherGovtIdMap.values.toTypedArray()
-                binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, otherGovtIdNames))
+                binding.dropdownGovtHealthProgType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, otherGovtIdNames))
                 if(otherGovtIdNames.isNotEmpty()) {
-                    selectedGovtHealthProgType = otherGovtIdMap!!.entries.toList()[0]
-                    binding.dropdownGovtIdType.setText(selectedGovtHealthProgType!!.value, false)
+                    selectedGovtHealthProgType = OtherGovIdEntityMaster(otherGovtIdMap!!.entries.toList()[0].key, otherGovtIdMap!!.entries.toList()[0].value)
+                    binding.dropdownGovtHealthProgType.setText(selectedGovtHealthProgType.identityType, false)
                 }
                 binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
-                    selectedGovtHealthProgType = otherGovtIdMap!!.entries.toList()[position]
-                    binding.dropdownGovtIdType.setText(selectedGovtHealthProgType!!.value, false)
+                    selectedGovtHealthProgType = OtherGovIdEntityMaster(otherGovtIdMap!!.entries.toList()[position].key, otherGovtIdMap!!.entries.toList()[position].value)
+                    binding.dropdownGovtHealthProgType.setText(selectedGovtHealthProgType.identityType, false)
                 }
             }
 
@@ -195,22 +195,44 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     }
 
     private fun addPatientExtensions(){
-        var extensionStr = Extension()
 
-        extensionStr.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.abhaGenerationMode"
-        val str = StringType("string Value");
-        extensionStr.setValue(str)
-        patient.addExtension(extensionStr)
+        var extensionAbhaGen = Extension()
+        extensionAbhaGen.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.abhaGenerationMode"
+        var cdt = Coding();
+        cdt.code = selectedAbhaGenType.identityTypeID.toString()
+        cdt.display = selectedAbhaGenType.identityType
+        extensionAbhaGen.setValue(cdt)
+        patient.addExtension(extensionAbhaGen)
 
-        var extensionCode = Extension()
+        var extensionGovtIdType = Extension()
+        extensionGovtIdType.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtIdentityType"
+        cdt = Coding();
+        cdt.code = selectedGovtIdType.govtIdentityTypeID.toString()
+        cdt.display = selectedGovtIdType.identityType
+        extensionGovtIdType.setValue(cdt)
+        patient.addExtension(extensionGovtIdType)
 
-        extensionCode.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.dropdown"
-        val cdt = Coding();
-        cdt.code = "2"
-        cdt.display = "hgjhgjgh"
-        extensionCode.setValue(cdt)
+        var extensionGovtIdNumber = Extension()
+        extensionGovtIdNumber.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtIdentityNo"
+        var str = StringType(binding.govtIdNumberText.text.toString());
+        extensionGovtIdNumber.setValue(str)
+        patient.addExtension(extensionGovtIdNumber)
 
-        patient.addExtension(extensionCode)
+        var extensionGovtHealthProgramType = Extension()
+        extensionGovtHealthProgramType.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtHealthProgramType"
+        cdt = Coding();
+        cdt.code = selectedGovtHealthProgType.govtIdentityTypeID.toString()
+        cdt.display = selectedGovtHealthProgType.identityType
+        extensionGovtHealthProgramType.setValue(cdt)
+        patient.addExtension(extensionGovtHealthProgramType)
+
+        var extensionGovtHealthProgramId = Extension()
+        extensionGovtHealthProgramId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtHealthProgramId"
+        str = StringType(binding.govtHealthProgIdText.text.toString());
+        extensionGovtHealthProgramId.setValue(str)
+        patient.addExtension(extensionGovtHealthProgramId)
+
+
 //        }
 //        patient.extension.a
     }

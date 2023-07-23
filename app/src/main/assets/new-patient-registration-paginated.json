@@ -164,21 +164,6 @@
           "max": 150
         },
         {
-          "linkId": "patient-0-random",
-          "definition": "http://example.com/StructureDefinition/Patient#Patient.random",
-          "type": "choice",
-          "required": true,
-          "text": "Random",
-          "answerOption": [
-            {
-              "valueCoding": {
-                "code": "1",
-                "display": "Days"
-              }
-            }
-          ]
-        },
-        {
           "linkId": "patient-0-age-unit",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.age.unit",
           "type": "choice",

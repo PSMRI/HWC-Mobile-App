@@ -18,6 +18,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -28,6 +31,7 @@ import org.piramalswasthya.cho.databinding.FragmentLoginSettingBinding
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
@@ -36,6 +40,7 @@ import org.piramalswasthya.cho.network.DistrictBlock
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.State
 import org.piramalswasthya.cho.network.Village
+import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
@@ -106,6 +111,11 @@ class LocationFragment : Fragment() , NavigationAdapter {
     private var blockMap: Map<Int, String>? = null
     private var villageMap: Map<Int, String>? = null
 
+    private lateinit var selectedState: StateMaster;
+    private lateinit var selectedDistrict: DistrictMaster
+    private lateinit var selectedBlock: BlockMaster
+    private lateinit var selectedVillage: VillageMaster
+
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 //
     override fun onCreateView(
@@ -138,11 +148,13 @@ class LocationFragment : Fragment() , NavigationAdapter {
                             if(userInfo != null && userInfo!!.stateID != null && stateMap!!.containsKey(userInfo!!.stateID)){
                                 Log.i("state if", "")
                                 binding.dropdownState.setText(stateMap!![userInfo!!.stateID], false)
+                                selectedState = StateMaster(stateID = userInfo!!.stateID!!, stateName = stateMap!![userInfo!!.stateID]!!)
                                 fetchDistricts(userInfo!!.stateID!!)
                             }
                             else{
                                 Log.i("state else", "")
                                 val firstState = stateMap!!.entries.toList()[0]
+                                selectedState = StateMaster(stateID = firstState.key, stateName = firstState.value!!)
                                 binding.dropdownState.setText(firstState.value, false)
                                 coroutineScope.launch {
                                     if(updateUserStateId(firstState.key) > 0 && userInfo != null){
@@ -193,11 +205,13 @@ class LocationFragment : Fragment() , NavigationAdapter {
                             if(userInfo != null && userInfo!!.districtID != null && districtMap!!.containsKey(userInfo!!.districtID)){
                                 Log.i("district if", "")
                                 binding.dropdownDist.setText(districtMap!![userInfo!!.districtID], false)
+                                selectedDistrict = DistrictMaster(districtID = userInfo!!.districtID!!, stateID = selectedStateId, districtName = districtMap!![userInfo!!.districtID]!!)
                                 fetchTaluks(userInfo!!.districtID!!)
                             }
                             else{
                                 Log.i("district else", "")
                                 val firstDistrict = districtMap!!.entries.toList()[0]
+                                selectedDistrict = DistrictMaster(districtID = firstDistrict.key, stateID = selectedStateId, districtName = firstDistrict.value)
                                 binding.dropdownDist.setText(firstDistrict.value, false)
                                 coroutineScope.launch {
                                     if(updateUserDistrictId(firstDistrict.key) > 0 && userInfo != null){
@@ -247,12 +261,14 @@ class LocationFragment : Fragment() , NavigationAdapter {
                         if(blockNames.isNotEmpty()) {
                             if(userInfo != null && userInfo!!.blockID != null && blockMap!!.containsKey(userInfo!!.blockID)){
                                 Log.i("district if", "")
+                                selectedBlock = BlockMaster(blockID = userInfo!!.blockID!!, districtID = selectedDistrictId, blockName = blockMap!![userInfo!!.blockID]!!)
                                 binding.dropdownTaluk.setText(blockMap!![userInfo!!.blockID], false)
                                 fetchVillageMaster(userInfo!!.blockID!!)
                             }
                             else{
                                 Log.i("district else", "")
                                 val firstBlock = blockMap!!.entries.toList()[0]
+                                selectedBlock = BlockMaster(blockID = firstBlock.key, districtID = selectedDistrictId, blockName = firstBlock.value)
                                 binding.dropdownTaluk.setText(firstBlock.value, false)
                                 coroutineScope.launch {
                                     if(updateUserBlockId(firstBlock.key) > 0 && userInfo != null){
@@ -264,6 +280,7 @@ class LocationFragment : Fragment() , NavigationAdapter {
                         }
                         binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
                             val selectedBlockId = blockMap!!.keys.toList()[position]
+                            selectedBlock = BlockMaster(blockID = selectedBlockId, districtID = selectedDistrictId, blockName = blockMap!![selectedBlockId]!!)
                             coroutineScope.launch {
                                 if(updateUserBlockId(selectedBlockId) > 0 && userInfo != null){
                                     userInfo!!.blockID = selectedBlockId
@@ -302,12 +319,14 @@ class LocationFragment : Fragment() , NavigationAdapter {
                         if(villageNames.isNotEmpty()) {
                             if(userInfo != null && userInfo!!.districtBranchID != null && villageMap!!.containsKey(userInfo!!.districtBranchID)){
                                 Log.i("village if", "")
+                                selectedVillage = VillageMaster(districtBranchID = userInfo!!.districtBranchID!!, blockID = selectedBlockId, villageName = villageMap!![userInfo!!.districtBranchID]!!)
                                 binding.dropdownPanchayat.setText(villageMap!![userInfo!!.districtBranchID], false)
                             }
                             else{
                                 Log.i("village else", "")
                                 val firstVillage = villageMap!!.entries.toList()[0]
                                 binding.dropdownPanchayat.setText(firstVillage.value, false)
+                                selectedVillage = VillageMaster(districtBranchID = firstVillage.key, blockID = selectedBlockId, villageName = firstVillage.value)
                                 coroutineScope.launch {
                                     if(updateUserVillageId(firstVillage.key) > 0 && userInfo != null){
                                         userInfo!!.districtBranchID = firstVillage.key
@@ -317,6 +336,7 @@ class LocationFragment : Fragment() , NavigationAdapter {
                         }
                         binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
                             val selectedVillageId = villageMap!!.keys.toList()[position]
+                            selectedVillage = VillageMaster(districtBranchID = selectedVillageId, blockID = selectedBlockId, villageName = villageMap!![selectedVillageId]!!)
                             coroutineScope.launch {
                                 if(updateUserVillageId(selectedVillageId) > 0 && userInfo != null){
                                     userInfo!!.districtBranchID = selectedVillageId
@@ -668,12 +688,72 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 
     override fun onSubmitAction() {
+        addPatientLocationDetalis()
+        addPatientOtherDetalis()
         findNavController().navigate(
             LocationFragmentDirections.actionFragmentLocationToOtherInformationsFragment()
         )
     }
 
-    private fun addPatientExtenstions(){
+    private fun addPatientLocationDetalis(){
+        var extensionState = Extension()
+        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.state"
+        var cdt = Coding();
+        cdt.code = selectedState.stateID.toString()
+        cdt.display = selectedState.stateName
+        extensionState.setValue(cdt)
+        patient.addExtension(extensionState)
+
+        var extensionDistrict = Extension()
+        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.district"
+        cdt = Coding();
+        cdt.code = selectedDistrict.districtID.toString()
+        cdt.display = selectedDistrict.districtName
+        extensionState.setValue(cdt)
+        patient.addExtension(extensionDistrict)
+
+        var extensionBlock = Extension()
+        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.block"
+        cdt = Coding();
+        cdt.code = selectedBlock.blockID.toString()
+        cdt.display = selectedBlock.blockName
+        extensionState.setValue(cdt)
+        patient.addExtension(extensionBlock)
+
+        var extensionVillage = Extension()
+        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.districtBranch"
+        cdt = Coding();
+        cdt.code = selectedVillage.districtBranchID.toString()
+        cdt.display = selectedVillage.villageName
+        extensionState.setValue(cdt)
+        patient.addExtension(extensionVillage)
+    }
+
+    private fun addPatientOtherDetalis(){
+
+        var extensionVanId = Extension()
+        extensionVanId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.vanID"
+        var str = StringType(userInfo!!.vanId.toString());
+        extensionVanId.setValue(str)
+        patient.addExtension(extensionVanId)
+
+        var extensionParkingPlaceID = Extension()
+        extensionParkingPlaceID.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.parkingPlaceID"
+        str = StringType(userInfo!!.parkingPlaceId.toString());
+        extensionParkingPlaceID.setValue(str)
+        patient.addExtension(extensionParkingPlaceID)
+
+        var extensionServiceMapId = Extension()
+        extensionServiceMapId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.providerServiceMapId"
+        str = StringType(userInfo!!.serviceMapId.toString());
+        extensionServiceMapId.setValue(str)
+        patient.addExtension(extensionServiceMapId)
+
+        var extensionCreatedBy = Extension()
+        extensionCreatedBy.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.createdBy"
+        str = StringType(userInfo!!.userName);
+        extensionCreatedBy.setValue(str)
+        patient.addExtension(extensionCreatedBy)
 
     }
 
