@@ -14,7 +14,7 @@ interface DistrictMasterDao {
     @Query("SELECT * FROM DISTRICT_MASTER WHERE stateID = :stateID")
     suspend fun getDistricts(stateID: Int) : List<DistrictMaster>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDistrict(districtMaster: DistrictMaster)
 
 }

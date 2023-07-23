@@ -46,7 +46,7 @@ class RegisterPatientActivity : AppCompatActivity() {
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
 
-                R.id.fragment_fhir_add_patient_location -> {
+                R.id.fragment_add_patient_location -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.other_info)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
@@ -71,13 +71,13 @@ class RegisterPatientActivity : AppCompatActivity() {
 
                 }
 
-                R.id.fragment_fhir_add_patient_location -> {
+                R.id.fragment_add_patient_location -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.personal_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_add_patient_other_details ->{
+                R.id.fragment_other_informations ->{
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.location_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
@@ -89,6 +89,10 @@ class RegisterPatientActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    override fun onBackPressed() {
+        finish()
     }
 
 }

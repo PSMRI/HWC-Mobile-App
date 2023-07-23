@@ -20,8 +20,10 @@ import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
@@ -95,6 +97,9 @@ abstract class InAppDb : RoomDatabase() {
     abstract val districtMasterDao: DistrictMasterDao
     abstract val blockMasterDao: BlockMasterDao
     abstract val villageMasterDao: VillageMasterDao
+
+    abstract val govIdEntityMasterDao: GovIdEntityMasterDao
+    abstract val otherGovIdEntityMasterDao: OtherGovIdEntityMasterDao
 
     companion object {
         @Volatile

@@ -12,7 +12,7 @@ interface VillageMasterDao {
     @Query("SELECT * FROM VILLAGE_MASTER WHERE blockID = :blockID")
     suspend fun getVillages(blockID: Int) : List<VillageMaster>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertVillage(villageMaster: VillageMaster)
 
 }

@@ -55,7 +55,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="16dp"
-                android:visibility="invisible"
                 android:src="@drawable/baseline_settings_24" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_nxt"

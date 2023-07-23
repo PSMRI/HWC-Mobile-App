@@ -59,103 +59,103 @@ class LocationFragment: Fragment(),NavigationAdapter, FhirFragmentService {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //        pat= LocationFragmentArgs.fromBundle(requireArguments()).patientDetails
-        fetchStates()
+//        fetchStates()
     }
 
-    private fun fetchStates(){
-        viewModel.getStateList()
-        viewModel.refreshState.observe(viewLifecycleOwner){
-            when(it!!){
-                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
-                    stateList = viewModel.stateList
-                    viewModel.resetRefreshState()
-                }
-                LocationViewModel.RefreshState.REFRESH_FAILED ->{
-                    viewModel.resetRefreshState()
-                }
-                else ->{
-                }
-            }
-        }
-        val stateNames = stateList!!.map { it.stateName }.toTypedArray()
-        binding.dropdownState.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, stateNames))
-        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
-            val selectedState = parent.getItemAtPosition(position) as String
-            fetchDistricts(selectedState)
-        }
-    }
-
-    private fun fetchDistricts(selectedStateName: String){
-        selectedState = stateList?.find { it.stateName == selectedStateName }
-        selectedState?.stateID?.let { viewModel.getDistrictList(it) }
-        viewModel.refreshState.observe(viewLifecycleOwner){
-            when(it!!){
-                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
-                    districtList = viewModel.districtList
-                    viewModel.resetRefreshState()
-                }
-                LocationViewModel.RefreshState.REFRESH_FAILED ->{
-                    viewModel.resetRefreshState()
-                }
-                else ->{
-                }
-            }
-        }
-        val districtName = districtList!!.map { it.districtName }.toTypedArray()
-        binding.dropdownDist.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, districtName))
-        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
-            val selectedDistrict = parent.getItemAtPosition(position) as String
-            fetchTaluks(selectedDistrict)
-        }
-    }
-
-    private fun fetchTaluks(selectedDistrictName: String){
-        selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
-        selectedDistrict?.districtID?.let { viewModel.getTaluks(it) }
-        viewModel.refreshState.observe(viewLifecycleOwner){
-            when(it!!){
-                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
-                    blockList  = viewModel.blockList
-                    viewModel.resetRefreshState()
-                }
-                LocationViewModel.RefreshState.REFRESH_FAILED ->{
-                    viewModel.resetRefreshState()
-                }
-                else ->{
-                }
-            }
-        }
-        val blockName = blockList!!.map { it.blockName }.toTypedArray()
-        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockName))
-        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
-            val selectedTaluk = parent.getItemAtPosition(position) as String
-            fetchPanchayat(selectedTaluk)
-        }
-    }
-
-    private fun fetchPanchayat(selectedTalukName : String){
-        selectedBlock = blockList?.find { it.blockName == selectedTalukName }
-        selectedBlock?.blockID?.let { viewModel.getVillages(it) }
-        viewModel.refreshState.observe(viewLifecycleOwner){
-            when(it!!){
-                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
-                    villageList  = viewModel.villageList
-                    viewModel.resetRefreshState()
-                }
-                LocationViewModel.RefreshState.REFRESH_FAILED ->{
-                    viewModel.resetRefreshState()
-                }
-                else ->{
-                }
-            }
-        }
-        val villageName = villageList!!.map { it.villageName }.toTypedArray()
-        binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageName))
-        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
-            val selectedVillageName = parent.getItemAtPosition(position) as String
-            selectedVillage = villageList?.find { it.villageName == selectedVillageName }
-        }
-    }
+//    private fun fetchStates(){
+//        viewModel.getStateList()
+//        viewModel.refreshState.observe(viewLifecycleOwner){
+//            when(it!!){
+//                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
+//                    stateList = viewModel.stateList
+//                    viewModel.resetRefreshState()
+//                }
+//                LocationViewModel.RefreshState.REFRESH_FAILED ->{
+//                    viewModel.resetRefreshState()
+//                }
+//                else ->{
+//                }
+//            }
+//        }
+//        val stateNames = stateList!!.map { it.stateName }.toTypedArray()
+//        binding.dropdownState.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, stateNames))
+//        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+//            val selectedState = parent.getItemAtPosition(position) as String
+//            fetchDistricts(selectedState)
+//        }
+//    }
+//
+//    private fun fetchDistricts(selectedStateName: String){
+//        selectedState = stateList?.find { it.stateName == selectedStateName }
+//        selectedState?.stateID?.let { viewModel.getDistrictList(it) }
+//        viewModel.refreshState.observe(viewLifecycleOwner){
+//            when(it!!){
+//                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
+//                    districtList = viewModel.districtList
+//                    viewModel.resetRefreshState()
+//                }
+//                LocationViewModel.RefreshState.REFRESH_FAILED ->{
+//                    viewModel.resetRefreshState()
+//                }
+//                else ->{
+//                }
+//            }
+//        }
+//        val districtName = districtList!!.map { it.districtName }.toTypedArray()
+//        binding.dropdownDist.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, districtName))
+//        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
+//            val selectedDistrict = parent.getItemAtPosition(position) as String
+//            fetchTaluks(selectedDistrict)
+//        }
+//    }
+//
+//    private fun fetchTaluks(selectedDistrictName: String){
+//        selectedDistrict = districtList?.find { it.districtName == selectedDistrictName }
+//        selectedDistrict?.districtID?.let { viewModel.getTaluks(it) }
+//        viewModel.refreshState.observe(viewLifecycleOwner){
+//            when(it!!){
+//                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
+//                    blockList  = viewModel.blockList
+//                    viewModel.resetRefreshState()
+//                }
+//                LocationViewModel.RefreshState.REFRESH_FAILED ->{
+//                    viewModel.resetRefreshState()
+//                }
+//                else ->{
+//                }
+//            }
+//        }
+//        val blockName = blockList!!.map { it.blockName }.toTypedArray()
+//        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockName))
+//        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+//            val selectedTaluk = parent.getItemAtPosition(position) as String
+//            fetchPanchayat(selectedTaluk)
+//        }
+//    }
+//
+//    private fun fetchPanchayat(selectedTalukName : String){
+//        selectedBlock = blockList?.find { it.blockName == selectedTalukName }
+//        selectedBlock?.blockID?.let { viewModel.getVillages(it) }
+//        viewModel.refreshState.observe(viewLifecycleOwner){
+//            when(it!!){
+//                LocationViewModel.RefreshState.REFRESH_SUCCESS ->{
+//                    villageList  = viewModel.villageList
+//                    viewModel.resetRefreshState()
+//                }
+//                LocationViewModel.RefreshState.REFRESH_FAILED ->{
+//                    viewModel.resetRefreshState()
+//                }
+//                else ->{
+//                }
+//            }
+//        }
+//        val villageName = villageList!!.map { it.villageName }.toTypedArray()
+//        binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageName))
+//        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
+//            val selectedVillageName = parent.getItemAtPosition(position) as String
+//            selectedVillage = villageList?.find { it.villageName == selectedVillageName }
+//        }
+//    }
 
     override fun getFragmentId(): Int {
         return R.id.fragment_add_patient_location

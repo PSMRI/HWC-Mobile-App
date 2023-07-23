@@ -46,15 +46,15 @@ interface UserDao {
     suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
 
     @Query("UPDATE USER SET stateID = :stateId")
-    suspend fun updateUserStateId(stateId : Int)
+    suspend fun updateUserStateId(stateId : Int) : Int
 
     @Query("UPDATE USER SET districtID = :districtId")
-    suspend fun updateUserDistrictId(districtId : Int)
+    suspend fun updateUserDistrictId(districtId : Int) : Int
 
     @Query("UPDATE USER SET blockID = :blockId")
-    suspend fun updateUserBlockId(blockId : Int)
+    suspend fun updateUserBlockId(blockId : Int) : Int
 
     @Query("UPDATE USER SET districtBranchID = :districtBranchID")
-    suspend fun updateUserVillageId(districtBranchID : Int)
+    suspend fun updateUserVillageId(districtBranchID : Int) : Int
 
 }

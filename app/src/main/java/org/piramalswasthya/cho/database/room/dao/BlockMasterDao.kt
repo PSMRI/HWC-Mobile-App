@@ -13,7 +13,7 @@ interface BlockMasterDao {
     @Query("SELECT * FROM BLOCK_MASTER WHERE districtID = :districtID")
     suspend fun getBlocks(districtID: Int) : List<BlockMaster>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBlock(blockMaster: BlockMaster)
 
 }

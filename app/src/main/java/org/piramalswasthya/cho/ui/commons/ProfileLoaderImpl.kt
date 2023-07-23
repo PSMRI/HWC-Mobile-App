@@ -26,6 +26,11 @@ class ProfileLoaderImpl : ProfileLoader {
 
         elementDefinition = ElementDefinition()
         elementDefinition.path = "Patient.extension"
+        elementDefinition.id = ":random"
+        structureDefinition.snapshot.element.add(elementDefinition)
+
+        elementDefinition = ElementDefinition()
+        elementDefinition.path = "Patient.extension"
         elementDefinition.id = ":registrarState"
         structureDefinition.snapshot.element.add(elementDefinition)
 

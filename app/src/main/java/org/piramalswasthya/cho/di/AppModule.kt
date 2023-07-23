@@ -13,9 +13,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -232,6 +234,15 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideVillageMasterDao(database : InAppDb) : VillageMasterDao = database.villageMasterDao
+
+    @Singleton
+    @Provides
+    fun provideGovIdEntityMasterDao(database : InAppDb) : GovIdEntityMasterDao = database.govIdEntityMasterDao
+
+    @Singleton
+    @Provides
+    fun provideOtherGovIdEntityMasterDao(database : InAppDb) : OtherGovIdEntityMasterDao = database.otherGovIdEntityMasterDao
+
 
 //    @Singleton
 //    @Provides

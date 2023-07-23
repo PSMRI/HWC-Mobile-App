@@ -45,16 +45,16 @@ interface AmritApiService {
     ): Response<ResponseBody>
 
     @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
-    suspend fun getStates(@Body request: LocationRequest): StateResponseData
+    suspend fun getStates(@Body request: LocationRequest): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/districtMaster/{stateId}")
-    suspend fun getDistricts(@Path("stateId") stateId: Int): DistrictResponse
+    suspend fun getDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
-    suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): DistrictBlockResponse
+    suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
-    suspend fun getVillages(@Path("blockId") blockId: Int, ): VillageMasterResponse
+    suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
     suspend fun getStatesMasterList(): Response<ResponseBody>

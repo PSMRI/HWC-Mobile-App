@@ -103,16 +103,16 @@ data class UserCache(
     val loggedIn : Boolean,
 
     @ColumnInfo(name="stateID")
-    val stateID : Int?,
+    var stateID : Int?,
 
     @ColumnInfo(name="districtID")
-    val districtID : Int?,
+    var districtID : Int?,
 
     @ColumnInfo(name="blockID")
-    val blockID : Int?,
+    var blockID : Int?,
 
     @ColumnInfo(name="districtBranchID")
-    val districtBranchID : Int?,
+    var districtBranchID : Int?,
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(

@@ -31,6 +31,21 @@
         <!--                android:name="patientDetails"-->
         <!--                android:defaultValue="null" />-->
         <!--        </action>-->
+        <action
+            android:id="@+id/action_fragmentLocation_to_otherInformationsFragment"
+            app:destination="@id/otherInformationsFragment" />
+        <action
+            android:id="@+id/action_fragmentLocation_to_fhirAddPatientFragment"
+            app:destination="@id/fhirAddPatientFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherInformationsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.other_informations.OtherInformationsFragment"
+        android:label="fragment_other_informations"
+        tools:layout="@layout/fragment_other_informations" >
+        <action
+            android:id="@+id/action_otherInformationsFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
     </fragment>
 
     <!--    <fragment-->

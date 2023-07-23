@@ -14,51 +14,50 @@
         android:id="@+id/abha_gen_mode"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="State"
         android:layout_marginHorizontal="24dp"
-        app:layout_constraintTop_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"
+        android:text="Abha gen mode"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Spinner
         android:id="@+id/dropdown_abha_gen_mode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:hint="State"
+        android:hint="Abha gen mode"
         app:layout_constraintTop_toBottomOf="@id/abha_gen_mode"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/govt_id_type"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="State"
+        android:text="Govt Id Type"
         android:layout_marginHorizontal="24dp"
         app:layout_constraintTop_toBottomOf="@id/dropdown_abha_gen_mode"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <Spinner
         android:id="@+id/dropdown_govt_id_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:hint="State"
+        android:hint="Govt Id Type"
         app:layout_constraintTop_toBottomOf="@id/govt_id_type"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/govt_id_number"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_margin="8dp"
+        android:layout_marginTop="32dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -67,9 +66,10 @@
             android:id="@+id/govt_id_number_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="32dp"
             android:drawablePadding="@dimen/padding_normal"
-            android:drawableEnd="@drawable/ic_person"
             android:singleLine="true"
+            android:hint="Govt Id number"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,28 +78,27 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="State"
+        android:text="Govt health prog type"
         android:layout_marginHorizontal="24dp"
         app:layout_constraintTop_toBottomOf="@id/govt_id_number"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <Spinner
         android:id="@+id/dropdown_govt_health_prog_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:hint="State"
+        android:hint="Govt health prog type"
         app:layout_constraintTop_toBottomOf="@id/govt_health_prog_type"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/govt_health_prog_id"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_margin="8dp"
+        android:layout_marginTop="24dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -108,8 +107,8 @@
             android:id="@+id/govt_health_prog_id_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:hint="Govt Health Prog Id"
             android:drawablePadding="@dimen/padding_normal"
-            android:drawableEnd="@drawable/ic_person"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </com.google.android.material.textfield.TextInputLayout>
