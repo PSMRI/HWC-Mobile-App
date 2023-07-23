@@ -34,6 +34,8 @@ import org.piramalswasthya.cho.model.GovIdEntityMaster
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
+import org.piramalswasthya.cho.repositories.GovIdEntityMasterRepo
+import org.piramalswasthya.cho.repositories.OtherGovIdEntityMasterRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragmentDirections
@@ -42,11 +44,17 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
-    @Inject
-    lateinit var govIdEntityMasterDao: GovIdEntityMasterDao
+//    @Inject
+//    lateinit var govIdEntityMasterDao: GovIdEntityMasterDao
+//
+//    @Inject
+//    lateinit var otherGovIdEntityMasterDao: OtherGovIdEntityMasterDao
 
     @Inject
-    lateinit var otherGovIdEntityMasterDao: OtherGovIdEntityMasterDao
+    lateinit var govIdEntityMasterRepo: GovIdEntityMasterRepo
+
+    @Inject
+    lateinit var otherGovIdEntityMasterRepo: OtherGovIdEntityMasterRepo
 
     companion object {
         fun newInstance() = OtherInformationsFragment()
@@ -61,11 +69,11 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     val fhirEngine: FhirEngine
         get() = CHOApplication.fhirEngine(requireContext())
 
-    var selectedAbhaGenType : AbhaGenType? = null
+    var selectedAbhaGenType : Map.Entry<Int, String>? = null
 
-    var selectedGovtIdType : GovIdEntityMaster? = null
+    var selectedGovtIdType : Map.Entry<Int, String>? = null
 
-    var selectedGovtHealthProgType : OtherGovIdEntityMaster? = null
+    var selectedGovtHealthProgType : Map.Entry<Int, String>? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -84,58 +92,80 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     }
 
     private fun fetchAbhaGenMode(){
-        selectedAbhaGenType = AbhaGenType(1, "Aadhar")
-        val abhaIdList = listOf(selectedAbhaGenType)
-        val abhaIdNames = abhaIdList.map { it?.identityType }.toTypedArray()
-        binding.dropdownAbhaGenMode.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, abhaIdNames)
-
-        binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedAbhaGenType = abhaIdList[position]
+        coroutineScope.launch {
+            val abhaGenTypeMap = mutableMapOf(1 to "Aadhar")
+            if(abhaGenTypeMap != null){
+                val abhaIdNames = abhaGenTypeMap.values.toTypedArray()
+                binding.dropdownAbhaGenMode.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, abhaIdNames))
+                if(abhaIdNames.isNotEmpty()) {
+                    selectedAbhaGenType = abhaGenTypeMap!!.entries.toList()[0]
+                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType!!.value, false)
+                }
+                binding.dropdownAbhaGenMode.setOnItemClickListener { parent, _, position, _ ->
+                    selectedAbhaGenType = abhaGenTypeMap!!.entries.toList()[position]
+                    binding.dropdownAbhaGenMode.setText(selectedAbhaGenType!!.value, false)
+                }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
+//            binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                    selectedAbhaGenType = abhaIdList[position]
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {
+//                    // Do nothing
+//                }
+//            }
         }
     }
 
     private fun fetchGovtIds(){
         coroutineScope.launch {
-            val govtIdLists = govIdEntityMasterDao.getGovIdEntityMaster()
-            if(govtIdLists != null){
-                val govtIdNames = govtIdLists.map { it.identityType }.toTypedArray()
-                binding.dropdownGovtIdType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, govtIdNames)
-
-                binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        selectedGovtIdType = govtIdLists[position]
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        // Do nothing
-                    }
+            val govtIdMap = govIdEntityMasterRepo.getGovIdtEntityAsMap()
+            if(govtIdMap != null){
+                val govtIdNames = govtIdMap.values.toTypedArray()
+                binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, govtIdNames))
+                if(govtIdNames.isNotEmpty()) {
+                    selectedGovtIdType = govtIdMap!!.entries.toList()[0]
+                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.value, false)
+                }
+                binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
+                    selectedGovtIdType = govtIdMap!!.entries.toList()[position]
+                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.value, false)
                 }
             }
-
         }
     }
 
     private fun fetchOtherGovtIds(){
         coroutineScope.launch {
-            val otherGovtIdLists = otherGovIdEntityMasterDao.getOtherGovIdEntityMaster()
-            if(otherGovtIdLists != null){
-                val govtIdNames = otherGovtIdLists.map { it.identityType }.toTypedArray()
-                binding.dropdownGovtHealthProgType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, govtIdNames)
+//            val otherGovtIdLists = otherGovIdEntityMasterDao.getOtherGovIdEntityMaster()
+//            if(otherGovtIdLists != null){
+//                val govtIdNames = otherGovtIdLists.map { it.identityType }.toTypedArray()
+//                binding.dropdownGovtHealthProgType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, govtIdNames)
+//
+//                binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                        selectedGovtHealthProgType = otherGovtIdLists[position]
+//                    }
+//
+//                    override fun onNothingSelected(parent: AdapterView<*>?) {
+//                        // Do nothing
+//                    }
+//                }
+//            }
 
-                binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        selectedGovtHealthProgType = otherGovtIdLists[position]
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {
-                        // Do nothing
-                    }
+            val otherGovtIdMap = otherGovIdEntityMasterRepo.getOtherGovtEntityAsMap()
+            if(otherGovtIdMap != null){
+                val otherGovtIdNames = otherGovtIdMap.values.toTypedArray()
+                binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, otherGovtIdNames))
+                if(otherGovtIdNames.isNotEmpty()) {
+                    selectedGovtHealthProgType = otherGovtIdMap!!.entries.toList()[0]
+                    binding.dropdownGovtIdType.setText(selectedGovtHealthProgType!!.value, false)
+                }
+                binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
+                    selectedGovtHealthProgType = otherGovtIdMap!!.entries.toList()[position]
+                    binding.dropdownGovtIdType.setText(selectedGovtHealthProgType!!.value, false)
                 }
             }
 
