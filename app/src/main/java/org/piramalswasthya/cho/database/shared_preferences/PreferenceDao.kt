@@ -48,7 +48,12 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.putString(prefKey, token)
         editor.apply()
     }
-
+    fun registerAmritToken(token: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
+        editor.putString(prefKey, token)
+        editor.apply()
+    }
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.login_settings)

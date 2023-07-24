@@ -84,9 +84,12 @@ class VerifyMobileOtpFragment : Fragment() {
                     binding.clError.visibility = View.INVISIBLE
                 }
                 State.OTP_VERIFY_SUCCESS -> {
-                    VerifyMobileOtpFragmentDirections.actionVerifyMobileOtpFragmentToCreateAbhaFragment(
-                        viewModel.txnID
+                    findNavController().navigate(
+                        VerifyMobileOtpFragmentDirections.actionVerifyMobileOtpFragmentToCreateAbhaFragment(
+                            viewModel.txnID
+                        )
                     )
+                    viewModel.resetState()
                 }
                 State.ERROR_NETWORK -> {
                     binding.clVerifyMobileOtp.visibility = View.INVISIBLE

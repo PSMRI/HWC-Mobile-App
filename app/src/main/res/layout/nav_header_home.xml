@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_header_height"
+    android:background="@drawable/side_nav_bar"
+    android:padding="@dimen/padding_normal"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/iv_profile_pic"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg_circular"
+        android:padding="@dimen/padding_tiny"
+        android:contentDescription="@string/nav_header_desc"
+        app:srcCompat="@drawable/ic_person" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/iv_profile_pic"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/padding_normal">
+
+
+        <TextView
+            android:id="@+id/tv_nav_name"
+            style="@style/nav_header_item_tv"
+            />
+
+        <TextView
+            android:id="@+id/tv_nav_role"
+            style="@style/nav_header_item_tv" />
+
+        <TextView
+            android:id="@+id/tv_nav_id"
+            style="@style/nav_header_item_tv" />
+
+    </LinearLayout>
+</RelativeLayout>
