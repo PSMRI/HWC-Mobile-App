@@ -70,7 +70,7 @@ data class UserCache(
     val userType: String,
 
     @ColumnInfo(name="logged_in")
-    val loggedIn : Boolean
+    var loggedIn : Boolean
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(
@@ -156,7 +156,7 @@ data class UserDomain(
 //    val villageAssamese: List<String>,
     val contactNo: String,
     val userType: String,
-    val loggedIn: Boolean,
+    var loggedIn: Boolean,
 
 )
 
@@ -204,7 +204,7 @@ data class UserNetwork(
 
     var emergencyContactNo: String? = null,
     var userType: String? = null,
-    var loggedIn : Boolean = false
+    var loggedIn : Boolean? = false
 ) {
     fun asCacheModel() : UserCache{
         return UserCache(
@@ -245,7 +245,7 @@ data class UserNetwork(
 
             emergencyContactNo = emergencyContactNo?:"",
             userType = userType?:"",
-            loggedIn = loggedIn
+            loggedIn = loggedIn?:false
 
         )
     }

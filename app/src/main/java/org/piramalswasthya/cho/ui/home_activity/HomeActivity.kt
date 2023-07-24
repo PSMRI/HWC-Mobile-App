@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -12,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +26,8 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.home.HomeFragment
+import org.piramalswasthya.cho.ui.home.HomeViewModel
+import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 //import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
@@ -33,6 +37,8 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+
+    private val viewModel: HomeViewModel by viewModels()
 
     private var _binding: ActivityHomeBinding? = null
 
@@ -64,6 +70,13 @@ class HomeActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        viewModel.navigateToLoginPage.observe(this) {
+            if (it) {
+                startActivity(Intent(this, LoginActivity::class.java))
+                viewModel.navigateToLoginPageComplete()
+                finish()
+            }
+        }
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -71,6 +84,10 @@ class HomeActivity : AppCompatActivity() {
                     // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
                     drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.menu_logout -> {
+                    logoutAlert.show()
                     true
                 }
                 else -> false
@@ -91,6 +108,21 @@ class HomeActivity : AppCompatActivity() {
         var adapter = PatientListAdapter(this, benificiaryList)
 
 
+    }
+
+    private val logoutAlert by lazy {
+        MaterialAlertDialogBuilder(this).setTitle("Logout")
+            .setMessage("Please confirm to logout.")
+            .setPositiveButton("YES") { dialog, _ ->
+//                 //TODO: viewModel for Home Activity
+                  viewModel.logout()
+//                ImageUtils.removeAllBenImages(this)
+//                WorkerUtils.cancelAllWork(this)
+                dialog.dismiss()
+            }.setNegativeButton("NO") { dialog, _ ->
+
+                dialog.dismiss()
+            }.create()
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
