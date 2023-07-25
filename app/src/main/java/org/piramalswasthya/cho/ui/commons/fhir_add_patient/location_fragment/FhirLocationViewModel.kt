@@ -24,6 +24,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
+import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CanonicalType
 import org.hl7.fhir.r4.model.ElementDefinition
@@ -50,7 +51,7 @@ import javax.inject.Inject
 
 /** ViewModel for patient registration screen {@link AddPatientFragment}. */
 @HiltViewModel
-class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private val application : Context, savedStateHandle: SavedStateHandle, private val service: AmritApiService,) :
+class FhirLocationViewModel @Inject constructor(@ApplicationContext private val application : Context, savedStateHandle: SavedStateHandle, private val service: AmritApiService,) :
     ViewModel(), FhirQuestionnaireService {
 
     override var questionnaireJson: String? = null
@@ -61,7 +62,8 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
     override val state = savedStateHandle
 
     override val isEntitySaved = MutableLiveData<Boolean>()
-    var pat = Patient()
+
+     var registerLocation = Address()
 
     /**
      * Saves patient registration questionnaire response into the application database.
@@ -88,10 +90,14 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
                 return@launch
             }
 
-            val patient = entry.resource as Patient
-            patient.id = generateUuid()
-            pat = patient
+            val address = entry.resource as Address
+            address.id = generateUuid()
+            registerLocation = address
 //            fhirEngine.create(patient)
+//            val resp = service.createPatient(patient)
+//            Log.i("patient", resp.toString())
+//            var pat= fhirEngine.get(ResourceType.Patient,patient.id)
+//            fhirEngine.update()
             isEntitySaved.value = true
         }
     }
