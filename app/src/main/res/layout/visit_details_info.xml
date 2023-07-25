@@ -109,7 +109,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Reason For Visit"
+        android:text="Sub Category"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -133,11 +133,11 @@
             android:padding="16dp"
             app:cardCornerRadius="8dp">
 
-            <RadioButton
+            <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/subCatRadioButton1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="Management of Common Communicable Diseases"
                 android:textColor="@drawable/radio_btn_select" />
 
@@ -189,7 +189,6 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputReason"
             android:layout_width="match_parent"
-            android:background="@drawable/input_filed"
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -205,7 +204,7 @@
         app:layout_constraintTop_toBottomOf="@+id/duration"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/state"
+        android:id="@+id/dropdownDuration"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_margin="8dp"
@@ -223,6 +222,58 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Description"
+        android:textStyle="normal|bold"
+        android:layout_margin="10dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/dropdownDuration"/>
 
+    <!-- TextInputLayout for the text area -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:hint="Enter your Description...">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descInputText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="2"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionText"
+        android:orientation="vertical">
+
+    <!-- MaterialRadioButton 1 -->
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/radioButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Option 1" />
+
+    <!-- MaterialRadioButton 2 -->
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Option 2" />
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
