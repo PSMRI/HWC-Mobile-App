@@ -142,7 +142,6 @@ class UserRepo @Inject constructor(
 
                 }
                 true
-//                getLocationDetails()
             } else {
                 false
             }
@@ -226,7 +225,6 @@ class UserRepo @Inject constructor(
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    Log.d("key", token)
                     return@withContext true
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
@@ -245,13 +243,6 @@ class UserRepo @Inject constructor(
 
     }
 
-//
-//    suspend fun logout() {
-//        withContext(Dispatchers.IO) {
-//            val loggedInUser = userDao.getLoggedInUser()!!
-//            userDao.logout(loggedInUser)
-//        }
-//    }
 
 
 }

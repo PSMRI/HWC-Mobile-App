@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
 import org.piramalswasthya.cho.model.LoginSettingsData
@@ -83,7 +84,6 @@ class UsernameFragment : Fragment() {
                                 }catch (e: Exception){
                                     Timber.d("Failed to navigate"+e.message)
                                 }
-
                             }
                         } else {
                             binding.loginSettings.visibility = View.INVISIBLE
@@ -108,7 +108,7 @@ class UsernameFragment : Fragment() {
                 )
             }
             else
-                Toast.makeText(requireContext(), "Invalid Username!!", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.invalid_username_entered), Toast.LENGTH_LONG).show()
         }
 
 
