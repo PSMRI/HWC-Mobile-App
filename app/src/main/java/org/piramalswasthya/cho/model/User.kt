@@ -12,7 +12,7 @@ data class UserCache(
     val userId: Int,
 
     @ColumnInfo(name = "username")
-    val userName: String,
+    var userName: String,
 
     @ColumnInfo(name = "Password")
     val password: String,

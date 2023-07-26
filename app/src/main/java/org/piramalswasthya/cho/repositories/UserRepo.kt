@@ -64,14 +64,15 @@ class UserRepo @Inject constructor(
             val loggedInUser = userDao.getUser(userName, password)
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
-                if (it.userName == userName && it.password == password) {
+                if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
                     val tokenB = preferenceDao.getPrimaryApiToken()
 
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
                             ?: throw IllegalStateException("User logging offline without pref saved token B!")
                     )
-                    loggedInUser?.loggedIn = true
+                    it.userName = userName
+                    it.loggedIn = true
                     userDao.update(loggedInUser)
 
                     Timber.w("User Logged in!")

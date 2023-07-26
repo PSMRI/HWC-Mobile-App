@@ -1,15 +1,11 @@
 package org.piramalswasthya.cho.database.shared_preferences
 
 import android.content.Context
-import android.net.Uri
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
-//import org.piramalswasthya.sakhi.helpers.Languages
-//import org.piramalswasthya.sakhi.model.LocationRecord
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,23 +28,17 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //
 //    fun deletePrimaryApiToken() {
 //        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
+//        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
 //        editor.remove(prefKey)
 //        editor.apply()
 //    }
-//
+
     fun getPrimaryApiToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         return pref.getString(prefKey, null)
     }
 //
     fun registerPrimaryApiToken(token: String) {
-        val editor = pref.edit()
-        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-        editor.putString(prefKey, token)
-        editor.apply()
-    }
-    fun registerAmritToken(token: String) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         editor.putString(prefKey, token)

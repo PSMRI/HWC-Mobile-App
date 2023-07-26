@@ -81,7 +81,6 @@ class HomeActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.abha_id_activity -> {
-                    // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
                     drawerLayout.closeDrawers()
                     true
@@ -114,10 +113,7 @@ class HomeActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this).setTitle("Logout")
             .setMessage("Please confirm to logout.")
             .setPositiveButton("YES") { dialog, _ ->
-//                 //TODO: viewModel for Home Activity
-                  viewModel.logout()
-//                ImageUtils.removeAllBenImages(this)
-//                WorkerUtils.cancelAllWork(this)
+                viewModel.logout()
                 dialog.dismiss()
             }.setNegativeButton("NO") { dialog, _ ->
 
