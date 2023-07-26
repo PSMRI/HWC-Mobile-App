@@ -35,13 +35,11 @@ import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.async
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
