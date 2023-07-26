@@ -243,7 +243,7 @@ class UserRepo @Inject constructor(
 
     }
 
-    private fun encrypt(password: String): String {
+     fun encrypt(password: String): String {
         val util = CryptoUtil()
         return util.encrypt(password)
     }

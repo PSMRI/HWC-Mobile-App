@@ -352,7 +352,8 @@ class AbhaIdRepo @Inject constructor(
                         NetworkResult.Success(result)
                     }
                     5000 -> {
-                        if (JSONObject(responseBody).getString("errorMessage").contentEquals("Invalid login key or session is expired")) {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")) {
                             val user = userRepo.getLoggedInUser()!!
                             userRepo.refreshTokenTmc(user.userName, user.password)
                             createHealthIdWithUid(createHealthIdRequest)

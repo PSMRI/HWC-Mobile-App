@@ -5,22 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/header_text_register_patient"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_view"
-        android:outlineProvider="none"
-        android:layout_marginHorizontal="@dimen/margin_big"
-        android:layout_marginVertical="@dimen/margin_big"
-        android:text="@string/personal_details"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
+<!--    <TextView-->
+<!--        android:id="@+id/header_text_register_patient"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@drawable/rounded_corner_view"-->
+<!--        android:outlineProvider="none"-->
+<!--        android:layout_marginHorizontal="@dimen/margin_big"-->
+<!--        android:layout_marginVertical="@dimen/margin_big"-->
+<!--        android:text="@string/personal_details"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textSize="32sp"-->
+<!--        android:textStyle="bold"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        tools:layout_editor_absoluteX="0dp" />-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_registration"
@@ -29,8 +29,10 @@
         app:navGraph="@navigation/register_nav"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        tools:layout_editor_absoluteX="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/header_text_register_patient" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

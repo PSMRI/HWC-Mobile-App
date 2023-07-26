@@ -54,7 +54,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_normal"
-        android:buttonTint="?attr/colorPrimary"
         android:gravity="start|top"
         android:text="@string/aadhar_consent_text"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
@@ -82,7 +81,7 @@
         android:text="Generate OTP"
         android:textAllCaps="false"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:textColor="?attr/colorSecondary"
+        android:textColor="@color/secondaryColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/aadharDisclaimer" />
@@ -94,6 +93,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_verify_aadhaar"
         app:layout_constraintStart_toStartOf="parent"
         android:textIsSelectable="true"
+        android:visibility="gone"
         android:text="PID">
     </TextView>
 
