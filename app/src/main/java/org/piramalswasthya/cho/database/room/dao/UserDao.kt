@@ -44,4 +44,17 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
+
+    @Query("UPDATE USER SET stateID = :stateId")
+    suspend fun updateUserStateId(stateId : Int) : Int
+
+    @Query("UPDATE USER SET districtID = :districtId")
+    suspend fun updateUserDistrictId(districtId : Int) : Int
+
+    @Query("UPDATE USER SET blockID = :blockId")
+    suspend fun updateUserBlockId(blockId : Int) : Int
+
+    @Query("UPDATE USER SET districtBranchID = :districtBranchID")
+    suspend fun updateUserVillageId(districtBranchID : Int) : Int
+
 }

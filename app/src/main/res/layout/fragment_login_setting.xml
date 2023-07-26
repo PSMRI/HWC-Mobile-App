@@ -49,7 +49,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/dropdown_label_dist"
+            android:id="@+id/dropdown_label_district"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="District/Town/City"
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dropdown_label_dist">
+            app:layout_constraintTop_toBottomOf="@+id/dropdown_label_district">
             <AutoCompleteTextView
                 android:id="@+id/dropdown_dist"
                 android:layout_width="match_parent"
@@ -135,16 +135,16 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/continue_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Submit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/panchayat"
-            />
+<!--        <Button-->
+<!--            android:id="@+id/continue_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="Submit"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/panchayat"-->
+<!--            />-->
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

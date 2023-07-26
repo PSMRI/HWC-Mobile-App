@@ -34,7 +34,7 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     override var fragmentContainerId = 0;
 
     override val jsonFile : String = "location_information.json"
-    lateinit var pat : Patient
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,14 +44,13 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pat= FhirLocationFragmentArgs.fromBundle(requireArguments()).patientDetails
-        Log.d("Patient Details","${pat.gender}")
         fragmentContainerId = binding.fragmentContainer.id
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
         observeEntitySaveAction("Inputs are missing.", "Patient is saved.")
+//        viewModel.patient = FhirLocationFragmentArgs.fromBundle(requireArguments()).patientDetails
     }
 
     override fun getFragmentId(): Int {
@@ -60,17 +59,17 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
 
     override fun onSubmitAction() {
         saveEntity()
-        navigateNext()
+//        navigateNext()
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment(Patient())
-        )
+//        findNavController().navigate(
+//            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirAddPatientFragment()
+//        )
     }
 
     override fun navigateNext() {
-        var locationDetails = viewModel.registerLocation
+//        var locationDetails = viewModel.registerLocation
 //        var patient = Patient()
 //        var address = Address()
 //        address.city = locationDetails.city
@@ -82,8 +81,8 @@ class FhirLocationFragment : Fragment(R.layout.fragment_fhir_location), FhirFrag
 //        patient.contact = pat.contact
 //        patient.birthDate = pat.birthDate
 //        patient.address = addressList
-        findNavController().navigate(
-            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirOtherInformationFragment()
-        )
+//        findNavController().navigate(
+//            FhirLocationFragmentDirections.actionFhirLocationFragmentToFhirOtherInformationFragment()
+//        )
     }
 }

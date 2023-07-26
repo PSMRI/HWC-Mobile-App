@@ -33,8 +33,6 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
 
     override val jsonFile : String = "other_information.json"
 
-    lateinit var patient: Patient
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,12 +43,12 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fragmentContainerId = binding.fragmentContainer.id
-//        patient = FhirOtherInformationFragmentArgs.fromBundle(requireArguments()).patientDetails
         updateArguments()
         if (savedInstanceState == null) {
             addQuestionnaireFragment()
         }
         observeEntitySaveAction("Inputs are missing.", "Patient is saved.")
+//        viewModel.patient = FhirOtherInformationFragmentArgs.fromBundle(requireArguments()).patientDetails
     }
 
     override fun getFragmentId(): Int {
@@ -59,15 +57,13 @@ class FhirOtherInformationFragment : Fragment(R.layout.fragment_fhir_other_infor
 
     override fun onSubmitAction() {
         saveEntity()
-        navigateNext()
+//        navigateNext()
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirOtherInformationFragmentDirections.actionFhirOtherInformationFragmentToFhirLocationFragment(
-            Patient()
-            )
-        )
+//        findNavController().navigate(
+//            FhirOtherInformationFragmentDirections.actionFhirOtherInformationFragmentToFhirLocationFragment()
+//        )
     }
 
     override fun navigateNext() {

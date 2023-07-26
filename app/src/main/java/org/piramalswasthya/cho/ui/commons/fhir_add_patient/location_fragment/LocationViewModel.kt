@@ -52,7 +52,7 @@ class LocationViewModel @Inject constructor(private val apiService: AmritApiServ
                 withContext(Dispatchers.IO) {
                     val stateData = apiService.getStates(request)
                     if (stateData != null) {
-                        stateList = stateData.data.stateMaster
+                        stateList = listOf()
                     }
                 }
                 _refreshState.value = RefreshState.REFRESH_SUCCESS
@@ -63,57 +63,57 @@ class LocationViewModel @Inject constructor(private val apiService: AmritApiServ
         }
     }
 
-    fun getDistrictList(stateId: Int) {
-        viewModelScope.launch {
-            try {
-                _refreshState.value = RefreshState.REFRESHING
-                withContext(Dispatchers.IO) {
-                    val response = apiService.getDistricts(stateId)
-                    if (response != null) {
-                        districtList = response?.data
-                    }
-                }
-                _refreshState.value = RefreshState.REFRESH_SUCCESS
-            } catch (e: Exception) {
-                Timber.d("Fetching districts failed ${e.message}")
-                _refreshState.value = RefreshState.REFRESH_FAILED
-            }
-        }
-    }
-
-    fun getTaluks(districtId: Int) {
-        viewModelScope.launch {
-            try {
-                _refreshState.value = RefreshState.REFRESHING
-                withContext(Dispatchers.IO) {
-                    val response = apiService.getDistrictBlocks(districtId)
-                    if (response != null) {
-                        blockList = response?.data
-                    }
-                }
-                _refreshState.value = RefreshState.REFRESH_SUCCESS
-            } catch (e: java.lang.Exception) {
-                Timber.d("Fetching Taluks failed ${e.message}")
-                _refreshState.value = RefreshState.REFRESH_FAILED
-            }
-        }
-    }
-
-    fun getVillages(blockId: Int) {
-        viewModelScope.launch {
-            try {
-                _refreshState.value = RefreshState.REFRESHING
-                withContext(Dispatchers.IO) {
-                    val response = apiService.getVillages(blockId)
-                    if (response != null) {
-                        villageList = response?.data
-                    }
-                }
-                _refreshState.value = RefreshState.REFRESH_SUCCESS
-            } catch (e: Exception) {
-                Timber.d("Fetching villages failed ${e.message}")
-                _refreshState.value = RefreshState.REFRESH_FAILED
-            }
-        }
-    }
+//    fun getDistrictList(stateId: Int) {
+//        viewModelScope.launch {
+//            try {
+//                _refreshState.value = RefreshState.REFRESHING
+//                withContext(Dispatchers.IO) {
+//                    val response = apiService.getDistricts(stateId)
+//                    if (response != null) {
+//                        districtList = response?.data
+//                    }
+//                }
+//                _refreshState.value = RefreshState.REFRESH_SUCCESS
+//            } catch (e: Exception) {
+//                Timber.d("Fetching districts failed ${e.message}")
+//                _refreshState.value = RefreshState.REFRESH_FAILED
+//            }
+//        }
+//    }
+//
+//    fun getTaluks(districtId: Int) {
+//        viewModelScope.launch {
+//            try {
+//                _refreshState.value = RefreshState.REFRESHING
+//                withContext(Dispatchers.IO) {
+//                    val response = apiService.getDistrictBlocks(districtId)
+//                    if (response != null) {
+//                        blockList = response?.data
+//                    }
+//                }
+//                _refreshState.value = RefreshState.REFRESH_SUCCESS
+//            } catch (e: java.lang.Exception) {
+//                Timber.d("Fetching Taluks failed ${e.message}")
+//                _refreshState.value = RefreshState.REFRESH_FAILED
+//            }
+//        }
+//    }
+//
+//    fun getVillages(blockId: Int) {
+//        viewModelScope.launch {
+//            try {
+//                _refreshState.value = RefreshState.REFRESHING
+//                withContext(Dispatchers.IO) {
+//                    val response = apiService.getVillages(blockId)
+//                    if (response != null) {
+//                        villageList = response?.data
+//                    }
+//                }
+//                _refreshState.value = RefreshState.REFRESH_SUCCESS
+//            } catch (e: Exception) {
+//                Timber.d("Fetching villages failed ${e.message}")
+//                _refreshState.value = RefreshState.REFRESH_FAILED
+//            }
+//        }
+//    }
 }

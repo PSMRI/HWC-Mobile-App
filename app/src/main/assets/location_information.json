@@ -2,12 +2,25 @@
   "resourceType": "Questionnaire",
   "id": "location-information",
   "status": "active",
-  "subjectType": ["Location"],
+  "subjectType": [
+    "Patient"
+  ],
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Patient",
+        "name": "patient"
+      }
+    }
+  ],
   "item": [
     {
       "linkId": "state",
       "type": "choice",
       "text": "State",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.registrarState",
       "answerOption": [
         {
           "valueCoding": {
@@ -21,6 +34,7 @@
       "linkId": "district",
       "type": "choice",
       "text": "District/Town/City",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.registrarDistrict",
       "answerOption": [
         {
           "valueCoding": {
@@ -52,6 +66,7 @@
       "linkId": "taluk",
       "type": "choice",
       "text": "Taluk/Tehsil",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.registrarTaluk",
       "answerOption": [
         {
           "valueCoding": {
@@ -71,6 +86,7 @@
       "linkId": "street",
       "type": "choice",
       "text": "Street/Panchayat",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.registrarStreet",
       "answerOption": [
         {
           "valueCoding": {

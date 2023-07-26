@@ -2,7 +2,19 @@
   "resourceType": "Questionnaire",
   "id": "other-information",
   "status": "active",
-  "subjectType": ["Patient"],
+  "subjectType": [
+    "Patient"
+  ],
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Patient",
+        "name": "patient"
+      }
+    }
+  ],
   "item": [
     {
       "linkId": "deactivate-mandatory-fields",
@@ -13,10 +25,11 @@
       "linkId": "abha-generation-mode",
       "type": "choice",
       "text": "ABHA Generation Mode",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.abhaGenerationMode",
       "answerOption": [
         {
           "valueCoding": {
-            "code": "adhar",
+            "code": "2",
             "display": "Adhar"
           }
         }
@@ -37,6 +50,7 @@
       "linkId": "govt-id-type",
       "type": "choice",
       "text": "Govt. ID Type",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.govtIdType",
       "answerOption": [
         {
           "valueCoding": {
@@ -80,6 +94,7 @@
       "linkId": "govt-id-number",
       "type": "string",
       "text": "Govt. ID Number",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.govtIdNumber",
       "extension": [
         {
           "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
@@ -164,6 +179,7 @@
       "linkId": "govt-health-program-type",
       "type": "choice",
       "text": "Govt. Health Program Type",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.govtHealthProgramType",
       "answerOption": [
         {
           "valueCoding": {
@@ -206,6 +222,7 @@
     {
       "linkId": "govt-health-program-id",
       "type": "string",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.govtHealthProgramId",
       "text": "Govt. Health Program ID"
     }
   ]

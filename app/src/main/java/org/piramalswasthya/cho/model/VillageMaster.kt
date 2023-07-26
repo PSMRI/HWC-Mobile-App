@@ -1,0 +1,25 @@
+package org.piramalswasthya.cho.model
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+import com.squareup.moshi.JsonClass
+
+@Entity(
+    tableName = "VILLAGE_MASTER",
+    foreignKeys = [
+        ForeignKey(
+            entity = BlockMaster::class,
+            parentColumns = ["blockID"],
+            childColumns = ["blockID"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+@JsonClass(generateAdapter = true)
+data class VillageMaster (
+    @PrimaryKey val districtBranchID: Int,
+    @ColumnInfo(name = "blockID") val blockID: Int,
+    @ColumnInfo(name = "village_name") val villageName: String
+)

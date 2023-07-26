@@ -9,6 +9,7 @@ import ca.uhn.fhir.context.FhirVersionEnum
 import com.google.android.fhir.FhirEngine
 import org.hl7.fhir.r4.model.Questionnaire
 import org.hl7.fhir.r4.model.QuestionnaireResponse
+import org.json.JSONObject
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import java.util.UUID
@@ -37,6 +38,17 @@ interface FhirQuestionnaireService {
             return it
         }
         questionnaireJson = readFileFromAssets(state[FhirFragmentService.QUESTIONNAIRE_FILE_PATH_KEY]!!)
+
+//        var questionnaireJsonObject = JSONObject(questionnaireJson!!)
+//
+//        questionnaireJsonObject
+//            .getJSONArray("item")
+//            .getJSONObject(0)
+//            .getJSONArray("answerOption")
+//            .getJSONObject(0)
+//            .getJSONObject("valueCoding")
+//            .put("display", "OPD")
+
         return questionnaireJson!!
     }
 

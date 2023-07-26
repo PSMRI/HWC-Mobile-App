@@ -40,7 +40,7 @@ class UsernameFragment : Fragment() {
     ): View {
         viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
-        binding.loginSettings.visibility = View.INVISIBLE
+//        binding.loginSettings.visibility = View.INVISIBLE
 
         if(!viewModel.fetchRememberedUserName().isNullOrBlank()) {
             viewModel.fetchRememberedUserName()?.let {
@@ -66,35 +66,35 @@ class UsernameFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
-                val userName = (s.toString())!!;
-                if(!s.isNullOrBlank()){
-                    lifecycleScope.launch {
-                        loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
-
-                        if (loginSettingsData==null) {
-
-                            binding.loginSettings.visibility = View.VISIBLE
-
-                            binding.loginSettings.setOnClickListener{
-                                try {
-                                    findNavController().navigate(
-                                        UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
-                                    )
-                                }catch (e: Exception){
-                                    Timber.d("Failed to navigate"+e.message)
-                                }
-
-                            }
-                        } else {
-                            binding.loginSettings.visibility = View.INVISIBLE
-                            binding.btnNxt.isEnabled = true
-                        }
-                    }
-                }
-                else{
-                    binding.loginSettings.visibility = View.INVISIBLE
-                    binding.btnNxt.isEnabled = false
-                }
+//                val userName = (s.toString())!!;
+//                if(!s.isNullOrBlank()){
+//                    lifecycleScope.launch {
+//                        loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
+//
+//                        if (loginSettingsData==null) {
+//
+//                            binding.loginSettings.visibility = View.VISIBLE
+//
+//                            binding.loginSettings.setOnClickListener{
+//                                try {
+//                                    findNavController().navigate(
+//                                        UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
+//                                    )
+//                                }catch (e: Exception){
+//                                    Timber.d("Failed to navigate"+e.message)
+//                                }
+//
+//                            }
+//                        } else {
+//                            binding.loginSettings.visibility = View.INVISIBLE
+//                            binding.btnNxt.isEnabled = true
+//                        }
+//                    }
+//                }
+//                else{
+//                    binding.loginSettings.visibility = View.INVISIBLE
+//                    binding.btnNxt.isEnabled = false
+//                }
         }
         })
         binding.btnNxt.setOnClickListener {
@@ -109,6 +109,17 @@ class UsernameFragment : Fragment() {
             }
             else
                 Toast.makeText(requireContext(), "Invalid Username!!", Toast.LENGTH_LONG).show()
+        }
+
+        binding.loginSettings.setOnClickListener{
+            try {
+                findNavController().navigate(
+                    UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
+                )
+            }catch (e: Exception){
+                Timber.d("Failed to navigate"+e.message)
+            }
+
         }
 
 
