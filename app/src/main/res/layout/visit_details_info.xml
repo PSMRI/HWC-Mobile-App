@@ -1,65 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textCat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Category"
-        android:textSize="16sp"
-        android:textStyle="normal|bold"
-        app:layout_constraintBottom_toTopOf="@+id/catCardView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/catCardView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:elevation="4dp"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="16dp"
-        app:cardCornerRadius="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textCat">
+        android:layout_height="match_parent">
 
-        <RadioButton
-            android:id="@+id/catRadioButton"
+        <TextView
+            android:id="@+id/textCat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Category"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintBottom_toTopOf="@+id/catRadioGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RadioGroup
+            android:id="@+id/catRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="General OPD Care"
-            android:textColor="@drawable/radio_btn_select" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textCat">
 
-    </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/catCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:elevation="4dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:padding="16dp"
+                app:cardCornerRadius="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textCat">
 
-    <TextView
-        android:id="@+id/reasonTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Reason For Visit"
-        android:textSize="16sp"
-        android:textStyle="normal|bold"
-        app:layout_constraintBottom_toTopOf="@id/reasonRadioGroup"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/catCardView" />
+                <RadioButton
+                    android:id="@+id/catRadioButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="General OPD Care"
+                    android:textColor="@drawable/radio_btn_select" />
 
-    <RadioGroup
-        android:id="@+id/reasonRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reasonTxt">
+            </androidx.cardview.widget.CardView>
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/reasonTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Reason For Visit"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintBottom_toTopOf="@id/reason"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/catRadioGroup" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reason"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reasonTxt">
+
+            <AutoCompleteTextView
+                android:id="@+id/reasonDropDown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:inputType="none"
+                android:text="Choose Reason for Visit" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <TextView
+            android:id="@+id/subCatTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Sub Category"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reason" />
+
+        <RadioGroup
+            android:id="@+id/subCatRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/subCatTxt">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/subCatCardView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:elevation="4dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:padding="16dp"
+                app:cardCornerRadius="8dp">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/subCatRadioButton1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="Management of Common Communicable Diseases"
+                    android:textColor="@drawable/radio_btn_select" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/subCatCardView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="2dp"
+                android:elevation="4dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:padding="16dp"
+                app:cardCornerRadius="8dp">
+
+                <RadioButton
+                    android:id="@+id/subCatRadioButton2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="Outpatient Care for Acute Simple Illnessess Minor Ailments"
+                    android:textColor="@drawable/radio_btn_select" />
+
+            </androidx.cardview.widget.CardView>
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/durationTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Duration"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/subCatRadioGroup" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/durationTxt">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/durationUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Unit of Duration"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/duration" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dropdownDuration"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/durationUnit">
+
+            <AutoCompleteTextView
+                android:id="@+id/dropdownDurUnit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:inputType="none"
+                android:text="Choose Duration Unit" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Description"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dropdownDuration" />
+
+        <!-- TextInputLayout for the text area -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/descriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:hint="Enter your Description..."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/descInputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:minLines="2" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/reasonCardView1"
+            android:id="@+id/selectFileCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -67,213 +241,29 @@
             android:elevation="4dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="16dp"
-            app:cardCornerRadius="8dp">
-
-            <RadioButton
-                android:id="@+id/reasonRadioButton1"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionText">
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/fileLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="New Chief Complaint(S)"
-                android:textColor="@drawable/radio_btn_select" />
+                android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/selectFileText"
+                android:layout_width="wrap_content"
+                android:text="Selected File"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
 
+            <Button
+                android:id="@+id/selectFileBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Select File" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/reasonCardView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="2dp"
-            android:elevation="4dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:padding="16dp"
-            app:cardCornerRadius="8dp">
-
-            <RadioButton
-                android:id="@+id/reasonRadioButton2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="Follow Up"
-                android:textColor="@drawable/radio_btn_select" />
-
-        </androidx.cardview.widget.CardView>
-    </RadioGroup>
-
-    <TextView
-        android:id="@+id/subCatTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Sub Category"
-        android:textSize="16sp"
-        android:textStyle="normal|bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reasonRadioGroup" />
-
-    <RadioGroup
-        android:id="@+id/subCatRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subCatTxt">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/subCatCardView1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:elevation="4dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:padding="16dp"
-            app:cardCornerRadius="8dp">
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/subCatRadioButton1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="Management of Common Communicable Diseases"
-                android:textColor="@drawable/radio_btn_select" />
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/subCatCardView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="2dp"
-            android:elevation="4dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:padding="16dp"
-            app:cardCornerRadius="8dp">
-
-            <RadioButton
-                android:id="@+id/subCatRadioButton2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="Outpatient Care for Acute Simple Illnessess Minor Ailments"
-                android:textColor="@drawable/radio_btn_select" />
-
-        </androidx.cardview.widget.CardView>
-    </RadioGroup>
-
-    <TextView
-        android:id="@+id/durationTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Reason For Visit"
-        android:textSize="16sp"
-        android:textStyle="normal|bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subCatRadioGroup" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/duration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/durationTxt">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputReason"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/durationUnit"
-        android:layout_margin="10dp"
-        android:textSize="16sp"
-        android:textStyle="normal|bold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Duration In Unit"
-        app:layout_constraintTop_toBottomOf="@+id/duration"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/dropdownDuration"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_margin="8dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/durationUnit">
-        <AutoCompleteTextView
-            android:id="@+id/dropdownDurUnit"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:inputType="none"
-            android:text="Choose Duration Unit"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Description"
-        android:textStyle="normal|bold"
-        android:layout_margin="10dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/dropdownDuration"/>
-
-    <!-- TextInputLayout for the text area -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/descriptionText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="10dp"
-        app:layout_constraintTop_toBottomOf="@+id/description"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:hint="Enter your Description...">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/descInputText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minLines="2"
-            android:gravity="top"
-            android:inputType="textMultiLine" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionText"
-        android:orientation="vertical">
-
-    <!-- MaterialRadioButton 1 -->
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/radioButton1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Option 1" />
-
-    <!-- MaterialRadioButton 2 -->
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/radioButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Option 2" />
-    </RadioGroup>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
