@@ -111,10 +111,10 @@ class LocationFragment : Fragment() , NavigationAdapter {
     private var blockMap: Map<Int, String>? = null
     private var villageMap: Map<Int, String>? = null
 
-    private lateinit var selectedState: StateMaster;
-    private lateinit var selectedDistrict: DistrictMaster
-    private lateinit var selectedBlock: BlockMaster
-    private lateinit var selectedVillage: VillageMaster
+    private var selectedState: StateMaster? = null
+    private var selectedDistrict: DistrictMaster? = null
+    private var selectedBlock: BlockMaster? = null
+    private var selectedVillage: VillageMaster? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 //
@@ -696,64 +696,75 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 
     private fun addPatientLocationDetalis(){
-        var extensionState = Extension()
-        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.state"
-        var cdt = Coding();
-        cdt.code = selectedState.stateID.toString()
-        cdt.display = selectedState.stateName
-        extensionState.setValue(cdt)
-        patient.addExtension(extensionState)
+        if(selectedState != null){
+            var extensionState = Extension()
+            extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.state"
+            var cdt = Coding();
+            cdt.code = selectedState!!.stateID.toString()
+            cdt.display = selectedState!!.stateName
+            extensionState.setValue(cdt)
+            patient.addExtension(extensionState)
+        }
 
-        var extensionDistrict = Extension()
-        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.district"
-        cdt = Coding();
-        cdt.code = selectedDistrict.districtID.toString()
-        cdt.display = selectedDistrict.districtName
-        extensionState.setValue(cdt)
-        patient.addExtension(extensionDistrict)
+        if(selectedDistrict != null){
+            var extensionDistrict = Extension()
+            extensionDistrict.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.district"
+            var cdt = Coding();
+            cdt.code = selectedDistrict!!.districtID.toString()
+            cdt.display = selectedDistrict!!.districtName
+            extensionDistrict.setValue(cdt)
+            patient.addExtension(extensionDistrict)
+        }
 
-        var extensionBlock = Extension()
-        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.block"
-        cdt = Coding();
-        cdt.code = selectedBlock.blockID.toString()
-        cdt.display = selectedBlock.blockName
-        extensionState.setValue(cdt)
-        patient.addExtension(extensionBlock)
+        if(selectedBlock != null){
+            var extensionBlock = Extension()
+            extensionBlock.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.block"
+            var cdt = Coding();
+            cdt.code = selectedBlock!!.blockID.toString()
+            cdt.display = selectedBlock!!.blockName
+            extensionBlock.setValue(cdt)
+            patient.addExtension(extensionBlock)
+        }
 
-        var extensionVillage = Extension()
-        extensionState.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.districtBranch"
-        cdt = Coding();
-        cdt.code = selectedVillage.districtBranchID.toString()
-        cdt.display = selectedVillage.villageName
-        extensionState.setValue(cdt)
-        patient.addExtension(extensionVillage)
+        if(selectedVillage != null){
+            var extensionVillage = Extension()
+            extensionVillage.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.demographics.districtBranch"
+            var cdt = Coding();
+            cdt.code = selectedVillage!!.districtBranchID.toString()
+            cdt.display = selectedVillage!!.villageName
+            extensionVillage.setValue(cdt)
+            patient.addExtension(extensionVillage)
+        }
+
     }
 
     private fun addPatientOtherDetalis(){
 
-        var extensionVanId = Extension()
-        extensionVanId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.vanID"
-        var str = StringType(userInfo!!.vanId.toString());
-        extensionVanId.setValue(str)
-        patient.addExtension(extensionVanId)
+        if(userInfo != null){
+            var extensionVanId = Extension()
+            extensionVanId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.vanID"
+            var str = StringType(userInfo!!.vanId.toString());
+            extensionVanId.setValue(str)
+            patient.addExtension(extensionVanId)
 
-        var extensionParkingPlaceID = Extension()
-        extensionParkingPlaceID.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.parkingPlaceID"
-        str = StringType(userInfo!!.parkingPlaceId.toString());
-        extensionParkingPlaceID.setValue(str)
-        patient.addExtension(extensionParkingPlaceID)
+            var extensionParkingPlaceID = Extension()
+            extensionParkingPlaceID.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.parkingPlaceID"
+            str = StringType(userInfo!!.parkingPlaceId.toString());
+            extensionParkingPlaceID.setValue(str)
+            patient.addExtension(extensionParkingPlaceID)
 
-        var extensionServiceMapId = Extension()
-        extensionServiceMapId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.providerServiceMapId"
-        str = StringType(userInfo!!.serviceMapId.toString());
-        extensionServiceMapId.setValue(str)
-        patient.addExtension(extensionServiceMapId)
+            var extensionServiceMapId = Extension()
+            extensionServiceMapId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.providerServiceMapId"
+            str = StringType(userInfo!!.serviceMapId.toString());
+            extensionServiceMapId.setValue(str)
+            patient.addExtension(extensionServiceMapId)
 
-        var extensionCreatedBy = Extension()
-        extensionCreatedBy.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.createdBy"
-        str = StringType(userInfo!!.userName);
-        extensionCreatedBy.setValue(str)
-        patient.addExtension(extensionCreatedBy)
+            var extensionCreatedBy = Extension()
+            extensionCreatedBy.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.createdBy"
+            str = StringType(userInfo!!.userName);
+            extensionCreatedBy.setValue(str)
+            patient.addExtension(extensionCreatedBy)
+        }
 
     }
 

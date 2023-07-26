@@ -121,36 +121,36 @@ class LoginSettingsFragment : Fragment() {
             Log.i("states fetching", "not done")
             fetchStates()
         }
-        binding.continueButton.setOnClickListener{
-            // Save Login Settings Data with location to preferences
-//            val loginSettingsData = myLocation?.let { it1 ->
-//                LoginSettingsData(selectedState,selectedDistrict,selectedBlock,selectedVillage, myLocation!!.longitude,
-//                    myLocation!!.latitude,
-//                    it1,userName
-//                )
-//            }
-////            if (loginSettingsData != null) {
-////                preferenceDao.saveLoginSettingsRecord(loginSettingsData)
-////                Toast.makeText(context,"Settings Saved to preference",Toast.LENGTH_SHORT).show()
-////                findNavController().navigate(
-////                    LoginSettingsFragmentDirections.actionLoginSettingsToLoginActivity()
+//        binding.continueButton.setOnClickListener{
+//            // Save Login Settings Data with location to preferences
+////            val loginSettingsData = myLocation?.let { it1 ->
+////                LoginSettingsData(selectedState,selectedDistrict,selectedBlock,selectedVillage, myLocation!!.longitude,
+////                    myLocation!!.latitude,
+////                    it1,userName
 ////                )
 ////            }
-//            if (loginSettingsData != null) {
-//                lifecycleScope.launch {
-//                    loginSettingsDataRepository.saveLoginSettingsData(loginSettingsData)
-//                }
-//                Toast.makeText(context,"Settings Saved to Repository",Toast.LENGTH_SHORT).show()
-//                findNavController().navigate(
-////                    LoginSettingsFragmentDirections.actionLoginSettingsToChoLogin(userName)
-//                    LoginSettingsFragmentDirections.actionLoginSettingsToUsername()
-//                )
-//            }
-//            else{
-//                Toast.makeText(context,"Error!! Check permissions",Toast.LENGTH_SHORT).show()
-//                getCurrentLocation()
-//            }
-        }
+//////            if (loginSettingsData != null) {
+//////                preferenceDao.saveLoginSettingsRecord(loginSettingsData)
+//////                Toast.makeText(context,"Settings Saved to preference",Toast.LENGTH_SHORT).show()
+//////                findNavController().navigate(
+//////                    LoginSettingsFragmentDirections.actionLoginSettingsToLoginActivity()
+//////                )
+//////            }
+////            if (loginSettingsData != null) {
+////                lifecycleScope.launch {
+////                    loginSettingsDataRepository.saveLoginSettingsData(loginSettingsData)
+////                }
+////                Toast.makeText(context,"Settings Saved to Repository",Toast.LENGTH_SHORT).show()
+////                findNavController().navigate(
+//////                    LoginSettingsFragmentDirections.actionLoginSettingsToChoLogin(userName)
+////                    LoginSettingsFragmentDirections.actionLoginSettingsToUsername()
+////                )
+////            }
+////            else{
+////                Toast.makeText(context,"Error!! Check permissions",Toast.LENGTH_SHORT).show()
+////                getCurrentLocation()
+////            }
+//        }
     }
 
     override fun onDestroy() {

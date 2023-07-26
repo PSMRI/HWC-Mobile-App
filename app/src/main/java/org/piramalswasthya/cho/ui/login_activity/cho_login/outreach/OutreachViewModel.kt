@@ -56,8 +56,8 @@ class OutreachViewModel @Inject constructor(
 
     //TODO: JUST FOR TESTING, NEEDS TO BE MOVED WHEN APPROPRIATE VIEW MODELS ARE READY
     init {
-        Timber.tag("initMethod").d("initMethod inside")
-        viewModelScope.launch {
+//        Timber.tag("initMethod").d("initMethod inside")
+//        viewModelScope.launch {
 //            languageRepo.saveResponseToCacheLang()
 //            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
 //            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
@@ -77,7 +77,7 @@ class OutreachViewModel @Inject constructor(
 //            stateMasterRepo.saveStateMasterResponseToCache()
 //            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
 //            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-        }
+//        }
     }
 
 

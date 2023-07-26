@@ -34,6 +34,7 @@ class RegisterPatientActivity : AppCompatActivity() {
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
 //            childFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
 
+
         binding.btnSubmit.setOnClickListener {
             currFragment =
                 navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
