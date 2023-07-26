@@ -56,11 +56,6 @@
                 }
               ],
               "linkId": "PR-name-text",
-              "initial": [
-                {
-                  "valueString": "John Doe"
-                }
-              ],
               "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.name.given",
               "type": "string",
               "required": true,
@@ -120,16 +115,6 @@
           ]
         },
         {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-              "valueExpression": {
-                "language": "text/fhirpath",
-                "expression": "Patient.birthDate",
-                "name": "patientBirthDate"
-              }
-            }
-          ],
           "linkId": "patient-0-birth-date",
           "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.birthDate",
           "type": "date",
@@ -168,7 +153,6 @@
           "definition": "http://example.com/StructureDefinition/Patient#Patient.age.unit",
           "type": "choice",
           "required": true,
-
           "text": "Age in Unit",
           "answerOption": [
             {
@@ -194,13 +178,6 @@
                 "code": "years",
                 "display": "Years"
               }
-            }
-          ],
-          "enableWhen": [
-            {
-              "question": "patient-0-age",
-              "operator": "<=",
-              "answerInteger": 12
             }
           ]
         },
@@ -246,16 +223,15 @@
             {
               "question": "patient-0-age",
               "operator": ">",
-              "answerInteger": 12
+              "answerInteger": 13
             }
           ]
         },
         {
           "linkId": "patient-0-spouse-name",
-          "definition": "http://example.com/StructureDefinition/Patient#Patient.govtIdNumber",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.spouseName",
           "type": "string",
           "text": "Spouse Name",
-          "required": false,
           "enableWhen": [
             {
               "question": "patient-0-marital-status",
@@ -284,72 +260,39 @@
           ]
         },
         {
-          "linkId": "PR-telecom",
-          "type": "group",
-          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom",
-          "item": [
-            {
-              "linkId": "PR-telecom-system",
-              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.system",
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-                  "valueBoolean": true
-                }
-              ],
-              "type": "string",
-              "text": "system",
-              "initial": [
-                {
-                  "valueString": "phone"
-                }
-              ]
-            },
-            {
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-                  "valueExpression": {
-                    "language": "text/fhirpath",
-                    "expression": "Patient.telecom.value",
-                    "name": "patientTelecom"
-                  }
-                }
-              ],
-              "linkId": "PR-telecom-value",
-              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-              "type": "string",
-              "required": true,
-              "text": "Phone Number",
-              "_text": {
+          "linkId": "PR-telecom-value",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
+          "type": "string",
+          "required": true,
+          "text": "Contact No",
+          "_text": {
+            "extension": [
+              {
                 "extension": [
                   {
-                    "extension": [
-                      {
-                        "url": "lang",
-                        "valueCode": "sw"
-                      },
-                      {
-                        "url": "content",
-                        "valueString": "Nambari ya simu"
-                      }
-                    ],
-                    "url": "http://hl7.org/fhir/StructureDefinition/translation"
+                    "url": "lang",
+                    "valueCode": "sw"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Nambari ya simu"
                   }
-                ]
-              },
-              "maxLength": 10,
-              "pattern": "[986]\\d{9}",
-              "constraint": [
-                {
-                  "key": "phone-validation",
-                  "severity": "error",
-                  "human": "The phone number should be 10 digits and start with 9, 8, or 6."
-                }
-              ]
+                ],
+                "url": "http://hl7.org/fhir/StructureDefinition/translation"
+              }
+            ]
+          },
+          "maxLength": 10,
+          "pattern": "[0-9]*",
+          "constraint": [
+            {
+              "key": "phone-validation",
+              "severity": "error",
+              "human": "The phone number should only contain digits."
             }
           ]
         },
+
         {
           "linkId": "patient-0-gender",
           "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
@@ -375,15 +318,16 @@
                 "display": "Transgender"
               }
             }
-          ],
-          "initial": [
-            {
-              "valueCoding": {
-                "code": "male",
-                "display": "Male"
-              }
-            }
           ]
+        },
+        {
+          "linkId": "patient-0-registration-date",
+          "definition": "http://example.com/StructureDefinition/Patient#Patient.registrationDate",
+          "type": "date",
+          "required": true,
+          "readOnly": true,
+          "text": "Registration Date",
+          "initialDateTime": "{{%FHIRDate.now%}}"
         }
       ]
     }

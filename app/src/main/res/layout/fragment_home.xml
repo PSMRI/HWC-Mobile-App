@@ -36,13 +36,13 @@
                 android:backgroundTint="@color/purple"
                 android:text="@string/registration" />
 
-            <Button
-                android:id="@+id/advance_search"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/btn_height"
-                android:layout_weight="1"
-                android:backgroundTint="@color/purple"
-                android:text="@string/advance_search" />
+<!--            <Button-->
+<!--                android:id="@+id/advance_search"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="@dimen/btn_height"-->
+<!--                android:layout_weight="1"-->
+<!--                android:backgroundTint="@color/purple"-->
+<!--                android:text="@string/advance_search" />-->
         </LinearLayout>
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 </androidx.constraintlayout.widget.ConstraintLayout>

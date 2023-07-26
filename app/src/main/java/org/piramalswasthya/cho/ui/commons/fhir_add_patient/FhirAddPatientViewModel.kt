@@ -52,18 +52,18 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
      */
     override fun saveEntity(questionnaireResponse: QuestionnaireResponse) {
         viewModelScope.launch {
-//            if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
-//                    questionnaireResource,
-//                    questionnaireResponse,
-//                    getApplication(application)
-//                )
-//                    .values
-//                    .flatten()
-//                    .any { it is Invalid }
-//            ) {
-//                isEntitySaved.value = false
-//                return@launch
-//            }
+            if (QuestionnaireResponseValidator.validateQuestionnaireResponse(
+                    questionnaireResource,
+                    questionnaireResponse,
+                    getApplication(application)
+                )
+                    .values
+                    .flatten()
+                    .any { it is Invalid }
+            ) {
+                isEntitySaved.value = false
+                return@launch
+            }
 
             val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse, null, ProfileLoaderImpl()).entryFirstRep
             if (entry.resource !is Patient) {

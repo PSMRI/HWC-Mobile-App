@@ -64,9 +64,9 @@ class HomeFragment : Fragment() {
             startActivity(intent)
 //            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToRegisterPatientFragment())
         }
-        binding.advanceSearch.setOnClickListener {
-
-        }
+//        binding.advanceSearch.setOnClickListener {
+//
+//        }
 
 //        binding.loginSettings.setOnClickListener{
 //            try {
