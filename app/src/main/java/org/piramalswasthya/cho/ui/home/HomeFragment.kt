@@ -9,16 +9,15 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections

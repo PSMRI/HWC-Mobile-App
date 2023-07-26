@@ -8,16 +8,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
-class FragmentVisitDetail: Fragment() {
+class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     private var _binding: VisitDetailsInfoBinding?= null
 
     private var units = mutableListOf<String>()
@@ -51,7 +56,9 @@ class FragmentVisitDetail: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
+        val customAdapter = CustomAdapter(requireContext(), R.layout.drop_down, units,binding.dropdownDurUnit)
+        binding.dropdownDurUnit.setAdapter(customAdapter)
+//        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
         binding.reasonDropDown.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down,reasons))
         getDetails()
     }
@@ -73,6 +80,8 @@ class FragmentVisitDetail: Fragment() {
 
         binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
             unit = parent.getItemAtPosition(position) as String
+
+            binding.dropdownDuration.hint = unit
         }
 
         desc = binding.descInputText.text.toString()
@@ -116,5 +125,28 @@ class FragmentVisitDetail: Fragment() {
             return displayName
         }
         return "Unknown"
+    }
+
+    override var fragmentContainerId = 0
+
+    override val fragment = this
+    override val viewModel: VisitDetailViewModel by viewModels()
+
+    override val jsonFile = "patient-visit-details-paginated.json"
+
+    override fun navigateNext() {
+
+    }
+
+    override fun getFragmentId(): Int {
+       return R.id.visit_details_container
+    }
+
+    override fun onSubmitAction() {
+        navigateNext()
+    }
+
+    override fun onCancelAction() {
+        TODO("Not yet implemented")
     }
 }

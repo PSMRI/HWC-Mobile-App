@@ -9,14 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.hl7.fhir.r4.model.Address
-import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.R
 
 import org.piramalswasthya.cho.databinding.FragmentFhirLocationBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragmentDirections
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirLocationViewModel
 
 @AndroidEntryPoint

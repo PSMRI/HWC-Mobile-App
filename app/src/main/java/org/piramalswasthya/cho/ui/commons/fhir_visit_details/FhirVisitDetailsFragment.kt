@@ -90,9 +90,9 @@ class FhirVisitDetailsFragment : Fragment(R.layout.fragment_fhir_visit_details),
     }
 
     override fun navigateNext() {
-        findNavController().navigate(
-            FhirVisitDetailsFragmentDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
-        )
+//        findNavController().navigate(
+//            FhirVisitDetailsFragmentDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
+//        )
     }
 
 }
