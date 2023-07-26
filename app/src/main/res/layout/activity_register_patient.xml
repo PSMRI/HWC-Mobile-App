@@ -25,6 +25,9 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_registration"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/register_nav"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
@@ -51,7 +54,6 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:backgroundTint="@color/purple"
                 android:text="@string/cancel" />
 
@@ -61,9 +63,12 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
                 android:backgroundTint="@color/purple"
-                android:text="@string/submit" />
+                android:text="Next" />
 
         </LinearLayout>
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
 </androidx.constraintlayout.widget.ConstraintLayout >
+
+

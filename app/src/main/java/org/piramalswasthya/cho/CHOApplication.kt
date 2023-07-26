@@ -9,10 +9,15 @@ import com.google.android.fhir.DatabaseErrorStrategy
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.FhirEngineConfiguration
 import com.google.android.fhir.FhirEngineProvider
+import com.google.android.fhir.NetworkConfiguration
 import com.google.android.fhir.ServerConfiguration
 import com.google.android.fhir.datacapture.DataCaptureConfig
 import com.google.android.fhir.search.search
+import com.google.android.fhir.sync.remote.HttpLogger
+
+
 import dagger.hilt.android.HiltAndroidApp
+import org.piramalswasthya.cho.ui.home_activity.DemoDataStore
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -21,6 +26,8 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    private val dataStore by lazy { DemoDataStore(this) }
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()
@@ -33,6 +40,8 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
     private var dataCaptureConfig: DataCaptureConfig? = DataCaptureConfig(xFhirQueryResolver = {fhirEngine.search(it) })
 
     override fun onCreate() {
+
+//        HttpLogger
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
@@ -42,7 +51,14 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
                 enableEncryptionIfSupported = true,
                 DatabaseErrorStrategy.RECREATE_AT_OPEN,
                 ServerConfiguration(
-                    ServerConstants.BASE_URL,
+                    "https://hapi.fhir.org/baseR4/",
+                    httpLogger =
+                        HttpLogger(
+                            HttpLogger.Configuration(
+                                if (BuildConfig.DEBUG) HttpLogger.Level.BODY else HttpLogger.Level.BASIC
+                            )
+                        ) { Timber.tag("App-HttpLog").d(it) },
+                    networkConfiguration = NetworkConfiguration()
                 )
             )
         )
@@ -54,6 +70,8 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
 
     companion object {
         fun fhirEngine(context: Context) = (context.applicationContext as CHOApplication).fhirEngine
+
+        fun dataStore(context: Context) = (context.applicationContext as CHOApplication).dataStore
     }
 
     override fun getDataCaptureConfig(): DataCaptureConfig = dataCaptureConfig ?: DataCaptureConfig()

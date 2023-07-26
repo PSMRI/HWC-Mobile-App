@@ -5,7 +5,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.CommunityMaster
+import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
@@ -19,6 +21,7 @@ import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.VaccineType
+import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitReason
 
@@ -29,6 +32,25 @@ object MasterDataListConverter {
         val listType = object : TypeToken<List<StateMaster?>?>() {}.type
         return Gson().fromJson(value, listType)
     }
+
+    @TypeConverter
+    fun toDistrictMasterList(value: String?): List<DistrictMaster> {
+        val listType = object : TypeToken<List<DistrictMaster?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun toBlockMasterList(value: String?): List<BlockMaster> {
+        val listType = object : TypeToken<List<BlockMaster?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun toVillageMasterList(value: String?): List<VillageMaster> {
+        val listType = object : TypeToken<List<VillageMaster?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+
     @TypeConverter
     fun toLanguageList(value: String?): List<Language> {
         val listType = object : TypeToken<List<Language?>?>() {}.type

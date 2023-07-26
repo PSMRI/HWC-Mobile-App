@@ -1,9 +1,11 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -13,6 +15,9 @@ import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.CreateHIDResponse
+import org.piramalswasthya.cho.network.CreateHealthIdRequest
+import org.piramalswasthya.cho.network.NetworkResult
 //import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -24,6 +29,7 @@ import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 import retrofit2.HttpException
 
 import timber.log.Timber
+import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -80,7 +86,6 @@ class UserRepo @Inject constructor(
             try {
                 getTokenTmc(userName, password)
                 if (user != null) {
-
                     Timber.d("User Auth Complete!!!!")
                     user?.loggedIn = true
                     if (userDao.getLoggedInUser()?.userName == userName) {
@@ -107,6 +112,47 @@ class UserRepo @Inject constructor(
             }
         }
     }
+
+
+//    suspend fun createHealthIdWithUid(createHealthIdRequest: CreateHealthIdRequest): NetworkResult<CreateHIDResponse> {
+//
+//        JSONObject()
+//        return withContext((Dispatchers.IO)) {
+//            try {
+//                val response = amritApiService.createHid(createHealthIdRequest)
+//                val responseBody = response.body()?.string()
+//                JSONObject(responseBody)
+//                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+//                    200 -> {
+//                        val data = responseBody.let { JSONObject(it).getString("data") }
+//                        val result = Gson().fromJson(data, CreateHIDResponse::class.java)
+//                        NetworkResult.Success(result)
+//                    }
+//                    5000 -> {
+//                        if (JSONObject(responseBody).getString("errorMessage")
+//                                .contentEquals("Invalid login key or session is expired")) {
+//                            val user = userRepo.getLoggedInUser()!!
+//                            userRepo.refreshTokenTmc(user.userName, user.password)
+//                            createHealthIdWithUid(createHealthIdRequest)
+//                        } else {
+//                            NetworkResult.Error(0,JSONObject(responseBody).getString("errorMessage"))
+//                        }
+//                    }
+//                    else -> {
+//                        NetworkResult.Error(0, responseBody.toString())
+//                    }
+//                }
+//            } catch (e: IOException) {
+//                NetworkResult.Error(-1, "Unable to connect to Internet!")
+//            } catch (e: JSONException) {
+//                NetworkResult.Error(-2, "Invalid response! Please try again!")
+//            } catch (e: SocketTimeoutException) {
+//                NetworkResult.Error(-3, "Request Timed out! Please try again!")
+//            } catch (e: java.lang.Exception) {
+//                NetworkResult.Error(-4, e.message ?: "Unknown Error")
+//            }
+//        }
+//    }
 
 
     private suspend fun getUserVanSpDetails(): Boolean {

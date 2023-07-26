@@ -1,10 +1,13 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -40,15 +43,18 @@ class HomeActivity : AppCompatActivity() {
         get() = _binding!!
     private lateinit var navController: NavController
 
+    private val viewModel: HomeActivityViewModel by viewModels()
+
     val patientDetails = PatientDetails()
 
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
         navController = navHostFragment.navController
+        viewModel.updateLastSyncTimestamp()
 
 
         drawerLayout = binding.drawerLayout
