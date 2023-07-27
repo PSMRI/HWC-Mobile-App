@@ -22,7 +22,7 @@ import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewModel
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragmentDirections
+//import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragmentDirections
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -67,9 +67,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragment
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-        )
+//        findNavController().navigate(
+//            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+//        )
+        findNavController().navigateUp()
     }
 
     override fun navigateNext() {

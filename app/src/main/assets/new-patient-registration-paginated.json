@@ -262,7 +262,7 @@
         {
           "linkId": "PR-telecom-value",
           "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-          "type": "integer",
+          "type": "string",
           "required": true,
           "text": "Contact No",
           "_text": {
@@ -324,9 +324,10 @@
           "linkId": "patient-0-registration-date",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.registrationDate",
           "type": "date",
+          "required": true,
           "readOnly": true,
           "text": "Registration Date",
-          "initialDateTime": "{{%FHIRDate.today%}}"
+          "initialDateTime": "{{%FHIRDate.now%}}"
         }
       ]
     }

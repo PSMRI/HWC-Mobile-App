@@ -11,4 +11,5 @@
 
     <color name="secondaryColor">#ffffff</color>
     <color name="colorAccent">#175adf</color>
+    <color name="defaultInput">#636161</color>
 </resources>
