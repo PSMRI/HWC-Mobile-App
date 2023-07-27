@@ -70,6 +70,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragment
 //        findNavController().navigate(
 //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
 //        )
+        findNavController().navigateUp()
     }
 
     override fun navigateNext() {
