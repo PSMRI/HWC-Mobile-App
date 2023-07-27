@@ -223,7 +223,7 @@
             {
               "question": "patient-0-age",
               "operator": ">",
-              "answerInteger": 13
+              "answerInteger": 11
             }
           ]
         },
@@ -262,7 +262,7 @@
         {
           "linkId": "PR-telecom-value",
           "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-          "type": "string",
+          "type": "integer",
           "required": true,
           "text": "Contact No",
           "_text": {
@@ -327,7 +327,7 @@
           "required": true,
           "readOnly": true,
           "text": "Registration Date",
-          "initialDateTime": "{{%FHIRDate.now%}}"
+          "initialDateTime": "{{%FHIRDate.today%}}"
         }
       ]
     }
