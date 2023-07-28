@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
+import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -32,6 +33,9 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var
             registrarMasterDataRepo: RegistrarMasterDataRepo
+
+    @Inject
+    lateinit var malMasterDataRepo: MaleMasterDataRepository
 
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
@@ -50,6 +54,7 @@ class HomeFragment : Fragment() {
             try {
                 registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
                 registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+                malMasterDataRepo.getMasterDataForNurse()
             }
             catch (e : Exception){
 

@@ -12,6 +12,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
@@ -19,6 +20,7 @@ import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
@@ -242,6 +244,14 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideOtherGovIdEntityMasterDao(database : InAppDb) : OtherGovIdEntityMasterDao = database.otherGovIdEntityMasterDao
+
+    @Singleton
+    @Provides
+    fun provideChiefComplaintEntityMasterDao(database: InAppDb): ChiefComplaintMasterDao = database.chiefComplaintMasterDao
+
+    @Singleton
+    @Provides
+    fun provideSubVisitEntityCat(database: InAppDb): SubCatVisitDao = database.subCatVisitDao
 
 
 //    @Singleton

@@ -9,44 +9,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.graphics.Color
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
-import java.io.File
 
 @AndroidEntryPoint
 class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
+
+    override var fragmentContainerId = 0
+
+    override val fragment = this
+    override val viewModel: VisitDetailViewModel by viewModels()
+
+    override val jsonFile = "patient-visit-details-paginated.json"
+
     private var _binding: VisitDetailsInfoBinding?= null
 
     private var units = mutableListOf<String>()
-    private var chiefComplaints = mutableListOf<String>()
+    private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
 
 
-    private val subCatOptions = listOf(
-        "",
-        "Newborn & Infant OPD",
-        "Basic Oral Health Care Services",
-        "Care for Eye, Ear & Nose and Throat Problems",
-        "Child & Adolescent OPD Care",
-        "Elderly OPD Health Care",
-        "Management of Common Communicable Diseases and Outpatient Care for Acute Simple Illnesses & Minor Ailments",
-        "Management of Communicable Diseases including National Health Programs",
-        "Palliative Outpatient Care (Symptom Management)",
-        "Reproductive Health OPD Care")
+    private var subCatOptions = ArrayList<SubVisitCategory>()
 
-
+    private lateinit var subCatAdapter: SubCategoryAdapter
+    private lateinit var chiefComplaintAdapter : ChiefComplaintAdapter
     private var unit = ""
     private var reason = ""
     private var selectedCat = ""
@@ -68,31 +65,43 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
         savedInstanceState: Bundle?
     ): View {
         units.addAll(listOf("","Minutes","Hours","Days","Weeks","Months"))
-        chiefComplaints.addAll(
-            listOf(
-                "",
-                "Abdominal Bloating",
-                "Abdominal Distention",
-                "Abdominal Mass",
-                "Abdominal Pain",
-                "Abdominal Rigidity",
-                "Abdominal Swelling",
-                "Abnormally Colored Urine",
-                "Abrasions",
-                "Absence of Speech",
-                "Absent Fetal Movements",
-                "Acne"
-            )
-        )
         _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val customAdapter = CustomAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
-        binding.chiefComplaintDropDowns.setAdapter(customAdapter)
-        binding.subCatInput.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down,subCatOptions))
+        subCatAdapter = SubCategoryAdapter(requireContext(),R.layout.drop_down,subCatOptions)
+        binding.subCatInput.setAdapter(subCatAdapter)
+
+        viewModel.subCatVisitList.observe( viewLifecycleOwner) { subCats ->
+            subCatOptions.clear()
+            subCatOptions.addAll(subCats)
+            subCatAdapter.notifyDataSetChanged()
+        }
+
+        binding.subCatInput.setOnItemClickListener { parent, view, position, id ->
+            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
+            binding.subCatInput.setText(subCat?.name,false)
+        }
+
+        binding.subCatInput.threshold = 1
+
+        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
+        binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
+
+        viewModel.chiefComplaintMaster.observe(viewLifecycleOwner){ chiefComplaintsList ->
+            chiefComplaints.clear()
+            chiefComplaints.addAll(chiefComplaintsList)
+            chiefComplaintAdapter.updateData(chiefComplaintsList)
+        }
+
+        binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
+            var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
+            binding.chiefComplaintDropDowns.setText(chiefComplaint?.chiefComplaint,false)
+        }
+
+
         binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
@@ -183,12 +192,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
         return "Unknown"
     }
 
-    override var fragmentContainerId = 0
 
-    override val fragment = this
-    override val viewModel: VisitDetailViewModel by viewModels()
-
-    override val jsonFile = "patient-visit-details-paginated.json"
 
     override fun navigateNext() {
         findNavController().navigate(
