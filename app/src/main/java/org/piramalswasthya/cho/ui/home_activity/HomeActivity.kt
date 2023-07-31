@@ -110,12 +110,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private val logoutAlert by lazy {
-        MaterialAlertDialogBuilder(this).setTitle("Logout")
-            .setMessage("Please confirm to logout.")
-            .setPositiveButton("YES") { dialog, _ ->
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
+            .setMessage(getString(R.string.please_confirm_to_logout))
+            .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
                 viewModel.logout()
                 dialog.dismiss()
-            }.setNegativeButton("NO") { dialog, _ ->
+            }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
 
                 dialog.dismiss()
             }.create()

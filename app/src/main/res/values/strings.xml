@@ -158,6 +158,10 @@
     <string name="downloading">Downloading</string>
     <string name="download_failed_retry">Failed to download , Please retry</string>
     <string name="otp_was_resent">OTP was resent.</string>
+    <string name="please_confirm_to_logout">Please confirm to logout.</string>
+    <string name="logout">Logout</string>
+    <string name="select_yes">YES</string>
+    <string name="select_no">NO</string>
 
 
 </resources>

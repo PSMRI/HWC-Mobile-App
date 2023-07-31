@@ -42,12 +42,6 @@ class HomeViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-
-//            pref.deletePrimaryApiToken()
-//            val loggedInUser = userDao.getLoggedInUser()!!
-//            if (loggedInUser != null) {
-//                loggedInUser.loggedIn = false
-//            }
             _navigateToLoginPage.value = true
             userDao.resetAllUsersLoggedInState()
         }
