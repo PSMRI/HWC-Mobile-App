@@ -325,7 +325,6 @@
           "definition": "http://example.com/StructureDefinition/Patient#Patient.registrationDate",
           "type": "date",
           "required": true,
-          "readOnly": true,
           "text": "Registration Date",
           "initialDateTime": "{{%FHIRDate.now%}}"
         }
