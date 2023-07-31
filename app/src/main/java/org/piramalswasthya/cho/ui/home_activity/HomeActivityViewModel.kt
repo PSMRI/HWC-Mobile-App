@@ -14,17 +14,31 @@ import com.google.android.fhir.sync.PeriodicSyncConfiguration
 import com.google.android.fhir.sync.RepeatInterval
 import com.google.android.fhir.sync.Sync
 import com.google.android.fhir.sync.SyncJobStatus
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.UserDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
+import org.piramalswasthya.cho.repositories.UserRepo
+import java.lang.Exception
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeActivityViewModel (application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class HomeActivityViewModel @Inject constructor (application: Application,
+                                                 private val database: InAppDb,
+                                                 private val pref: PreferenceDao,
+                                                 private val userRepo: UserRepo,
+                                                 private val userDao: UserDao,
+                                                 private val registrarMasterDataRepo: RegistrarMasterDataRepo,) : AndroidViewModel(application) {
 
     private val _lastSyncTimestampLiveData = MutableLiveData<String>()
 
@@ -39,6 +53,14 @@ class HomeActivityViewModel (application: Application) : AndroidViewModel(applic
     init {
         Log.i("view model is launched", "")
         viewModelScope.launch {
+            try {
+                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+            }
+            catch (e : Exception){
+
+            }
+
             Sync.periodicSync<DemoFhirSyncWorker>(
                 application.applicationContext,
                 periodicSyncConfiguration =
@@ -70,6 +92,21 @@ class HomeActivityViewModel (application: Application) : AndroidViewModel(applic
             Sync.getLastSyncTimestamp(getApplication())?.toLocalDateTime()?.format(formatter) ?: ""
     }
 
+    private val _navigateToLoginPage = MutableLiveData(false)
+    val navigateToLoginPage: MutableLiveData<Boolean>
+        get() = _navigateToLoginPage
+
+
+    fun logout() {
+        viewModelScope.launch {
+            _navigateToLoginPage.value = true
+            userDao.resetAllUsersLoggedInState()
+        }
+    }
+
+    fun navigateToLoginPageComplete() {
+        _navigateToLoginPage.value = false
+    }
     companion object {
         private const val formatString24 = "yyyy-MM-dd HH:mm:ss"
         private const val formatString12 = "yyyy-MM-dd hh:mm:ss a"

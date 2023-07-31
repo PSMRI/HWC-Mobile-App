@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentAadhaarOtpBinding
 import org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_otp.AadhaarOtpViewModel.State
 
@@ -110,7 +111,7 @@ class AadhaarOtpFragment : Fragment() {
                     binding.pbLoadingAadharOtp.visibility = View.INVISIBLE
                     binding.clError.visibility = View.INVISIBLE
                     binding.tvErrorText.visibility = View.INVISIBLE
-                    Toast.makeText(activity, "OTP was resent.", Toast.LENGTH_LONG)
+                    Toast.makeText(activity, getString(R.string.otp_was_resent), Toast.LENGTH_LONG)
                         .show()
                 }
             }

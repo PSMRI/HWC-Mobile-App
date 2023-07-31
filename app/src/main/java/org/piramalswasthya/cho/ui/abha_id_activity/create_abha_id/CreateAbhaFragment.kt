@@ -78,7 +78,7 @@ class CreateAbhaFragment : Fragment() {
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Exit")
-            .setMessage("Do you want to go back?")
+            .setMessage(getString(R.string.confirm_go_back))
             .setPositiveButton("Yes") { _, _ ->
                 activity?.finish()
             }
@@ -313,8 +313,8 @@ class CreateAbhaFragment : Fragment() {
             notificationManager.createNotificationChannel(channel)
 
             val notification = NotificationCompat.Builder(requireContext(),channelId)
-                .setContentTitle("Downloading abha card")
-                .setContentText("Downloading")
+                .setContentTitle(getString(R.string.downloading_abha_card))
+                .setContentText(getString(R.string.downloading))
                 .setSmallIcon(R.drawable.ic_download)
                 .setProgress(100, 0, true)
                 .build()
@@ -332,7 +332,7 @@ class CreateAbhaFragment : Fragment() {
                         "Downloading $fileName ", Snackbar.LENGTH_SHORT).show()
                 }
                 is Operation.State.FAILURE -> {
-                    Toast.makeText(context, "Failed to download , Please retry", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.download_failed_retry), Toast.LENGTH_SHORT).show()
                 }
             }
         }

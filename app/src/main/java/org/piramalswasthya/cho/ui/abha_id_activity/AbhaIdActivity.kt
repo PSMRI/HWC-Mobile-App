@@ -90,7 +90,7 @@ class AbhaIdActivity : AppCompatActivity() {
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(this)
             .setTitle("Exit")
-            .setMessage("Do you want to go back?")
+            .setMessage(getString(R.string.confirm_go_back))
             .setPositiveButton("Yes") { _, _ ->
                 navController.popBackStack()
                 navController.navigate(R.id.aadhaarIdFragment)
@@ -104,7 +104,7 @@ class AbhaIdActivity : AppCompatActivity() {
     private val exitActivityAlert by lazy {
         MaterialAlertDialogBuilder(this)
             .setTitle("Exit")
-            .setMessage("Do you want to go back?")
+            .setMessage(getString(R.string.confirm_go_back))
             .setPositiveButton("Yes") { _, _ ->
                 finish()
             }
