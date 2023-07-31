@@ -3,9 +3,39 @@ package org.piramalswasthya.cho.model
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "USER")
+
+@Entity(
+    tableName = "USER",
+    foreignKeys = [
+        ForeignKey(
+            entity = StateMaster::class,
+            parentColumns = ["stateID"],
+            childColumns = ["stateID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DistrictMaster::class,
+            parentColumns = ["districtID"],
+            childColumns = ["districtID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = BlockMaster::class,
+            parentColumns = ["blockID"],
+            childColumns = ["blockID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = VillageMaster::class,
+            parentColumns = ["districtBranchID"],
+            childColumns = ["districtBranchID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+    ]
+)
 data class UserCache(
     @PrimaryKey
     @ColumnInfo(name = "user_id")
@@ -70,7 +100,19 @@ data class UserCache(
     val userType: String,
 
     @ColumnInfo(name="logged_in")
-    var loggedIn : Boolean
+    var loggedIn : Boolean,
+
+    @ColumnInfo(name="stateID")
+    var stateID : Int?,
+
+    @ColumnInfo(name="districtID")
+    var districtID : Int?,
+
+    @ColumnInfo(name="blockID")
+    var blockID : Int?,
+
+    @ColumnInfo(name="districtBranchID")
+    var districtBranchID : Int?,
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(
@@ -183,6 +225,11 @@ data class UserNetwork(
     var blocks : MutableList<LocationEntity> = mutableListOf(),
     var villages : MutableList<LocationEntity> = mutableListOf(),
 
+//    var stateID: Int = -1,
+//    var districtID: Int = -1,
+//    var blockID: Int = -1,
+//    var districtBranchID: Int = -1,
+
 
 //    var stateIds: MutableList<Int> = mutableListOf(),
 //    var stateEnglish: MutableList<String> = mutableListOf(),
@@ -245,7 +292,12 @@ data class UserNetwork(
 
             emergencyContactNo = emergencyContactNo?:"",
             userType = userType?:"",
-            loggedIn = loggedIn?:false
+            loggedIn = loggedIn?:false,
+            stateID = null,
+            districtID = null,
+            blockID = null,
+            districtBranchID = null
+
 
         )
     }

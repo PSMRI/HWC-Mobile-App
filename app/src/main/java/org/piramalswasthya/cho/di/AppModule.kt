@@ -11,13 +11,18 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
+import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AbhaApiService
@@ -30,6 +35,10 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
+import org.piramalswasthya.cho.repositories.BlockMasterRepo
+import org.piramalswasthya.cho.repositories.DistrictMasterRepo
+import org.piramalswasthya.cho.repositories.StateMasterRepo
+import org.piramalswasthya.cho.repositories.VillageMasterRepo
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
 //import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
@@ -209,9 +218,49 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideStateMasterDao(database : InAppDb) : StateMasterDao = database.stateMasterDao
+
     @Singleton
     @Provides
     fun provideVaccinationTypeAndDoseDao(database : InAppDb) : VaccinationTypeAndDoseDao = database.vaccinationTypeAndDoseDao
+
+    @Singleton
+    @Provides
+    fun provideDistrictMasterDao(database : InAppDb) : DistrictMasterDao = database.districtMasterDao
+
+    @Singleton
+    @Provides
+    fun provideBlockMasterDao(database : InAppDb) : BlockMasterDao = database.blockMasterDao
+
+    @Singleton
+    @Provides
+    fun provideVillageMasterDao(database : InAppDb) : VillageMasterDao = database.villageMasterDao
+
+    @Singleton
+    @Provides
+    fun provideGovIdEntityMasterDao(database : InAppDb) : GovIdEntityMasterDao = database.govIdEntityMasterDao
+
+    @Singleton
+    @Provides
+    fun provideOtherGovIdEntityMasterDao(database : InAppDb) : OtherGovIdEntityMasterDao = database.otherGovIdEntityMasterDao
+
+
+//    @Singleton
+//    @Provides
+//    fun provideStateMasterRepo(database : InAppDb) : StateMasterRepo = database.stateMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideDistrictMasterRepo(database : InAppDb) : DistrictMasterRepo = database.districtMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideBlockMasterRepo(database : InAppDb) : BlockMasterRepo = database.blockMasterRepo
+//
+//    @Singleton
+//    @Provides
+//    fun provideVillageMasterRepo(database : InAppDb) : VillageMasterRepo = database.villageMasterRepo
+
+
 //    @Singleton
 //    @Provides
 //    fun provideBenIdDao(database : InAppDb) : BeneficiaryIdsAvailDao = database.benIdGenDao

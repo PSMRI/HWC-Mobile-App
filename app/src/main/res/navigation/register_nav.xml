@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/register_nav"
+    app:startDestination="@id/fhirAddPatientFragment">
+
+    <fragment
+        android:id="@+id/fhirAddPatientFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment"
+        android:label="fragment_fhir_add_patient"
+        tools:layout="@layout/fragment_fhir_add_patient" >
+
+<!--            <argument-->
+<!--                android:name="patientDetails"-->
+<!--                android:defaultValue="null" />-->
+<!--        </action>-->
+        <action
+            android:id="@+id/action_fhirAddPatientFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentLocation"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragment"
+        android:label="fragment_location"
+        tools:layout="@layout/fragment_location" >
+<!--        <action-->
+<!--            android:id="@+id/action_fhirAddPatientFragment_to_fhirLocationFragment"-->
+<!--            app:destination="@id/fhirLocationFragment" />-->
+        <!--            <argument-->
+        <!--                android:name="patientDetails"-->
+        <!--                android:defaultValue="null" />-->
+        <!--        </action>-->
+        <action
+            android:id="@+id/action_fragmentLocation_to_otherInformationsFragment"
+            app:destination="@id/otherInformationsFragment" />
+        <action
+            android:id="@+id/action_fragmentLocation_to_fhirAddPatientFragment"
+            app:destination="@id/fhirAddPatientFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherInformationsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.other_informations.OtherInformationsFragment"
+        android:label="fragment_other_informations"
+        tools:layout="@layout/fragment_other_informations" >
+        <action
+            android:id="@+id/action_otherInformationsFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
+    </fragment>
+
+    <!--    <fragment-->
+<!--        android:id="@+id/fhirLocationFragment"-->
+<!--        android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment.FhirLocationFragment"-->
+<!--        android:label="FhirLocationFragment" >-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="patientDetails"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="org.hl7.fhir.r4.model.Patient"/>&ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_fhirLocationFragment_to_fhirOtherInformationFragment"-->
+<!--            app:destination="@id/fhirOtherInformationFragment" />-->
+<!--&lt;!&ndash;            <argument&ndash;&gt;-->
+<!--&lt;!&ndash;                android:name="patientDetails"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:defaultValue="null" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </action>&ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_fhirLocationFragment_to_fhirAddPatientFragment"-->
+<!--            app:destination="@id/fhirAddPatientFragment" />-->
+<!--    </fragment>-->
+<!--    <fragment-->
+<!--        android:id="@+id/fhirOtherInformationFragment"-->
+<!--        android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.other_information.FhirOtherInformationFragment"-->
+<!--        android:label="FhirOtherInformationFragment" >-->
+<!--&lt;!&ndash;        <argument&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="patientDetails"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:argType="org.hl7.fhir.r4.model.Patient"/>&ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_fhirOtherInformationFragment_to_fhirLocationFragment"-->
+<!--            app:destination="@id/fhirLocationFragment" />-->
+<!--    </fragment>-->
+</navigation>

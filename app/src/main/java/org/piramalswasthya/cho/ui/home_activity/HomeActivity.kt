@@ -1,11 +1,14 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.activity.viewModels
+
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -23,11 +26,11 @@ import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.home.HomeFragment
-import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 //import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
@@ -38,23 +41,24 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
 
-    private val viewModel: HomeViewModel by viewModels()
-
     private var _binding: ActivityHomeBinding? = null
 
     private val binding: ActivityHomeBinding
         get() = _binding!!
     private lateinit var navController: NavController
 
+    private val viewModel: HomeActivityViewModel by viewModels()
+
     val patientDetails = PatientDetails()
 
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
         navController = navHostFragment.navController
+        viewModel.updateLastSyncTimestamp()
 
 
         drawerLayout = binding.drawerLayout
@@ -81,6 +85,7 @@ class HomeActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.abha_id_activity -> {
+                    // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
                     drawerLayout.closeDrawers()
                     true

@@ -13,6 +13,10 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.repositories.UserRepo
+
+import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
+
+import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,10 +25,22 @@ class HomeViewModel @Inject constructor(
     private val pref: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
+    private val registrarMasterDataRepo: RegistrarMasterDataRepo,
+
 
     ) : ViewModel() {
 
+    init {
+        viewModelScope.launch{
+            try {
+                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+            }
+            catch (e : Exception){
 
+            }
+        }
+    }
 
 
     val scope: CoroutineScope

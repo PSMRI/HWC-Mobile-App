@@ -25,7 +25,8 @@ class LanguageRepo @Inject constructor(
             val data = responseJson?.getJSONArray("data")
             return MasterDataListConverter.toLanguageList(data.toString())
         }else{
-            throw Exception("Failed to get data!")
+            return listOf();
+//            throw Exception("Failed to get data!")
         }
     }
     suspend fun saveResponseToCacheLang() {
