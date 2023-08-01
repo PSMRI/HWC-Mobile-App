@@ -225,6 +225,35 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <LinearLayout
+            android:id="@+id/chiefComplaintExtra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionText"
+            app:layout_constraintStart_toStartOf="parent" />
+        <Button
+            android:id="@+id/plusButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add chief"
+            android:layout_gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete chief"
+            android:layout_gravity="center"
+            app:layout_constraintStart_toEndOf="@+id/plusButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"
+            android:padding="16dp"/>
+
         <TextView
             android:id="@+id/selectFileText"
             android:layout_width="0dp"
@@ -243,7 +272,7 @@
             android:text="Select File"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/selectFileText"
-            app:layout_constraintTop_toBottomOf="@id/descriptionText" />
+            app:layout_constraintTop_toBottomOf="@id/plusButton" />
 
         <Space
             android:layout_width="wrap_content"

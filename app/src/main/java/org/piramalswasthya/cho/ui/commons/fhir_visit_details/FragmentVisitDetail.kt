@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,8 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,6 +54,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     private var duration = ""
     private var desc = ""
 
+    private var clickedCount: Int = 0
+
 
 
 
@@ -64,6 +69,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        clickedCount = 0
         units.addAll(listOf("","Minutes","Hours","Days","Weeks","Months"))
         _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
         return binding.root
@@ -129,6 +135,29 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
         binding.selectFileBtn.setOnClickListener {
             openFilePicker()
+        }
+
+        binding.plusButton.setOnClickListener {
+            addExtraChiefComplaint(clickedCount++)
+        }
+        binding.deleteButton.setOnClickListener {
+        if(clickedCount >= 0) deleteExtraChiefComplaint(--clickedCount)
+        }
+    }
+    private fun addExtraChiefComplaint(count: Int){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
+        val chiefFragment = ChiefComplaintFragment(chiefComplaints)
+        fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, "Extra_Complaint_$count")
+        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
+        fragmentTransaction.commit()
+    }
+    private fun deleteExtraChiefComplaint(count: Int){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val tagToDelete = "Extra_Complaint_$count" // Replace `count` with the index of the field you want to delete
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tagToDelete)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
         }
     }
 
