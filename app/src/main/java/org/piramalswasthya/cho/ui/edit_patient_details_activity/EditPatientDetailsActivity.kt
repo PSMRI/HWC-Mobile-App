@@ -75,6 +75,11 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
             when (currFragment.getFragmentId()){
                 R.id.fragment_fhir_visit_details -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_history_custom ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
@@ -109,10 +114,15 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 R.id.fragment_fhir_visit_details -> {
 
                 }
-                R.id.fragment_fhir_vitals -> {
+                R.id.fragment_history_custom->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.esanjeevni)
+                }
+                R.id.fragment_fhir_vitals -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_prescription -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)

@@ -68,7 +68,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragment
 
     override fun onCancelAction() {
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToHistoryCustomFragment()
         )
     }
 
