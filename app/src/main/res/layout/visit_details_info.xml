@@ -234,35 +234,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
 
-        <Button
-            android:id="@+id/plusButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Add"
-            app:layout_constraintEnd_toStartOf="@+id/resetButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
+<!--        <Button-->
+<!--            android:id="@+id/plusButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:text="Add"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/resetButton"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
 
-        <Button
-            android:id="@+id/resetButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Reset"
-            app:layout_constraintEnd_toStartOf="@+id/deleteButton"
-            app:layout_constraintStart_toEndOf="@id/plusButton"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
+<!--        <Button-->
+<!--            android:id="@+id/resetButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:text="Reset"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/deleteButton"-->
+<!--            app:layout_constraintStart_toEndOf="@id/plusButton"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
 
-        <Button
-            android:id="@+id/deleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Delete"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/resetButton"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
+<!--        <Button-->
+<!--            android:id="@+id/deleteButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:text="Delete"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/resetButton"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardUpload"
@@ -273,7 +273,7 @@
             android:radius="8dp"
             android:shape="rectangle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/plusButton">
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra">
 
             <LinearLayout
                 android:id="@+id/mainLinear"

@@ -23,12 +23,13 @@ import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
+import org.piramalswasthya.cho.ui.ChiefComplaintInterface
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 @AndroidEntryPoint
-class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
+class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, ChiefComplaintInterface{
 
     override var fragmentContainerId = 0
 
@@ -39,7 +40,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
     private var _binding: VisitDetailsInfoBinding?= null
 
-    private var units = mutableListOf<String>()
+    private var units = mutableListOf("Hours(s)","Days(s)","Weeks(s)","Months(s)","Years(s)")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
 
 
@@ -56,7 +57,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
-    private var clickedCount: Int = 0
+    var clickedCount: Int = 0
 
 
 
@@ -71,8 +72,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        clickedCount = 0
-        units.addAll(listOf("Hours(s)","Days(s)","Weeks(s)","Months(s)","Years(s)"))
+        clickedCount = 1
         _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
         return binding.root
     }
@@ -142,28 +142,47 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
             isFileUploaded = true
         }
 
-        binding.plusButton.setOnClickListener {
-            addExtraChiefComplaint(clickedCount++)
-        }
-        binding.deleteButton.setOnClickListener {
-        if(clickedCount >= 0) deleteExtraChiefComplaint(--clickedCount)
-        }
+//        binding.plusButton.setOnClickListener {
+//            addExtraChiefComplaint(clickedCount++)
+//        }
+//        binding.deleteButton.setOnClickListener {
+//        if(clickedCount >= 0) deleteExtraChiefComplaint(--clickedCount)
+//        }
+        addExtraChiefComplaint(clickedCount)
     }
     private fun addExtraChiefComplaint(count: Int){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
         val chiefFragment = ChiefComplaintFragment(chiefComplaints,units)
-        fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, "Extra_Complaint_$count")
+        val tag = "Extra_Complaint_$count"
+        chiefFragment.setFragmentTag(tag)
+        chiefFragment.setListener(this)
+        fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, tag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
     }
     private fun deleteExtraChiefComplaint(count: Int){
+        Log.i("Calling Delete ", "count $count")
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val tagToDelete = "Extra_Complaint_$count" // Replace `count` with the index of the field you want to delete
         val fragmentToDelete = fragmentManager.findFragmentByTag(tagToDelete)
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
         }
+    }
+
+    override fun onDeleteButtonClicked(fragmentTag: String) {
+        Toast.makeText(requireContext(),"Delete Text $fragmentTag", Toast.LENGTH_SHORT).show()
+        deleteExtraChiefComplaint((fragmentTag[16] - 48).code)
+    }
+
+    override fun onAddButtonClicked(fragmentTag: String) {
+        addExtraChiefComplaint(clickedCount)
+    }
+
+    override fun counter(num: Int) {
+        clickedCount += num
+        Toast.makeText(requireContext(),"Here is the $clickedCount",Toast.LENGTH_SHORT).show()
     }
 
 
