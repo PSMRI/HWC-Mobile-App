@@ -227,7 +227,7 @@
             {
               "question": "patient-0-age",
               "operator": ">",
-              "answerInteger": 11
+              "answerInteger": 13
             }
           ]
         },
