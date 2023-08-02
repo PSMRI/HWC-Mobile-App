@@ -6,8 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.activity.viewModels
+
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +26,8 @@ import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.home.HomeFragment
@@ -70,6 +74,13 @@ class HomeActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        viewModel.navigateToLoginPage.observe(this) {
+            if (it) {
+                startActivity(Intent(this, LoginActivity::class.java))
+                viewModel.navigateToLoginPageComplete()
+                finish()
+            }
+        }
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -77,6 +88,10 @@ class HomeActivity : AppCompatActivity() {
                     // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
                     drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.menu_logout -> {
+                    logoutAlert.show()
                     true
                 }
                 else -> false
@@ -97,6 +112,18 @@ class HomeActivity : AppCompatActivity() {
         var adapter = PatientListAdapter(this, benificiaryList)
 
 
+    }
+
+    private val logoutAlert by lazy {
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
+            .setMessage(getString(R.string.please_confirm_to_logout))
+            .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
+                viewModel.logout()
+                dialog.dismiss()
+            }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+
+                dialog.dismiss()
+            }.create()
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

@@ -12,7 +12,7 @@ interface LoginSettingsDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(loginSettingsData: LoginSettingsData)
 
-    @Query("SELECT * FROM login_settings_data WHERE username = :username")
+    @Query("SELECT * FROM login_settings_data WHERE username like :username")
     suspend fun findByUsername(username: String): LoginSettingsData?
 
     @Delete

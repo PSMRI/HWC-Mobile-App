@@ -16,19 +16,23 @@
 
 package org.piramalswasthya.cho.ui.commons.personal_details
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.os.Build
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import java.time.LocalDate
 import java.time.Period
 import org.hl7.fhir.r4.model.codesystems.RiskProbability
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 
 class PatientItemViewHolder(binding: PatientListItemViewBinding) :
   RecyclerView.ViewHolder(binding.root) {
@@ -36,6 +40,7 @@ class PatientItemViewHolder(binding: PatientListItemViewBinding) :
   private val ageView: TextView = binding.age
   private val phoneView: TextView = binding.phoneNo
   private val gender: TextView = binding.gender
+  private val abhaBtn : MaterialButton = binding.btnAbha
 
   @RequiresApi(Build.VERSION_CODES.O)
   fun bindTo(
@@ -47,6 +52,14 @@ class PatientItemViewHolder(binding: PatientListItemViewBinding) :
     this.phoneView.text = patientItem.phone
     this.gender.text = getGender(patientItem.gender)
     this.itemView.setOnClickListener { onItemClicked(patientItem) }
+
+//    this.abhaBtn.setOnClickListener {
+//      val intent = Intent(it.context, AbhaIdActivity::class.java)
+//      //TODO: Replace hard coded values of benRegId and benId with actual values
+//      intent.putExtra("benRegId", 32129L)
+//      intent.putExtra("benId", 690994260411L)
+//      it.context.startActivity(intent)
+//    }
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
