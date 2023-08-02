@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Other CPHC Services"
-                android:textColor="@drawable/radio_btn_select"/>
+                android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
         <TextView
@@ -51,9 +51,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="Reason For Visit"
-            android:visibility="gone"
             android:textSize="16sp"
             android:textStyle="normal|bold"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
@@ -70,8 +70,8 @@
                 android:id="@+id/radioButton3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Chief Complaints"
                 android:checked="true"
+                android:text="New Chief Complaints"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Followup"
-                android:textColor="@drawable/radio_btn_select"/>
+                android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
         <TextView
@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:hint="Select Sub CateGory"
+            android:hint="Select Sub Category"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/subCatTxt">
 
@@ -128,7 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:hint="Enter Duration"
+            android:hint="Select Chief Complaint"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/chiefComplaint">
 
@@ -157,6 +157,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
+            android:hint="Enter Duration"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/durationTxt">
 
@@ -183,8 +184,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:layout_constraintLeft_toLeftOf="parent"
             android:hint="Select Duration Unit"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/durationUnit">
 
@@ -230,49 +231,95 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionText"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
+
         <Button
             android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add chief"
             android:layout_gravity="center"
+            android:text="Add"
+            app:layout_constraintEnd_toStartOf="@+id/resetButton"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
+
+        <Button
+            android:id="@+id/resetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Reset"
             app:layout_constraintEnd_toStartOf="@+id/deleteButton"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"
-            android:padding="16dp" />
+            app:layout_constraintStart_toEndOf="@id/plusButton"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
 
         <Button
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete chief"
             android:layout_gravity="center"
-            app:layout_constraintStart_toEndOf="@+id/plusButton"
+            android:text="Delete"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"
-            android:padding="16dp"/>
+            app:layout_constraintStart_toEndOf="@+id/resetButton"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
 
-        <TextView
-            android:id="@+id/selectFileText"
-            android:layout_width="0dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardUpload"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="Selected File"
-            app:layout_constraintBaseline_toBaselineOf="@+id/selectFileBtn"
-            app:layout_constraintEnd_toStartOf="@+id/selectFileBtn"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:elevation="8dp"
+            android:radius="8dp"
+            android:shape="rectangle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/plusButton">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectFileBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Select File"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/selectFileText"
-            app:layout_constraintTop_toBottomOf="@id/plusButton" />
+            <LinearLayout
+                android:id="@+id/mainLinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/uploadFileHead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select And Upload File"
+                    android:textStyle="normal|bold" />
+
+                <LinearLayout
+                    android:id="@+id/layoutUpload"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/selectFileText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:layout_weight="1"
+                        android:text="Selected File" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/selectFileBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:text="Select File" />
+                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/uploadFileBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:text="Upload File" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <Space
             android:layout_width="wrap_content"
@@ -280,7 +327,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/selectFileBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/cardUpload" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

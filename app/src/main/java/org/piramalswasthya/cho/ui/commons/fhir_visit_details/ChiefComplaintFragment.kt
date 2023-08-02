@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -12,7 +13,8 @@ import org.piramalswasthya.cho.model.ChiefComplaint
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 
 @AndroidEntryPoint
-class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaintMaster>) : Fragment() {
+class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaintMaster>,
+                             private var units: List<String>) : Fragment() {
     private var _binding: ExtraChiefComplaintLayoutBinding? = null
     private lateinit var chiefComplaintAdapter : ChiefComplaintAdapter
 
@@ -35,6 +37,11 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
             var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
             binding.chiefComplaintDropDowns.setText(chiefComplaint?.chiefComplaint,false)
+        }
+        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down,units))
+        binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
+            var unit = parent.getItemAtPosition(position) as String
+            binding.dropdownDurUnit.setText(unit,false)
         }
     }
 }

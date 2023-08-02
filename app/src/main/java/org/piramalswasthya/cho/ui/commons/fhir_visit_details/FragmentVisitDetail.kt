@@ -53,6 +53,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     private var selectedSubCat = ""
     private var duration = ""
     private var desc = ""
+    private var isFileSelected: Boolean = false
+    private var isFileUploaded: Boolean = false
 
     private var clickedCount: Int = 0
 
@@ -70,7 +72,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
         savedInstanceState: Bundle?
     ): View {
         clickedCount = 0
-        units.addAll(listOf("","Minutes","Hours","Days","Weeks","Months"))
+        units.addAll(listOf("Hours(s)","Days(s)","Weeks(s)","Months(s)","Years(s)"))
         _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
         return binding.root
     }
@@ -127,14 +129,17 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
         binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
             unit = parent.getItemAtPosition(position) as String
-
-            binding.dropdownDuration.hint = unit
+           binding.dropdownDurUnit.setText(unit,false)
         }
 
         desc = binding.descInputText.text.toString()
 
         binding.selectFileBtn.setOnClickListener {
             openFilePicker()
+        }
+        binding.uploadFileBtn.setOnClickListener {
+            Toast.makeText(requireContext(),"You have uploaded the file",Toast.LENGTH_SHORT).show()
+            isFileUploaded = true
         }
 
         binding.plusButton.setOnClickListener {
@@ -147,7 +152,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     private fun addExtraChiefComplaint(count: Int){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-        val chiefFragment = ChiefComplaintFragment(chiefComplaints)
+        val chiefFragment = ChiefComplaintFragment(chiefComplaints,units)
         fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, "Extra_Complaint_$count")
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
@@ -169,13 +174,18 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 //                uploadFileToServer(uri)
                 val fileSize = getFileSizeFromUri(uri)
                 if(fileSize > 5242880) {
-                    Toast.makeText(requireContext(), "Please select file less than 5MB", Toast.LENGTH_LONG)
+                    Toast.makeText(requireContext(), "Please select file less than 5MB", Toast.LENGTH_SHORT)
                         .show()
                     binding.selectFileText.text = "Selected File"
+                    binding.uploadFileBtn.isEnabled = false
+                    isFileSelected = false
+                    isFileUploaded = false
                 }
                 else {
                     val fileName = getFileNameFromUri(uri)
                     binding.selectFileText.text = fileName
+                    binding.uploadFileBtn.isEnabled = true
+                    isFileSelected = true
                 }
             }
         }
@@ -224,9 +234,17 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
 
     override fun navigateNext() {
-        findNavController().navigate(
-            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
-        )
+        if(isFileSelected && isFileUploaded) {
+            findNavController().navigate(
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
+            )
+        } else if(!isFileSelected){
+            findNavController().navigate(
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
+            )
+        } else {
+            Toast.makeText(requireContext(),"Please Upload the Selected File",Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun getFragmentId(): Int {
