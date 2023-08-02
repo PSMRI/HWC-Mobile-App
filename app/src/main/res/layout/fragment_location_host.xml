@@ -13,7 +13,7 @@
         android:outlineProvider="none"
         android:layout_marginHorizontal="@dimen/margin_big"
         android:layout_marginVertical="@dimen/margin_big"
-        android:text="Location Details"
+        android:text="@string/location_details"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/white"
@@ -59,7 +59,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
                 android:backgroundTint="@color/purple"
-                android:text="Next" />
+                android:text="@string/next" />
 
         </LinearLayout>
 

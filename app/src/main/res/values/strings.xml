@@ -165,6 +165,17 @@
     <string name="logout">Logout</string>
     <string name="select_yes">YES</string>
     <string name="select_no">NO</string>
+    <string name="add">Add</string>
+    <string name="choose_abha_gen_mode">Choose Abha gen mode</string>
+    <string name="abha_gen_mode">Abha gen mode</string>
+    <string name="state">State</string>
+    <string name="choose_state">Choose State</string>
+    <string name="district_town_city">District/Town/City</string>
+    <string name="choose_district">Choose District</string>
+    <string name="taluk_tehsil">Taluk/Tehsil</string>
+    <string name="choose_taluk">Choose Taluk</string>
+    <string name="street_panchayat_village">Street/Panchayat/Village</string>
+    <string name="choose_panchayat">Choose Panchayat</string>
 
 
 </resources>
