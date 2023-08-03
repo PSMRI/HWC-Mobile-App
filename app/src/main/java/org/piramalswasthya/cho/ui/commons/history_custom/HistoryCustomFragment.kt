@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.history_custom
 
+import IllnessDialogFragment
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -55,7 +56,11 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentHistoryCustomBinding.inflate(inflater, container, false)
-        val view = binding.root
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         dropdownIllness = binding.illnessText
         dropdownTimePeriodAgo = binding.timePeriodAgoText
@@ -65,9 +70,18 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-        return view
-    }
+        dropdownIllness = binding.illnessText
+        dropdownTimePeriodAgo = binding.timePeriodAgoText
 
+        binding.btnPreviousHistory.setOnClickListener {
+            openIllnessDialogBox()
+        }
+    }
+    private fun openIllnessDialogBox() {
+        // Create an instance of the custom dialog fragment and show it
+        val dialogFragment = IllnessDialogFragment()
+        dialogFragment.show(parentFragmentManager, "illness_dialog_box")
+    }
     override fun getFragmentId(): Int {
       return R.id.fragment_history_custom
     }
