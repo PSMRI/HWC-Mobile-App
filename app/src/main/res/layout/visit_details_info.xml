@@ -110,122 +110,6 @@
                 android:layout_weight="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
-<!--        <TextView-->
-<!--            android:id="@+id/chiefComplaint"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:text="Chief Complaint"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textStyle="normal|bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/chiefComplaintOptions"-->
-<!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:hint="Select Chief Complaint"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/chiefComplaint">-->
-
-<!--            <AutoCompleteTextView-->
-<!--                android:id="@+id/chiefComplaintDropDowns"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="1"-->
-<!--                android:imeOptions="actionDone"-->
-<!--                android:inputType="text" />-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/durationTxt"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:text="Duration"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textStyle="normal|bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/duration"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:hint="Enter Duration"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/durationTxt">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/inputDuration"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content" />-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/durationUnit"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:text="Unit of Duration"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textStyle="normal|bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/duration" />-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/dropdownDuration"-->
-<!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="8dp"-->
-<!--            android:hint="Select Duration Unit"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/durationUnit">-->
-
-<!--            <AutoCompleteTextView-->
-<!--                android:id="@+id/dropdownDurUnit"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="1" />-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/description"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:text="Description"-->
-<!--            android:textStyle="normal|bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/dropdownDuration" />-->
-
-<!--        &lt;!&ndash; TextInputLayout for the text area &ndash;&gt;-->
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/descriptionText"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:hint="Enter your Description..."-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/description">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/descInputText"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="top"-->
-<!--                android:inputType="textMultiLine"-->
-<!--                android:minLines="2" />-->
-
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
         <LinearLayout
             android:id="@+id/chiefComplaintExtra"
             android:layout_width="match_parent"
@@ -234,35 +118,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />
 
-<!--        <Button-->
-<!--            android:id="@+id/plusButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:text="Add"-->
-<!--            app:layout_constraintEnd_toStartOf="@+id/resetButton"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
-
-<!--        <Button-->
-<!--            android:id="@+id/resetButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:text="Reset"-->
-<!--            app:layout_constraintEnd_toStartOf="@+id/deleteButton"-->
-<!--            app:layout_constraintStart_toEndOf="@id/plusButton"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
-
-<!--        <Button-->
-<!--            android:id="@+id/deleteButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:text="Delete"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toEndOf="@+id/resetButton"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />-->
+        <Button
+            android:id="@+id/plusButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Add"
+            android:layout_margin="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardUpload"
@@ -273,7 +138,7 @@
             android:radius="8dp"
             android:shape="rectangle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra">
+            app:layout_constraintTop_toBottomOf="@+id/plusButton">
 
             <LinearLayout
                 android:id="@+id/mainLinear"

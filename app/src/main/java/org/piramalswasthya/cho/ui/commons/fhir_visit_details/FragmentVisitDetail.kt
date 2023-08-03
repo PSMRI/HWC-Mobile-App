@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Activity
+import android.content.ClipDescription
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +11,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -17,11 +20,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.ChiefComplaintInterface
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
@@ -38,30 +43,23 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
     override val jsonFile = "patient-visit-details-paginated.json"
 
+
+
     private var _binding: VisitDetailsInfoBinding?= null
 
     private var units = mutableListOf("Hours(s)","Days(s)","Weeks(s)","Months(s)","Years(s)")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
+    private var allVal = mutableListOf<String>()
 
 
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
     private lateinit var subCatAdapter: SubCategoryAdapter
-    private lateinit var chiefComplaintAdapter : ChiefComplaintAdapter
-    private var unit = ""
-    private var reason = ""
-    private var selectedCat = ""
-    private var selectedSubCat = ""
-    private var duration = ""
-    private var desc = ""
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
-    var addCount: Int = 0
-    var deleteCount: Int = 0
-
-    var chiefTag = mutableListOf<String>()
-
+    private var addCount: Int = 0
+    private var deleteCount: Int = 0
 
 
 
@@ -99,22 +97,10 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
         binding.subCatInput.threshold = 1
 
-//        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
-//        binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
-
         viewModel.chiefComplaintMaster.observe(viewLifecycleOwner){ chiefComplaintsList ->
             chiefComplaints.clear()
             chiefComplaints.addAll(chiefComplaintsList)
-//            chiefComplaintAdapter.updateData(chiefComplaintsList)
         }
-
-//        binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
-//            var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
-//            binding.chiefComplaintDropDowns.setText(chiefComplaint?.chiefComplaint,false)
-//        }
-//
-//
-//        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             when(checkedId){
@@ -128,16 +114,6 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
                 }
             }
         }
-
-//        duration = binding.inputDuration.text.toString()
-//
-//        binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
-//            unit = parent.getItemAtPosition(position) as String
-//           binding.dropdownDurUnit.setText(unit,false)
-//        }
-//
-//        desc = binding.descInputText.text.toString()
-
         binding.selectFileBtn.setOnClickListener {
             openFilePicker()
         }
@@ -146,25 +122,22 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
             isFileUploaded = true
         }
 
-//        binding.plusButton.setOnClickListener {
-//            addExtraChiefComplaint(clickedCount++)
-//        }
-//        binding.deleteButton.setOnClickListener {
-//        if(clickedCount >= 0) deleteExtraChiefComplaint(--clickedCount)
-//        }
+        binding.plusButton.setOnClickListener {
+            addExtraChiefComplaint(addCount)
+        }
+
         addExtraChiefComplaint(addCount)
     }
     private fun addExtraChiefComplaint(count: Int){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-        val chiefFragment = ChiefComplaintFragment(chiefComplaints,units)
+        val chiefFragment = ChiefComplaintFragment(chiefComplaints,units,binding.chiefComplaintExtra)
         val tag = "Extra_Complaint_$count"
         chiefFragment.setFragmentTag(tag)
         chiefFragment.setListener(this)
         fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, tag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
-        chiefTag.add(tag)
         addCount += 1
     }
     private fun deleteExtraChiefComplaint(tag: String){
@@ -172,7 +145,6 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
-            chiefTag.remove(tag)
             deleteCount += 1
         }
     }
@@ -180,11 +152,6 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     override fun onDeleteButtonClicked(fragmentTag: String) {
         if(addCount - 1 > deleteCount) deleteExtraChiefComplaint(fragmentTag)
     }
-
-    override fun onAddButtonClicked(fragmentTag: String) {
-        addExtraChiefComplaint(addCount)
-    }
-
 
     private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -253,6 +220,27 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
 
     override fun navigateNext() {
+        val count = binding.chiefComplaintExtra.childCount
+        var chiefComplaintsList = mutableListOf<ChiefComplaintValues>()
+        for(i in 0..count.minus(1)){
+            val childView: View? = binding.chiefComplaintExtra?.getChildAt(i)
+            val chiefComplaintVal = childView?.findViewById<AutoCompleteTextView>(R.id.chiefComplaintDropDowns)
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
+            val descVal = childView?.findViewById<TextInputEditText>(R.id.descInputText)
+
+            if(chiefComplaintVal?.text?.isNotEmpty()!! &&
+                durationVal?.text?.isNotEmpty()!! &&
+                unitDurationVal?.text?.isNotEmpty()!! &&
+                descVal?.text?.isNotEmpty()!!){
+                var chiefComplaintValues = ChiefComplaintValues(
+                    chiefComplaintVal?.text.toString(),
+                    unitDurationVal?.text.toString(),
+                    descVal?.text.toString(),
+                    durationVal?.text.toString()?.toInt()!!)
+                chiefComplaintsList.add(chiefComplaintValues)
+            }
+        }
         if(isFileSelected && isFileUploaded) {
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()

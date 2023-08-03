@@ -1,26 +1,23 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ExtraChiefComplaintLayoutBinding
-import org.piramalswasthya.cho.model.ChiefComplaint
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.ui.ChiefComplaintInterface
 
 @AndroidEntryPoint
 class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaintMaster>,
-                             private var units: List<String>) : Fragment() {
+                             private var units: List<String>, private var linearLayout: LinearLayout) : Fragment() {
     private var _binding: ExtraChiefComplaintLayoutBinding? = null
     private lateinit var chiefComplaintAdapter : ChiefComplaintAdapter
     private var chiefComplaintListener: ChiefComplaintInterface? = null
@@ -60,13 +57,10 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
                 chiefComplaintListener?.onDeleteButtonClicked(it)
             }
         }
-        binding.plusButton.setOnClickListener {
-            fragmentTag?.let {
-                chiefComplaintListener?.onAddButtonClicked(it)
-            }
+        linearLayout.addOnLayoutChangeListener { view, i, i2, i3, i4, i5, i6, i7, i8 ->
+            var count = linearLayout.childCount
+            binding.deleteButton.isEnabled = count > 1
         }
-
-        binding.plusButton.isEnabled = false
         binding.resetButton.isEnabled = false
         binding.descInputText.addTextChangedListener(inputTextWatcher)
         binding.dropdownDurUnit.addTextChangedListener(inputTextWatcher)
@@ -90,28 +84,22 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            updateAddAndResetButtonState()
+            updateResetButtonState()
         }
 
         override fun afterTextChanged(s: Editable?) {
             // No action needed
         }
     }
-
-    private fun updateAddAndResetButtonState() {
+    private fun updateResetButtonState() {
         val description = binding.descInputText.text.toString().trim()
         val durationUnit = binding.dropdownDurUnit.text.toString().trim()
         val duration = binding.inputDuration.text.toString().trim()
         val chiefComplaint = binding.chiefComplaintDropDowns.text.toString().trim()
-        binding.plusButton.isEnabled = description.isNotEmpty() &&
-                durationUnit.isNotEmpty() &&
-                duration.isNotEmpty() &&
-                chiefComplaint.isNotEmpty()
+
         binding.resetButton.isEnabled = description.isNotEmpty() ||
                 durationUnit.isNotEmpty() ||
                 duration.isNotEmpty() ||
                 chiefComplaint.isNotEmpty()
     }
-
-
 }
