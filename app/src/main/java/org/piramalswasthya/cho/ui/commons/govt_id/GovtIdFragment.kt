@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.LinearLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +23,7 @@ import org.piramalswasthya.cho.repositories.GovIdEntityMasterRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GovtIdFragment constructor(private val fragmentTag: String, private val linearLayout: LinearLayout): Fragment() {
+class GovtIdFragment constructor(private val fragmentTag: String, private val linearLayout: LinearLayout, private var fragmentTagList: ArrayList<String>, private val button: Button,): Fragment() {
 
     companion object {
 //        fun newInstance() = GovtIdFragment()
@@ -64,6 +65,7 @@ class GovtIdFragment constructor(private val fragmentTag: String, private val li
                 fragmentToRemove?.let {
                     requireActivity().supportFragmentManager.beginTransaction().remove(it).commit()
                 }
+                fragmentTagList.remove(fragmentTag)
             }
         }
 

@@ -83,6 +83,9 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    private var govtIdCounter = 0;
+    private var govtIdFragmentTagList = ArrayList<String>();
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,9 +97,7 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         fetchAbhaGenMode()
         addGovtIdForm()
-        addGovtHealthProgForm()
-//        fetchGovtIds()
-//        fetchOtherGovtIds()
+//        addGovtHealthProgForm()
         binding.addIdBtn.setOnClickListener {
             addGovtIdForm()
         }
@@ -109,14 +110,17 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
 
-        val fragmentTag = "GovtIdFragment_" + binding.govtIdContainer.childCount.toString()
-        val formFragment = GovtIdFragment(fragmentTag, binding.govtIdContainer)
+        val fragmentTag = "GovtIdFragment_$govtIdCounter"
+        govtIdFragmentTagList.add(fragmentTag)
+        val formFragment = GovtIdFragment(fragmentTag, binding.govtIdContainer, govtIdFragmentTagList, binding.addIdBtn)
 
         // Add the fragment to the dynamic fragment container
         Log.i("tag is", fragmentTag);
+//        binding.addIdBtn.isEnabled = false;
         fragmentTransaction.add(binding.govtIdContainer.id, formFragment, fragmentTag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
+        govtIdCounter++;
     }
 
     private fun addGovtHealthProgForm(){
