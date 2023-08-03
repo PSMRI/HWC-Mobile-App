@@ -60,6 +60,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     var addCount: Int = 0
     var deleteCount: Int = 0
 
+    var chiefTag = mutableListOf<String>()
+
 
 
 
@@ -162,21 +164,21 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, tag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
+        chiefTag.add(tag)
         addCount += 1
     }
-    private fun deleteExtraChiefComplaint(count: Int){
-        Log.i("Calling Delete ", "count $count")
+    private fun deleteExtraChiefComplaint(tag: String){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-        val tagToDelete = "Extra_Complaint_$count" // Replace `count` with the index of the field you want to delete
-        val fragmentToDelete = fragmentManager.findFragmentByTag(tagToDelete)
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            chiefTag.remove(tag)
             deleteCount += 1
         }
     }
 
     override fun onDeleteButtonClicked(fragmentTag: String) {
-        if(addCount - 1 > deleteCount) deleteExtraChiefComplaint((fragmentTag[16] - 48).code)
+        if(addCount - 1 > deleteCount) deleteExtraChiefComplaint(fragmentTag)
     }
 
     override fun onAddButtonClicked(fragmentTag: String) {

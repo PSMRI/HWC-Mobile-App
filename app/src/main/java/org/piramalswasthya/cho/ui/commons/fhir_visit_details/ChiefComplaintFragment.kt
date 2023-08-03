@@ -69,8 +69,14 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         binding.plusButton.isEnabled = false
         binding.resetButton.isEnabled = false
         binding.descInputText.addTextChangedListener(inputTextWatcher)
+        binding.dropdownDurUnit.addTextChangedListener(inputTextWatcher)
+        binding.inputDuration.addTextChangedListener(inputTextWatcher)
+        binding.chiefComplaintDropDowns.addTextChangedListener(inputTextWatcher)
         binding.resetButton.setOnClickListener {
             binding.descInputText.text?.clear()
+            binding.dropdownDurUnit.text?.clear()
+            binding.inputDuration.text?.clear()
+            binding.chiefComplaintDropDowns.text?.clear()
         }
     }
 
@@ -84,7 +90,7 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            updateAddButtonState()
+            updateAddAndResetButtonState()
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -92,10 +98,19 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         }
     }
 
-    private fun updateAddButtonState() {
+    private fun updateAddAndResetButtonState() {
         val description = binding.descInputText.text.toString().trim()
-        binding.plusButton.isEnabled = description.isNotEmpty()
-        binding.resetButton.isEnabled = description.isNotEmpty()
+        val durationUnit = binding.dropdownDurUnit.text.toString().trim()
+        val duration = binding.inputDuration.text.toString().trim()
+        val chiefComplaint = binding.chiefComplaintDropDowns.text.toString().trim()
+        binding.plusButton.isEnabled = description.isNotEmpty() &&
+                durationUnit.isNotEmpty() &&
+                duration.isNotEmpty() &&
+                chiefComplaint.isNotEmpty()
+        binding.resetButton.isEnabled = description.isNotEmpty() ||
+                durationUnit.isNotEmpty() ||
+                duration.isNotEmpty() ||
+                chiefComplaint.isNotEmpty()
     }
 
 
