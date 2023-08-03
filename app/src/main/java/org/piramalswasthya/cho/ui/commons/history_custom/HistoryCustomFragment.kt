@@ -9,45 +9,28 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
+import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
-class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), NavigationAdapter {
+class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), NavigationAdapter,HistoryFieldsInterface {
 
-    private val ILLNESS_OPTIONS = arrayOf(
-                "Chicken Pox",
-                "Dengue Fever",
-                "Dysentry",
-                "Filariasis",
-                "Hepatitis(jaundice)",
-                "Hepatitis B",
-                "Malaria",
-                "Measles",
-                "Nill",
-                "Other",
-                "Pneumonis",
-                "STI/RTI",
-                "Tuberculosis",
-                "Thyroid Fever"
-    )
 
-    private val TimePeriodAgo = arrayOf(
-                "Day(s)",
-                "Week(s)",
-                "Month(s)",
-                "Year(s)"
-    )
     private var _binding: FragmentHistoryCustomBinding? = null
     private val binding: FragmentHistoryCustomBinding
         get() = _binding!!
 
-    private lateinit var dropdownIllness: AutoCompleteTextView
-    private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
+
+    var addCount: Int = 0
+    var deleteCount: Int = 0
+    var illnessTag = mutableListOf<String>()
 
     private val viewModel:HistoryCustomViewModel by viewModels()
 
@@ -55,6 +38,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        addCount=0
+        deleteCount=0
         _binding = FragmentHistoryCustomBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -62,20 +47,41 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownIllness = binding.illnessText
-        dropdownTimePeriodAgo = binding.timePeriodAgoText
-        // Create ArrayAdapter with the illness options and set it to the AutoCompleteTextView for "Illness"
-        val illnessAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ILLNESS_OPTIONS)
-        dropdownIllness.setAdapter(illnessAdapter)
-        val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
-        dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-        dropdownIllness = binding.illnessText
-        dropdownTimePeriodAgo = binding.timePeriodAgoText
 
         binding.btnPreviousHistory.setOnClickListener {
             openIllnessDialogBox()
         }
+        addIllnessFields(addCount)
+    }
+    private fun addIllnessFields(count:Int){
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
+        val illnessFields = IllnessFieldsFragment()
+        val tag = "Extra Illness_$count"
+        illnessFields.setFragmentTag(tag)
+        illnessFields.setListener(this)
+        fragmentTransaction.add(binding.pastIllnessExtra.id,illnessFields,tag)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+        illnessTag.add(tag)
+        addCount+=1
+    }
+    private fun deleteIllnessFields(tag: String){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            illnessTag.remove(tag)
+            deleteCount += 1
+        }
+    }
+    override fun onDeleteButtonClicked(fragmentTag: String) {
+        if(addCount - 1 > deleteCount) deleteIllnessFields(fragmentTag)
+    }
+
+    override fun onAddButtonClicked(fragmentTag: String) {
+        addIllnessFields(addCount)
     }
     private fun openIllnessDialogBox() {
         // Create an instance of the custom dialog fragment and show it
