@@ -6,8 +6,10 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,10 +22,10 @@ import org.piramalswasthya.cho.repositories.GovIdEntityMasterRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GovtIdFragment : Fragment() {
+class GovtIdFragment constructor(private val fragmentTag: String, private val linearLayout: LinearLayout): Fragment() {
 
     companion object {
-        fun newInstance() = GovtIdFragment()
+//        fun newInstance() = GovtIdFragment()
     }
 
     private lateinit var viewModel: GovtIdViewModel
@@ -51,7 +53,20 @@ class GovtIdFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(GovtIdViewModel::class.java)
-        // TODO: Use the ViewModel
+
+        linearLayout.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            binding.deleteButton.isEnabled = linearLayout.childCount > 1
+        }
+
+        binding.deleteButton.setOnClickListener {
+            if(linearLayout.childCount > 1){
+                val fragmentToRemove = requireActivity().supportFragmentManager.findFragmentByTag(fragmentTag)
+                fragmentToRemove?.let {
+                    requireActivity().supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+            }
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

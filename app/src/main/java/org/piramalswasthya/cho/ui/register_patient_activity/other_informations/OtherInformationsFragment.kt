@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.view.get
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.fragment.findNavController
@@ -97,37 +98,38 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
 //        fetchGovtIds()
 //        fetchOtherGovtIds()
         binding.addIdBtn.setOnClickListener {
-            Log.i("btn", "clicked")
             addGovtIdForm()
         }
-        binding.addHealthProgBtn.setOnClickListener {
-            Log.i("btn", "clicked")
-            addGovtHealthProgForm()
-        }
+//        binding.addHealthProgBtn.setOnClickListener {
+//            addGovtHealthProgForm()
+//        }
     }
 
     private fun addGovtIdForm(){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
 
-        val formFragment = GovtIdFragment()
+        val fragmentTag = "GovtIdFragment_" + binding.govtIdContainer.childCount.toString()
+        val formFragment = GovtIdFragment(fragmentTag, binding.govtIdContainer)
 
         // Add the fragment to the dynamic fragment container
-        fragmentTransaction.add(binding.govtIdContainer.id, formFragment, "FormFragment_0")
+        Log.i("tag is", fragmentTag);
+        fragmentTransaction.add(binding.govtIdContainer.id, formFragment, fragmentTag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
     }
 
     private fun addGovtHealthProgForm(){
-        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
 
-        val formFragment = GovtHealthProgFragment()
-
-        // Add the fragment to the dynamic fragment container
-        fragmentTransaction.add(binding.govtHealthProgIdContainer.id, formFragment, "FormFragment_0")
-        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
-        fragmentTransaction.commit()
+//        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+//        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
+//
+//        val formFragment = GovtHealthProgFragment()
+//
+//        // Add the fragment to the dynamic fragment container
+//        fragmentTransaction.add(binding.govtHealthProgIdContainer.id, formFragment, "FormFragment_0")
+//        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
+//        fragmentTransaction.commit()
     }
 
 //    private fun addGovtIdForm(view: View){

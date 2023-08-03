@@ -43,6 +43,10 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), Fhi
 
     override val jsonFile : String = "new-patient-registration-paginated.json"
 
+//    override val jsonFile : String = "dob_mapping.json"
+
+//    override val jsonFile : String = "test_exp.json"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
