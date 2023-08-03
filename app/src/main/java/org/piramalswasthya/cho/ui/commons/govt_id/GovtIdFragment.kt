@@ -26,7 +26,7 @@ import javax.inject.Inject
 class GovtIdFragment constructor(private val fragmentTag: String, private val linearLayout: LinearLayout, private var fragmentTagList: ArrayList<String>, private val button: Button,): Fragment() {
 
     companion object {
-//        fun newInstance() = GovtIdFragment()
+
     }
 
     private lateinit var viewModel: GovtIdViewModel
@@ -58,6 +58,7 @@ class GovtIdFragment constructor(private val fragmentTag: String, private val li
         linearLayout.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             binding.deleteButton.isEnabled = linearLayout.childCount > 1
         }
+
 
         binding.deleteButton.setOnClickListener {
             if(linearLayout.childCount > 1){

@@ -19,11 +19,8 @@ class FhirExtension {
             return extension
         }
 
-        fun getUrl(variableCategory: VariableCategory, variableName: String) : String{
+        fun getUrl(variableName: String) : String{
             var url = baseUrl;
-            when(variableCategory){
-                VariableCategory.NONE -> {} else -> url += ".${variableCategory.toString().lowercase()}"
-            }
             url += ".$variableName";
             return url
         }
@@ -42,12 +39,4 @@ class FhirExtension {
 
     }
 
-}
-
-enum class VariableCategory{
-    MAIN,
-    DEMOGRAPHICS,
-    IDENTITY,
-    NONE,
-    DATE
 }

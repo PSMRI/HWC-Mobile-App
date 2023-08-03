@@ -52,7 +52,6 @@ import org.piramalswasthya.cho.ui.commons.FhirExtension.Companion.getExtenstion
 import org.piramalswasthya.cho.ui.commons.FhirExtension.Companion.getStringType
 import org.piramalswasthya.cho.ui.commons.FhirExtension.Companion.getUrl
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.VariableCategory
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragmentDirections
 import timber.log.Timber
 import javax.inject.Inject
@@ -704,25 +703,25 @@ class LocationFragment : Fragment() , NavigationAdapter {
     private fun addPatientLocationDetalis(){
         if(selectedState != null){
             patient.addExtension( getExtenstion(
-                    getUrl(VariableCategory.DEMOGRAPHICS, "state"),
+                    getUrl("state"),
                     getCoding(selectedState!!.stateID.toString(), selectedState!!.stateName) ) )
         }
 
         if(selectedDistrict != null){
             patient.addExtension( getExtenstion(
-                    getUrl(VariableCategory.DEMOGRAPHICS, "district"),
+                    getUrl("district"),
                     getCoding(selectedDistrict!!.districtID.toString(), selectedDistrict!!.districtName) ) )
         }
 
         if(selectedBlock != null){
             patient.addExtension( getExtenstion(
-                    getUrl(VariableCategory.DEMOGRAPHICS, "block"),
+                    getUrl("block"),
                     getCoding(selectedBlock!!.blockID.toString(), selectedBlock!!.blockName) ) )
         }
 
         if(selectedVillage != null){
             patient.addExtension( getExtenstion(
-                    getUrl(VariableCategory.DEMOGRAPHICS, "districtBranch"),
+                    getUrl("districtBranch"),
                     getCoding(selectedVillage!!.districtBranchID.toString(), selectedVillage!!.villageName) ) )
         }
 
@@ -733,19 +732,19 @@ class LocationFragment : Fragment() , NavigationAdapter {
         if(userInfo != null){
 
             patient.addExtension( getExtenstion(
-                getUrl(VariableCategory.MAIN, "vanID"),
+                getUrl("vanID"),
                 getStringType(userInfo!!.vanId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl(VariableCategory.DATE, "parkingPlaceID"),
+                getUrl("parkingPlaceID"),
                 getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl(VariableCategory.DATE, "providerServiceMapId"),
+                getUrl("providerServiceMapId"),
                 getStringType(userInfo!!.serviceMapId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl(VariableCategory.MAIN, "createdBy"),
+                getUrl("createdBy"),
                 getStringType(userInfo!!.userName) ) )
 
         }

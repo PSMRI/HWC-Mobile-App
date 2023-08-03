@@ -49,12 +49,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
-//    @Inject
-//    lateinit var govIdEntityMasterDao: GovIdEntityMasterDao
-//
-//    @Inject
-//    lateinit var otherGovIdEntityMasterDao: OtherGovIdEntityMasterDao
-
     @Inject
     lateinit var govIdEntityMasterRepo: GovIdEntityMasterRepo
 
@@ -97,13 +91,9 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         fetchAbhaGenMode()
         addGovtIdForm()
-//        addGovtHealthProgForm()
         binding.addIdBtn.setOnClickListener {
             addGovtIdForm()
         }
-//        binding.addHealthProgBtn.setOnClickListener {
-//            addGovtHealthProgForm()
-//        }
     }
 
     private fun addGovtIdForm(){
@@ -116,37 +106,11 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
         // Add the fragment to the dynamic fragment container
         Log.i("tag is", fragmentTag);
-//        binding.addIdBtn.isEnabled = false;
         fragmentTransaction.add(binding.govtIdContainer.id, formFragment, fragmentTag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
         govtIdCounter++;
     }
-
-    private fun addGovtHealthProgForm(){
-
-//        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-//        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-//
-//        val formFragment = GovtHealthProgFragment()
-//
-//        // Add the fragment to the dynamic fragment container
-//        fragmentTransaction.add(binding.govtHealthProgIdContainer.id, formFragment, "FormFragment_0")
-//        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
-//        fragmentTransaction.commit()
-    }
-
-//    private fun addGovtIdForm(view: View){
-//        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-//        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-//
-//        val formFragment = GovtIdFragment()
-//
-//        // Add the fragment to the dynamic fragment container
-//        fragmentTransaction.add(binding.govtIdContainer.id, formFragment, "FormFragment_0")
-//        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
-//        fragmentTransaction.commit()
-//    }
 
     private fun fetchAbhaGenMode(){
         coroutineScope.launch {
@@ -163,55 +127,9 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
                     binding.dropdownAbhaGenMode.setText(selectedAbhaGenType!!.identityType, false)
                 }
             }
-
-//            binding.dropdownGovtIdType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                    selectedAbhaGenType = abhaIdList[position]
-//                }
-//
-//                override fun onNothingSelected(parent: AdapterView<*>?) {
-//                    // Do nothing
-//                }
-//            }
         }
     }
 
-    private fun fetchGovtIds(){
-//        coroutineScope.launch {
-//            val govtIdMap = govIdEntityMasterRepo.getGovIdtEntityAsMap()
-//            if(govtIdMap != null){
-//                val govtIdNames = govtIdMap.values.toTypedArray()
-//                binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, govtIdNames))
-//                if(govtIdNames.isNotEmpty()) {
-//                    selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[0].key, govtIdMap!!.entries.toList()[0].value)
-//                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.identityType, false)
-//                }
-//                binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
-//                    selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[position].key, govtIdMap!!.entries.toList()[position].value)
-//                    binding.dropdownGovtIdType.setText(selectedGovtIdType!!.identityType, false)
-//                }
-//            }
-//        }
-    }
-
-    private fun fetchOtherGovtIds(){
-//        coroutineScope.launch {
-//            val otherGovtIdMap = otherGovIdEntityMasterRepo.getOtherGovtEntityAsMap()
-//            if(otherGovtIdMap != null){
-//                val otherGovtIdNames = otherGovtIdMap.values.toTypedArray()
-//                binding.dropdownGovtHealthProgType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, otherGovtIdNames))
-//                if(otherGovtIdNames.isNotEmpty()) {
-//                    selectedGovtHealthProgType = OtherGovIdEntityMaster(otherGovtIdMap!!.entries.toList()[0].key, otherGovtIdMap!!.entries.toList()[0].value)
-//                    binding.dropdownGovtHealthProgType.setText(selectedGovtHealthProgType!!.identityType, false)
-//                }
-//                binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
-//                    selectedGovtHealthProgType = OtherGovIdEntityMaster(otherGovtIdMap!!.entries.toList()[position].key, otherGovtIdMap!!.entries.toList()[position].value)
-//                    binding.dropdownGovtHealthProgType.setText(selectedGovtHealthProgType!!.identityType, false)
-//                }
-//            }
-//
-//        }
-    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -237,50 +155,6 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
     private fun addPatientExtensions(){
 
-//        if(selectedAbhaGenType != null){
-//            var extensionAbhaGen = Extension()
-//            extensionAbhaGen.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.main.abhaGenerationMode"
-//            var cdt = Coding();
-//            cdt.code = selectedAbhaGenType!!.identityTypeID.toString()
-//            cdt.display = selectedAbhaGenType!!.identityType
-//            extensionAbhaGen.setValue(cdt)
-//            patient.addExtension(extensionAbhaGen)
-//        }
-//
-//        if(selectedGovtIdType != null){
-//            var extensionGovtIdType = Extension()
-//            extensionGovtIdType.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtIdentityType"
-//            var cdt = Coding();
-//            cdt.code = selectedGovtIdType!!.govtIdentityTypeID.toString()
-//            cdt.display = selectedGovtIdType!!.identityType
-//            extensionGovtIdType.setValue(cdt)
-//            patient.addExtension(extensionGovtIdType)
-//        }
-//
-//        var extensionGovtIdNumber = Extension()
-//        extensionGovtIdNumber.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtIdentityNo"
-//        var str = StringType(binding.govtIdNumberText.text.toString());
-//        extensionGovtIdNumber.setValue(str)
-//        patient.addExtension(extensionGovtIdNumber)
-//
-//        if(selectedGovtHealthProgType != null){
-//            var extensionGovtHealthProgramType = Extension()
-//            extensionGovtHealthProgramType.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtHealthProgramType"
-//            var cdt = Coding();
-//            cdt.code = selectedGovtHealthProgType!!.govtIdentityTypeID.toString()
-//            cdt.display = selectedGovtHealthProgType!!.identityType
-//            extensionGovtHealthProgramType.setValue(cdt)
-//            patient.addExtension(extensionGovtHealthProgramType)
-//        }
-//
-//        var extensionGovtHealthProgramId = Extension()
-//        extensionGovtHealthProgramId.url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.identity.govtHealthProgramId"
-//        str = StringType(binding.govtHealthProgIdText.text.toString());
-//        extensionGovtHealthProgramId.setValue(str)
-//        patient.addExtension(extensionGovtHealthProgramId)
-
-//        }
-//        patient.extension.a
     }
 
     override fun onCancelAction() {
