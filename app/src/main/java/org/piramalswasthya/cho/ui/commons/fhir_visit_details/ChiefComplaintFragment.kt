@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,8 +44,6 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val parentFragment = parentFragment as? FragmentVisitDetail
-        val countValue = parentFragment?.clickedCount ?: 0
         chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaintList,binding.chiefComplaintDropDowns)
         binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
         binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
@@ -60,16 +59,15 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
             fragmentTag?.let {
                 chiefComplaintListener?.onDeleteButtonClicked(it)
             }
-//            chiefComplaintListener?.counter(-1)
         }
         binding.plusButton.setOnClickListener {
             fragmentTag?.let {
                 chiefComplaintListener?.onAddButtonClicked(it)
             }
-            chiefComplaintListener?.counter(1)
         }
 
         binding.plusButton.isEnabled = false
+        binding.resetButton.isEnabled = false
         binding.descInputText.addTextChangedListener(inputTextWatcher)
         binding.resetButton.setOnClickListener {
             binding.descInputText.text?.clear()
@@ -97,6 +95,7 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
     private fun updateAddButtonState() {
         val description = binding.descInputText.text.toString().trim()
         binding.plusButton.isEnabled = description.isNotEmpty()
+        binding.resetButton.isEnabled = description.isNotEmpty()
     }
 
 

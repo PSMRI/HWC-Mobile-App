@@ -57,7 +57,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
-    var clickedCount: Int = 0
+    var addCount: Int = 0
+    var deleteCount: Int = 0
 
 
 
@@ -72,7 +73,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        clickedCount = 1
+        addCount = 0
+        deleteCount = 0
         _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
         return binding.root
     }
@@ -95,22 +97,22 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
         binding.subCatInput.threshold = 1
 
-        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
-        binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
+//        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
+//        binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
 
         viewModel.chiefComplaintMaster.observe(viewLifecycleOwner){ chiefComplaintsList ->
             chiefComplaints.clear()
             chiefComplaints.addAll(chiefComplaintsList)
-            chiefComplaintAdapter.updateData(chiefComplaintsList)
+//            chiefComplaintAdapter.updateData(chiefComplaintsList)
         }
 
-        binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
-            var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
-            binding.chiefComplaintDropDowns.setText(chiefComplaint?.chiefComplaint,false)
-        }
-
-
-        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
+//        binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
+//            var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
+//            binding.chiefComplaintDropDowns.setText(chiefComplaint?.chiefComplaint,false)
+//        }
+//
+//
+//        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             when(checkedId){
@@ -125,14 +127,14 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
             }
         }
 
-        duration = binding.inputDuration.text.toString()
-
-        binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
-            unit = parent.getItemAtPosition(position) as String
-           binding.dropdownDurUnit.setText(unit,false)
-        }
-
-        desc = binding.descInputText.text.toString()
+//        duration = binding.inputDuration.text.toString()
+//
+//        binding.dropdownDurUnit.setOnItemClickListener { parent, _, position, _ ->
+//            unit = parent.getItemAtPosition(position) as String
+//           binding.dropdownDurUnit.setText(unit,false)
+//        }
+//
+//        desc = binding.descInputText.text.toString()
 
         binding.selectFileBtn.setOnClickListener {
             openFilePicker()
@@ -148,7 +150,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 //        binding.deleteButton.setOnClickListener {
 //        if(clickedCount >= 0) deleteExtraChiefComplaint(--clickedCount)
 //        }
-        addExtraChiefComplaint(clickedCount)
+        addExtraChiefComplaint(addCount)
     }
     private fun addExtraChiefComplaint(count: Int){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
@@ -160,6 +162,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, tag)
         fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
         fragmentTransaction.commit()
+        addCount += 1
     }
     private fun deleteExtraChiefComplaint(count: Int){
         Log.i("Calling Delete ", "count $count")
@@ -168,21 +171,16 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         val fragmentToDelete = fragmentManager.findFragmentByTag(tagToDelete)
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            deleteCount += 1
         }
     }
 
     override fun onDeleteButtonClicked(fragmentTag: String) {
-        Toast.makeText(requireContext(),"Delete Text $fragmentTag", Toast.LENGTH_SHORT).show()
-        deleteExtraChiefComplaint((fragmentTag[16] - 48).code)
+        if(addCount - 1 > deleteCount) deleteExtraChiefComplaint((fragmentTag[16] - 48).code)
     }
 
     override fun onAddButtonClicked(fragmentTag: String) {
-        addExtraChiefComplaint(clickedCount)
-    }
-
-    override fun counter(num: Int) {
-        clickedCount += num
-        Toast.makeText(requireContext(),"Here is the $clickedCount",Toast.LENGTH_SHORT).show()
+        addExtraChiefComplaint(addCount)
     }
 
 
