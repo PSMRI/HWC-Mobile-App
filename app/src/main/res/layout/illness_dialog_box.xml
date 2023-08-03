@@ -4,13 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <!-- Heading with Grey Background -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="@android:color/darker_gray"
+        android:background="@android:color/holo_purple"
         android:padding="16dp">
 
         <TextView
@@ -18,11 +17,10 @@
             android:layout_height="wrap_content"
             android:text="Previous Illness"
             android:textSize="20sp"
-            android:textColor="@android:color/holo_purple"/>
+            android:textColor="@android:color/black"/>
 
     </LinearLayout>
 
-    <!-- Table Header -->
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
