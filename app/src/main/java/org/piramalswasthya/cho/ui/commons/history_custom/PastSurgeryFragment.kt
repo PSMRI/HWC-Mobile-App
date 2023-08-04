@@ -10,30 +10,19 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import dagger.hilt.android.AndroidEntryPoint
-import org.hl7.fhir.r4.model.codesystems.HistoryStatus
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
+import org.piramalswasthya.cho.databinding.FragmentPastSurgeryBinding
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
-class IllnessFieldsFragment : Fragment() {
+class PastSurgeryFragment : Fragment() {
 
-    private val ILLNESS_OPTIONS = arrayOf(
-        "Chicken Pox",
-        "Dengue Fever",
-        "Dysentry",
-        "Filariasis",
-        "Hepatitis(jaundice)",
-        "Hepatitis B",
-        "Malaria",
-        "Measles",
-        "Nill",
-        "Other",
-        "Pneumonis",
-        "STI/RTI",
-        "Tuberculosis",
-        "Thyroid Fever"
+    private val HoSurgery = arrayOf(
+                "Appendicectomy",
+                "Nill",
+                "Other",
+                "Tonsilectomy"
     )
 
     private val TimePeriodAgo = arrayOf(
@@ -42,11 +31,11 @@ class IllnessFieldsFragment : Fragment() {
         "Month(s)",
         "Year(s)"
     )
-    private var _binding: FragmentIllnessFieldsBinding? = null
-    private val binding: FragmentIllnessFieldsBinding
+    private var _binding: FragmentPastSurgeryBinding? = null
+    private val binding: FragmentPastSurgeryBinding
         get() = _binding!!
 
-    private lateinit var dropdownIllness: AutoCompleteTextView
+    private lateinit var dropdownSurgery: AutoCompleteTextView
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
 
@@ -54,8 +43,8 @@ class IllnessFieldsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentIllnessFieldsBinding.inflate(inflater, container,false)
-       return binding.root
+       _binding = FragmentPastSurgeryBinding.inflate(inflater,container,false)
+        return binding.root
     }
     private var fragmentTag :String? = null
     fun setFragmentTag(tag:String){
@@ -65,20 +54,20 @@ class IllnessFieldsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownIllness = binding.illnessText
+        dropdownSurgery = binding.surgeryText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
         // Create ArrayAdapter with the illness options and set it to the AutoCompleteTextView for "Illness"
-        val illnessAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ILLNESS_OPTIONS)
-        dropdownIllness.setAdapter(illnessAdapter)
+        val surgeryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, HoSurgery)
+        dropdownSurgery.setAdapter(surgeryAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-        dropdownIllness = binding.illnessText
+        dropdownSurgery = binding.surgeryText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
 
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {
-                historyListener?.onDeleteButtonClickedIllness(it)
+                historyListener?.onDeleteButtonClickedSurgery(it)
             }
         }
         binding.plusButton.setOnClickListener {
@@ -91,11 +80,11 @@ class IllnessFieldsFragment : Fragment() {
         binding.resetButton.isEnabled = false
         binding.dropdownDurUnit.addTextChangedListener(inputTextWatcher)
         binding.inputDuration.addTextChangedListener(inputTextWatcher)
-        binding.illnessText.addTextChangedListener(inputTextWatcher)
+        binding.surgeryText.addTextChangedListener(inputTextWatcher)
         binding.resetButton.setOnClickListener {
             binding.dropdownDurUnit.text?.clear()
             binding.inputDuration.text?.clear()
-            binding.illnessText.text?.clear()
+            binding.surgeryText.text?.clear()
         }
     }
 
@@ -120,7 +109,7 @@ class IllnessFieldsFragment : Fragment() {
     private fun updateAddAndResetButtonState() {
         val durationUnit = binding.dropdownDurUnit.text.toString().trim()
         val duration = binding.inputDuration.text.toString().trim()
-        val chiefComplaint = binding.illnessText.text.toString().trim()
+        val chiefComplaint = binding.surgeryText.text.toString().trim()
         binding.plusButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()
         binding.resetButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()
     }

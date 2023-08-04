@@ -54,13 +54,55 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <TextView
+            android:id="@+id/subheading_surgery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="H/O Surgery"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/pastIllnessExtra"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="8dp" />
+
+        <LinearLayout
+            android:id="@+id/pastSurgeryExtra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/subheading_surgery"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/heading_associated_ailments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Associated Ailments"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/pastSurgeryExtra"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="16dp" />
+
+<!--        <LinearLayout-->
+<!--            android:id="@+id/associatedAilmentsExtra"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/pastSurgery"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+
         <Space
             android:layout_width="wrap_content"
             android:layout_height="@dimen/bottom_space_height"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pastIllnessExtra" />
+            app:layout_constraintTop_toBottomOf="@+id/heading_associated_ailments" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

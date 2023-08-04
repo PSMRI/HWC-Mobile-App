@@ -28,9 +28,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         get() = _binding!!
 
 
-    var addCount: Int = 0
-    var deleteCount: Int = 0
+    var addCountIllness: Int = 0
+    var deleteCountIllness: Int = 0
+    var addCountSurgery: Int = 0
+    var deleteCountSurgery: Int = 0
     var illnessTag = mutableListOf<String>()
+    var surgeryTag = mutableListOf<String>()
 
     private val viewModel:HistoryCustomViewModel by viewModels()
 
@@ -38,22 +41,36 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        addCount=0
-        deleteCount=0
+        addCountIllness=0
+        deleteCountIllness=0
+        addCountSurgery=0
+        deleteCountSurgery=0
         _binding = FragmentHistoryCustomBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
         binding.btnPreviousHistory.setOnClickListener {
             openIllnessDialogBox()
         }
-        addIllnessFields(addCount)
+        addIllnessFields(addCountIllness)
+        addSurgeryFields(addCountSurgery)
     }
+    private fun addSurgeryFields(count:Int){
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
+        val surgeryFields = PastSurgeryFragment()
+        val tag = "Extra Surgery$count"
+        surgeryFields.setFragmentTag(tag)
+        surgeryFields.setListener(this)
+        fragmentTransaction.add(binding.pastSurgeryExtra.id,surgeryFields,tag)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+        surgeryTag.add(tag)
+        addCountSurgery+=1
+    }
+
     private fun addIllnessFields(count:Int){
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
@@ -65,7 +82,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
         illnessTag.add(tag)
-        addCount+=1
+        addCountIllness+=1
     }
     private fun deleteIllnessFields(tag: String){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
@@ -73,15 +90,31 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
             illnessTag.remove(tag)
-            deleteCount += 1
+            deleteCountIllness += 1
         }
     }
-    override fun onDeleteButtonClicked(fragmentTag: String) {
-        if(addCount - 1 > deleteCount) deleteIllnessFields(fragmentTag)
+    private fun deleteSurgeryFields(tag: String){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            surgeryTag.remove(tag)
+            deleteCountSurgery += 1
+        }
+    }
+    override fun onDeleteButtonClickedSurgery(fragmentTag: String) {
+        if(addCountSurgery - 1 > deleteCountSurgery) deleteSurgeryFields(fragmentTag)
     }
 
-    override fun onAddButtonClicked(fragmentTag: String) {
-        addIllnessFields(addCount)
+    override fun onAddButtonClickedSurgery(fragmentTag: String) {
+        addIllnessFields(addCountSurgery)
+    }
+    override fun onDeleteButtonClickedIllness(fragmentTag: String) {
+        if(addCountIllness - 1 > deleteCountIllness) deleteIllnessFields(fragmentTag)
+    }
+
+    override fun onAddButtonClickedIllness(fragmentTag: String) {
+        addIllnessFields(addCountIllness)
     }
     private fun openIllnessDialogBox() {
         // Create an instance of the custom dialog fragment and show it
