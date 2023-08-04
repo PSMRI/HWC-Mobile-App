@@ -181,6 +181,17 @@
     <string name="enter_duration">Enter Duration</string>
     <string name="select_duration_unit">Select Duration Unit</string>
     <string name="enter_your_description">Enter your Description...</string>
+    <string name="reset">Reset</string>
+    <string name="delete">Delete</string>
+    <string name="select_file">Select File</string>
+    <string name="upload_file">Upload File</string>
+    <string name="category">Category</string>
+    <string name="sub_category">Sub Category</string>
+    <string name="select_and_upload_file">Select And Upload File</string>
+    <string name="selected_file">Selected File</string>
+    <string name="chief_complaint">Chief Complaint</string>
+    <string name="unit_of_duration">Unit of Duration</string>
+    <string name="description">Description</string>
 
 
 </resources>

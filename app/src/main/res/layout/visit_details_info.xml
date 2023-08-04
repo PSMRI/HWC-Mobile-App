@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
-            android:text="Category"
+            android:text="@string/category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
@@ -87,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
-            android:text="Sub Category"
+            android:text="@string/sub_category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -123,7 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Add"
+            android:text="@string/add_text"
             android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -151,7 +151,7 @@
                     android:id="@+id/uploadFileHead"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Select And Upload File"
+                    android:text="@string/select_and_upload_file"
                     android:textStyle="normal|bold" />
 
                 <LinearLayout
@@ -166,14 +166,14 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/custom_ui_margin"
                         android:layout_weight="1"
-                        android:text="Selected File" />
+                        android:text="@string/selected_file" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/selectFileBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/custom_ui_margin"
-                        android:text="Select File" />
+                        android:text="@string/select_file" />
                 </LinearLayout>
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/uploadFileBtn"
@@ -182,7 +182,7 @@
                     android:enabled="false"
                     android:layout_margin="@dimen/custom_ui_margin"
                     android:layout_gravity="center"
-                    android:text="Upload File" />
+                    android:text="@string/upload_file" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
