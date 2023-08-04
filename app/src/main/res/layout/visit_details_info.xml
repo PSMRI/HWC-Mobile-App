@@ -13,8 +13,8 @@
             android:id="@+id/textCat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Category"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:text="@string/category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
@@ -26,7 +26,7 @@
             android:id="@+id/radioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textCat">
 
@@ -42,18 +42,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Other CPHC Services"
-                android:textColor="@drawable/radio_btn_select"/>
+                android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
         <TextView
             android:id="@+id/reasonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:text="Reason For Visit"
-            android:visibility="gone"
             android:textSize="16sp"
             android:textStyle="normal|bold"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
@@ -61,7 +61,7 @@
             android:id="@+id/radioGroup2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/reasonText">
@@ -70,8 +70,8 @@
                 android:id="@+id/radioButton3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Chief Complaints"
                 android:checked="true"
+                android:text="New Chief Complaints"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
@@ -79,15 +79,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Followup"
-                android:textColor="@drawable/radio_btn_select"/>
+                android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
         <TextView
             android:id="@+id/subCatTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Sub Category"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:text="@string/sub_category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -98,8 +98,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="Select Sub CateGory"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:hint="@string/select_sub_category"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/subCatTxt">
 
@@ -110,140 +110,81 @@
                 android:layout_weight="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
-        <TextView
-            android:id="@+id/chiefComplaint"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/chiefComplaintExtra"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Chief Complaint"
-            android:textSize="16sp"
-            android:textStyle="normal|bold"
+            android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/chiefComplaintOptions"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="Enter Duration"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chiefComplaint">
-
-            <AutoCompleteTextView
-                android:id="@+id/chiefComplaintDropDowns"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/durationTxt"
+        <Button
+            android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Duration"
-            android:textSize="16sp"
-            android:textStyle="normal|bold"
+            android:layout_gravity="center"
+            android:text="@string/add_text"
+            android:layout_margin="@dimen/custom_ui_margin"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/duration"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardUpload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:elevation="8dp"
+            android:radius="8dp"
+            android:shape="rectangle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/durationTxt">
+            app:layout_constraintTop_toBottomOf="@+id/plusButton">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/inputDuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/durationUnit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Unit of Duration"
-            android:textSize="16sp"
-            android:textStyle="normal|bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/duration" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dropdownDuration"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:hint="Select Duration Unit"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/durationUnit">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdownDurUnit"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Description"
-            android:textStyle="normal|bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dropdownDuration" />
-
-        <!-- TextInputLayout for the text area -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/descriptionText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="Enter your Description..."
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/descInputText"
+            <LinearLayout
+                android:id="@+id/mainLinear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:minLines="2" />
+                android:layout_margin="@dimen/custom_ui_margin"
+                android:orientation="vertical">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:id="@+id/uploadFileHead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_and_upload_file"
+                    android:textStyle="normal|bold" />
 
-        <TextView
-            android:id="@+id/selectFileText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Selected File"
-            app:layout_constraintBaseline_toBaselineOf="@+id/selectFileBtn"
-            app:layout_constraintEnd_toStartOf="@+id/selectFileBtn"
-            app:layout_constraintStart_toStartOf="parent" />
+                <LinearLayout
+                    android:id="@+id/layoutUpload"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/selectFileBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Select File"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/selectFileText"
-            app:layout_constraintTop_toBottomOf="@id/descriptionText" />
+                    <TextView
+                        android:id="@+id/selectFileText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/custom_ui_margin"
+                        android:layout_weight="1"
+                        android:text="@string/selected_file" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/selectFileBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/custom_ui_margin"
+                        android:text="@string/select_file" />
+                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/uploadFileBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:layout_margin="@dimen/custom_ui_margin"
+                    android:layout_gravity="center"
+                    android:text="@string/upload_file" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <Space
             android:layout_width="wrap_content"
@@ -251,7 +192,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/selectFileBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/cardUpload" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
