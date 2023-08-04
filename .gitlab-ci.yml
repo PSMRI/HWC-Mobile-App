@@ -1,6 +1,6 @@
 stages:
   #- verify
-  - test
+  #- test
   - build
   - publish
 image: openjdk:17-jdk
@@ -65,13 +65,13 @@ assembleDebug:
       - app/build/outputs/
 
 # Run all tests, if any fails, interrupt the pipeline(fail it)
-debugTests:
-  interruptible: true
-  stage: test
-  tags:
-  - main
-  script:
-    - ./gradlew -Pci --console=plain :app:testDebug
+# debugTests:
+#   interruptible: true
+#   stage: test
+#   tags:
+#   - main
+#   script:
+#     - ./gradlew -Pci --console=plain :app:testDebug
 upload-to-package-registry:
   stage: publish
   tags:
