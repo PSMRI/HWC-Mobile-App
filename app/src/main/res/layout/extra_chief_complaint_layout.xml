@@ -8,7 +8,7 @@
         android:id="@+id/chiefComplaint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Chief Complaint"
         android:textSize="16sp"
         android:textStyle="normal|bold"
@@ -20,8 +20,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Select Chief Complaint"
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:hint="@string/select_chief_complaint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chiefComplaint">
 
@@ -38,7 +38,7 @@
         android:id="@+id/durationTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Duration"
         android:textSize="16sp"
         android:textStyle="normal|bold"
@@ -49,9 +49,9 @@
         android:id="@+id/duration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         app:layout_constraintStart_toStartOf="parent"
-        android:hint="Enter Duration"
+        android:hint="@string/enter_duration"
         app:layout_constraintTop_toBottomOf="@+id/durationTxt">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -65,7 +65,7 @@
         android:id="@+id/durationUnit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Unit of Duration"
         android:textSize="16sp"
         android:textStyle="normal|bold"
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:hint="Select Duration Unit"
+        android:hint="@string/select_duration_unit"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/durationUnit">
 
@@ -94,7 +94,7 @@
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Description"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,8 +105,8 @@
         android:id="@+id/descriptionText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Enter your Description..."
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:hint="@string/enter_your_description"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/description">
 
@@ -125,7 +125,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Reset"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toStartOf="parent"
@@ -136,7 +136,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/custom_ui_margin"
         android:text="Delete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"

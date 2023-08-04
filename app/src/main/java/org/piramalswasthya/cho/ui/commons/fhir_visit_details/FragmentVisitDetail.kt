@@ -47,10 +47,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
     private var _binding: VisitDetailsInfoBinding?= null
 
-    private var units = mutableListOf("Hours(s)","Days(s)","Weeks(s)","Months(s)","Years(s)")
+    private var units = mutableListOf("Hours","Days","Weeks","Months","Years")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
-    private var allVal = mutableListOf<String>()
-
 
     private var subCatOptions = ArrayList<SubVisitCategory>()
 

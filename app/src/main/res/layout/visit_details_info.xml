@@ -13,7 +13,7 @@
             android:id="@+id/textCat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:text="Category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
@@ -26,7 +26,7 @@
             android:id="@+id/radioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textCat">
 
@@ -49,7 +49,7 @@
             android:id="@+id/reasonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:text="Reason For Visit"
             android:textSize="16sp"
             android:textStyle="normal|bold"
@@ -61,7 +61,7 @@
             android:id="@+id/radioGroup2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/reasonText">
@@ -86,7 +86,7 @@
             android:id="@+id/subCatTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:text="Sub Category"
             android:textSize="16sp"
             android:textStyle="normal|bold"
@@ -98,8 +98,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="Select Sub Category"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:hint="@string/select_sub_category"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/subCatTxt">
 
@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Add"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
@@ -133,7 +133,7 @@
             android:id="@+id/cardUpload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/custom_ui_margin"
             android:elevation="8dp"
             android:radius="8dp"
             android:shape="rectangle"
@@ -144,7 +144,7 @@
                 android:id="@+id/mainLinear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_margin="@dimen/custom_ui_margin"
                 android:orientation="vertical">
 
                 <TextView
@@ -164,7 +164,7 @@
                         android:id="@+id/selectFileText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
+                        android:layout_margin="@dimen/custom_ui_margin"
                         android:layout_weight="1"
                         android:text="Selected File" />
 
@@ -172,7 +172,7 @@
                         android:id="@+id/selectFileBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
+                        android:layout_margin="@dimen/custom_ui_margin"
                         android:text="Select File" />
                 </LinearLayout>
                 <com.google.android.material.button.MaterialButton
@@ -180,7 +180,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:enabled="false"
-                    android:layout_margin="10dp"
+                    android:layout_margin="@dimen/custom_ui_margin"
                     android:layout_gravity="center"
                     android:text="Upload File" />
             </LinearLayout>

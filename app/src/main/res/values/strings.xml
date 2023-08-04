@@ -154,6 +154,11 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="select_sub_category">Select Sub Category</string>
+    <string name="select_chief_complaint">Select Chief Complaint</string>
+    <string name="enter_duration">Enter Duration</string>
+    <string name="select_duration_unit">Select Duration Unit</string>
+    <string name="enter_your_description">Enter your Description...</string>
 
 
 </resources>

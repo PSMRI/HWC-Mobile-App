@@ -52,9 +52,6 @@ class EditPatientDetailsFragment : Fragment() {
             currFragment =
                 navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
 
-            Log.d("aaaaaaaaaaaa", R.id.fragment_fhir_visit_details.toString())
-            Log.d("aaaaaaaaaaaa", currFragment.getFragmentId().toString())
-
             when (currFragment.getFragmentId()) {
                 R.id.fragment_fhir_visit_details -> {
                     binding.headerTextEditPatient.text =
@@ -87,9 +84,6 @@ class EditPatientDetailsFragment : Fragment() {
 
             currFragment =
                 navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-
-            Log.d("aaaaaaaaaaaa", R.id.fragment_fhir_visit_details.toString())
-            Log.d("aaaaaaaaaaaa", currFragment.getFragmentId().toString())
 
             when (currFragment.getFragmentId()) {
                 R.id.fragment_fhir_visit_details -> {
