@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Associated Ailments"
+        android:text="@string/associated_ailments"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Select Associated Ailments"
+        android:hint="@string/select_associated_ailments"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/aa_label">
         <AutoCompleteTextView
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Duration"
+        android:text="@string/duration"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:hint="Enter Duration"
+        android:hint="@string/enter_duration"
         app:layout_constraintTop_toBottomOf="@+id/durationTxt">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -65,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Duration Unit"
+        android:text="@string/duration_unit"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -78,7 +78,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:hint="Select Duration Unit"
+        android:hint="@string/select_duration_unit"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/durationUnit">
 
@@ -94,7 +94,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="F/H of Member"
+        android:text="@string/f_h_of_member"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -107,7 +107,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:hint="Select F/H of Member"
+        android:hint="@string/select_f_h_of_member"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/familyUnit">
 
@@ -122,7 +122,7 @@
         android:id="@+id/inactiveCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Inactive for Future Visit"
+        android:text="@string/inactive_for_future_visit"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         android:layout_margin="10dp"
@@ -135,7 +135,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Add"
+        android:text="@string/add"
         app:layout_constraintEnd_toStartOf="@+id/resetButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
@@ -146,7 +146,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Reset"
+        android:text="@string/reset"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toEndOf="@id/plusButton"
         app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
@@ -157,7 +157,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Delete"
+        android:text="@string/delete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />

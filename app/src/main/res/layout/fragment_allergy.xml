@@ -69,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Allergy Name"
+        android:text="@string/allergy_name"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:hint="Enter Allergy Name"
+        android:hint="@string/enter_allergy_name"
         app:layout_constraintTop_toBottomOf="@+id/allergyName_label">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -96,7 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Type of Allergic Reaction"
+        android:text="@string/type_of_allergic_reaction"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +109,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:hint="Select Type of Allergic Reaction"
+        android:hint="@string/select_type_of_allergic_reaction"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/allergyReac_label">
 
@@ -125,7 +125,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Genetic Disorder"
+        android:text="@string/genetic_disorder"
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -137,7 +137,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:hint="Enter Genetic Disorder"
+        android:hint="@string/enter_genetic_disorder"
         app:layout_constraintTop_toBottomOf="@+id/geneticD_label">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -153,7 +153,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Add"
+        android:text="@string/add"
         app:layout_constraintEnd_toStartOf="@+id/resetButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/geneticD" />
@@ -164,7 +164,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Reset"
+        android:text="@string/reset"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toEndOf="@id/plusButton"
         app:layout_constraintTop_toBottomOf="@+id/geneticD" />
@@ -175,7 +175,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:text="Delete"
+        android:text="@string/delete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintTop_toBottomOf="@+id/geneticD" />

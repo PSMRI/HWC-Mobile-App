@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Previous Medication History"
+            android:text="@string/previous_medication_history"
             android:textSize="20sp"
             android:textColor="@android:color/black"/>
 
@@ -29,27 +29,26 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Illness"
+            android:text="@string/illness"
             android:textStyle="bold"
             android:layout_weight="1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Duration"
+            android:text="@string/duration"
             android:textStyle="bold"
             android:layout_weight="1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time Period Ago"
+            android:text="@string/time_period_ago"
             android:textStyle="bold"
             android:layout_weight="1" />
 
     </TableRow>
 
-    <!-- Table Rows with Default Values -->
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,21 +58,21 @@
             android:id="@+id/illness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fever"
+            android:text="@string/fever"
             android:layout_weight="1" />
 
         <TextView
             android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3 days"
+            android:text="@string/_3_days"
             android:layout_weight="1" />
 
         <TextView
             android:id="@+id/time_period_ago"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1 month ago"
+            android:text="@string/_1_month_ago"
             android:layout_weight="1" />
 
     </TableRow>
@@ -82,7 +81,7 @@
         android:id="@+id/btnClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Close"
+        android:text="@string/close"
         android:layout_gravity="end"
         android:layout_margin="16dp" />
 
