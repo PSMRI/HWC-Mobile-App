@@ -25,7 +25,7 @@ import javax.inject.Inject
 class GovtHealthProgFragment : Fragment() {
 
     companion object {
-        fun newInstance() = GovtHealthProgFragment()
+
     }
 
     private lateinit var viewModel: GovtHealthProgViewModel
