@@ -17,8 +17,8 @@ variables:
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
 before_script:
-  - microdnf --quiet update --yes
-  - microdnf --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+  - microdnf -y update 
+  - microdnf -y install wget tar unzip lib32stdc++6 lib32z1
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
   # Create a new directory at specified location
