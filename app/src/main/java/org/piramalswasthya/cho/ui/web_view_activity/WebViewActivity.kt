@@ -10,9 +10,14 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.databinding.ActivityWebViewBinding
+import org.piramalswasthya.cho.model.EsanjeevniPatient
+import org.piramalswasthya.cho.model.EsanjeevniPatientAddress
+import org.piramalswasthya.cho.model.EsanjeevniPatientContactDetails
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
+import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment
 import org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment
 import timber.log.Timber
@@ -56,25 +61,78 @@ class WebViewActivity : AppCompatActivity() {
         )
 
 
-
         CoroutineScope(Dispatchers.Main).launch {
-            try {
-                val response = apiService.getAuthRefIdForWebView(networkBody)
-                Log.d("Resp", "$response")
-                if (response != null) {
-                    var referenceId = response.model.referenceId
-                    var url = "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
-                    Log.d("here is act the url","ssds $url")
-                    val fragmentWebView = WebViewFragment(url);
-                    supportFragmentManager.beginTransaction().replace(binding.webView.id, fragmentWebView).commit()
-                }
+            Log.d("Resp token is", "working")
+            val response = apiService.getJwtToken(networkBody)
+            val token = response.model.access_token;
+            TokenESanjeevaniInterceptor.setToken(token)
 
-            }
-            catch (e: Exception){
-                Timber.d("GHere is error $e")
+            val patientAddress = EsanjeevniPatientAddress(
+                 "Street 44",
+             "Physical",
+             "Work",
+             0,
+             "",
+             452,
+             "Delhi Cantonment",
+             "1",
+             "India",
+             79,
+              "New Delhi",
+             "110349",
+             7,
+             "Delhi"
+            )
 
-            }
+            val patientContact = EsanjeevniPatientContactDetails(
+                 true,
+             "Phone",
+             "Work",
+             "7890667710"
+            )
+
+            val patient = EsanjeevniPatient(
+                 "",
+             "",
+             25,
+             "1998-05-04",
+             "Suraj1 sigh Kumar",
+             "Suraj",
+             "",
+             "Kumar",
+             1,
+             "Male",
+             false,
+                patientAddress,
+                patientContact,
+                "11001"
+            )
+
+
+
+
+                Log.d("Resp token is", "$response")
         }
+
+
+//        CoroutineScope(Dispatchers.Main).launch {
+//            try {
+//                val response = apiService.getAuthRefIdForWebView(networkBody)
+//                Log.d("Resp", "$response")
+//                if (response != null) {
+//                    var referenceId = response.model.referenceId
+//                    var url = "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
+//                    Log.d("here is act the url","ssds $url")
+//                    val fragmentWebView = WebViewFragment(url);
+//                    supportFragmentManager.beginTransaction().replace(binding.webView.id, fragmentWebView).commit()
+//                }
+//
+//            }
+//            catch (e: Exception){
+//                Timber.d("GHere is error $e")
+//
+//            }
+//        }
     }
 
     suspend fun apicall(){

@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.Date
 
 
 @Entity(
@@ -325,4 +326,67 @@ data class Model(
     val id : String,
     val referenceId : String,
     val token : String
+)
+
+
+data class EsanjeevniObject(
+    val success : Boolean,
+    val msgCode : Int,
+    val message : String,
+    val model : EsanjeevniModel,
+    val lstModel: String?,
+    val token : String?,
+    val totalRecords: Int,
+    val msgType : String?
+)
+
+data class EsanjeevniModel(
+    val access_token : String,
+    val expires_in : Int,
+    val token_type : String,
+    val refresh_token : String,
+    val scope : String,
+    val roleId : Int
+)
+
+
+data class EsanjeevniPatient(
+    val abhaAddress : String,
+    val abhaNumber : String,
+    val age : Int,
+    val birthdate : String,
+    val displayName : String,
+    val firstName : String,
+    val middleName : String,
+    val lastName : String,
+    val genderCode : Int,
+    val genderDisplay : String,
+    val isBlock : Boolean,
+    val lstPatientAddress : EsanjeevniPatientAddress,
+    val lstPatientContactDetail: EsanjeevniPatientContactDetails,
+    val source : String
+)
+
+data class EsanjeevniPatientAddress(
+    val addressLine1 : String,
+    val addressType : String,
+    val addressUse : String,
+    val blockCode : Int,
+    val blockDisplay : String,
+    val cityCode : Int,
+    val cityDisplay : String,
+    val countryCode : String,
+    val countryDisplay : String,
+    val districtCode : Int,
+    val districtDisplay : String,
+    val postalCode : String,
+    val stateCode : Int,
+    val stateDisplay : String,
+)
+
+data class EsanjeevniPatientContactDetails(
+    val contactPointStatus : Boolean,
+    val contactPointType : String,
+    val contactPointUse : String,
+    val contactPointValue : String,
 )

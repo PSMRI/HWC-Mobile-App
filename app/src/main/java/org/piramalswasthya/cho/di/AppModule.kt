@@ -33,6 +33,7 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
@@ -61,7 +62,8 @@ object AppModule {
          private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
-    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
+//    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =
         OkHttpClient.Builder()
@@ -112,7 +114,7 @@ object AppModule {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(TokenInsertTmcInterceptor())
+            .addInterceptor(TokenESanjeevaniInterceptor())
             .build()
     }
 //
