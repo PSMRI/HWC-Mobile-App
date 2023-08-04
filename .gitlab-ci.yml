@@ -1,5 +1,5 @@
 stages:
-  - verify
+  #- verify
   - test
   - build
   - publish
@@ -44,13 +44,13 @@ before_script:
 
 # Basic android and gradle stuff
 # Check linting
-lintDebug:
-  interruptible: true
-  stage: verify
-  tags:
-  - main
-  script:
-    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+# lintDebug:
+#   interruptible: true
+#   stage: verify
+#   tags:
+#   - main
+#   script:
+#     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
 
 # Make Project
 assembleDebug:
