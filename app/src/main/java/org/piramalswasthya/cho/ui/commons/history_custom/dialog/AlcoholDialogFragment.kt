@@ -12,12 +12,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import org.piramalswasthya.cho.R
 
-class MedicationDialogFragment : DialogFragment() {
-
-
+class AlcoholDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val customView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.fragment_medication_dialog, null)
+            .inflate(R.layout.fragment_alcohol_dialog, null)
 
         val illnessTextView = customView.findViewById<TextView>(R.id.illness)
         val durationTextView = customView.findViewById<TextView>(R.id.duration)
@@ -27,12 +25,11 @@ class MedicationDialogFragment : DialogFragment() {
         durationTextView.text = "3 days"
         timePeriodTextView.text = "1 month ago"
 
-        val closeButton = customView.findViewById<Button>(R.id.btnClose)
 
+        val closeButton = customView.findViewById<Button>(R.id.btnClose)
 
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
             .setView(customView)
-
 
         closeButton.setOnClickListener {
             dismiss()

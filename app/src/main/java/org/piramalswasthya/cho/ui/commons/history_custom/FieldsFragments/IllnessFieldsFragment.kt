@@ -65,7 +65,6 @@ class IllnessFieldsFragment(): Fragment() {
 
         dropdownIllness = binding.illnessText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        // Create ArrayAdapter with the illness options and set it to the AutoCompleteTextView for "Illness"
         val illnessAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ILLNESS_OPTIONS)
         dropdownIllness.setAdapter(illnessAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)

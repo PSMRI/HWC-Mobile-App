@@ -12,12 +12,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import org.piramalswasthya.cho.R
 
-class MedicationDialogFragment : DialogFragment() {
-
-
+class TobaccoDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val customView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.fragment_medication_dialog, null)
+            .inflate(R.layout.fragment_tobacco_dialog, null)
 
         val illnessTextView = customView.findViewById<TextView>(R.id.illness)
         val durationTextView = customView.findViewById<TextView>(R.id.duration)

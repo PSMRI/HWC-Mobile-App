@@ -16,11 +16,11 @@ import org.piramalswasthya.cho.R
 class AADialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        // Create a custom view for the dialog
+
         val customView = LayoutInflater.from(requireContext())
             .inflate(R.layout.fragment_a_a_dialog, null)
 
-        // Find and set values for the TextViews in the dialog
+
         val illnessTextView = customView.findViewById<TextView>(R.id.illness)
         val durationTextView = customView.findViewById<TextView>(R.id.duration)
         val timePeriodTextView = customView.findViewById<TextView>(R.id.time_period_ago)
@@ -30,14 +30,11 @@ class AADialogFragment : DialogFragment() {
         durationTextView.text = "3 days"
         timePeriodTextView.text = "1 month ago"
 
-        // Find the close button
         val closeButton = customView.findViewById<Button>(R.id.btnClose)
 
-        // Create an AlertDialog with the custom view
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
             .setView(customView)
 
-        // Set the close button click listener to dismiss the dialog
         closeButton.setOnClickListener {
             dismiss()
         }

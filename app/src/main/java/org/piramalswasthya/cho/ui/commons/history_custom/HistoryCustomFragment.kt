@@ -18,11 +18,17 @@ import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AAFragments
+import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AlcoholFragment
+import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AllergyFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.IllnessFieldsFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.MedicationFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.PastSurgeryFragment
+import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.TobaccoFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AADialogFragment
+import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AlcoholDialogFragment
+import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AllergyDialogFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.MedicationDialogFragment
+import org.piramalswasthya.cho.ui.commons.history_custom.dialog.TobaccoDialogFragment
 
 @AndroidEntryPoint
 class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), NavigationAdapter,HistoryFieldsInterface {
@@ -63,10 +69,19 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var deleteCountAA:Int=0
     var addCountM:Int =0
     var deleteCountM:Int=0
+    var addCountTob:Int =0
+    var deleteCountTob:Int=0
+    var addCountAlc:Int =0
+    var deleteCountAlc:Int=0
+    var addCountAllg:Int =0
+    var deleteCountAllg:Int=0
     var illnessTag = mutableListOf<String>()
     var surgeryTag = mutableListOf<String>()
     var aaTag = mutableListOf<String>()
     var mTag = mutableListOf<String>()
+    var tobTag = mutableListOf<String>()
+    var alcTag = mutableListOf<String>()
+    var allgTag = mutableListOf<String>()
 
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
@@ -86,6 +101,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         deleteCountAA=0
         addCountM=0
         deleteCountM=0
+        addCountTob=0
+        deleteCountTob=0
+        addCountAlc=0
+        deleteCountAlc=0
+        addCountAllg=0
+        deleteCountAllg=0
         _binding = FragmentHistoryCustomBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -109,15 +130,66 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             openIllnessDialogBox()
         }
         binding.btnPreviousHistoryAA.setOnClickListener {
-            openIllnessDialogBox()
+            openAADialogBox()
         }
         binding.btnPreviousHistoryMedical.setOnClickListener {
-            openIllnessDialogBox()
+            openMDialogBox()
+        }
+        binding.btnPreviousHistoryPersonalT.setOnClickListener {
+            openTDialogBox()
+        }
+        binding.btnPreviousHistoryPersonalA.setOnClickListener {
+            openADialogBox()
+        }
+        binding.btnPreviousHistoryPersonalAlg.setOnClickListener {
+            openAllgDialogBox()
         }
         addIllnessFields(addCountIllness)
         addSurgeryFields(addCountSurgery)
         addAAFields(addCountAA)
         addMFields(addCountM)
+        addTobFields(addCountTob)
+        addAlcFields(addCountAlc)
+        addAllgFields(addCountAllg)
+    }
+    private fun addAlcFields(count:Int){
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
+        val aFields = AlcoholFragment()
+        val tag = "Extra Alc$count"
+        aFields.setFragmentTag(tag)
+        aFields.setListener(this)
+        fragmentTransaction.add(binding.personalAExtra.id,aFields,tag)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+        alcTag.add(tag)
+        addCountAlc+=1
+    }
+    private fun addAllgFields(count:Int){
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
+        val allgFields = AllergyFragment()
+        val tag = "Extra Allg$count"
+        allgFields.setFragmentTag(tag)
+        allgFields.setListener(this)
+        fragmentTransaction.add(binding.personalAlgExtra.id,allgFields,tag)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+        allgTag.add(tag)
+        addCountAllg+=1
+    }
+    private fun addTobFields(count:Int){
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
+        val mFields = TobaccoFragment()
+        val tag = "Extra tob$count"
+        mFields.setFragmentTag(tag)
+        mFields.setListener(this)
+        fragmentTransaction.add(binding.personalTExtra.id,mFields,tag)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+        tobTag.add(tag)
+        addCountTob+=1
     }
     private fun addMFields(count:Int){
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
@@ -173,6 +245,24 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         illnessTag.add(tag)
         addCountIllness+=1
     }
+    private fun deleteTFields(tag: String){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            tobTag.remove(tag)
+            deleteCountTob += 1
+        }
+    }
+    private fun deleteAllgFields(tag: String){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            allgTag.remove(tag)
+            deleteCountAllg += 1
+        }
+    }
     private fun deleteAAFields(tag: String){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
@@ -189,6 +279,15 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
             mTag.remove(tag)
             deleteCountM += 1
+        }
+    }
+    private fun deleteAlcFields(tag: String){
+        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
+        if (fragmentToDelete != null) {
+            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
+            alcTag.remove(tag)
+            deleteCountAlc += 1
         }
     }
     private fun deleteIllnessFields(tag: String){
@@ -216,6 +315,30 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     override fun onAddButtonClickedAA(fragmentTag: String) {
         addAAFields(addCountAA)
     }
+
+    override fun onDeleteButtonClickedAlcohol(fragmentTag: String) {
+        if(addCountAlc - 1 > deleteCountAlc) deleteAlcFields(fragmentTag)
+    }
+
+    override fun onAddButtonClickedAlg(fragmentTag: String) {
+        addAllgFields(addCountAllg)
+    }
+
+    override fun onDeleteButtonClickedAlg(fragmentTag: String) {
+        if(addCountAllg - 1 > deleteCountAllg) deleteAllgFields(fragmentTag)
+    }
+
+    override fun onAddButtonClickedAlcohol(fragmentTag: String) {
+        addAlcFields(addCountAlc)
+    }
+
+    override fun onDeleteButtonClickedTobacco(fragmentTag: String) {
+        if(addCountTob - 1 > deleteCountTob) deleteTFields(fragmentTag)
+    }
+
+    override fun onAddButtonClickedTobacco(fragmentTag: String) {
+        addTobFields(addCountTob)
+    }
     override fun onDeleteButtonClickedM(fragmentTag: String) {
         if(addCountM - 1 > deleteCountM) deleteMFields(fragmentTag)
     }
@@ -238,17 +361,28 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         addIllnessFields(addCountIllness)
     }
     private fun openIllnessDialogBox() {
-        // Create an instance of the custom dialog fragment and show it
+
         val dialogFragment = IllnessDialogFragment()
         dialogFragment.show(parentFragmentManager, "illness_dialog_box")
     }
     private fun openAADialogBox() {
-        // Create an instance of the custom dialog fragment and show it
         val dialogFragment = AADialogFragment()
         dialogFragment.show(parentFragmentManager, "aa_dialog_box")
     }
+    private fun openTDialogBox() {
+        val dialogFragment = TobaccoDialogFragment()
+        dialogFragment.show(parentFragmentManager, "fragment_tobacco_dialog")
+    }
+    private fun openADialogBox() {
+        val dialogFragment = AlcoholDialogFragment()
+        dialogFragment.show(parentFragmentManager, "fragment_alcohol_dialog")
+    }
+    private fun openAllgDialogBox() {
+        val dialogFragment = AllergyDialogFragment()
+        dialogFragment.show(parentFragmentManager, "fragment_allergy_dialog")
+    }
     private fun openMDialogBox() {
-        // Create an instance of the custom dialog fragment and show it
+
         val dialogFragment = MedicationDialogFragment()
         dialogFragment.show(parentFragmentManager, "medication_dialog_box")
     }

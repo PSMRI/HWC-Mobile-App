@@ -12,12 +12,21 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import org.piramalswasthya.cho.R
 
-class MedicationDialogFragment : DialogFragment() {
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"
 
+/**
+ * A simple [Fragment] subclass.
+ * Use the [AllergyDialogFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class AllergyDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val customView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.fragment_medication_dialog, null)
+            .inflate(R.layout.fragment_allergy_dialog, null)
 
         val illnessTextView = customView.findViewById<TextView>(R.id.illness)
         val durationTextView = customView.findViewById<TextView>(R.id.duration)

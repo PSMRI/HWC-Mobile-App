@@ -1,0 +1,89 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@android:color/holo_purple"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous Alcohol History"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"/>
+
+    </LinearLayout>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Illness"
+            android:textStyle="bold"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Duration"
+            android:textStyle="bold"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time Period Ago"
+            android:textStyle="bold"
+            android:layout_weight="1" />
+
+    </TableRow>
+
+    <!-- Table Rows with Default Values -->
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/illness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fever"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3 days"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/time_period_ago"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 month ago"
+            android:layout_weight="1" />
+
+    </TableRow>
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:layout_gravity="end"
+        android:layout_margin="16dp" />
+
+</LinearLayout>
