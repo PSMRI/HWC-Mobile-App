@@ -4,6 +4,8 @@ stages:
   - build
   - publish
 image: openjdk:8-jdk
+tags:
+  - main
 variables:
   PACKAGENAME: $PACKAGENAME
   VERSION: $VERSION
