@@ -59,7 +59,7 @@ assembleDebug:
   tags:
   - main
   script:
-    - ./gradlew assemble#Debug
+    - ./gradlew assemble
   artifacts:
     paths:
       - app/build/outputs/
