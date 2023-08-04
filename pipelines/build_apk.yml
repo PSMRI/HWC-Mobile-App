@@ -3,7 +3,7 @@ stages:
   #- test
   - build
   - publish
-image: openjdk:17-jdk
+image: gradle:5.3.1-jdk8-alpine
 variables:
   PACKAGENAME: "android" #$PACKAGENAME
   VERSION: "latest" #$VERSION
@@ -18,8 +18,8 @@ variables:
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
 before_script:
-  - microdnf -y update 
-  - microdnf -y install wget tar unzip libstdc++.i686 zlib.i686
+  - apk -y update 
+  - apk -y install wget tar unzip libstdc++.i686 zlib.i686
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
   # Create a new directory at specified location
