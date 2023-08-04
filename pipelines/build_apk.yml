@@ -18,8 +18,8 @@ variables:
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
 before_script:
-  - /bin/sh -y update 
-  - /bin/sh -y install wget tar unzip libstdc++.i686 zlib.i686
+  - apt --quiet -y update 
+  - apt --quiet -y install wget tar unzip libstdc++.i686 zlib.i686
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
   # Create a new directory at specified location
