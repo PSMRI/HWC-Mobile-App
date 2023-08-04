@@ -4,8 +4,6 @@ stages:
   - build
   - publish
 image: openjdk:8-jdk
-tags:
-  - main
 variables:
   PACKAGENAME: $PACKAGENAME
   VERSION: $VERSION
@@ -49,6 +47,8 @@ before_script:
 lintDebug:
   interruptible: true
   stage: verify
+  tags:
+  - main
   script:
     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
 
@@ -56,6 +56,8 @@ lintDebug:
 assembleDebug:
   interruptible: true
   stage: build
+  tags:
+  - main
   script:
     - ./gradlew assembleDebug
   artifacts:
@@ -66,9 +68,13 @@ assembleDebug:
 debugTests:
   interruptible: true
   stage: test
+  tags:
+  - main
   script:
     - ./gradlew -Pci --console=plain :app:testDebug
 upload-to-package-registry:
   stage: publish
+  tags:
+  - main
   script: 
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
