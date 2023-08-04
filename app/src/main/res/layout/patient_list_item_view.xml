@@ -31,7 +31,7 @@
             android:id="@+id/name_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:"
+            android:text="Beneficiary Name:"
             android:textStyle="bold" />
 
         <TextView
@@ -61,7 +61,7 @@
               android:id="@+id/abha_number_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Abha Number:"
+              android:text="Abha Id:"
               android:textStyle="bold" />
 
           <TextView
@@ -158,14 +158,26 @@
       </LinearLayout>
       <LinearLayout
           android:id="@+id/ll_row_5"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:baselineAligned="false"
           android:orientation="horizontal"
           android:weightSum="3"
        >
 
-
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_abha"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:cornerRadius="@dimen/padding_normal"
+            android:layout_marginStart="@dimen/margin_small"
+            android:text="ABHA"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_hh_id"
+            android:backgroundTint="@color/green"
+             />
       </LinearLayout>
     </LinearLayout>
 

@@ -7,6 +7,10 @@
   "subjectType": [
     "Patient"
   ],
+  "period": {
+    "start": "2019-01-16T08:30:00-07:00",
+    "end": "2019-01-20T08:30:00-07:00"
+  },
   "extension": [
     {
       "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
@@ -324,10 +328,21 @@
           "linkId": "patient-0-registration-date",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.registrationDate",
           "type": "date",
-          "required": false,
           "readOnly": true,
           "text": "Registration Date",
-          "initialDateTime": "{{%FHIRDate.now%}}"
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%FHIRDate.today()"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+              "valueString": "dd-mm-yyyy"
+            }
+          ]
         }
       ]
     }

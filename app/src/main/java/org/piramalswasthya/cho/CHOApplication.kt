@@ -12,6 +12,7 @@ import com.google.android.fhir.FhirEngineProvider
 import com.google.android.fhir.NetworkConfiguration
 import com.google.android.fhir.ServerConfiguration
 import com.google.android.fhir.datacapture.DataCaptureConfig
+import com.google.android.fhir.datacapture.XFhirQueryResolver
 import com.google.android.fhir.search.search
 import com.google.android.fhir.sync.remote.HttpLogger
 
@@ -37,7 +38,9 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
 
     private val fhirEngine: FhirEngine by lazy { constructFhirEngine() }
 
-    private var dataCaptureConfig: DataCaptureConfig? = DataCaptureConfig(xFhirQueryResolver = {fhirEngine.search(it) })
+    private var dataCaptureConfig: DataCaptureConfig? = null
+
+//    private var dataCaptureConfig: DataCaptureConfig? = DataCaptureConfig(xFhirQueryResolver = {fhirEngine.search(it) })
 
     override fun onCreate() {
 
@@ -62,6 +65,12 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
                 )
             )
         )
+
+         dataCaptureConfig =
+          DataCaptureConfig().apply {
+            urlResolver = ReferenceUrlResolver(this@CHOApplication as Context)
+            xFhirQueryResolver = XFhirQueryResolver { fhirEngine.search(it) }
+          }
     }
 
     private fun constructFhirEngine(): FhirEngine {

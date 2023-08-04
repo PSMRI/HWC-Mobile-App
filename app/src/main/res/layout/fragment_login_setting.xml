@@ -23,8 +23,8 @@
             android:id="@+id/dropdown_label_state"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="State"
-            android:layout_margin="8dp"
+            android:text="@string/state"
+            android:layout_margin="@dimen/padding_normal"
             app:layout_constraintTop_toBottomOf="@id/SwasthyaL_withoutcard"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -33,7 +33,7 @@
             android:id="@+id/state"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/padding_normal"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -44,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:inputType="none"
-                android:text="Choose State"
+                android:text="@string/choose_state"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -52,8 +52,8 @@
             android:id="@+id/dropdown_label_district"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="District/Town/City"
-            android:layout_margin="8dp"
+            android:text="@string/district_town_city"
+            android:layout_margin="@dimen/padding_normal"
             app:layout_constraintTop_toBottomOf="@id/state"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +62,7 @@
             android:id="@+id/dist"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/padding_normal"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -73,7 +73,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:inputType="none"
-                android:text="Choose District"
+                android:text="@string/choose_district"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,8 +81,8 @@
             android:id="@+id/dropdown_label_taluk"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Taluk/Tehsil"
-            android:layout_margin="8dp"
+            android:text="@string/taluk_tehsil"
+            android:layout_margin="@dimen/padding_normal"
             app:layout_constraintTop_toBottomOf="@id/dist"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -91,7 +91,7 @@
             android:id="@+id/taluk"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/padding_normal"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -102,7 +102,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:inputType="none"
-                android:text="Choose Taluk"
+                android:text="@string/choose_taluk"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -110,8 +110,8 @@
             android:id="@+id/dropdown_label_panchayat"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Street/Panchayat/Village"
-            android:layout_margin="8dp"
+            android:text="@string/street_panchayat_village"
+            android:layout_margin="@dimen/padding_normal"
             app:layout_constraintTop_toBottomOf="@id/taluk"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -120,7 +120,7 @@
             android:id="@+id/panchayat"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/padding_normal"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -131,7 +131,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:inputType="none"
-                android:text="Choose Panchayat"
+                android:text="@string/choose_panchayat"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 

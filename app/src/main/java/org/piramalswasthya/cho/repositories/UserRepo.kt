@@ -67,16 +67,20 @@ class UserRepo @Inject constructor(
         timestamp: String
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
-            val loggedInUser = userDao.getLoggedInUser()
+            val loggedInUser = userDao.getUser(userName, password)
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
-                if (it.userName == userName && it.password == password) {
+                if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
                     val tokenB = preferenceDao.getPrimaryApiToken()
 
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
                             ?: throw IllegalStateException("User logging offline without pref saved token B!")
                     )
+                    it.userName = userName
+                    it.loggedIn = true
+                    userDao.update(loggedInUser)
+
                     Timber.w("User Logged in!")
                     setOutreachProgram(selectedOption, timestamp)
                     return@withContext OutreachViewModel.State.SUCCESS
@@ -88,7 +92,7 @@ class UserRepo @Inject constructor(
                 if (user != null) {
                     Timber.d("User Auth Complete!!!!")
                     user?.loggedIn = true
-                    if (userDao.getLoggedInUser()?.userName == userName) {
+                    if (userDao.getUser(userName, password)?.userName == userName) {
                         userDao.update(user!!.asCacheModel())
                     } else {
                         userDao.resetAllUsersLoggedInState()
@@ -184,7 +188,6 @@ class UserRepo @Inject constructor(
 
                 }
                 true
-//                getLocationDetails()
             } else {
                 false
             }
@@ -267,8 +270,7 @@ class UserRepo @Inject constructor(
                     val data = responseBody.getJSONObject("data")
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
-                    preferenceDao.registerAmritToken(token)
-                    Log.d("key", token)
+                    preferenceDao.registerPrimaryApiToken(token)
                     return@withContext true
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
@@ -287,13 +289,6 @@ class UserRepo @Inject constructor(
 
     }
 
-//
-//    suspend fun logout() {
-//        withContext(Dispatchers.IO) {
-//            val loggedInUser = userDao.getLoggedInUser()!!
-//            userDao.logout(loggedInUser)
-//        }
-//    }
 
 
 }

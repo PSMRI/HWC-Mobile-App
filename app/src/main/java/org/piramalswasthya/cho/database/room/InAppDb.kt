@@ -68,7 +68,7 @@ import timber.log.Timber
         SubVisitCategory:: class
     ],
 //    views = [BenBasicCache::class],
-    version = 1, exportSchema = false
+    version = 23, exportSchema = false
 )
 
 

@@ -33,14 +33,17 @@ interface UserDao {
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUser(): UserCache?
 
+    @Query("SELECT * FROM USER U WHERE username like :username AND Password = :password LIMIT 1")
+    suspend fun getUser(username:String, password:String): UserCache?
+
     @Query("SELECT country_id as id, country_name as name, country_nameHindi as nameHindi, country_nameAssamese as nameAssamese FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getCountry(): LocationEntity?
 
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     fun getLoggedInUserLiveData(): LiveData<UserCache>
 
-    @Delete
-    suspend fun logout(loggedInUser: UserCache)
+//    @Delete
+//    suspend fun logout(loggedInUser: UserCache)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
