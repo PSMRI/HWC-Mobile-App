@@ -3,7 +3,7 @@ stages:
   - test
   - build
   - publish
-image: openjdk:8-jdk
+image: openjdk:11-jdk
 variables:
   PACKAGENAME: "android" #$PACKAGENAME
   VERSION: "latest" #$VERSION
