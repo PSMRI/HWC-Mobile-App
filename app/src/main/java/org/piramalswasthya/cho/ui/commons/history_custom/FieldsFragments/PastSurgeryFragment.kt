@@ -1,4 +1,4 @@
-package org.piramalswasthya.cho.ui.commons.history_custom
+package org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments
 
 import android.os.Bundle
 import android.text.Editable
@@ -9,14 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.LinearLayout
 import dagger.hilt.android.AndroidEntryPoint
-import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
 import org.piramalswasthya.cho.databinding.FragmentPastSurgeryBinding
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
-class PastSurgeryFragment : Fragment() {
+class PastSurgeryFragment() : Fragment() {
 
     private val HoSurgery = arrayOf(
                 "Appendicectomy",
@@ -56,14 +55,10 @@ class PastSurgeryFragment : Fragment() {
 
         dropdownSurgery = binding.surgeryText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        // Create ArrayAdapter with the illness options and set it to the AutoCompleteTextView for "Illness"
         val surgeryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, HoSurgery)
         dropdownSurgery.setAdapter(surgeryAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
-
-        dropdownSurgery = binding.surgeryText
-        dropdownTimePeriodAgo = binding.dropdownDurUnit
 
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {

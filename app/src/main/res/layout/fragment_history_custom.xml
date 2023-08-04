@@ -19,7 +19,6 @@
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:padding="16dp" />
 
         <Button
@@ -41,7 +40,6 @@
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/btnPreviousHistory"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:padding="8dp" />
 
 
@@ -58,12 +56,11 @@
             android:id="@+id/subheading_surgery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="H/O Surgery"
+            android:text="Past H/O Surgery"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/pastIllnessExtra"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:padding="8dp" />
 
         <LinearLayout
@@ -84,17 +81,184 @@
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/pastSurgeryExtra"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:padding="16dp" />
 
-<!--        <LinearLayout-->
-<!--            android:id="@+id/associatedAilmentsExtra"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/pastSurgery"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+        <Button
+            android:id="@+id/btnPreviousHistoryAA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous History"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/heading_associated_ailments"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/associatedAilmentsExtra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/btnPreviousHistoryAA"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/heading_covid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Covid Vaccination Status"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/associatedAilmentsExtra"
+            app:layout_constraintStart_toStartOf="parent"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/ageGTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Age Group"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/heading_covid" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/AgeGr"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="Select Duration Unit"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ageGTxt">
+
+            <AutoCompleteTextView
+                android:id="@+id/ageGrText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/vStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Vaccination status"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/AgeGr" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vStatusT"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="Select Vaccination status"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vStatus">
+
+            <AutoCompleteTextView
+                android:id="@+id/vStatusText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/vType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Vaccination Type"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vStatusT" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vTypeT"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="Select Vaccination Type"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vType">
+
+            <AutoCompleteTextView
+                android:id="@+id/vTypeText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/doseTakenL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Dose Taken"
+            android:textSize="16sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vTypeT" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/doseTakenT"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="Select Dose Taken"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/doseTakenL">
+
+            <AutoCompleteTextView
+                android:id="@+id/doseTakenText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/heading_medical_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medication History"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/doseTakenT"
+            app:layout_constraintStart_toStartOf="parent"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/btnPreviousHistoryMedical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous History"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/heading_medical_history"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/medicationExtra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/btnPreviousHistoryMedical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
 
         <Space
             android:layout_width="wrap_content"
@@ -102,7 +266,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/heading_associated_ailments" />
+            app:layout_constraintTop_toBottomOf="@+id/medicationExtra" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
