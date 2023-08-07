@@ -223,5 +223,28 @@
     <string name="personal_alcohol_history">Personal Alcohol History</string>
     <string name="personal_alergy_history">Personal Alergy History</string>
 
+    <string name="choose_abha_gen_mode">Choose Abha gen mode</string>
+    <string name="abha_gen_mode">Abha gen mode</string>
+    <string name="state">State</string>
+    <string name="choose_state">Choose State</string>
+    <string name="district_town_city">District/Town/City</string>
+    <string name="choose_district">Choose District</string>
+    <string name="taluk_tehsil">Taluk/Tehsil</string>
+    <string name="choose_taluk">Choose Taluk</string>
+    <string name="street_panchayat_village">Street/Panchayat/Village</string>
+    <string name="choose_panchayat">Choose Panchayat</string>
+    <string name="select_sub_category">Select Sub Category</string>
+    <string name="select_chief_complaint">Select Chief Complaint</string>
+    <string name="enter_your_description">Enter your Description...</string>
+    <string name="select_file">Select File</string>
+    <string name="upload_file">Upload File</string>
+    <string name="category">Category</string>
+    <string name="sub_category">Sub Category</string>
+    <string name="select_and_upload_file">Select And Upload File</string>
+    <string name="selected_file">Selected File</string>
+    <string name="chief_complaint">Chief Complaint</string>
+    <string name="unit_of_duration">Unit of Duration</string>
+    <string name="description">Description</string>
+
 
 </resources>

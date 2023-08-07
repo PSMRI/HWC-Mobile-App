@@ -74,7 +74,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
 
             when (currFragment.getFragmentId()){
-                R.id.fragment_fhir_visit_details -> {
+                R.id.fragment_visit_details_info -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
@@ -111,7 +111,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
 
             when (currFragment.getFragmentId()){
-                R.id.fragment_fhir_visit_details -> {
+                R.id.fragment_visit_details_info -> {
 
                 }
                 R.id.fragment_history_custom->{

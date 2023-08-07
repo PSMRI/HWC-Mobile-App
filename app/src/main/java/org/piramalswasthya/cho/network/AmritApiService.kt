@@ -12,6 +12,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AmritApiService {
     @Suppress("SpellCheckingInspection")
@@ -115,5 +116,10 @@ interface AmritApiService {
 
     @POST("fhirapi-v1.0/healthIDCard/verifyOTPAndGenerateHealthCard")
     suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
+    @GET("hwc-facility-service/master/nurse/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}")
+    suspend fun getNurseMasterData(@Path("visitCategoryID") visitCategoryID: Int,
+                                   @Path("providerServiceMapID") providerServiceMapID : Int,
+                                   @Path("gender") gender: String,
+                                   @Query("apiKey") apiKey :String): Response<ResponseBody>
 
 }

@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/fhirVisitDetailsFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FragmentVisitDetail"
         android:label="fragment_fhir_visit_details"
         tools:layout="@layout/fragment_fhir_visit_details" >
         <action
