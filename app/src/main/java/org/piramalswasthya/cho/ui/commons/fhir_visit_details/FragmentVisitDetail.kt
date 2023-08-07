@@ -241,11 +241,11 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         }
         if(isFileSelected && isFileUploaded) {
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
         } else if(!isFileSelected){
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
         } else {
             Toast.makeText(requireContext(),"Please Upload the Selected File",Toast.LENGTH_SHORT).show()
