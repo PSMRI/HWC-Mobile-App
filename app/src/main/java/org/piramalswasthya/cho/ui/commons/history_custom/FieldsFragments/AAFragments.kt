@@ -147,7 +147,7 @@ class AAFragments : Fragment() {
         val chiefComplaint = binding.aaText.text.toString().trim()
         val familym = binding.inputDuration.text.toString().trim()
         val inC = binding.aaText.text.toString().trim()
-        //binding.plusButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
+        binding.plusButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
         binding.resetButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
         val f =durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
 //        fragmentTag?.let { historyListener?.onFormFilledListenerAA(f)}
