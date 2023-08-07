@@ -3,23 +3,23 @@ stages:
   #- test
   - build
   - publish
-image: openjdk:17-jdk
+image: openjdk:8-jdk
 variables:
   PACKAGENAME: "android" #$PACKAGENAME
   VERSION: "latest" #$VERSION
   GRADLE_OPTS: "-Xmx4096m"
-  ANDROID_COMPILE_SDK: "29" #$ANDROID_COMPILE_SDK
-  ANDROID_BUILD_TOOLS: "29.0.3" #$ANDROID_BUILD_TOOLS
+  ANDROID_COMPILE_SDK: "33" #$ANDROID_COMPILE_SDK
+  ANDROID_BUILD_TOOLS: "33.0.2" #$ANDROID_BUILD_TOOLS
   # It's what version of the command line tools we're going to download from the official site.
   # Official Site-> https://developer.android.com/studio/index.html
   # There, look down below at the cli tools only, sdk tools package is of format:
   #        commandlinetools-os_type-ANDROID_SDK_TOOLS_latest.zip
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
-  ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
+  ANDROID_SDK_TOOLS: "9477386" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
 before_script:
-  - microdnf -y update 
-  - microdnf -y install wget tar unzip libstdc++.i686 zlib.i686
+  - apt-get -y update 
+  - apt-get -y install wget tar unzip libstdc++.i686 zlib.i686
   # Setup path as android_home for moving/exporting the downloaded sdk into it
   - export ANDROID_HOME="${PWD}/android-home"
   # Create a new directory at specified location
