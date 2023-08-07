@@ -84,13 +84,13 @@ class AAFragments : Fragment() {
                 historyListener?.onDeleteButtonClickedAA(it)
             }
         }
-//        binding.plusButton.setOnClickListener {
-//            fragmentTag?.let {
-//                historyListener?.onAddButtonClickedAA(it)
-//            }
-//        }
+        binding.plusButton.setOnClickListener {
+            fragmentTag?.let {
+                historyListener?.onAddButtonClickedAA(it)
+            }
+        }
 
-        //binding.plusButton.isEnabled = false
+        binding.plusButton.isEnabled = false
         binding.resetButton.isEnabled = false
         binding.dropdownDurUnit.addTextChangedListener(inputTextWatcher)
         binding.inputDuration.addTextChangedListener(inputTextWatcher)
