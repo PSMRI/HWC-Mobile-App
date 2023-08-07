@@ -78,7 +78,7 @@ class IllnessFieldsFragment(): Fragment() {
         }
         binding.plusButton.setOnClickListener {
             fragmentTag?.let {
-                historyListener?.onAddButtonClickedSurgery(it)
+                historyListener?.onAddButtonClickedIllness(it)
             }
         }
 
