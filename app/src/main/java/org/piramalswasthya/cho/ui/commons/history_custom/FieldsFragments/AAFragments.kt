@@ -100,6 +100,27 @@ class AAFragments : Fragment() {
             binding.inputDuration.text?.clear()
             binding.aaText.text?.clear()
         }
+
+        dropdownAA.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Check if the selected item is "Other"
+                val selectedOption = s.toString()
+                val isOtherSelected = selectedOption.equals("Other", ignoreCase = true)
+
+                // Show or hide the otherTextField based on the selection
+                if (isOtherSelected) {
+                    // Show the otherTextField
+                    binding.otherTextFieldLayout.visibility = View.VISIBLE
+                } else {
+                    // Hide the otherTextField
+                    binding.otherTextFieldLayout.visibility = View.GONE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     fun setListener(listener: HistoryFieldsInterface) {
@@ -128,6 +149,7 @@ class AAFragments : Fragment() {
         val inC = binding.aaText.text.toString().trim()
         binding.plusButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
         binding.resetButton.isEnabled = durationUnit.isNotEmpty()&&duration.isNotEmpty()&&chiefComplaint.isNotEmpty()&&familym.isNotEmpty()&&inC.isNotEmpty()
+
     }
 
 }

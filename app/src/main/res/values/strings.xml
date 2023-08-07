@@ -245,6 +245,12 @@
     <string name="chief_complaint">Chief Complaint</string>
     <string name="unit_of_duration">Unit of Duration</string>
     <string name="description">Description</string>
+    <string name="enter_other_associated_ailments">Enter Other Associated Ailments</string>
+    <string name="select_allergy_status">Select Allergy Status</string>
+    <string name="allergy_type">Allergy Type</string>
+    <string name="select_allergy_type">Select Allergy Type</string>
+    <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
+    <string name="allergy_status">Allergy Status</string>
 
 
 </resources>
