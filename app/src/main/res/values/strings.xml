@@ -245,6 +245,7 @@
     <string name="chief_complaint">Chief Complaint</string>
     <string name="unit_of_duration">Unit of Duration</string>
     <string name="description">Description</string>
+    <string name="enter_other_associated_ailments">Enter Other Associated Ailments</string>
 
 
 </resources>

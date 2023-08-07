@@ -33,6 +33,23 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otherTextFieldLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aa">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otherTextField"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:layout_height="wrap_content"
+            android:hint="@string/enter_other_associated_ailments" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:id="@+id/durationTxt"
         android:layout_width="wrap_content"
@@ -42,7 +59,7 @@
         android:textSize="16sp"
         android:textStyle="normal|bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/aa" />
+        app:layout_constraintTop_toBottomOf="@+id/otherTextFieldLayout" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/duration"
@@ -129,16 +146,16 @@
         android:buttonTint="@color/green"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/familyM" />
-    <Button
-        android:id="@+id/plusButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:text="@string/add"
-        app:layout_constraintEnd_toStartOf="@+id/resetButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
+<!--    <Button-->
+<!--        android:id="@+id/plusButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_margin="10dp"-->
+<!--        android:text="@string/add"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/resetButton"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />-->
 
     <Button
         android:id="@+id/resetButton"
@@ -148,7 +165,7 @@
         android:layout_margin="10dp"
         android:text="@string/reset"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
-        app:layout_constraintStart_toEndOf="@id/plusButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
 
     <Button
