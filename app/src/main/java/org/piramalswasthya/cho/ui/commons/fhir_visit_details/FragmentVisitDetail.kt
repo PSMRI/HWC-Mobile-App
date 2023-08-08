@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
+import android.R
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -9,30 +10,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.graphics.Color
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
-import java.io.File
+
 
 @AndroidEntryPoint
-class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
+class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
     private var _binding: VisitDetailsInfoBinding?= null
 
     private var units = mutableListOf<String>()
     private var chiefComplaints = mutableListOf<String>()
 
+    private lateinit var patientId : String
 
     private val subCatOptions = listOf(
         "",
@@ -90,14 +88,21 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val customAdapter = CustomAdapter(requireContext(), R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
+        val customAdapter = CustomAdapter(requireContext(), org.piramalswasthya.cho.R.layout.drop_down, chiefComplaints,binding.chiefComplaintDropDowns)
         binding.chiefComplaintDropDowns.setAdapter(customAdapter)
-        binding.subCatInput.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down,subCatOptions))
-        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down,units))
+        binding.subCatInput.setAdapter(ArrayAdapter(requireContext(),
+            org.piramalswasthya.cho.R.layout.drop_down,subCatOptions))
+        binding.dropdownDurUnit.setAdapter(ArrayAdapter(requireContext(), org.piramalswasthya.cho.R.layout.drop_down,units))
+
+
+        if (requireArguments().getString("patientId") != null) {
+            patientId = requireArguments().getString("patientId")!!
+        }
+
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             when(checkedId){
-                R.id.radioButton1 ->{
+                org.piramalswasthya.cho.R.id.radioButton1 ->{
                     binding.radioGroup2.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
                 }
@@ -122,7 +127,6 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
             openFilePicker()
         }
     }
-
 
     private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -197,7 +201,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
     }
 
     override fun getFragmentId(): Int {
-       return R.id.fragment_visit_details_info
+       return org.piramalswasthya.cho.R.id.fragment_visit_details_info
     }
 
     override fun onSubmitAction() {
@@ -206,6 +210,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService {
 
     override fun onCancelAction() {
         val intent = Intent(context, WebViewActivity::class.java)
+        intent.putExtra("patientId", patientId);
         startActivity(intent)
     }
 }

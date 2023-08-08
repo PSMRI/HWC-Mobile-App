@@ -22,7 +22,7 @@ class TokenESanjeevaniInterceptor : Interceptor{
         if (request.header("No-Auth") == null) {
             request = request
                 .newBuilder()
-                .addHeader("Authorization", TOKEN)
+                .addHeader("Authorization", "Bearer $TOKEN")
                 .build()
         }
         Timber.d("Request : $request")

@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.di
 
 import android.content.Context
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.FhirEngineProvider
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -59,7 +61,7 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 //         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
-         private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
+    private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 //    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
@@ -192,6 +194,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideRoomDatabase(@ApplicationContext context: Context) = InAppDb.getInstance(context)
+
+    @Singleton
+    @Provides
+    fun provideFhirEngine(@ApplicationContext context: Context) : FhirEngine = FhirEngineProvider.getInstance(context)
 
     @Singleton
     @Provides

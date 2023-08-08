@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_fhirVitalsFragment"
             app:destination="@id/fhirVitalsFragment" />
+        <argument
+            android:name="patientId"
+            app:argType="string"/>
     </fragment>
 
     <fragment
