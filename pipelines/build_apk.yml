@@ -47,12 +47,18 @@ build:
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
   script:
+    - lint_output=$(./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint)  # Run the linting command and capture its output
+    - echo "$lint_output"  # Print linting output
+    - if [[ "$lint_output" == *"Lint failed"* ]]; then
+        echo "Linting failed but build will continue";
+      else
+       ./gradlew assemble
+      fi
     # Linting
     # - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
     # Test
     #- ./gradlew -Pci --console=plain :app:testDebug
     # Build
-    - ./gradlew assembleDebug --stacktrace
   artifacts:
     paths:
       - app/build/outputs/
@@ -67,4 +73,4 @@ upload-to-package-registry:
     - apk update && apk add curl
   script: 
      - ls -al
-     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/debug/app-debug.apk ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/debug/app.apk ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
