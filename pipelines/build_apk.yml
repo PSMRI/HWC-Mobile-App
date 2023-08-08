@@ -19,7 +19,7 @@ variables:
 prepare_env:
   image: openjdk:17-jdk
   interruptible: true
-  stage: build
+  stage: prepare
   when: manual
   tags:
   - main
@@ -48,6 +48,8 @@ prepare_env:
     - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
+  script:
+    - echo "Preparing environment"
   artifacts:
     paths:
       - ./gradlew
