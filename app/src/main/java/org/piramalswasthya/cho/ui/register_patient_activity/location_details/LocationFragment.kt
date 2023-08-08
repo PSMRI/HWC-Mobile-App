@@ -703,25 +703,25 @@ class LocationFragment : Fragment() , NavigationAdapter {
     private fun addPatientLocationDetalis(){
         if(selectedState != null){
             patient.addExtension( getExtenstion(
-                    getUrl("state"),
+                    getUrl("state","Patient#Patient"),
                     getCoding(selectedState!!.stateID.toString(), selectedState!!.stateName) ) )
         }
 
         if(selectedDistrict != null){
             patient.addExtension( getExtenstion(
-                    getUrl("district"),
+                    getUrl("district","Patient#Patient"),
                     getCoding(selectedDistrict!!.districtID.toString(), selectedDistrict!!.districtName) ) )
         }
 
         if(selectedBlock != null){
             patient.addExtension( getExtenstion(
-                    getUrl("block"),
+                    getUrl("block","Patient#Patient"),
                     getCoding(selectedBlock!!.blockID.toString(), selectedBlock!!.blockName) ) )
         }
 
         if(selectedVillage != null){
             patient.addExtension( getExtenstion(
-                    getUrl("districtBranch"),
+                    getUrl("districtBranch","Patient#Patient"),
                     getCoding(selectedVillage!!.districtBranchID.toString(), selectedVillage!!.villageName) ) )
         }
 
@@ -732,19 +732,19 @@ class LocationFragment : Fragment() , NavigationAdapter {
         if(userInfo != null){
 
             patient.addExtension( getExtenstion(
-                getUrl("vanID"),
+                getUrl("vanID","Patient#Patient"),
                 getStringType(userInfo!!.vanId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl("parkingPlaceID"),
+                getUrl("parkingPlaceID","Patient#Patient"),
                 getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl("providerServiceMapId"),
+                getUrl("providerServiceMapId","Patient#Patient"),
                 getStringType(userInfo!!.serviceMapId.toString()) ) )
 
             patient.addExtension( getExtenstion(
-                getUrl("createdBy"),
+                getUrl("createdBy","Patient#Patient"),
                 getStringType(userInfo!!.userName) ) )
 
         }

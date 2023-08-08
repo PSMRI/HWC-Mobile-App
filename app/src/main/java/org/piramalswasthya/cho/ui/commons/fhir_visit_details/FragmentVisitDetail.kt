@@ -1,18 +1,14 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Activity
-import android.content.ClipDescription
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -22,19 +18,27 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import org.hl7.fhir.r4.model.Annotation
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.Encounter
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.SubVisitCategory
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.ChiefComplaintInterface
+import org.piramalswasthya.cho.ui.commons.FhirExtension
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 @AndroidEntryPoint
-class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, ChiefComplaintInterface{
+class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
+    ChiefComplaintInterface {
 
     override var fragmentContainerId = 0
 
@@ -44,10 +48,11 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     override val jsonFile = "patient-visit-details-paginated.json"
 
 
+    private var loggedInUser: UserCache? = null
 
-    private var _binding: VisitDetailsInfoBinding?= null
+    private var _binding: VisitDetailsInfoBinding? = null
 
-    private var units = mutableListOf("Hours","Days","Weeks","Months","Years")
+    private var units = mutableListOf("Hours", "Days", "Weeks", "Months", "Years")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
 
     private var subCatOptions = ArrayList<SubVisitCategory>()
@@ -59,9 +64,14 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     private var addCount: Int = 0
     private var deleteCount: Int = 0
 
+    private var category: String = ""
+    private var subCategory: String = ""
+    private var reason: String = ""
+    private var encounter = Encounter()
+    private var listOfConditions = mutableListOf<Condition>()
 
 
-  private val binding :VisitDetailsInfoBinding
+    private val binding: VisitDetailsInfoBinding
         get() {
             return _binding!!
         }
@@ -73,16 +83,17 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     ): View {
         addCount = 0
         deleteCount = 0
-        _binding = VisitDetailsInfoBinding.inflate(inflater,container,false)
+        _binding = VisitDetailsInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subCatAdapter = SubCategoryAdapter(requireContext(),R.layout.drop_down,subCatOptions)
+        subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.drop_down, subCatOptions)
         binding.subCatInput.setAdapter(subCatAdapter)
-
-        viewModel.subCatVisitList.observe( viewLifecycleOwner) { subCats ->
+        // calling to get LoggedIn user Details
+        viewModel.getLoggedInUserDetails()
+        viewModel.subCatVisitList.observe(viewLifecycleOwner) { subCats ->
             subCatOptions.clear()
             subCatOptions.addAll(subCats)
             subCatAdapter.notifyDataSetChanged()
@@ -90,25 +101,37 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
         binding.subCatInput.setOnItemClickListener { parent, view, position, id ->
             var subCat = parent.getItemAtPosition(position) as SubVisitCategory
-            binding.subCatInput.setText(subCat?.name,false)
+            binding.subCatInput.setText(subCat?.name, false)
         }
 
         binding.subCatInput.threshold = 1
 
-        viewModel.chiefComplaintMaster.observe(viewLifecycleOwner){ chiefComplaintsList ->
+        viewModel.chiefComplaintMaster.observe(viewLifecycleOwner) { chiefComplaintsList ->
             chiefComplaints.clear()
             chiefComplaints.addAll(chiefComplaintsList)
         }
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            when(checkedId){
-                R.id.radioButton1 ->{
+            when (checkedId) {
+                R.id.radioButton1 -> {
                     binding.radioGroup2.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
+                    category = binding.radioButton1.text.toString()
                 }
-                else ->{
+
+                else -> {
                     binding.radioGroup2.visibility = View.GONE
                     binding.reasonText.visibility = View.GONE
+                    category = binding.radioButton2.text.toString()
+                }
+            }
+        }
+        binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
+            reason = when (checkedId) {
+                R.id.radioButton3 -> {
+                    binding.radioButton3.text.toString()
+                } else -> {
+                    binding.radioButton4.text.toString()
                 }
             }
         }
@@ -116,7 +139,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
             openFilePicker()
         }
         binding.uploadFileBtn.setOnClickListener {
-            Toast.makeText(requireContext(),"You have uploaded the file",Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You have uploaded the file", Toast.LENGTH_SHORT)
+                .show()
             isFileUploaded = true
         }
 
@@ -126,10 +150,12 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
         addExtraChiefComplaint(addCount)
     }
-    private fun addExtraChiefComplaint(count: Int){
-        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-        val chiefFragment = ChiefComplaintFragment(chiefComplaints,units,binding.chiefComplaintExtra)
+
+    private fun addExtraChiefComplaint(count: Int) {
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+        val chiefFragment =
+            ChiefComplaintFragment(chiefComplaints, units, binding.chiefComplaintExtra)
         val tag = "Extra_Complaint_$count"
         chiefFragment.setFragmentTag(tag)
         chiefFragment.setListener(this)
@@ -138,8 +164,9 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         fragmentTransaction.commit()
         addCount += 1
     }
-    private fun deleteExtraChiefComplaint(tag: String){
-        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
+
+    private fun deleteExtraChiefComplaint(tag: String) {
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
         val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
         if (fragmentToDelete != null) {
             fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
@@ -148,32 +175,36 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     }
 
     override fun onDeleteButtonClicked(fragmentTag: String) {
-        if(addCount - 1 > deleteCount) deleteExtraChiefComplaint(fragmentTag)
+        if (addCount - 1 > deleteCount) deleteExtraChiefComplaint(fragmentTag)
     }
 
-    private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            data?.data?.let { uri ->
+    private val filePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                data?.data?.let { uri ->
 //                uploadFileToServer(uri)
-                val fileSize = getFileSizeFromUri(uri)
-                if(fileSize > 5242880) {
-                    Toast.makeText(requireContext(), "Please select file less than 5MB", Toast.LENGTH_SHORT)
-                        .show()
-                    binding.selectFileText.text = "Selected File"
-                    binding.uploadFileBtn.isEnabled = false
-                    isFileSelected = false
-                    isFileUploaded = false
-                }
-                else {
-                    val fileName = getFileNameFromUri(uri)
-                    binding.selectFileText.text = fileName
-                    binding.uploadFileBtn.isEnabled = true
-                    isFileSelected = true
+                    val fileSize = getFileSizeFromUri(uri)
+                    if (fileSize > 5242880) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Please select file less than 5MB",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        binding.selectFileText.text = "Selected File"
+                        binding.uploadFileBtn.isEnabled = false
+                        isFileSelected = false
+                        isFileUploaded = false
+                    } else {
+                        val fileName = getFileNameFromUri(uri)
+                        binding.selectFileText.text = fileName
+                        binding.uploadFileBtn.isEnabled = true
+                        isFileSelected = true
+                    }
                 }
             }
         }
-    }
 
     private fun getFileSizeFromUri(uri: Uri): Long {
         val contentResolver = requireActivity().contentResolver
@@ -200,7 +231,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     }
 
     private fun uploadFileToServer(fileUri: Uri) {
-        Toast.makeText(requireContext(),"Uri $fileUri", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), "Uri $fileUri", Toast.LENGTH_LONG).show()
     }
 
     private fun getFileNameFromUri(uri: Uri): String {
@@ -216,44 +247,198 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
     }
 
 
-
     override fun navigateNext() {
-        val count = binding.chiefComplaintExtra.childCount
-        var chiefComplaintsList = mutableListOf<ChiefComplaintValues>()
-        for(i in 0..count.minus(1)){
-            val childView: View? = binding.chiefComplaintExtra?.getChildAt(i)
-            val chiefComplaintVal = childView?.findViewById<AutoCompleteTextView>(R.id.chiefComplaintDropDowns)
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
-            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
-            val descVal = childView?.findViewById<TextInputEditText>(R.id.descInputText)
+        // calling to add Cat and SubCat
+        val catBool = checkAndAddCatSubCat()
 
-            if(chiefComplaintVal?.text?.isNotEmpty()!! &&
-                durationVal?.text?.isNotEmpty()!! &&
-                unitDurationVal?.text?.isNotEmpty()!! &&
-                descVal?.text?.isNotEmpty()!!){
-                var chiefComplaintValues = ChiefComplaintValues(
-                    chiefComplaintVal?.text.toString(),
-                    unitDurationVal?.text.toString(),
-                    descVal?.text.toString(),
-                    durationVal?.text.toString()?.toInt()!!)
-                chiefComplaintsList.add(chiefComplaintValues)
-            }
-        }
-        if(isFileSelected && isFileUploaded) {
+        // calling to add Chief Complaints
+        addChiefComplaintsData()
+
+        if (catBool && isFileSelected && isFileUploaded) {
+            if(encounter != null) viewModel.saveVisitDetailsInfo(encounter!!,listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
-        } else if(!isFileSelected){
+        } else if (!isFileSelected && catBool)  {
+            if(encounter != null) viewModel.saveVisitDetailsInfo(encounter!!,listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
         } else {
-            Toast.makeText(requireContext(),"Please Upload the Selected File",Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Please Upload the Selected File",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    }
+    private fun checkAndAddCatSubCat(): Boolean {
+        if (binding.subCatInput.text.isNullOrEmpty())
+            binding.subCatInput.requestFocus()
+        else
+            subCategory = binding.subCatInput.text.toString()
+
+        if (binding.radioGroup.checkedRadioButtonId == -1)
+            Toast.makeText(requireContext(), "Please Select Category", Toast.LENGTH_SHORT).show()
+
+        if (subCategory.isNotEmpty() && category.isNotEmpty()) {
+            createEncounterResource()
+            return true
+        }
+        return false
+    }
+    private fun createEncounterResource() {
+        // Set Encounter type
+        val encounterType = Coding()
+        encounterType.system =
+            "http://snomed.info/sct"
+        encounterType.code = "Category"
+        encounterType.display = category
+        encounter.type = listOf(CodeableConcept().addCoding(encounterType))
+
+        // Set Service Type
+        val serviceType = Coding()
+        serviceType.system =
+            "http://snomed.info/sct"
+        serviceType.code = "SubCategory"
+        serviceType.display = subCategory
+        encounter.serviceType = CodeableConcept().addCoding(serviceType)
+
+        // set reason
+        if(reason.isNotEmpty())
+            encounter!!.reasonCode = listOf(CodeableConcept().setText(reason))
+
+        // add extensions
+        addExtensionsToEncounter(encounter)
+    }
+
+    private fun addExtensionsToEncounter(encounter: Encounter) {
+        if(loggedInUser != null) {
+            encounter.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("vanID", "Encounter#Encounter"),
+                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
+                )
+            )
+
+            encounter.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("parkingPlaceID", "Encounter#Encounter"),
+                    FhirExtension.getStringType(loggedInUser!!.parkingPlaceId.toString())
+                )
+            )
+
+            encounter.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("providerServiceMapId", "Encounter#Encounter"),
+                    FhirExtension.getStringType(loggedInUser!!.serviceMapId.toString())
+                )
+            )
+
+            encounter.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("createdBy", "Encounter#Encounter"),
+                    FhirExtension.getStringType(loggedInUser!!.userName)
+                )
+            )
+        }
+    }
+
+    private fun addChiefComplaintsData() {
+        // get all the layouts and corresponding fields values
+        val count = binding.chiefComplaintExtra.childCount
+        for (i in 0..count.minus(1)) {
+            val childView: View? = binding.chiefComplaintExtra?.getChildAt(i)
+            val chiefComplaintVal =
+                childView?.findViewById<AutoCompleteTextView>(R.id.chiefComplaintDropDowns)
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
+            val unitDurationVal =
+                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
+            val descVal = childView?.findViewById<TextInputEditText>(R.id.descInputText)
+
+            if (chiefComplaintVal?.text?.isNotEmpty()!! &&
+                durationVal?.text?.isNotEmpty()!! &&
+                unitDurationVal?.text?.isNotEmpty()!! &&
+                descVal?.text?.isNotEmpty()!!
+            ) {
+                var chiefComplaintValues = ChiefComplaintValues(
+                    chiefComplaintVal?.text.toString(),
+                    unitDurationVal?.text.toString(),
+                    descVal?.text.toString(),
+                    durationVal?.text.toString()?.toInt()!!
+                )
+
+                // Creating the "Condition" resource
+                val condition = Condition()
+
+                // Set the code for the chief complaint
+                val chiefComplaint = Coding()
+                chiefComplaint.system =
+                    "http://snomed.info/sct"
+                chiefComplaint.code = "Chief Complaint"
+                chiefComplaint.display = chiefComplaintValues.chiefComplaint
+                condition.code = CodeableConcept().addCoding(chiefComplaint)
+
+                // Set the note for the description
+                val note = Annotation()
+                note.text = chiefComplaintValues.description
+                condition.note = listOf(note)
+
+                // calling this addExtensionsToConditionResources() method to add van,parking, providerServiceMapId and duration extension
+                addExtensionsToConditionResources(condition, chiefComplaintValues)
+                listOfConditions.add(condition)
+            }
+        }
+    }
+
+    private fun addExtensionsToConditionResources(
+        condition: Condition,
+        chiefComplaintValues: ChiefComplaintValues
+    ) {
+        if (loggedInUser != null) {
+            condition.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("chiefComplaintDurationUnit", "Condition#Condition"),
+                    FhirExtension.getCoding(
+                        chiefComplaintValues.durationUnit,
+                        chiefComplaintValues.duration.toString()
+                    )
+                )
+            )
+
+            condition.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("vanID", "Condition#Condition"),
+                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
+                )
+            )
+
+            condition.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("parkingPlaceID", "Condition#Condition"),
+                    FhirExtension.getStringType(loggedInUser!!.parkingPlaceId.toString())
+                )
+            )
+
+            condition.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("providerServiceMapId", "Condition#Condition"),
+                    FhirExtension.getStringType(loggedInUser!!.serviceMapId.toString())
+                )
+            )
+
+            condition.addExtension(
+                FhirExtension.getExtenstion(
+                    FhirExtension.getUrl("createdBy", "Condition#Condition"),
+                    FhirExtension.getStringType(loggedInUser!!.userName)
+                )
+            )
         }
     }
 
     override fun getFragmentId(): Int {
-       return R.id.fragment_visit_details_info
+        return R.id.fragment_visit_details_info
     }
 
     override fun onSubmitAction() {

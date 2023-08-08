@@ -13,7 +13,7 @@ class ChiefComplaintAdapter(
     context: Context,
     resource: Int,
     private val dataList: List<ChiefComplaintMaster>,
-    private val autoCompleteTextView: AutoCompleteTextView
+    autoCompleteTextView: AutoCompleteTextView
 ) : ArrayAdapter<ChiefComplaintMaster>(context, resource, dataList) {
 
     private val filterList = ArrayList<ChiefComplaintMaster>(dataList)

@@ -34,7 +34,7 @@
                 android:id="@+id/radioButton1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="General OPD Care"
+                android:text="@string/outpatient_care"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
