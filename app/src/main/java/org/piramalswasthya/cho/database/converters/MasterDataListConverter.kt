@@ -12,6 +12,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.IncomeMaster
 import org.piramalswasthya.cho.model.Language
 import org.piramalswasthya.cho.model.LiteracyStatus
@@ -159,6 +160,11 @@ object MasterDataListConverter {
     @TypeConverter
     fun toChiefMasterComplaintList(value: String?): List<ChiefComplaintMaster>{
         val listType = object : TypeToken<List<ChiefComplaintMaster?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toIllnessList(value: String?):List<IllnessDropdown>{
+        val listType = object :TypeToken<List<IllnessDropdown?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
 

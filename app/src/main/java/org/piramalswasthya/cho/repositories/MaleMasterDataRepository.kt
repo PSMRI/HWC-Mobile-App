@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
+import android.util.LogPrinter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
@@ -9,18 +10,22 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
+import org.piramalswasthya.cho.database.room.dao.IllnessDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.lang.Exception
+import java.security.PrivateKey
 import javax.inject.Inject
 
 class MaleMasterDataRepository @Inject constructor(
     private val amritApiService: AmritApiService,
     private val chiefComplaintMasterDao: ChiefComplaintMasterDao,
-    private val subCatVisitDao: SubCatVisitDao
+    private val subCatVisitDao: SubCatVisitDao,
+    private val illnessDao: IllnessDao
 ) {
     private var visitCategoryID: Int = 6
     private var providerServiceMapID: Int = 13
@@ -44,11 +49,32 @@ class MaleMasterDataRepository @Inject constructor(
                 saveSubVisitCategoriesToCache(subCatList)
 
                 val chiefComplaintString = jsonObject.getJSONArray("chiefComplaintMaster")
+                Log.d("Aryan","${chiefComplaintString.toString()}")
                 val chiefComplaintMasterList = MasterDataListConverter.toChiefMasterComplaintList(chiefComplaintString.toString())
+                Log.d("Aryan","${chiefComplaintMasterList}")
                 saveChiefComplaintMasterToCache(chiefComplaintMasterList)
+                val illnessString = jsonObject.getJSONArray("illnessTypes")
+                Log.d("Aryan","${illnessString.toString()}")
+                val illnessList = MasterDataListConverter.toIllnessList(illnessString.toString())
+                Log.d("Aryan","${illnessList}")
+                saveIllnessDropdownToCache(illnessList)
             }
         } catch (e: Exception){
             Log.i("Error in Fetching getMasterDataForNurse()","$e")
+        }
+    }
+
+    private suspend fun saveIllnessDropdownToCache(illnessDropdown:List<IllnessDropdown>){
+
+        try{
+            illnessDropdown.forEach { illnessDropdown: IllnessDropdown ->
+                withContext(Dispatchers.IO){
+                    Log.d("Aryan","$illnessDropdown")
+                    illnessDao.insertIllnessDropdown(illnessDropdown)
+                }
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Illness history $e")
         }
     }
 
@@ -75,7 +101,9 @@ class MaleMasterDataRepository @Inject constructor(
             Timber.d("Error in saving chief complaint master data")
         }
     }
-
+    fun getAllIllnessDropdown(): LiveData<List<IllnessDropdown>> {
+        return illnessDao.getAllIllnessDropdown()
+    }
     fun getAllSubCatVisit(): LiveData<List<SubVisitCategory>> {
          return subCatVisitDao.getAllSubCatVisit()
     }
