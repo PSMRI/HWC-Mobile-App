@@ -9,25 +9,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.IllnessAdapter
+import org.piramalswasthya.cho.adapter.TobaccoAdapter
 import org.piramalswasthya.cho.databinding.FragmentTobaccoBinding
+import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 @AndroidEntryPoint
 class TobaccoFragment : Fragment() {
 
-
-    private val tobaccoUS = arrayOf(
-        "Yes",
-        "No",
-        "Discontinued"
-    )
     private var _binding: FragmentTobaccoBinding? = null
     private val binding: FragmentTobaccoBinding
         get() = _binding!!
 
-    private lateinit var dropdownT: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
+    val viewModel: TobaccoFieldViewModel by viewModels()
+    private var tobaccoOption = ArrayList<TobaccoDropdown>()
+    private lateinit var tobaccoAdapter: TobaccoAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,9 +44,15 @@ class TobaccoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownT = binding.tobaccoText
-        val tocAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tobaccoUS)
-        dropdownT.setAdapter(tocAdapter)
+
+        tobaccoAdapter = TobaccoAdapter(requireContext(), R.layout.drop_down,tobaccoOption)
+        binding.tobaccoText.setAdapter(tobaccoAdapter)
+
+        viewModel.tobaccoDropdown.observe( viewLifecycleOwner) { tob ->
+            tobaccoOption.clear()
+            tobaccoOption.addAll(tob)
+            tobaccoAdapter.notifyDataSetChanged()
+        }
 
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {

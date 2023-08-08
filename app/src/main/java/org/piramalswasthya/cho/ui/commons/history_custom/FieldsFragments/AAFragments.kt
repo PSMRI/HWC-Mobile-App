@@ -9,10 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.FamilyMemberAdapter
+import org.piramalswasthya.cho.adapter.IllnessAdapter
 import org.piramalswasthya.cho.databinding.FragmentAAFragmentsBinding
 import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
+import org.piramalswasthya.cho.model.FamilyMemberDropdown
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
@@ -37,23 +42,16 @@ class AAFragments : Fragment() {
         "Month(s)",
         "Year(s)"
     )
-    private val familyMem = arrayOf(
-                 "Brother",
-                 "Daughter",
-                 "Father",
-                 "Mother",
-                 "Sister",
-                 "Son"
-    )
     private var _binding: FragmentAAFragmentsBinding? = null
     private val binding: FragmentAAFragmentsBinding
         get() = _binding!!
 
     private lateinit var dropdownAA: AutoCompleteTextView
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
-    private lateinit var dropdownF:AutoCompleteTextView
-
+    val viewModel: AssociatedAilmentsViewModel by viewModels()
     private var historyListener: HistoryFieldsInterface? = null
+    private var familyOption = ArrayList<FamilyMemberDropdown>()
+    private lateinit var familyAdapter: FamilyMemberAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -72,13 +70,20 @@ class AAFragments : Fragment() {
 
         dropdownAA = binding.aaText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        dropdownF= binding.familyText
         val aaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AA)
         dropdownAA.setAdapter(aaAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
-        val familyAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_dropdown_item_1line,familyMem)
-        dropdownF.setAdapter(familyAdapter)
+
+        familyAdapter = FamilyMemberAdapter(requireContext(), R.layout.drop_down,familyOption)
+        binding.familyText.setAdapter(familyAdapter)
+
+        viewModel.familyDropdown.observe( viewLifecycleOwner) { aa ->
+            familyOption.clear()
+            familyOption.addAll(aa)
+            familyAdapter.notifyDataSetChanged()
+        }
+
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {
                 historyListener?.onDeleteButtonClickedAA(it)

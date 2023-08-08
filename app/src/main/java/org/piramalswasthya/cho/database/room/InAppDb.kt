@@ -22,7 +22,7 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
-import org.piramalswasthya.cho.database.room.dao.IllnessDao
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
@@ -75,7 +75,7 @@ import timber.log.Timber
         TobaccoDropdown::class
     ],
 //    views = [BenBasicCache::class],
-    version = 26, exportSchema = false
+    version = 28, exportSchema = false
 )
 
 
@@ -113,7 +113,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val otherGovIdEntityMasterDao: OtherGovIdEntityMasterDao
     abstract val chiefComplaintMasterDao: ChiefComplaintMasterDao
     abstract val subCatVisitDao: SubCatVisitDao
-    abstract val illnessDao: IllnessDao
+    abstract val historyDao: HistoryDao
 
 
     companion object {
