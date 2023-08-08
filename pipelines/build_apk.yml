@@ -1,4 +1,6 @@
 stages:
+  - prepare
+  - lint
   - build
   - publish
 variables:
@@ -14,7 +16,7 @@ variables:
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
-build:
+prepare_env:
   image: openjdk:17-jdk
   interruptible: true
   stage: build
@@ -46,19 +48,30 @@ build:
     - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
+  artifacts:
+    paths:
+      - ./gradlew
+lint:
+  stage: lint
+  when: manual
+  tags:
+  - main
+  image: openjdk:17-jdk  # Use the appropriate JDK image
+  dependencies:
+    - prepare_env
   script:
-    - lint_output=$(./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint)  # Run the linting command and capture its output
-    - echo "$lint_output"  # Print linting output
-    - if [[ "$lint_output" == *"Lint failed"* ]]; then
-        echo "Linting failed but build will continue";
-      else
-       ./gradlew assemble
-      fi
-    # Linting
-    # - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-    # Test
-    #- ./gradlew -Pci --console=plain :app:testDebug
-    # Build
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+  allow_failure: true
+build:
+  stage: build
+  when: manual
+  tags:
+  - main
+  image: openjdk:17-jdk  # Use the appropriate JDK image
+  dependencies:
+    - prepare_env
+  script:
+    - ./gradlew assemble
   artifacts:
     paths:
       - app/build/outputs/
