@@ -37,6 +37,7 @@ import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, ChiefComplaintInterface{
 
     override var fragmentContainerId = 0
+    private lateinit var patientId : String
 
     override val fragment = this
     override val viewModel: VisitDetailViewModel by viewModels()
@@ -91,6 +92,10 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         binding.subCatInput.setOnItemClickListener { parent, view, position, id ->
             var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             binding.subCatInput.setText(subCat?.name,false)
+        }
+
+        if (requireArguments().getString("patientId") != null) {
+            patientId = requireArguments().getString("patientId")!!
         }
 
         binding.subCatInput.threshold = 1
@@ -262,6 +267,7 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
     override fun onCancelAction() {
         val intent = Intent(context, WebViewActivity::class.java)
+        intent.putExtra("patientId", patientId);
         startActivity(intent)
     }
 }
