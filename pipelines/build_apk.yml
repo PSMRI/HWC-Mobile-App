@@ -1,8 +1,3 @@
-stages:
-  #- verify
-  #- test
-  - build
-  - publish
 image: openjdk:17-jdk
 variables:
   PACKAGENAME: "android" #$PACKAGENAME
@@ -42,40 +37,26 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   - chmod +x ./gradlew
-
-# Basic android and gradle stuff
-# Check linting
-# lintDebug:
-#   interruptible: true
-#   stage: verify
-#   tags:
-#   - main
-#   script:
-#     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-
-# Make Project
-assembleDebug:
+Build:
   interruptible: true
   stage: build
+  when: manual
   tags:
   - main
   script:
+    # Linting
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+    # Test
+    - ./gradlew -Pci --console=plain :app:testDebug
+    # Build
     - ./gradlew assembleDebug --stacktrace
   artifacts:
     paths:
-      - app/build/outputs/
-
-# Run all tests, if any fails, interrupt the pipeline(fail it)
-# debugTests:
-#   interruptible: true
-#   stage: test
-#   tags:
-#   - main
-#   script:
-#     - ./gradlew -Pci --console=plain :app:testDebug
+      - /
 upload-to-package-registry:
   stage: publish
   tags:
   - main
+  when: manual
   script: 
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
