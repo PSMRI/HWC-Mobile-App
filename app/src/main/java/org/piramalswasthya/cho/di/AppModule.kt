@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.di
 
 import android.content.Context
+import com.google.android.fhir.FhirEngine
+import com.google.android.fhir.FhirEngineProvider
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -12,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
@@ -19,6 +22,7 @@ import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
@@ -33,6 +37,7 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
+import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
@@ -58,10 +63,11 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 //         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
-         private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
+    private const val  baseAmritUrl = "http://amritdemo.piramalswasthya.org:8080/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
-    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
+//    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =
         OkHttpClient.Builder()
@@ -112,7 +118,7 @@ object AppModule {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(TokenInsertTmcInterceptor())
+            .addInterceptor(TokenESanjeevaniInterceptor())
             .build()
     }
 //
@@ -193,6 +199,10 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideFhirEngine(@ApplicationContext context: Context) : FhirEngine = FhirEngineProvider.getInstance(context)
+
+    @Singleton
+    @Provides
     fun provideUserDao(database : InAppDb) : UserDao = database.userDao
 
     @Singleton
@@ -242,6 +252,14 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideOtherGovIdEntityMasterDao(database : InAppDb) : OtherGovIdEntityMasterDao = database.otherGovIdEntityMasterDao
+
+    @Singleton
+    @Provides
+    fun provideChiefComplaintEntityMasterDao(database: InAppDb): ChiefComplaintMasterDao = database.chiefComplaintMasterDao
+
+    @Singleton
+    @Provides
+    fun provideSubVisitEntityCat(database: InAppDb): SubCatVisitDao = database.subCatVisitDao
 
 
 //    @Singleton

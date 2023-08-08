@@ -1,33 +1,14 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
-import org.piramalswasthya.cho.list.benificiaryList
-import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
-import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment
-import org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
-import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 
 
 @AndroidEntryPoint
@@ -53,8 +34,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
+        val patientId = intent.getStringExtra("patientId")
+
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
 
+        val args = Bundle()
+        args.putString("patientId", patientId)
+
+        navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
 
 //        var patientDetails = PatientDetails()
 //        val index: Int = intent.getIntExtra("index", defaultValue)
@@ -70,11 +57,13 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
 
-            Log.d("aaaaaaaaaaaa",R.id.fragment_fhir_visit_details.toString())
-            Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
-
             when (currFragment.getFragmentId()){
-                R.id.fragment_fhir_visit_details -> {
+                R.id.fragment_visit_details_info -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_history_custom ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
@@ -102,17 +91,19 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
 
-            Log.d("aaaaaaaaaaaa",R.id.fragment_fhir_visit_details.toString())
-            Log.d("aaaaaaaaaaaa",currFragment.getFragmentId().toString())
-
             when (currFragment.getFragmentId()){
-                R.id.fragment_fhir_visit_details -> {
+                R.id.fragment_visit_details_info -> {
 
                 }
-                R.id.fragment_fhir_vitals -> {
+                R.id.fragment_history_custom->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.esanjeevni)
+                }
+                R.id.fragment_fhir_vitals -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_prescription -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)

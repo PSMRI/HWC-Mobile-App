@@ -43,7 +43,6 @@ import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.repositories.UserAuthRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
-import org.piramalswasthya.cho.ui.commons.ProfileLoaderImpl
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Headers
@@ -84,7 +83,7 @@ class FhirLocationViewModel @Inject constructor(@ApplicationContext private val 
                 return@launch
             }
 
-            val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse, null, ProfileLoaderImpl()).entryFirstRep
+            val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse, null, ).entryFirstRep
             if (entry.resource !is Patient) {
                 return@launch
             }

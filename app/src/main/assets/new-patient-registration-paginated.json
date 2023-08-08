@@ -7,6 +7,10 @@
   "subjectType": [
     "Patient"
   ],
+  "period": {
+    "start": "2019-01-16T08:30:00-07:00",
+    "end": "2019-01-20T08:30:00-07:00"
+  },
   "extension": [
     {
       "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
@@ -260,39 +264,72 @@
           ]
         },
         {
-          "linkId": "PR-telecom-value",
-          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-          "type": "string",
-          "required": true,
-          "text": "Contact No",
-          "_text": {
-            "extension": [
-              {
+          "linkId": "PR-telecom",
+          "type": "group",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom",
+          "item": [
+            {
+              "linkId": "PR-telecom-system",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.system",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+                  "valueBoolean": true
+                }
+              ],
+              "type": "string",
+              "text": "system",
+              "initial": [
+                {
+                  "valueString": "phone"
+                }
+              ]
+            },
+            {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/fhirpath",
+                    "expression": "Patient.telecom.value",
+                    "name": "patientTelecom"
+                  }
+                }
+              ],
+              "linkId": "PR-telecom-value",
+              "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
+              "type": "string",
+              "required": true,
+              "text": "Phone Number",
+              "_text": {
                 "extension": [
                   {
-                    "url": "lang",
-                    "valueCode": "sw"
-                  },
-                  {
-                    "url": "content",
-                    "valueString": "Nambari ya simu"
+                    "extension": [
+                      {
+                        "url": "lang",
+                        "valueCode": "sw"
+                      },
+                      {
+                        "url": "content",
+                        "valueString": "Nambari ya simu"
+                      }
+                    ],
+                    "url": "http://hl7.org/fhir/StructureDefinition/translation"
                   }
-                ],
-                "url": "http://hl7.org/fhir/StructureDefinition/translation"
-              }
-            ]
-          },
-          "maxLength": 10,
-          "pattern": "[0-9]*",
-          "constraint": [
-            {
-              "key": "phone-validation",
-              "severity": "error",
-              "human": "The phone number should only contain digits."
+                ]
+              },
+              "maxLength": 10,
+              "pattern": "[0-9]*",
+              "constraint": [
+                {
+                  "key": "phone-validation",
+                  "severity": "error",
+                  "human": "The phone number should only contain digits."
+                }
+              ]
             }
           ]
         },
-
         {
           "linkId": "patient-0-gender",
           "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.gender",
@@ -324,9 +361,21 @@
           "linkId": "patient-0-registration-date",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.registrationDate",
           "type": "date",
-          "required": true,
+          "readOnly": true,
           "text": "Registration Date",
-          "initialDateTime": "{{%FHIRDate.now%}}"
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "%FHIRDate.today()"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+              "valueString": "dd-mm-yyyy"
+            }
+          ]
         }
       ]
     }
