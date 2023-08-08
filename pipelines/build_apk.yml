@@ -1,3 +1,6 @@
+stages:
+  - build
+  - publish
 image: openjdk:17-jdk
 variables:
   PACKAGENAME: "android" #$PACKAGENAME
@@ -37,7 +40,7 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   - chmod +x ./gradlew
-Build:
+build:
   interruptible: true
   stage: build
   when: manual
