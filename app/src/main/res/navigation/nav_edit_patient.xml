@@ -12,8 +12,8 @@
         android:label="fragment_fhir_visit_details"
         tools:layout="@layout/fragment_fhir_visit_details" >
         <action
-            android:id="@+id/action_fhirVisitDetailsFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            android:id="@+id/action_fhirVisitDetailsFragment_to_historyCustomFragment"
+            app:destination="@id/historyCustomFragment" />
         <argument
             android:name="patientId"
             app:argType="string"/>
@@ -25,11 +25,11 @@
         android:label="fragment_fhir_vitals"
         tools:layout="@layout/fragment_fhir_vitals" >
         <action
-            android:id="@+id/action_fhirVitalsFragment_to_fhirVisitDetailsFragment"
-            app:destination="@id/fhirVisitDetailsFragment" />
-        <action
             android:id="@+id/action_fhirVitalsFragment_to_fhirPrescriptionFragment"
             app:destination="@id/fhirPrescriptionFragment" />
+        <action
+            android:id="@+id/action_fhirVitalsFragment_to_historyCustomFragment"
+            app:destination="@id/historyCustomFragment" />
     </fragment>
     <fragment
         android:id="@+id/fhirRevisitFormFragment"
@@ -59,6 +59,18 @@
         <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
             app:destination="@id/fhirRevisitFormFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/historyCustomFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.history_custom.HistoryCustomFragment"
+        android:label="fragment_history_custom"
+        tools:layout="@layout/fragment_history_custom" >
+        <action
+            android:id="@+id/action_historyCustomFragment_to_fhirVitalsFragment"
+            app:destination="@id/fhirVitalsFragment" />
+        <action
+            android:id="@+id/action_historyCustomFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment" />
     </fragment>
 
 
