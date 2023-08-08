@@ -1,5 +1,4 @@
 stages:
-  - prepare
   - lint
   - build
   - publish
@@ -16,14 +15,8 @@ variables:
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
-prepare_env:
-  image: openjdk:17-jdk
-  interruptible: true
-  stage: prepare
-  when: manual
-  tags:
-  - main
-  before_script:
+image: openjdk:17-jdk
+before_script:
     - microdnf -y update 
     - microdnf -y install wget tar unzip libstdc++.i686 zlib.i686
     # Setup path as android_home for moving/exporting the downloaded sdk into it
@@ -48,19 +41,11 @@ prepare_env:
     - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
-  script:
-    - echo "Preparing environment"
-  artifacts:
-    paths:
-      - ./gradlew
 lint:
   stage: lint
   when: manual
   tags:
   - main
-  image: openjdk:17-jdk  # Use the appropriate JDK image
-  dependencies:
-    - prepare_env
   script:
     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
   allow_failure: true
@@ -69,9 +54,6 @@ build:
   when: manual
   tags:
   - main
-  image: openjdk:17-jdk  # Use the appropriate JDK image
-  dependencies:
-    - prepare_env
   script:
     - ./gradlew assemble
   artifacts:
