@@ -32,7 +32,6 @@ import org.piramalswasthya.cho.ui.ChiefComplaintInterface
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
-import java.io.File
 
 @AndroidEntryPoint
 class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, ChiefComplaintInterface{
@@ -49,9 +48,8 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
 
     private var _binding: VisitDetailsInfoBinding?= null
 
-    private var units = mutableListOf<String>()
-    private var chiefComplaints = mutableListOf<String>()
-
+    private var units = mutableListOf("Hours","Days","Weeks","Months","Years")
+    private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
 
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
@@ -94,6 +92,10 @@ class FragmentVisitDetail: Fragment(), NavigationAdapter, FhirFragmentService, C
         binding.subCatInput.setOnItemClickListener { parent, view, position, id ->
             var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             binding.subCatInput.setText(subCat?.name,false)
+        }
+
+        if (requireArguments().getString("patientId") != null) {
+            patientId = requireArguments().getString("patientId")!!
         }
 
         binding.subCatInput.threshold = 1
