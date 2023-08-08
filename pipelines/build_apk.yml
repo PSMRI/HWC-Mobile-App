@@ -66,4 +66,4 @@ upload-to-package-registry:
   before_script:
     - apk update && apk add curl
   script: 
-     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
