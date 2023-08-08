@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,29 +11,36 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.IllnessAdapter
+import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
+import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.VisitDetailViewModel
 
 @AndroidEntryPoint
 class IllnessFieldsFragment(): Fragment() {
 
-    private val ILLNESS_OPTIONS = arrayOf(
-        "Chicken Pox",
-        "Dengue Fever",
-        "Dysentry",
-        "Filariasis",
-        "Hepatitis(jaundice)",
-        "Hepatitis B",
-        "Malaria",
-        "Measles",
-        "Nill",
-        "Other",
-        "Pneumonis",
-        "STI/RTI",
-        "Tuberculosis",
-        "Thyroid Fever"
-    )
+//    private val ILLNESS_OPTIONS = arrayOf(
+//        "Chicken Pox",
+//        "Dengue Fever",
+//        "Dysentry",
+//        "Filariasis",
+//        "Hepatitis(jaundice)",
+//        "Hepatitis B",
+//        "Malaria",
+//        "Measles",
+//        "Nill",
+//        "Other",
+//        "Pneumonis",
+//        "STI/RTI",
+//        "Tuberculosis",
+//        "Thyroid Fever"
+//    )
 
     private val TimePeriodAgo = arrayOf(
         "Day(s)",
@@ -44,9 +52,11 @@ class IllnessFieldsFragment(): Fragment() {
     private val binding: FragmentIllnessFieldsBinding
         get() = _binding!!
 
-    private lateinit var dropdownIllness: AutoCompleteTextView
+    val viewModel: IllnessFieldViewModel by viewModels()
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
+    private var illnessOption = ArrayList<IllnessDropdown>()
+    private lateinit var illnessAdapter: IllnessAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,11 +72,17 @@ class IllnessFieldsFragment(): Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("Aryan","HIIII")
+        illnessAdapter = IllnessAdapter(requireContext(), R.layout.drop_down,illnessOption)
+        binding.illnessText.setAdapter(illnessAdapter)
 
-        dropdownIllness = binding.illnessText
+        viewModel.illnessDropdown.observe( viewLifecycleOwner) { illness ->
+            illnessOption.clear()
+            illnessOption.addAll(illness)
+            illnessAdapter.notifyDataSetChanged()
+        }
+
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        val illnessAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ILLNESS_OPTIONS)
-        dropdownIllness.setAdapter(illnessAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
