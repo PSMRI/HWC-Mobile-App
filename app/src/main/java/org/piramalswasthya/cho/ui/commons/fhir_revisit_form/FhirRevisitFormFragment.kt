@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.fhir_revisit_form
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.datacapture.QuestionnaireFragment
+import com.google.android.fhir.get
 import dagger.hilt.android.AndroidEntryPoint
+import org.hl7.fhir.r4.model.Appointment
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirRevisitFormBinding
@@ -67,6 +72,12 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), F
     }
 
     override fun onSubmitAction() {
+//        val fhirEngine: FhirEngine
+//        val appointment = fhirEngine.get<Appointment>("ae86bc4a-2cb3-4ed5-934c-1ad95851de44")
+
+//        Log.d("appointment", appointment.toString())
+        saveEntity()
+        Log.d("saved", "resource saved appointment")
         navigateNext()
     }
 

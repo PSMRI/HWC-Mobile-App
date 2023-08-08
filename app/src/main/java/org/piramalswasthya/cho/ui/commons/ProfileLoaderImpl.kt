@@ -24,55 +24,76 @@ class ProfileLoaderImpl : ProfileLoader {
     private fun getStructureDefinition(): StructureDefinition{
         structureDefinition.snapshot.element.clear()
 
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":random"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":registrarState"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":registrarDistrict"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":registrarTaluk"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":registrarStreet"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":abhaGenerationMode"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":govtIdType"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":govtIdNumber"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":govtHealthProgramType"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+//
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Patient.extension"
+//        elementDefinition.id = ":govtHealthProgramId"
+//        structureDefinition.snapshot.element.add(elementDefinition)
+
+        //APPOINTMENT RESOURCE
         elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
+        elementDefinition.path = "Appointment.extension"
         elementDefinition.id = ":random"
         structureDefinition.snapshot.element.add(elementDefinition)
 
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":registrarState"
-        structureDefinition.snapshot.element.add(elementDefinition)
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Appointment.extension"
+//        elementDefinition.id = ":center"
+//        structureDefinition.snapshot.element.add(elementDefinition)
 
         elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":registrarDistrict"
+        elementDefinition.path = "Appointment.extension"
+        elementDefinition.id = ":date"
         structureDefinition.snapshot.element.add(elementDefinition)
 
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":registrarTaluk"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":registrarStreet"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":abhaGenerationMode"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":govtIdType"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":govtIdNumber"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":govtHealthProgramType"
-        structureDefinition.snapshot.element.add(elementDefinition)
-
-        elementDefinition = ElementDefinition()
-        elementDefinition.path = "Patient.extension"
-        elementDefinition.id = ":govtHealthProgramId"
-        structureDefinition.snapshot.element.add(elementDefinition)
+//        elementDefinition = ElementDefinition()
+//        elementDefinition.path = "Appointment.extension"
+//        elementDefinition.id = ":services"
+//        structureDefinition.snapshot.element.add(elementDefinition)
 
         return structureDefinition
     }
