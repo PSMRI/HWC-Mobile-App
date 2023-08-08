@@ -1,38 +1,35 @@
 package org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.IllnessDropdown
-import org.piramalswasthya.cho.model.SubVisitCategory
+import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
-
 @HiltViewModel
-class IllnessFieldViewModel @Inject constructor(
+class TobaccoFieldViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository
 ): ViewModel() {
 
-    private var _illnessDropdown: LiveData<List<IllnessDropdown>>
+    private var _tobaccoDropdown: LiveData<List<TobaccoDropdown>>
 
-    val illnessDropdown: LiveData<List<IllnessDropdown>>
-        get() = _illnessDropdown
+    val tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+        get() = _tobaccoDropdown
 
     init{
-        _illnessDropdown = MutableLiveData()
-        getIllnessDropdown()
+        _tobaccoDropdown = MutableLiveData()
+        getTobaccoDropdown()
     }
-    private fun getIllnessDropdown(){
+    private fun getTobaccoDropdown(){
         try{
-            _illnessDropdown  = maleMasterDataRepository.getAllIllnessDropdown()
+            _tobaccoDropdown  = maleMasterDataRepository.getAllTobaccoDropdown()
 
         } catch (e: Exception){
-            Timber.d("Error in getIllergyList() $e")
+            Timber.d("Error in getTobaccoList() $e")
         }
     }
 

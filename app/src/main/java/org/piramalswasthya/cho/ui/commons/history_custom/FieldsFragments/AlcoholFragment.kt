@@ -9,26 +9,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.AlcoholAdapter
+import org.piramalswasthya.cho.adapter.IllnessAdapter
 import org.piramalswasthya.cho.databinding.FragmentAlcoholBinding
 import org.piramalswasthya.cho.databinding.FragmentTobaccoBinding
+import org.piramalswasthya.cho.model.AlcoholDropdown
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 @AndroidEntryPoint
 class AlcoholFragment : Fragment() {
 
-    private val alcoholUS = arrayOf(
-        "Yes",
-        "No",
-        "Discontinued"
-    )
     private var _binding: FragmentAlcoholBinding? = null
     private val binding: FragmentAlcoholBinding
         get() = _binding!!
 
-    private lateinit var dropdownA: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
-
+    private var alcoholOption = ArrayList<AlcoholDropdown>()
+    private lateinit var alcoholAdapter: AlcoholAdapter
+    val viewModel: AlcoholFieldViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,9 +44,14 @@ class AlcoholFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownA = binding.alcoholText
-        val alcAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, alcoholUS)
-        dropdownA.setAdapter(alcAdapter)
+        alcoholAdapter = AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
+        binding.alcoholText.setAdapter(alcoholAdapter)
+
+        viewModel.alcoholDropdown.observe( viewLifecycleOwner) { alc ->
+            alcoholOption.clear()
+            alcoholOption.addAll(alc)
+            alcoholAdapter.notifyDataSetChanged()
+        }
 
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {

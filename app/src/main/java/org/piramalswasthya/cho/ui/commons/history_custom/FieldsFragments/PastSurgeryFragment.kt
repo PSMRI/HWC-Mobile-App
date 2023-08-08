@@ -10,19 +10,18 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.IllnessAdapter
+import org.piramalswasthya.cho.adapter.SurgeryAdapter
 import org.piramalswasthya.cho.databinding.FragmentPastSurgeryBinding
+import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
 class PastSurgeryFragment() : Fragment() {
-
-    private val HoSurgery = arrayOf(
-                "Appendicectomy",
-                "Nill",
-                "Other",
-                "Tonsilectomy"
-    )
 
     private val TimePeriodAgo = arrayOf(
         "Day(s)",
@@ -34,9 +33,11 @@ class PastSurgeryFragment() : Fragment() {
     private val binding: FragmentPastSurgeryBinding
         get() = _binding!!
 
-    private lateinit var dropdownSurgery: AutoCompleteTextView
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
+    private var surgeryOption = ArrayList<SurgeryDropdown>()
+    private lateinit var surgeryAdapter: SurgeryAdapter
+    val viewModel: SurgeryFieldViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,12 +54,18 @@ class PastSurgeryFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownSurgery = binding.surgeryText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        val surgeryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, HoSurgery)
-        dropdownSurgery.setAdapter(surgeryAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
+
+        surgeryAdapter = SurgeryAdapter(requireContext(), R.layout.drop_down,surgeryOption)
+        binding.surgeryText.setAdapter(surgeryAdapter)
+
+        viewModel.surgeryDropdown.observe( viewLifecycleOwner) { surg ->
+            surgeryOption.clear()
+            surgeryOption.addAll(surg)
+            surgeryAdapter.notifyDataSetChanged()
+        }
 
         binding.deleteButton.setOnClickListener {
             fragmentTag?.let {

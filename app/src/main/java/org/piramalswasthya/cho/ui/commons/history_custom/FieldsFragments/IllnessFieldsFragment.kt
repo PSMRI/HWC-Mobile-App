@@ -25,23 +25,6 @@ import org.piramalswasthya.cho.ui.commons.fhir_visit_details.VisitDetailViewMode
 @AndroidEntryPoint
 class IllnessFieldsFragment(): Fragment() {
 
-//    private val ILLNESS_OPTIONS = arrayOf(
-//        "Chicken Pox",
-//        "Dengue Fever",
-//        "Dysentry",
-//        "Filariasis",
-//        "Hepatitis(jaundice)",
-//        "Hepatitis B",
-//        "Malaria",
-//        "Measles",
-//        "Nill",
-//        "Other",
-//        "Pneumonis",
-//        "STI/RTI",
-//        "Tuberculosis",
-//        "Thyroid Fever"
-//    )
-
     private val TimePeriodAgo = arrayOf(
         "Day(s)",
         "Week(s)",

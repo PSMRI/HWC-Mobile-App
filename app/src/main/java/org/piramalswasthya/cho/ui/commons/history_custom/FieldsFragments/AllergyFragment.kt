@@ -9,10 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.AllergyAdapter
+import org.piramalswasthya.cho.adapter.IllnessAdapter
 import org.piramalswasthya.cho.databinding.FragmentAllergyBinding
 import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
+import org.piramalswasthya.cho.model.AllergicReactionDropdown
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
@@ -25,19 +30,6 @@ class AllergyFragment : Fragment() {
     private val allergyType = arrayOf(
       "Drugs","Food","Environmental"
     )
-    private val typeOfAllergies = arrayOf(
-                "Anaphylaxis",
-                "Rash(urticarea)",
-                "Angioedema",
-                "Running Nose",
-                "Hoarseness of voice",
-                "Itching",
-                "Wheezing",
-                "Vomitings",
-                "Abdominal Cramps",
-                "Diarrhoea",
-                "Other"
-    )
 
     private var _binding: FragmentAllergyBinding? = null
     private val binding: FragmentAllergyBinding
@@ -45,8 +37,10 @@ class AllergyFragment : Fragment() {
 
     private lateinit var dropdownAStatus: AutoCompleteTextView
     private lateinit var dropdownAType: AutoCompleteTextView
-    private lateinit var dropdownAR: AutoCompleteTextView
     private var historyListener: HistoryFieldsInterface? = null
+    private var allergyOption = ArrayList<AllergicReactionDropdown>()
+    private lateinit var allergyAdapter: AllergyAdapter
+    val viewModel: AllergyFieldViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,14 +59,19 @@ class AllergyFragment : Fragment() {
 
         dropdownAStatus = binding.allergySText
         dropdownAType = binding.allergyTText
-        dropdownAR = binding.allergRText
 
         val AStatusAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, allergyStatus)
         dropdownAStatus.setAdapter(AStatusAdapter)
         val ATypeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, allergyType)
         dropdownAType.setAdapter(ATypeAdapter)
-        val typeOfAAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, typeOfAllergies)
-        dropdownAR.setAdapter(typeOfAAdapter)
+        allergyAdapter = AllergyAdapter(requireContext(), R.layout.drop_down,allergyOption)
+        binding.allergRText.setAdapter(allergyAdapter)
+
+        viewModel.allergyDropdown.observe( viewLifecycleOwner) { allg ->
+            allergyOption.clear()
+            allergyOption.addAll(allg)
+            allergyAdapter.notifyDataSetChanged()
+        }
 
 
         binding.deleteButton.setOnClickListener {
@@ -101,7 +100,7 @@ class AllergyFragment : Fragment() {
             binding.geneticDText.text?.clear()
         }
 
-        dropdownAR.addTextChangedListener(object : TextWatcher {
+        binding.allergRText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

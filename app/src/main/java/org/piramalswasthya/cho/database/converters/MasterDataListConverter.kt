@@ -5,11 +5,14 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.AlcoholDropdown
+import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
 import org.piramalswasthya.cho.model.IllnessDropdown
@@ -23,6 +26,8 @@ import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
+import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.model.VaccineType
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.VisitCategory
@@ -165,6 +170,31 @@ object MasterDataListConverter {
     @TypeConverter
     fun toIllnessList(value: String?):List<IllnessDropdown>{
         val listType = object :TypeToken<List<IllnessDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toAlcoholList(value: String?):List<AlcoholDropdown>{
+        val listType = object :TypeToken<List<AlcoholDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toAllergyList(value: String?):List<AllergicReactionDropdown>{
+        val listType = object :TypeToken<List<AllergicReactionDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toFamilyMemberList(value: String?):List<FamilyMemberDropdown>{
+        val listType = object :TypeToken<List<FamilyMemberDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toSurgeryList(value: String?):List<SurgeryDropdown>{
+        val listType = object :TypeToken<List<SurgeryDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toTobaccoList(value: String?):List<TobaccoDropdown>{
+        val listType = object :TypeToken<List<TobaccoDropdown?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
 
