@@ -43,7 +43,7 @@ before_script:
     - chmod +x ./gradlew
 lint:
   stage: lint
-  when: manual
+  #when: manual
   tags:
   - main
   script:
@@ -51,7 +51,7 @@ lint:
   allow_failure: true
 build:
   stage: build
-  when: manual
+  #when: manual
   tags:
   - main
   script:
@@ -65,7 +65,7 @@ upload-to-package-registry:
   needs: ['build']
   tags:
   - main
-  when: manual
+  #when: manual
   before_script:
     - apk update && apk add curl
   script: 
@@ -73,4 +73,5 @@ upload-to-package-registry:
      - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/debug/app.apk ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
 workflow:
   rules:
-     - if: '$CI_MERGE_REQUEST_ID'
+     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
