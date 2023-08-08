@@ -59,6 +59,7 @@ build:
 upload-to-package-registry:
   image: alpine
   stage: publish
+  needs: ['build']
   tags:
   - main
   when: manual
