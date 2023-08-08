@@ -55,7 +55,7 @@ build:
     - ./gradlew assembleDebug --stacktrace
   artifacts:
     paths:
-      - outputs/
+      - app/build/outputs/
 upload-to-package-registry:
   image: alpine
   stage: publish
