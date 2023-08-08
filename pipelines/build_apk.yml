@@ -55,7 +55,7 @@ build:
   tags:
   - main
   script:
-    - ./gradlew assembleRelease
+    - ./gradlew assembleDebug
   artifacts:
     paths:
       - app/build/outputs/
@@ -71,3 +71,6 @@ upload-to-package-registry:
   script: 
      - ls -al
      - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/debug/app.apk ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+workflow:
+  rules:
+     - if: '$CI_MERGE_REQUEST_ID'
