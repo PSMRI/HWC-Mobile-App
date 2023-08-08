@@ -55,7 +55,7 @@ build:
   tags:
   - main
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleRelease
   artifacts:
     paths:
       - app/build/outputs/
