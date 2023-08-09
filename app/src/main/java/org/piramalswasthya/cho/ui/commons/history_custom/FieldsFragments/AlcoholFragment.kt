@@ -27,7 +27,7 @@ class AlcoholFragment : Fragment() {
         get() = _binding!!
 
     private var historyListener: HistoryFieldsInterface? = null
-    private var alcoholOption = ArrayList<AlcoholDropdown>()
+//    private var alcoholOption = ArrayList<AlcoholDropdown>()
     private lateinit var alcoholAdapter: AlcoholAdapter
     val viewModel: AlcoholFieldViewModel by viewModels()
     override fun onCreateView(
@@ -44,12 +44,15 @@ class AlcoholFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        alcoholAdapter = AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
+        val alcoholAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+                //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.alcoholText.setAdapter(alcoholAdapter)
 
         viewModel.alcoholDropdown.observe( viewLifecycleOwner) { alc ->
-            alcoholOption.clear()
-            alcoholOption.addAll(alc)
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            alcoholAdapter.clear()
+            alcoholAdapter.addAll(alc.map { it.habitValue })
             alcoholAdapter.notifyDataSetChanged()
         }
 
