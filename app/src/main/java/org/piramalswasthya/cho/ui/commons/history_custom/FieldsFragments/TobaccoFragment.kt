@@ -61,7 +61,7 @@ class TobaccoFragment : Fragment() {
 //            alcoholOption.clear()
 //            alcoholOption.addAll(alc)
             tobaccoAdapter.clear()
-            tobaccoAdapter.addAll(tob.map { it.habitType })
+            tobaccoAdapter.addAll(tob.map { it.habitValue })
             tobaccoAdapter.notifyDataSetChanged()
         }
 

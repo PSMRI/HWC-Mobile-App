@@ -251,6 +251,7 @@
     <string name="select_allergy_type">Select Allergy Type</string>
     <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
     <string name="allergy_status">Allergy Status</string>
+    <string name="previous_allergy_history">Previous Allergy History</string>
 
 
 </resources>

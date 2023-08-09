@@ -23,4 +23,5 @@ class AlcoholAdapter (context: Context, resource: Int, private val alcohol: List
         (view as? TextView)?.text = alc.habitValue
         return view
     }
+    
 }
