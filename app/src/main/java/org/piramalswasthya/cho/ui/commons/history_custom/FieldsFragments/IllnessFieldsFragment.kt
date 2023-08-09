@@ -56,12 +56,15 @@ class IllnessFieldsFragment(): Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Aryan","HIIII")
-        illnessAdapter = IllnessAdapter(requireContext(), R.layout.drop_down,illnessOption)
+        val illnessAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.illnessText.setAdapter(illnessAdapter)
 
-        viewModel.illnessDropdown.observe( viewLifecycleOwner) { illness ->
-            illnessOption.clear()
-            illnessOption.addAll(illness)
+        viewModel.illnessDropdown.observe( viewLifecycleOwner) { alc ->
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            illnessAdapter.clear()
+            illnessAdapter.addAll(alc.map { it.illnessType })
             illnessAdapter.notifyDataSetChanged()
         }
 

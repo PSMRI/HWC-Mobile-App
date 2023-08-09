@@ -64,12 +64,23 @@ class AllergyFragment : Fragment() {
         dropdownAStatus.setAdapter(AStatusAdapter)
         val ATypeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, allergyType)
         dropdownAType.setAdapter(ATypeAdapter)
-        allergyAdapter = AllergyAdapter(requireContext(), R.layout.drop_down,allergyOption)
+//        allergyAdapter = AllergyAdapter(requireContext(), R.layout.drop_down,allergyOption)
+//        binding.allergRText.setAdapter(allergyAdapter)
+//
+//        viewModel.allergyDropdown.observe( viewLifecycleOwner) { allg ->
+//            allergyOption.clear()
+//            allergyOption.addAll(allg)
+//            allergyAdapter.notifyDataSetChanged()
+//        }
+        val allergyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.allergRText.setAdapter(allergyAdapter)
 
         viewModel.allergyDropdown.observe( viewLifecycleOwner) { allg ->
-            allergyOption.clear()
-            allergyOption.addAll(allg)
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            allergyAdapter.clear()
+            allergyAdapter.addAll(allg.map { it.name })
             allergyAdapter.notifyDataSetChanged()
         }
 
