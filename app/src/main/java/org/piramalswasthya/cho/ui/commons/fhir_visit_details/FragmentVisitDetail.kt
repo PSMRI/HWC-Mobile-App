@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -74,6 +75,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private var encounter = Encounter()
     private var listOfConditions = mutableListOf<Condition>()
     private var chiefMap = emptyMap<Int,String>()
+    private var base64String = ""
 
 
     private val binding: VisitDetailsInfoBinding
@@ -211,6 +213,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                         isFileSelected = false
                         isFileUploaded = false
                     } else {
+                        convertFileToBase64String(uri,fileSize)
                         val fileName = getFileNameFromUri(uri)
                         binding.selectFileText.text = fileName
                         binding.uploadFileBtn.isEnabled = true
@@ -220,6 +223,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             }
         }
 
+    private fun convertFileToBase64String(uri: Uri, fileSize: Long){
+        val contentResolver = requireActivity().contentResolver
+        val inputStream = contentResolver.openInputStream(uri)
+        inputStream?.use {
+            val byteArray = ByteArray(fileSize.toInt())
+            val bytesRead = it.read(byteArray)
+            if (bytesRead > 0) {
+                base64String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+            }
+        }
+    }
     private fun getFileSizeFromUri(uri: Uri): Long {
         val contentResolver = requireActivity().contentResolver
         val cursor = contentResolver.query(uri, null, null, null, null)
