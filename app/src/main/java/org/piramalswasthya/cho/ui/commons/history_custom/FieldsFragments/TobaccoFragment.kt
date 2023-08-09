@@ -45,12 +45,23 @@ class TobaccoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        tobaccoAdapter = TobaccoAdapter(requireContext(), R.layout.drop_down,tobaccoOption)
+//        tobaccoAdapter = TobaccoAdapter(requireContext(), R.layout.drop_down,tobaccoOption)
+//        binding.tobaccoText.setAdapter(tobaccoAdapter)
+//
+//        viewModel.tobaccoDropdown.observe( viewLifecycleOwner) { tob ->
+//            tobaccoOption.clear()
+//            tobaccoOption.addAll(tob)
+//            tobaccoAdapter.notifyDataSetChanged()
+//        }
+        val tobaccoAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.tobaccoText.setAdapter(tobaccoAdapter)
 
         viewModel.tobaccoDropdown.observe( viewLifecycleOwner) { tob ->
-            tobaccoOption.clear()
-            tobaccoOption.addAll(tob)
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            tobaccoAdapter.clear()
+            tobaccoAdapter.addAll(tob.map { it.habitType })
             tobaccoAdapter.notifyDataSetChanged()
         }
 

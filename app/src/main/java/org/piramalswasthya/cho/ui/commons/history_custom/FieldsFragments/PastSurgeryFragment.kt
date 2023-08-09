@@ -58,12 +58,23 @@ class PastSurgeryFragment() : Fragment() {
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-        surgeryAdapter = SurgeryAdapter(requireContext(), R.layout.drop_down,surgeryOption)
+//        surgeryAdapter = SurgeryAdapter(requireContext(), R.layout.drop_down,surgeryOption)
+//        binding.surgeryText.setAdapter(surgeryAdapter)
+//
+//        viewModel.surgeryDropdown.observe( viewLifecycleOwner) { surg ->
+//            surgeryOption.clear()
+//            surgeryOption.addAll(surg)
+//            surgeryAdapter.notifyDataSetChanged()
+//        }
+        val surgeryAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.surgeryText.setAdapter(surgeryAdapter)
 
-        viewModel.surgeryDropdown.observe( viewLifecycleOwner) { surg ->
-            surgeryOption.clear()
-            surgeryOption.addAll(surg)
+        viewModel.surgeryDropdown.observe( viewLifecycleOwner) { allg ->
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            surgeryAdapter.clear()
+            surgeryAdapter.addAll(allg.map { it.surgeryType })
             surgeryAdapter.notifyDataSetChanged()
         }
 

@@ -75,12 +75,23 @@ class AAFragments : Fragment() {
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-        familyAdapter = FamilyMemberAdapter(requireContext(), R.layout.drop_down,familyOption)
+//        familyAdapter = FamilyMemberAdapter(requireContext(), R.layout.drop_down,familyOption)
+//        binding.familyText.setAdapter(familyAdapter)
+//
+//        viewModel.familyDropdown.observe( viewLifecycleOwner) { aa ->
+//            familyOption.clear()
+//            familyOption.addAll(aa)
+//            familyAdapter.notifyDataSetChanged()
+//        }
+        val familyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.familyText.setAdapter(familyAdapter)
 
-        viewModel.familyDropdown.observe( viewLifecycleOwner) { aa ->
-            familyOption.clear()
-            familyOption.addAll(aa)
+        viewModel.familyDropdown.observe( viewLifecycleOwner) { alc ->
+//            alcoholOption.clear()
+//            alcoholOption.addAll(alc)
+            familyAdapter.clear()
+            familyAdapter.addAll(alc.map { it.benRelationshipType })
             familyAdapter.notifyDataSetChanged()
         }
 
