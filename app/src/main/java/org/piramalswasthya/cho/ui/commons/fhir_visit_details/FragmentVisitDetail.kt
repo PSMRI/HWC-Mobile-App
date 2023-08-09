@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +16,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
+import org.hl7.fhir.r4.model.Reference
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -69,6 +73,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private var reason: String = ""
     private var encounter = Encounter()
     private var listOfConditions = mutableListOf<Condition>()
+    private var chiefMap = emptyMap<Int,String>()
 
 
     private val binding: VisitDetailsInfoBinding
@@ -90,9 +95,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.drop_down, subCatOptions)
+        lifecycleScope.launch {
+            chiefMap = viewModel.getChiefMap()
+        }
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
         viewModel.getLoggedInUserDetails()
+        viewModel.boolCall.observe(viewLifecycleOwner){
+            if(it){
+                loggedInUser = viewModel.loggedInUser
+                viewModel.resetBool()
+            }
+        }
         viewModel.subCatVisitList.observe(viewLifecycleOwner) { subCats ->
             subCatOptions.clear()
             subCatOptions.addAll(subCats)
@@ -305,9 +319,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         serviceType.display = subCategory
         encounter.serviceType = CodeableConcept().addCoding(serviceType)
 
-        // set reason
-        if(reason.isNotEmpty())
-            encounter!!.reasonCode = listOf(CodeableConcept().setText(reason))
+        val classVal = Coding()
+        classVal.system = "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+        classVal.code = "AMB"
+        classVal.display = "ambulatory"
+        encounter.class_ = classVal
+
+        encounter.status = Encounter.EncounterStatus.INPROGRESS
+        encounter!!.reasonCode = listOf(CodeableConcept().setText(reason))
 
         // add extensions
         addExtensionsToEncounter(encounter)
@@ -344,6 +363,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             )
         }
     }
+    private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
+        return map.entries.find { it.value == value }?.key
+    }
 
     private fun addChiefComplaintsData() {
         // get all the layouts and corresponding fields values
@@ -362,6 +384,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 unitDurationVal?.text?.isNotEmpty()!! &&
                 descVal?.text?.isNotEmpty()!!
             ) {
+                val id = findKeyByValue(chiefMap,chiefComplaintVal?.text?.toString())
                 var chiefComplaintValues = ChiefComplaintValues(
                     chiefComplaintVal?.text.toString(),
                     unitDurationVal?.text.toString(),
@@ -376,7 +399,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 val chiefComplaint = Coding()
                 chiefComplaint.system =
                     "http://snomed.info/sct"
-                chiefComplaint.code = "Chief Complaint"
+                chiefComplaint.code = id.toString()
                 chiefComplaint.display = chiefComplaintValues.chiefComplaint
                 condition.code = CodeableConcept().addCoding(chiefComplaint)
 
@@ -384,6 +407,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 val note = Annotation()
                 note.text = chiefComplaintValues.description
                 condition.note = listOf(note)
+
+                //set subject to condition
+                val ref = Reference("give here reg/ben-reg Id")
+                condition.subject = ref
 
                 // calling this addExtensionsToConditionResources() method to add van,parking, providerServiceMapId and duration extension
                 addExtensionsToConditionResources(condition, chiefComplaintValues)
@@ -399,7 +426,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         if (loggedInUser != null) {
             condition.addExtension(
                 FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("chiefComplaintDurationUnit", "Condition#Condition"),
+                    FhirExtension.getUrl("duration", "Condition#Condition"),
                     FhirExtension.getCoding(
                         chiefComplaintValues.durationUnit,
                         chiefComplaintValues.duration.toString()

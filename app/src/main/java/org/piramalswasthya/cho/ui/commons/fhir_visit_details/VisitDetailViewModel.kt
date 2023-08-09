@@ -44,6 +44,10 @@ class VisitDetailViewModel @Inject constructor(
 
     val fhirEngine: FhirEngine
         get() = CHOApplication.fhirEngine(application.applicationContext)
+
+    private var _boolCall = MutableLiveData(false)
+    val boolCall: LiveData<Boolean>
+        get() = _boolCall
     init{
         _subCatVisitList = MutableLiveData()
         _chiefComplaintMaster = MutableLiveData()
@@ -71,8 +75,10 @@ class VisitDetailViewModel @Inject constructor(
         viewModelScope.launch {
            try {
                _loggedInUser = userRepo.getUserCacheDetails()
+               _boolCall.value = true
            } catch (e: Exception){
                Timber.d("Error in calling getLoggedInUserDetails() $e")
+               _boolCall.value = false
            }
         }
     }
@@ -80,14 +86,25 @@ class VisitDetailViewModel @Inject constructor(
     fun saveVisitDetailsInfo(encounter: Encounter,conditions: List<Condition>){
         viewModelScope.launch {
             try{
-                fhirEngine.create(encounter)
-                conditions.forEach { condition ->
-                    fhirEngine.create(condition)
-                }
+//                fhirEngine.create(encounter)
+//                conditions.forEach { condition ->
+//                    fhirEngine.create(condition)
+//                }
             } catch (e: Exception){
                 Timber.d("Error in Saving Visit Details Informations")
             }
         }
+    }
+    suspend fun getChiefMap(): Map<Int, String> {
+        return try {
+            maleMasterDataRepository.getChiefByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    fun resetBool(){
+        _boolCall.value = false
     }
 
 }

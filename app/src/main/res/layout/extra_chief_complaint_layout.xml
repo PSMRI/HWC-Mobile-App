@@ -59,6 +59,7 @@
             android:layout_width="match_parent"
             android:inputType="number"
             android:maxEms="2"
+            android:maxLength="2"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
