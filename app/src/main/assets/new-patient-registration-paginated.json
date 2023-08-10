@@ -227,7 +227,7 @@
             {
               "question": "patient-0-age",
               "operator": ">",
-              "answerInteger": 13
+              "answerInteger": 11
             }
           ]
         },
@@ -298,7 +298,7 @@
               ],
               "linkId": "PR-telecom-value",
               "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-              "type": "string",
+              "type": "integer",
               "required": true,
               "text": "Phone Number",
               "_text": {
