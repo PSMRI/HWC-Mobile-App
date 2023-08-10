@@ -17,17 +17,7 @@
       "linkId": "1",
       "text": "Higher Center",
       "type": "choice",
-      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.supportingInformation",
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
-          "valueExpression": {
-            "language": "text/fhirpath",
-            "expression": "Appointment.supportingInformation",
-            "name": "supportingInformation"
-          }
-        }
-      ],
+      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.center",
       "answerValueSet": {
         "reference": "http://terminology.hl7.org/ValueSet/v3-RoleCode"
       },

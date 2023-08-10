@@ -39,3 +39,25 @@ class ProfileLoaderPatient : ProfileLoader {
     }
 
 }
+
+class ProfileLoaderAppointment : ProfileLoader {
+
+    private val structureDefinition = StructureDefinition()
+
+    init {
+        structureDefinition.snapshot.element.add(getElementDefinition(date))
+        structureDefinition.snapshot.element.add(getElementDefinition(center))
+    }
+
+    private fun getElementDefinition(extensionName: String): ElementDefinition{
+        var elementDefinition = ElementDefinition()
+        elementDefinition.id = ":$extensionName"
+        elementDefinition.path = "Appointment.extension"
+        return elementDefinition
+    }
+
+    override fun loadProfile(url: CanonicalType): StructureDefinition {
+        return structureDefinition;
+    }
+
+}
