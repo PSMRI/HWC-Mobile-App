@@ -13,12 +13,14 @@ import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import android.graphics.Color
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -59,6 +61,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
     private var units = mutableListOf("Hours", "Days", "Weeks", "Months", "Years")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
+    private var chiefComplaintsForFilter = ArrayList<ChiefComplaintMaster>()
 
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
@@ -76,6 +79,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private var listOfConditions = mutableListOf<Condition>()
     private var chiefMap = emptyMap<Int,String>()
     private var base64String = ""
+
+    private lateinit var adapter: VisitDetailAdapter
+
+    private val initialItem = RecyclerItemData()
+    private val itemList = mutableListOf(initialItem)
 
 
     private val binding: VisitDetailsInfoBinding
@@ -125,6 +133,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         viewModel.chiefComplaintMaster.observe(viewLifecycleOwner) { chiefComplaintsList ->
             chiefComplaints.clear()
             chiefComplaints.addAll(chiefComplaintsList)
+
+            chiefComplaintsForFilter.clear()
+            chiefComplaintsForFilter.addAll(chiefComplaintsList)
         }
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
@@ -158,15 +169,38 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             Toast.makeText(requireContext(), "You have uploaded the file", Toast.LENGTH_SHORT)
                 .show()
             isFileUploaded = true
+            binding.uploadFileBtn.text = "Uploaded"
+            binding.uploadFileBtn.isEnabled = false
         }
+        adapter = VisitDetailAdapter(itemList, units, chiefComplaints,object : RecyclerViewItemChangeListener {
+            override fun onItemChanged() {
+                binding.plusButton.isEnabled = !isAnyItemEmpty()
+            }
+        },chiefComplaintsForFilter)
+        binding.rv.adapter = adapter
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.rv.layoutManager = layoutManager
+        adapter.notifyItemInserted(itemList.size - 1)
 
+        binding.plusButton.isEnabled = !isAnyItemEmpty()
         binding.plusButton.setOnClickListener {
-            addExtraChiefComplaint(addCount)
+            val newItem = RecyclerItemData()
+            itemList.add(newItem)
+            adapter.notifyItemInserted(itemList.size - 1)
+//            addExtraChiefComplaint(addCount)
+            binding.plusButton.isEnabled = false
         }
 
-        addExtraChiefComplaint(addCount)
+//        addExtraChiefComplaint(addCount)
     }
-
+    fun isAnyItemEmpty(): Boolean {
+        for (item in itemList) {
+            if (item.chiefComplaint.isEmpty() || item.duration.isEmpty() || item.durationUnit.isEmpty() || item.description.isEmpty()) {
+                return true
+            }
+        }
+        return false
+    }
     private fun addExtraChiefComplaint(count: Int) {
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
@@ -209,13 +243,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                         )
                             .show()
                         binding.selectFileText.text = "Selected File"
+                        binding.uploadFileBtn.text = "Upload File"
                         binding.uploadFileBtn.isEnabled = false
+                        binding.selectFileText.setTextColor(Color.BLACK)
                         isFileSelected = false
                         isFileUploaded = false
                     } else {
                         convertFileToBase64String(uri,fileSize)
                         val fileName = getFileNameFromUri(uri)
                         binding.selectFileText.text = fileName
+                        binding.selectFileText.setTextColor(Color.GREEN)
                         binding.uploadFileBtn.isEnabled = true
                         isFileSelected = true
                     }

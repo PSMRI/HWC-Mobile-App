@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -13,19 +14,14 @@ class ChiefComplaintAdapter(
     context: Context,
     resource: Int,
     private val dataList: List<ChiefComplaintMaster>,
-    autoCompleteTextView: AutoCompleteTextView
+    autoCompleteTextView: AutoCompleteTextView,
+    private val dataListConst: List<ChiefComplaintMaster>,
 ) : ArrayAdapter<ChiefComplaintMaster>(context, resource, dataList) {
 
-    private val filterList = ArrayList<ChiefComplaintMaster>(dataList)
 
     init {
         // Set the custom filter to the AutoCompleteTextView
         autoCompleteTextView.setAdapter(this)
-    }
-    fun updateData(newData: List<ChiefComplaintMaster>) {
-        filterList.clear()
-        filterList.addAll(newData)
-        notifyDataSetChanged()
     }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
@@ -44,10 +40,9 @@ class ChiefComplaintAdapter(
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val results = FilterResults()
-
                 constraint?.let { query ->
                     val filteredData = ArrayList<ChiefComplaintMaster>()
-                    for (item in filterList) {
+                    for (item in dataListConst) {
                         if (item.chiefComplaint.lowercase().contains(query.toString().lowercase())) {
                             filteredData.add(item)
                         }

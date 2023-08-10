@@ -252,6 +252,7 @@
     <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
     <string name="allergy_status">Allergy Status</string>
     <string name="outpatient_care">OutPatient Care</string>
+    <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
 
 
 </resources>

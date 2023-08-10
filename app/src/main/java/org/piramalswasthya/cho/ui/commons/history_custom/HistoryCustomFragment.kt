@@ -395,9 +395,10 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVisitDetailsFragment()
-        )
+//        findNavController().navigate(
+//            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVisitDetailsFragment()
+//        )
+        findNavController().navigateUp()
     }
     fun navigateNext(){
         findNavController().navigate(
