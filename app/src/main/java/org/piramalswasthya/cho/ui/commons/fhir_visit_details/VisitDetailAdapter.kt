@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,51 +11,55 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.ChiefComplaintValues
 
 class VisitDetailAdapter(
-    private val itemList: MutableList<RecyclerItemData>,
+    private val itemList: MutableList<ChiefComplaintValues>,
     private val unitDropDown: List<String>,
-    private val chiefComplaints : List<ChiefComplaintMaster>,
+    private val chiefComplaints: List<ChiefComplaintMaster>,
     private val itemChangeListener: RecyclerViewItemChangeListener,
-    private val chiefComplaintsForFilter : List<ChiefComplaintMaster>
+    private val chiefComplaintsForFilter: List<ChiefComplaintMaster>
 ) :
     RecyclerView.Adapter<VisitDetailAdapter.ViewHolder>() {
 
     private val viewHolders = mutableListOf<ViewHolder>()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chiefComplaintOptions: AutoCompleteTextView = itemView.findViewById(R.id.chiefComplaintDropDowns)
+        val chiefComplaintOptions: AutoCompleteTextView =
+            itemView.findViewById(R.id.chiefComplaintDropDowns)
         val durationInput: TextInputEditText = itemView.findViewById(R.id.inputDuration)
         val durationUnitDropdown: AutoCompleteTextView = itemView.findViewById(R.id.dropdownDurUnit)
         val descriptionInput: TextInputEditText = itemView.findViewById(R.id.descInputText)
-        val resetButton : Button = itemView.findViewById(R.id.resetButton)
-        val cancelButton : Button = itemView.findViewById(R.id.deleteButton)
+        val resetButton: Button = itemView.findViewById(R.id.resetButton)
+        val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
 
         init {
             // Set up click listener for the "Cancel" button
-           cancelButton.setOnClickListener {
+            cancelButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    if(itemCount > 1) deleteItem(position)
+                    if (itemCount > 1) deleteItem(position)
                     updateDeleteButtonVisibility()
                 }
             }
 
             // Set up click listener for the "Reset" button
-            resetButton.setOnClickListener{
+            resetButton.setOnClickListener {
                 val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION){
+                if (position != RecyclerView.NO_POSITION) {
                     resetFields(position)
                 }
             }
         }
+
         fun updateResetButtonState() {
             val isItemFilled = chiefComplaintOptions.text.isNotEmpty() ||
-                   durationInput.text!!.isNotEmpty() ||
+                    durationInput.text!!.isNotEmpty() ||
                     durationUnitDropdown.text.isNotEmpty() ||
                     descriptionInput.text!!.isNotEmpty()
             resetButton.isEnabled = isItemFilled
         }
+
         fun updateDeleteButtonVisibility() {
             for (viewHolder in viewHolders) {
                 viewHolder.cancelButton.isEnabled = itemCount > 1
@@ -95,14 +98,22 @@ class VisitDetailAdapter(
         holder.resetButton.isEnabled = false
 
         // Set up dropdown adapter and populate dropdown values
-        val unitDropdownAdapter = ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
-        val chiefComplaintAdapter = ChiefComplaintAdapter(holder.itemView.context, R.layout.drop_down, chiefComplaints,holder.chiefComplaintOptions,chiefComplaintsForFilter)
+        val unitDropdownAdapter =
+            ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
+        val chiefComplaintAdapter = ChiefComplaintAdapter(
+            holder.itemView.context,
+            R.layout.drop_down,
+            chiefComplaints,
+            holder.chiefComplaintOptions,
+            chiefComplaintsForFilter
+        )
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
 
         holder.chiefComplaintOptions.setOnItemClickListener { parent, _, position, _ ->
             var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
-            holder.chiefComplaintOptions.setText(chiefComplaint?.chiefComplaint,false)
+            holder.chiefComplaintOptions.setText(chiefComplaint?.chiefComplaint, false)
+            itemData.id = chiefComplaint.chiefComplaintID
         }
 
         // Set listeners to update data when user interacts
@@ -136,7 +147,8 @@ class VisitDetailAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.extra_chief_complaint_layout, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.extra_chief_complaint_layout, parent, false)
         val viewHolder = ViewHolder(view)
         viewHolders.add(viewHolder)
         return viewHolder
@@ -145,14 +157,6 @@ class VisitDetailAdapter(
     override fun getItemCount(): Int = itemList.size
 
 }
-
-
-data class RecyclerItemData(
-    var chiefComplaint: String = "",
-    var duration: String = "",
-    var durationUnit: String = "",
-    var description: String = ""
-)
 
 interface RecyclerViewItemChangeListener {
     fun onItemChanged()

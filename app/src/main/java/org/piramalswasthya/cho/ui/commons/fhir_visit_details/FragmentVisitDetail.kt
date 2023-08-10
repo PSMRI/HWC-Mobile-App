@@ -44,8 +44,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 @AndroidEntryPoint
-class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
-    ChiefComplaintInterface {
+class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
 
     override var fragmentContainerId = 0
 
@@ -77,12 +76,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private var reason: String = ""
     private var encounter = Encounter()
     private var listOfConditions = mutableListOf<Condition>()
-    private var chiefMap = emptyMap<Int,String>()
     private var base64String = ""
 
     private lateinit var adapter: VisitDetailAdapter
 
-    private val initialItem = RecyclerItemData()
+    private val initialItem = ChiefComplaintValues()
     private val itemList = mutableListOf(initialItem)
 
 
@@ -105,14 +103,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.drop_down, subCatOptions)
-        lifecycleScope.launch {
-            chiefMap = viewModel.getChiefMap()
-        }
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
         viewModel.getLoggedInUserDetails()
-        viewModel.boolCall.observe(viewLifecycleOwner){
-            if(it){
+        viewModel.boolCall.observe(viewLifecycleOwner) {
+            if (it) {
                 loggedInUser = viewModel.loggedInUser
                 viewModel.resetBool()
             }
@@ -123,7 +118,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             subCatAdapter.notifyDataSetChanged()
         }
 
-        binding.subCatInput.setOnItemClickListener { parent, view, position, id ->
+        binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
             var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             binding.subCatInput.setText(subCat?.name, false)
         }
@@ -138,7 +133,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             chiefComplaintsForFilter.addAll(chiefComplaintsList)
         }
 
-        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+        binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioButton1 -> {
                     binding.radioGroup2.visibility = View.VISIBLE
@@ -157,7 +152,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             reason = when (checkedId) {
                 R.id.radioButton3 -> {
                     binding.radioButton3.text.toString()
-                } else -> {
+                }
+
+                else -> {
                     binding.radioButton4.text.toString()
                 }
             }
@@ -172,11 +169,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             binding.uploadFileBtn.text = "Uploaded"
             binding.uploadFileBtn.isEnabled = false
         }
-        adapter = VisitDetailAdapter(itemList, units, chiefComplaints,object : RecyclerViewItemChangeListener {
-            override fun onItemChanged() {
-                binding.plusButton.isEnabled = !isAnyItemEmpty()
-            }
-        },chiefComplaintsForFilter)
+        if (viewModel.fileName.isNotEmpty() && viewModel.base64String.isNotEmpty()) {
+            binding.uploadFileBtn.text = "Uploaded"
+            binding.selectFileText.setTextColor(Color.GREEN)
+            binding.selectFileText.text = viewModel.fileName
+        }
+        adapter = VisitDetailAdapter(
+            itemList,
+            units,
+            chiefComplaints,
+            object : RecyclerViewItemChangeListener {
+                override fun onItemChanged() {
+                    binding.plusButton.isEnabled = !isAnyItemEmpty()
+                }
+            },
+            chiefComplaintsForFilter
+        )
         binding.rv.adapter = adapter
         val layoutManager = LinearLayoutManager(requireContext())
         binding.rv.layoutManager = layoutManager
@@ -184,15 +192,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
         binding.plusButton.isEnabled = !isAnyItemEmpty()
         binding.plusButton.setOnClickListener {
-            val newItem = RecyclerItemData()
+            val newItem = ChiefComplaintValues()
             itemList.add(newItem)
             adapter.notifyItemInserted(itemList.size - 1)
-//            addExtraChiefComplaint(addCount)
             binding.plusButton.isEnabled = false
         }
-
-//        addExtraChiefComplaint(addCount)
     }
+
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
             if (item.chiefComplaint.isEmpty() || item.duration.isEmpty() || item.durationUnit.isEmpty() || item.description.isEmpty()) {
@@ -200,32 +206,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             }
         }
         return false
-    }
-    private fun addExtraChiefComplaint(count: Int) {
-        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-        val chiefFragment =
-            ChiefComplaintFragment(chiefComplaints, units, binding.chiefComplaintExtra)
-        val tag = "Extra_Complaint_$count"
-        chiefFragment.setFragmentTag(tag)
-        chiefFragment.setListener(this)
-        fragmentTransaction.add(binding.chiefComplaintExtra.id, chiefFragment, tag)
-        fragmentTransaction.addToBackStack(null) // Optional: Add the transaction to the back stack
-        fragmentTransaction.commit()
-        addCount += 1
-    }
-
-    private fun deleteExtraChiefComplaint(tag: String) {
-        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
-        if (fragmentToDelete != null) {
-            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
-            deleteCount += 1
-        }
-    }
-
-    override fun onDeleteButtonClicked(fragmentTag: String) {
-        if (addCount - 1 > deleteCount) deleteExtraChiefComplaint(fragmentTag)
     }
 
     private val filePickerLauncher =
@@ -249,18 +229,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                         isFileSelected = false
                         isFileUploaded = false
                     } else {
-                        convertFileToBase64String(uri,fileSize)
+                        convertFileToBase64String(uri, fileSize)
                         val fileName = getFileNameFromUri(uri)
                         binding.selectFileText.text = fileName
                         binding.selectFileText.setTextColor(Color.GREEN)
                         binding.uploadFileBtn.isEnabled = true
+                        binding.uploadFileBtn.text = "Upload File"
                         isFileSelected = true
+                        viewModel.setBase64Str(base64String, fileName)
                     }
                 }
             }
         }
 
-    private fun convertFileToBase64String(uri: Uri, fileSize: Long){
+    private fun convertFileToBase64String(uri: Uri, fileSize: Long) {
         val contentResolver = requireActivity().contentResolver
         val inputStream = contentResolver.openInputStream(uri)
         inputStream?.use {
@@ -271,6 +253,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             }
         }
     }
+
     private fun getFileSizeFromUri(uri: Uri): Long {
         val contentResolver = requireActivity().contentResolver
         val cursor = contentResolver.query(uri, null, null, null, null)
@@ -320,12 +303,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         addChiefComplaintsData()
 
         if (catBool && isFileSelected && isFileUploaded) {
-            if(encounter != null) viewModel.saveVisitDetailsInfo(encounter!!,listOfConditions)
+            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
-        } else if (!isFileSelected && catBool)  {
-            if(encounter != null) viewModel.saveVisitDetailsInfo(encounter!!,listOfConditions)
+        } else if (!isFileSelected && catBool) {
+            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
@@ -338,6 +321,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
 
     }
+
     private fun checkAndAddCatSubCat(): Boolean {
         if (binding.subCatInput.text.isNullOrEmpty())
             binding.subCatInput.requestFocus()
@@ -353,6 +337,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
         return false
     }
+
     private fun createEncounterResource() {
         // Set Encounter type
         val encounterType = Coding()
@@ -384,7 +369,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     }
 
     private fun addExtensionsToEncounter(encounter: Encounter) {
-        if(loggedInUser != null) {
+        if (loggedInUser != null) {
             encounter.addExtension(
                 FhirExtension.getExtenstion(
                     FhirExtension.getUrl("vanID", "Encounter#Encounter"),
@@ -414,34 +399,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             )
         }
     }
-    private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
-        return map.entries.find { it.value == value }?.key
-    }
 
     private fun addChiefComplaintsData() {
-        // get all the layouts and corresponding fields values
-        val count = binding.chiefComplaintExtra.childCount
-        for (i in 0..count.minus(1)) {
-            val childView: View? = binding.chiefComplaintExtra?.getChildAt(i)
-            val chiefComplaintVal =
-                childView?.findViewById<AutoCompleteTextView>(R.id.chiefComplaintDropDowns)
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
-            val unitDurationVal =
-                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
-            val descVal = childView?.findViewById<TextInputEditText>(R.id.descInputText)
-
-            if (chiefComplaintVal?.text?.isNotEmpty()!! &&
-                durationVal?.text?.isNotEmpty()!! &&
-                unitDurationVal?.text?.isNotEmpty()!! &&
-                descVal?.text?.isNotEmpty()!!
+        // get all the ChiefComplaint data from list and convert that to fhir resource
+        for (i in 0 until itemList.size) {
+            val chiefComplaintData = itemList[i]
+            if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
+                chiefComplaintData.duration.isNotEmpty() &&
+                chiefComplaintData.durationUnit.isNotEmpty() &&
+                chiefComplaintData.description.isNotEmpty()
             ) {
-                val id = findKeyByValue(chiefMap,chiefComplaintVal?.text?.toString())
-                var chiefComplaintValues = ChiefComplaintValues(
-                    chiefComplaintVal?.text.toString(),
-                    unitDurationVal?.text.toString(),
-                    descVal?.text.toString(),
-                    durationVal?.text.toString()?.toInt()!!
-                )
 
                 // Creating the "Condition" resource
                 val condition = Condition()
@@ -450,13 +417,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 val chiefComplaint = Coding()
                 chiefComplaint.system =
                     "http://snomed.info/sct"
-                chiefComplaint.code = id.toString()
-                chiefComplaint.display = chiefComplaintValues.chiefComplaint
+                chiefComplaint.code = chiefComplaintData.id.toString()
+                chiefComplaint.display = chiefComplaintData.chiefComplaint
                 condition.code = CodeableConcept().addCoding(chiefComplaint)
 
                 // Set the note for the description
                 val note = Annotation()
-                note.text = chiefComplaintValues.description
+                note.text = chiefComplaintData.description
                 condition.note = listOf(note)
 
                 //set subject to condition
@@ -464,7 +431,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 condition.subject = ref
 
                 // calling this addExtensionsToConditionResources() method to add van,parking, providerServiceMapId and duration extension
-                addExtensionsToConditionResources(condition, chiefComplaintValues)
+                addExtensionsToConditionResources(condition, chiefComplaintData)
                 listOfConditions.add(condition)
             }
         }

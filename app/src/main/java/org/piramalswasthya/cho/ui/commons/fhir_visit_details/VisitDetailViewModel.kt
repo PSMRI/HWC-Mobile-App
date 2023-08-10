@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,15 +26,17 @@ import javax.inject.Inject
 class VisitDetailViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
-    @ApplicationContext private val application : Context
-): ViewModel(){
-    private  var _subCatVisitList: LiveData<List<SubVisitCategory>>
-    val subCatVisitList:LiveData<List<SubVisitCategory>>
+    @ApplicationContext private val application: Context
+) : ViewModel() {
+    private var _subCatVisitList: LiveData<List<SubVisitCategory>>
+    val subCatVisitList: LiveData<List<SubVisitCategory>>
         get() = _subCatVisitList
 
 
-    private  var _chiefComplaintMaster: LiveData<List<ChiefComplaintMaster>>
-    val chiefComplaintMaster:LiveData<List<ChiefComplaintMaster>>
+    var base64String = ""
+    var fileName = ""
+    private var _chiefComplaintMaster: LiveData<List<ChiefComplaintMaster>>
+    val chiefComplaintMaster: LiveData<List<ChiefComplaintMaster>>
         get() = _chiefComplaintMaster
 
     private var _loggedInUser: UserCache? = null
@@ -48,53 +49,55 @@ class VisitDetailViewModel @Inject constructor(
     private var _boolCall = MutableLiveData(false)
     val boolCall: LiveData<Boolean>
         get() = _boolCall
-    init{
+
+    init {
         _subCatVisitList = MutableLiveData()
         _chiefComplaintMaster = MutableLiveData()
         getSubCatVisitList()
         getChiefMasterComplaintList()
     }
-    private fun getSubCatVisitList(){
-        try{
-               _subCatVisitList  = maleMasterDataRepository.getAllSubCatVisit()
-                Log.i("Okay bva;","Here is the list $_subCatVisitList")
 
-        } catch (e: Exception){
+    private fun getSubCatVisitList() {
+        try {
+            _subCatVisitList = maleMasterDataRepository.getAllSubCatVisit()
+        } catch (e: Exception) {
             Timber.d("Error in getSubCatVisitList() $e")
         }
     }
 
-    private fun getChiefMasterComplaintList(){
+    private fun getChiefMasterComplaintList() {
         try {
             _chiefComplaintMaster = maleMasterDataRepository.getChiefMasterComplaint()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Timber.d("error in getChiefMasterComplaintList() $e")
         }
     }
-    fun getLoggedInUserDetails(){
+
+    fun getLoggedInUserDetails() {
         viewModelScope.launch {
-           try {
-               _loggedInUser = userRepo.getUserCacheDetails()
-               _boolCall.value = true
-           } catch (e: Exception){
-               Timber.d("Error in calling getLoggedInUserDetails() $e")
-               _boolCall.value = false
-           }
+            try {
+                _loggedInUser = userRepo.getUserCacheDetails()
+                _boolCall.value = true
+            } catch (e: Exception) {
+                Timber.d("Error in calling getLoggedInUserDetails() $e")
+                _boolCall.value = false
+            }
         }
     }
 
-    fun saveVisitDetailsInfo(encounter: Encounter,conditions: List<Condition>){
+    fun saveVisitDetailsInfo(encounter: Encounter, conditions: List<Condition>) {
         viewModelScope.launch {
-            try{
+            try {
 //                fhirEngine.create(encounter)
 //                conditions.forEach { condition ->
 //                    fhirEngine.create(condition)
 //                }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 Timber.d("Error in Saving Visit Details Informations")
             }
         }
     }
+
     suspend fun getChiefMap(): Map<Int, String> {
         return try {
             maleMasterDataRepository.getChiefByNameMap()
@@ -103,8 +106,14 @@ class VisitDetailViewModel @Inject constructor(
             emptyMap()
         }
     }
-    fun resetBool(){
+
+    fun resetBool() {
         _boolCall.value = false
+    }
+
+    fun setBase64Str(fileStr: String, file: String) {
+        base64String = fileStr
+        fileName = file
     }
 
 }
