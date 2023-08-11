@@ -52,9 +52,10 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         CoroutineScope(Dispatchers.Main).launch{
             try {
+                malMasterDataRepo.getMasterDataForNurse()
                 registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
                 registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                malMasterDataRepo.getMasterDataForNurse()
+
             }
             catch (e : Exception){
 

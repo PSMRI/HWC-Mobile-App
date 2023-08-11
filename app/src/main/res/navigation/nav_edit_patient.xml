@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_historyCustomFragment"
             app:destination="@id/historyCustomFragment" />
+        <argument
+            android:name="patientId"
+            app:argType="string"/>
     </fragment>
 
     <fragment

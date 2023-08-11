@@ -68,6 +68,7 @@ class PersonalDetailsFragment : Fragment() {
 
         binding.patientListContainer.patientList.adapter = PatientItemRecyclerViewAdapter(){
             val intent = Intent(context, EditPatientDetailsActivity::class.java)
+            intent.putExtra("patientId", it.resourceId);
             startActivity(intent)
             Log.d("Rv click", "$it")
         }

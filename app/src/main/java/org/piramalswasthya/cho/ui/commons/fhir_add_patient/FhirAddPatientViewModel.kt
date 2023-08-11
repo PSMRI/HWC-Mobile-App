@@ -26,7 +26,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
-import org.piramalswasthya.cho.ui.commons.ProfileLoaderImpl
+import org.piramalswasthya.cho.fhir_utils.ProfileLoaderPatient
 import javax.inject.Inject
 
 /** ViewModel for patient registration screen {@link AddPatientFragment}. */
@@ -65,7 +65,7 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
                 return@launch
             }
 
-            val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse, null, ProfileLoaderImpl()).entryFirstRep
+            val entry = ResourceMapper.extract(questionnaireResource, questionnaireResponse, null, ProfileLoaderPatient()).entryFirstRep
             if (entry.resource !is Patient) {
                 return@launch
             }
