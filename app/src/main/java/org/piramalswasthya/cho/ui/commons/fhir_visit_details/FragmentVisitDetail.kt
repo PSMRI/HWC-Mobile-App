@@ -6,39 +6,37 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Base64
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
+import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.duration
+import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
+import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
+import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.ui.ChiefComplaintInterface
-import org.piramalswasthya.cho.ui.commons.FhirExtension
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
@@ -55,7 +53,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
     override val jsonFile = "patient-visit-details-paginated.json"
 
 
-    private var loggedInUser: UserCache? = null
+    private var userInfo: UserCache? = null
 
     private var _binding: VisitDetailsInfoBinding? = null
 
@@ -83,6 +81,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
 
     private val initialItem = ChiefComplaintValues()
     private val itemList = mutableListOf(initialItem)
+    private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
+    private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
 
 
     private val binding: VisitDetailsInfoBinding
@@ -109,7 +109,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner) {
             if (it) {
-                loggedInUser = viewModel.loggedInUser
+                userInfo = viewModel.loggedInUser
                 viewModel.resetBool()
             }
         }
@@ -374,34 +374,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
     }
 
     private fun addExtensionsToEncounter(encounter: Encounter) {
-        if (loggedInUser != null) {
-            encounter.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("vanID", "Encounter#Encounter"),
-                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
-                )
-            )
+        if (userInfo != null) {
+            encounter.addExtension( enCounterExtension.getExtenstion(
+                enCounterExtension.getUrl(vanID),
+                enCounterExtension.getStringType(userInfo!!.vanId.toString()) ) )
 
-            encounter.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("parkingPlaceID", "Encounter#Encounter"),
-                    FhirExtension.getStringType(loggedInUser!!.parkingPlaceId.toString())
-                )
-            )
+            encounter.addExtension( enCounterExtension.getExtenstion(
+                enCounterExtension.getUrl(parkingPlaceID),
+                enCounterExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
-            encounter.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("providerServiceMapId", "Encounter#Encounter"),
-                    FhirExtension.getStringType(loggedInUser!!.serviceMapId.toString())
-                )
-            )
+            encounter.addExtension( enCounterExtension.getExtenstion(
+                enCounterExtension.getUrl(providerServiceMapId),
+                enCounterExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
-            encounter.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("createdBy", "Encounter#Encounter"),
-                    FhirExtension.getStringType(loggedInUser!!.userName)
-                )
-            )
+            encounter.addExtension( enCounterExtension.getExtenstion(
+                enCounterExtension.getUrl(createdBy),
+                enCounterExtension.getStringType(userInfo!!.userName) ) )
         }
     }
 
@@ -446,44 +434,27 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
         condition: Condition,
         chiefComplaintValues: ChiefComplaintValues
     ) {
-        if (loggedInUser != null) {
+        if (userInfo != null) {
             condition.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("duration", "Condition#Condition"),
-                    FhirExtension.getCoding(
-                        chiefComplaintValues.durationUnit,
-                        chiefComplaintValues.duration.toString()
-                    )
-                )
-            )
+                conditionExtension.getExtenstion(
+                    conditionExtension.getUrl(duration),
+                    conditionExtension.getCoding(chiefComplaintValues.durationUnit, chiefComplaintValues.duration)))
 
-            condition.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("vanID", "Condition#Condition"),
-                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
-                )
-            )
+            condition.addExtension( conditionExtension.getExtenstion(
+                conditionExtension.getUrl(vanID),
+                conditionExtension.getStringType(userInfo!!.vanId.toString()) ) )
 
-            condition.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("parkingPlaceID", "Condition#Condition"),
-                    FhirExtension.getStringType(loggedInUser!!.parkingPlaceId.toString())
-                )
-            )
+            condition.addExtension( conditionExtension.getExtenstion(
+                conditionExtension.getUrl(parkingPlaceID),
+                conditionExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
-            condition.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("providerServiceMapId", "Condition#Condition"),
-                    FhirExtension.getStringType(loggedInUser!!.serviceMapId.toString())
-                )
-            )
+            condition.addExtension( conditionExtension.getExtenstion(
+                conditionExtension.getUrl(providerServiceMapId),
+                conditionExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
-            condition.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("createdBy", "Condition#Condition"),
-                    FhirExtension.getStringType(loggedInUser!!.userName)
-                )
-            )
+            condition.addExtension( conditionExtension.getExtenstion(
+                conditionExtension.getUrl(createdBy),
+                conditionExtension.getStringType(userInfo!!.userName) ) )
         }
     }
 
