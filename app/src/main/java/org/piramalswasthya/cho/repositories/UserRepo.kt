@@ -11,6 +11,7 @@ import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.LocationEntity
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -289,6 +290,16 @@ class UserRepo @Inject constructor(
 
     }
 
+    suspend fun getUserCacheDetails(): UserCache?{
+        return withContext(Dispatchers.IO){
+            try {
+                return@withContext userDao.getLoggedInUser()
+            } catch (e: Exception) {
+                Timber.d("Error in finding loggedIn user $e")
+                return@withContext null
+            }
+        }
+    }
 
 
 }
