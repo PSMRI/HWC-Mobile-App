@@ -10,6 +10,10 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
+import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
+import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -17,15 +21,22 @@ import ca.uhn.fhir.context.RuntimeSearchParam
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.piramalswasthya.cho.ui.commons.FhirExtension
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.ResourceType
 import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
+import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
+import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
+import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
+import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.pastIllnessValues
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
@@ -98,13 +109,14 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var allgTag = mutableListOf<String>()
     private var listOfObservation = mutableListOf<Observation>()
     private var illnessMap = emptyMap<Int,String>()
+    private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
 
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
     private lateinit var dropdownVT: AutoCompleteTextView
     private lateinit var dropdownDT: AutoCompleteTextView
-    private var loggedInUser: UserCache? = null
+    private var userInfo: UserCache? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -167,7 +179,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
             if(it){
-                loggedInUser = viewModel.loggedInUser
+                userInfo = viewModel.loggedInUser
                 viewModel.resetBool()
             }
         }
@@ -484,41 +496,22 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private fun addExtensionsToObservationResources(
         observation: Observation,
     ) {
-        if (loggedInUser != null) {
-            observation.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("vanID", "Observation#Observation"),
-                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
-                )
-            )
+        if (userInfo != null) {
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(vanID),
+                observationExtension.getStringType(userInfo!!.vanId.toString()) ) )
 
-            observation.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("vanID", "Observation#Observation"),
-                    FhirExtension.getStringType(loggedInUser!!.vanId.toString())
-                )
-            )
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(parkingPlaceID),
+                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
-            observation.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("parkingPlaceID", "Observation#Observation"),
-                    FhirExtension.getStringType(loggedInUser!!.parkingPlaceId.toString())
-                )
-            )
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(providerServiceMapId),
+                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
-            observation.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("providerServiceMapId", "Observation#Observation"),
-                    FhirExtension.getStringType(loggedInUser!!.serviceMapId.toString())
-                )
-            )
-
-            observation.addExtension(
-                FhirExtension.getExtenstion(
-                    FhirExtension.getUrl("createdBy", "Observation#Observation"),
-                    FhirExtension.getStringType(loggedInUser!!.userName)
-                )
-            )
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(createdBy),
+                observationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
     override fun onDestroyView() {
