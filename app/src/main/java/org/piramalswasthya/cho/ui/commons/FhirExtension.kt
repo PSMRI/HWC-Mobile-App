@@ -10,7 +10,7 @@ class FhirExtension {
 
     companion object {
 
-        private const val baseUrl : String = "http://hl7.org/fhir/StructureDefinition/"
+        private const val baseUrl : String = "http://hl7.org/fhir/StructureDefinition/Patient#Patient"
 
         fun getExtenstion(url: String, value: Type) : Extension {
             val extension = Extension();
@@ -19,8 +19,8 @@ class FhirExtension {
             return extension
         }
 
-        fun getUrl(variableName: String, resourceType: String) : String{
-            var url = baseUrl + resourceType
+        fun getUrl(variableName: String) : String{
+            var url = baseUrl;
             url += ".$variableName";
             return url
         }

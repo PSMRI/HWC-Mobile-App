@@ -214,4 +214,8 @@ class MaleMasterDataRepository @Inject constructor(
         }
     }
 
+    suspend fun getChiefByNameMap(): Map<Int, String>{
+        return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
+            it.chiefComplaintID to it.chiefComplaint}
+    }
 }

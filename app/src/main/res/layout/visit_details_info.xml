@@ -34,7 +34,7 @@
                 android:id="@+id/radioButton1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="General OPD Care"
+                android:text="@string/outpatient_care"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
@@ -107,7 +107,8 @@
                 android:id="@+id/subCatInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:inputType="none"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
@@ -117,6 +118,14 @@
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="30dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"/>
 
         <Button
             android:id="@+id/plusButton"
@@ -127,7 +136,7 @@
             android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra" />
+            app:layout_constraintTop_toBottomOf="@+id/rv" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardUpload"
@@ -153,6 +162,14 @@
                     android:layout_height="wrap_content"
                     android:text="@string/select_and_upload_file"
                     android:textStyle="normal|bold" />
+
+                <TextView
+                    android:id="@+id/fileType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/file_type"/>
 
                 <LinearLayout
                     android:id="@+id/layoutUpload"

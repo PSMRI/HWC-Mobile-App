@@ -17,3 +17,4 @@ const val govtIdNumber : String = "govtIdNumber"
 const val govtHealthProgramType : String = "govtHealthProgramType"
 
 const val govtHealthProgramId : String = "govtHealthProgramId"
+const val duration : String = "duration"
