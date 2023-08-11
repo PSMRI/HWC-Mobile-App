@@ -15,4 +15,7 @@ interface ChiefComplaintMasterDao {
 
     @Query("select * from CHIEF_COMPLAINT_MASTER")
     fun getAllChiefCompMaster():LiveData<List<ChiefComplaintMaster>>
+
+    @Query("select * from CHIEF_COMPLAINT_MASTER")
+    suspend fun getChiefCompMasterMap(): List<ChiefComplaintMaster>
 }
