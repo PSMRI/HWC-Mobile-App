@@ -41,7 +41,7 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaintList,binding.chiefComplaintDropDowns)
+        chiefComplaintAdapter = ChiefComplaintAdapter(requireContext(), R.layout.drop_down, chiefComplaintList,binding.chiefComplaintDropDowns,chiefComplaintList)
         binding.chiefComplaintDropDowns.setAdapter(chiefComplaintAdapter)
         binding.chiefComplaintDropDowns.setOnItemClickListener { parent, view, position, id ->
             var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster

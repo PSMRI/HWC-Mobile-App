@@ -227,7 +227,7 @@
             {
               "question": "patient-0-age",
               "operator": ">",
-              "answerInteger": 13
+              "answerInteger": 11
             }
           ]
         },
@@ -250,7 +250,7 @@
         {
           "linkId": "patient-0-age-at-marriage",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.ageAtMarriage",
-          "type": "string",
+          "type": "integer",
           "text": "Age at Marriage",
           "enableWhen": [
             {

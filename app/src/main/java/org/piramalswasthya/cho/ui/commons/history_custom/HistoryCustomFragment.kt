@@ -10,11 +10,35 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
+import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
+import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import ca.uhn.fhir.context.RuntimeSearchParam
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.ResourceType
+import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
+import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
+import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
+import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
+import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.pastIllnessValues
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AAFragments
@@ -29,6 +53,7 @@ import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AlcoholDialogFra
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AllergyDialogFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.MedicationDialogFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.TobaccoDialogFragment
+import java.math.BigDecimal
 
 @AndroidEntryPoint
 class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), NavigationAdapter,HistoryFieldsInterface {
@@ -82,12 +107,16 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var tobTag = mutableListOf<String>()
     var alcTag = mutableListOf<String>()
     var allgTag = mutableListOf<String>()
+    private var listOfObservation = mutableListOf<Observation>()
+    private var illnessMap = emptyMap<Int,String>()
+    private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
 
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
     private lateinit var dropdownVT: AutoCompleteTextView
     private lateinit var dropdownDT: AutoCompleteTextView
+    private var userInfo: UserCache? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,6 +172,16 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         }
         binding.btnPreviousHistoryPersonalAlg.setOnClickListener {
             openAllgDialogBox()
+        }
+        lifecycleScope.launch {
+            illnessMap = viewModel.getIllMap()
+        }
+        viewModel.getLoggedInUserDetails()
+        viewModel.boolCall.observe(viewLifecycleOwner){
+            if(it){
+                userInfo = viewModel.loggedInUser
+                viewModel.resetBool()
+            }
         }
         addIllnessFields(addCountIllness)
         addSurgeryFields(addCountSurgery)
@@ -398,9 +437,82 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         findNavController().navigateUp()
     }
     fun navigateNext(){
+        addPastIllnessData()
+        viewModel.saveIllnessDetailsInfo(listOfObservation)
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
+    }
+    private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
+        return map.entries.find { it.value == value }?.key
+    }
+    private fun addPastIllnessData() {
+        val count = binding.pastIllnessExtra.childCount
+        for (i in 0..count.minus(1)) {
+            val childView: View? = binding.pastIllnessExtra?.getChildAt(i)
+            val illnessVal = childView?.findViewById<AutoCompleteTextView>(R.id.illnessText)
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
+            val unitDurationVal =
+                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
+
+            if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
+                val id = findKeyByValue(illnessMap, illnessVal?.text?.toString())
+                var pasttValues = pastIllnessValues(
+                    illnessVal?.text.toString(),
+                    unitDurationVal?.text.toString(),
+                    durationVal?.text.toString()?.toInt()!!
+                )
+                val observation = Observation()
+                if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
+                    val observation = Observation()
+                val pastIllness = Coding()
+                pastIllness.system =
+                    "http://snomed.info/sct"
+                pastIllness.code = id.toString()
+                pastIllness.display = pasttValues.illness
+                    observation.code = CodeableConcept().addCoding(pastIllness)
+                    observation.value =
+                        StringType(illnessVal.text.toString()) // Set the illness value
+                    observation.component =
+                        mutableListOf() // Create a list for components (duration and unit)
+
+                    val durationComponent = ObservationComponentComponent()
+                    durationComponent.code = CodeableConcept() // Set the code for duration
+                    durationComponent.valueQuantity.value =
+                        BigDecimal(durationVal.text.toString()) // Set the duration value
+                    durationComponent.valueQuantity.unit =
+                        unitDurationVal.text.toString() // Set the duration unit
+
+                    observation.component.add(durationComponent)
+                    val ref = Reference("give here reg/ben-reg Id")
+                    observation.subject = ref
+                    addExtensionsToObservationResources(observation)
+                    listOfObservation.add(observation)
+
+                }
+            }
+        }
+    }
+    private fun addExtensionsToObservationResources(
+        observation: Observation,
+    ) {
+        if (userInfo != null) {
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(vanID),
+                observationExtension.getStringType(userInfo!!.vanId.toString()) ) )
+
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(parkingPlaceID),
+                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(providerServiceMapId),
+                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+
+            observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(createdBy),
+                observationExtension.getStringType(userInfo!!.userName) ) )
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

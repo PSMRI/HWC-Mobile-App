@@ -9,12 +9,18 @@ import org.hl7.fhir.r4.model.ResourceType
 private const val patientUrl : String = "http://hl7.org/fhir/StructureDefinition/Patient#Patient"
 
 private const val appointmentUrl : String = "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment"
+private const val encounterUrl : String = "http://hl7.org/fhir/StructureDefinition/Encounter#Encounter"
+private const val conditionUrl : String = "http://hl7.org/fhir/StructureDefinition/Condition#Condition"
+private const val observationUrl : String = "http://hl7.org/fhir/StructureDefinition/Observation#Observation"
 
 class FhirExtension constructor(resourceType : ResourceType){
 
     private var baseUrl : String = when(resourceType){
         ResourceType.Patient -> patientUrl
         ResourceType.Appointment -> appointmentUrl
+        ResourceType.Condition -> conditionUrl
+        ResourceType.Encounter -> encounterUrl
+        ResourceType.Observation -> observationUrl
         else -> {
             ""
         }
