@@ -11,6 +11,9 @@ import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.CreateHIDResponse
+import org.piramalswasthya.cho.network.CreateHealthIdRequest
+import org.piramalswasthya.cho.network.NetworkResult
 //import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -23,6 +26,7 @@ import timber.log.Timber
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class UserRepo @Inject constructor(

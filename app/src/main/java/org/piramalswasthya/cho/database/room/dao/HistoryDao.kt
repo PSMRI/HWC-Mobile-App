@@ -49,4 +49,7 @@ interface HistoryDao {
 
     @Query("select * from Tobacco_Dropdown")
     fun getAllTobaccoDropdown(): LiveData<List<TobaccoDropdown>>
+
+    @Query("select * from Illness_Dropdown")
+    suspend fun getIllnessMasterMap():List<IllnessDropdown>
 }

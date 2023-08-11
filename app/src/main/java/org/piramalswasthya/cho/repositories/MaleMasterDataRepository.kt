@@ -208,7 +208,11 @@ class MaleMasterDataRepository @Inject constructor(
     fun getAllSubCatVisit(): LiveData<List<SubVisitCategory>> {
         return subCatVisitDao.getAllSubCatVisit()
     }
-
+    suspend fun getIllnessByNameMap():Map<Int,String>{
+        return historyDao.getIllnessMasterMap().associate {
+            it.illnessID to it.illnessType
+        }
+    }
 
     suspend fun getChiefByNameMap(): Map<Int, String>{
         return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
