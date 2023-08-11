@@ -18,6 +18,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentFhirAddPatientBinding
 import org.piramalswasthya.cho.databinding.FragmentFhirVitalsBinding
+import org.piramalswasthya.cho.databinding.FragmentVitalsCustomBinding
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
@@ -25,11 +26,11 @@ import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewMod
 import timber.log.Timber
 
 @AndroidEntryPoint
-class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragmentService, NavigationAdapter {
+class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragmentService, NavigationAdapter {
 
-    private var _binding: FragmentFhirVitalsBinding? = null
+    private var _binding: FragmentVitalsCustomBinding? = null
 
-    private val binding: FragmentFhirVitalsBinding
+    private val binding: FragmentVitalsCustomBinding
         get() = _binding!!
 
     override val viewModel: FhirVitalsViewModel by viewModels()
@@ -43,25 +44,26 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_fhir_vitals), FhirFragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFhirVitalsBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentVitalsCustomBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fragmentContainerId = binding.fragmentContainer.id
-        updateArguments()
-        if (savedInstanceState == null) {
-            addQuestionnaireFragment()
-        }
-        observeEntitySaveAction("Inputs are missing.", "Vitals is saved.")
+//        fragmentContainerId = binding.fragmentContainer.id
+//        updateArguments()
+//        if (savedInstanceState == null) {
+//            addQuestionnaireFragment()
+//        }
+//        observeEntitySaveAction("Inputs are missing.", "Vitals is saved.")
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_fhir_vitals;
+        return R.id.fragment_vitals_info;
     }
 
     override fun onSubmitAction() {
+//        saveEntity()
         navigateNext()
     }
 

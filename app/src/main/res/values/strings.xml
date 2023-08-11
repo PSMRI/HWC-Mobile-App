@@ -251,6 +251,15 @@
     <string name="select_allergy_type">Select Allergy Type</string>
     <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
     <string name="allergy_status">Allergy Status</string>
+    <string name="enter_weight">Enter Weight</string>
+    <string name="height_cm">Height(cm)</string>
+    <string name="bmi">BMI</string>
+    <string name="waist_circumference_cm">Waist Circumference(cm)</string>
+    <string name="temperature_degree_c">Temperature (degree C)</string>
+    <string name="pulse_rate_min">Pulse Rate(min)</string>
+    <string name="spo2">SPO2(%)</string>
+    <string name="respiratory_per_min">Respiratory(per min)</string>
+    <string name="rbs_mg_dl">RBS (mg/dl)</string>
 
 
 </resources>
