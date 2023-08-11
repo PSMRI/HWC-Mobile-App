@@ -34,6 +34,9 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.fhir_utils.ProfileLoaderAppointment
+import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowId
+import org.piramalswasthya.cho.fhir_utils.extension_names.benId
+import org.piramalswasthya.cho.fhir_utils.extension_names.benRegId
 import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
@@ -91,14 +94,7 @@ class FhirRevisitViewModel @Inject constructor(@ApplicationContext private val a
             fhirEngine.create(appointment)
             Log.d("aptId", appointment.id)
             val appointmentData = fhirEngine.get<Appointment>(appointment.id)
-            val centerExtension = appointmentData.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.center")
-            val dateExtension = appointmentData.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.date")
-            val vanIdExtension = appointmentData.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.vanID")
-            Log.d("appointmentDataCenter", centerExtension.value.displayString(context).toString())
-            Log.d("appointmentDate", dateExtension.value.displayString(context).toString())
-            Log.d("appointmentVanId", vanIdExtension.value.displayString(context).toString())
-            Log.d("description", appointmentData.description)
-            Log.d("service", appointmentData.serviceCategory.toString())
+
             isEntitySaved.value = true
         }
     }
@@ -121,6 +117,16 @@ class FhirRevisitViewModel @Inject constructor(@ApplicationContext private val a
                 extension.getUrl(createdBy),
                 extension.getStringType(userInfo!!.userName) ) )
         }
+        //TODO: Add the following Ids when available
+        appointment.addExtension( extension.getExtenstion(
+            extension.getUrl(benId),
+            extension.getStringType("") ) )
+        appointment.addExtension( extension.getExtenstion(
+            extension.getUrl(benRegId),
+            extension.getStringType("") ))
+        appointment.addExtension( extension.getExtenstion(
+            extension.getUrl(benFlowId),
+            extension.getStringType("") ) )
     }
 
 
