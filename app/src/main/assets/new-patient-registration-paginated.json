@@ -250,7 +250,7 @@
         {
           "linkId": "patient-0-age-at-marriage",
           "definition": "http://example.com/StructureDefinition/Patient#Patient.ageAtMarriage",
-          "type": "string",
+          "type": "integer",
           "text": "Age at Marriage",
           "enableWhen": [
             {
@@ -298,7 +298,7 @@
               ],
               "linkId": "PR-telecom-value",
               "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.telecom.value",
-              "type": "integer",
+              "type": "string",
               "required": true,
               "text": "Phone Number",
               "_text": {
