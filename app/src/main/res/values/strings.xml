@@ -255,11 +255,11 @@
     <string name="height_cm">Height(cm)</string>
     <string name="bmi">BMI</string>
     <string name="waist_circumference_cm">Waist Circumference(cm)</string>
-    <string name="temperature_degree_c">Temperature (degree C)</string>
+    <string name="temperature_f">Temperature (F)</string>
     <string name="pulse_rate_min">Pulse Rate(min)</string>
     <string name="spo2">SPO2(%)</string>
-    <string name="respiratory_per_min">Respiratory(per min)</string>
-    <string name="rbs_mg_dl">RBS (mg/dl)</string>
+    <string name="respiratory_per_min">Respiratory Rate(per min)</string>
+    <string name="rbs_mg_dl">RBS Result(mg/dl)</string>
     <string name="previous_allergy_history">Previous Allergy History</string>
     <string name="outpatient_care">OutPatient Care</string>
     <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>

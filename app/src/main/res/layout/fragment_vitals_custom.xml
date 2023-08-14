@@ -32,7 +32,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputWeight"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,7 +60,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputHeight"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,19 +77,19 @@
             />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/bmiEditTxt"
+            android:id="@+id/bmill"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            android:hint="@string/bmi"
+            android:hint="BMI"
             app:layout_constraintTop_toBottomOf="@+id/bmiTxt">
-
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputBmi"
+                android:editable="false"
                 android:layout_width="match_parent"
-                android:inputType="number"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -101,7 +101,7 @@
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bmiEditTxt"
+            app:layout_constraintTop_toBottomOf="@+id/bmill"
             />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -116,7 +116,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputWaistCircum"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -125,7 +125,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/temperature_degree_c"
+            android:text="@string/temperature_f"
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -138,13 +138,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            android:hint="@string/temperature_degree_c"
+            android:hint="@string/temperature_f"
             app:layout_constraintTop_toBottomOf="@+id/temperatureTxt">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputTemperature"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -171,7 +171,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPulseRate"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -198,7 +198,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputSpo2"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -226,7 +226,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputBpSystolic"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -254,7 +254,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputBpDiastolic"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -282,7 +282,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputRespiratoryPerMin"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -309,7 +309,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputRbs"
                 android:layout_width="match_parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
