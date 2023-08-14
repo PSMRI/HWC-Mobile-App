@@ -2,27 +2,32 @@ package org.piramalswasthya.cho.ui.commons.fhir_revisit_form
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.fhir.datacapture.QuestionnaireFragment
 import dagger.hilt.android.AndroidEntryPoint
-import org.hl7.fhir.r4.model.QuestionnaireResponse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.databinding.FragmentFhirRevisitFormBinding
 import org.piramalswasthya.cho.databinding.FragmentFhirVitalsBinding
+import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragmentDirections
 import org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragment
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
@@ -67,7 +72,9 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), F
     }
 
     override fun onSubmitAction() {
-        navigateNext()
+        saveEntity()
+        Log.d("saved", "resource saved appointment")
+//      navigateNext()
     }
 
     override fun onCancelAction() {
@@ -80,5 +87,6 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), F
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
     }
+
 
 }

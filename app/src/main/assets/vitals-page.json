@@ -2,26 +2,48 @@
   "resourceType": "Questionnaire",
   "title": "FHIR Form - Vitals Details",
   "status": "active",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Observation",
+        "name": "observation"
+      }
+    }
+  ],
   "item": [
-    {
-      "linkId": "Heading",
-      "text": "Vitals",
-      "type": "group",
-      "item": [
-    {
-      "linkId": "1",
-      "text": "Anthropometry",
-      "type": "group",
-      "item": [
         {
           "linkId": "height",
           "text": "Height(cm)",
-          "type": "decimal"
+          "type": "string",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Observation#Observation.component.valueQuantity",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "Observation.component.valueQuantity",
+                "name": "valueHeight"
+              }
+            }
+          ]
         },
         {
           "linkId": "weight",
           "text": "Weight(kg)",
-          "type": "decimal"
+          "type": "string",
+          "definition": "http://hl7.org/fhir/StructureDefinition/Observation#Observation.component.valueQuantity",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/fhirpath",
+                "expression": "Observation.component.valueQuantity",
+                "name": "valueWeight"
+              }
+            }
+          ]
         },
         {
           "linkId": "bmi",
@@ -33,23 +55,6 @@
           "text": "Waist Circumference(cm)",
           "type": "decimal"
         },
-        {
-          "linkId": "hipCircumference",
-          "text": "Hip Circumference(cm)",
-          "type": "decimal"
-        },
-        {
-          "linkId": "waistToHipRatio",
-          "text": "Waist to Hip Ratio(WHR)",
-          "type": "decimal"
-        }
-      ]
-    },
-    {
-      "linkId": "2",
-      "text": "Vitals",
-      "type": "group",
-      "item": [
         {
           "linkId": "temperature",
           "text": "Temperature(F)",
@@ -79,27 +84,11 @@
           "linkId": "respiratoryRate",
           "text": "Respiratory Rate(per min)",
           "type": "integer"
-        }
-      ]
-    },
-    {
-      "linkId": "3",
-      "text": "Random Glucose Test",
-      "type": "group",
-      "item": [
+        },
         {
           "linkId": "rbsResult",
           "text": "RBS Result(mg/dl)",
           "type": "decimal"
-        },
-        {
-          "linkId": "rbsTestRemark",
-          "text": "RBS Test Remark",
-          "type": "string"
-        }
-      ]
-    }
-        ]
         }
   ]
 }

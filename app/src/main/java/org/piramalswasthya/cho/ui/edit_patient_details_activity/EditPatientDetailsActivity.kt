@@ -68,7 +68,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_vitals -> {
+                R.id.fragment_vitals_info -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
