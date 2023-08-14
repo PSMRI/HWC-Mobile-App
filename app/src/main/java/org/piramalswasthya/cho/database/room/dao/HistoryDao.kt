@@ -52,4 +52,6 @@ interface HistoryDao {
 
     @Query("select * from Illness_Dropdown")
     suspend fun getIllnessMasterMap():List<IllnessDropdown>
+    @Query("select * from Surgery_Dropdown")
+    suspend fun getSurgeryMasterMap():List<SurgeryDropdown>
 }
