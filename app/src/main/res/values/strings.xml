@@ -263,6 +263,24 @@
     <string name="previous_allergy_history">Previous Allergy History</string>
     <string name="outpatient_care">OutPatient Care</string>
     <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
+    <string name="lonic_url">http://loinc.org</string>
+    <string name="vital_signs_panel">Vital signs panel</string>
+    <string name="vital_signs_panel_code_text">Vital signs Panel</string>
+    <string name="observation_category_url">http://terminology.hl7.org/CodeSystem/observation-category</string>
+    <string name="vital_signs">Vital Signs</string>
+    <string name="vital_signs_code">vital-signs</string>
+    <string name="height_cm_text">height_cm</string>
+    <string name="weight_kg">weight_Kg</string>
+    <string name="bmi_text">bMI</string>
+    <string name="waistcircumference_cm">waistCircumference_cm</string>
+    <string name="temperature">temperature</string>
+    <string name="pulserate">pulseRate</string>
+    <string name="spo2_text">sPO2</string>
+    <string name="systolicbp_1streading">systolicBP_1stReading</string>
+    <string name="diastolicbp_1streading">diastolicBP_1stReading</string>
+    <string name="respiratoryrate">respiratoryRate</string>
+    <string name="rbstestresult">rbsTestResult</string>
+    <string name="vitals_information_is_saved">Vitals information is saved.</string>
 
 
 </resources>

@@ -100,7 +100,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.esanjeevni)
                 }
-                R.id.fragment_fhir_vitals -> {
+                R.id.fragment_vitals_info -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
@@ -111,7 +111,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_revisit_form -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
+                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

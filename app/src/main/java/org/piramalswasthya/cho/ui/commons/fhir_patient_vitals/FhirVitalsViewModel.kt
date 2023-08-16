@@ -3,12 +3,12 @@ package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
@@ -17,13 +17,11 @@ import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.hl7.fhir.r4.model.ResourceType
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
 import timber.log.Timber
@@ -98,7 +96,8 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                     var uuid = generateUuid()
                     observation.id = uuid
                     fhirEngine.create(observation)
-                    // Serialize the Observation resource to JSON
+                    Toast.makeText(context, context.getString(R.string.vitals_information_is_saved), Toast.LENGTH_SHORT).show()
+                // Serialize the Observation resource to JSON
 //                    val context = FhirContext.forR4()
 //                    val jsonBody = context.newJsonParser().setPrettyPrint(true).encodeResourceToString(observation)
 //                    val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), jsonBody)
