@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,62 +33,35 @@ class RegisterPatientActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
-//            childFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
 
-
-        binding.btnSubmit.setOnClickListener {
-            currFragment =
-                navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-
-            when (currFragment.getFragmentId()) {
-                R.id.fragment_fhir_add_patient -> {
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.location_details)
+        navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            when (destination.id) {
+                R.id.fhirAddPatientFragment -> {
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-
-                R.id.fragment_add_patient_location -> {
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.other_info)
+                R.id.fragmentLocation -> {
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.location_details)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.otherInformationsFragment ->{
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.other_info)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_add_patient_other_details ->{
-
-                }
-
             }
+        }
 
+        binding.btnSubmit.setOnClickListener {
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onSubmitAction()
         }
 
-
         binding.btnCancel.setOnClickListener {
-
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-
-            when (currFragment.getFragmentId()){
-                R.id.fragment_fhir_add_patient -> {
-
-                }
-
-                R.id.fragment_add_patient_location -> {
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.personal_details)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.fragment_other_informations ->{
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.location_details)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-            }
-
             currFragment.onCancelAction()
-
         }
 
     }

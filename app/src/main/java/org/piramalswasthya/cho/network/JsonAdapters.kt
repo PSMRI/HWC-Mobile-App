@@ -354,7 +354,7 @@ data class StateResponseData(
 @JsonClass(generateAdapter = true)
 data class StateList(
     val stateMaster: List<State>
-)
+) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
 data class State(
@@ -371,6 +371,11 @@ data class DistrictResponse(
 )
 
 @JsonClass(generateAdapter = true)
+data class DistrictList(
+    val districtMaster: List<District>
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
 data class District(
     val districtID: Int,
     val districtName: String
@@ -383,6 +388,12 @@ data class DistrictBlockResponse(
     val errorMessage: String,
     val status: String
 )
+
+@JsonClass(generateAdapter = true)
+data class BlockList(
+    val blockMaster: List<DistrictBlock>
+) : NetworkResponse()
+
 @JsonClass(generateAdapter = true)
 data class DistrictBlock(
     val blockID: Int,
@@ -397,12 +408,19 @@ data class VillageMasterResponse(
     val errorMessage: String,
     val status: String
 )
+
+@JsonClass(generateAdapter = true)
+data class VillageList(
+    val villageMaster: List<Village>
+) : NetworkResponse()
+
 @JsonClass(generateAdapter = true)
 data class Village(
     val districtBranchID: Int,
     val villageName: String,
     val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
 )
+
 
 
 

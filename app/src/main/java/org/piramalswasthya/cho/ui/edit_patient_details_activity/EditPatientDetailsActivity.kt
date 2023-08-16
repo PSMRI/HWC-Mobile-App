@@ -28,97 +28,57 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val patientId = intent.getStringExtra("patientId")
+        val args = Bundle()
+        args.putString("patientId", patientId)
+
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-        val patientId = intent.getStringExtra("patientId")
-
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-
-        val args = Bundle()
-        args.putString("patientId", patientId)
-
         navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
 
-//        var patientDetails = PatientDetails()
-//        val index: Int = intent.getIntExtra("index", defaultValue)
-//
-//        if(index != defaultValue){
-//            patientDetails = benificiaryList[index];
-//        }
-
-//        val fragment = FhirVisitDetailsFragment();
-//        supportFragmentManager.beginTransaction().replace(binding.patientDetalis.id, fragment).commit()
-
-        binding.btnSubmit.setOnClickListener {
-
-            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-
-            when (currFragment.getFragmentId()){
-                R.id.fragment_visit_details_info -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.fragment_history_custom ->{
-                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.fragment_vitals_info -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.fragment_fhir_prescription -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.fragment_fhir_revisit_form -> {
-
-                }
-            }
-
-            currFragment.onSubmitAction()
-
-        }
-
-        binding.btnCancel.setOnClickListener {
-
-            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-
-            when (currFragment.getFragmentId()){
-                R.id.fragment_visit_details_info -> {
-
-                }
-                R.id.fragment_history_custom->{
+        navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            when (destination.id) {
+                R.id.fhirVisitDetailsFragment -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.esanjeevni)
                 }
-                R.id.fragment_fhir_vitals -> {
+                R.id.historyCustomFragment -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.history_text)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_prescription -> {
+                R.id.fhirVitalsFragment ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_revisit_form -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
+                R.id.fhirPrescriptionFragment -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fhirRevisitFormFragment ->{
+                    binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }
+        }
 
+        binding.btnSubmit.setOnClickListener {
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+            currFragment.onSubmitAction()
+        }
+
+        binding.btnCancel.setOnClickListener {
+            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onCancelAction()
-
         }
 
     }
