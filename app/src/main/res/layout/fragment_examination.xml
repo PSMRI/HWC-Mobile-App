@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_visit_details_info"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/generalExamination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/genExamLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:text="General Examination"
+                    android:textSize="18sp"
+                    android:textStyle="normal|bold" />
+
+                <TextView
+                    android:id="@+id/consTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Consciousness"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/consciousness"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Consciousness State">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/consInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <TextView
+                    android:id="@+id/dangSign"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Danger Sign"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/dangerRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/dangerYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Yes"
+                        android:layout_weight="1"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/dangerNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/lymphadenopathyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Danger Sign"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/lymphadenopathyRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/lymphadenopathyYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Yes"
+                        android:layout_weight="1"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/lymphadenopathyNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/dangerDropDown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Danger Sign">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dangerDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/pallor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Pallor"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/pallorRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/pallorYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/pallorNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/jaundice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Jaundice"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/jaundiceRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/jaundiceYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/jaundiceNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/cynosis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Cynosis"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/cynosisRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/cynosisYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/cynosisNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/clubbing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Lymphadenopathy"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/clubbingRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/clubbingYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/clubbingNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/lymphNodeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Lymph nodes Involved"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/lymphNodeDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Lymph Node">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/lymphDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/lymphNodeTextType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Type of Lymphadenopathy"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/lymphNodeTypeDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Lymph Node">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/lymphTypeDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <TextView
+                    android:id="@+id/edema"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Edema"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/edemaRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/edemaYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/edemaNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/extentEdemaText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Extent Of edema"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/extentEdemaDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Lymph Node">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/extentEdemaDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/edemaType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Type of Edema"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/typeEdemaRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/typeEdemaYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pitting"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/typeEdemaNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Non-Pitting"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/headToeExamText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Head to Toe Examination"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/headToeRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/headToeYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Normal"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/headToeNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Abnormal"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/systematicExamination"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/generalExamination">
+
+            <LinearLayout
+                android:id="@+id/systematicLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/systematicExaminationTextHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Systemic Examination"
+                    android:textSize="18sp"
+                    android:textStyle="normal|bold" />
+
+                <TextView
+                    android:id="@+id/gastroTextHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Gastro Intestinal System"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <TextView
+                    android:id="@+id/inspectionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Inspection"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inspection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputInspection"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/abdominalText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Consciousness"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/abdominalDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Abdominal Texture">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/abdominalDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/leverText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Lever"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/leverDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Type">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/leverDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/spleenText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Spleen"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/spleenDropdown"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Select Type">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/spleenDropVal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tendernessText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="Tenderness"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <RadioGroup
+                    android:id="@+id/tendernessRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/tendernessYes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Present"
+                        android:textColor="@drawable/radio_btn_select" />
+
+                    <RadioButton
+                        android:id="@+id/tendernessNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Absent"
+                        android:textColor="@drawable/radio_btn_select" />
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/tendLocText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Location Of Tenderness"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tendernessLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputTendLoc"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/percussionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Percussion"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/percussion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPercussion"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/auscultationText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Auscultation"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/auscultation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputAuscultation"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/analRegionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Anal Region"
+                    android:textSize="16sp"
+                    android:textStyle="normal|bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/analRegion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputAnalRegion"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

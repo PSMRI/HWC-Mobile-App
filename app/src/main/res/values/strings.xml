@@ -181,6 +181,7 @@
     <string name="associated_ailments">Associated Ailments</string>
     <string name="select_associated_ailments">Select Associated Ailments</string>
     <string name="enter_duration">Enter Duration</string>
+    <string name="enter_inspection">Inspection</string>
     <string name="duration_unit">Duration Unit</string>
     <string name="select_duration_unit">Select Duration Unit</string>
     <string name="f_h_of_member">F/H of Member</string>
