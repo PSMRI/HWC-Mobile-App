@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +43,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     override var fragmentContainerId = 0;
     private var userInfo: UserCache? = null
+    private var isNull:Boolean = true
 
     override val jsonFile : String = "vitals-page.json"
     var observation = Observation()
@@ -79,12 +79,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 viewModel.resetBool()
             }
         }
-//        fragmentContainerId = binding.fragmentContainer.id
-//        updateArguments()
-//        if (savedInstanceState == null) {
-//            addQuestionnaireFragment()
-//        }
-//        observeEntitySaveAction("Inputs are missing.", "Vitals is saved.")
     }
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -108,7 +102,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         bpDiastolicValue = binding.inputBpDiastolic.text.toString().trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text.toString().trim()
         rbsValue = binding.inputRbs.text.toString().trim()
-
     }
     private fun createObservationResource(){
         //Code
@@ -130,76 +123,87 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         observation.category.add(categoryCodeableConcept)
 
         //Components
-        val heightComponent = Observation.ObservationComponentComponent()
-        heightComponent.code.text = "height_cm"
-        heightComponent.valueQuantity.value =if((heightValue == "" || heightValue == null)) null
-        else BigDecimal(heightValue.toString())
-        observation.component.add(heightComponent)
-
-        val weightComponent = Observation.ObservationComponentComponent()
-        weightComponent.code.text = "weight_Kg"
-        weightComponent.valueQuantity.value =if((weightValue == "" || weightValue == null)) null
-        else BigDecimal(weightValue.toString())
-        observation.component.add(weightComponent)
-
-
-        val bmiComponent = Observation.ObservationComponentComponent()
-        bmiComponent.code.text = "bMI"
-        bmiComponent.valueQuantity.value =if((bmiValue == "" || bmiValue == null)) null
-        else BigDecimal(bmiValue.toString())
-        observation.component.add(bmiComponent)
-
-        val waistCircumComponent = Observation.ObservationComponentComponent()
-        waistCircumComponent.code.text = "waistCircumference_cm"
-        waistCircumComponent.valueQuantity.value = if((waistCircumferenceValue == "" || waistCircumferenceValue == null)) null
-        else BigDecimal(waistCircumferenceValue.toString())
-//        waistCircumComponent.valueQuantity.value = BigDecimal(waistCircumferenceValue.toString())
-        observation.component.add(waistCircumComponent)
-
-        val tempComponent = Observation.ObservationComponentComponent()
-        tempComponent.code.text = "temperature"
-        tempComponent.valueQuantity.value = if((temperatureValue == "" || temperatureValue == null)) null
-        else BigDecimal(temperatureValue.toString())
-        observation.component.add(tempComponent)
-
-        val pulseRateComponent = Observation.ObservationComponentComponent()
-        pulseRateComponent.code.text = "pulseRate"
-        pulseRateComponent.valueQuantity.value =if((pulseRateValue == "" || pulseRateValue == null)) null
-        else BigDecimal(pulseRateValue.toString())
-        observation.component.add(pulseRateComponent)
-
-        val spo2Component = Observation.ObservationComponentComponent()
-        spo2Component.code.text = "sPO2"
-        spo2Component.valueQuantity.value =if((spo2Value == "" || spo2Value == null)) null
-        else BigDecimal(spo2Value.toString())
-        observation.component.add(spo2Component)
-
-        val bpSystolicComponent = Observation.ObservationComponentComponent()
-        bpSystolicComponent.code.text = "systolicBP_1stReading"
-        bpSystolicComponent.valueQuantity.value = if((bpSystolicValue == "" || bpSystolicValue == null)) null
-        else BigDecimal(bpSystolicValue.toString())
-        observation.component.add(bpSystolicComponent)
-
-        val bpDiastolicComponent = Observation.ObservationComponentComponent()
-        bpDiastolicComponent.code.text = "diastolicBP_1stReading"
-        bpDiastolicComponent.valueQuantity.value =if((bpDiastolicValue == "" || bpDiastolicValue == null)) null
-        else BigDecimal(bpDiastolicValue.toString())
-        observation.component.add(bpDiastolicComponent)
-
-        val respiratoryComponent = Observation.ObservationComponentComponent()
-        respiratoryComponent.code.text = "respiratoryRate"
-        respiratoryComponent.valueQuantity.value =if((respiratoryValue == "" || respiratoryValue == null)) null
-        else BigDecimal(respiratoryValue.toString())
-        observation.component.add(respiratoryComponent)
-
-        val rbsComponent = Observation.ObservationComponentComponent()
-        rbsComponent.code.text = "rbsTestResult"
-        rbsComponent.valueQuantity.value =if((rbsValue == "" || rbsValue == null)) null
-        else BigDecimal(rbsValue.toString())
-        observation.component.add(rbsComponent)
-        observation.status = Observation.ObservationStatus.FINAL
-        addExtensionsToObservationResources(observation)
-
+        if(!(heightValue == "" || heightValue == null)) {
+            val heightComponent = Observation.ObservationComponentComponent()
+            heightComponent.code.text = "height_cm"
+            heightComponent.valueQuantity.value = BigDecimal(heightValue.toString())
+            observation.component.add(heightComponent)
+            isNull = false
+        }
+        if(!(weightValue == "" || weightValue == null)) {
+            val weightComponent = Observation.ObservationComponentComponent()
+            weightComponent.code.text = "weight_Kg"
+            weightComponent.valueQuantity.value = BigDecimal(weightValue.toString())
+            observation.component.add(weightComponent)
+            isNull = false
+        }
+        if(!(bmiValue == "" || bmiValue == null)) {
+            val bmiComponent = Observation.ObservationComponentComponent()
+            bmiComponent.code.text = "bMI"
+            bmiComponent.valueQuantity.value = BigDecimal(bmiValue.toString())
+            observation.component.add(bmiComponent)
+            isNull = false
+        }
+        if(!(waistCircumferenceValue == "" || waistCircumferenceValue == null)) {
+            val waistCircumferenceComponent = Observation.ObservationComponentComponent()
+            waistCircumferenceComponent.code.text = "waistCircumference_cm"
+            waistCircumferenceComponent.valueQuantity.value = BigDecimal(waistCircumferenceValue.toString())
+            observation.component.add(waistCircumferenceComponent)
+            isNull = false
+        }
+        if(!(temperatureValue == "" || temperatureValue == null)) {
+            val tempComponent = Observation.ObservationComponentComponent()
+            tempComponent.code.text = "temperature"
+            tempComponent.valueQuantity.value = BigDecimal(temperatureValue.toString())
+            observation.component.add(tempComponent)
+            isNull = false
+        }
+        if(!(pulseRateValue == "" || pulseRateValue == null)) {
+            val pulseRateComponent = Observation.ObservationComponentComponent()
+            pulseRateComponent.code.text = "pulseRate"
+            pulseRateComponent.valueQuantity.value = BigDecimal(pulseRateValue.toString())
+            observation.component.add(pulseRateComponent)
+            isNull = false
+        }
+        if(!(spo2Value == "" || spo2Value == null)) {
+            val spo2Component = Observation.ObservationComponentComponent()
+            spo2Component.code.text = "sPO2"
+            spo2Component.valueQuantity.value = BigDecimal(spo2Value.toString())
+            observation.component.add(spo2Component)
+            isNull = false
+        }
+        if(!(bpSystolicValue == "" || bpSystolicValue == null)) {
+            val bpSystolicComponent = Observation.ObservationComponentComponent()
+            bpSystolicComponent.code.text = "systolicBP_1stReading"
+            bpSystolicComponent.valueQuantity.value = BigDecimal(bpSystolicValue.toString())
+            observation.component.add(bpSystolicComponent)
+            isNull = false
+        }
+        if(!(bpDiastolicValue == "" || bpDiastolicValue == null)) {
+            val bpDiastolicComponent = Observation.ObservationComponentComponent()
+            bpDiastolicComponent.code.text = "diastolicBP_1stReading"
+            bpDiastolicComponent.valueQuantity.value = BigDecimal(bpDiastolicValue.toString())
+            observation.component.add(bpDiastolicComponent)
+            isNull = false
+        }
+        if(!(respiratoryValue == "" || respiratoryValue == null)) {
+            val respiratoryComponent = Observation.ObservationComponentComponent()
+            respiratoryComponent.code.text = "respiratoryRate"
+            respiratoryComponent.valueQuantity.value = BigDecimal(respiratoryValue.toString())
+            observation.component.add(respiratoryComponent)
+            isNull = false
+        }
+        if(!(rbsValue == "" || rbsValue == null)) {
+            val rbsComponent = Observation.ObservationComponentComponent()
+            rbsComponent.code.text = "rbsTestResult"
+            rbsComponent.valueQuantity.value = BigDecimal(rbsValue.toString())
+            observation.component.add(rbsComponent)
+            isNull = false
+        }
+        if(!isNull) {
+            observation.status = Observation.ObservationStatus.FINAL //Status
+            addExtensionsToObservationResources(observation)         //Extensions
+        }
     }
     private fun calculateAndDisplayBMI() {
         val heightValue: Float? = binding.inputHeight.text.toString().trim().toFloatOrNull()
@@ -218,22 +222,22 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         observation: Observation,
     ) {
         if (userInfo != null) {
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(beneficiaryID),
-                observationExtension.getStringType("") ) )
-
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(beneficiaryRegID),
-                observationExtension.getStringType("") ))
-
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(benFlowID),
-                observationExtension.getStringType("") ) )
-
-            observation.addExtension( observationExtension.getExtenstion(
+            observation.addExtension(observationExtension.getExtenstion(
                 observationExtension.getUrl(modifiedBy),
-                observationExtension.getStringType(userInfo!!.userName) ) )
+                observationExtension.getStringType(userInfo!!.userName)))
         }
+
+        observation.addExtension(observationExtension.getExtenstion(
+            observationExtension.getUrl(beneficiaryID),
+            observationExtension.getStringType(""))) //add beneficiaryID
+
+        observation.addExtension(observationExtension.getExtenstion(
+            observationExtension.getUrl(beneficiaryRegID),
+            observationExtension.getStringType(""))) //add beneficiaryRegID
+
+        observation.addExtension(observationExtension.getExtenstion(
+            observationExtension.getUrl(benFlowID),
+            observationExtension.getStringType(""))) //add benFlowID
     }
     override fun getFragmentId(): Int {
         return R.id.fragment_vitals_info;
@@ -254,7 +258,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     override fun navigateNext() {
         extractFormValues()
         createObservationResource()
-        viewModel.saveObservationResource(observation)
+        if(!isNull) {
+            viewModel.saveObservationResource(observation)
+            isNull = true
+        }
         findNavController().navigate(
             FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirPrescriptionFragment()
         )
