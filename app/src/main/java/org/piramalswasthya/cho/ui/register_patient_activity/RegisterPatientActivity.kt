@@ -37,20 +37,17 @@ class RegisterPatientActivity : AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirAddPatientFragment -> {
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.personal_details)
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragmentLocation -> {
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.location_details)
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.location_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.otherInformationsFragment ->{
-                    binding.headerTextRegisterPatient.text =
-                        resources.getString(R.string.other_info)
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.other_info)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

@@ -65,38 +65,6 @@ class StateMasterRepo @Inject constructor(
             )
         }
 
-//        return withContext(Dispatchers.IO) {
-//            try {
-//                val response = apiService.getStates(request)
-//                val responseBody = response.body()?.string()
-//                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
-//                    200 -> {
-//                        val data = responseBody.let { JSONObject(it).getString("data") }
-//                        val result = Gson().fromJson(data, StateList::class.java)
-//                        NetworkResult.Success(result.stateMaster.associate { it -> it.stateID to it.stateName })
-//                    }
-//                    5002 -> {
-//                        val user = userRepo.getLoggedInUser()!!
-//                        userRepo.refreshTokenTmc(user.userName, user.password)
-//                        getStateList(request)
-//                    }
-//                    else -> {
-//                        NetworkResult.Error(0, responseBody.toString())
-//                    }
-//                }
-//            } catch (e: IOException) {
-//                NetworkResult.Error(-1, "Unable to connect to Internet!")
-//            } catch (e: JSONException) {
-//                NetworkResult.Error(-2, "Invalid response! Please try again!")
-//            } catch (e: SocketTimeoutException) {
-//                NetworkResult.Error(-3, "Request Timed out! Please try again!")
-//            } catch (e: java.lang.Exception) {
-//                NetworkResult.Error(-4, e.message ?: "Unknown Error")
-//            } catch (e: Exception) {
-//                NetworkResult.Error(-4, e.message ?: "exception occured is")
-//            }
-//        }
-
     }
 
     suspend fun saveStateMasterResponseToCache() {
