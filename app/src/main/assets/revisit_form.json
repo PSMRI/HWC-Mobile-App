@@ -1,16 +1,23 @@
 {
   "resourceType": "Questionnaire",
   "title": "Revisit & Refer",
-  "item": [
+  "extension": [
     {
-      "linkId": "Heading",
-      "text": "Revisit & Refer",
-      "type": "group",
-      "item": [
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-itemExtractionContext",
+      "valueExpression": {
+        "language": "application/x-fhir-query",
+        "expression": "Appointment",
+        "name": "appointment"
+      }
+    }
+  ],
+  "item": [
+
     {
       "linkId": "1",
       "text": "Higher Center",
       "type": "choice",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.center",
       "answerValueSet": {
         "reference": "http://terminology.hl7.org/ValueSet/v3-RoleCode"
       },
@@ -68,20 +75,47 @@
     {
       "linkId": "2",
       "text": "Reason for referral",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.description",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "Appointment.description.given",
+            "name": "description"
+          }
+        }
+      ],
       "type": "string"
     },
     {
       "linkId": "3",
       "text": "Revisit Date",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.date",
       "type": "date"
     },
     {
       "linkId": "4",
       "text": "Linkage with other health services",
       "type": "choice",
-      "answerValueSet": {
-        "reference": "http://terminology.hl7.org/ValueSet/v3-ActCode"
-      },
+      "definition": "http://hl7.org/fhir/StructureDefinition/Appointment#Appointment.serviceCategory",
+      "repeats": true,
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "open-choice",
+                "display": "Open choice"
+              }
+            ],
+            "text": "Open choice"
+          }
+        }
+      ],
+
       "answerOption": [
         {
           "valueCoding": {
@@ -103,7 +137,7 @@
         },
         {
           "valueCoding": {
-            "code": "ICTCCentre",
+            "code": "ICTC Centre",
             "display": "ICTC Centre"
           }
         },
@@ -115,13 +149,13 @@
         },
         {
           "valueCoding": {
-            "code": "MCTSECDCallCentre",
-            "display": "MCTS/ECD Call Centre"
+            "code": "MCTS/ECD call Centre",
+            "display": "MCTS/ECD call Centre"
           }
         },
         {
           "valueCoding": {
-            "code": "ICDSServices",
+            "code": "ICDS (AWC) Services",
             "display": "ICDS (AWC) Services"
           }
         },
@@ -133,7 +167,5 @@
         }
       ]
     }
-        ]
-        }
   ]
 }

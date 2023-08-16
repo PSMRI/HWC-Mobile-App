@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -260,6 +261,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideSubVisitEntityCat(database: InAppDb): SubCatVisitDao = database.subCatVisitDao
+
+    @Singleton
+    @Provides
+    fun provideIllnessDropdownEntityDao(database: InAppDb): HistoryDao = database.historyDao
 
 
 //    @Singleton

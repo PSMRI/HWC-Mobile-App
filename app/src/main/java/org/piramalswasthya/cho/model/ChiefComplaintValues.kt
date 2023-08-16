@@ -1,8 +1,9 @@
 package org.piramalswasthya.cho.model
 
 data class ChiefComplaintValues(
-    var chiefComplaint: String,
-    var durationUnit: String,
-    var description: String,
-    var duration: Int,
+    var id: Int = -1,
+    var chiefComplaint: String = "",
+    var duration: String = "",
+    var durationUnit: String = "",
+    var description: String = ""
 )

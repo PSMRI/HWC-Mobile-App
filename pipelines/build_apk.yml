@@ -1,4 +1,5 @@
 stages:
+  - lint
   - build
   - publish
 variables:
@@ -14,14 +15,8 @@ variables:
   # when the script was last modified for latest compileSdkVersion, it was which is written down below
   ANDROID_SDK_TOOLS: "6514223" #$ANDROID_SDK_TOOLS
 # Packages installation before running script
-build:
-  image: openjdk:17-jdk
-  interruptible: true
-  stage: build
-  when: manual
-  tags:
-  - main
-  before_script:
+image: openjdk:17-jdk
+before_script:
     - microdnf -y update 
     - microdnf -y install wget tar unzip libstdc++.i686 zlib.i686
     # Setup path as android_home for moving/exporting the downloaded sdk into it
@@ -46,24 +41,37 @@ build:
     - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
+lint:
+  stage: lint
+  #when: manual
+  tags:
+  - main
   script:
-    # Linting
-    # - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-    # Test
-    #- ./gradlew -Pci --console=plain :app:testDebug
-    # Build
-    - ./gradlew assembleDebug --stacktrace
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+  allow_failure: true
+build:
+  stage: build
+  #when: manual
+  tags:
+  - main
+  script:
+    - ./gradlew assembleDebug
   artifacts:
     paths:
-      - outputs/
+      - app/build/outputs/
 upload-to-package-registry:
   image: alpine
   stage: publish
   needs: ['build']
   tags:
   - main
-  when: manual
+  #when: manual
   before_script:
     - apk update && apk add curl
   script: 
-     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file outputs/* ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+     - ls -al
+     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/debug/app-debug.apk ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.apk'
+workflow:
+  rules:
+     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

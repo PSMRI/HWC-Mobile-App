@@ -1,16 +1,12 @@
 package org.piramalswasthya.cho.repositories
 
-import android.util.Log
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.model.LocationEntity
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -23,13 +19,10 @@ import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
-import org.piramalswasthya.cho.network.TmcLocationDetailsRequest
-import org.piramalswasthya.cho.network.TmcUserDetailsRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 import retrofit2.HttpException
 
 import timber.log.Timber
-import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -288,7 +281,15 @@ class UserRepo @Inject constructor(
         }
 
     }
-
-
+    suspend fun getUserCacheDetails(): UserCache?{
+        return withContext(Dispatchers.IO){
+            try {
+                return@withContext userDao.getLoggedInUser()
+            } catch (e: Exception) {
+                Timber.d("Error in finding loggedIn user $e")
+                return@withContext null
+            }
+        }
+    }
 
 }

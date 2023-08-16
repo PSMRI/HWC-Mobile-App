@@ -58,15 +58,22 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fhirPrescriptionFragment -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
+
+                R.id.fragment_fhir_vitals -> {
+                    binding.headerTextEditPatient.text =
+                        resources.getString(R.string.prescription_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fhirRevisitFormFragment ->{
-                    binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
+                    binding.headerTextEditPatient.text =
+                        resources.getString(R.string.revisit_details_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+
+                R.id.fragment_fhir_revisit_form -> {
+
                 }
             }
         }
