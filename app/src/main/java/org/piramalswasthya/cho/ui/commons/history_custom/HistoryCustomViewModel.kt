@@ -46,25 +46,30 @@ class HistoryCustomViewModel @Inject constructor(
             }
         }
     }
-
-    fun saveIllnessDetailsInfo(observation: List<Observation>){
+    fun saveIllnessORSurgeryDetailsInfo(observation: List<Observation>){
         viewModelScope.launch {
             try{
                 observation.forEach { obs ->
                    var uuid = generateUuid()
                     obs.id = uuid
                     fhirEngine.create(obs)
-                    var getobs = fhirEngine.get(ResourceType.Observation,uuid)
                 }
             } catch (e: Exception){
                 Timber.d("Error in Saving Visit Details Informations")
             }
         }
-
     }
     suspend fun getIllMap(): Map<Int, String> {
         return try {
             maleMasterDataRepository.getIllnessByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    suspend fun getSurgMap(): Map<Int, String> {
+        return try {
+            maleMasterDataRepository.getSurgeryByNameMap()
         } catch (e: Exception) {
             Timber.d("Error in Fetching Map $e")
             emptyMap()
