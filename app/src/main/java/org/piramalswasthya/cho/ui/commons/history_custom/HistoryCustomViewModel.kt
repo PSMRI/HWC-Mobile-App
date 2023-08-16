@@ -53,8 +53,6 @@ class HistoryCustomViewModel @Inject constructor(
                    var uuid = generateUuid()
                     obs.id = uuid
                     fhirEngine.create(obs)
-                    var getobs = fhirEngine.get(ResourceType.Observation,uuid)
-                    Log.d("Aryan","${getobs}")
                 }
             } catch (e: Exception){
                 Timber.d("Error in Saving Visit Details Informations")
