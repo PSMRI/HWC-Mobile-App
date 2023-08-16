@@ -102,11 +102,8 @@ class VillageMasterRepo @Inject constructor(private val villageMasterDao: Villag
         villageMasterDao.insertVillage(villageMaster)
     }
 
-    suspend fun getBlocksByDistrictIdAsMap(blockId: Int): Map<Int, String> {
-        return villageMasterDao.getVillages(blockId).associate { it -> it.districtBranchID to it.villageName }
+    suspend fun getVillagesByBlockId(blockId: Int): List<Village> {
+        return villageMasterDao.getVillages(blockId).map { it -> Village(it.districtBranchID, it.villageName, mapOf()) }
     }
 
-    suspend fun getVillagesByBlockId(blockId: Int): List<VillageMaster> {
-        return villageMasterDao.getVillages(blockId)
-    }
 }

@@ -62,7 +62,6 @@ class RegisterPatientActivity : AppCompatActivity() {
             currFragment.onSubmitAction()
         }
 
-
         binding.btnCancel.setOnClickListener {
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onCancelAction()

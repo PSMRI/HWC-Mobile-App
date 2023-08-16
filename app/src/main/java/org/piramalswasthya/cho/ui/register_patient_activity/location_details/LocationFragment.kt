@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +17,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
+import org.piramalswasthya.cho.adapter.dropdown_adapters.DistrictAdapter
+import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
+import org.piramalswasthya.cho.adapter.dropdown_adapters.VillageAdapter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.databinding.FragmentLocationBinding
 //import org.piramalswasthya.cho.databinding.FragmentLoginSettingBinding
@@ -33,6 +38,7 @@ import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import timber.log.Timber
 import org.piramalswasthya.cho.fhir_utils.extension_names.*
+import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -59,6 +65,8 @@ class LocationFragment : Fragment() , NavigationAdapter {
         FragmentLocationBinding.inflate(layoutInflater)
     }
 
+    private lateinit var viewModel: LocationViewModel
+
     private val extension: FhirExtension = FhirExtension(ResourceType.Patient)
 
     private var stateMap: Map<Int, String>? = null
@@ -81,239 +89,336 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 //
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launch {
-            async { userInfo = userDao.getLoggedInUser() }.await()
-            Log.i("states fetching", "not done")
-            fetchStates()
+//        lifecycleScope.launch {
+//            async { userInfo = userDao.getLoggedInUser() }.await()
+//            Log.i("states fetching", "not done")
+//            fetchStates()
+//        }
+        viewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
+
+//        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+//            viewModel.selectedState = viewModel.stateList[position]
+//            viewModel.updateUserStateId(viewModel.selectedState!!.stateID)
+//            viewModel.fetchDistricts(viewModel.selectedState!!.stateID)
+//            binding.dropdownState.setText(viewModel.selectedState!!.stateName,false)
+//        }
+//
+//        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
+//            viewModel.selectedDistrict = viewModel.districtList[position]
+//            viewModel.updateUserDistrictId(viewModel.selectedDistrict!!.districtID)
+//            viewModel.fetchTaluks(viewModel.selectedDistrict!!.districtID)
+//            binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName,false)
+//        }
+
+        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedBlock = viewModel.blockList[position]
+            viewModel.updateUserBlockId(viewModel.selectedBlock!!.blockID)
+            viewModel.fetchVillageMaster(viewModel.selectedBlock!!.blockID)
+            binding.dropdownTaluk.setText(viewModel.selectedBlock!!.blockName,false)
         }
+
+        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedVillage = viewModel.villageList[position]
+            viewModel.updateUserVillageId(viewModel.selectedVillage!!.districtBranchID)
+            binding.dropdownPanchayat.setText(viewModel.selectedVillage!!.villageName,false)
+        }
+
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state!!) {
+                LocationViewModel.NetworkState.SUCCESS -> {
+                    val statesAdapter = StatesAdapter(requireContext(), R.layout.drop_down, emptyList(), binding.dropdownState)
+                    binding.dropdownState.setAdapter(statesAdapter)
+
+                    if(viewModel.selectedState != null){
+                        binding.dropdownState.setText(viewModel.selectedState!!.stateName, false)
+                    }
+                    else{
+                        binding.dropdownState.setText("", false)
+                    }
+                }
+                else -> {}
+            }
+        }
+
+        viewModel.district.observe(viewLifecycleOwner) { state ->
+            when (state!!) {
+                LocationViewModel.NetworkState.SUCCESS -> {
+                    val districtAdapter = DistrictAdapter(requireContext(), R.layout.drop_down, emptyList(), binding.dropdownDist)
+                    binding.dropdownDist.setAdapter(districtAdapter)
+
+                    if(viewModel.selectedDistrict != null){
+                        binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName, false)
+                    }
+                    else{
+                        binding.dropdownDist.setText("", false)
+                    }
+                }
+                else -> {}
+            }
+        }
+
+        viewModel.block.observe(viewLifecycleOwner) { state ->
+            when (state!!) {
+                LocationViewModel.NetworkState.SUCCESS -> {
+                    val blockAdapter = BlockAdapter(requireContext(), R.layout.drop_down, viewModel.blockList, binding.dropdownTaluk)
+                    binding.dropdownTaluk.setAdapter(blockAdapter)
+
+                    if(viewModel.selectedBlock != null){
+                        binding.dropdownTaluk.setText(viewModel.selectedBlock!!.blockName, false)
+                    }
+                    else{
+                        binding.dropdownTaluk.setText("", false)
+                    }
+                }
+                else -> {}
+            }
+        }
+
+        viewModel.village.observe(viewLifecycleOwner) { state ->
+            when (state!!) {
+                LocationViewModel.NetworkState.SUCCESS -> {
+                    val villageAdapter = VillageAdapter(requireContext(), R.layout.drop_down, viewModel.villageList, binding.dropdownPanchayat)
+                    binding.dropdownPanchayat.setAdapter(villageAdapter)
+
+                    if(viewModel.selectedVillage != null){
+                        binding.dropdownPanchayat.setText(viewModel.selectedVillage!!.villageName, false)
+                    }
+                    else{
+                        binding.dropdownPanchayat.setText("", false)
+                    }
+                }
+                else -> {}
+            }
+        }
+
     }
 
-    private fun fetchStates() {
-        Log.i("states fetching", "done")
-        coroutineScope.launch {
-            try {
-//                val request = LocationRequest(vanID = 153, spPSMID = "64")
-//                val stateData = stateMasterRepo.getStateList(request)
-//                when (stateData){
-//                    is NetworkResult.Success -> {
-                        stateMap = stateMasterRepo.getAllStatesAsMap()
-                        val stateNames = stateMap!!.values.toTypedArray()
-                        binding.dropdownState.setAdapter(ArrayAdapter<String>(requireContext(), R.layout.drop_down, emptyArray()))//                    binding.dropdownState.text = (state.stateName)
-                        if(stateNames.isNotEmpty()) {
-                            if(userInfo != null && userInfo!!.stateID != null && stateMap!!.containsKey(userInfo!!.stateID)){
-                                Log.i("state if", "")
-                                binding.dropdownState.setText(stateMap!![userInfo!!.stateID], false)
-                                selectedState = StateMaster(stateID = userInfo!!.stateID!!, stateName = stateMap!![userInfo!!.stateID]!!)
-                                fetchDistricts(userInfo!!.stateID!!)
-                            }
-                            else{
-                                Log.i("state else", "")
-                                val firstState = stateMap!!.entries.toList()[0]
-                                selectedState = StateMaster(stateID = firstState.key, stateName = firstState.value!!)
-                                binding.dropdownState.setText(firstState.value, false)
-                                coroutineScope.launch {
-                                    if(updateUserStateId(firstState.key) > 0 && userInfo != null){
-                                        userInfo!!.stateID = firstState.key
-                                    }
-                                }
-                                fetchDistricts(firstState.key)
-                            }
-                        }
-//                        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
-//                            val selectedStateId = stateMap!!.keys.toList()[position]
+//    private fun fetchStates() {
+//        Log.i("states fetching", "done")
+//        coroutineScope.launch {
+//            try {
+////                val request = LocationRequest(vanID = 153, spPSMID = "64")
+////                val stateData = stateMasterRepo.getStateList(request)
+////                when (stateData){
+////                    is NetworkResult.Success -> {
+//                        stateMap = stateMasterRepo.getAllStatesAsMap()
+//                        val stateNames = stateMap!!.values.toTypedArray()
+//                        binding.dropdownState.setAdapter(ArrayAdapter<String>(requireContext(), R.layout.drop_down, emptyArray()))//                    binding.dropdownState.text = (state.stateName)
+//                        if(stateNames.isNotEmpty()) {
+//                            if(userInfo != null && userInfo!!.stateID != null && stateMap!!.containsKey(userInfo!!.stateID)){
+//                                Log.i("state if", "")
+//                                binding.dropdownState.setText(stateMap!![userInfo!!.stateID], false)
+//                                selectedState = StateMaster(stateID = userInfo!!.stateID!!, stateName = stateMap!![userInfo!!.stateID]!!)
+//                                fetchDistricts(userInfo!!.stateID!!)
+//                            }
+//                            else{
+//                                Log.i("state else", "")
+//                                val firstState = stateMap!!.entries.toList()[0]
+//                                selectedState = StateMaster(stateID = firstState.key, stateName = firstState.value!!)
+//                                binding.dropdownState.setText(firstState.value, false)
+//                                coroutineScope.launch {
+//                                    if(updateUserStateId(firstState.key) > 0 && userInfo != null){
+//                                        userInfo!!.stateID = firstState.key
+//                                    }
+//                                }
+//                                fetchDistricts(firstState.key)
+//                            }
+//                        }
+////                        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+////                            val selectedStateId = stateMap!!.keys.toList()[position]
+////                            coroutineScope.launch {
+////                                if(updateUserStateId(selectedStateId) > 0 && userInfo != null){
+////                                    userInfo!!.stateID = selectedStateId
+////                                }
+////                            }
+////                            fetchDistricts(selectedStateId)
+////                        }
+////                    }
+////
+////                    else -> {
+////
+////                    }
+////                }
+//
+//            } catch (e: Exception) {
+//                Timber.d("Fetching states failed ${e.message}")
+//            }
+//        }
+//    }
+//
+//    private suspend fun updateUserStateId(stateId : Int) : Int{
+//        return userDao.updateUserStateId(stateId)
+//    }
+//
+//    private fun fetchDistricts(selectedStateId: Int) {
+//
+//        coroutineScope.launch {
+//            try {
+//
+////                val districtData = districtMasterRepo.districtMasterService(selectedStateId)
+////                when (districtData){
+////                    is NetworkResult.Success -> {
+//                        districtMap = districtMasterRepo.getDistrictsByStateIdAsMap(selectedStateId)
+//                        val districtNames = districtMap!!.values.toTypedArray()
+//                        binding.dropdownDist.setAdapter(ArrayAdapter<String>(requireContext(), R.layout.drop_down, emptyArray()))//                    binding.dropdownState.text = (state.stateName)
+//                        if(districtNames.isNotEmpty()) {
+//                            if(userInfo != null && userInfo!!.districtID != null && districtMap!!.containsKey(userInfo!!.districtID)){
+//                                Log.i("district if", "")
+//                                binding.dropdownDist.setText(districtMap!![userInfo!!.districtID], false)
+//                                selectedDistrict = DistrictMaster(districtID = userInfo!!.districtID!!, stateID = selectedStateId, districtName = districtMap!![userInfo!!.districtID]!!)
+//                                fetchTaluks(userInfo!!.districtID!!)
+//                            }
+//                            else{
+//                                Log.i("district else", "")
+//                                val firstDistrict = districtMap!!.entries.toList()[0]
+//                                selectedDistrict = DistrictMaster(districtID = firstDistrict.key, stateID = selectedStateId, districtName = firstDistrict.value)
+//                                binding.dropdownDist.setText(firstDistrict.value, false)
+//                                coroutineScope.launch {
+//                                    if(updateUserDistrictId(firstDistrict.key) > 0 && userInfo != null){
+//                                        userInfo!!.districtID = firstDistrict.key
+//                                    }
+//                                }
+//                                fetchTaluks(firstDistrict.key)
+//                            }
+//                        }
+////                        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
+////                            val selectedDistrictId = districtMap!!.keys.toList()[position]
+////                            coroutineScope.launch {
+////                                if(updateUserDistrictId(selectedDistrictId) > 0 && userInfo != null){
+////                                    userInfo!!.districtID = selectedDistrictId
+////                                }
+////                            }
+////                            fetchTaluks(selectedDistrictId)
+////                        }
+////                    }
+////
+////                    else -> {
+////
+////                    }
+////                }
+//
+//            } catch (e: Exception) {
+//                Timber.d("Fetching Districts failed ${e.message}")
+//            }
+//        }
+//    }
+//
+//    private suspend fun updateUserDistrictId(districtId : Int) : Int{
+//        return userDao.updateUserDistrictId(districtId)
+//    }
+//
+//    private fun fetchTaluks(selectedDistrictId: Int) {
+//
+//        coroutineScope.launch {
+//            try {
+//                // Find the selected state by name
+////                val blockData = blockMasterRepo.blockMasterService(selectedDistrictId)
+////                when (blockData){
+////                    is NetworkResult.Success -> {
+//                        blockMap = blockMasterRepo.getBlocksByDistrictIdAsMap(selectedDistrictId)
+//                        val blockNames = blockMap!!.values.toTypedArray()
+//                        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))//                    binding.dropdownState.text = (state.stateName)
+//                        if(blockNames.isNotEmpty()) {
+//                            if(userInfo != null && userInfo!!.blockID != null && blockMap!!.containsKey(userInfo!!.blockID)){
+//                                Log.i("district if", "")
+//                                selectedBlock = BlockMaster(blockID = userInfo!!.blockID!!, districtID = selectedDistrictId, blockName = blockMap!![userInfo!!.blockID]!!)
+//                                binding.dropdownTaluk.setText(blockMap!![userInfo!!.blockID], false)
+//                                fetchVillageMaster(userInfo!!.blockID!!)
+//                            }
+//                            else{
+//                                Log.i("district else", "")
+//                                val firstBlock = blockMap!!.entries.toList()[0]
+//                                selectedBlock = BlockMaster(blockID = firstBlock.key, districtID = selectedDistrictId, blockName = firstBlock.value)
+//                                binding.dropdownTaluk.setText(firstBlock.value, false)
+//                                coroutineScope.launch {
+//                                    if(updateUserBlockId(firstBlock.key) > 0 && userInfo != null){
+//                                        userInfo!!.blockID = firstBlock.key
+//                                    }
+//                                }
+//                                fetchVillageMaster(firstBlock.key)
+//                            }
+//                        }
+//                        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+//                            val selectedBlockId = blockMap!!.keys.toList()[position]
+//                            selectedBlock = BlockMaster(blockID = selectedBlockId, districtID = selectedDistrictId, blockName = blockMap!![selectedBlockId]!!)
 //                            coroutineScope.launch {
-//                                if(updateUserStateId(selectedStateId) > 0 && userInfo != null){
-//                                    userInfo!!.stateID = selectedStateId
+//                                if(updateUserBlockId(selectedBlockId) > 0 && userInfo != null){
+//                                    userInfo!!.blockID = selectedBlockId
 //                                }
 //                            }
-//                            fetchDistricts(selectedStateId)
+//                            fetchVillageMaster(selectedBlockId)
 //                        }
-//                    }
+////                    }
+////
+////                    else -> {
+////
+////                    }
+////                }
 //
-//                    else -> {
+//            } catch (e: Exception) {
+//                Timber.d("Fetching Taluks failed ${e.message}")
+//            }
+//        }
+//    }
 //
-//                    }
-//                }
-
-            } catch (e: Exception) {
-                Timber.d("Fetching states failed ${e.message}")
-            }
-        }
-    }
-
-    private suspend fun updateUserStateId(stateId : Int) : Int{
-        return userDao.updateUserStateId(stateId)
-    }
-
-    private fun fetchDistricts(selectedStateId: Int) {
-
-        coroutineScope.launch {
-            try {
-
-//                val districtData = districtMasterRepo.districtMasterService(selectedStateId)
-//                when (districtData){
-//                    is NetworkResult.Success -> {
-                        districtMap = districtMasterRepo.getDistrictsByStateIdAsMap(selectedStateId)
-                        val districtNames = districtMap!!.values.toTypedArray()
-                        binding.dropdownDist.setAdapter(ArrayAdapter<String>(requireContext(), R.layout.drop_down, emptyArray()))//                    binding.dropdownState.text = (state.stateName)
-                        if(districtNames.isNotEmpty()) {
-                            if(userInfo != null && userInfo!!.districtID != null && districtMap!!.containsKey(userInfo!!.districtID)){
-                                Log.i("district if", "")
-                                binding.dropdownDist.setText(districtMap!![userInfo!!.districtID], false)
-                                selectedDistrict = DistrictMaster(districtID = userInfo!!.districtID!!, stateID = selectedStateId, districtName = districtMap!![userInfo!!.districtID]!!)
-                                fetchTaluks(userInfo!!.districtID!!)
-                            }
-                            else{
-                                Log.i("district else", "")
-                                val firstDistrict = districtMap!!.entries.toList()[0]
-                                selectedDistrict = DistrictMaster(districtID = firstDistrict.key, stateID = selectedStateId, districtName = firstDistrict.value)
-                                binding.dropdownDist.setText(firstDistrict.value, false)
-                                coroutineScope.launch {
-                                    if(updateUserDistrictId(firstDistrict.key) > 0 && userInfo != null){
-                                        userInfo!!.districtID = firstDistrict.key
-                                    }
-                                }
-                                fetchTaluks(firstDistrict.key)
-                            }
-                        }
-//                        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
-//                            val selectedDistrictId = districtMap!!.keys.toList()[position]
-//                            coroutineScope.launch {
-//                                if(updateUserDistrictId(selectedDistrictId) > 0 && userInfo != null){
-//                                    userInfo!!.districtID = selectedDistrictId
+//    private suspend fun updateUserBlockId(blockId : Int) : Int{
+//        return userDao.updateUserBlockId(blockId)
+//    }
+//
+//    private fun fetchVillageMaster(selectedBlockId: Int, ) {
+//
+//        coroutineScope.launch {
+//            try {
+//                // Find the selected state by name
+////                val villageData = villageMasterRepo.villageMasterService(selectedBlockId)
+////                when (villageData){
+////                    is NetworkResult.Success -> {
+//                        villageMap = villageMasterRepo.getBlocksByDistrictIdAsMap(selectedBlockId)
+//                        val villageNames = villageMap!!.values.toTypedArray()
+//                        binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))//                    binding.dropdownState.text = (state.stateName)
+//                        if(villageNames.isNotEmpty()) {
+//                            if(userInfo != null && userInfo!!.districtBranchID != null && villageMap!!.containsKey(userInfo!!.districtBranchID)){
+//                                Log.i("village if", "")
+//                                selectedVillage = VillageMaster(districtBranchID = userInfo!!.districtBranchID!!, blockID = selectedBlockId, villageName = villageMap!![userInfo!!.districtBranchID]!!)
+//                                binding.dropdownPanchayat.setText(villageMap!![userInfo!!.districtBranchID], false)
+//                            }
+//                            else{
+//                                Log.i("village else", "")
+//                                val firstVillage = villageMap!!.entries.toList()[0]
+//                                binding.dropdownPanchayat.setText(firstVillage.value, false)
+//                                selectedVillage = VillageMaster(districtBranchID = firstVillage.key, blockID = selectedBlockId, villageName = firstVillage.value)
+//                                coroutineScope.launch {
+//                                    if(updateUserVillageId(firstVillage.key) > 0 && userInfo != null){
+//                                        userInfo!!.districtBranchID = firstVillage.key
+//                                    }
 //                                }
 //                            }
-//                            fetchTaluks(selectedDistrictId)
 //                        }
-//                    }
+//                        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
+//                            val selectedVillageId = villageMap!!.keys.toList()[position]
+//                            selectedVillage = VillageMaster(districtBranchID = selectedVillageId, blockID = selectedBlockId, villageName = villageMap!![selectedVillageId]!!)
+//                            coroutineScope.launch {
+//                                if(updateUserVillageId(selectedVillageId) > 0 && userInfo != null){
+//                                    userInfo!!.districtBranchID = selectedVillageId
+//                                }
+//                            }
+//                        }
+////                    }
+////
+////                    else -> {
+////
+////                    }
+////                }
 //
-//                    else -> {
+//            } catch (e: Exception) {
+//                Timber.d("Fetching villages failed ${e.message}")
+//            }
+//        }
+//    }
 //
-//                    }
-//                }
-
-            } catch (e: Exception) {
-                Timber.d("Fetching Districts failed ${e.message}")
-            }
-        }
-    }
-
-    private suspend fun updateUserDistrictId(districtId : Int) : Int{
-        return userDao.updateUserDistrictId(districtId)
-    }
-
-    private fun fetchTaluks(selectedDistrictId: Int) {
-
-        coroutineScope.launch {
-            try {
-                // Find the selected state by name
-//                val blockData = blockMasterRepo.blockMasterService(selectedDistrictId)
-//                when (blockData){
-//                    is NetworkResult.Success -> {
-                        blockMap = blockMasterRepo.getBlocksByDistrictIdAsMap(selectedDistrictId)
-                        val blockNames = blockMap!!.values.toTypedArray()
-                        binding.dropdownTaluk.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, blockNames))//                    binding.dropdownState.text = (state.stateName)
-                        if(blockNames.isNotEmpty()) {
-                            if(userInfo != null && userInfo!!.blockID != null && blockMap!!.containsKey(userInfo!!.blockID)){
-                                Log.i("district if", "")
-                                selectedBlock = BlockMaster(blockID = userInfo!!.blockID!!, districtID = selectedDistrictId, blockName = blockMap!![userInfo!!.blockID]!!)
-                                binding.dropdownTaluk.setText(blockMap!![userInfo!!.blockID], false)
-                                fetchVillageMaster(userInfo!!.blockID!!)
-                            }
-                            else{
-                                Log.i("district else", "")
-                                val firstBlock = blockMap!!.entries.toList()[0]
-                                selectedBlock = BlockMaster(blockID = firstBlock.key, districtID = selectedDistrictId, blockName = firstBlock.value)
-                                binding.dropdownTaluk.setText(firstBlock.value, false)
-                                coroutineScope.launch {
-                                    if(updateUserBlockId(firstBlock.key) > 0 && userInfo != null){
-                                        userInfo!!.blockID = firstBlock.key
-                                    }
-                                }
-                                fetchVillageMaster(firstBlock.key)
-                            }
-                        }
-                        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
-                            val selectedBlockId = blockMap!!.keys.toList()[position]
-                            selectedBlock = BlockMaster(blockID = selectedBlockId, districtID = selectedDistrictId, blockName = blockMap!![selectedBlockId]!!)
-                            coroutineScope.launch {
-                                if(updateUserBlockId(selectedBlockId) > 0 && userInfo != null){
-                                    userInfo!!.blockID = selectedBlockId
-                                }
-                            }
-                            fetchVillageMaster(selectedBlockId)
-                        }
-//                    }
-//
-//                    else -> {
-//
-//                    }
-//                }
-
-            } catch (e: Exception) {
-                Timber.d("Fetching Taluks failed ${e.message}")
-            }
-        }
-    }
-
-    private suspend fun updateUserBlockId(blockId : Int) : Int{
-        return userDao.updateUserBlockId(blockId)
-    }
-
-    private fun fetchVillageMaster(selectedBlockId: Int, ) {
-
-        coroutineScope.launch {
-            try {
-                // Find the selected state by name
-//                val villageData = villageMasterRepo.villageMasterService(selectedBlockId)
-//                when (villageData){
-//                    is NetworkResult.Success -> {
-                        villageMap = villageMasterRepo.getBlocksByDistrictIdAsMap(selectedBlockId)
-                        val villageNames = villageMap!!.values.toTypedArray()
-                        binding.dropdownPanchayat.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, villageNames))//                    binding.dropdownState.text = (state.stateName)
-                        if(villageNames.isNotEmpty()) {
-                            if(userInfo != null && userInfo!!.districtBranchID != null && villageMap!!.containsKey(userInfo!!.districtBranchID)){
-                                Log.i("village if", "")
-                                selectedVillage = VillageMaster(districtBranchID = userInfo!!.districtBranchID!!, blockID = selectedBlockId, villageName = villageMap!![userInfo!!.districtBranchID]!!)
-                                binding.dropdownPanchayat.setText(villageMap!![userInfo!!.districtBranchID], false)
-                            }
-                            else{
-                                Log.i("village else", "")
-                                val firstVillage = villageMap!!.entries.toList()[0]
-                                binding.dropdownPanchayat.setText(firstVillage.value, false)
-                                selectedVillage = VillageMaster(districtBranchID = firstVillage.key, blockID = selectedBlockId, villageName = firstVillage.value)
-                                coroutineScope.launch {
-                                    if(updateUserVillageId(firstVillage.key) > 0 && userInfo != null){
-                                        userInfo!!.districtBranchID = firstVillage.key
-                                    }
-                                }
-                            }
-                        }
-                        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
-                            val selectedVillageId = villageMap!!.keys.toList()[position]
-                            selectedVillage = VillageMaster(districtBranchID = selectedVillageId, blockID = selectedBlockId, villageName = villageMap!![selectedVillageId]!!)
-                            coroutineScope.launch {
-                                if(updateUserVillageId(selectedVillageId) > 0 && userInfo != null){
-                                    userInfo!!.districtBranchID = selectedVillageId
-                                }
-                            }
-                        }
-//                    }
-//
-//                    else -> {
-//
-//                    }
-//                }
-
-            } catch (e: Exception) {
-                Timber.d("Fetching villages failed ${e.message}")
-            }
-        }
-    }
-
-    private suspend fun updateUserVillageId(districtBranchId : Int) : Int{
-        return userDao.updateUserVillageId(districtBranchId)
-    }
+//    private suspend fun updateUserVillageId(districtBranchId : Int) : Int{
+//        return userDao.updateUserVillageId(districtBranchId)
+//    }
 
 //    private fun fetchStates() {
 //        Log.i("states fetching", "done")

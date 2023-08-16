@@ -112,8 +112,8 @@ class StateMasterRepo @Inject constructor(
         stateMasterDao.insertStates(stateMaster)
     }
 
-    suspend fun getAllStatesAsMap(): Map<Int, String> {
-        return stateMasterDao.getAllStates().associate { it -> it.stateID to it.stateName }
+    suspend fun getAllStates(): List<State> {
+        return stateMasterDao.getAllStates().map { it -> State(it.stateID, it.stateName) }
     }
 
     suspend fun getCachedResponseLang(): List<StateMaster> {

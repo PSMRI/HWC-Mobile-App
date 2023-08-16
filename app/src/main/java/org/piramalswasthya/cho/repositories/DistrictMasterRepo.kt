@@ -99,11 +99,8 @@ class DistrictMasterRepo @Inject constructor(private val districtMasterDao: Dist
         districtMasterDao.insertDistrict(districtMaster)
     }
 
-    suspend fun getDistrictsByStateIdAsMap(stateId: Int): Map<Int, String> {
-        return districtMasterDao.getDistricts(stateId).associate { it -> it.districtID to it.districtName }
+    suspend fun getDistrictsByStateId(stateId: Int): List<District> {
+        return districtMasterDao.getDistricts(stateId).map { it -> District(it.districtID, it.districtName) }
     }
 
-    suspend fun getDistrictsByStateId(stateId: Int): List<DistrictMaster> {
-        return districtMasterDao.getDistricts(stateId)
-    }
 }
