@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -217,19 +216,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
             if(bmi > 25 && bmi < 30){
                 binding.bmiCategory.isVisible = true
-                binding.bmiCategory.text = "*Overweight"
+                binding.bmiCategory.text = getString(R.string.overweight_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else if (bmi > 30){
                 binding.bmiCategory.isVisible = true
-                binding.bmiCategory.text = "*Obese"
+                binding.bmiCategory.text = getString(R.string.obese_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else{
                 binding.bmiCategory.isVisible = true
-                binding.bmiCategory.text = "*Normal"
+                binding.bmiCategory.text = getString(R.string.normal_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.black))
             }

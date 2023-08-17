@@ -281,6 +281,9 @@
     <string name="respiratoryrate">respiratoryRate</string>
     <string name="rbstestresult">rbsTestResult</string>
     <string name="vitals_information_is_saved">Vitals information is saved.</string>
+    <string name="overweight_txt">*Overweight</string>
+    <string name="obese_txt">*Obese</string>
+    <string name="normal_txt">*Normal</string>
 
 
 </resources>
