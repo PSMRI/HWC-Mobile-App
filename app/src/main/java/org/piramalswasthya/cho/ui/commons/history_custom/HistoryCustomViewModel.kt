@@ -10,6 +10,7 @@ import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
@@ -53,7 +54,18 @@ class HistoryCustomViewModel @Inject constructor(
                     observation.id = uuid
                     fhirEngine.create(observation)
             } catch (e: Exception){
-                Timber.d("Error in Saving Visit Details Informations")
+                Timber.d("Error in Saving Illness Details Informations")
+            }
+        }
+    }
+    fun saveMedicationDetailsInfo(medicationRequest: MedicationRequest){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                medicationRequest.id = uuid
+                fhirEngine.create(medicationRequest)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Medication Details Informations")
             }
         }
     }

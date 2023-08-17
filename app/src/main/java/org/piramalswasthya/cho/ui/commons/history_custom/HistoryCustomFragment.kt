@@ -441,12 +441,16 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     }
     fun navigateNext(){
         addPastIllnessAndSurgeryData()
+        addMedicationData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
     }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
+    }
+    private fun addMedicationData(){
+
     }
 
     private fun addPastIllnessAndSurgeryData() {
