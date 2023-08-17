@@ -99,13 +99,13 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var allgTag = mutableListOf<String>()
     private var listOfObservation = mutableListOf<Observation>()
     private var illnessMap = emptyMap<Int,String>()
+    private var doseTypeMap = emptyMap<Int,String>()
+    private var vaccineTypeMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
 
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
-    private lateinit var dropdownVT: AutoCompleteTextView
-    private lateinit var dropdownDT: AutoCompleteTextView
     private var userInfo: UserCache? = null
 
     override fun onCreateView(
@@ -179,6 +179,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         }
         lifecycleScope.launch {
             illnessMap = viewModel.getIllMap()
+        }
+        lifecycleScope.launch {
+            doseTypeMap = viewModel.getDoseTypeMap()
+        }
+        lifecycleScope.launch {
+            vaccineTypeMap = viewModel.getVaccineTypeMap()
         }
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
@@ -443,18 +449,43 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     fun navigateNext(){
         addPastIllnessData()
         viewModel.saveIllnessDetailsInfo(listOfObservation)
-       // addCovidData()
+        addCovidData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
     }
-//    private fun addCovidData(){
-//        val immunization = Immunization()
-//        if(binding.vStatusText.text.isNotEmpty()!! && binding.vTypeText.text.isNotEmpty()!! && binding.doseTakenText.text.isNotEmpty())
-//        {
-//            val i
-//        }
-//    }
+    private fun addCovidData(){
+        val immunization = Immunization()
+        val vaccineStatusVal = binding.vStatusText
+        val vaccineTypeVal = binding.vTypeText
+        val doseVal = binding.doseTakenText
+        if(vaccineStatusVal?.text?.isNotEmpty()!! && vaccineTypeVal?.text?.isNotEmpty()!! && doseVal.text.isNotEmpty())
+        {
+            val vaccId = findKeyByValue(vaccineTypeMap,vaccineTypeVal.text.toString())
+            val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
+
+            immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
+            // Vaccine Code
+            val vaccineCoding = Coding()
+            vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
+            vaccineCoding.code = "213"
+            val vaccineCode = CodeableConcept()
+            vaccineCode.coding = listOf(vaccineCoding)
+            vaccineCode.text = vaccId.toString()
+            immunization.vaccineCode = vaccineCode
+
+            // Patient Reference
+            val patientReference = Reference()
+            patientReference.reference = "Patient/11090786"
+            immunization.patient = patientReference
+
+            // Protocol Applied (Dose Number)
+            val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
+            immunization.protocolApplied = listOf(protocolApplied)
+            viewModel.saveCovidDetailsInfo(immunization)
+            addExtensionsToImmunizationResources(immunization)
+        }
+    }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
@@ -522,6 +553,27 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
             observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(createdBy),
+                observationExtension.getStringType(userInfo!!.userName) ) )
+        }
+    }
+    private fun addExtensionsToImmunizationResources(
+        immunization: Immunization,
+    ) {
+        if (userInfo != null) {
+            immunization.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(vanID),
+                observationExtension.getStringType(userInfo!!.vanId.toString()) ) )
+
+            immunization.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(parkingPlaceID),
+                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+
+            immunization.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(providerServiceMapId),
+                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+
+            immunization.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(createdBy),
                 observationExtension.getStringType(userInfo!!.userName) ) )
         }

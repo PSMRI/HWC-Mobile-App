@@ -74,4 +74,15 @@ class VaccineAndDoseTypeRepo @Inject constructor(
         return vaccinationTypeAndDoseDao.getDoseType()
     }
 
+    suspend fun getVaccineTypeByNameMap():Map<Int,String>{
+        return vaccinationTypeAndDoseDao.getVaccineTypeMasterMap().associate {
+            it.covidVaccineTypeID to it.vaccineType
+        }
+    }
+    suspend fun getDoseTypeByNameMap():Map<Int,String>{
+        return vaccinationTypeAndDoseDao.getDoseTypeMasterMap().associate {
+            it.covidDoseTypeID to it.doseType
+        }
+    }
+
 }

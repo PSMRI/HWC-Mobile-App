@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.VaccineType
 
 
@@ -22,4 +23,10 @@ interface VaccinationTypeAndDoseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDoseType(doseType: DoseType)
+
+    @Query("select * from VACCINE_TYPE")
+    suspend fun getVaccineTypeMasterMap():List<VaccineType>
+
+    @Query("select * from DOSE_TYPE")
+    suspend fun getDoseTypeMasterMap():List<DoseType>
 }

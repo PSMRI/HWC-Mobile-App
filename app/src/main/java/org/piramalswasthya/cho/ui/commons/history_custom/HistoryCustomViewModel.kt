@@ -10,6 +10,7 @@ import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Immunization
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
@@ -97,11 +98,39 @@ class HistoryCustomViewModel @Inject constructor(
                 Timber.d("Error in Saving Visit Details Informations")
             }
         }
-
+    }
+    fun saveCovidDetailsInfo(immunization: Immunization){
+        viewModelScope.launch {
+            try{
+                    var uuid = generateUuid()
+                    immunization.id = uuid
+                    fhirEngine.create(immunization)
+                    var getobs = fhirEngine.get(ResourceType.Immunization,uuid)
+                Log.d("ARyan","$getobs")
+            } catch (e: Exception){
+                Timber.d("Error in Saving Visit Details Informations")
+            }
+        }
     }
     suspend fun getIllMap(): Map<Int, String> {
         return try {
             maleMasterDataRepository.getIllnessByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    suspend fun getDoseTypeMap(): Map<Int, String> {
+        return try {
+            vaccineAndDoseTypeRepo.getDoseTypeByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    suspend fun getVaccineTypeMap(): Map<Int, String> {
+        return try {
+            vaccineAndDoseTypeRepo.getVaccineTypeByNameMap()
         } catch (e: Exception) {
             Timber.d("Error in Fetching Map $e")
             emptyMap()

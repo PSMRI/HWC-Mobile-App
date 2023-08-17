@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.fhir_utils
 
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.Immunization
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.Type
 import org.hl7.fhir.r4.model.ResourceType
@@ -12,6 +13,7 @@ private const val appointmentUrl : String = "http://hl7.org/fhir/StructureDefini
 private const val encounterUrl : String = "http://hl7.org/fhir/StructureDefinition/Encounter#Encounter"
 private const val conditionUrl : String = "http://hl7.org/fhir/StructureDefinition/Condition#Condition"
 private const val observationUrl : String = "http://hl7.org/fhir/StructureDefinition/Observation#Observation"
+private const val immunizationUrl : String = "http://hl7.org/fhir/StructureDefinition/Immunization#Immunization"
 
 class FhirExtension constructor(resourceType : ResourceType){
 
@@ -21,6 +23,7 @@ class FhirExtension constructor(resourceType : ResourceType){
         ResourceType.Condition -> conditionUrl
         ResourceType.Encounter -> encounterUrl
         ResourceType.Observation -> observationUrl
+        ResourceType.Immunization-> immunizationUrl
         else -> {
             ""
         }
