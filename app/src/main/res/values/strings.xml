@@ -284,6 +284,9 @@
     <string name="overweight_txt">*Overweight</string>
     <string name="obese_txt">*Obese</string>
     <string name="normal_txt">*Normal</string>
+    <string name="higher_center">Higher Center</string>
+    <string name="reason_for_referral">Reason for referral</string>
+    <string name="linkage_with_other_health_services">Linkage with other health services</string>
 
 
 </resources>
