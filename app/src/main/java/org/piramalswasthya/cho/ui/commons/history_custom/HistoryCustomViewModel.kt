@@ -46,14 +46,12 @@ class HistoryCustomViewModel @Inject constructor(
             }
         }
     }
-    fun saveIllnessORSurgeryDetailsInfo(observation: List<Observation>){
+    fun saveIllnessORSurgeryDetailsInfo(observation: Observation){
         viewModelScope.launch {
             try{
-                observation.forEach { obs ->
                    var uuid = generateUuid()
-                    obs.id = uuid
-                    fhirEngine.create(obs)
-                }
+                    observation.id = uuid
+                    fhirEngine.create(observation)
             } catch (e: Exception){
                 Timber.d("Error in Saving Visit Details Informations")
             }
