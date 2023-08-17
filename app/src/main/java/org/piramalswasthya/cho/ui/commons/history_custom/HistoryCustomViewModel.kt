@@ -91,7 +91,7 @@ class HistoryCustomViewModel @Inject constructor(
                     observation.id = uuid
                     fhirEngine.create(observation)
             } catch (e: Exception){
-                Timber.d("Error in Saving Visit Details Informations")
+                Timber.d("Error in Saving Illness and Surgery Details Informations")
             }
         }
     }
@@ -102,7 +102,7 @@ class HistoryCustomViewModel @Inject constructor(
                     immunization.id = uuid
                     fhirEngine.create(immunization)
             } catch (e: Exception){
-                Timber.d("Error in Saving Visit Details Informations")
+                Timber.d("Error in Saving Covid Details Informations")
             }
         }
     }
