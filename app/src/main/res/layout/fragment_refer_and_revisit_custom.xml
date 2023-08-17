@@ -2,10 +2,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragment_vitals_info"
+    android:id="@+id/refer_revisit_custom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.commons.history_custom.HistoryCustomFragment">
+    >
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
