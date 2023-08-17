@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -50,7 +51,7 @@ class VaccineAndDoseTypeRepo @Inject constructor(
         }
     }
 
-    suspend fun getVaccineTypeCachedResponse(): List<VaccineType> {
+     fun getVaccineTypeCachedResponse(): LiveData<List<VaccineType>> {
         return vaccinationTypeAndDoseDao.getVaccineType()
     }
 
@@ -69,7 +70,7 @@ class VaccineAndDoseTypeRepo @Inject constructor(
         }
     }
 
-    suspend fun getDoseTypeCachedResponse(): List<DoseType> {
+     fun getDoseTypeCachedResponse(): LiveData<List<DoseType>> {
         return vaccinationTypeAndDoseDao.getDoseType()
     }
 

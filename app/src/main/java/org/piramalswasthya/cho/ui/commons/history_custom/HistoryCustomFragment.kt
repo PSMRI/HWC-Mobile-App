@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.Immunization
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
@@ -65,18 +66,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     )
     private val vaccinationStatus = arrayOf(
         "Yes","No"
-    )
-    private val vaccType = arrayOf(
-                "Covaxine",
-                "Covishield",
-                "Sputnik",
-                "Corbevax"
-    )
-
-    private val doseTaken = arrayOf(
-        "1st Dose",
-        "2st Dose",
-        "Precautionary/Booster Dose"
     )
 
 
@@ -145,16 +134,30 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
 
         dropdownAgeG = binding.ageGrText
         dropdownVS = binding.vStatusText
-        dropdownVT = binding.vTypeText
-        dropdownDT = binding.doseTakenText
+
         val ageAAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AgeGroup)
         dropdownAgeG.setAdapter(ageAAdapter)
         val vacAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaccinationStatus)
         dropdownVS.setAdapter(vacAdapter)
-        val vacTAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaccType)
-        dropdownVT.setAdapter(vacTAdapter)
-        val doseAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, doseTaken)
-        dropdownDT.setAdapter(doseAdapter)
+
+        val vacTAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.vStatusText.setAdapter(vacTAdapter)
+
+        viewModel.vaccinationTypeDropdown.observe(viewLifecycleOwner){vc->
+            vacTAdapter.clear()
+            vacTAdapter.addAll(vc.map{it.vaccineType})
+            vacTAdapter.notifyDataSetChanged()
+        }
+
+        val doseAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.doseTakenText.setAdapter(doseAdapter)
+
+        viewModel.doseTypeDropdown.observe(viewLifecycleOwner){dose->
+            doseAdapter.clear()
+            doseAdapter.addAll(dose.map{it.doseType})
+            doseAdapter.notifyDataSetChanged()
+        }
+
         binding.btnPreviousHistory.setOnClickListener {
             openIllnessDialogBox()
         }
@@ -439,10 +442,18 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     fun navigateNext(){
         addPastIllnessData()
         viewModel.saveIllnessDetailsInfo(listOfObservation)
+       // addCovidData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
     }
+//    private fun addCovidData(){
+//        val immunization = Immunization()
+//        if(binding.vStatusText.text.isNotEmpty()!! && binding.vTypeText.text.isNotEmpty()!! && binding.doseTakenText.text.isNotEmpty())
+//        {
+//            val i
+//        }
+//    }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -11,13 +12,13 @@ import org.piramalswasthya.cho.model.VaccineType
 @Dao
 interface VaccinationTypeAndDoseDao {
     @Query("SELECT * FROM VACCINE_TYPE")
-    suspend fun getVaccineType(): List<VaccineType>
+     fun getVaccineType(): LiveData<List<VaccineType>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVaccineType(vaccineType: VaccineType)
 
     @Query("SELECT * FROM DOSE_TYPE")
-    suspend fun getDoseType(): List<DoseType>
+     fun getDoseType(): LiveData<List<DoseType>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDoseType(doseType: DoseType)

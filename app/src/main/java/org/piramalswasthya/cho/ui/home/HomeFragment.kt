@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
+import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -37,6 +38,9 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var malMasterDataRepo: MaleMasterDataRepository
 
+    @Inject
+    lateinit var vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo
+
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
         get() = _binding!!
@@ -55,7 +59,8 @@ class HomeFragment : Fragment() {
                 malMasterDataRepo.getMasterDataForNurse()
                 registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
                 registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-
+                vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+                vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             }
             catch (e : Exception){
 
