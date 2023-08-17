@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.history_custom
 
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.IllnessDialogFragment
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -141,7 +142,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         dropdownVS.setAdapter(vacAdapter)
 
         val vacTAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
-        binding.vStatusText.setAdapter(vacTAdapter)
+        binding.vTypeText.setAdapter(vacTAdapter)
 
         viewModel.vaccinationTypeDropdown.observe(viewLifecycleOwner){vc->
             vacTAdapter.clear()
