@@ -75,7 +75,7 @@ import timber.log.Timber
         TobaccoDropdown::class
     ],
 //    views = [BenBasicCache::class],
-    version = 28, exportSchema = false
+    version = 23, exportSchema = false
 )
 
 

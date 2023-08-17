@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.model
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -375,6 +377,7 @@ data class EsanjeevniPatient(
     val lstPatientContactDetail: List<EsanjeevniPatientContactDetails>,
     val source : String
 ){
+    @RequiresApi(Build.VERSION_CODES.O)
     constructor(fhirPatient: Patient) : this(
         "",
         "",

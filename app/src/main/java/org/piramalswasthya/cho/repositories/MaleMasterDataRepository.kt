@@ -213,6 +213,11 @@ class MaleMasterDataRepository @Inject constructor(
             it.illnessID to it.illnessType
         }
     }
+    suspend fun getSurgeryByNameMap():Map<Int,String>{
+        return historyDao.getSurgeryMasterMap().associate {
+            it.surgeryID to it.surgeryType
+        }
+    }
 
     suspend fun getChiefByNameMap(): Map<Int, String>{
         return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
