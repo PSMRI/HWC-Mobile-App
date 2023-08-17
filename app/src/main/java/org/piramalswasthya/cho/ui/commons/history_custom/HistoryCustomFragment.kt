@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
@@ -450,7 +451,11 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         return map.entries.find { it.value == value }?.key
     }
     private fun addMedicationData(){
+      val medicationRequest = MedicationRequest()
+        val count = binding.medicationExtra.childCount
+        for (i in 0 until count) {
 
+        }
     }
 
     private fun addPastIllnessAndSurgeryData() {
