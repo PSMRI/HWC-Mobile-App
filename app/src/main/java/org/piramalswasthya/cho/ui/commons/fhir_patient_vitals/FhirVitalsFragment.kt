@@ -1,11 +1,13 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -213,9 +215,30 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             val bmi = weightValue / (heightValue / 100).pow(2)
             val formattedBMI = "%.2f".format(bmi)
             binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
+            if(bmi > 25 && bmi < 30){
+                binding.bmiCategory.isVisible = true
+                binding.bmiCategory.text = "*Overweight"
+                binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
+                binding.inputBmi.setTextColor(resources.getColor(R.color.red))
+            }
+            else if (bmi > 30){
+                binding.bmiCategory.isVisible = true
+                binding.bmiCategory.text = "*Obese"
+                binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
+                binding.inputBmi.setTextColor(resources.getColor(R.color.red))
+            }
+            else{
+                binding.bmiCategory.isVisible = true
+                binding.bmiCategory.text = "*Normal"
+                binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
+                binding.inputBmi.setTextColor(resources.getColor(R.color.black))
+            }
+
         }
-        else
+        else{
             binding.inputBmi.text = null
+            binding.bmiCategory.isVisible = false
+        }
     }
 
     private fun addExtensionsToObservationResources(

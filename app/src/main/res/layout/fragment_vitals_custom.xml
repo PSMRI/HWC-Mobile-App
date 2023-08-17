@@ -91,6 +91,20 @@
                 android:layout_height="wrap_content"
                 />
         </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/bmiCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="10sp"
+            android:textStyle="normal|bold"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bmill"
+            />
+
 
         <TextView
             android:id="@+id/waistCircumTxt"
@@ -101,7 +115,7 @@
             android:textSize="16sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bmill"
+            app:layout_constraintTop_toBottomOf="@+id/bmiCategory"
             />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -171,7 +185,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPulseRate"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -198,7 +212,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputSpo2"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -226,7 +240,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputBpSystolic"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -254,7 +268,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputBpDiastolic"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -282,7 +296,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputRespiratoryPerMin"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
         <TextView
@@ -309,7 +323,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputRbs"
                 android:layout_width="match_parent"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
