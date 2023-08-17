@@ -2,7 +2,6 @@ package org.piramalswasthya.cho.ui.commons.history_custom
 
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.IllnessDialogFragment
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +38,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.PastSurgeryValues
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.pastIllnessValues
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
@@ -97,8 +97,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var tobTag = mutableListOf<String>()
     var alcTag = mutableListOf<String>()
     var allgTag = mutableListOf<String>()
-    private var listOfObservation = mutableListOf<Observation>()
     private var illnessMap = emptyMap<Int,String>()
+    private var surgeryMap = emptyMap<Int,String>()
     private var doseTypeMap = emptyMap<Int,String>()
     private var vaccineTypeMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
@@ -179,6 +179,9 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         }
         lifecycleScope.launch {
             illnessMap = viewModel.getIllMap()
+        }
+        lifecycleScope.launch {
+            surgeryMap = viewModel.getSurgMap()
         }
         lifecycleScope.launch {
             doseTypeMap = viewModel.getDoseTypeMap()
@@ -447,8 +450,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         findNavController().navigateUp()
     }
     fun navigateNext(){
-        addPastIllnessData()
-        viewModel.saveIllnessDetailsInfo(listOfObservation)
+        addPastIllnessAndSurgeryData()
         addCovidData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
@@ -488,52 +490,97 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
-    private fun addPastIllnessData() {
+
+    private fun addPastIllnessAndSurgeryData() {
+        val observationResource = Observation()
+        // Create category
+        val categoryCoding = Coding()
+        categoryCoding.system = "http://terminology.hl7.org/CodeSystem/observation-category"
+        categoryCoding.code = "social-history"
+        categoryCoding.display = "Social History"
+
+        val category = CodeableConcept()
+        category.coding = listOf(categoryCoding)
+        category.text = "History"
+
+        observationResource.category = listOf(category)
+
+        // Create code
+        val codeCoding = Coding()
+        codeCoding.system = "http://loinc.org"
+        codeCoding.code = "11348-0"
+        codeCoding.display = "Past medical history"
+
+        val code = CodeableConcept()
+        code.coding = listOf(codeCoding)
+        code.text = "Past medical history"
+
+        observationResource.code = code
+
+        // Create components
+        val components = mutableListOf<ObservationComponentComponent>()
+
         val count = binding.pastIllnessExtra.childCount
-        for (i in 0..count.minus(1)) {
+        for (i in 0 until count) {
             val childView: View? = binding.pastIllnessExtra?.getChildAt(i)
             val illnessVal = childView?.findViewById<AutoCompleteTextView>(R.id.illnessText)
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
+
+            if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
+                val id = findKeyByValue(illnessMap, illnessVal?.text?.toString())
+                val pastIllnessCoding = Coding()
+                pastIllnessCoding.code = id.toString() // Replace with actual code
+                pastIllnessCoding.display = illnessVal.text.toString() // Replace with actual display
+
+                val pastIllnessCode = CodeableConcept()
+                pastIllnessCode.coding = listOf(pastIllnessCoding)
+                pastIllnessCode.text = "pastIllness"
+                observationResource.code = pastIllnessCode
+
+                val illComponent = ObservationComponentComponent()
+                illComponent.code = pastIllnessCode
+                illComponent.valueQuantity.value =
+                    BigDecimal(durationVal.text.toString()) // Set the duration value
+                illComponent.valueQuantity.unit =
+                    unitDurationVal.text.toString()
+
+                components.add(illComponent)
+            }
+        }
+
+        val count2 = binding.pastSurgeryExtra.childCount
+        for (i in 0 until count2) {
+            val childView: View? = binding.pastSurgeryExtra?.getChildAt(i)
+            val surgeryVal = childView?.findViewById<AutoCompleteTextView>(R.id.surgeryText)
             val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
             val unitDurationVal =
                 childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
 
-            if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
-                val id = findKeyByValue(illnessMap, illnessVal?.text?.toString())
-                var pasttValues = pastIllnessValues(
-                    illnessVal?.text.toString(),
-                    unitDurationVal?.text.toString(),
-                    durationVal?.text.toString()?.toInt()!!
-                )
-                val observation = Observation()
-                if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
-                    val observation = Observation()
-                val pastIllness = Coding()
-                pastIllness.system =
-                    "http://snomed.info/sct"
-                pastIllness.code = id.toString()
-                pastIllness.display = pasttValues.illness
-                    observation.code = CodeableConcept().addCoding(pastIllness)
-                    observation.value =
-                        StringType(illnessVal.text.toString()) // Set the illness value
-                    observation.component =
-                        mutableListOf() // Create a list for components (duration and unit)
+            if (surgeryVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
+                val id = findKeyByValue(surgeryMap, surgeryVal?.text?.toString())
+                val pastSurgeryCoding = Coding()
+                pastSurgeryCoding.code = id.toString() // Replace with actual code
+                pastSurgeryCoding.display = surgeryVal.text.toString() // Replace with actual display
 
-                    val durationComponent = ObservationComponentComponent()
-                    durationComponent.code = CodeableConcept() // Set the code for duration
-                    durationComponent.valueQuantity.value =
-                        BigDecimal(durationVal.text.toString()) // Set the duration value
-                    durationComponent.valueQuantity.unit =
-                        unitDurationVal.text.toString() // Set the duration unit
+                val pastSurgeryCode = CodeableConcept()
+                pastSurgeryCode.coding = listOf(pastSurgeryCoding)
+                pastSurgeryCode.text = "pastSurgery"
+                observationResource.code = pastSurgeryCode
 
-                    observation.component.add(durationComponent)
-                    val ref = Reference("give here reg/ben-reg Id")
-                    observation.subject = ref
-                    addExtensionsToObservationResources(observation)
-                    listOfObservation.add(observation)
+                val surgComponent = ObservationComponentComponent()
+                surgComponent.code = pastSurgeryCode
+                surgComponent.valueQuantity.value =
+                    BigDecimal(durationVal.text.toString()) // Set the duration value
+                surgComponent.valueQuantity.unit =
+                    unitDurationVal.text.toString()
 
-                }
+                components.add(surgComponent)
             }
         }
+        observationResource.component = components
+        addExtensionsToObservationResources(observationResource)
+        viewModel.saveIllnessORSurgeryDetailsInfo(observationResource)
     }
     private fun addExtensionsToObservationResources(
         observation: Observation,
@@ -541,11 +588,11 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         if (userInfo != null) {
             observation.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(vanID),
-                observationExtension.getStringType(userInfo!!.vanId.toString()) ) )
+                observationExtension.getStringType(userInfo!!.vanId.toString())))
 
             observation.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(parkingPlaceID),
-                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
 
             observation.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(providerServiceMapId),
