@@ -465,7 +465,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
 
             immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
-            // Vaccine Code
+
             val vaccineCoding = Coding()
             vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
             vaccineCoding.code = "213"
@@ -474,13 +474,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             vaccineCode.text = vaccId.toString()
             immunization.vaccineCode = vaccineCode
 
-            // Patient Reference
             val patientReference = Reference()
             patientReference.reference = "Patient/11090786"
             immunization.patient = patientReference
 
-            // Protocol Applied (Dose Number)
             val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
+            protocolApplied.doseNumber = StringType(doseId.toString())
             immunization.protocolApplied = listOf(protocolApplied)
             viewModel.saveCovidDetailsInfo(immunization)
             addExtensionsToImmunizationResources(immunization)

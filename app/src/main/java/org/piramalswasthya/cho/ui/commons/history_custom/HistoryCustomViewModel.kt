@@ -105,8 +105,6 @@ class HistoryCustomViewModel @Inject constructor(
                     var uuid = generateUuid()
                     immunization.id = uuid
                     fhirEngine.create(immunization)
-                    var getobs = fhirEngine.get(ResourceType.Immunization,uuid)
-                Log.d("ARyan","$getobs")
             } catch (e: Exception){
                 Timber.d("Error in Saving Visit Details Informations")
             }
