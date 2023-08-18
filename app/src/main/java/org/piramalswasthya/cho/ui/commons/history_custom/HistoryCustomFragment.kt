@@ -34,6 +34,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBY
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
@@ -467,23 +468,25 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
 
             immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
-
+            var bool = immunization.status==Immunization.ImmunizationStatus.COMPLETED
             immunization.occurrence = StringType("Unknown")
             val vaccineCoding = Coding()
             vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
             vaccineCoding.code = "213"
-            val vaccineCode = CodeableConcept()
-            vaccineCode.coding = listOf(vaccineCoding)
-            vaccineCode.text = vaccId.toString()
-            immunization.vaccineCode = vaccineCode
+            if(bool) {
+                val vaccineCode = CodeableConcept()
+                vaccineCode.coding = listOf(vaccineCoding)
+                vaccineCode.text = vaccId.toString()
+                immunization.vaccineCode = vaccineCode
 
+                val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
+                protocolApplied.doseNumber = StringType(doseId.toString())
+                immunization.protocolApplied = listOf(protocolApplied)
+            }
             val patientReference = Reference()
             patientReference.reference = "Patient/11090786"
             immunization.patient = patientReference
 
-            val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
-            protocolApplied.doseNumber = StringType(doseId.toString())
-            immunization.protocolApplied = listOf(protocolApplied)
             addExtensionsToImmunizationResources(immunization)
             viewModel.saveCovidDetailsInfo(immunization)
         }
@@ -602,6 +605,11 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             observation.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(createdBy),
                 observationExtension.getStringType(userInfo!!.userName) ) )
+
+            //This will be used in PUT
+//            observation.addExtension( observationExtension.getExtenstion(
+//                observationExtension.getUrl(modifiedBY),
+//                observationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
     private fun addExtensionsToImmunizationResources(
