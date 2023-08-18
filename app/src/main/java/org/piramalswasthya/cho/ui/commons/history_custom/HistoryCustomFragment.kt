@@ -468,6 +468,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
 
             immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
 
+            immunization.occurrence = StringType("Unknown")
             val vaccineCoding = Coding()
             vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
             vaccineCoding.code = "213"

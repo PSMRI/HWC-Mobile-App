@@ -67,7 +67,6 @@ class HistoryCustomViewModel @Inject constructor(
     fun getVaccinationTypeDropdown(){
         try {
             _vaccinationTypeDropdown = vaccineAndDoseTypeRepo.getVaccineTypeCachedResponse()
-            Log.d("Arta","$_vaccinationTypeDropdown.")
         }
         catch (e:Exception){
             Timber.d("Error in getVaccinationType $e")
