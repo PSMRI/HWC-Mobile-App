@@ -484,8 +484,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
             protocolApplied.doseNumber = StringType(doseId.toString())
             immunization.protocolApplied = listOf(protocolApplied)
-            viewModel.saveCovidDetailsInfo(immunization)
             addExtensionsToImmunizationResources(immunization)
+            viewModel.saveCovidDetailsInfo(immunization)
         }
     }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
