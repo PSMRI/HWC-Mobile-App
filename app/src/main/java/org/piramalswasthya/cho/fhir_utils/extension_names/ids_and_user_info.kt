@@ -7,6 +7,7 @@ const val parkingPlaceID : String = "parkingPlaceID"
 const val providerServiceMapId : String = "providerServiceMapId"
 
 const val createdBy : String = "createdBy"
+const val modifiedBy : String = "modifiedBy"
 
 const val abhaGenerationMode : String = "abhaGenerationMode"
 
@@ -19,7 +20,7 @@ const val govtHealthProgramType : String = "govtHealthProgramType"
 const val govtHealthProgramId : String = "govtHealthProgramId"
 const val duration : String = "duration"
 
-const val benId : String = "benId"
-const val benRegId : String = "benRegId"
-const val benFlowId : String = "benFlowId"
+const val beneficiaryID : String = "beneficiaryID"
+const val beneficiaryRegID : String = "beneficiaryRegID"
+const val benFlowID : String = "benFlowID"
 

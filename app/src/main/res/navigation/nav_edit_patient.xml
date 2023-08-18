@@ -20,10 +20,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fhirVitalsFragment"
+        android:id="@+id/customVitalsFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment"
         android:label="fragment_fhir_vitals"
-        tools:layout="@layout/fragment_fhir_vitals" >
+        tools:layout="@layout/fragment_vitals_custom" >
         <action
             android:id="@+id/action_fhirVitalsFragment_to_fhirPrescriptionFragment"
             app:destination="@id/fhirPrescriptionFragment" />
@@ -55,7 +55,7 @@
         tools:layout="@layout/fragment_fhir_prescription" >
         <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            app:destination="@id/customVitalsFragment" />
         <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
             app:destination="@id/fhirRevisitFormFragment" />
@@ -67,7 +67,7 @@
         tools:layout="@layout/fragment_history_custom" >
         <action
             android:id="@+id/action_historyCustomFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            app:destination="@id/customVitalsFragment" />
         <action
             android:id="@+id/action_historyCustomFragment_to_fhirVisitDetailsFragment"
             app:destination="@id/fhirVisitDetailsFragment" />
