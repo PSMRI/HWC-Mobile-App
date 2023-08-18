@@ -456,7 +456,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     }
     private fun addMedicationData() {
         val medicationRequest = MedicationRequest()
-
+        medicationRequest.status = MedicationRequest.MedicationRequestStatus.UNKNOWN
         val count = binding.medicationExtra.childCount
         val dosageInstructions = mutableListOf<Dosage>()
 
