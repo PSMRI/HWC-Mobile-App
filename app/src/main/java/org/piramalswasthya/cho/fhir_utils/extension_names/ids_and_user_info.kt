@@ -10,7 +10,6 @@ const val createdBy : String = "createdBy"
 
 const val modifiedBy : String = "modifiedBy"
 
-
 const val abhaGenerationMode : String = "abhaGenerationMode"
 
 const val govtIdType : String = "govtIdType"

@@ -34,7 +34,6 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
-import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBY
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
@@ -103,7 +102,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private var doseTypeMap = emptyMap<Int,String>()
     private var vaccineTypeMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
-
+    private val immunizationExtension: FhirExtension = FhirExtension(ResourceType.Immunization)
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
@@ -606,31 +605,32 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 observationExtension.getUrl(createdBy),
                 observationExtension.getStringType(userInfo!!.userName) ) )
 
-            //This will be used in PUT
-//            observation.addExtension( observationExtension.getExtenstion(
-//                observationExtension.getUrl(modifiedBY),
-//                observationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
     private fun addExtensionsToImmunizationResources(
         immunization: Immunization,
     ) {
         if (userInfo != null) {
-            immunization.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(vanID),
-                observationExtension.getStringType(userInfo!!.vanId.toString()) ) )
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(vanID),
+                immunizationExtension.getStringType(userInfo!!.vanId.toString()) ) )
 
-            immunization.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(parkingPlaceID),
-                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(parkingPlaceID),
+                immunizationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
 
-            immunization.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(providerServiceMapId),
-                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(providerServiceMapId),
+                immunizationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
-            immunization.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(createdBy),
-                observationExtension.getStringType(userInfo!!.userName) ) )
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(createdBy),
+                immunizationExtension.getStringType(userInfo!!.userName) ) )
+
+            //This will be used in PUT
+//            immunization.addExtension( immunizationExtension.getExtenstion(
+//                immunizationExtension.getUrl(modifiedBY),
+//                immunizationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
     override fun onDestroyView() {
