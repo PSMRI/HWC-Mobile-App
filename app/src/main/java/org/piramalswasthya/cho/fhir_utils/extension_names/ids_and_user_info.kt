@@ -7,9 +7,9 @@ const val parkingPlaceID : String = "parkingPlaceID"
 const val providerServiceMapId : String = "providerServiceMapId"
 
 const val createdBy : String = "createdBy"
+
 const val modifiedBy : String = "modifiedBy"
 
-const val modifiedBY :String ="modifiedBy"
 
 const val abhaGenerationMode : String = "abhaGenerationMode"
 
