@@ -1512,6 +1512,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp"
                 android:hint="">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputExternalGenitalia"
@@ -1523,5 +1524,13 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/bottom_space_height"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/systematicExamination" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -78,9 +78,7 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_fhir_revisit_form), F
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToFhirPrescriptionFragment()
-        )
+       findNavController().navigateUp()
     }
 
     override fun navigateNext() {

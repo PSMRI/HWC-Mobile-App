@@ -69,6 +69,11 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_vitals_info -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.examination_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_examinations_info ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
@@ -105,9 +110,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragment_fhir_prescription -> {
+                R.id.fragment_examinations_info ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.fragment_fhir_prescription -> {
+                    binding.headerTextEditPatient.text = resources.getString(R.string.examination_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_revisit_form -> {

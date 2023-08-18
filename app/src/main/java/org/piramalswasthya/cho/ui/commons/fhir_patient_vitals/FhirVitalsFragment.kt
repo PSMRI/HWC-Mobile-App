@@ -76,7 +76,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     override fun navigateNext() {
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirPrescriptionFragment()
+            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirExaminationFragment()
         )
     }
 
