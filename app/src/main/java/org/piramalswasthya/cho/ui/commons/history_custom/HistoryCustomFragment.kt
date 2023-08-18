@@ -24,16 +24,20 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.Dosage
+import org.hl7.fhir.r4.model.Duration
 import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
 import org.hl7.fhir.r4.model.StringType
+import org.hl7.fhir.r4.model.Timing
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
+import org.piramalswasthya.cho.fhir_utils.extension_names.duration
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
@@ -450,13 +454,42 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
-    private fun addMedicationData(){
-      val medicationRequest = MedicationRequest()
-        val count = binding.medicationExtra.childCount
-        for (i in 0 until count) {
+    private fun addMedicationData() {
+        val medicationRequest = MedicationRequest()
 
+        val count = binding.medicationExtra.childCount
+        val dosageInstructions = mutableListOf<Dosage>()
+
+        for (i in 0 until count) {
+            val childView: View? = binding.medicationExtra?.getChildAt(i)
+            val currentMVal = childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString().toBigDecimalOrNull()
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            if (durationVal != null) {
+                val dosageInstruction = Dosage().apply {
+                    timing = Timing().apply {
+                        duration = Duration().apply {
+                            value = durationVal
+                            unit = unitDurationVal
+                        }
+                    }
+                }
+                dosageInstructions.add(dosageInstruction)
+            }
         }
+
+        medicationRequest.medicationReference = Reference().apply {
+            reference = "Medication/medicationId" // Replace with actual reference
+        }
+
+        medicationRequest.dosageInstruction = dosageInstructions
+
+        addExtensionsToMedicationRequestResources(medicationRequest)
+        viewModel.saveMedicationDetailsInfo(medicationRequest)
     }
+
+
 
     private fun addPastIllnessAndSurgeryData() {
         val observationResource = Observation()
@@ -566,6 +599,27 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
             observation.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(createdBy),
+                observationExtension.getStringType(userInfo!!.userName) ) )
+        }
+    }
+    private fun addExtensionsToMedicationRequestResources(
+        medicationRequest: MedicationRequest,
+    ) {
+        if (userInfo != null) {
+            medicationRequest.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(vanID),
+                observationExtension.getStringType(userInfo!!.vanId.toString())))
+
+            medicationRequest.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(parkingPlaceID),
+                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
+
+            medicationRequest.addExtension( observationExtension.getExtenstion(
+                observationExtension.getUrl(providerServiceMapId),
+                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+
+            medicationRequest.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(createdBy),
                 observationExtension.getStringType(userInfo!!.userName) ) )
         }
