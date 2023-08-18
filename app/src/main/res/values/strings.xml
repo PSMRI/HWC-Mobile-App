@@ -80,6 +80,7 @@
     <string name="bp_mmhg_systolic_text">BP (mmHg) Systolic</string>
     <string name="submit_to_doctor_text">Submit to Doctor</string>
     <string name="prescription_text">Prescription</string>
+    <string name="examination_text">Examination</string>
     <string name="other_info">Other Information</string>
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
