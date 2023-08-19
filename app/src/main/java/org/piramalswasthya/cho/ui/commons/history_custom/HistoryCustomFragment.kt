@@ -467,16 +467,10 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
 
             if (durationVal != null) {
-                val dosageInstruction = Dosage().apply {
-                    timing = Timing().apply {
-                        duration = Duration().apply {
-                            value = durationVal
-                            unit = unitDurationVal
-                        }
-                    }
+                val dosageInstruction = Dosage()
+                do
                 }
                 dosageInstructions.add(dosageInstruction)
-            }
         }
 
         medicationRequest.medicationReference = Reference().apply {
