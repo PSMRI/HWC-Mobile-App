@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
+import org.hl7.fhir.r4.model.Immunization
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
@@ -67,18 +68,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private val vaccinationStatus = arrayOf(
         "Yes","No"
     )
-    private val vaccType = arrayOf(
-                "Covaxine",
-                "Covishield",
-                "Sputnik",
-                "Corbevax"
-    )
-
-    private val doseTaken = arrayOf(
-        "1st Dose",
-        "2st Dose",
-        "Precautionary/Booster Dose"
-    )
 
 
 
@@ -110,13 +99,13 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var allgTag = mutableListOf<String>()
     private var illnessMap = emptyMap<Int,String>()
     private var surgeryMap = emptyMap<Int,String>()
+    private var doseTypeMap = emptyMap<Int,String>()
+    private var vaccineTypeMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
-
+    private val immunizationExtension: FhirExtension = FhirExtension(ResourceType.Immunization)
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
-    private lateinit var dropdownVT: AutoCompleteTextView
-    private lateinit var dropdownDT: AutoCompleteTextView
     private var userInfo: UserCache? = null
 
     override fun onCreateView(
@@ -143,18 +132,33 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         dropdownAgeG = binding.ageGrText
         dropdownVS = binding.vStatusText
-        dropdownVT = binding.vTypeText
-        dropdownDT = binding.doseTakenText
+
         val ageAAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AgeGroup)
         dropdownAgeG.setAdapter(ageAAdapter)
         val vacAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaccinationStatus)
         dropdownVS.setAdapter(vacAdapter)
-        val vacTAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaccType)
-        dropdownVT.setAdapter(vacTAdapter)
-        val doseAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, doseTaken)
-        dropdownDT.setAdapter(doseAdapter)
+
+        val vacTAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.vTypeText.setAdapter(vacTAdapter)
+
+        viewModel.vaccinationTypeDropdown.observe(viewLifecycleOwner){vc->
+            vacTAdapter.clear()
+            vacTAdapter.addAll(vc.map{it.vaccineType})
+            vacTAdapter.notifyDataSetChanged()
+        }
+
+        val doseAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.doseTakenText.setAdapter(doseAdapter)
+
+        viewModel.doseTypeDropdown.observe(viewLifecycleOwner){dose->
+            doseAdapter.clear()
+            doseAdapter.addAll(dose.map{it.doseType})
+            doseAdapter.notifyDataSetChanged()
+        }
+
         binding.btnPreviousHistory.setOnClickListener {
             openIllnessDialogBox()
         }
@@ -178,6 +182,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         }
         lifecycleScope.launch {
             surgeryMap = viewModel.getSurgMap()
+        }
+        lifecycleScope.launch {
+            doseTypeMap = viewModel.getDoseTypeMap()
+        }
+        lifecycleScope.launch {
+            vaccineTypeMap = viewModel.getVaccineTypeMap()
         }
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
@@ -441,9 +451,44 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     }
     fun navigateNext(){
         addPastIllnessAndSurgeryData()
+        addCovidData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
+    }
+    private fun addCovidData(){
+        val immunization = Immunization()
+        val vaccineStatusVal = binding.vStatusText
+        val vaccineTypeVal = binding.vTypeText
+        val doseVal = binding.doseTakenText
+        if(vaccineStatusVal?.text?.isNotEmpty()!! && vaccineTypeVal?.text?.isNotEmpty()!! && doseVal.text.isNotEmpty())
+        {
+            val vaccId = findKeyByValue(vaccineTypeMap,vaccineTypeVal.text.toString())
+            val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
+
+            immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
+            var bool = immunization.status==Immunization.ImmunizationStatus.COMPLETED
+            immunization.occurrence = StringType("Unknown")
+            val vaccineCoding = Coding()
+            vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
+            vaccineCoding.code = "213"
+            if(bool) {
+                val vaccineCode = CodeableConcept()
+                vaccineCode.coding = listOf(vaccineCoding)
+                vaccineCode.text = vaccId.toString()
+                immunization.vaccineCode = vaccineCode
+
+                val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
+                protocolApplied.doseNumber = StringType(doseId.toString())
+                immunization.protocolApplied = listOf(protocolApplied)
+            }
+            val patientReference = Reference()
+            patientReference.reference = "Patient/11090786"
+            immunization.patient = patientReference
+
+            addExtensionsToImmunizationResources(immunization)
+            viewModel.saveCovidDetailsInfo(immunization)
+        }
     }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
@@ -559,6 +604,33 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             observation.addExtension( observationExtension.getExtenstion(
                 observationExtension.getUrl(createdBy),
                 observationExtension.getStringType(userInfo!!.userName) ) )
+
+        }
+    }
+    private fun addExtensionsToImmunizationResources(
+        immunization: Immunization,
+    ) {
+        if (userInfo != null) {
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(vanID),
+                immunizationExtension.getStringType(userInfo!!.vanId.toString()) ) )
+
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(parkingPlaceID),
+                immunizationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(providerServiceMapId),
+                immunizationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+
+            immunization.addExtension( immunizationExtension.getExtenstion(
+                immunizationExtension.getUrl(createdBy),
+                immunizationExtension.getStringType(userInfo!!.userName) ) )
+
+            //This will be used in PUT
+//            immunization.addExtension( immunizationExtension.getExtenstion(
+//                immunizationExtension.getUrl(modifiedBY),
+//                immunizationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
     override fun onDestroyView() {
