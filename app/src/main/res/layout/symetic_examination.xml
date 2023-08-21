@@ -41,41 +41,19 @@
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/inspectionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Inspection"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inspection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Inspection">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputInspection"
                     android:layout_width="match_parent"
                     android:inputType="text"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/abdominalText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Consciousness"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/abdominalDropdown"
@@ -84,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="Select Abdominal Texture">
+                android:hint="Abdominal Texture">
 
                 <AutoCompleteTextView
                     android:id="@+id/abdominalDropVal"
@@ -94,17 +72,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/leverText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Lever"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/leverDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -112,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="Select Type">
+                android:hint="Lever">
 
                 <AutoCompleteTextView
                     android:id="@+id/leverDropVal"
@@ -122,17 +89,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/spleenText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Spleen"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/spleenDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -140,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="Select Type">
+                android:hint="Spleen">
 
                 <AutoCompleteTextView
                     android:id="@+id/spleenDropVal"
@@ -186,24 +142,13 @@
                     android:textColor="@drawable/radio_btn_select" />
             </RadioGroup>
 
-            <TextView
-                android:id="@+id/tendLocText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Location Of Tenderness"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tendernessLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Location Of Tenderness">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputTendLoc"
                     android:layout_width="match_parent"
@@ -211,24 +156,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/percussionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Percussion"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/percussion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Percussion">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputPercussion"
                     android:layout_width="match_parent"
@@ -236,24 +170,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/auscultationText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Auscultation"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/auscultation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Auscultation">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputAuscultation"
                     android:layout_width="match_parent"
@@ -261,24 +184,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/analRegionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Anal Region"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/analRegion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Anal Region">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputAnalRegion"
                     android:layout_width="match_parent"
@@ -304,7 +216,8 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="4dp"
-                android:text="Tenderness"
+                android:text="Jugular Venous Pressure"
+                android:visibility="gone"
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
@@ -314,6 +227,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -333,25 +247,13 @@
                     android:textColor="@drawable/radio_btn_select" />
             </RadioGroup>
 
-
-            <TextView
-                android:id="@+id/apexBeatText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Apex Beat Location"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/apexBeatLoc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Apex Beat Location">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputApexBeatLoc"
                     android:layout_width="match_parent"
@@ -359,24 +261,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/apexBeatTypeText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Apex Beat Type"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/apexBeatType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Apex Beat Type">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputApexBeatType"
                     android:layout_width="match_parent"
@@ -384,24 +275,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/firstHeartSoundText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="First Heart Sound(S1)"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/firstHeartSound"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="First Heart Sound(S1)">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputFirstHeartSound"
                     android:layout_width="match_parent"
@@ -409,24 +289,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/secondHeartSoundText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Second Heart Sound(S2)"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/secondHeartSound"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Second Heart Sound(S2)">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputSecondHeartSound"
                     android:layout_width="match_parent"
@@ -434,24 +303,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/otherHeartSoundText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Other Heart Sounds(S3,S4)"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/otherHeartSound"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Other Heart Sounds(S3,S4)">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputOtherHeartSound"
                     android:layout_width="match_parent"
@@ -544,17 +402,6 @@
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/tracheaText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Trachea"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tracheaDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -562,7 +409,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="Select Type">
+                android:visibility="gone"
+                android:hint="Trachea">
 
                 <AutoCompleteTextView
                     android:id="@+id/tracheaDropVal"
@@ -571,16 +419,6 @@
                     android:layout_weight="1"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
-            <TextView
-                android:id="@+id/respInspectionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Inspection"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/respInspection"
@@ -588,7 +426,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Inspection">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputRespInspection"
                     android:layout_width="match_parent"
@@ -632,24 +470,13 @@
                     android:textColor="@drawable/radio_btn_select" />
             </RadioGroup>
 
-            <TextView
-                android:id="@+id/palpationText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Palpation"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/palpation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Palpation">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputPalpation"
                     android:layout_width="match_parent"
@@ -883,18 +710,6 @@
                     android:textColor="@drawable/radio_btn_select" />
             </RadioGroup>
 
-
-            <TextView
-                android:id="@+id/percussions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Percussions"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/percussionDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -902,7 +717,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Percussions">
 
                 <AutoCompleteTextView
                     android:id="@+id/percussionDropVal"
@@ -924,17 +739,6 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/handednessText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Handedness"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/handednessDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -942,7 +746,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:visibility="gone"
+                android:hint="Handedness">
 
                 <AutoCompleteTextView
                     android:id="@+id/handednessDropVal"
@@ -952,24 +757,13 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/cranialNervousText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Cranial Nervous Examination"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/cranialNervous"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Cranial Nervous Examination">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputCranialNervous"
                     android:layout_width="match_parent"
@@ -977,24 +771,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/motorSystemText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Motor System"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/motorSystem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Motor System">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputMotorSystem"
                     android:layout_width="match_parent"
@@ -1002,24 +785,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/sensorySystemText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Sensory System"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/sensorySystem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Sensory System">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputSensorySystem"
                     android:layout_width="match_parent"
@@ -1027,24 +799,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/autonomicSystemText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Autonomic System"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/autonomicSystem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Autonomic System">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputAutonomicSystem"
                     android:layout_width="match_parent"
@@ -1052,24 +813,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/cerebellarText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Autonomic System"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/cerebellar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Cerebellar Signs">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputCerebellar"
                     android:layout_width="match_parent"
@@ -1114,24 +864,13 @@
                     android:textColor="@drawable/radio_btn_select" />
             </RadioGroup>
 
-            <TextView
-                android:id="@+id/skullText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Skull"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/skull"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Skull">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputSkull"
                     android:layout_width="match_parent"
@@ -1150,17 +889,6 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/jointTypeText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Type of Joint"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/jointDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1168,7 +896,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:visibility="gone"
+                android:hint="Type of Joint">
 
                 <AutoCompleteTextView
                     android:id="@+id/jointDropVal"
@@ -1178,17 +907,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/musLateralText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Laterallity"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/musLateralDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1196,7 +914,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Laterallity">
 
                 <AutoCompleteTextView
                     android:id="@+id/musLateralDropVal"
@@ -1206,18 +924,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-
-            <TextView
-                android:id="@+id/musAbnormalText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Abnormality"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/musAbnormalDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1225,7 +931,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Abnormality">
 
                 <AutoCompleteTextView
                     android:id="@+id/musAbnormalDropVal"
@@ -1247,16 +953,6 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/uplLateralText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Laterallity"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/uplLateralDropdown"
@@ -1265,7 +961,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Laterallity">
 
                 <AutoCompleteTextView
                     android:id="@+id/uplLateralDropVal"
@@ -1275,18 +971,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-
-            <TextView
-                android:id="@+id/uplAbnormalText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Abnormality"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/uplAbnormalDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1294,7 +978,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Abnormality">
 
                 <AutoCompleteTextView
                     android:id="@+id/uplAbnormalDropVal"
@@ -1315,17 +999,6 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/llLateralText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Laterallity"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/llLateralDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1333,7 +1006,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Laterallity">
 
                 <AutoCompleteTextView
                     android:id="@+id/llLateralDropVal"
@@ -1343,18 +1016,6 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-
-            <TextView
-                android:id="@+id/llAbnormalText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="4dp"
-                android:text="Abnormality"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/llAbnormalDropdown"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -1362,7 +1023,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Abnormality">
 
                 <AutoCompleteTextView
                     android:id="@+id/llAbnormalDropVal"
@@ -1384,24 +1045,13 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/chestWallText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Chest Wall"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/chestWall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Chest Wall">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputChestWall"
                     android:layout_width="match_parent"
@@ -1409,24 +1059,13 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/spineText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Spine"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/spine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Spine">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputSpine"
                     android:layout_width="match_parent"
@@ -1445,24 +1084,14 @@
                 android:textSize="18sp"
                 android:textStyle="normal|bold" />
 
-            <TextView
-                android:id="@+id/renalAngleText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Renal Angle"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/renalAngle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:visibility="gone"
+                android:hint="Renal Angle">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputRenalAngle"
                     android:layout_width="match_parent"
@@ -1470,41 +1099,19 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:id="@+id/supraPubRegText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="Supra Public Region"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/supraPubReg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                android:hint="">
+                android:hint="Supra Public Region">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputSupraPubReg"
                     android:layout_width="match_parent"
                     android:inputType="text"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/externalGenitaliaText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginTop="10dp"
-                android:text="External Genitalia"
-                android:textSize="16sp"
-                android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/externalGenitalia"
@@ -1513,7 +1120,7 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
                 android:layout_marginBottom="4dp"
-                android:hint="">
+                android:hint="External Genitalia">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputExternalGenitalia"
                     android:layout_width="match_parent"
@@ -1524,13 +1131,5 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/bottom_space_height"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/systematicExamination" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

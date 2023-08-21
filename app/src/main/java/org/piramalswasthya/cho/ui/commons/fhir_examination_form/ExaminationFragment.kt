@@ -79,7 +79,41 @@ class ExaminationFragment: Fragment(),NavigationAdapter,FhirFragmentService {
         binding.symeticLayout.llLateralDropVal.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down, lateralityList))
         binding.symeticLayout.llAbnormalDropVal.setAdapter(ArrayAdapter(requireContext(),R.layout.drop_down, abnormalityList))
 
+        binding.dangerRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            if(checkedId == binding.dangerYes.id) binding.dangerDropDown.visibility = View.VISIBLE
+            else {
+                binding.dangerDropDown.visibility = View.GONE
+                binding.dangerDropVal.setText("")
+            }
+        }
 
+        binding.edemaRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            if(checkedId == binding.edemaYes.id) binding.extentEdemaDropdown.visibility = View.VISIBLE
+            else {
+                binding.extentEdemaDropdown.visibility = View.GONE
+                binding.extentEdemaDropVal.setText("")
+            }
+        }
+
+        binding.lymphDropVal.setOnItemClickListener { _, _, _, _ ->
+            if(binding.lymphTypeDropVal.text.isNotEmpty()){
+                binding.headToeExamText.visibility = View.VISIBLE
+                binding.headToeRadioGroup.visibility = View.VISIBLE
+            } else{
+                binding.headToeExamText.visibility = View.GONE
+                binding.headToeRadioGroup.visibility = View.GONE
+            }
+
+        }
+        binding.lymphTypeDropVal.setOnItemClickListener { _, _, _, _ ->
+            if(binding.lymphDropVal.text.isNotEmpty()){
+                binding.headToeExamText.visibility = View.VISIBLE
+                binding.headToeRadioGroup.visibility = View.VISIBLE
+            } else{
+                binding.headToeExamText.visibility = View.GONE
+                binding.headToeRadioGroup.visibility = View.GONE
+            }
+        }
     }
 
     override fun navigateNext() {

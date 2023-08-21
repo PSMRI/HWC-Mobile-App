@@ -33,17 +33,6 @@
                     android:textSize="18sp"
                     android:textStyle="normal|bold" />
 
-                <TextView
-                    android:id="@+id/consTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="4dp"
-                    android:text="Consciousness"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/consciousness"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -51,7 +40,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
-                    android:hint="Select Consciousness State">
+                    android:visibility="gone"
+                    android:hint="Consciousness">
 
                     <AutoCompleteTextView
                         android:id="@+id/consInput"
@@ -98,42 +88,6 @@
                         android:textColor="@drawable/radio_btn_select" />
                 </RadioGroup>
 
-                <TextView
-                    android:id="@+id/lymphadenopathyText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="4dp"
-                    android:text="Danger Sign"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
-
-                <RadioGroup
-                    android:id="@+id/lymphadenopathyRadioGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/lymphadenopathyYes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Yes"
-                        android:layout_weight="1"
-                        android:textColor="@drawable/radio_btn_select" />
-
-                    <RadioButton
-                        android:id="@+id/lymphadenopathyNo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="No"
-                        android:textColor="@drawable/radio_btn_select" />
-                </RadioGroup>
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dangerDropDown"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -142,7 +96,8 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:hint="Select Danger Sign">
+                    android:visibility="gone"
+                    android:hint="Danger Signs">
 
                     <AutoCompleteTextView
                         android:id="@+id/dangerDropVal"
@@ -296,17 +251,6 @@
                         android:textColor="@drawable/radio_btn_select" />
                 </RadioGroup>
 
-                <TextView
-                    android:id="@+id/lymphNodeText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="4dp"
-                    android:text="Lymph nodes Involved"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/lymphNodeDropdown"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -315,7 +259,7 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:hint="Select Lymph Node">
+                    android:hint="Lymph nodes Involved">
 
                     <AutoCompleteTextView
                         android:id="@+id/lymphDropVal"
@@ -325,17 +269,6 @@
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/lymphNodeTextType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="4dp"
-                    android:text="Type of Lymphadenopathy"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/lymphNodeTypeDropdown"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -344,7 +277,7 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:hint="Select Lymph Node">
+                    android:hint="Type of Lymphadenopathy">
 
                     <AutoCompleteTextView
                         android:id="@+id/lymphTypeDropVal"
@@ -391,18 +324,6 @@
                         android:textColor="@drawable/radio_btn_select" />
                 </RadioGroup>
 
-
-                <TextView
-                    android:id="@+id/extentEdemaText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="4dp"
-                    android:text="Extent Of edema"
-                    android:textSize="16sp"
-                    android:textStyle="normal|bold" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/extentEdemaDropdown"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -411,7 +332,8 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:hint="Select Lymph Node">
+                    android:visibility="gone"
+                    android:hint="Extent Of Edema">
 
                     <AutoCompleteTextView
                         android:id="@+id/extentEdemaDropVal"
@@ -466,6 +388,7 @@
                     android:layout_marginRight="4dp"
                     android:text="Head to Toe Examination"
                     android:textSize="16sp"
+                    android:visibility="gone"
                     android:textStyle="normal|bold" />
 
                 <RadioGroup
@@ -474,6 +397,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
+                    android:visibility="gone"
                     android:orientation="horizontal">
 
                     <RadioButton
@@ -497,11 +421,18 @@
         <include
             android:id="@+id/symeticLayout"
             layout="@layout/symetic_examination"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/generalExamination"/>
 
-
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/bottom_space_height"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/generalExamination" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
