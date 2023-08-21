@@ -26,6 +26,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Dosage
 import org.hl7.fhir.r4.model.Duration
+import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
@@ -43,6 +44,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PastSurgeryValues
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.pastIllnessValues
@@ -445,7 +447,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     override fun onCancelAction() {
         findNavController().navigateUp()
     }
-    fun navigateNext(){
+     fun navigateNext(){
+        addMedicationDataToCatche()
         addPastIllnessAndSurgeryData()
         addMedicationData()
         findNavController().navigate(
@@ -454,6 +457,26 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
+    }
+    private fun addMedicationDataToCatche() {
+        val medicationRequest = MedicationRequest()
+        medicationRequest.status = MedicationRequest.MedicationRequestStatus.UNKNOWN
+        val count = binding.medicationExtra.childCount
+
+        for (i in 0 until count) {
+            val childView: View? = binding.medicationExtra?.getChildAt(i)
+            val currentMVal = childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            val medicationHistory = MedicationHistory(
+                medicationHistoryId = "21",
+                currentMedication = currentMVal,
+                duration = durationVal,
+                durationUnit = unitDurationVal
+            )
+            viewModel.saveMedicationHistoryToCache(medicationHistory)
+        }
     }
     private fun addMedicationData() {
         val medicationStatement = MedicationStatement()

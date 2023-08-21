@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.repositories.HistoryRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class HistoryCustomViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
-    private val historyDao: HistoryDao,
+    private val historyRepo: HistoryRepo,
     @ApplicationContext private val application : Context
 ): ViewModel(){
     private var _loggedInUser: UserCache? = null
@@ -71,8 +72,6 @@ class HistoryCustomViewModel @Inject constructor(
                 var uuid = generateUuid()
                 medicationStatement.id = uuid
                 fhirEngine.create(medicationStatement)
-                var getOI = fhirEngine.get(ResourceType.MedicationStatement,uuid)
-                Log.d("Aryan","${getOI}")
             } catch (e: Exception){
                 Timber.d("Error in Saving Medication Details Informations")
             }
@@ -94,16 +93,17 @@ class HistoryCustomViewModel @Inject constructor(
             emptyMap()
         }
     }
-    fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory){
-
-        try{
-            historyDao.insertMedicationHistory(medicationHistory)
-            var obj = historyDao.getMedicationHistoryByMedicationId(medicationHistory.medicationHistoryId)
-            Log.d("Aryan","${obj}")
-        } catch (e: java.lang.Exception){
-            Timber.d("Error in saving Surgery history $e")
+    fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory) {viewModelScope.launch {
+        try {
+            withContext(Dispatchers.IO) {
+               historyRepo.saveMedicationHistoryToCatche(medicationHistory)
+                }
+        } catch (e: Exception) {
+            Timber.e("Error in saving Medication history: $e")
         }
     }
+    }
+
     private fun generateUuid():String{
         return UUID.randomUUID().toString()
     }
@@ -112,25 +112,3 @@ class HistoryCustomViewModel @Inject constructor(
     }
 
 }
-
-//    private fun addMedicationData() {
-//        val medicationRequest = MedicationRequest()
-//        medicationRequest.status = MedicationRequest.MedicationRequestStatus.UNKNOWN
-//        val count = binding.medicationExtra.childCount
-//        val dosageInstructions = mutableListOf<Dosage>()
-//
-//        for (i in 0 until count) {
-//            val childView: View? = binding.medicationExtra?.getChildAt(i)
-//            val currentMVal = childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
-//            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
-//            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
-//
-//            val medicationHistory = MedicationHistory(
-//                medicationHistoryId = "21",
-//                currentMedication = currentMVal,
-//                duration = durationVal,
-//                durationUnit = unitDurationVal
-//            )
-//            viewModel.saveMedicationHistoryToCache(medicationHistory)
-//        }
-//    }
