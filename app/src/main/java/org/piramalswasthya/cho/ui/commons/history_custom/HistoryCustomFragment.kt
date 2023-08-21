@@ -26,7 +26,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Dosage
 import org.hl7.fhir.r4.model.Duration
-import org.hl7.fhir.r4.model.MedicationRequest
+import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
@@ -36,6 +36,7 @@ import org.hl7.fhir.r4.model.Timing
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowID
 import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
 import org.piramalswasthya.cho.fhir_utils.extension_names.duration
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
@@ -73,10 +74,10 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         "Yes","No"
     )
     private val vaccType = arrayOf(
-                "Covaxine",
-                "Covishield",
-                "Sputnik",
-                "Corbevax"
+        "Covaxine",
+        "Covishield",
+        "Sputnik",
+        "Corbevax"
     )
 
     private val doseTaken = arrayOf(
@@ -116,7 +117,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private var illnessMap = emptyMap<Int,String>()
     private var surgeryMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
-
+    private val medicationStatementExtension: FhirExtension = FhirExtension(ResourceType.MedicationStatement)
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
@@ -434,11 +435,11 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         dialogFragment.show(parentFragmentManager, "medication_dialog_box")
     }
     override fun getFragmentId(): Int {
-      return R.id.fragment_history_custom
+        return R.id.fragment_history_custom
     }
 
     override fun onSubmitAction() {
-      navigateNext()
+        navigateNext()
     }
 
     override fun onCancelAction() {
@@ -455,34 +456,31 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         return map.entries.find { it.value == value }?.key
     }
     private fun addMedicationData() {
-        val medicationRequest = MedicationRequest()
-        medicationRequest.status = MedicationRequest.MedicationRequestStatus.UNKNOWN
-        val count = binding.medicationExtra.childCount
-        val dosageInstructions = mutableListOf<Dosage>()
+        val medicationStatement = MedicationStatement()
+        medicationStatement.status = MedicationStatement.MedicationStatementStatus.UNKNOWN
 
+        val count = binding.medicationExtra.childCount
         for (i in 0 until count) {
             val childView: View? = binding.medicationExtra?.getChildAt(i)
-            val currentMVal = childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString().toBigDecimalOrNull()
-            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+            val currentMVal =
+                childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
+            val durationVal =
+                childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal =
+                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
 
-            if (durationVal != null) {
-                val dosageInstruction = Dosage()
-                do
-                }
-                dosageInstructions.add(dosageInstruction)
+            val cod = Coding()
+            cod.system = "http://snomed.info/sct"
+            cod.code = durationVal+","+unitDurationVal
+            cod.display = currentMVal
+            medicationStatement.medicationCodeableConcept.addCoding(cod)
         }
+        medicationStatement.subject.reference = "Patient/benRegId"
+        medicationStatement.subject.display = "benRegId"
+        addExtensionsToMedicationStatementResources(medicationStatement)
+        viewModel.saveMedicationDetailsInfo(medicationStatement)
 
-        medicationRequest.medicationReference = Reference().apply {
-            reference = "Medication/medicationId" // Replace with actual reference
-        }
-
-        medicationRequest.dosageInstruction = dosageInstructions
-
-        addExtensionsToMedicationRequestResources(medicationRequest)
-        viewModel.saveMedicationDetailsInfo(medicationRequest)
     }
-
 
 
     private fun addPastIllnessAndSurgeryData() {
@@ -597,25 +595,29 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 observationExtension.getStringType(userInfo!!.userName) ) )
         }
     }
-    private fun addExtensionsToMedicationRequestResources(
-        medicationRequest: MedicationRequest,
+    private fun addExtensionsToMedicationStatementResources(
+        medicationStatement: MedicationStatement,
     ) {
         if (userInfo != null) {
-            medicationRequest.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(vanID),
-                observationExtension.getStringType(userInfo!!.vanId.toString())))
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(vanID),
+                medicationStatementExtension.getStringType(userInfo!!.vanId.toString())))
 
-            medicationRequest.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(parkingPlaceID),
-                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(parkingPlaceID),
+                medicationStatementExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
 
-            medicationRequest.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(providerServiceMapId),
-                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(providerServiceMapId),
+                medicationStatementExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
 
-            medicationRequest.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(createdBy),
-                observationExtension.getStringType(userInfo!!.userName) ) )
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(createdBy),
+                medicationStatementExtension.getStringType(userInfo!!.userName) ) )
+
+//            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+//                medicationStatementExtension.getUrl(benFlowID),
+//                medicationStatementExtension.getStringType(userInfo!!.b) ) )
         }
     }
     override fun onDestroyView() {

@@ -12,7 +12,7 @@ private const val appointmentUrl : String = "http://hl7.org/fhir/StructureDefini
 private const val encounterUrl : String = "http://hl7.org/fhir/StructureDefinition/Encounter#Encounter"
 private const val conditionUrl : String = "http://hl7.org/fhir/StructureDefinition/Condition#Condition"
 private const val observationUrl : String = "http://hl7.org/fhir/StructureDefinition/Observation#Observation"
-private const val medicationRequest: String = "http://hl7.org/fhir/StructureDefinition/MedicationRequest#MedicationRequest"
+private const val medicationStatement: String = "http://hl7.org/fhir/StructureDefinition/MedicationStatement#MedicationStatement"
 
 class FhirExtension constructor(resourceType : ResourceType){
 
@@ -22,7 +22,7 @@ class FhirExtension constructor(resourceType : ResourceType){
         ResourceType.Condition -> conditionUrl
         ResourceType.Encounter -> encounterUrl
         ResourceType.Observation -> observationUrl
-        ResourceType.MedicationRequest -> medicationRequest
+        ResourceType.MedicationStatement -> medicationStatement
         else -> {
             ""
         }
