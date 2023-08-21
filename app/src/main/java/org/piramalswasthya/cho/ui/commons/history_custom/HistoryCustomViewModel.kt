@@ -161,6 +161,18 @@ class HistoryCustomViewModel @Inject constructor(
     private fun generateUuid():String{
         return UUID.randomUUID().toString()
     }
+    fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveMedicationHistoryToCatche(medicationHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Medication history: $e")
+            }
+        }
+    }
+
     fun resetBool(){
         _boolCall.value = false
     }
