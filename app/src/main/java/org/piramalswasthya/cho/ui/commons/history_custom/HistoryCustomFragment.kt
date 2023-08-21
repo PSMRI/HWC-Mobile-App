@@ -528,7 +528,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
 
             val medicationHistory = MedicationHistory(
-                medicationHistoryId = "21",
+                medicationHistoryId = "29",
                 currentMedication = currentMVal,
                 duration = durationVal,
                 durationUnit = unitDurationVal
