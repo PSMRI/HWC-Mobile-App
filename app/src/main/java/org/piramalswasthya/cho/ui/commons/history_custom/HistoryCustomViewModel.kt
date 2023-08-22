@@ -9,14 +9,22 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Immunization
+import kotlinx.coroutines.withContext
+import org.hl7.fhir.r4.model.MedicationRequest
+import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VaccineType
+import org.piramalswasthya.cho.repositories.HistoryRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
@@ -28,6 +36,7 @@ class HistoryCustomViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val userRepo: UserRepo,
+    private val historyRepo: HistoryRepo,
     @ApplicationContext private val application : Context
 ): ViewModel(){
 
@@ -90,6 +99,18 @@ class HistoryCustomViewModel @Inject constructor(
                     observation.id = uuid
                     fhirEngine.create(observation)
             } catch (e: Exception){
+                Timber.d("Error in Saving Illness Details Informations")
+            }
+        }
+    }
+    fun saveMedicationDetailsInfo(medicationStatement: MedicationStatement){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                medicationStatement.id = uuid
+                fhirEngine.create(medicationStatement)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Medication Details Informations")
                 Timber.d("Error in Saving Illness and Surgery Details Informations")
             }
         }
@@ -140,6 +161,18 @@ class HistoryCustomViewModel @Inject constructor(
     private fun generateUuid():String{
         return UUID.randomUUID().toString()
     }
+    fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveMedicationHistoryToCatche(medicationHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Medication history: $e")
+            }
+        }
+    }
+
     fun resetBool(){
         _boolCall.value = false
     }

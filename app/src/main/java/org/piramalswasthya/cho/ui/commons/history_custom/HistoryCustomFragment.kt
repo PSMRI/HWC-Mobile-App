@@ -17,14 +17,13 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import ca.uhn.fhir.context.RuntimeSearchParam
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Immunization
+import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
@@ -33,14 +32,8 @@ import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
-import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
-import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
-import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
-import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
-import org.piramalswasthya.cho.model.ChiefComplaintValues
-import org.piramalswasthya.cho.model.PastSurgeryValues
+import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.model.pastIllnessValues
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AAFragments
@@ -68,8 +61,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private val vaccinationStatus = arrayOf(
         "Yes","No"
     )
-
-
 
     private var _binding: FragmentHistoryCustomBinding? = null
     private val binding: FragmentHistoryCustomBinding
@@ -103,6 +94,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private var vaccineTypeMap = emptyMap<Int,String>()
     private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
     private val immunizationExtension: FhirExtension = FhirExtension(ResourceType.Immunization)
+    private val medicationStatementExtension: FhirExtension = FhirExtension(ResourceType.MedicationStatement)
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
@@ -439,19 +431,21 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         dialogFragment.show(parentFragmentManager, "medication_dialog_box")
     }
     override fun getFragmentId(): Int {
-      return R.id.fragment_history_custom
+        return R.id.fragment_history_custom
     }
 
     override fun onSubmitAction() {
-      navigateNext()
+        navigateNext()
     }
 
     override fun onCancelAction() {
         findNavController().navigateUp()
     }
-    fun navigateNext(){
+     fun navigateNext(){
+        addMedicationDataToCatche()
         addPastIllnessAndSurgeryData()
         addCovidData()
+        addMedicationData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
@@ -493,6 +487,51 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
+    private fun addMedicationDataToCatche() {
+        val count = binding.medicationExtra.childCount
+
+        for (i in 0 until count) {
+            val childView: View? = binding.medicationExtra?.getChildAt(i)
+            val currentMVal = childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            val medicationHistory = MedicationHistory(
+                medicationHistoryId = "29",
+                currentMedication = currentMVal,
+                duration = durationVal,
+                durationUnit = unitDurationVal
+            )
+            viewModel.saveMedicationHistoryToCache(medicationHistory)
+        }
+    }
+    private fun addMedicationData() {
+        val medicationStatement = MedicationStatement()
+        medicationStatement.status = MedicationStatement.MedicationStatementStatus.UNKNOWN
+
+        val count = binding.medicationExtra.childCount
+        for (i in 0 until count) {
+            val childView: View? = binding.medicationExtra?.getChildAt(i)
+            val currentMVal =
+                childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
+            val durationVal =
+                childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal =
+                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            val cod = Coding()
+            cod.system = "http://snomed.info/sct"
+            cod.code = durationVal+","+unitDurationVal
+            cod.display = currentMVal
+            medicationStatement.medicationCodeableConcept.addCoding(cod)
+        }
+        medicationStatement.subject.reference = "Patient/benRegId"
+        medicationStatement.subject.display = "benRegId"
+        addExtensionsToMedicationStatementResources(medicationStatement)
+        viewModel.saveMedicationDetailsInfo(medicationStatement)
+
+    }
+
 
     private fun addPastIllnessAndSurgeryData() {
         val observationResource = Observation()
@@ -631,6 +670,31 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
 //            immunization.addExtension( immunizationExtension.getExtenstion(
 //                immunizationExtension.getUrl(modifiedBY),
 //                immunizationExtension.getStringType(userInfo!!.userName) ) )
+        }
+    }
+    private fun addExtensionsToMedicationStatementResources(
+        medicationStatement: MedicationStatement,
+    ) {
+        if (userInfo != null) {
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(vanID),
+                medicationStatementExtension.getStringType(userInfo!!.vanId.toString())))
+
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(parkingPlaceID),
+                medicationStatementExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
+
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(providerServiceMapId),
+                medicationStatementExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+
+            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+                medicationStatementExtension.getUrl(createdBy),
+                medicationStatementExtension.getStringType(userInfo!!.userName) ) )
+
+//            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
+//                medicationStatementExtension.getUrl(benFlowID),
+//                medicationStatementExtension.getStringType(userInfo!!.b) ) )
         }
     }
     override fun onDestroyView() {
