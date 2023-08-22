@@ -33,16 +33,15 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AAFragments
-import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AlcoholFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AllergyFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.IllnessFieldsFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.MedicationFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.PastSurgeryFragment
-import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.TobaccoFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AADialogFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AlcoholDialogFragment
 import org.piramalswasthya.cho.ui.commons.history_custom.dialog.AllergyDialogFragment
@@ -66,7 +65,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private val binding: FragmentHistoryCustomBinding
         get() = _binding!!
 
-
     var addCountIllness: Int = 0
     var deleteCountIllness: Int = 0
     var addCountSurgery: Int = 0
@@ -75,18 +73,12 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     var deleteCountAA:Int=0
     var addCountM:Int =0
     var deleteCountM:Int=0
-    var addCountTob:Int =0
-    var deleteCountTob:Int=0
-    var addCountAlc:Int =0
-    var deleteCountAlc:Int=0
     var addCountAllg:Int =0
     var deleteCountAllg:Int=0
     var illnessTag = mutableListOf<String>()
     var surgeryTag = mutableListOf<String>()
     var aaTag = mutableListOf<String>()
     var mTag = mutableListOf<String>()
-    var tobTag = mutableListOf<String>()
-    var alcTag = mutableListOf<String>()
     var allgTag = mutableListOf<String>()
     private var illnessMap = emptyMap<Int,String>()
     private var surgeryMap = emptyMap<Int,String>()
@@ -112,10 +104,7 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         deleteCountAA=0
         addCountM=0
         deleteCountM=0
-        addCountTob=0
-        deleteCountTob=0
-        addCountAlc=0
-        deleteCountAlc=0
+
         addCountAllg=0
         deleteCountAllg=0
         _binding = FragmentHistoryCustomBinding.inflate(inflater, container, false)
@@ -149,6 +138,24 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             doseAdapter.clear()
             doseAdapter.addAll(dose.map{it.doseType})
             doseAdapter.notifyDataSetChanged()
+        }
+
+        val tobaccoAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        binding.tobaccoText.setAdapter(tobaccoAdapter)
+
+        viewModel.tobaccoDropdown.observe( viewLifecycleOwner) { tob ->
+            tobaccoAdapter.clear()
+            tobaccoAdapter.addAll(tob.map { it.habitValue })
+            tobaccoAdapter.notifyDataSetChanged()
+        }
+
+        val alcoholAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        binding.alcoholText.setAdapter(alcoholAdapter)
+
+        viewModel.alcoholDropdown.observe( viewLifecycleOwner) { alc ->
+            alcoholAdapter.clear()
+            alcoholAdapter.addAll(alc.map { it.habitValue })
+            alcoholAdapter.notifyDataSetChanged()
         }
 
         binding.btnPreviousHistory.setOnClickListener {
@@ -192,23 +199,9 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         addSurgeryFields(addCountSurgery)
         addAAFields(addCountAA)
         addMFields(addCountM)
-        addTobFields(addCountTob)
-        addAlcFields(addCountAlc)
         addAllgFields(addCountAllg)
     }
-    private fun addAlcFields(count:Int){
-        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
-        val aFields = AlcoholFragment()
-        val tag = "Extra Alc$count"
-        aFields.setFragmentTag(tag)
-        aFields.setListener(this)
-        fragmentTransaction.add(binding.personalAExtra.id,aFields,tag)
-        fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
-        alcTag.add(tag)
-        addCountAlc+=1
-    }
+
     private fun addAllgFields(count:Int){
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
@@ -221,19 +214,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         fragmentTransaction.commit()
         allgTag.add(tag)
         addCountAllg+=1
-    }
-    private fun addTobFields(count:Int){
-        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction :FragmentTransaction = fragmentManager.beginTransaction()
-        val mFields = TobaccoFragment()
-        val tag = "Extra tob$count"
-        mFields.setFragmentTag(tag)
-        mFields.setListener(this)
-        fragmentTransaction.add(binding.personalTExtra.id,mFields,tag)
-        fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
-        tobTag.add(tag)
-        addCountTob+=1
     }
     private fun addMFields(count:Int){
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
@@ -289,15 +269,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         illnessTag.add(tag)
         addCountIllness+=1
     }
-    private fun deleteTFields(tag: String){
-        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
-        if (fragmentToDelete != null) {
-            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
-            tobTag.remove(tag)
-            deleteCountTob += 1
-        }
-    }
     private fun deleteAllgFields(tag: String){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
@@ -325,15 +296,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             deleteCountM += 1
         }
     }
-    private fun deleteAlcFields(tag: String){
-        val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
-        val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
-        if (fragmentToDelete != null) {
-            fragmentManager.beginTransaction().remove(fragmentToDelete).commit()
-            alcTag.remove(tag)
-            deleteCountAlc += 1
-        }
-    }
     private fun deleteIllnessFields(tag: String){
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentToDelete = fragmentManager.findFragmentByTag(tag)
@@ -359,11 +321,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     override fun onAddButtonClickedAA(fragmentTag: String) {
         addAAFields(addCountAA)
     }
-
-    override fun onDeleteButtonClickedAlcohol(fragmentTag: String) {
-        if(addCountAlc - 1 > deleteCountAlc) deleteAlcFields(fragmentTag)
-    }
-
     override fun onAddButtonClickedAlg(fragmentTag: String) {
         addAllgFields(addCountAllg)
     }
@@ -372,17 +329,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         if(addCountAllg - 1 > deleteCountAllg) deleteAllgFields(fragmentTag)
     }
 
-    override fun onAddButtonClickedAlcohol(fragmentTag: String) {
-        addAlcFields(addCountAlc)
-    }
-
-    override fun onDeleteButtonClickedTobacco(fragmentTag: String) {
-        if(addCountTob - 1 > deleteCountTob) deleteTFields(fragmentTag)
-    }
-
-    override fun onAddButtonClickedTobacco(fragmentTag: String) {
-        addTobFields(addCountTob)
-    }
     override fun onDeleteButtonClickedM(fragmentTag: String) {
         if(addCountM - 1 > deleteCountM) deleteMFields(fragmentTag)
     }
@@ -446,6 +392,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         addPastIllnessAndSurgeryData()
         addCovidData()
         addMedicationData()
+        addTobAndAlcDataToCatche()
+        addTobAndAlcData()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
@@ -504,6 +452,76 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             )
             viewModel.saveMedicationHistoryToCache(medicationHistory)
         }
+    }
+    private fun addTobAndAlcDataToCatche()  {
+            val alcoholVal = binding.alcoholText.text.toString()
+            val tobaccoVal = binding.tobaccoText.text.toString()
+            val tobaccoAlcoholHistory = TobaccoAlcoholHistory(
+               tobaccoAndAlcoholId = "2",
+                tobacco = tobaccoVal,
+                alcohol = alcoholVal
+            )
+            viewModel.saveTobAndAlcHistoryToCache(tobaccoAlcoholHistory)
+    }
+    private fun addTobAndAlcData(){
+        val alcoholVal = binding.alcoholText.text.toString()
+        val tobaccoVal = binding.tobaccoText.text.toString()
+
+        val observationResource = Observation()
+
+        val categoryCoding = Coding()
+        categoryCoding.system = "http://terminology.hl7.org/CodeSystem/observation-category"
+        categoryCoding.code = "social-history"
+        categoryCoding.display = "Social History"
+
+        val category = CodeableConcept()
+        category.coding = listOf(categoryCoding)
+        category.text = "History"
+
+        observationResource.category = listOf(category)
+
+        // Create code
+        val codeCoding = Coding()
+        codeCoding.system = "http://loinc.org"
+        codeCoding.code = "11331-6"
+        codeCoding.display = "History of Alcohol use"
+
+        val codeCoding2 = Coding()
+        codeCoding2.system = "http://loinc.org"
+        codeCoding2.code = "11367-0"
+        codeCoding2.display = "History of Tobacco use"
+
+        val code = CodeableConcept()
+        code.coding = listOf(codeCoding,codeCoding2)
+        code.text = "Personal habits"
+
+        observationResource.code = code
+
+        val components = mutableListOf<ObservationComponentComponent>()
+
+        var tobaccoCode = CodeableConcept()
+        tobaccoCode.text = "tobaccoUseStatus"
+        observationResource.code = tobaccoCode
+
+        val tobComponent = ObservationComponentComponent()
+        tobComponent.code = tobaccoCode
+        tobComponent.valueStringType.setValue(tobaccoVal)
+        components.add(tobComponent)
+
+        val alcCode = CodeableConcept()
+        alcCode.text = "alcoholIntakeStatus"
+        observationResource.code = alcCode
+
+        val alcComponent = ObservationComponentComponent()
+        alcComponent.code = alcCode
+        alcComponent.valueStringType.setValue(alcoholVal)
+
+
+        components.add(alcComponent)
+        observationResource.component = components
+        addExtensionsToObservationResources(observationResource)
+        viewModel.saveTobAndAlcHistoryDetailsInfo(observationResource)
+
     }
     private fun addMedicationData() {
         val medicationStatement = MedicationStatement()

@@ -9,6 +9,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.lang.Exception
@@ -28,8 +29,22 @@ class HistoryRepo @Inject constructor(
       }
   }
 
+    suspend fun saveTobAndAlcHistoryToCatche(tobaccoAlcoholHistory: TobaccoAlcoholHistory) {
+        try{
+            withContext(Dispatchers.IO){
+                historyDao.insertTobAndAlcHistory(tobaccoAlcoholHistory)
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Medication history $e")
+        }
+    }
+
+
     fun getMedicationHistory(medicationId:String): LiveData<MedicationHistory> {
         return historyDao.getMedicationHistoryByMedicationId(medicationId)
+    }
+    fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory {
+        return historyDao.getTobAndAlcHistory(tobAndAlcId)
     }
 
 }
