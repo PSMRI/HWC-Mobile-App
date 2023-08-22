@@ -80,6 +80,7 @@
     <string name="bp_mmhg_systolic_text">BP (mmHg) Systolic</string>
     <string name="submit_to_doctor_text">Submit to Doctor</string>
     <string name="prescription_text">Prescription</string>
+    <string name="examination_text">Examination</string>
     <string name="other_info">Other Information</string>
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
@@ -181,6 +182,7 @@
     <string name="associated_ailments">Associated Ailments</string>
     <string name="select_associated_ailments">Select Associated Ailments</string>
     <string name="enter_duration">Enter Duration</string>
+    <string name="enter_inspection">Inspection</string>
     <string name="duration_unit">Duration Unit</string>
     <string name="select_duration_unit">Select Duration Unit</string>
     <string name="f_h_of_member">F/H of Member</string>

@@ -65,11 +65,7 @@ class FhirPrescriptionFragment : Fragment(R.layout.fragment_fhir_prescription), 
     }
 
     override fun onCancelAction() {
-//        findNavController().navigate(
-//            FhirPrescriptionFragmentDirections.actionFhirPrescriptionFragmentToFhirVitalsFragment()
-//        )
         findNavController().navigateUp()
-
     }
 
     override fun navigateNext() {

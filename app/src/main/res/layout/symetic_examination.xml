@@ -1,0 +1,1135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_visit_details_info"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/systematicExamination"
+        android:layout_margin="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/systematicLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/systematicExaminationTextHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:text="Systemic Examination"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:id="@+id/gastroTextHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="10dp"
+                android:text="Gastro Intestinal System"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inspection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Inspection">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputInspection"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/abdominalDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Abdominal Texture">
+
+                <AutoCompleteTextView
+                    android:id="@+id/abdominalDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/leverDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Lever">
+
+                <AutoCompleteTextView
+                    android:id="@+id/leverDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/spleenDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Spleen">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spleenDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tendernessText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Tenderness"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/tendernessRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/tendernessYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/tendernessNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tendernessLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Location Of Tenderness">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputTendLoc"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/percussion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Percussion">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputPercussion"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/auscultation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Auscultation">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputAuscultation"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/analRegion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Anal Region">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputAnalRegion"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/cardioTextHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="10dp"
+                android:text="Cardio Vascular System"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:id="@+id/venousPresText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Jugular Venous Pressure"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/venousPresRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/venousPreYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Normal"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/venousPreNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Elevated"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/apexBeatLoc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Apex Beat Location">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputApexBeatLoc"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/apexBeatType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Apex Beat Type">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputApexBeatType"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/firstHeartSound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="First Heart Sound(S1)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputFirstHeartSound"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/secondHeartSound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Second Heart Sound(S2)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputSecondHeartSound"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/otherHeartSound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Other Heart Sounds(S3,S4)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputOtherHeartSound"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/murmurText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Murmurs"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/murmurRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/murmurYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/murmurNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/pericardialRubText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Pericardial Rub"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/pericardialRubRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/pericardialYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/pericardialNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+
+            <TextView
+                android:id="@+id/respTextHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="10dp"
+                android:text="Respiratory System"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tracheaDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                android:hint="Trachea">
+
+                <AutoCompleteTextView
+                    android:id="@+id/tracheaDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/respInspection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Inspection">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputRespInspection"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/respDistressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Signs of Respiratory Distress"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/respDistressRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/respDistressYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/respDistressNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/palpation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Palpation">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputPalpation"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/breathSoundText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Breath Sound"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/breathSoundRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/breathSoundYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Normal"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/breathSoundNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Decreased"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/breathSoundOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Abnormal Breath Sound"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+
+            <TextView
+                android:id="@+id/stridorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Stridor"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/stridorRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/stridorYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/stridorNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/crepitationsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Stridor"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/creptRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/creptYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/creptNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+
+            <TextView
+                android:id="@+id/wheezingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Wheezing"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/wheezingRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/wheezingYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/wheezingNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/pleuralRubText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Pleural Rub"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/pleuralRubRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/pleuralRubYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/pleuralRubNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/conductedSoundText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Conducted Sound"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/conductedRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/conductedSoundYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/conductedSoundNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/percussionDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Percussions">
+
+                <AutoCompleteTextView
+                    android:id="@+id/percussionDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/centralNervousHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Central Nervous System"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/handednessDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                android:hint="Handedness">
+
+                <AutoCompleteTextView
+                    android:id="@+id/handednessDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cranialNervous"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Cranial Nervous Examination">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputCranialNervous"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/motorSystem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Motor System">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputMotorSystem"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/sensorySystem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Sensory System">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputSensorySystem"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/autonomicSystem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Autonomic System">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputAutonomicSystem"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cerebellar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Cerebellar Signs">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputCerebellar"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/meningealIrrText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Signs of Meningeal Irritation"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <RadioGroup
+                android:id="@+id/meningealRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/meningealYes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Present"
+                    android:textColor="@drawable/radio_btn_select" />
+
+                <RadioButton
+                    android:id="@+id/meningealNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Absent"
+                    android:textColor="@drawable/radio_btn_select" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/skull"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Skull">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputSkull"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/musculoHeadingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="10dp"
+                android:text="Musculo Skeletal System"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/jointDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                android:hint="Type of Joint">
+
+                <AutoCompleteTextView
+                    android:id="@+id/jointDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/musLateralDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Laterallity">
+
+                <AutoCompleteTextView
+                    android:id="@+id/musLateralDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/musAbnormalDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Abnormality">
+
+                <AutoCompleteTextView
+                    android:id="@+id/musAbnormalDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/upperLimbsHeadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="UpperLimbs"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/uplLateralDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Laterallity">
+
+                <AutoCompleteTextView
+                    android:id="@+id/uplLateralDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/uplAbnormalDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Abnormality">
+
+                <AutoCompleteTextView
+                    android:id="@+id/uplAbnormalDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/lowerLimbsHeadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="LowerLimbs"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/llLateralDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Laterallity">
+
+                <AutoCompleteTextView
+                    android:id="@+id/llLateralDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/llAbnormalDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Abnormality">
+
+                <AutoCompleteTextView
+                    android:id="@+id/llAbnormalDropVal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/observationText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="4dp"
+                android:text="Observation"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/chestWall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Chest Wall">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputChestWall"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/spine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Spine">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputSpine"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/genitoUrineText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="10dp"
+                android:text="Genito Urinary System"
+                android:textSize="18sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/renalAngle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                android:hint="Renal Angle">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputRenalAngle"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/supraPubReg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:hint="Supra Public Region">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputSupraPubReg"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/externalGenitalia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp"
+                android:hint="External Genitalia">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputExternalGenitalia"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
