@@ -53,6 +53,8 @@
         android:layout_margin="@dimen/custom_ui_margin"
         app:layout_constraintStart_toStartOf="parent"
         android:hint="@string/enter_duration"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_mic"
         app:layout_constraintTop_toBottomOf="@+id/durationTxt">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -111,6 +113,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/custom_ui_margin"
         android:hint="@string/enter_your_description"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_mic"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/description">
 
