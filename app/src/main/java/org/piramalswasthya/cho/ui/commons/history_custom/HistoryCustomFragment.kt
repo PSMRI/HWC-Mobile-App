@@ -17,38 +17,23 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import ca.uhn.fhir.context.RuntimeSearchParam
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Immunization
-import org.hl7.fhir.r4.model.Dosage
-import org.hl7.fhir.r4.model.Duration
-import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.model.Timing
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
-import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowID
-import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
-import org.piramalswasthya.cho.fhir_utils.extension_names.duration
-import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
-import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
-import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
-import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MedicationHistory
-import org.piramalswasthya.cho.model.PastSurgeryValues
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.model.pastIllnessValues
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments.AAFragments
@@ -76,20 +61,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private val vaccinationStatus = arrayOf(
         "Yes","No"
     )
-    private val vaccType = arrayOf(
-        "Covaxine",
-        "Covishield",
-        "Sputnik",
-        "Corbevax"
-    )
-
-    private val doseTaken = arrayOf(
-        "1st Dose",
-        "2st Dose",
-        "Precautionary/Booster Dose"
-    )
-
-
 
     private var _binding: FragmentHistoryCustomBinding? = null
     private val binding: FragmentHistoryCustomBinding
@@ -517,8 +488,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         return map.entries.find { it.value == value }?.key
     }
     private fun addMedicationDataToCatche() {
-        val medicationRequest = MedicationRequest()
-        medicationRequest.status = MedicationRequest.MedicationRequestStatus.UNKNOWN
         val count = binding.medicationExtra.childCount
 
         for (i in 0 until count) {
