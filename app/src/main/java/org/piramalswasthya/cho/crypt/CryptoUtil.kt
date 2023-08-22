@@ -21,7 +21,7 @@ class CryptoUtil {
     ): ByteArray {
         val saltBytes = hexStringToByteArray(salt)
         val keySpec = PBEKeySpec(passPhrase.toCharArray(), saltBytes, iterationCount, keySize)
-        val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+        val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512")
         val secretKey = secretKeyFactory.generateSecret(keySpec)
         return secretKey.encoded
     }

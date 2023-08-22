@@ -9,6 +9,7 @@ import android.widget.Button
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
@@ -18,7 +19,8 @@ class VisitDetailAdapter(
     private val unitDropDown: List<String>,
     private val chiefComplaints: List<ChiefComplaintMaster>,
     private val itemChangeListener: RecyclerViewItemChangeListener,
-    private val chiefComplaintsForFilter: List<ChiefComplaintMaster>
+    private val chiefComplaintsForFilter: List<ChiefComplaintMaster>,
+    private val endIconClickListener: EndIconClickListener
 ) :
     RecyclerView.Adapter<VisitDetailAdapter.ViewHolder>() {
 
@@ -32,6 +34,8 @@ class VisitDetailAdapter(
         val descriptionInput: TextInputEditText = itemView.findViewById(R.id.descInputText)
         val resetButton: Button = itemView.findViewById(R.id.resetButton)
         val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
+        val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
+        val descInputLayout: TextInputLayout = itemView.findViewById(R.id.descriptionText)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -143,6 +147,14 @@ class VisitDetailAdapter(
 
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
+
+        // Voice to text converter click listeners
+        holder.durationInputLayout.setEndIconOnClickListener {
+            endIconClickListener.onEndIconDurationClick(position)
+        }
+        holder.descInputLayout.setEndIconOnClickListener {
+            endIconClickListener.onEndIconDescClick(position)
+        }
     }
 
 
@@ -162,3 +174,7 @@ interface RecyclerViewItemChangeListener {
     fun onItemChanged()
 }
 
+interface EndIconClickListener {
+    fun onEndIconDurationClick(position: Int)
+    fun onEndIconDescClick(position: Int)
+}

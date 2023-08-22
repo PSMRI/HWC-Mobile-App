@@ -1,122 +1,355 @@
 package org.piramalswasthya.cho.ui.login_activity.login_settings
 
 import android.util.Log
+import android.widget.ArrayAdapter
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.BlockList
 import org.piramalswasthya.cho.network.District
 import org.piramalswasthya.cho.network.DistrictBlock
+import org.piramalswasthya.cho.network.DistrictList
+import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.State
+import org.piramalswasthya.cho.network.StateList
 import org.piramalswasthya.cho.network.Village
+import org.piramalswasthya.cho.network.VillageList
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
+import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
+import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @HiltViewModel
 class LoginSettingsViewModel@Inject constructor(
-    private val pref: PreferenceDao,
+    private val loginSettingsDataRepository: LoginSettingsDataRepository,
     private val stateMasterRepo: StateMasterRepo,
     private val districtMasterRepo: DistrictMasterRepo,
     private val blockMasterRepo: BlockMasterRepo,
     private val villageMasterRepo: VillageMasterRepo,
+    private val userDao: UserDao,
+    private val pref: PreferenceDao,
     private val apiService: AmritApiService
 ) : ViewModel(){
 
-//    @Inject
-//    lateinit var stateMasterRepo: StateMasterRepo
-//
-//    @Inject
-//    lateinit var districtMasterRepo: DistrictMasterRepo
-//
-//    @Inject
-//    lateinit var blockMasterRepo: BlockMasterRepo
-//
-//    @Inject
-//    lateinit var villageMasterRepo: VillageMasterRepo
-//
-//    @Inject
-//    lateinit var apiService: AmritApiService
+    enum class NetworkState {
+        IDLE,
+        LOADING,
+        SUCCESS
+    }
 
-//    val KARNATAKA_ID = 18
+    private val _state = MutableLiveData(NetworkState.IDLE)
+    val state: LiveData<NetworkState>
+        get() = _state
 
-//    private var stateList: List<StateMaster> = mutableListOf()
-//
-//    private var districtList: List<District> = mutableListOf()
-//
-//    private var blockList: List<DistrictBlock> = mutableListOf()
-//
-//    private var villageList: List<Village> = mutableListOf()
-//
-//    init{
-////        val request = LocationRequest(vanID = 153, spPSMID = "64")
-//        viewModelScope.launch {
-//            addStatesToDb()
-//        }
-//    }
-//
-//    fun addStatesToDb(){
-//        CoroutineScope(Dispatchers.Main).launch{
-////            stateList = stateMasterRepo.getCachedResponseLang()
-////            if(stateList.isEmpty()){
-//                stateList = stateMasterRepo.stateMasterService()
-//                for(state in stateList){
-//                    stateMasterRepo.insertStateMaster(state)
-//                }
-////            }
-//        }
-//    }
-//
-//     fun addDistrictsToDb(stateId : Int){
-//        CoroutineScope(Dispatchers.Main).launch{
-////            var districtList: List<DistrictMaster> = districtMasterRepo.getDistrictsByStateId(stateId)
-////            if(districtList.isEmpty()){
-//                districtList = districtMasterRepo.districtMasterService(stateId)
-//                for(district in districtList){
-//                    Log.i("District id is", district.districtID.toString())
-//                    districtMasterRepo.insertDistrict(DistrictMaster(districtID = district.districtID, stateID = stateId, districtName = district.districtName))
-//                }
-////            }
-//        }
-//    }
-//
-//    suspend fun addBlocksToDb(districtId : Int): List<DistrictBlock> {
-//        CoroutineScope(Dispatchers.Main).launch{
-////            var blockList: List<BlockMaster> = blockMasterRepo.blockMasterService(districtId)
-////            if(blockList.isEmpty()){
-//                blockList = blockMasterRepo.blockMasterService(districtId)
-//                for(block in blockList){
-//                    Log.i("Block id is", block.blockID.toString())
-//                    blockMasterRepo.insertBlock(BlockMaster(blockID = block.blockID, districtID = districtId, blockName = block.blockName))
-//                }
-//                return blockList;
-////            }
-//        }
-//    }
-//
-//    fun addVillagesToDb(blockId : Int){
-////        CoroutineScope(Dispatchers.Main).launch{
-////            var villageList: List<VillageMaster> = villageMasterRepo.villageMasterService(blockId)
-////            if(villageList.isEmpty()){
-//                villageList = villageMasterRepo.villageMasterService(blockId)
-//                for(village in villageList){
-//                    Log.i("Village id is", village.districtBranchID.toString())
-//                    villageMasterRepo.insertVillage(VillageMaster(districtBranchID = village.districtBranchID, blockID = blockId, villageName = village.villageName))
-//                }
-////            }
-////        }
-//    }
+    private val _district = MutableLiveData(NetworkState.IDLE)
+    val district: LiveData<NetworkState>
+        get() = _district
+
+    private val _block = MutableLiveData(NetworkState.IDLE)
+    val block: LiveData<NetworkState>
+        get() = _block
+
+    private val _village = MutableLiveData(NetworkState.IDLE)
+    val village: LiveData<NetworkState>
+        get() = _village
+
+
+    var stateList: List<State> = mutableListOf()
+    var districtList: List<District> = mutableListOf()
+    var blockList: List<DistrictBlock> = mutableListOf()
+    var villageList: List<Village> = mutableListOf()
+
+    var selectedState: State? = null
+    var selectedDistrict: District? = null
+    var selectedBlock: DistrictBlock? = null
+    var selectedVillage: Village? = null
+
+
+    private var userInfo: UserCache? = null
+
+    init{
+        viewModelScope.launch {
+            async { userInfo = userDao.getLoggedInUser() }.await()
+            fetchStates()
+        }
+    }
+
+    fun updateUserStateId(stateId : Int){
+        viewModelScope.launch {
+            val result = userDao.updateUserStateId(stateId)
+            if(result > 0 && userInfo != null){
+                userInfo!!.stateID = stateId
+            }
+        }
+    }
+
+    fun updateUserDistrictId(districtId : Int) {
+        viewModelScope.launch {
+            val result =  userDao.updateUserDistrictId(districtId)
+            if(result > 0 && userInfo != null){
+                userInfo!!.districtID = districtId
+            }
+        }
+    }
+
+    fun updateUserBlockId(blockId : Int) {
+        viewModelScope.launch {
+            val result =  userDao.updateUserBlockId(blockId)
+            if(result > 0 && userInfo != null){
+                userInfo!!.blockID = blockId
+            }
+        }
+    }
+
+    fun updateUserVillageId(districtBranchId : Int) {
+        viewModelScope.launch {
+            val result =  userDao.updateUserVillageId(districtBranchId)
+            if(result > 0 && userInfo != null){
+                userInfo!!.districtBranchID = districtBranchId
+            }
+        }
+    }
+
+    private fun initializeStateSelection(){
+        if(stateList.isNotEmpty()) {
+            if(userInfo != null && userInfo!!.stateID != null && stateList.any{ it.stateID == userInfo!!.stateID!! }){
+                selectedState = stateList.firstOrNull { it.stateID == userInfo!!.stateID!!}!!
+                fetchDistricts(userInfo!!.stateID!!)
+            }
+            else{
+                selectedState = stateList[0]
+                updateUserStateId(selectedState!!.stateID)
+                fetchDistricts(selectedState!!.stateID)
+            }
+        }
+    }
+
+    private fun initializeDistrictSelection(){
+        if(districtList.isNotEmpty()) {
+            if(userInfo != null && userInfo!!.districtID != null && districtList.any{ it.districtID == userInfo!!.districtID!! }){
+                selectedDistrict = districtList.firstOrNull { it.districtID == userInfo!!.districtID!!}!!
+                fetchTaluks(userInfo!!.districtID!!)
+            }
+            else{
+                selectedDistrict = districtList[0]
+                updateUserDistrictId(selectedDistrict!!.districtID)
+                fetchTaluks(selectedDistrict!!.districtID)
+            }
+        }
+    }
+
+    private fun initializeBlockSelection(){
+        if(blockList.isNotEmpty()) {
+            if(userInfo != null && userInfo!!.blockID != null && blockList.any{ it.blockID == userInfo!!.blockID!! }){
+                selectedBlock = blockList.firstOrNull { it.blockID == userInfo!!.blockID!!}!!
+                fetchVillageMaster(userInfo!!.blockID!!)
+            }
+            else{
+                selectedBlock = blockList[0]
+                updateUserBlockId(selectedBlock!!.blockID)
+                fetchVillageMaster(selectedBlock!!.blockID)
+            }
+        }
+    }
+
+    private fun initializeVillageSelection(){
+        if(villageList.isNotEmpty()) {
+            if(userInfo != null && userInfo!!.districtBranchID != null && villageList.any { it.districtBranchID == userInfo!!.districtBranchID!! }){
+                selectedVillage = villageList.firstOrNull { it.districtBranchID == userInfo!!.districtBranchID!!}!!
+            }
+            else{
+                selectedVillage = villageList[0]
+                updateUserVillageId(selectedVillage!!.districtBranchID)
+            }
+        }
+    }
+
+    fun fetchStates() {
+        viewModelScope.launch {
+            _state.value = NetworkState.LOADING
+            try {
+                val request = LocationRequest(vanID = 153, spPSMID = "64")
+                when (val stateData = stateMasterRepo.getStateList(request)){
+                    is NetworkResult.Success -> {
+                        stateList = (stateData.data as StateList).stateMaster
+                        addStatesToDb()
+                        initializeStateSelection()
+                        _state.value = NetworkState.SUCCESS
+                    }
+                    else -> {
+
+                    }
+                }
+
+            } catch (e: Exception) {
+                Timber.d("Fetching states failed ${e.message}")
+            }
+        }
+    }
+
+    fun fetchDistricts(selectedStateId: Int) {
+        _district.value = NetworkState.LOADING
+        viewModelScope.launch {
+            try {
+                when (val districtData = districtMasterRepo.districtMasterService(selectedStateId)){
+                    is NetworkResult.Success -> {
+                        districtList = (districtData.data as DistrictList).districtMaster
+                        addDistrictsToDb(selectedStateId)
+                        initializeDistrictSelection()
+                        _district.value = NetworkState.SUCCESS
+
+                    }
+                    else -> {
+
+                    }
+
+                }
+
+            } catch (e: Exception) {
+                Timber.d("Fetching Districts failed ${e.message}")
+            }
+        }
+    }
+
+    fun fetchTaluks(selectedDistrictId: Int) {
+        _block.value = NetworkState.LOADING
+        viewModelScope.launch {
+            try {
+                when (val blockData = blockMasterRepo.blockMasterService(selectedDistrictId)){
+                    is NetworkResult.Success -> {
+                        blockList = (blockData.data as BlockList).blockMaster
+                        addBlocksToDb(selectedDistrictId)
+                        initializeBlockSelection()
+                        _block.value = NetworkState.SUCCESS
+                    }
+                    else -> {
+
+                    }
+                }
+
+            } catch (e: Exception) {
+                Timber.d("Fetching Taluks failed ${e.message}")
+            }
+        }
+    }
+
+    fun fetchVillageMaster(selectedBlockId: Int, ) {
+        _village.value = NetworkState.LOADING
+        viewModelScope.launch {
+            try {
+                // Find the selected state by name
+                when (val villageData = villageMasterRepo.villageMasterService(selectedBlockId)){
+                    is NetworkResult.Success -> {
+                        villageList = (villageData.data as VillageList).villageMaster
+                        getVillagesByBlockIdAndAddToDb()
+                        initializeVillageSelection()
+                        _village.value = NetworkState.SUCCESS
+                    }
+
+                    else -> {
+
+                    }
+                }
+
+            } catch (e: Exception) {
+                Timber.d("Fetching villages failed ${e.message}")
+            }
+        }
+    }
+
+    private suspend fun addStatesToDb(){
+        try {
+            stateList.let{
+                for(states in stateList){
+                    stateMasterRepo.insertStateMaster(StateMaster(states.stateID, states.stateName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in district", e.toString())
+        }
+    }
+
+    private suspend fun addDistrictsToDb(stateId : Int){
+        try {
+            districtList.let{
+                for(district in districtList){
+                    districtMasterRepo.insertDistrict(DistrictMaster(district.districtID, stateId, district.districtName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in district", e.toString())
+        }
+    }
+
+    private suspend fun addBlocksToDb(districtId : Int){
+        try {
+            blockList.let{
+                for(block in blockList){
+                    blockMasterRepo.insertBlock(BlockMaster(blockID = block.blockID, districtID = districtId, blockName = block.blockName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in block", e.toString())
+        }
+    }
+
+    private suspend fun getVillagesByBlockIdAndAddToDb(){
+        try {
+            blockList.let {
+                for (block in blockList){
+                    when (val villageData = villageMasterRepo.villageMasterService(block.blockID)){
+                        is NetworkResult.Success -> {
+                            addVillagesToDb((villageData.data as VillageList).villageMaster, block.blockID)
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in getting village", e.toString())
+        }
+    }
+
+    private suspend fun addVillagesToDb(currVillageList : List<Village>,  blockId : Int){
+        try {
+            currVillageList.let{
+                for(village in currVillageList){
+                    villageMasterRepo.insertVillage(VillageMaster(districtBranchID = village.districtBranchID, blockID = blockId, villageName = village.villageName))
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.i("exception in saving village", e.toString())
+        }
+    }
 
 }
