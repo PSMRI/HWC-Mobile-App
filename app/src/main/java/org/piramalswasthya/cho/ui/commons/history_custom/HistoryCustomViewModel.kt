@@ -18,10 +18,13 @@ import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VaccineType
 import org.piramalswasthya.cho.repositories.HistoryRepo
@@ -39,6 +42,15 @@ class HistoryCustomViewModel @Inject constructor(
     private val historyRepo: HistoryRepo,
     @ApplicationContext private val application : Context
 ): ViewModel(){
+
+    private lateinit var _tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+    val tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+        get() = _tobaccoDropdown
+
+    private lateinit var _alcoholDropdown: LiveData<List<AlcoholDropdown>>
+
+    val alcoholDropdown: LiveData<List<AlcoholDropdown>>
+        get() = _alcoholDropdown
 
     private var _vaccinationTypeDropdown:LiveData<List<VaccineType>>
     val vaccinationTypeDropdown:LiveData<List<VaccineType>>
@@ -62,8 +74,20 @@ class HistoryCustomViewModel @Inject constructor(
     init {
         _doseTypeDropdown = MutableLiveData()
         _vaccinationTypeDropdown = MutableLiveData()
+        _tobaccoDropdown = MutableLiveData()
+        _alcoholDropdown = MutableLiveData()
+        getAlcoholDropdown()
+        getTobaccoDropdown()
         getDoseTypeDropdown()
         getVaccinationTypeDropdown()
+    }
+    private fun getTobaccoDropdown(){
+        try{
+            _tobaccoDropdown  = maleMasterDataRepository.getAllTobaccoDropdown()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getTobaccoList() $e")
+        }
     }
      fun getDoseTypeDropdown(){
         try {
@@ -71,6 +95,14 @@ class HistoryCustomViewModel @Inject constructor(
         }
         catch (e:Exception){
             Timber.d("Error in getDoseType $e")
+        }
+    }
+    private fun getAlcoholDropdown(){
+        try{
+            _alcoholDropdown  = maleMasterDataRepository.getAllAlcoholDropdown()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getAlcoholList() $e")
         }
     }
     fun getVaccinationTypeDropdown(){
@@ -100,6 +132,17 @@ class HistoryCustomViewModel @Inject constructor(
                     fhirEngine.create(observation)
             } catch (e: Exception){
                 Timber.d("Error in Saving Illness Details Informations")
+            }
+        }
+    }
+    fun saveTobAndAlcHistoryDetailsInfo(observation: Observation){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                observation.id = uuid
+                fhirEngine.create(observation)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Personal History Details Informations")
             }
         }
     }
@@ -169,6 +212,18 @@ class HistoryCustomViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Timber.e("Error in saving Medication history: $e")
+            }
+        }
+    }
+
+    fun saveTobAndAlcHistoryToCache(tobaccoAlcoholHistory: TobaccoAlcoholHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveTobAndAlcHistoryToCatche(tobaccoAlcoholHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Tob and Alc history: $e")
             }
         }
     }
