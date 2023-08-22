@@ -62,7 +62,6 @@
         <action
             android:id="@+id/action_historyCustomFragment_to_fhirVitalsFragment"
             app:destination="@id/customVitalsFragment" />
-            app:destination="@id/fhirVitalsFragment" />
     </fragment>
 
     <fragment
