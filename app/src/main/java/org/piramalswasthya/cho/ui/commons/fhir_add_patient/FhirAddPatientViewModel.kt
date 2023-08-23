@@ -14,6 +14,7 @@ import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
+import com.google.gson.Gson
 import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -72,6 +73,13 @@ class FhirAddPatientViewModel @Inject constructor(@ApplicationContext private va
 
             patient = entry.resource as Patient
             patient.id = generateUuid()
+            val ctx = FhirContext.forR4()
+// Serialize the Encounter resource to JSON
+            val jsonBody =
+                ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient)
+            val jsonParser = FhirContext.forR4().newJsonParser()
+            val parsedData = jsonParser.parseResource(Patient::class.java, jsonBody) as Patient
+            val pat = parsedData
 //            fhirEngine.create(patient)
             isEntitySaved.value = true
         }

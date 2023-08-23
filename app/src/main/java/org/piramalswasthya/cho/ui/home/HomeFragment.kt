@@ -30,16 +30,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    @Inject
-    lateinit var
-            registrarMasterDataRepo: RegistrarMasterDataRepo
-
-    @Inject
-    lateinit var malMasterDataRepo: MaleMasterDataRepository
-
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
         get() = _binding!!
+
+    private lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,17 +45,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        CoroutineScope(Dispatchers.Main).launch{
-            try {
-                malMasterDataRepo.getMasterDataForNurse()
-                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-
-            }
-            catch (e : Exception){
-
-            }
-        }
+        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()

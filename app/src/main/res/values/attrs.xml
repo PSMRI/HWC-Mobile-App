@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CHOTextInputLayout">
+        <attr name="hint" format="string"/>
+        <attr name="inputType" format="enum">
+            <enum name="text" value="1" />
+            <enum name="number" value="2" />
+            <enum name="password" value="4" />
+<!--            <flag name="text" value="1" />-->
+<!--            <flag name="number" value="2" />-->
+<!--            <flag name="date" value="3" />-->
+<!--            <flag name="speech" value="4" />-->
+<!--            <flag name="password" value="5" />-->
+        </attr>
+    </declare-styleable>
+</resources>

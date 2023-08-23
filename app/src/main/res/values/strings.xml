@@ -263,6 +263,13 @@
     <string name="previous_allergy_history">Previous Allergy History</string>
     <string name="outpatient_care">OutPatient Care</string>
     <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
+    <string name="date_of_birth">Date Of Birth</string>
+    <string name="age_in_unit">Age in Unit</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="registration_date">Registration Date</string>
+    <string name="marital_status">Marital Status</string>
+    <string name="spouse_name">Spouse Name</string>
+    <string name="age_at_marriage">Age at Marriage</string>
 
 
 </resources>

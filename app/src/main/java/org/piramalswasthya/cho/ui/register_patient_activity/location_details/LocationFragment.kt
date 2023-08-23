@@ -69,18 +69,11 @@ class LocationFragment : Fragment() , NavigationAdapter {
 
     private val extension: FhirExtension = FhirExtension(ResourceType.Patient)
 
-    private var stateMap: Map<Int, String>? = null
-    private var districtMap: Map<Int, String>? = null
-    private var blockMap: Map<Int, String>? = null
-    private var villageMap: Map<Int, String>? = null
-
     private var selectedState: StateMaster? = null
     private var selectedDistrict: DistrictMaster? = null
     private var selectedBlock: BlockMaster? = null
     private var selectedVillage: VillageMaster? = null
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-//
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,26 +82,8 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 //
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        lifecycleScope.launch {
-//            async { userInfo = userDao.getLoggedInUser() }.await()
-//            Log.i("states fetching", "not done")
-//            fetchStates()
-//        }
-        viewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
 
-//        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
-//            viewModel.selectedState = viewModel.stateList[position]
-//            viewModel.updateUserStateId(viewModel.selectedState!!.stateID)
-//            viewModel.fetchDistricts(viewModel.selectedState!!.stateID)
-//            binding.dropdownState.setText(viewModel.selectedState!!.stateName,false)
-//        }
-//
-//        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
-//            viewModel.selectedDistrict = viewModel.districtList[position]
-//            viewModel.updateUserDistrictId(viewModel.selectedDistrict!!.districtID)
-//            viewModel.fetchTaluks(viewModel.selectedDistrict!!.districtID)
-//            binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName,false)
-//        }
+        viewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
 
         binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedBlock = viewModel.blockList[position]
