@@ -10,7 +10,7 @@
         android:id="@+id/fhirVisitDetailsFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FragmentVisitDetail"
         android:label="fragment_fhir_visit_details"
-        tools:layout="@layout/fragment_fhir_visit_details" >
+        tools:layout="@layout/visit_details_info" >
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_historyCustomFragment"
             app:destination="@id/historyCustomFragment" />
@@ -20,30 +20,24 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fhirVitalsFragment"
+        android:id="@+id/customVitalsFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment"
         android:label="fragment_fhir_vitals"
-        tools:layout="@layout/fragment_fhir_vitals" >
+        tools:layout="@layout/fragment_vitals_custom" >
         <action
-            android:id="@+id/action_fhirVitalsFragment_to_fhirPrescriptionFragment"
-            app:destination="@id/fhirPrescriptionFragment" />
-        <action
-            android:id="@+id/action_fhirVitalsFragment_to_historyCustomFragment"
-            app:destination="@id/historyCustomFragment" />
+            android:id="@+id/action_fhirVitalsFragment_to_fhirExaminationFragment"
+            app:destination="@id/examinationFragment" />
     </fragment>
     <fragment
         android:id="@+id/fhirRevisitFormFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment"
         android:label="fragment_fhir_revisit_form"
-        tools:layout="@layout/fragment_fhir_revisit_form" >
-        <action
-            android:id="@+id/action_fhirRevisitFormFragment_to_fhirPrescriptionFragment"
-            app:destination="@id/fhirPrescriptionFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_fhir_revisit_form" />
     <fragment
         android:id="@+id/webViewFragment"
         android:name="org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment"
-        android:label="WebViewFragment">
+        android:label="WebViewFragment"
+        tools:layout="@layout/fragment_web_view">
         <argument
             android:name="webUrl"
             app:argType="string"/>
@@ -55,7 +49,7 @@
         tools:layout="@layout/fragment_fhir_prescription" >
         <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            app:destination="@id/customVitalsFragment" />
         <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
             app:destination="@id/fhirRevisitFormFragment" />
@@ -67,10 +61,17 @@
         tools:layout="@layout/fragment_history_custom" >
         <action
             android:id="@+id/action_historyCustomFragment_to_fhirVitalsFragment"
-            app:destination="@id/fhirVitalsFragment" />
+            app:destination="@id/customVitalsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/examinationFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_examination_form.ExaminationFragment"
+        android:label="fragment_examination"
+        tools:layout="@layout/fragment_examination">
         <action
-            android:id="@+id/action_historyCustomFragment_to_fhirVisitDetailsFragment"
-            app:destination="@id/fhirVisitDetailsFragment" />
+            android:id="@+id/action_examination_fragment_to_prescription"
+            app:destination="@id/fhirPrescriptionFragment"/>
     </fragment>
 
 

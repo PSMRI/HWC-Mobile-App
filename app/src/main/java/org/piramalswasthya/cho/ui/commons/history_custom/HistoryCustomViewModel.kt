@@ -9,22 +9,57 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.hl7.fhir.r4.model.Immunization
+import kotlinx.coroutines.withContext
+import org.hl7.fhir.r4.model.MedicationRequest
+import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.model.AlcoholDropdown
+import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.TobaccoDropdown
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VaccineType
+import org.piramalswasthya.cho.repositories.HistoryRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 @HiltViewModel
 class HistoryCustomViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
+    private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val userRepo: UserRepo,
+    private val historyRepo: HistoryRepo,
     @ApplicationContext private val application : Context
 ): ViewModel(){
+
+    private lateinit var _tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+    val tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+        get() = _tobaccoDropdown
+
+    private lateinit var _alcoholDropdown: LiveData<List<AlcoholDropdown>>
+
+    val alcoholDropdown: LiveData<List<AlcoholDropdown>>
+        get() = _alcoholDropdown
+
+    private var _vaccinationTypeDropdown:LiveData<List<VaccineType>>
+    val vaccinationTypeDropdown:LiveData<List<VaccineType>>
+        get() = _vaccinationTypeDropdown
+
+    private var _doseTypeDropdown:LiveData<List<DoseType>>
+    val doseTypeDropdown:LiveData<List<DoseType>>
+        get() = _doseTypeDropdown
+
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
@@ -35,6 +70,49 @@ class HistoryCustomViewModel @Inject constructor(
     private var _boolCall = MutableLiveData(false)
     val boolCall: LiveData<Boolean>
         get() = _boolCall
+
+    init {
+        _doseTypeDropdown = MutableLiveData()
+        _vaccinationTypeDropdown = MutableLiveData()
+        _tobaccoDropdown = MutableLiveData()
+        _alcoholDropdown = MutableLiveData()
+        getAlcoholDropdown()
+        getTobaccoDropdown()
+        getDoseTypeDropdown()
+        getVaccinationTypeDropdown()
+    }
+    private fun getTobaccoDropdown(){
+        try{
+            _tobaccoDropdown  = maleMasterDataRepository.getAllTobaccoDropdown()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getTobaccoList() $e")
+        }
+    }
+     fun getDoseTypeDropdown(){
+        try {
+            _doseTypeDropdown = vaccineAndDoseTypeRepo.getDoseTypeCachedResponse()
+        }
+        catch (e:Exception){
+            Timber.d("Error in getDoseType $e")
+        }
+    }
+    private fun getAlcoholDropdown(){
+        try{
+            _alcoholDropdown  = maleMasterDataRepository.getAllAlcoholDropdown()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getAlcoholList() $e")
+        }
+    }
+    fun getVaccinationTypeDropdown(){
+        try {
+            _vaccinationTypeDropdown = vaccineAndDoseTypeRepo.getVaccineTypeCachedResponse()
+        }
+        catch (e:Exception){
+            Timber.d("Error in getVaccinationType $e")
+        }
+    }
     fun getLoggedInUserDetails(){
         viewModelScope.launch {
             try {
@@ -46,21 +124,50 @@ class HistoryCustomViewModel @Inject constructor(
             }
         }
     }
-
-    fun saveIllnessDetailsInfo(observation: List<Observation>){
+    fun saveIllnessORSurgeryDetailsInfo(observation: Observation){
         viewModelScope.launch {
             try{
-                observation.forEach { obs ->
                    var uuid = generateUuid()
-                    obs.id = uuid
-                    fhirEngine.create(obs)
-                    var getobs = fhirEngine.get(ResourceType.Observation,uuid)
-                }
+                    observation.id = uuid
+                    fhirEngine.create(observation)
             } catch (e: Exception){
-                Timber.d("Error in Saving Visit Details Informations")
+                Timber.d("Error in Saving Illness Details Informations")
             }
         }
-
+    }
+    fun saveTobAndAlcHistoryDetailsInfo(observation: Observation){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                observation.id = uuid
+                fhirEngine.create(observation)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Personal History Details Informations")
+            }
+        }
+    }
+    fun saveMedicationDetailsInfo(medicationStatement: MedicationStatement){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                medicationStatement.id = uuid
+                fhirEngine.create(medicationStatement)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Medication Details Informations")
+                Timber.d("Error in Saving Illness and Surgery Details Informations")
+            }
+        }
+    }
+    fun saveCovidDetailsInfo(immunization: Immunization){
+        viewModelScope.launch {
+            try{
+                    var uuid = generateUuid()
+                    immunization.id = uuid
+                    fhirEngine.create(immunization)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Covid Details Informations")
+            }
+        }
     }
     suspend fun getIllMap(): Map<Int, String> {
         return try {
@@ -70,9 +177,57 @@ class HistoryCustomViewModel @Inject constructor(
             emptyMap()
         }
     }
+    suspend fun getSurgMap(): Map<Int, String> {
+        return try {
+            maleMasterDataRepository.getSurgeryByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    suspend fun getDoseTypeMap(): Map<Int, String> {
+        return try {
+            vaccineAndDoseTypeRepo.getDoseTypeByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+    suspend fun getVaccineTypeMap(): Map<Int, String> {
+        return try {
+            vaccineAndDoseTypeRepo.getVaccineTypeByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
     private fun generateUuid():String{
         return UUID.randomUUID().toString()
     }
+    fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveMedicationHistoryToCatche(medicationHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Medication history: $e")
+            }
+        }
+    }
+
+    fun saveTobAndAlcHistoryToCache(tobaccoAlcoholHistory: TobaccoAlcoholHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveTobAndAlcHistoryToCatche(tobaccoAlcoholHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Tob and Alc history: $e")
+            }
+        }
+    }
+
     fun resetBool(){
         _boolCall.value = false
     }

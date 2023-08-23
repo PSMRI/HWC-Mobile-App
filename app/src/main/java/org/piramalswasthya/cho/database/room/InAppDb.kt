@@ -72,10 +72,12 @@ import timber.log.Timber
         AllergicReactionDropdown::class,
         FamilyMemberDropdown::class,
         SurgeryDropdown::class,
-        TobaccoDropdown::class
+        TobaccoDropdown::class,
+        TobaccoAlcoholHistory::class,
+        MedicationHistory::class
     ],
 //    views = [BenBasicCache::class],
-    version = 23, exportSchema = false
+    version = 28, exportSchema = false
 )
 
 

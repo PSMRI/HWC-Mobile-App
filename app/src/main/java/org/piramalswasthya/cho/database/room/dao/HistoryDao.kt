@@ -9,7 +9,9 @@ import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.TobaccoDropdown
 
 @Dao
@@ -32,6 +34,18 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTobaccoDropdown(tobaccoDropdown: TobaccoDropdown)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMedicationHistory(medicationHistory: MedicationHistory)
+
+    @Query("SELECT * FROM Medication_history WHERE medicationHistoryId = :medicationId")
+    fun getMedicationHistoryByMedicationId(medicationId: String): LiveData<MedicationHistory>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTobAndAlcHistory(tobaccoAlcoholHistory: TobaccoAlcoholHistory)
+
+    @Query("select * from Tobacco_Alcohol_history WHERE tobaccoAndAlcoholId = :tobAndAlcId")
+    fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory
+
     @Query("select * from Illness_Dropdown")
     fun getAllIllnessDropdown(): LiveData<List<IllnessDropdown>>
 
@@ -52,4 +66,8 @@ interface HistoryDao {
 
     @Query("select * from Illness_Dropdown")
     suspend fun getIllnessMasterMap():List<IllnessDropdown>
+    @Query("select * from Surgery_Dropdown")
+    suspend fun getSurgeryMasterMap():List<SurgeryDropdown>
+
+
 }

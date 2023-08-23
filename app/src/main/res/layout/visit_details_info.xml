@@ -35,12 +35,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/outpatient_care"
+                android:textSize="18sp"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
                 android:id="@+id/radioButton2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="18sp"
                 android:text="Other CPHC Services"
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
@@ -71,6 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:textSize="18sp"
                 android:text="New Chief Complaints"
                 android:textColor="@drawable/radio_btn_select" />
 
@@ -79,6 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Followup"
+                android:textSize="18sp"
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 

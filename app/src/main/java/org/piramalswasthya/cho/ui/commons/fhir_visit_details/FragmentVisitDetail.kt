@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -39,10 +40,11 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 @AndroidEntryPoint
-class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
+class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
 
     override var fragmentContainerId = 0
     private lateinit var patientId : String
@@ -76,6 +78,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
     private var encounter = Encounter()
     private var listOfConditions = mutableListOf<Condition>()
     private var base64String = ""
+    private var currDurationPos = -1
+    private var currDescPos = -1
 
     private lateinit var adapter: VisitDetailAdapter
 
@@ -89,7 +93,26 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
         get() {
             return _binding!!
         }
+    private val speechToTextLauncherForDuration = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNumeric()) {
+            updateDurationText(result)
+        }
+    }
 
+    // method to check string contains numeric val
+    private fun String.isNumeric(): Boolean {
+        return try { this.toDouble()
+            true
+        } catch (e: NumberFormatException) {
+            false
+        }
+    }
+
+    private val speechToTextLauncherForDesc = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank()) {
+           updateDescText(result)
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -188,7 +211,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
                     binding.plusButton.isEnabled = !isAnyItemEmpty()
                 }
             },
-            chiefComplaintsForFilter
+            chiefComplaintsForFilter,
+            this
         )
         binding.rv.adapter = adapter
         val layoutManager = LinearLayoutManager(requireContext())
@@ -470,5 +494,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService {
         val intent = Intent(context, WebViewActivity::class.java)
         intent.putExtra("patientId", patientId);
         startActivity(intent)
+    }
+
+
+    //methods for voice to text conversion and update the input fields
+    override fun onEndIconDurationClick(position: Int) {
+        speechToTextLauncherForDuration.launch(Unit)
+        currDurationPos = position
+    }
+    private fun updateDurationText(duration:String){
+       if(currDurationPos != -1) {
+           itemList[currDurationPos].duration = duration
+           adapter.notifyItemChanged(currDurationPos)
+       }
+    }
+    private fun updateDescText(desc: String){
+        if(currDescPos != -1) {
+            itemList[currDescPos].description = desc
+            adapter.notifyItemChanged(currDescPos)
+        }
+    }
+
+    override fun onEndIconDescClick(position: Int) {
+        speechToTextLauncherForDesc.launch(Unit)
+        currDescPos = position
     }
 }
