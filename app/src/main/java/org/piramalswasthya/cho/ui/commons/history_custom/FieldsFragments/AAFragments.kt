@@ -11,30 +11,11 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.FamilyMemberAdapter
-import org.piramalswasthya.cho.adapter.IllnessAdapter
 import org.piramalswasthya.cho.databinding.FragmentAAFragmentsBinding
-import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
-import org.piramalswasthya.cho.model.FamilyMemberDropdown
-import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 
 @AndroidEntryPoint
 class AAFragments : Fragment() {
-
-    private val AA = arrayOf(
-                "Asthama",
-                "Diabetes Mellitus",
-                "Epilepsy(Convulsions)",
-                "Hemiplegia/Stroke",
-                "HIV/AIDS",
-                "Hypertension",
-                "Ischemic Heart Disease",
-                "Syphilis",
-                "Thyroid Problem",
-                "Other"
-    )
 
     private val TimePeriodAgo = arrayOf(
         "Day(s)",
@@ -50,8 +31,6 @@ class AAFragments : Fragment() {
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
     val viewModel: AssociatedAilmentsViewModel by viewModels()
     private var historyListener: HistoryFieldsInterface? = null
-    private var familyOption = ArrayList<FamilyMemberDropdown>()
-    private lateinit var familyAdapter: FamilyMemberAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -68,21 +47,13 @@ class AAFragments : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dropdownAA = binding.aaText
+//        dropdownAA = binding.aaText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-        val aaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AA)
-        dropdownAA.setAdapter(aaAdapter)
+//        val aaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AA)
+//        dropdownAA.setAdapter(aaAdapter)
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
 
-//        familyAdapter = FamilyMemberAdapter(requireContext(), R.layout.drop_down,familyOption)
-//        binding.familyText.setAdapter(familyAdapter)
-//
-//        viewModel.familyDropdown.observe( viewLifecycleOwner) { aa ->
-//            familyOption.clear()
-//            familyOption.addAll(aa)
-//            familyAdapter.notifyDataSetChanged()
-//        }
         val familyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
         //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
         binding.familyText.setAdapter(familyAdapter)
@@ -93,6 +64,15 @@ class AAFragments : Fragment() {
             familyAdapter.clear()
             familyAdapter.addAll(alc.map { it.benRelationshipType })
             familyAdapter.notifyDataSetChanged()
+        }
+
+        val aaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
+        binding.aaText.setAdapter(aaAdapter)
+
+        viewModel.associateAilmentsDropdown.observe( viewLifecycleOwner) { aa ->
+            aaAdapter.clear()
+            aaAdapter.addAll(aa.map { it.assocateAilments })
+            aaAdapter.notifyDataSetChanged()
         }
 
         binding.deleteButton.setOnClickListener {
@@ -117,7 +97,7 @@ class AAFragments : Fragment() {
             binding.aaText.text?.clear()
         }
 
-        dropdownAA.addTextChangedListener(object : TextWatcher {
+        binding.aaText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

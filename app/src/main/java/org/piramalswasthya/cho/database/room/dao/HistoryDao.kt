@@ -1,18 +1,24 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
+import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
+import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
+import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.TobaccoDropdown
+import timber.log.Timber
 
 @Dao
 interface HistoryDao {
@@ -30,19 +36,24 @@ interface HistoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSurgeryDropdown(surgeryDropdown: SurgeryDropdown)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertComorbidConditionDropdown(comorbidConditionsDropdown: ComorbidConditionsDropdown)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFamilyDiseaseDropdown(familyMemberDiseaseTypeDropdown: FamilyMemberDiseaseTypeDropdown)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTobaccoDropdown(tobaccoDropdown: TobaccoDropdown)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMedicationHistory(medicationHistory: MedicationHistory)
+    suspend fun insertMedicationHistory(medicationHistory: MedicationHistory)
 
     @Query("SELECT * FROM Medication_history WHERE medicationHistoryId = :medicationId")
     fun getMedicationHistoryByMedicationId(medicationId: String): LiveData<MedicationHistory>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTobAndAlcHistory(tobaccoAlcoholHistory: TobaccoAlcoholHistory)
-
+    suspend fun insertTobAndAlcHistory(tobaccoAlcoholHistory: TobaccoAlcoholHistory)
+    @Insert
+     suspend fun insertAssociateAilments(associateAilmentsDropdown: AssociateAilmentsDropdown)
     @Query("select * from Tobacco_Alcohol_history WHERE tobaccoAndAlcoholId = :tobAndAlcId")
     fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory
 
@@ -58,8 +69,26 @@ interface HistoryDao {
     @Query("select * from Family_member_Dropdown")
     fun getAllFamilyMemberDropdown(): LiveData<List<FamilyMemberDropdown>>
 
+    @Query("select * from Associate_Ailments_Dropdown")
+    fun getAllAssociateAilmentsDropdown(): LiveData<List<AssociateAilmentsDropdown>>
+
     @Query("select * from Surgery_Dropdown")
     fun getAllSurgeryDropdown(): LiveData<List<SurgeryDropdown>>
+@Query("SELECT c.comorbidConditionID, c.comorbidCondition FROM Comorbid_Condition_Dropdown c " +
+        "INNER JOIN Family_Member_Disease_Type_Dropdown f ON " +
+        "REPLACE(c.comorbidCondition, ' ', '') = REPLACE(f.diseaseType, ' ', '') " +
+        "GROUP BY c.comorbidConditionID, c.comorbidCondition")
+  suspend fun getAllDistinctComorbidConditions(): List<ComorbidConditionsDropdown>
+
+     suspend fun saveMatchingComorbidConditionsAsAssociateAilments() {
+        val matchedConditions = getAllDistinctComorbidConditions()
+        val associateAilmentsList = matchedConditions.map { comorbidCondition ->
+            AssociateAilmentsDropdown(assocateAilmentsId = comorbidCondition.comorbidConditionID, assocateAilments = comorbidCondition.comorbidCondition)
+        }
+        associateAilmentsList.forEach { associateA ->
+            insertAssociateAilments(associateA)
+        }
+    }
 
     @Query("select * from Tobacco_Dropdown")
     fun getAllTobaccoDropdown(): LiveData<List<TobaccoDropdown>>
@@ -68,6 +97,4 @@ interface HistoryDao {
     suspend fun getIllnessMasterMap():List<IllnessDropdown>
     @Query("select * from Surgery_Dropdown")
     suspend fun getSurgeryMasterMap():List<SurgeryDropdown>
-
-
 }
