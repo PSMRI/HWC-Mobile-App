@@ -5,6 +5,7 @@ import android.util.LogPrinter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -14,13 +15,21 @@ import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
+import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
+import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.NetworkResponse
+import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.StateList
+import org.piramalswasthya.cho.network.networkResultInterceptor
+import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import timber.log.Timber
 import java.lang.Exception
 import java.security.PrivateKey
@@ -30,7 +39,8 @@ class MaleMasterDataRepository @Inject constructor(
     private val amritApiService: AmritApiService,
     private val chiefComplaintMasterDao: ChiefComplaintMasterDao,
     private val subCatVisitDao: SubCatVisitDao,
-    private val historyDao: HistoryDao
+    private val historyDao: HistoryDao,
+    private val userRepo: UserRepo,
 ) {
     private var visitCategoryID: Int = 6
     private var providerServiceMapID: Int = 13
@@ -38,51 +48,92 @@ class MaleMasterDataRepository @Inject constructor(
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
 
 
-    suspend fun getMasterDataForNurse(){
-        try {
+    suspend fun getMasterDataForNurse() : NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
             val response = amritApiService.getNurseMasterData(
                 visitCategoryID, providerServiceMapID,
                 gender, apiKey)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val responseJson = responseBody?.let { JSONObject(it) }
+                    val jsonObject = responseJson?.getJSONObject("data")!!
 
-            if (response.code() == 200) {
-                val responseString = response.body()?.string()
-                val responseJson = responseString?.let { JSONObject(it) }
-                val jsonObject = responseJson?.getJSONObject("data")!!
+                    val subCatListString = jsonObject.getJSONArray("subVisitCategories")
+                    val subCatList = MasterDataListConverter.toSubCatVisitList(subCatListString.toString())
+                    saveSubVisitCategoriesToCache(subCatList)
 
-                val subCatListString = jsonObject.getJSONArray("subVisitCategories")
-                val subCatList = MasterDataListConverter.toSubCatVisitList(subCatListString.toString())
-                saveSubVisitCategoriesToCache(subCatList)
+                    val chiefComplaintString = jsonObject.getJSONArray("chiefComplaintMaster")
+                    val chiefComplaintMasterList = MasterDataListConverter.toChiefMasterComplaintList(chiefComplaintString.toString())
+                    saveChiefComplaintMasterToCache(chiefComplaintMasterList)
 
-                val chiefComplaintString = jsonObject.getJSONArray("chiefComplaintMaster")
-                val chiefComplaintMasterList = MasterDataListConverter.toChiefMasterComplaintList(chiefComplaintString.toString())
-                saveChiefComplaintMasterToCache(chiefComplaintMasterList)
+                    val illnessString = jsonObject.getJSONArray("illnessTypes")
+                    val illnessList = MasterDataListConverter.toIllnessList(illnessString.toString())
+                    saveIllnessDropdownToCache(illnessList)
 
-                val illnessString = jsonObject.getJSONArray("illnessTypes")
-                val illnessList = MasterDataListConverter.toIllnessList(illnessString.toString())
-                saveIllnessDropdownToCache(illnessList)
+                    val alcoholString = jsonObject.getJSONArray("alcoholUseStatus")
+                    val alcoholList = MasterDataListConverter.toAlcoholList(alcoholString.toString())
+                    saveAlcoholDropdownToCache(alcoholList)
 
-                val alcoholString = jsonObject.getJSONArray("alcoholUseStatus")
-                val alcoholList = MasterDataListConverter.toAlcoholList(alcoholString.toString())
-                saveAlcoholDropdownToCache(alcoholList)
+                    val allergyString = jsonObject.getJSONArray("AllergicReactionTypes")
+                    val allergyList = MasterDataListConverter.toAllergyList(allergyString.toString())
+                    saveAllergyDropdownToCache(allergyList)
 
-                val allergyString = jsonObject.getJSONArray("AllergicReactionTypes")
-                val allergyList = MasterDataListConverter.toAllergyList(allergyString.toString())
-                saveAllergyDropdownToCache(allergyList)
+                    val familyString = jsonObject.getJSONArray("familyMemberTypes")
+                    val familyList = MasterDataListConverter.toFamilyMemberList(familyString.toString())
+                    saveFamilyDropdownToCache(familyList)
 
-                val familyString = jsonObject.getJSONArray("familyMemberTypes")
-                val familyList = MasterDataListConverter.toFamilyMemberList(familyString.toString())
-                saveFamilyDropdownToCache(familyList)
+                    val surgeryString = jsonObject.getJSONArray("surgeryTypes")
+                    val surgeryList = MasterDataListConverter.toSurgeryList(surgeryString.toString())
+                    saveSurgeryDropdownToCache(surgeryList)
 
-                val surgeryString = jsonObject.getJSONArray("surgeryTypes")
-                val surgeryList = MasterDataListConverter.toSurgeryList(surgeryString.toString())
-                saveSurgeryDropdownToCache(surgeryList)
+                    val tobaccoString = jsonObject.getJSONArray("tobaccoUseStatus")
+                    val tobaccoList = MasterDataListConverter.toTobaccoList(tobaccoString.toString())
+                    saveTobaccoDropdownToCache(tobaccoList)
 
-                val tobaccoString = jsonObject.getJSONArray("tobaccoUseStatus")
-                val tobaccoList = MasterDataListConverter.toTobaccoList(tobaccoString.toString())
-                saveTobaccoDropdownToCache(tobaccoList)
+                    val comorbidConditionString = jsonObject.getJSONArray("comorbidConditions")
+                    val comorbidConditionList = MasterDataListConverter.toComorbidList(comorbidConditionString.toString())
+                    saveComorbidConditionDropdownToCache(comorbidConditionList)
+
+                    val familyDiseaseString = jsonObject.getJSONArray("DiseaseTypes")
+                    val familyDiseaseList = MasterDataListConverter.toFamilyDiseaseList(familyDiseaseString.toString())
+                    saveFamilyDiseaseDropdownToCache(familyDiseaseList)
+
+                    saveSortedComorbidConditionsToAssociateAilments()
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getMasterDataForNurse()
+                },
+            )
+        }
+    }
+    private suspend fun saveComorbidConditionDropdownToCache(comorbidConditionsDropdown: List<ComorbidConditionsDropdown>){
+
+        try{
+            comorbidConditionsDropdown.forEach { cc: ComorbidConditionsDropdown ->
+                withContext(Dispatchers.IO){
+                    historyDao.insertComorbidConditionDropdown(cc)
+                }
             }
         } catch (e: Exception){
-            Log.i("Error in Fetching getMasterDataForNurse()","$e")
+            Timber.d("Error in saving Comorbid Condition history $e")
+        }
+    }
+    private suspend fun saveFamilyDiseaseDropdownToCache(familyMemberDiseaseTypeDropdown:List<FamilyMemberDiseaseTypeDropdown>){
+
+        try{
+            familyMemberDiseaseTypeDropdown.forEach { fDisease: FamilyMemberDiseaseTypeDropdown ->
+                withContext(Dispatchers.IO){
+                    historyDao.insertFamilyDiseaseDropdown(fDisease)
+                }
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Family Member Disease history $e")
         }
     }
 
@@ -218,7 +269,12 @@ class MaleMasterDataRepository @Inject constructor(
             it.surgeryID to it.surgeryType
         }
     }
-
+     suspend fun saveSortedComorbidConditionsToAssociateAilments() {
+        historyDao.saveMatchingComorbidConditionsAsAssociateAilments()
+    }
+    fun getAssociateAilments():LiveData<List<AssociateAilmentsDropdown>>{
+        return historyDao.getAllAssociateAilmentsDropdown()
+    }
     suspend fun getChiefByNameMap(): Map<Int, String>{
         return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
             it.chiefComplaintID to it.chiefComplaint}

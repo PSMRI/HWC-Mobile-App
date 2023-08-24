@@ -36,7 +36,7 @@ suspend inline fun networkResultInterceptor(
 
 suspend inline fun refreshTokenInterceptor(
     responseBody: String?,
-    crossinline onSuccess: () -> NetworkResult<NetworkResponse>,
+    crossinline onSuccess: suspend () -> NetworkResult<NetworkResponse>,
     crossinline onTokenExpired: suspend () -> NetworkResult<NetworkResponse>
 ) : NetworkResult<NetworkResponse>{
     return withContext(Dispatchers.IO) {
