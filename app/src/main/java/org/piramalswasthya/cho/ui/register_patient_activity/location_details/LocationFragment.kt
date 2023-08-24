@@ -232,9 +232,7 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            LocationFragmentDirections.actionFragmentLocationToFhirAddPatientFragment()
-        )
+        findNavController().navigateUp()
     }
 
 

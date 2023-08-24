@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.adapter.model
 
+import com.squareup.moshi.JsonClass
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.codesystems.V3MaritalStatus
@@ -11,12 +12,8 @@ import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 
+@JsonClass(generateAdapter = true)
 data class DropdownList(
     val id: Int,
     var display: String
-){
-    constructor(genderMaster: GenderMaster) : this(genderMaster.genderID, genderMaster.genderName,)
-    constructor(ageUnit: AgeUnit) : this(ageUnit.id, ageUnit.name,)
-    constructor(maritalStatus: MaritalStatusMaster) : this(maritalStatus.maritalStatusID, maritalStatus.status,)
-
-}
+)

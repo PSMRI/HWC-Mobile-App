@@ -31,16 +31,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    @Inject
-    lateinit var
-            registrarMasterDataRepo: RegistrarMasterDataRepo
-
-    @Inject
-    lateinit var malMasterDataRepo: MaleMasterDataRepository
-
-    @Inject
-    lateinit var vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo
-
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
         get() = _binding!!
@@ -56,18 +46,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        CoroutineScope(Dispatchers.Main).launch{
-            try {
-                malMasterDataRepo.getMasterDataForNurse()
-                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-                vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-            }
-            catch (e : Exception){
-
-            }
-        }
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()

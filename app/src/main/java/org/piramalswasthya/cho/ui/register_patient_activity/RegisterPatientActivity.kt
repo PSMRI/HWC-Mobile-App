@@ -36,7 +36,7 @@ class RegisterPatientActivity : AppCompatActivity() {
 
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
-                R.id.fhirAddPatientFragment -> {
+                R.id.patientDetailsFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)

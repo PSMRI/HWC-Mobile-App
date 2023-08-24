@@ -3,22 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/register_nav"
-    app:startDestination="@id/fhirAddPatientFragment">
+    app:startDestination="@id/patientDetailsFragment">
 
-    <fragment
-        android:id="@+id/fhirAddPatientFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment"
-        android:label="fragment_fhir_add_patient"
-        tools:layout="@layout/fragment_fhir_add_patient" >
-
-<!--            <argument-->
-<!--                android:name="patientDetails"-->
-<!--                android:defaultValue="null" />-->
-<!--        </action>-->
-        <action
-            android:id="@+id/action_fhirAddPatientFragment_to_fragmentLocation"
-            app:destination="@id/fragmentLocation" />
-    </fragment>
     <fragment
         android:id="@+id/fragmentLocation"
         android:name="org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragment"
@@ -34,9 +20,6 @@
         <action
             android:id="@+id/action_fragmentLocation_to_otherInformationsFragment"
             app:destination="@id/otherInformationsFragment" />
-        <action
-            android:id="@+id/action_fragmentLocation_to_fhirAddPatientFragment"
-            app:destination="@id/fhirAddPatientFragment" />
     </fragment>
     <fragment
         android:id="@+id/otherInformationsFragment"
@@ -45,6 +28,15 @@
         tools:layout="@layout/fragment_other_informations" >
         <action
             android:id="@+id/action_otherInformationsFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsFragment"
+        android:label="fragment_patient_details"
+        tools:layout="@layout/fragment_patient_details" >
+        <action
+            android:id="@+id/action_patientDetailsFragment_to_fragmentLocation"
             app:destination="@id/fragmentLocation" />
     </fragment>
 

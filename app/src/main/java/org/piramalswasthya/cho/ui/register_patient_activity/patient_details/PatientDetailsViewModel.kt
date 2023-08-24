@@ -19,6 +19,8 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationViewModel
+import org.piramalswasthya.cho.utils.AgeUnitEnum
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,10 +55,12 @@ class PatientDetailsViewModel @Inject constructor(
     val genderMaster: LiveData<NetworkState>
         get() = _genderMaster
 
+    var ageUnitMap = mutableMapOf<AgeUnitEnum, AgeUnit>();
     var ageUnitList : List<AgeUnit> = mutableListOf()
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
+    var selectedDate: Date?  = null
     var selectedAgeUnit : AgeUnit? = null;
     var selectedMaritalStatus : MaritalStatusMaster? = null;
     var selectedGenderMaster : GenderMaster? = null;

@@ -34,7 +34,7 @@ class HomeViewModel @Inject constructor(
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
-    private val malMasterDataRepo: MaleMasterDataRepository
+    private val malMasterDataRepo: MaleMasterDataRepository,
 ) : ViewModel() {
 
     init {
@@ -55,7 +55,6 @@ class HomeViewModel @Inject constructor(
                 registrarMasterDataRepo.saveOccupationMasterResponseToCache()
                 registrarMasterDataRepo.saveQualificationMasterResponseToCache()
                 registrarMasterDataRepo.saveReligionMasterResponseToCache()
-                registrarMasterDataRepo.saveOccupationMasterResponseToCache()
                 registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
                 vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
                 vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
