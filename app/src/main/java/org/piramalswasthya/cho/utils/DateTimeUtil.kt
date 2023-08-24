@@ -7,6 +7,7 @@ import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import java.time.LocalDate
 import java.time.Period
@@ -88,6 +89,20 @@ class DateTimeUtil {
                 return Age(AgeUnitEnum.WEEKS, period.days/7);
             }
             return Age(AgeUnitEnum.DAYS, period.days);
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateDateOfBirth(value: Int, unit: AgeUnitEnum): Date {
+            val days = when(unit){
+                AgeUnitEnum.DAYS -> value
+                AgeUnitEnum.WEEKS -> value*7
+                AgeUnitEnum.MONTHS -> value*30
+                AgeUnitEnum.YEARS -> value*365
+            }
+
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DAY_OF_YEAR, -days)
+            return calendar.time
         }
 
     }

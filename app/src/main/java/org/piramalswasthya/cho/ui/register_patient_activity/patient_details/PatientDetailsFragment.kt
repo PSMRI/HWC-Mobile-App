@@ -5,12 +5,16 @@ import android.content.Intent
 import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
+import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -53,35 +57,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setAdapters()
     }
 
-//    private fun showDatePickerDialog() {
-//
-//        val calendar: Calendar = Calendar.getInstance()
-//        selectedDate?.let { calendar.time = it }
-//
-//        val year = calendar.get(Calendar.YEAR)
-//        val month = calendar.get(Calendar.MONTH)
-//        val day = calendar.get(Calendar.DAY_OF_MONTH)
-//
-//        val datePickerDialog = DatePickerDialog(requireContext(),
-//            { view: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int ->
-//                // This callback is called when the user selects a date
-//                calendar.set(Calendar.YEAR, year)
-//                calendar.set(Calendar.MONTH, monthOfYear)
-//                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-//
-//                selectedDate = calendar.time
-//                val selectedDateText = "$year-${monthOfYear + 1}-$dayOfMonth"
-//                binding.dateOfBirth.setText(selectedDateText)
-//            }, year, month, day)
-//
-//        datePickerDialog.show()
-//    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
         binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
+            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
             binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
+            setAgeToDateOfBirth()
         }
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
@@ -95,9 +77,22 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            DateTimeUtil.showDatePickerDialog(requireContext(), viewModel.selectedDate)
+            DateTimeUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth)
         }
 
+        binding.age.addTextChangedListener(ageTextWatcher)
+
+    }
+
+    private val ageTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            setAgeToDateOfBirth()
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -108,7 +103,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
                     binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
-                    setAgeUnitMap()
                 }
                 else -> {
 
@@ -144,29 +138,29 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         DateTimeUtil.selectedDate.observe(viewLifecycleOwner) { date ->
             if(date != null){
-                viewModel.selectedDate = date;
+                viewModel.selectedDateOfBirth = date;
                 binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
-                setAge(date);
+                setDateOfBirthToAge(date);
             }
         }
 
-    }
-
-    fun setAgeUnitMap(){
-        viewModel.ageUnitList.forEach {
-            when(it.name.first().lowercaseChar()){
-                'd' -> viewModel.ageUnitMap[AgeUnitEnum.DAYS] = it
-                'w' -> viewModel.ageUnitMap[AgeUnitEnum.WEEKS] = it
-                'm' -> viewModel.ageUnitMap[AgeUnitEnum.MONTHS] = it
-                'y' -> viewModel.ageUnitMap[AgeUnitEnum.YEARS] = it
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setAge(date: Date){
+    fun setAgeToDateOfBirth(){
+        val age = binding.age.text.toString().trim().toIntOrNull()
+        if(age != null && viewModel.selectedAgeUnitEnum != null){
+            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(age, viewModel.selectedAgeUnitEnum!!);
+            binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setDateOfBirthToAge(date: Date){
         val age = DateTimeUtil.calculateAge(date);
         binding.age.setText(age.value.toString());
+        viewModel.selectedAgeUnitEnum = age.unit
         viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
         binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit?.name ?: "", false)
     }

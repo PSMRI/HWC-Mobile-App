@@ -56,11 +56,13 @@ class PatientDetailsViewModel @Inject constructor(
         get() = _genderMaster
 
     var ageUnitMap = mutableMapOf<AgeUnitEnum, AgeUnit>();
+    var ageUnitEnumMap = mutableMapOf<AgeUnit, AgeUnitEnum>();
     var ageUnitList : List<AgeUnit> = mutableListOf()
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
-    var selectedDate: Date?  = null
+    var selectedAgeUnitEnum: AgeUnitEnum?  = null
+    var selectedDateOfBirth: Date?  = null
     var selectedAgeUnit : AgeUnit? = null;
     var selectedMaritalStatus : MaritalStatusMaster? = null;
     var selectedGenderMaster : GenderMaster? = null;
@@ -78,9 +80,33 @@ class PatientDetailsViewModel @Inject constructor(
         try {
             ageUnitList = registrarMasterDataRepo.getAgeUnitMasterCachedResponse()
             _ageUnit.value = NetworkState.SUCCESS
+            setAgeUnitMap()
         }
         catch (_: Exception){
             _ageUnit.value = NetworkState.FAILURE
+        }
+    }
+
+    fun setAgeUnitMap(){
+        ageUnitList.forEach {
+            when(it.name.first().lowercaseChar()){
+                'd' -> {
+                    ageUnitMap[AgeUnitEnum.DAYS] = it
+                    ageUnitEnumMap[it] = AgeUnitEnum.DAYS
+                }
+                'w' -> {
+                    ageUnitMap[AgeUnitEnum.WEEKS] = it
+                    ageUnitEnumMap[it] = AgeUnitEnum.WEEKS
+                }
+                'm' -> {
+                    ageUnitMap[AgeUnitEnum.MONTHS] = it
+                    ageUnitEnumMap[it] = AgeUnitEnum.MONTHS
+                }
+                'y' -> {
+                    ageUnitMap[AgeUnitEnum.YEARS] = it
+                    ageUnitEnumMap[it] = AgeUnitEnum.YEARS
+                }
+            }
         }
     }
 
