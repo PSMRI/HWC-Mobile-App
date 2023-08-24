@@ -10,8 +10,10 @@ import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CommunityMaster
+import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
@@ -195,6 +197,16 @@ object MasterDataListConverter {
     @TypeConverter
     fun toTobaccoList(value: String?):List<TobaccoDropdown>{
         val listType = object :TypeToken<List<TobaccoDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toComorbidList(value: String?):List<ComorbidConditionsDropdown>{
+        val listType = object :TypeToken<List<ComorbidConditionsDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toFamilyDiseaseList(value: String?):List<FamilyMemberDiseaseTypeDropdown>{
+        val listType = object :TypeToken<List<FamilyMemberDiseaseTypeDropdown?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
 
