@@ -181,13 +181,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <EditText
                         android:id="@+id/selectFileText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/custom_ui_margin"
                         android:layout_weight="1"
-                        android:text="@string/selected_file" />
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/selectFileBtn"
