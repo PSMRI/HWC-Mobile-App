@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.history_custom
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,17 +12,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Immunization
 import kotlinx.coroutines.withContext
-import org.hl7.fhir.r4.model.MedicationRequest
+import org.hl7.fhir.r4.model.FamilyMemberHistory
 import org.hl7.fhir.r4.model.MedicationStatement
 import org.hl7.fhir.r4.model.Observation
-import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.TobaccoDropdown
-import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.MedicationHistory
-import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VaccineType
@@ -154,7 +151,17 @@ class HistoryCustomViewModel @Inject constructor(
                 fhirEngine.create(medicationStatement)
             } catch (e: Exception){
                 Timber.d("Error in Saving Medication Details Informations")
-                Timber.d("Error in Saving Illness and Surgery Details Informations")
+            }
+        }
+    }
+    fun saveFamilyMemberHistoyrDetailsInfo(familyMemberHistory: FamilyMemberHistory){
+        viewModelScope.launch {
+            try{
+                var uuid = generateUuid()
+                familyMemberHistory.id = uuid
+                fhirEngine.create(familyMemberHistory)
+            } catch (e: Exception){
+                Timber.d("Error in Saving Family Member History Details Informations")
             }
         }
     }
@@ -209,6 +216,18 @@ class HistoryCustomViewModel @Inject constructor(
             try {
                 withContext(Dispatchers.IO) {
                     historyRepo.saveMedicationHistoryToCatche(medicationHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Medication history: $e")
+            }
+        }
+    }
+
+    fun saveAssociateAilmentsHistoryToCache(associateAilmentsHistory: AssociateAilmentsHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveAssociateAilmentsHistoryToCatche(associateAilmentsHistory)
                 }
             } catch (e: Exception) {
                 Timber.e("Error in saving Medication history: $e")

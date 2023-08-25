@@ -80,6 +80,7 @@ import timber.log.Timber
         ComorbidConditionsDropdown::class,
         FamilyMemberDiseaseTypeDropdown::class,
         AssociateAilmentsDropdown::class,
+        AssociateAilmentsHistory::class,
         MedicationHistory::class,
         PatientVitalsModel::class,
         ReferRevisitModel::class,
@@ -87,7 +88,7 @@ import timber.log.Timber
 
     ],
 //    views = [BenBasicCache::class],
-    version = 30, exportSchema = false
+    version = 33, exportSchema = false
 )
 
 

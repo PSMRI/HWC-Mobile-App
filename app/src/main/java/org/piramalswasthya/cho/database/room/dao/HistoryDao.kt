@@ -1,14 +1,13 @@
 package org.piramalswasthya.cho.database.room.dao
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
+import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
 import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
@@ -18,7 +17,6 @@ import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.TobaccoDropdown
-import timber.log.Timber
 
 @Dao
 interface HistoryDao {
@@ -47,6 +45,9 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedicationHistory(medicationHistory: MedicationHistory)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAssociateAilmentsHistory(associateAilmentsHistory: AssociateAilmentsHistory)
+
     @Query("SELECT * FROM Medication_history WHERE medicationHistoryId = :medicationId")
     fun getMedicationHistoryByMedicationId(medicationId: String): LiveData<MedicationHistory>
 
@@ -56,7 +57,8 @@ interface HistoryDao {
      suspend fun insertAssociateAilments(associateAilmentsDropdown: AssociateAilmentsDropdown)
     @Query("select * from Tobacco_Alcohol_history WHERE tobaccoAndAlcoholId = :tobAndAlcId")
     fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory
-
+    @Query("select * from Associate_Ailments_history WHERE associateAilmentsId = :aaId")
+    fun getAssociateAilmentHistory(aaId:String): AssociateAilmentsHistory
     @Query("select * from Illness_Dropdown")
     fun getAllIllnessDropdown(): LiveData<List<IllnessDropdown>>
 
