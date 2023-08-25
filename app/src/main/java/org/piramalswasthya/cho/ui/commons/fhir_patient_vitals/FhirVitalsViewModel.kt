@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.datacapture.mapping.ResourceMapper
 import com.google.android.fhir.datacapture.validation.Invalid
 import com.google.android.fhir.datacapture.validation.QuestionnaireResponseValidator
@@ -16,21 +17,29 @@ import com.google.android.fhir.get
 import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val application : Context, savedStateHandle: SavedStateHandle,
-//                                              private var apiInterface: ESanjeevaniApiService,
+class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val application : Context,
+                                              savedStateHandle: SavedStateHandle,
+//                                             private var apiInterface: ESanjeevaniApiService,
                                               private val userRepo: UserRepo,
+                                              private val vitalsRepo: VitalsRepo,
 ) :
     ViewModel(), FhirQuestionnaireService {
     private var _loggedInUser: UserCache? = null
@@ -98,15 +107,27 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                     fhirEngine.create(observation)
                     Toast.makeText(context, context.getString(R.string.vitals_information_is_saved), Toast.LENGTH_SHORT).show()
                 // Serialize the Observation resource to JSON
-//                    val context = FhirContext.forR4()
-//                    val jsonBody = context.newJsonParser().setPrettyPrint(true).encodeResourceToString(observation)
-//                    val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), jsonBody)
-//                    apiInterface.saveObs(requestBody)
+                    val context = FhirContext.forR4()
+                    val jsonBody = context.newJsonParser().setPrettyPrint(true).encodeResourceToString(observation)
+                    val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), jsonBody)
                     var getobs = fhirEngine.get(ResourceType.Observation,uuid)
+                Log.d("VitalsJson", jsonBody)
+
             } catch (e: Exception){
                 Timber.d("Error in Saving Vitals Information")
             }
         }
+    }
 
+    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving vitals information : $e")
+            }
+        }
     }
 }

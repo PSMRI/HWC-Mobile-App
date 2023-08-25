@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryRegID
 import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBy
+import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -103,6 +104,24 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         bpDiastolicValue = binding.inputBpDiastolic.text.toString().trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text.toString().trim()
         rbsValue = binding.inputRbs.text.toString().trim()
+    }
+
+    private fun addVitalsDataToCache(){
+        val patientVitals = PatientVitalsModel(
+            vitalsId = "1",
+            height = heightValue,
+            weight = weightValue,
+            bmi = bmiValue,
+            waistCircumference = waistCircumferenceValue,
+            temperature = temperatureValue,
+            pulseRate = pulseRateValue,
+            spo2 = spo2Value,
+            bpDiastolic = bpDiastolicValue,
+            bpSystolic = bpSystolicValue,
+            respiratoryRate = respiratoryValue,
+            rbs = rbsValue
+        )
+        viewModel.savePatientVitalInfoToCache(patientVitals)
     }
     private fun createObservationResource(){
         //Code
@@ -213,26 +232,41 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         if (weightValue != null && heightValue != null && heightValue > 0 &&  weightValue > 0) {
             val bmi = weightValue / (heightValue / 100).pow(2)
             val formattedBMI = "%.2f".format(bmi)
+//            var status : String
             binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
             if(bmi > 25 && bmi < 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.overweight_txt)
+//                status = getString(R.string.overweight_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else if (bmi > 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.obese_txt)
+//                status = getString(R.string.obese_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else{
                 binding.bmiCategory.isVisible = true
+//                status = getString(R.string.normal_txt)
                 binding.bmiCategory.text = getString(R.string.normal_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.black))
             }
+//            val bmiText = "$formattedBMI                          Status: $status"
+//
+//            val spannable = SpannableString(bmiText)
+//
+//            // Color status text
+//            val statusStart = bmiText.indexOf("Status:")
+//            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//
+//            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
+//            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+//            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
         }
         else{
             binding.inputBmi.text = null
@@ -279,6 +313,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     override fun navigateNext() {
         extractFormValues()
+        addVitalsDataToCache()
         createObservationResource()
         if(!isNull) {
             viewModel.saveObservationResource(observation)

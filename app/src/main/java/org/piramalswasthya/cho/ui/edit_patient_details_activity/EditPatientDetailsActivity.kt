@@ -70,7 +70,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
                 R.id.fhirRevisitFormFragment ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }
