@@ -22,10 +22,12 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -33,6 +35,7 @@ import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -74,10 +77,14 @@ import timber.log.Timber
         SurgeryDropdown::class,
         TobaccoDropdown::class,
         TobaccoAlcoholHistory::class,
-        MedicationHistory::class,
         ComorbidConditionsDropdown::class,
         FamilyMemberDiseaseTypeDropdown::class,
-        AssociateAilmentsDropdown::class
+        AssociateAilmentsDropdown::class,
+        MedicationHistory::class,
+        PatientVitalsModel::class,
+        ReferRevisitModel::class,
+        HigherHealthCenter::class
+
     ],
 //    views = [BenBasicCache::class],
     version = 30, exportSchema = false
@@ -119,6 +126,9 @@ abstract class InAppDb : RoomDatabase() {
     abstract val chiefComplaintMasterDao: ChiefComplaintMasterDao
     abstract val subCatVisitDao: SubCatVisitDao
     abstract val historyDao: HistoryDao
+    abstract val vitalsDao: VitalsDao
+    abstract val referRevisitDao: ReferRevisitDao
+    abstract val healthCenterDao: HealthCenterDao
 
 
     companion object {

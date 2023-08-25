@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.GovIdEntityMaster
+import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.IncomeMaster
 import org.piramalswasthya.cho.model.Language
@@ -197,6 +198,11 @@ object MasterDataListConverter {
     @TypeConverter
     fun toTobaccoList(value: String?):List<TobaccoDropdown>{
         val listType = object :TypeToken<List<TobaccoDropdown?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toHealthCenterList(value: String?):List<HigherHealthCenter>{
+        val listType = object :TypeToken<List<HigherHealthCenter?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
     @TypeConverter

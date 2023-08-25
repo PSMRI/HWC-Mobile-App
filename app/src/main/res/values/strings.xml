@@ -73,7 +73,7 @@
     <string name="vitals_text">Vitals</string>
     <string name="location_details">Location Details</string>
     <string name="personal_info">Personal Info</string>
-    <string name="revisit_details_text">Revisit Details</string>
+    <string name="revisit_details_text">Revisit and Refer</string>
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
@@ -289,6 +289,10 @@
     <string name="higher_center">Higher Center</string>
     <string name="reason_for_referral">Reason for referral</string>
     <string name="linkage_with_other_health_services">Linkage with other health services</string>
+    <string name="revisit_date">Revisit Date</string>
+    <string name="saved">Saved !!</string>
+    <string name="error_in_saving_refer_and_revisit_information">Error in Saving Refer and Revisit Information</string>
+    <string name="error">Error!</string>
 
 
 </resources>
