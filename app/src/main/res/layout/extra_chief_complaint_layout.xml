@@ -23,6 +23,8 @@
         android:layout_margin="@dimen/custom_ui_margin"
         android:hint="@string/select_chief_complaint"
         app:layout_constraintStart_toStartOf="parent"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_mic"
         app:layout_constraintTop_toBottomOf="@id/chiefComplaint">
 
         <AutoCompleteTextView

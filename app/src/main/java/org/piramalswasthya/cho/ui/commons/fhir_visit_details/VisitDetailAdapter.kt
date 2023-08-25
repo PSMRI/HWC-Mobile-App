@@ -1,5 +1,9 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +40,7 @@ class VisitDetailAdapter(
         val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
         val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
         val descInputLayout: TextInputLayout = itemView.findViewById(R.id.descriptionText)
+        val chiefComplaintOptionInput : TextInputLayout = itemView.findViewById(R.id.chiefComplaintOptions)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -126,11 +131,29 @@ class VisitDetailAdapter(
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }
-        holder.durationInput.addTextChangedListener {
-            itemData.duration = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
+        holder.durationInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
+                itemData.duration = s.toString()
+
+                if (s.isNullOrEmpty()) {
+                    holder.durationInputLayout.apply {
+                        boxStrokeColor = Color.RED
+                        hintTextColor = ColorStateList.valueOf(Color.RED)
+                    }
+                } else {
+                    holder.durationInputLayout.apply {
+                        boxStrokeColor = resources.getColor(R.color.purple)
+                        hintTextColor = defaultHintTextColor
+                    }
+                }
+
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            }
+        })
         holder.durationUnitDropdown.addTextChangedListener {
             itemData.durationUnit = it.toString()
             holder.updateResetButtonState()
@@ -155,6 +178,9 @@ class VisitDetailAdapter(
         holder.descInputLayout.setEndIconOnClickListener {
             endIconClickListener.onEndIconDescClick(position)
         }
+        holder.chiefComplaintOptionInput.setEndIconOnClickListener {
+            endIconClickListener.onEndIconChiefClick(position)
+        }
     }
 
 
@@ -177,4 +203,5 @@ interface RecyclerViewItemChangeListener {
 interface EndIconClickListener {
     fun onEndIconDurationClick(position: Int)
     fun onEndIconDescClick(position: Int)
+    fun onEndIconChiefClick(position: Int)
 }

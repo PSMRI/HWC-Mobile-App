@@ -55,7 +55,7 @@
 
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
-    <string name="duration">Duration</string>
+    <string name="duration">Duration (<font color="#FF0000">*</font>)</string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
@@ -240,12 +240,12 @@
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">Select File</string>
     <string name="upload_file">Upload File</string>
-    <string name="category">Category</string>
-    <string name="sub_category">Sub Category</string>
+    <string name="category">Category (<font color="#FF0000">*</font>)</string>
+    <string name="sub_category">Sub Category (<font color="#FF0000">*</font>)</string>
     <string name="select_and_upload_file">Upload File</string>
     <string name="selected_file">Selected File</string>
-    <string name="chief_complaint">Chief Complaints</string>
-    <string name="unit_of_duration">Unit of Duration</string>
+    <string name="chief_complaint">Chief Complaints (<font color="#FF0000">*</font>)</string>
+    <string name="unit_of_duration">Unit of Duration (<font color="#FF0000">*</font>)</string>
     <string name="description">Description</string>
     <string name="enter_other_associated_ailments">Enter Other Associated Ailments</string>
     <string name="select_allergy_status">Select Allergy Status</string>
@@ -293,6 +293,14 @@
     <string name="saved">Saved !!</string>
     <string name="error_in_saving_refer_and_revisit_information">Error in Saving Refer and Revisit Information</string>
     <string name="error">Error!</string>
+    <string name="toast_msg_duration_unit">Please Select Duration Unit</string>
+    <string name="toast_msg_duration">"Please Enter Duration"</string>
+    <string name="toast_msg_chief">Please Select Chief Complaint</string>
+    <string name="toast_upload_file">Please Upload the Selected File</string>
+    <string name="toast_sub_cat_select">Please Select Sub Category</string>
+    <string name="toast_cat_select">Please Select Category</string>
+    <string name="toast_file_uploaded">You have uploaded the file</string>
+    <string name="toast_file_size_max">Please select file less than 5MB</string>
 
 
 </resources>
