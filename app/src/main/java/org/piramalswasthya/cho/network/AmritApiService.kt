@@ -19,7 +19,6 @@ interface AmritApiService {
     private companion object ApiMappings{
         const val authenticate = "authenticateReference"
     }
-
     @Headers("No-Auth: true")
     @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
