@@ -35,7 +35,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/patient_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name"
@@ -65,7 +65,7 @@
               android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/abha_number"
+              android:id="@+id/patient_abha_number"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text=""
@@ -91,7 +91,7 @@
               android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/age"
+              android:id="@+id/patient_age"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="@string/age"
@@ -122,7 +122,7 @@
               android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/phone_no"
+              android:id="@+id/patient_phone_no"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="1234567890"
@@ -148,7 +148,7 @@
               android:textStyle="bold" />
 
           <TextView
-              android:id="@+id/gender"
+              android:id="@+id/patient_gender"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="@string/gender"

@@ -1,10 +1,14 @@
 package org.piramalswasthya.cho.model
 
+import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import com.squareup.moshi.JsonClass
+import java.io.Serializable
 import java.util.Date
 
 @Entity(
@@ -14,94 +18,116 @@ import java.util.Date
             entity = AgeUnit::class,
             parentColumns = ["id"],
             childColumns = ["ageUnitID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = MaritalStatusMaster::class,
             parentColumns = ["maritalStatusID"],
             childColumns = ["maritalStatusID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = GenderMaster::class,
             parentColumns = ["genderID"],
             childColumns = ["genderID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = StateMaster::class,
             parentColumns = ["stateID"],
             childColumns = ["stateID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = DistrictMaster::class,
             parentColumns = ["districtID"],
             childColumns = ["districtID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = BlockMaster::class,
             parentColumns = ["blockID"],
             childColumns = ["blockID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
         ForeignKey(
             entity = VillageMaster::class,
             parentColumns = ["districtBranchID"],
             childColumns = ["districtBranchID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         ),
     ]
 )
 @JsonClass(generateAdapter = true)
 data class Patient (
+
     @PrimaryKey
-    val patientID: String?,
+    @NonNull
+    var patientID: String = "",
 
     @ColumnInfo(name = "firstName")
-    val firstName: String?,
+    var firstName: String? = null,
 
     @ColumnInfo(name = "lastName")
-    val lastName: String?,
+    var lastName: String? = null,
 
     @ColumnInfo(name = "dob")
-    val dob: Date?,
+    var dob: Date? = null,
 
     @ColumnInfo(name = "age")
-    val age: Int?,
+    var age: Int? = null,
 
     @ColumnInfo(name = "ageUnitID")
-    val ageUnitID: Int?,
+    var ageUnitID: Int? = null,
 
     @ColumnInfo(name = "maritalStatusID")
-    val maritalStatusID: Int?,
+    var maritalStatusID: Int? = null,
 
     @ColumnInfo(name = "spouseName")
-    val spouseName: String?,
+    var spouseName: String? = null,
 
     @ColumnInfo(name = "ageAtMarriage")
-    val ageAtMarriage: Int?,
+    var ageAtMarriage: Int? = null,
 
     @ColumnInfo(name = "phoneNo")
-    val phoneNo: String?,
+    var phoneNo: String? = null,
 
     @ColumnInfo(name = "genderID")
-    val genderID: Int?,
+    var genderID: Int? = null,
 
     @ColumnInfo(name = "registrationDate")
-    val registrationDate: Date?,
+    var registrationDate: Date? = null,
 
     @ColumnInfo(name="stateID")
-    var stateID : Int?,
+    var stateID : Int? = null,
 
     @ColumnInfo(name="districtID")
-    var districtID : Int?,
+    var districtID : Int? = null,
 
     @ColumnInfo(name="blockID")
-    var blockID : Int?,
+    var blockID : Int? = null,
 
     @ColumnInfo(name="districtBranchID")
-    var districtBranchID : Int?,
+    var districtBranchID : Int? = null,
 
+) : Serializable
+
+
+data class PatientDisplay(
+    @Embedded val patient: Patient,
+    @Relation(
+        parentColumn = "genderID",
+        entityColumn = "genderID"
+    )
+    val gender: GenderMaster,
+    @Relation(
+        parentColumn = "ageUnitID",
+        entityColumn = "id"
+    )
+    val ageUnit: AgeUnit,
+    @Relation(
+        parentColumn = "maritalStatusID",
+        entityColumn = "maritalStatusID"
+    )
+    val maritalStatus: MaritalStatusMaster,
 )

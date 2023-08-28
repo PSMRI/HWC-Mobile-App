@@ -24,6 +24,7 @@ import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.databinding.FragmentLocationBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
@@ -43,6 +44,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private lateinit var viewModel: PatientDetailsViewModel
 
+    private var doAgeToDob = true;
+
+    private var patient = Patient();
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,8 +58,26 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(PatientDetailsViewModel::class.java)
+        binding.registrationDate.setText(DateTimeUtil.formattedDate(Date()))
+        hideMarriedFields()
         setChangeListeners()
         setAdapters()
+    }
+
+    private fun hideMarriedFields(){
+        binding.spouseNameText.visibility = View.GONE
+        binding.ageAtMarriageText.visibility = View.GONE
+    }
+
+    private fun setMarriedFieldsVisibility(){
+        if(viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "married"){
+            binding.spouseNameText.visibility = View.VISIBLE
+            binding.ageAtMarriageText.visibility = View.VISIBLE
+        }
+        else{
+            binding.spouseNameText.visibility = View.GONE
+            binding.ageAtMarriageText.visibility = View.GONE
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -69,6 +92,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
+            setMarriedFieldsVisibility()
         }
 
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
@@ -138,8 +162,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         DateTimeUtil.selectedDate.observe(viewLifecycleOwner) { date ->
             if(date != null){
-                viewModel.selectedDateOfBirth = date;
-                binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
                 setDateOfBirthToAge(date);
             }
         }
@@ -148,21 +170,46 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
-        val age = binding.age.text.toString().trim().toIntOrNull()
-        if(age != null && viewModel.selectedAgeUnitEnum != null){
-            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(age, viewModel.selectedAgeUnitEnum!!);
+        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
+        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
+            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
             binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
         }
+        doAgeToDob = true;
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
         val age = DateTimeUtil.calculateAge(date);
-        binding.age.setText(age.value.toString());
+        viewModel.enteredAge = age.value
+        viewModel.selectedDateOfBirth = date
         viewModel.selectedAgeUnitEnum = age.unit
         viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
-        binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit?.name ?: "", false)
+        doAgeToDob = false;
+        binding.age.setText(age.value.toString())
+        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
+    }
+
+    fun setPatientDetails(){
+        patient.firstName = binding.firstName.text.toString().trim()
+        patient.lastName = binding.lastName.text.toString().trim()
+        patient.dob = viewModel.selectedDateOfBirth;
+        patient.age = viewModel.enteredAge;
+        patient.ageUnitID = viewModel.selectedAgeUnit?.id
+        patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
+        patient.spouseName = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
+            "married" -> binding.spouseName.text.toString();
+            else -> null
+        }
+        patient.ageAtMarriage = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
+            "married" -> binding.ageAtMarriage.text.toString().toIntOrNull();
+            else -> null
+        }
+        patient.phoneNo = binding.phoneNo.text.toString()
+        patient.genderID = viewModel.selectedGenderMaster?.genderID
+        patient.registrationDate = Date()
     }
 
     override fun getFragmentId(): Int {
@@ -170,8 +217,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
     override fun onSubmitAction() {
+        setPatientDetails()
+        val bundle = Bundle()
+        bundle.putSerializable("patient", patient)
         findNavController().navigate(
-            PatientDetailsFragmentDirections.actionPatientDetailsFragmentToFragmentLocation()
+            R.id.action_patientDetailsFragment_to_fragmentLocation, bundle
         )
     }
 

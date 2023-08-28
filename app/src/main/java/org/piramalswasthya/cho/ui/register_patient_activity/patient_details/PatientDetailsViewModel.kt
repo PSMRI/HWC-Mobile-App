@@ -62,6 +62,7 @@ class PatientDetailsViewModel @Inject constructor(
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
     var selectedAgeUnitEnum: AgeUnitEnum?  = null
+    var enteredAge: Int?  = null
     var selectedDateOfBirth: Date?  = null
     var selectedAgeUnit : AgeUnit? = null;
     var selectedMaritalStatus : MaritalStatusMaster? = null;

@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BlockList
@@ -24,6 +26,7 @@ import org.piramalswasthya.cho.network.VillageList
 import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
 import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
@@ -38,6 +41,7 @@ class LocationViewModel@Inject constructor(
     private val blockMasterRepo: BlockMasterRepo,
     private val villageMasterRepo: VillageMasterRepo,
     private val userDao: UserDao,
+    private val patientRepo: PatientRepo,
     private val pref: PreferenceDao,
     private val apiService: AmritApiService
 ) : ViewModel(){
@@ -232,4 +236,11 @@ class LocationViewModel@Inject constructor(
             }
         }
     }
+
+    fun insertPatient(patient: Patient){
+        viewModelScope.launch {
+            patientRepo.insertPatient(patient)
+        }
+    }
+
 }

@@ -142,19 +142,9 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
     }
 
     override fun onSubmitAction() {
-        CoroutineScope(Dispatchers.Main).launch{
-            addPatientExtensions()
-            var demo = patient
-            Log.i("patient id", demo.id)
-            fhirEngine.create(patient)
-        }
         val intent = Intent(context, HomeActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
-    }
-
-    private fun addPatientExtensions(){
-
     }
 
     override fun onCancelAction() {

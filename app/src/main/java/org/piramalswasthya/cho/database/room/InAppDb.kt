@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import com.google.android.fhir.getResourceClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import org.piramalswasthya.cho.database.converters.DateConverter
 import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
 import org.piramalswasthya.cho.database.converters.DistrictConverter
 import org.piramalswasthya.cho.database.converters.LocationConverter
@@ -26,6 +27,7 @@ import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -77,10 +79,11 @@ import timber.log.Timber
         MedicationHistory::class,
         ComorbidConditionsDropdown::class,
         FamilyMemberDiseaseTypeDropdown::class,
-        AssociateAilmentsDropdown::class
+        AssociateAilmentsDropdown::class,
+        Patient::class
     ],
 //    views = [BenBasicCache::class],
-    version = 30, exportSchema = false
+    version = 32, exportSchema = false
 )
 
 
@@ -93,7 +96,8 @@ import timber.log.Timber
     DistrictBlockConverter::class,
     VillageConverter::class,
     MasterDataListConverter::class,
-    LocationConverter::class
+    LocationConverter::class,
+    DateConverter::class
 )
 
 abstract class InAppDb : RoomDatabase() {
@@ -119,6 +123,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val chiefComplaintMasterDao: ChiefComplaintMasterDao
     abstract val subCatVisitDao: SubCatVisitDao
     abstract val historyDao: HistoryDao
+
+    abstract val patientDao: PatientDao
 
 
     companion object {

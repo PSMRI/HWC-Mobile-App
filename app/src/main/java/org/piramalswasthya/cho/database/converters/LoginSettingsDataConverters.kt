@@ -4,10 +4,12 @@ import android.location.Location
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.District
 import org.piramalswasthya.cho.network.DistrictBlock
 import org.piramalswasthya.cho.network.State
 import org.piramalswasthya.cho.network.Village
+import java.util.Date
 
 class LoginSettingsDataConverter {
     private val gson = Gson()
@@ -90,4 +92,17 @@ class LocationConverter {
     fun stringToLocation(locationString: String?): Location? {
         return gson.fromJson(locationString, Location::class.java)
     }
+}
+
+class DateConverter{
+    @TypeConverter
+    fun fromTimestamp(value: Long?): Date? {
+        return value?.let { Date(it) }
+    }
+
+    @TypeConverter
+    fun dateToTimestamp(date: Date?): Long? {
+        return date?.time
+    }
+
 }
