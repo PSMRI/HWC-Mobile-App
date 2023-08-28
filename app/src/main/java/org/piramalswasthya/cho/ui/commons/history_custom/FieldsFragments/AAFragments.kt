@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.history_custom.FieldsFragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,19 +10,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentAAFragmentsBinding
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
+import java.util.Arrays
 
 @AndroidEntryPoint
 class AAFragments : Fragment() {
 
     private val TimePeriodAgo = arrayOf(
-        "Day(s)",
-        "Week(s)",
-        "Month(s)",
-        "Year(s)"
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
     )
     private var _binding: FragmentAAFragmentsBinding? = null
     private val binding: FragmentAAFragmentsBinding
@@ -31,6 +37,9 @@ class AAFragments : Fragment() {
     private lateinit var dropdownTimePeriodAgo: AutoCompleteTextView
     val viewModel: AssociatedAilmentsViewModel by viewModels()
     private var historyListener: HistoryFieldsInterface? = null
+    private val selectedFamilyMembers = mutableListOf<Int>()
+    var familyM: MaterialCardView? = null
+    var selectF: TextView? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,25 +55,18 @@ class AAFragments : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        familyM = binding.familyM
+        selectF = binding.selectF
 
-//        dropdownAA = binding.aaText
+        familyM!!.setOnClickListener {
+            showFamilyDialog()
+        }
+
+        dropdownAA = binding.aaText
         dropdownTimePeriodAgo = binding.dropdownDurUnit
-//        val aaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, AA)
-//        dropdownAA.setAdapter(aaAdapter)
+
         val timePeriodAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line,TimePeriodAgo)
         dropdownTimePeriodAgo.setAdapter(timePeriodAdapter)
-
-        val familyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
-        //AlcoholAdapter(requireContext(), R.layout.drop_down,alcoholOption)
-        binding.familyText.setAdapter(familyAdapter)
-
-        viewModel.familyDropdown.observe( viewLifecycleOwner) { alc ->
-//            alcoholOption.clear()
-//            alcoholOption.addAll(alc)
-            familyAdapter.clear()
-            familyAdapter.addAll(alc.map { it.benRelationshipType })
-            familyAdapter.notifyDataSetChanged()
-        }
 
         val aaAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item)
         binding.aaText.setAdapter(aaAdapter)
@@ -118,6 +120,56 @@ class AAFragments : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
+
+
+    private fun showFamilyDialog() {
+        val benRelationTypeList = mutableListOf<String>()
+        viewModel.familyDropdown.observe(viewLifecycleOwner) { familyMembers ->
+            benRelationTypeList.clear()
+            benRelationTypeList.addAll(familyMembers.map { it.benRelationshipType })
+            showDialogWithFamilyMembers(benRelationTypeList)
+        }
+    }
+
+    private fun showDialogWithFamilyMembers(familyMembers: List<String>) {
+        val selectedItems = BooleanArray(familyMembers.size) { selectedFamilyMembers.contains(it) }
+
+        val builder = AlertDialog.Builder(requireContext())
+            .setTitle("Select Family Member")
+            .setCancelable(false)
+            .setMultiChoiceItems(
+                familyMembers.toTypedArray(),
+                selectedItems
+            ) { _, which, isChecked ->
+                if (isChecked) {
+                    selectedFamilyMembers.add(which)
+                } else {
+                    selectedFamilyMembers.remove(which)
+                }
+            }
+            .setPositiveButton("Ok") { dialog, which ->
+                val selectedRelationTypes = selectedFamilyMembers.map { familyMembers[it] }
+                val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
+                binding.selectF.text = selectedRelationTypesString
+                binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+            }
+            .setNeutralButton("Clear all") { dialog, which ->
+                selectedFamilyMembers.clear()
+                Arrays.fill(selectedItems, false)
+                val listView = (dialog as? AlertDialog)?.listView
+                listView?.clearChoices()
+                listView?.requestLayout()
+                binding.selectF.text = resources.getString(R.string.select_f_h_of_member)
+                binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.defaultInput))
+            }
+
+        val alertDialog = builder.create()
+        alertDialog.show()
+    }
+
+
+
+
 
     fun setListener(listener: HistoryFieldsInterface) {
         this.historyListener = listener

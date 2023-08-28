@@ -17,12 +17,14 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
@@ -30,6 +32,7 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
@@ -266,6 +269,18 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideIllnessDropdownEntityDao(database: InAppDb): HistoryDao = database.historyDao
+
+    @Singleton
+    @Provides
+    fun provideVitalsDao(database: InAppDb): VitalsDao = database.vitalsDao
+
+    @Singleton
+    @Provides
+    fun provideReferRevisitDao(database: InAppDb): ReferRevisitDao = database.referRevisitDao
+
+    @Singleton
+    @Provides
+    fun provideHigherHealthCenterDao(database: InAppDb): HealthCenterDao = database.healthCenterDao
 
     @Singleton
     @Provides

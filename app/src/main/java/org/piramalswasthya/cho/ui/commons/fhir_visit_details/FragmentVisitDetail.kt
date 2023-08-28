@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -12,6 +13,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -80,6 +83,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private var base64String = ""
     private var currDurationPos = -1
     private var currDescPos = -1
+    private var currChiefPos = -1
+    private var catBool: Boolean = false
+    private var subCat: Boolean = false
+
 
     private lateinit var adapter: VisitDetailAdapter
 
@@ -95,7 +102,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
     private val speechToTextLauncherForDuration = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNumeric()) {
-            updateDurationText(result)
+            val pattern = "\\d{2}".toRegex()
+            val match = pattern.find(result)
+            val firstTwoDigits = match?.value
+            if(result.toInt() > 0) updateDurationText(firstTwoDigits!!)
         }
     }
 
@@ -111,6 +121,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private val speechToTextLauncherForDesc = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank()) {
            updateDescText(result)
+        }
+    }
+    private val speechToTextLauncherForChiefMaster = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank()) {
+            updateChiefText(result)
         }
     }
     override fun onCreateView(
@@ -145,6 +160,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
             var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             binding.subCatInput.setText(subCat?.name, false)
+            binding.subCatDropDown.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor }
         }
 
         if (requireArguments().getString("patientId") != null) {
@@ -191,7 +209,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             openFilePicker()
         }
         binding.uploadFileBtn.setOnClickListener {
-            Toast.makeText(requireContext(), "You have uploaded the file", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), resources.getString(R.string.toast_file_uploaded), Toast.LENGTH_SHORT)
                 .show()
             isFileUploaded = true
             binding.uploadFileBtn.text = "Uploaded"
@@ -199,8 +217,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
         if (viewModel.fileName.isNotEmpty() && viewModel.base64String.isNotEmpty()) {
             binding.uploadFileBtn.text = "Uploaded"
-            binding.selectFileText.setTextColor(Color.GREEN)
-            binding.selectFileText.text = viewModel.fileName
+            binding.selectFileText.setText(viewModel.fileName)
         }
         adapter = VisitDetailAdapter(
             itemList,
@@ -247,11 +264,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                     if (fileSize > 5242880) {
                         Toast.makeText(
                             requireContext(),
-                            "Please select file less than 5MB",
+                            resources.getString(R.string.toast_file_size_max),
                             Toast.LENGTH_SHORT
                         )
                             .show()
-                        binding.selectFileText.text = "Selected File"
                         binding.uploadFileBtn.text = "Upload File"
                         binding.uploadFileBtn.isEnabled = false
                         binding.selectFileText.setTextColor(Color.BLACK)
@@ -260,11 +276,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                     } else {
                         convertFileToBase64String(uri, fileSize)
                         val fileName = getFileNameFromUri(uri)
-                        binding.selectFileText.text = fileName
-                        binding.selectFileText.setTextColor(Color.GREEN)
+                        binding.selectFileText.setText(fileName)
                         binding.uploadFileBtn.isEnabled = true
                         binding.uploadFileBtn.text = "Upload File"
                         isFileSelected = true
+                        isFileUploaded = false
                         viewModel.setBase64Str(base64String, fileName)
                     }
                 }
@@ -325,46 +341,51 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
 
     override fun navigateNext() {
-        // calling to add Cat and SubCat
-        val catBool = checkAndAddCatSubCat()
+
+         // initially calling checkAndAddCatSubCat() but now changed to
+         // validation on category and Subcategory
+        catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
+            Toast.makeText(requireContext(), resources.getString(R.string.toast_cat_select), Toast.LENGTH_SHORT).show()
+            false
+        } else true
+
+
+        if (binding.subCatInput.text.isNullOrEmpty()) {
+            if(catBool) binding.subCatInput.requestFocus()
+            binding.subCatDropDown.apply {
+                boxStrokeColor = Color.RED
+                hintTextColor = ColorStateList.valueOf(Color.RED)
+            }
+            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
+            subCat = false
+        } else {
+            subCategory = binding.subCatInput.text.toString()
+            subCat = true
+        }
+
+        if(subCat && catBool) createEncounterResource()
 
         // calling to add Chief Complaints
-        addChiefComplaintsData()
+        val chiefData =  addChiefComplaintsData()
 
-        if (catBool && isFileSelected && isFileUploaded) {
+        if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
-        } else if (!isFileSelected && catBool) {
+        } else if (!isFileSelected && catBool && subCat && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
             )
-        } else {
+        } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
             Toast.makeText(
                 requireContext(),
-                "Please Upload the Selected File",
+                resources.getString(R.string.toast_upload_file),
                 Toast.LENGTH_SHORT
             ).show()
         }
 
-    }
-
-    private fun checkAndAddCatSubCat(): Boolean {
-        if (binding.subCatInput.text.isNullOrEmpty())
-            binding.subCatInput.requestFocus()
-        else
-            subCategory = binding.subCatInput.text.toString()
-
-        if (binding.radioGroup.checkedRadioButtonId == -1)
-            Toast.makeText(requireContext(), "Please Select Category", Toast.LENGTH_SHORT).show()
-
-        if (subCategory.isNotEmpty() && category.isNotEmpty()) {
-            createEncounterResource()
-            return true
-        }
-        return false
     }
 
     private fun createEncounterResource() {
@@ -417,10 +438,23 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
     }
 
-    private fun addChiefComplaintsData() {
+    private fun addChiefComplaintsData(): Boolean {
         // get all the ChiefComplaint data from list and convert that to fhir resource
         for (i in 0 until itemList.size) {
             val chiefComplaintData = itemList[i]
+            if(chiefComplaintData.chiefComplaint.isEmpty()){
+                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_chief), Toast.LENGTH_SHORT).show()
+                return false
+            }
+            if(chiefComplaintData.duration.isEmpty()){
+                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration), Toast.LENGTH_SHORT).show()
+                return false
+            }
+            if(chiefComplaintData.durationUnit.isEmpty()){
+                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration_unit), Toast.LENGTH_SHORT).show()
+                return false
+            }
+
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
                 chiefComplaintData.duration.isNotEmpty() &&
                 chiefComplaintData.durationUnit.isNotEmpty() &&
@@ -452,6 +486,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 listOfConditions.add(condition)
             }
         }
+        return true
     }
 
     private fun addExtensionsToConditionResources(
@@ -518,5 +553,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     override fun onEndIconDescClick(position: Int) {
         speechToTextLauncherForDesc.launch(Unit)
         currDescPos = position
+    }
+    private fun updateChiefText(chief: String){
+        if(currChiefPos != -1) {
+            itemList[currChiefPos].chiefComplaint = chief
+            adapter.notifyItemChanged(currChiefPos)
+        }
+    }
+    override fun onEndIconChiefClick(position: Int) {
+        speechToTextLauncherForChiefMaster.launch(Unit)
+        currChiefPos = position
     }
 }

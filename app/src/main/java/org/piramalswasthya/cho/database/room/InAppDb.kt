@@ -23,10 +23,12 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
@@ -35,6 +37,7 @@ import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.*
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -76,14 +79,18 @@ import timber.log.Timber
         SurgeryDropdown::class,
         TobaccoDropdown::class,
         TobaccoAlcoholHistory::class,
-        MedicationHistory::class,
         ComorbidConditionsDropdown::class,
         FamilyMemberDiseaseTypeDropdown::class,
         AssociateAilmentsDropdown::class,
+        MedicationHistory::class,
+        AssociateAilmentsHistory::class,
+        PatientVitalsModel::class,
+        ReferRevisitModel::class,
+        HigherHealthCenter::class,
         Patient::class
     ],
 //    views = [BenBasicCache::class],
-    version = 32, exportSchema = false
+    version = 33, exportSchema = false
 )
 
 
@@ -96,8 +103,7 @@ import timber.log.Timber
     DistrictBlockConverter::class,
     VillageConverter::class,
     MasterDataListConverter::class,
-    LocationConverter::class,
-    DateConverter::class
+    LocationConverter::class
 )
 
 abstract class InAppDb : RoomDatabase() {
@@ -123,6 +129,9 @@ abstract class InAppDb : RoomDatabase() {
     abstract val chiefComplaintMasterDao: ChiefComplaintMasterDao
     abstract val subCatVisitDao: SubCatVisitDao
     abstract val historyDao: HistoryDao
+    abstract val vitalsDao: VitalsDao
+    abstract val referRevisitDao: ReferRevisitDao
+    abstract val healthCenterDao: HealthCenterDao
 
     abstract val patientDao: PatientDao
 

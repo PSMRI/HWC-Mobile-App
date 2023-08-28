@@ -20,7 +20,16 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/Theme.CHO.PopupOverlay"
-            />
+            >
+            <TextView
+                android:id="@+id/sessionTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnPrimary"
+                android:layout_gravity="end"
+                android:paddingHorizontal="@dimen/padding_normal"
+                android:text= "@string/timer" />
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

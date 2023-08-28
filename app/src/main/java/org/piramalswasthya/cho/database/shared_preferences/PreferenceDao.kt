@@ -6,6 +6,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.UserNetwork
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -85,6 +86,20 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.remove(prefUserKey)
         editor.apply()
     }
+    fun registerUser(user: UserNetwork) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.PREF_user_entry)
+        val userJson = Gson().toJson(user)
+        editor.putString(prefKey, userJson)
+        editor.apply()
+    }
+
+    fun getLoggedInUser(): UserNetwork? {
+        val prefKey = context.getString(R.string.PREF_user_entry)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserNetwork::class.java)
+    }
+
 //
 
 //

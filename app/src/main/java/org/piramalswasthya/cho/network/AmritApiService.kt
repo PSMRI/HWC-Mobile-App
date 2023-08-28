@@ -19,7 +19,6 @@ interface AmritApiService {
     private companion object ApiMappings{
         const val authenticate = "authenticateReference"
     }
-
     @Headers("No-Auth: true")
     @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
@@ -120,6 +119,14 @@ interface AmritApiService {
     suspend fun getNurseMasterData(@Path("visitCategoryID") visitCategoryID: Int,
                                    @Path("providerServiceMapID") providerServiceMapID : Int,
                                    @Path("gender") gender: String,
+                                   @Query("apiKey") apiKey :String): Response<ResponseBody>
+
+    @GET("hwc-facility-service/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
+    suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,
+                                   @Path("providerServiceMapID") providerServiceMapID : Int,
+                                   @Path("gender") gender: String,
+                                   @Path("facilityID") facilityID: Int,
+                                   @Path("vanID") vanID: Int,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
 }

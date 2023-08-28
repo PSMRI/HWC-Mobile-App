@@ -48,7 +48,7 @@
     <dimen name="status_margin">5dp</dimen>
     <dimen name="header_height">170dp</dimen>
     <dimen name="custom_ui_margin">10dp</dimen>
-
+    <dimen name="bmi_status_indentation">200dp</dimen>
 
 
 </resources>
