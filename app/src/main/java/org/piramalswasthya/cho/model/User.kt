@@ -59,6 +59,9 @@ data class UserCache(
     @ColumnInfo(name = "Password")
     val password: String,
 
+    @ColumnInfo(name = "name")
+    var name: String,
+
     @ColumnInfo(name = "service_map_id")
     val serviceMapId : Int,
 
@@ -131,6 +134,7 @@ data class UserCache(
             userId = userId,
             userName = userName,
             password = password,
+            name = name,
             serviceMapId = serviceMapId,
             servicePointId = servicePointId,
             serviceId = serviceId,
@@ -177,6 +181,7 @@ data class UserDomain(
     val userId: Int,
     val userName: String,
     val password: String,
+    val name: String,
     val serviceMapId: Int,
     val serviceId: Int,
     val servicePointId: Int,
@@ -219,6 +224,7 @@ data class UserNetwork(
     val userId: Int,
     val userName: String,
     val password: String,
+    var name: String,
     var serviceMapId : Int = -1,
     var serviceId : Int = -1,
     var servicePointId : Int = -1,
@@ -270,6 +276,7 @@ data class UserNetwork(
             userId = userId,
             userName = userName,
             password = password,
+            name = name,
             serviceMapId = serviceMapId,
             servicePointId = servicePointId,
             serviceId = serviceId,

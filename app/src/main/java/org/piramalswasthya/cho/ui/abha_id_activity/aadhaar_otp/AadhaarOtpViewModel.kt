@@ -33,6 +33,10 @@ class AadhaarOtpViewModel @Inject constructor(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private val _showExit = MutableLiveData(false)
+    val showExit: LiveData<Boolean?>
+        get() = _showExit
+
     private var _txnId: String? = null
     val txnId: String
         get() = _txnId!!
@@ -65,9 +69,13 @@ class AadhaarOtpViewModel @Inject constructor(
                 }
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
+                    if (result.message.contains("exit your browser", true)){
+                        _showExit.value = true
+                    }
                     _state.value = State.ERROR_SERVER
                 }
                 is NetworkResult.NetworkError -> {
+                    _showExit.value = true
                     _state.value = State.ERROR_NETWORK
                 }
             }
@@ -85,6 +93,9 @@ class AadhaarOtpViewModel @Inject constructor(
                 }
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
+                    if (result.message.contains("exit", true)){
+                        _showExit.value = true
+                    }
                     _state.value = State.ERROR_SERVER
                 }
                 is NetworkResult.NetworkError -> {

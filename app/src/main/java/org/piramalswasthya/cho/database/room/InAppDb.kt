@@ -80,8 +80,8 @@ import timber.log.Timber
         ComorbidConditionsDropdown::class,
         FamilyMemberDiseaseTypeDropdown::class,
         AssociateAilmentsDropdown::class,
-        AssociateAilmentsHistory::class,
         MedicationHistory::class,
+        AssociateAilmentsHistory::class,
         PatientVitalsModel::class,
         ReferRevisitModel::class,
         HigherHealthCenter::class
