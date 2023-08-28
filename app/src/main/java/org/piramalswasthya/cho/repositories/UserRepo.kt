@@ -11,22 +11,15 @@ import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.network.CreateHIDResponse
-import org.piramalswasthya.cho.network.CreateHealthIdRequest
-import org.piramalswasthya.cho.network.NetworkResult
-//import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 import retrofit2.HttpException
-
 import timber.log.Timber
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class UserRepo @Inject constructor(
@@ -73,8 +66,6 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-
-                    Timber.w("User Logged in!")
                     setOutreachProgram(selectedOption, timestamp)
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
@@ -91,6 +82,7 @@ class UserRepo @Inject constructor(
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
                     }
+                    preferenceDao.registerUser(user!!)
                     setOutreachProgram(selectedOption, timestamp)
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
@@ -218,7 +210,8 @@ class UserRepo @Inject constructor(
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
 
-                    user = UserNetwork(userId, userName, password)
+                    val name = data.getString("fullName")
+                    user = UserNetwork(userId, userName, password, name)
                     val serviceId = privilegesObject.getInt("serviceID")
                     user?.serviceId = serviceId
                     val serviceMapId =

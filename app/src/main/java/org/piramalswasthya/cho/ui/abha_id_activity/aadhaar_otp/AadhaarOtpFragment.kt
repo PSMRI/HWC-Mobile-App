@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentAadhaarOtpBinding
@@ -75,6 +74,19 @@ class AadhaarOtpFragment : Fragment() {
             }
 
         })
+        viewModel.showExit.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) {
+                    binding.exit.visibility =  View.VISIBLE
+                } else {
+                    binding.exit.visibility =  View.GONE
+                }
+            }
+        }
+
+        binding.exit.setOnClickListener{
+            requireActivity().finish()
+        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {

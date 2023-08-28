@@ -35,9 +35,9 @@ class AadhaarNumberAshaFragment : Fragment() {
 
     private val aadhaarDisclaimer by lazy {
         AlertDialog.Builder(requireContext())
-            .setTitle("Individual’s consent for creation of ABHA Number.")
+            .setTitle(getString(R.string.individual_s_consent_for_creation_of_abha_number))
             .setMessage(context?.getString(R.string.aadhar_disclaimer_consent_text))
-            .setPositiveButton("Ok") { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
 

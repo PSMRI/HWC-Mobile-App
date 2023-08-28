@@ -3,36 +3,28 @@ package org.piramalswasthya.cho.ui.home_activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
-import android.view.View
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.activity.viewModels
-
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
-
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FhirVisitDetailsFragment
-import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.home.HomeFragment
-//import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
-import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -48,7 +40,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     private val viewModel: HomeActivityViewModel by viewModels()
-
+    @Inject
+    lateinit var prefDao: PreferenceDao
     val patientDetails = PatientDetails()
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -60,6 +53,7 @@ class HomeActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         viewModel.updateLastSyncTimestamp()
 
+        setUpNavHeader()
 
         drawerLayout = binding.drawerLayout
         navigationView = binding.navView
@@ -113,7 +107,6 @@ class HomeActivity : AppCompatActivity() {
 
 
     }
-
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
             .setMessage(getString(R.string.please_confirm_to_logout))
@@ -132,7 +125,20 @@ class HomeActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+    private fun setUpNavHeader() {
 
+        val headerView = binding.navView.getHeaderView(0)
+        prefDao.getLoggedInUser()?.let {
+            headerView.findViewById<TextView>(R.id.tv_nav_name).text =
+                getString(R.string.nav_item_1_text, prefDao.getLoggedInUser()!!.name)
+            headerView.findViewById<TextView>(R.id.tv_nav_role).text =
+                getString(R.string.nav_item_2_text, prefDao.getLoggedInUser()!!.userName)
+            headerView.findViewById<TextView>(R.id.tv_nav_id).text =
+                getString(R.string.nav_item_3_text, prefDao.getLoggedInUser()!!.userId)
+
+        }
+
+    }
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)

@@ -30,6 +30,9 @@ class VerifyMobileOtpViewModel @Inject constructor(
     val state: LiveData<State>
         get() = _state
 
+    private val _showExit = MutableLiveData(false)
+    val showExit: LiveData<Boolean?>
+        get() = _showExit
 
     private var txnIdFromArgs =
         VerifyMobileOtpFragmentArgs.fromSavedStateHandle(savedStateHandle).txnId
@@ -74,6 +77,9 @@ class VerifyMobileOtpViewModel @Inject constructor(
                 }
                 is NetworkResult.Error -> {
                     _errorMessage.value = result.message
+                    if (result.message.contains("exit your browser", true)){
+                        _showExit.value = true
+                    }
                     _state.value = State.ERROR_SERVER
                 }
                 is NetworkResult.NetworkError -> {

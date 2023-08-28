@@ -16,6 +16,7 @@ import com.google.android.fhir.sync.Sync
 import com.google.android.fhir.sync.SyncJobStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,8 +25,10 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import timber.log.Timber
 import java.lang.Exception
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -51,26 +54,28 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         get() = _pollState
 
     init {
-        Log.i("view model is launched", "")
         viewModelScope.launch {
-            try {
-                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-            }
-            catch (e : Exception){
+            Log.i("view model is launched", "")
+            viewModelScope.launch {
+                try {
+                    registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+                    registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+                }
+                catch (e : Exception){
 
-            }
+                }
 
-            Sync.periodicSync<DemoFhirSyncWorker>(
-                application.applicationContext,
-                periodicSyncConfiguration =
-                PeriodicSyncConfiguration(
-                    syncConstraints = Constraints.Builder().build(),
-                    repeat = RepeatInterval(interval = 1, timeUnit = TimeUnit.MINUTES)
+                Sync.periodicSync<DemoFhirSyncWorker>(
+                    application.applicationContext,
+                    periodicSyncConfiguration =
+                    PeriodicSyncConfiguration(
+                        syncConstraints = Constraints.Builder().build(),
+                        repeat = RepeatInterval(interval = 1, timeUnit = TimeUnit.MINUTES)
+                    )
                 )
-            )
-                .shareIn(this, SharingStarted.Eagerly, 10)
-                .collect { _pollState.emit(it) }
+                    .shareIn(this, SharingStarted.Eagerly, 10)
+                    .collect { _pollState.emit(it) }
+            }
         }
     }
 
@@ -95,7 +100,6 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     private val _navigateToLoginPage = MutableLiveData(false)
     val navigateToLoginPage: MutableLiveData<Boolean>
         get() = _navigateToLoginPage
-
 
     fun logout() {
         viewModelScope.launch {
