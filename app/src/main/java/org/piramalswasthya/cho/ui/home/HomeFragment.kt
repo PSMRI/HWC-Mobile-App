@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
+import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo

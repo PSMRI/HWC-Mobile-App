@@ -103,7 +103,8 @@ import timber.log.Timber
     DistrictBlockConverter::class,
     VillageConverter::class,
     MasterDataListConverter::class,
-    LocationConverter::class
+    LocationConverter::class,
+    DateConverter::class
 )
 
 abstract class InAppDb : RoomDatabase() {
