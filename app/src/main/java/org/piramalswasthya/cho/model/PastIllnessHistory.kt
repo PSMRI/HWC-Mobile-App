@@ -11,6 +11,6 @@ data class PastIllnessHistory(
     @PrimaryKey
     var pastIllnessHistoryId:String,
     @ColumnInfo(name = "pastIllnessHistory") val pastIllnessHistory: String,
-    @ColumnInfo(name = "duration") val duration: String,
+    @ColumnInfo(name = "duration") val duration: String?,
     @ColumnInfo(name = "durationUnit") val durationUnit: String
 )

@@ -92,7 +92,7 @@ import timber.log.Timber
         CovidVaccinationStatusHistory::class
     ],
 //    views = [BenBasicCache::class],
-    version = 34, exportSchema = false
+    version = 35, exportSchema = false
 )
 
 

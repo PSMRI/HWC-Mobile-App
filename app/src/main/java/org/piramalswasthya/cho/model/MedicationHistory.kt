@@ -12,6 +12,6 @@ data class MedicationHistory(
     @PrimaryKey
     var medicationHistoryId:String,
     @ColumnInfo(name = "currentMedication") val currentMedication: String,
-    @ColumnInfo(name = "duration") val duration: String,
+    @ColumnInfo(name = "duration") val duration: String?,
     @ColumnInfo(name = "durationUnit") val durationUnit: String
 )
