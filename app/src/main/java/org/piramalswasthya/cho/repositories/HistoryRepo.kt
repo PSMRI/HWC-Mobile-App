@@ -4,16 +4,13 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
-import org.piramalswasthya.cho.database.room.dao.UserDao
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
-import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.MedicationHistory
-import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PastSurgeryHistory
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
-import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
-import java.lang.AssertionError
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -39,6 +36,33 @@ class HistoryRepo @Inject constructor(
             Timber.d("Error in saving Medication history $e")
         }
     }
+  suspend fun saveCovidVaccinationStatusHistoryToCatche(covidVaccinationStatusHistory: CovidVaccinationStatusHistory) {
+      try{
+              withContext(Dispatchers.IO){
+                  historyDao.insertCovidVaccinationStatusHistory(covidVaccinationStatusHistory)
+              }
+      } catch (e: Exception){
+          Timber.d("Error in saving Covid Vaccination Status history $e")
+      }
+  }
+    suspend fun savePastSurgeryHistoryToCatche(pastSurgeryHistory: PastSurgeryHistory) {
+        try{
+            withContext(Dispatchers.IO){
+                historyDao.insertPastSurgeryHistory(pastSurgeryHistory)
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Past Surgery history $e")
+        }
+    }
+    suspend fun savePastIllnessHistoryToCatche(pastIllnessHistory: PastIllnessHistory) {
+        try{
+            withContext(Dispatchers.IO){
+                historyDao.insertPastIllnessHistory(pastIllnessHistory)
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Past Illness history $e")
+        }
+    }
 
     suspend fun saveTobAndAlcHistoryToCatche(tobaccoAlcoholHistory: TobaccoAlcoholHistory) {
         try{
@@ -51,6 +75,15 @@ class HistoryRepo @Inject constructor(
     }
 
 
+    fun getCovidVaccinationStatusHistory(medicationId:String): LiveData<MedicationHistory> {
+        return historyDao.getMedicationHistoryByMedicationId(medicationId)
+    }
+    fun getPastIllnessHistory(medicationId:String): LiveData<MedicationHistory> {
+        return historyDao.getMedicationHistoryByMedicationId(medicationId)
+    }
+    fun getPastSurgeryHistory(medicationId:String): LiveData<MedicationHistory> {
+        return historyDao.getMedicationHistoryByMedicationId(medicationId)
+    }
     fun getMedicationHistory(medicationId:String): LiveData<MedicationHistory> {
         return historyDao.getMedicationHistoryByMedicationId(medicationId)
     }
