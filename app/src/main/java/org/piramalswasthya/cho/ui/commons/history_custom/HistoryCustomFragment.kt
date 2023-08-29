@@ -37,8 +37,11 @@ import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
+import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PastSurgeryHistory
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
@@ -403,6 +406,8 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         addTobAndAlcData()
          addAssociateAilmentsData()
          addAssociateAilmentsDataToCatche()
+         addCovidVaccinationDataToCatche()
+         addPastHistoryDataToCatche()
         findNavController().navigate(
             HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
         )
@@ -466,6 +471,52 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 inactiveVisit = isChecked
             )
             viewModel.saveAssociateAilmentsHistoryToCache(associateAilmentsHistory)
+        }
+    }
+    private fun addCovidVaccinationDataToCatche() {
+
+        val vaccineStatusVal = binding.vStatusText.text.toString()
+        val vaccineTypeVal = binding.vTypeText.text.toString()
+        val doseVal = binding.doseTakenText.text.toString()
+            val covidVaccinationStatusHistory = CovidVaccinationStatusHistory(
+                covidVaccinationStatusHistoryId = "29",
+                vaccinationStatus = vaccineStatusVal,
+                vaccineType = vaccineTypeVal,
+                doseTaken = doseVal
+            )
+            viewModel.saveCovidVaccinationStatusHistoryToCache(covidVaccinationStatusHistory)
+    }
+    private fun addPastHistoryDataToCatche() {
+        val illnessCount = binding.pastIllnessExtra.childCount
+        val surgeryCount = binding.pastSurgeryExtra.childCount
+
+        for (i in 0 until illnessCount) {
+            val childView: View? = binding.pastIllnessExtra?.getChildAt(i)
+            val illnessVal = childView?.findViewById<AutoCompleteTextView>(R.id.illnessText)?.text.toString()
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            val pastIllnessHistory = PastIllnessHistory(
+                pastIllnessHistoryId = "29"+i,
+                pastIllnessHistory = illnessVal,
+                duration = durationVal,
+                durationUnit = unitDurationVal
+            )
+            viewModel.savePastIllnessHistoryToCache(pastIllnessHistory)
+        }
+        for (i in 0 until surgeryCount) {
+            val childView: View? = binding.pastSurgeryExtra?.getChildAt(i)
+            val surgeryVal = childView?.findViewById<AutoCompleteTextView>(R.id.surgeryText)?.text.toString()
+            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
+            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
+
+            val pastSurgeryHistory = PastSurgeryHistory(
+                pastSurgeryHistoryId = "29"+i,
+                pastSurgeryHistory = surgeryVal,
+                duration = durationVal,
+                durationUnit = unitDurationVal
+            )
+            viewModel.savePastSurgeryHistoryToCache(pastSurgeryHistory)
         }
     }
     private fun addMedicationDataToCatche() {

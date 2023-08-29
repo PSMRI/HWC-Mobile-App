@@ -20,7 +20,12 @@ import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PastSurgeryHistory
+import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VaccineType
@@ -40,11 +45,11 @@ class HistoryCustomViewModel @Inject constructor(
     @ApplicationContext private val application : Context
 ): ViewModel(){
 
-    private lateinit var _tobaccoDropdown: LiveData<List<TobaccoDropdown>>
+    private var _tobaccoDropdown: LiveData<List<TobaccoDropdown>>
     val tobaccoDropdown: LiveData<List<TobaccoDropdown>>
         get() = _tobaccoDropdown
 
-    private lateinit var _alcoholDropdown: LiveData<List<AlcoholDropdown>>
+    private var _alcoholDropdown: LiveData<List<AlcoholDropdown>>
 
     val alcoholDropdown: LiveData<List<AlcoholDropdown>>
         get() = _alcoholDropdown
@@ -210,6 +215,39 @@ class HistoryCustomViewModel @Inject constructor(
     }
     private fun generateUuid():String{
         return UUID.randomUUID().toString()
+    }
+    fun savePastIllnessHistoryToCache(pastIllnessHistory: PastIllnessHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.savePastIllnessHistoryToCatche(pastIllnessHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Past Illness history: $e")
+            }
+        }
+    }
+    fun savePastSurgeryHistoryToCache(pastSurgeryHistory: PastSurgeryHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.savePastSurgeryHistoryToCatche(pastSurgeryHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Past Surgery history: $e")
+            }
+        }
+    }
+    fun saveCovidVaccinationStatusHistoryToCache(covidVaccinationStatusHistory: CovidVaccinationStatusHistory) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    historyRepo.saveCovidVaccinationStatusHistoryToCatche(covidVaccinationStatusHistory)
+                }
+            } catch (e: Exception) {
+                Timber.e("Error in saving Covid Vaccination Status history: $e")
+            }
+        }
     }
     fun saveMedicationHistoryToCache(medicationHistory: MedicationHistory) {
         viewModelScope.launch {
