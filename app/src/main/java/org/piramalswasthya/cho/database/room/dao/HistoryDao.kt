@@ -10,10 +10,13 @@ import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
 import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
+import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PastSurgeryHistory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.TobaccoDropdown
@@ -43,8 +46,21 @@ interface HistoryDao {
     suspend fun insertTobaccoDropdown(tobaccoDropdown: TobaccoDropdown)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPastIllnessHistory(pastIllnessHistory: PastIllnessHistory)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPastSurgeryHistory(pastSurgeryHistory: PastSurgeryHistory)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCovidVaccinationStatusHistory(covidVaccinationStatusHistory: CovidVaccinationStatusHistory)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedicationHistory(medicationHistory: MedicationHistory)
 
+    @Query("SELECT * FROM Covid_Vaccination_Status_history WHERE covidVaccinationStatusHistoryId = :covidId")
+    fun getCovidVaccinationStatusHistoryByMedicationId(covidId: String): LiveData<CovidVaccinationStatusHistory>
+
+    @Query("SELECT * FROM Past_Illness_History WHERE pastIllnessHistoryId = :pastIllnessId")
+    fun getPastIllnessHistoryByMedicationId(pastIllnessId: String): LiveData<PastIllnessHistory>
+    @Query("SELECT * FROM Past_Surgery_History WHERE pastSurgeryHistoryId = :pastSurgeryId")
+    fun getPastSurgeryHistoryByMedicationId(pastSurgeryId: String): LiveData<PastSurgeryHistory>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAssociateAilmentsHistory(associateAilmentsHistory: AssociateAilmentsHistory)
 

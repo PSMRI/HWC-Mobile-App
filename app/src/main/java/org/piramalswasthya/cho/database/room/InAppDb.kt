@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.google.android.fhir.getResourceClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.piramalswasthya.cho.database.converters.DateConverter
@@ -86,11 +85,14 @@ import timber.log.Timber
         AssociateAilmentsHistory::class,
         PatientVitalsModel::class,
         ReferRevisitModel::class,
+        Patient::class,
         HigherHealthCenter::class,
-        Patient::class
+    PastSurgeryHistory::class,
+    PastIllnessHistory::class,
+    CovidVaccinationStatusHistory::class
     ],
 //    views = [BenBasicCache::class],
-    version = 33, exportSchema = false
+    version = 34, exportSchema = false
 )
 
 
@@ -135,6 +137,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val healthCenterDao: HealthCenterDao
 
     abstract val patientDao: PatientDao
+
 
 
     companion object {

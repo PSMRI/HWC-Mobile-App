@@ -26,10 +26,10 @@ import org.piramalswasthya.cho.ui.commons.fhir_visit_details.VisitDetailViewMode
 class IllnessFieldsFragment(): Fragment() {
 
     private val TimePeriodAgo = arrayOf(
-        "Day(s)",
-        "Week(s)",
-        "Month(s)",
-        "Year(s)"
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
     )
     private var _binding: FragmentIllnessFieldsBinding? = null
     private val binding: FragmentIllnessFieldsBinding

@@ -24,10 +24,10 @@ import org.piramalswasthya.cho.ui.HistoryFieldsInterface
 class PastSurgeryFragment() : Fragment() {
 
     private val TimePeriodAgo = arrayOf(
-        "Day(s)",
-        "Week(s)",
-        "Month(s)",
-        "Year(s)"
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
     )
     private var _binding: FragmentPastSurgeryBinding? = null
     private val binding: FragmentPastSurgeryBinding
