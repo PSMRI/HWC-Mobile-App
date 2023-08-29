@@ -87,9 +87,9 @@ import timber.log.Timber
         ReferRevisitModel::class,
         Patient::class,
         HigherHealthCenter::class,
-    PastSurgeryHistory::class,
-    PastIllnessHistory::class,
-    CovidVaccinationStatusHistory::class
+        PastSurgeryHistory::class,
+        PastIllnessHistory::class,
+        CovidVaccinationStatusHistory::class
     ],
 //    views = [BenBasicCache::class],
     version = 34, exportSchema = false

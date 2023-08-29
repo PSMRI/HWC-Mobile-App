@@ -60,19 +60,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        CoroutineScope(Dispatchers.Main).launch{
-            try {
-                malMasterDataRepo.getMasterDataForNurse()
-                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-                vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-                doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-            }
-            catch (e : Exception){
 
-            }
-        }
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
