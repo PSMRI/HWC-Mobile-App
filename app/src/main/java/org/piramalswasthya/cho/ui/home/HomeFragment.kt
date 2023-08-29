@@ -48,6 +48,8 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding
         get() = _binding!!
 
+    private lateinit var viewModel: HomeViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,6 +59,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         CoroutineScope(Dispatchers.Main).launch{
             try {
                 malMasterDataRepo.getMasterDataForNurse()

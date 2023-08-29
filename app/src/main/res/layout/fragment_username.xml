@@ -14,13 +14,30 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="302dp"
+            android:layout_height="400dp"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
+<!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
+<!--                android:id="@+id/fdgfd"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:hint="hggh"-->
+<!--                app:inputType="text"/>-->
+
+<!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
+<!--                android:id="@+id/dsfsdf"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:hint="asdas"-->
+<!--                app:inputType="number"-->
+<!--                />-->
+
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_username"
@@ -31,23 +48,25 @@
                 android:paddingTop="@dimen/padding_normal"
                 android:paddingBottom="@dimen/padding_normal"
                 tools:layout_editor_absoluteX="16dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:drawablePadding="@dimen/padding_normal"
                     android:drawableEnd="@drawable/ic_person"
+                    android:drawablePadding="@dimen/padding_normal"
                     android:singleLine="true"
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
             <CheckBox
                 android:id="@+id/cb_remember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Remember Me"
-                app:layout_constraintTop_toBottomOf="@id/et_username"
-                />
+                app:layout_constraintTop_toBottomOf="@id/et_username" />
+
             <ImageButton
                 android:id="@+id/login_settings"
                 android:layout_width="wrap_content"
@@ -55,14 +74,15 @@
                 android:layout_gravity="center"
                 android:layout_margin="16dp"
                 android:src="@drawable/baseline_settings_24" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_nxt"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="@dimen/margin_big"
                 android:layout_height="@dimen/login_btn_height"
-                android:text="@string/next"
+                android:layout_marginTop="@dimen/margin_big"
                 android:backgroundTint="@color/purple"
-                android:textSize="@dimen/text_big"/>
+                android:text="@string/next"
+                android:textSize="@dimen/text_big" />
 
         </LinearLayout>
 
