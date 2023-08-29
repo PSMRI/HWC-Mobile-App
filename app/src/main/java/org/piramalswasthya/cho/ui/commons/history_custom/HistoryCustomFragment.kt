@@ -648,13 +648,15 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
             code.text = otherAA
 
             condition.code = code
-
+            if (durationVal.isNotEmpty()) {
             val onsetAge = Age()
             onsetAge.value = BigDecimal(durationVal)
             onsetAge.unit = unitDurationVal
             onsetAge.system = "http://unitsofmeasure.org"
             onsetAge.code = codeU
             condition.onset = onsetAge
+
+            }
 
             val note = Annotation()
             note.text = familyVal

@@ -12,7 +12,7 @@ data class AssociateAilmentsHistory(
     var associateAilmentsId:String,
     @ColumnInfo(name = "associateAilments") val associateAilment: String,
     @ColumnInfo(name = "associateAilmentsOther") val associateAilmentOther: String?,
-    @ColumnInfo(name = "duration") val duration: String,
+    @ColumnInfo(name = "duration") val duration: String?,
     @ColumnInfo(name = "durationUnit") val durationUnit: String,
     @ColumnInfo(name = "familyMembers") val familyMembers: String,
     @ColumnInfo(name = "inactiveVisit") val inactiveVisit: Boolean
