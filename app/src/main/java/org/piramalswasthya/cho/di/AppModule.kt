@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -280,6 +281,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideHigherHealthCenterDao(database: InAppDb): HealthCenterDao = database.healthCenterDao
+
+    @Singleton
+    @Provides
+    fun providePatientDao(database: InAppDb): PatientDao = database.patientDao
 
 
 //    @Singleton

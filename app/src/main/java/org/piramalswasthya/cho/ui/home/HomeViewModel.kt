@@ -12,9 +12,14 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.repositories.LanguageRepo
+import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
+import org.piramalswasthya.cho.repositories.StateMasterRepo
+import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
+import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 
 import java.lang.Exception
 import javax.inject.Inject
@@ -26,17 +31,35 @@ class HomeViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val userDao: UserDao,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
-
-
-    ) : ViewModel() {
+    private val languageRepo: LanguageRepo,
+    private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
+    private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
+    private val malMasterDataRepo: MaleMasterDataRepository,
+) : ViewModel() {
 
     init {
         viewModelScope.launch{
             try {
+                malMasterDataRepo.getMasterDataForNurse()
+                languageRepo.saveResponseToCacheLang()
+                visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
+                visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
+                registrarMasterDataRepo.saveGenderMasterResponseToCache()
+                registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
+                registrarMasterDataRepo.saveIncomeMasterResponseToCache()
+                registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
+                registrarMasterDataRepo.saveCommunityMasterResponseToCache()
+                registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
                 registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
                 registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+                registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+                registrarMasterDataRepo.saveQualificationMasterResponseToCache()
+                registrarMasterDataRepo.saveReligionMasterResponseToCache()
+                registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
+                vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+                vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             }
-            catch (e : Exception){
+            catch (_: Exception){
 
             }
         }

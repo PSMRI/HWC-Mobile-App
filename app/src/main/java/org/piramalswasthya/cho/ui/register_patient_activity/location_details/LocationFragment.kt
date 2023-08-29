@@ -38,7 +38,9 @@ import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import timber.log.Timber
 import org.piramalswasthya.cho.fhir_utils.extension_names.*
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
+import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -69,18 +71,13 @@ class LocationFragment : Fragment() , NavigationAdapter {
 
     private val extension: FhirExtension = FhirExtension(ResourceType.Patient)
 
-    private var stateMap: Map<Int, String>? = null
-    private var districtMap: Map<Int, String>? = null
-    private var blockMap: Map<Int, String>? = null
-    private var villageMap: Map<Int, String>? = null
-
     private var selectedState: StateMaster? = null
     private var selectedDistrict: DistrictMaster? = null
     private var selectedBlock: BlockMaster? = null
     private var selectedVillage: VillageMaster? = null
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-//
+    private var patient : Patient? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,26 +86,10 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 //
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        lifecycleScope.launch {
-//            async { userInfo = userDao.getLoggedInUser() }.await()
-//            Log.i("states fetching", "not done")
-//            fetchStates()
-//        }
-        viewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
 
-//        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
-//            viewModel.selectedState = viewModel.stateList[position]
-//            viewModel.updateUserStateId(viewModel.selectedState!!.stateID)
-//            viewModel.fetchDistricts(viewModel.selectedState!!.stateID)
-//            binding.dropdownState.setText(viewModel.selectedState!!.stateName,false)
-//        }
-//
-//        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
-//            viewModel.selectedDistrict = viewModel.districtList[position]
-//            viewModel.updateUserDistrictId(viewModel.selectedDistrict!!.districtID)
-//            viewModel.fetchTaluks(viewModel.selectedDistrict!!.districtID)
-//            binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName,false)
-//        }
+        patient = arguments?.getSerializable("patient") as? Patient
+
+        viewModel = ViewModelProvider(this).get(LocationViewModel::class.java)
 
         binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedBlock = viewModel.blockList[position]
@@ -199,67 +180,65 @@ class LocationFragment : Fragment() , NavigationAdapter {
 
     override fun onSubmitAction() {
         addPatientLocationDetalis()
-        addPatientOtherDetalis()
+        if(patient != null){
+            patient!!.patientID = generateUuid()
+            viewModel.insertPatient(patient!!)
+        }
         findNavController().navigate(
             LocationFragmentDirections.actionFragmentLocationToOtherInformationsFragment()
         )
     }
 
+    fun generateUuid(): String {
+        return UUID.randomUUID().toString()
+    }
+
+
     private fun addPatientLocationDetalis(){
-        if(selectedState != null){
-            patient.addExtension( extension.getExtenstion(
-                    extension.getUrl(state),
-                    extension.getCoding(selectedState!!.stateID.toString(), selectedState!!.stateName) ) )
+        if(selectedState != null && patient != null){
+            patient!!.stateID = selectedState!!.stateID;
         }
 
-        if(selectedDistrict != null){
-            patient.addExtension( extension.getExtenstion(
-                    extension.getUrl(district),
-                    extension.getCoding(selectedDistrict!!.districtID.toString(), selectedDistrict!!.districtName) ) )
+        if(selectedDistrict != null && patient != null){
+            patient!!.districtID = selectedDistrict!!.districtID;
         }
 
-        if(selectedBlock != null){
-            patient.addExtension( extension.getExtenstion(
-                    extension.getUrl(block),
-                    extension.getCoding(selectedBlock!!.blockID.toString(), selectedBlock!!.blockName) ) )
+        if(selectedBlock != null && patient != null){
+            patient!!.blockID = selectedBlock!!.blockID;
         }
 
-        if(selectedVillage != null){
-            patient.addExtension( extension.getExtenstion(
-                    extension.getUrl(districtBranch),
-                    extension.getCoding(selectedVillage!!.districtBranchID.toString(), selectedVillage!!.villageName) ) )
+        if(selectedVillage != null && patient != null){
+            patient!!.districtBranchID = selectedVillage!!.districtBranchID;
         }
 
     }
 
     private fun addPatientOtherDetalis(){
 
-        if(userInfo != null){
-
-            patient.addExtension( extension.getExtenstion(
-                extension.getUrl(vanID),
-                extension.getStringType(userInfo!!.vanId.toString()) ) )
-
-            patient.addExtension( extension.getExtenstion(
-                extension.getUrl(parkingPlaceID),
-                extension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
-
-            patient.addExtension( extension.getExtenstion(
-                extension.getUrl(providerServiceMapId),
-                extension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-
-            patient.addExtension( extension.getExtenstion(
-                extension.getUrl(createdBy),
-                extension.getStringType(userInfo!!.userName) ) )
-
-        }
+//        if(userInfo != null){
+//
+//            patient.addExtension( extension.getExtenstion(
+//                extension.getUrl(vanID),
+//                extension.getStringType(userInfo!!.vanId.toString()) ) )
+//
+//            patient.addExtension( extension.getExtenstion(
+//                extension.getUrl(parkingPlaceID),
+//                extension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+//
+//            patient.addExtension( extension.getExtenstion(
+//                extension.getUrl(providerServiceMapId),
+//                extension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+//
+//            patient.addExtension( extension.getExtenstion(
+//                extension.getUrl(createdBy),
+//                extension.getStringType(userInfo!!.userName) ) )
+//
+//        }
 
     }
 
     override fun onCancelAction() {
-        findNavController().navigate(
-            LocationFragmentDirections.actionFragmentLocationToFhirAddPatientFragment()
-        )
+        findNavController().navigateUp()
     }
 
 

@@ -81,9 +81,9 @@ class FhirAddPatientFragment : Fragment(R.layout.fragment_fhir_add_patient), Fhi
     }
 
     override fun navigateNext() {
-        findNavController().navigate(
-            FhirAddPatientFragmentDirections.actionFhirAddPatientFragmentToFragmentLocation()
-        )
+//        findNavController().navigate(
+//            FhirAddPatientFragmentDirections.actionFhirAddPatientFragmentToFragmentLocation()
+//        )
     }
 
 }
