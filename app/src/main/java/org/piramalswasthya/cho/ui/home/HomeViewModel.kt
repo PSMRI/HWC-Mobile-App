@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -35,12 +36,12 @@ class HomeViewModel @Inject constructor(
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val malMasterDataRepo: MaleMasterDataRepository,
+    private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo
 ) : ViewModel() {
 
     init {
         viewModelScope.launch{
             try {
-                malMasterDataRepo.getMasterDataForNurse()
                 languageRepo.saveResponseToCacheLang()
                 visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
                 visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
@@ -58,6 +59,8 @@ class HomeViewModel @Inject constructor(
                 registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
                 vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
                 vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+                doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+                malMasterDataRepo.getMasterDataForNurse()
             }
             catch (_: Exception){
 
