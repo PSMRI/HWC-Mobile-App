@@ -408,9 +408,9 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
          addAssociateAilmentsDataToCatche()
          addCovidVaccinationDataToCatche()
          addPastHistoryDataToCatche()
-        findNavController().navigate(
-            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
-        )
+//        findNavController().navigate(
+//            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
+//        )
     }
     private fun addCovidData(){
         val immunization = Immunization()

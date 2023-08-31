@@ -16,6 +16,15 @@ class DropdownConst {
         val jointsList = mutableListOf("Ankle", "Elbow", "Hip", "Knee", "Shoulder", "Small Joints", "Temporo-mandibular", "Wrist")
         val lateralityList = mutableListOf("Left", "Right", "Bilateral")
         val abnormalityList = mutableListOf("Swelling", "Tenderness", "Deformity", "Restriction")
+        val medicalTestList = mutableListOf("Blood Glucose", "Chikungunya", "Cholesterol", "Dengue", "HbA1c",
+            "Hemoglobin", "Hepatitis B", "Hepatitis C", "HIV", "Malaria Test", "RBC", "RBS", "SpO2 Test", "Syphilis", "TB", "Typhoid Test Check",
+            "Uric Acid", "Urine Albumin Test", "Urine Pregnancy Rapid Test", "Urine Sugar Test", "Visual Acuity Test")
+        val medicationFormsList = mutableListOf("Tablet", "Capsule", "Syrup", "Suspension", "Oral Drops",
+            "Ointment", "Cream", "Lotion", "Eye Drops", "Ear Drops")
+        val tabletDosageList = mutableListOf("Half Tab", "One and Half Tab", "1 Tablet", "2 Tablets")
+        val medicationFrequencyList = mutableListOf("4 times a day (QID)", "Once daily (OD)", "Once in a week", "Single Dose", "SOS")
+        val medicationRouteList = mutableListOf("Ears","Eyes/Ear","Eyes","ID","IM","IV","Local application","Nostrils","Oral","Rectal")
+        val unitVal = mutableListOf("Day","Month","Week")
     }
 
 }

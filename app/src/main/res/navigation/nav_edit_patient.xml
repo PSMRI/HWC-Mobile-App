@@ -11,12 +11,12 @@
         android:name="org.piramalswasthya.cho.ui.commons.fhir_visit_details.FragmentVisitDetail"
         android:label="fragment_fhir_visit_details"
         tools:layout="@layout/visit_details_info" >
-        <action
-            android:id="@+id/action_fhirVisitDetailsFragment_to_historyCustomFragment"
-            app:destination="@id/historyCustomFragment" />
         <argument
             android:name="patientId"
             app:argType="string"/>
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
     </fragment>
 
     <fragment
@@ -25,14 +25,18 @@
         android:label="fragment_fhir_vitals"
         tools:layout="@layout/fragment_vitals_custom" >
         <action
-            android:id="@+id/action_fhirVitalsFragment_to_fhirExaminationFragment"
-            app:destination="@id/examinationFragment" />
+            android:id="@+id/action_customVitalsFragment_to_fhirPrescriptionFragment"
+            app:destination="@id/fhirPrescriptionFragment" />
     </fragment>
     <fragment
         android:id="@+id/fhirRevisitFormFragment"
         android:name="org.piramalswasthya.cho.ui.commons.fhir_revisit_form.FhirRevisitFormFragment"
         android:label="fragment_fhir_revisit_form"
-        tools:layout="@layout/fragment_fhir_revisit_form" />
+        tools:layout="@layout/fragment_fhir_revisit_form" >
+        <action
+            android:id="@+id/action_fhirRevisitFormFragment_to_caseRecordCustom"
+            app:destination="@id/caseRecordCustom" />
+    </fragment>
     <fragment
         android:id="@+id/webViewFragment"
         android:name="org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment"
@@ -48,31 +52,13 @@
         android:label="fragment_fhir_prescription"
         tools:layout="@layout/fragment_fhir_prescription" >
         <action
-            android:id="@+id/action_fhirPrescriptionFragment_to_fhirVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
-        <action
             android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
             app:destination="@id/fhirRevisitFormFragment" />
     </fragment>
     <fragment
-        android:id="@+id/historyCustomFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.history_custom.HistoryCustomFragment"
-        android:label="fragment_history_custom"
-        tools:layout="@layout/fragment_history_custom" >
-        <action
-            android:id="@+id/action_historyCustomFragment_to_fhirVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/examinationFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.fhir_examination_form.ExaminationFragment"
-        android:label="fragment_examination"
-        tools:layout="@layout/fragment_examination">
-        <action
-            android:id="@+id/action_examination_fragment_to_prescription"
-            app:destination="@id/fhirPrescriptionFragment"/>
-    </fragment>
+        android:id="@+id/caseRecordCustom"
+        android:name="org.piramalswasthya.cho.ui.commons.case_record.CaseRecordCustom"
+        android:label="CaseRecordCustom" />
 
 
 </navigation>

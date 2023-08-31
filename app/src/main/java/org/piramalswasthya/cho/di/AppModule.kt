@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
@@ -285,6 +286,9 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun providePatientDao(database: InAppDb): PatientDao = database.patientDao
+    @Singleton
+    @Provides
+    fun provideCasesReaderDao(database: InAppDb): CaseRecordeDao = database.caseRecordeDao
 
 
 //    @Singleton

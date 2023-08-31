@@ -371,12 +371,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCustomVitalsFragment()
             )
         } else if (!isFileSelected && catBool && subCat && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToHistoryCustomFragment()
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCustomVitalsFragment()
             )
         } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
             Toast.makeText(
