@@ -117,9 +117,9 @@ class ExaminationFragment: Fragment(),NavigationAdapter,FhirFragmentService {
     }
 
     override fun navigateNext() {
-        findNavController().navigate(
-            ExaminationFragmentDirections.actionExaminationFragmentToPrescription()
-        )
+//        findNavController().navigate(
+//            ExaminationFragmentDirections.actionExaminationFragmentToPrescription()
+//        )
     }
 
     override fun getFragmentId(): Int {

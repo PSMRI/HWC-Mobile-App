@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
@@ -89,10 +90,13 @@ import timber.log.Timber
         HigherHealthCenter::class,
         PastSurgeryHistory::class,
         PastIllnessHistory::class,
-        CovidVaccinationStatusHistory::class
+        CovidVaccinationStatusHistory::class,
+        DiagnosisCaseRecord::class,
+        InvestigationCaseRecord::class,
+        PrescriptionCaseRecord::class
     ],
 //    views = [BenBasicCache::class],
-    version = 35, exportSchema = false
+    version = 36, exportSchema = false
 )
 
 
@@ -135,6 +139,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val vitalsDao: VitalsDao
     abstract val referRevisitDao: ReferRevisitDao
     abstract val healthCenterDao: HealthCenterDao
+    abstract val caseRecordeDao: CaseRecordeDao
 
     abstract val patientDao: PatientDao
 

@@ -74,6 +74,7 @@
     <string name="location_details">Location Details</string>
     <string name="personal_info">Personal Info</string>
     <string name="revisit_details_text">Revisit Details</string>
+    <string name="case_record_text">Cases Record</string>
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
@@ -319,5 +320,12 @@
     <string name="timer">timer</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="enter_diagnosis">Enter Diagnosis</string>
+    <string name="select_test_name">Select Test Name</string>
+    <string name="prescription">Prescription</string>
+    <string name="external_investigation">External Investigation</string>
+    <string name="investigation">Investigation</string>
+    <string name="dosages">Dosages</string>
+    <string name="frequency">Frequency</string>
 
 </resources>

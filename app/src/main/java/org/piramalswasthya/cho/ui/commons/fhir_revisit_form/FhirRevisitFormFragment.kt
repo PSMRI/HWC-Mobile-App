@@ -305,15 +305,18 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_refer_and_revisit_cus
     }
 
     override fun navigateNext() {
-        extractFormValues()
-        addReferRevisitDataToCache()
-        createAppointmentResource()
-        if(!isNull) {
-            viewModel.saveAppointmentResource(appointment)
-            isNull = true
-        }
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
+//        extractFormValues()
+//        addReferRevisitDataToCache()
+//        createAppointmentResource()
+//        if(!isNull) {
+//            viewModel.saveAppointmentResource(appointment)
+//            isNull = true
+//        }
+//        val intent = Intent(context, HomeActivity::class.java)
+//        startActivity(intent)
+        findNavController().navigate(
+            FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToCaseRecordCustom()
+        )
     }
 
 
