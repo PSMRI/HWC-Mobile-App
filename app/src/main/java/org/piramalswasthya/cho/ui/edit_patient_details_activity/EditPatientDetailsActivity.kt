@@ -63,11 +63,11 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                    binding.btnSubmit.text = resources.getString(R.string.submit)
 //                    binding.btnCancel.text = resources.getString(R.string.cancel)
 //                }
-                R.id.fhirPrescriptionFragment -> {
-                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
+//                R.id.fhirPrescriptionFragment -> {
+//                    binding.headerTextEditPatient.text = resources.getString(R.string.prescription_text)
+//                    binding.btnSubmit.text = resources.getString(R.string.submit)
+//                    binding.btnCancel.text = resources.getString(R.string.cancel)
+//                }
                 R.id.fhirRevisitFormFragment ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.revisit_details_text)
                     binding.btnSubmit.text = resources.getString(R.string.next)
@@ -75,7 +75,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
                 R.id.caseRecordCustom ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.case_record_text)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }

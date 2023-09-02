@@ -25,8 +25,8 @@
         android:label="fragment_fhir_vitals"
         tools:layout="@layout/fragment_vitals_custom" >
         <action
-            android:id="@+id/action_customVitalsFragment_to_fhirPrescriptionFragment"
-            app:destination="@id/fhirPrescriptionFragment" />
+            android:id="@+id/action_customVitalsFragment_to_fhirRevisitFormFragment"
+            app:destination="@id/fhirRevisitFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/fhirRevisitFormFragment"
@@ -45,15 +45,6 @@
         <argument
             android:name="webUrl"
             app:argType="string"/>
-    </fragment>
-    <fragment
-        android:id="@+id/fhirPrescriptionFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.fhir_prescription.FhirPrescriptionFragment"
-        android:label="fragment_fhir_prescription"
-        tools:layout="@layout/fragment_fhir_prescription" >
-        <action
-            android:id="@+id/action_fhirPrescriptionFragment_to_fhirRevisitFormFragment"
-            app:destination="@id/fhirRevisitFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/caseRecordCustom"

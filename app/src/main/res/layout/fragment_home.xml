@@ -7,6 +7,28 @@
     android:layout_marginTop="50dp"
     tools:context=".ui.home_activity.HomeActivity">
 
+    <RelativeLayout
+        android:id="@+id/rl_saving"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pb_saving"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pb_saving"
+            android:layout_centerHorizontal="true"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/loading_form"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+    </RelativeLayout>
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_list_fragment"
         android:layout_width="match_parent"
