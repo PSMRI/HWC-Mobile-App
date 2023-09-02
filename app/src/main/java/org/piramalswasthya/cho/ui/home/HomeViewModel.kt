@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.home
 
 import android.net.Uri
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,34 +37,52 @@ class HomeViewModel @Inject constructor(
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val malMasterDataRepo: MaleMasterDataRepository,
-    private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo
+    private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo,
+    private val dataLoadFlagManager: DataLoadFlagManager
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch{
-            try {
-                languageRepo.saveResponseToCacheLang()
-                visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-                visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-                registrarMasterDataRepo.saveGenderMasterResponseToCache()
-                registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-                registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-                registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-                registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-                registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-                registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-                registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-                registrarMasterDataRepo.saveReligionMasterResponseToCache()
-                registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-                vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-                vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-                doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-                malMasterDataRepo.getMasterDataForNurse()
-            }
-            catch (_: Exception){
+    enum class State {
+        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
+    }
 
+    private val _state = MutableLiveData(State.IDLE)
+    val state: LiveData<State>
+        get() = _state
+    init {
+        viewModelScope.launch {
+            if (!dataLoadFlagManager.isDataLoaded())
+            extracted()
+        }
+    }
+
+    private suspend fun extracted() {
+        withContext(Dispatchers.IO) {
+            try {
+                    _state.postValue(State.SAVING)
+                    languageRepo.saveResponseToCacheLang()
+                    visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
+                    visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
+                    registrarMasterDataRepo.saveGenderMasterResponseToCache()
+                    registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
+                    registrarMasterDataRepo.saveIncomeMasterResponseToCache()
+                    registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
+                    registrarMasterDataRepo.saveCommunityMasterResponseToCache()
+                    registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
+                    registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+                    registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+                    registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+                    registrarMasterDataRepo.saveQualificationMasterResponseToCache()
+                    registrarMasterDataRepo.saveReligionMasterResponseToCache()
+                    registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
+                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+                    malMasterDataRepo.getMasterDataForNurse()
+                    dataLoadFlagManager.setDataLoaded(true)
+                    _state.postValue(State.SAVE_SUCCESS)
+            } catch (_e: Exception) {
+
+                _state.postValue(State.SAVE_FAILED)
             }
         }
     }
@@ -74,7 +93,6 @@ class HomeViewModel @Inject constructor(
     private var _unprocessedRecords: Int = 0
     val unprocessedRecords: Int
         get() = _unprocessedRecords
-
 
 
     private val _navigateToLoginPage = MutableLiveData(false)

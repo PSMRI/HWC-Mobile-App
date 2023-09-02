@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
@@ -25,6 +27,7 @@ import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetai
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -48,7 +51,7 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding
         get() = _binding!!
 
-    private lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +62,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
@@ -69,6 +71,31 @@ class HomeFragment : Fragment() {
             val intent = Intent(context, RegisterPatientActivity::class.java)
             startActivity(intent)
 //            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToRegisterPatientFragment())
+        }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state!!) {
+                HomeViewModel.State.IDLE -> {
+                }
+
+                HomeViewModel.State.SAVING -> {
+                    binding.patientListFragment.visibility = View.GONE
+                    binding.rlSaving.visibility = View.VISIBLE
+                }
+
+                HomeViewModel.State.SAVE_SUCCESS -> {
+                    binding.patientListFragment.visibility = View.VISIBLE
+                    binding.rlSaving.visibility = View.GONE
+                }
+
+                HomeViewModel.State.SAVE_FAILED -> {
+                    Toast.makeText(
+
+                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
+                    ).show()
+                    binding.patientListFragment.visibility = View.VISIBLE
+                    binding.rlSaving.visibility = View.GONE
+                }
+            }
         }
 //        binding.advanceSearch.setOnClickListener {
 //

@@ -133,7 +133,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val selectedItems = BooleanArray(familyMembers.size) { selectedTestName.contains(it) }
 
         val builder = AlertDialog.Builder(requireContext())
-            .setTitle("Select Family Member")
+            .setTitle("Select Test Name")
             .setCancelable(false)
             .setMultiChoiceItems(
                 familyMembers.toTypedArray(),
@@ -174,7 +174,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun isAnyItemEmptyP(): Boolean {
         for (item in itemListP) {
-            if (item.form.isEmpty()||item.medicine.isEmpty()||item.dosage.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()||item.instruction.isEmpty()||item.unit.isEmpty()||item.route.isEmpty()) {
+            if (item.form.isEmpty()||item.dosage.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()||item.unit.isEmpty()) {
                 return true
             }
         }

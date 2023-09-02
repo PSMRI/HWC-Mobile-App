@@ -320,7 +320,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             isNull = true
         }
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionCustomVitalsFragmentToFhirPrescriptionFragment()
+            FhirVitalsFragmentDirections.actionCustomVitalsFragmentToFhirRevisitFormFragment()
         )
     }
 
