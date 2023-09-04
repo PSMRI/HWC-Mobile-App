@@ -314,9 +314,9 @@ class FhirRevisitFormFragment : Fragment(R.layout.fragment_refer_and_revisit_cus
 //        }
 //        val intent = Intent(context, HomeActivity::class.java)
 //        startActivity(intent)
-        findNavController().navigate(
-            FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToCaseRecordCustom()
-        )
+//        findNavController().navigate(
+//            FhirRevisitFormFragmentDirections.actionFhirRevisitFormFragmentToCaseRecordCustom()
+//        )
     }
 
 

@@ -11,6 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:hint="@string/provisional_diagnosis"
+        android:textSize="18sp"
+        android:textColorHint="#888888"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -19,6 +21,8 @@
             android:id="@+id/inputDignosis"
             android:layout_width="match_parent"
             android:inputType="text"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:drawableEnd="@drawable/baseline_search_24"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
