@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
             android:text="@string/category"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
             android:text="Reason For Visit"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="normal|bold"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,16 +86,16 @@
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
-        <TextView
-            android:id="@+id/subCatTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:text="@string/sub_category"
-            android:textSize="16sp"
-            android:textStyle="normal|bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />
+<!--        <TextView-->
+<!--            android:id="@+id/subCatTxt"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/custom_ui_margin"-->
+<!--            android:text="@string/sub_category"-->
+<!--            android:textSize="16sp"-->
+<!--            android:textStyle="normal|bold"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />-->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/subCatDropDown"
@@ -104,13 +104,15 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
             android:hint="@string/select_sub_category"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/subCatTxt">
+            app:layout_constraintTop_toBottomOf="@id/radioGroup2">
 
             <AutoCompleteTextView
                 android:id="@+id/subCatInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="18sp"
                 android:layout_weight="1"
                 android:inputType="none"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -122,11 +124,12 @@
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="30dp"
+            android:paddingTop="2dp"
             android:paddingBottom="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"/>
@@ -165,6 +168,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/select_and_upload_file"
+                    android:textSize="18sp"
                     android:textStyle="normal|bold" />
 
                 <TextView
@@ -172,6 +176,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="10dp"
+                    android:textSize="18sp"
                     android:paddingBottom="10dp"
                     android:text="@string/file_type"/>
 
@@ -196,6 +201,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/custom_ui_margin"
+                        android:textSize="18sp"
                         android:text="@string/select_file" />
                 </LinearLayout>
                 <com.google.android.material.button.MaterialButton
@@ -204,6 +210,7 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:layout_margin="@dimen/custom_ui_margin"
+                    android:textSize="18sp"
                     android:layout_gravity="center"
                     android:text="@string/upload_file" />
             </LinearLayout>

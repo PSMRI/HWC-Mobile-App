@@ -56,6 +56,7 @@
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
     <string name="duration">Duration (<font color="#FF0000">*</font>)</string>
+    <string name="duration2">Duration</string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
@@ -183,7 +184,7 @@
     <string name="previous_tobacco_history">Previous Tobacco History</string>
     <string name="associated_ailments">Associated Ailments</string>
     <string name="select_associated_ailments">Select Associated Ailments</string>
-    <string name="enter_duration">Enter Duration</string>
+    <string name="enter_duration">Enter Duration  <font color="#FF0000">*</font></string>
     <string name="enter_inspection">Inspection</string>
     <string name="duration_unit">Duration Unit</string>
     <string name="select_duration_unit">Select Duration Unit</string>
@@ -238,7 +239,7 @@
     <string name="street_panchayat_village">Street/Panchayat/Village</string>
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">Select Sub Category</string>
-    <string name="select_chief_complaint">Select Chief Complaint</string>
+    <string name="select_chief_complaint">Select Chief Complaint  <font color="#FF0000">*</font></string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">Select File</string>
     <string name="upload_file">Upload File</string>
@@ -323,7 +324,7 @@
     <string name="no">No</string>
     <string name="select_test_name">Test Name</string>
     <string name="diagnosis">Diagnosis</string>
-    <string name="provisional_diagnosis">Provisional Diagnosis</string>
+    <string name="provisional_diagnosis">Provisional Diagnosis <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
     <string name="frequency">Frequency</string>
     <string name="instructions">Instructions</string>
@@ -333,5 +334,9 @@
     <string name="save_successful">Save Successful\n</string>
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
+    <string name="loading">Loading Please Wait....</string>
+    <string name="personal_information">Personal Information</string>
+    <string name="location_information">Location Information</string>
+    <string name="other_information">Other Information</string>
 
 </resources>

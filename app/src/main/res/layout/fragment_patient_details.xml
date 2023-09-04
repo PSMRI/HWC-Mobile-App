@@ -37,12 +37,15 @@
             android:id="@+id/first_name_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/first_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/first_name"
                 android:layout_width="match_parent"
                 android:inputType="text"
+                android:textSize="18sp"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,14 +54,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/last_name_surname">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/last_name"
                 android:layout_width="match_parent"
-                android:inputType="text"
                 android:layout_height="wrap_content"
-                android:drawableEnd="@drawable/ic_mic"/>
+                android:textSize="18sp"
+                android:drawableEnd="@drawable/ic_mic"
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -66,6 +72,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/date_of_birth">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -73,6 +81,7 @@
                 android:layout_width="match_parent"
                 android:inputType="text"
                 android:focusable="false"
+                android:textSize="18sp"
                 android:layout_height="wrap_content"
                 android:drawableEnd="@drawable/ic_calendar"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -82,11 +91,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/age">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age"
                 android:layout_width="match_parent"
+                android:textSize="18sp"
                 android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -96,15 +108,19 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/age_in_unit"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
                 android:id="@+id/age_in_unit_dropdown"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
+                android:textSize="18sp"
                 android:layout_height="match_parent"
                 android:inputType="none"
-                android:text="@string/age_in_unit" />
+                android:textColorHint="#888888"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -112,6 +128,9 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/marital_status"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
@@ -119,7 +138,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="none"
-                android:text="@string/marital_status" />
+                android:textSize="18sp"
+                android:textColorHint="#888888"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -127,12 +147,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/spouse_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/spouse_name"
                 android:layout_width="match_parent"
                 android:inputType="text"
+                android:textSize="18sp"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -141,11 +164,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/age_at_marriage">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_at_marriage"
                 android:layout_width="match_parent"
+                android:textSize="18sp"
                 android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -155,12 +181,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             android:hint="@string/phone_number">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phone_no"
                 android:layout_width="match_parent"
                 android:inputType="number"
+                android:textSize="18sp"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,6 +198,9 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/gender"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
@@ -176,7 +208,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:text="@string/gender" />
+                android:textSize="18sp"
+                android:textColorHint="#888888"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -184,6 +217,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
             android:hint="@string/registration_date">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -191,6 +225,8 @@
                 android:layout_width="match_parent"
                 android:inputType="text"
                 android:focusable="false"
+                android:textSize="18sp"
+                android:textColorHint="#888888"
                 android:layout_height="wrap_content"
                 android:drawableRight="@drawable/ic_calendar"/>
         </com.google.android.material.textfield.TextInputLayout>

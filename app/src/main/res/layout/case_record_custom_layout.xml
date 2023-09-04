@@ -25,15 +25,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textInvestHeading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:text="@string/investigation"
-                    android:textSize="18sp"
-                    android:textStyle="normal|bold" />
+<!--                <TextView-->
+<!--                    android:id="@+id/textInvestHeading"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="4dp"-->
+<!--                    android:layout_marginRight="4dp"-->
+<!--                    android:text="@string/investigation"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:textStyle="normal|bold" />-->
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/testName"
@@ -41,56 +41,65 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:minHeight="50dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    android:hint="@string/select_f_h_of_member"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInvestHeading"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="5dp">
+                    app:cardCornerRadius="5dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textInvestHeading">
 
-                    <androidx.appcompat.widget.LinearLayoutCompat
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:paddingStart="14dp">
 
                         <TextView
                             android:id="@+id/selectF"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:padding="8dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
-                            android:layout_centerInParent="true"
+                            android:textSize="18sp"
                             android:textColor="@android:color/darker_gray"
-                            android:hint="@string/select_test_name" />
+                            android:textColorHint="#888888"
+                            android:hint="@string/select_test_name"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            app:layout_constraintEnd_toStartOf="@+id/arrowImage"
+                            />
 
                         <ImageView
+                            android:id="@+id/arrowImage"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
                             android:src="@drawable/ic_arrow_down"
-                            android:layout_centerInParent="true"
-                            android:layout_gravity="center_vertical|right" />
-                    </androidx.appcompat.widget.LinearLayoutCompat>
-
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_centerVertical="true"
+                            />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/textDiagnosisHeading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:text="@string/diagnosis"
-                    android:textSize="18sp"
-                    android:textStyle="normal|bold" />
+
+<!--                <TextView-->
+<!--                    android:id="@+id/textDiagnosisHeading"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:layout_marginLeft="4dp"-->
+<!--                    android:layout_marginRight="4dp"-->
+<!--                    android:text="@string/diagnosis"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:textStyle="normal|bold" />-->
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/diagnosisExtra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="30dp"
+                    android:paddingTop="2dp"
                     android:paddingBottom="10dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/subheading_past_illness"/>
@@ -113,12 +122,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="4dp"
                         android:layout_marginRight="4dp"
+                    android:textColorHint="#888888"
                         app:layout_constraintTop_toBottomOf="@+id/plusButtonD"
+                    android:textSize="18sp"
                         android:hint="@string/external_investigation">
                     <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputExternalI"
                             android:layout_width="match_parent"
                             android:inputType="text"
+                        android:textSize="18sp"
+                        android:textColorHint="#888888"
                             android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -127,7 +140,7 @@
                         android:id="@+id/prescriptionExtra"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="30dp"
+                        android:paddingTop="8dp"
                         android:paddingBottom="10dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/routeDropDown" />

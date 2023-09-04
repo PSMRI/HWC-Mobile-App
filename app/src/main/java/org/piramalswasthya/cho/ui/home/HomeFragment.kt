@@ -80,11 +80,13 @@ class HomeFragment : Fragment() {
                 HomeViewModel.State.SAVING -> {
                     binding.patientListFragment.visibility = View.GONE
                     binding.rlSaving.visibility = View.VISIBLE
+                    binding.registration.isEnabled = false
                 }
 
                 HomeViewModel.State.SAVE_SUCCESS -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
+                    binding.registration.isEnabled = true
                 }
 
                 HomeViewModel.State.SAVE_FAILED -> {

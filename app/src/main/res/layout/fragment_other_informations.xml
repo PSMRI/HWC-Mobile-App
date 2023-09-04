@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/abha_gen_mode"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.666"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +34,9 @@
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:hint="@string/choose_abha_gen_mode"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
             app:layout_constraintTop_toBottomOf="@+id/abha_gen_mode">
             <AutoCompleteTextView
                 android:id="@+id/dropdown_abha_gen_mode"
@@ -40,7 +44,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:inputType="none"
-                android:text="@string/choose_abha_gen_mode"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 

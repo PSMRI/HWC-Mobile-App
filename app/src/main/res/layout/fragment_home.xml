@@ -25,7 +25,7 @@
             android:layout_below="@id/pb_saving"
             android:layout_centerHorizontal="true"
             android:padding="@dimen/padding_normal"
-            android:text="@string/loading_form"
+            android:text="@string/loading"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
     </RelativeLayout>
 
@@ -56,6 +56,7 @@
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
                 android:backgroundTint="@color/purple"
+                android:enabled="true"
                 android:text="@string/registration" />
 
 <!--            <Button-->
