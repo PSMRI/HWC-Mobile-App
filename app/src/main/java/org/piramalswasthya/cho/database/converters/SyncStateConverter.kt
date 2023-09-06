@@ -14,4 +14,5 @@ object SyncStateConverter {
     fun fromInt(value : Int): SyncState {
         return SyncState.values()[value]
     }
+
 }

@@ -41,35 +41,35 @@ class DistrictAdapter(
         (view as? TextView)?.text = district.districtName
         return view
     }
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val results = FilterResults()
-
-                constraint?.let { query ->
-                    val filteredData = ArrayList<District>()
-                    for (item in filterList) {
-                        if (item.districtName.lowercase().contains(query.toString().lowercase())) {
-                            filteredData.add(item)
-                        }
-                    }
-                    results.values = filteredData
-                    results.count = filteredData.size
-                }
-
-                return results
-            }
-
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                results?.let { filterResults ->
-                    clear()
-                    if (filterResults.count > 0) {
-                        addAll(filterResults.values as List<District>)
-                        notifyDataSetChanged()
-                    }
-                }
-            }
-        }
-    }
+//    override fun getFilter(): Filter {
+//        return object : Filter() {
+//            override fun performFiltering(constraint: CharSequence?): FilterResults {
+//                val results = FilterResults()
+//
+//                constraint?.let { query ->
+//                    val filteredData = ArrayList<District>()
+//                    for (item in filterList) {
+//                        if (item.districtName.lowercase().contains(query.toString().lowercase())) {
+//                            filteredData.add(item)
+//                        }
+//                    }
+//                    results.values = filteredData
+//                    results.count = filteredData.size
+//                }
+//
+//                return results
+//            }
+//
+//            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+//                results?.let { filterResults ->
+//                    clear()
+//                    if (filterResults.count > 0) {
+//                        addAll(filterResults.values as List<District>)
+//                        notifyDataSetChanged()
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 }

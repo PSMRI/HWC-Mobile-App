@@ -6,6 +6,7 @@ import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.PatientNetwork
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -68,10 +69,11 @@ interface AmritApiService {
     @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
     suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
 
+    @POST("hwc-facility-service/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
+    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
 
     @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
-
 
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject

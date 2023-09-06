@@ -357,6 +357,11 @@ data class StateList(
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
+data class BenificiarySaveResponse(
+    val response: String
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
 data class State(
     val stateID: Int,
     val stateName: String

@@ -46,22 +46,22 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LocationFragment : Fragment() , NavigationAdapter {
 
-    @Inject
-    lateinit var stateMasterRepo: StateMasterRepo
-
-    @Inject
-    lateinit var districtMasterRepo: DistrictMasterRepo
-
-    @Inject
-    lateinit var blockMasterRepo: BlockMasterRepo
-
-    @Inject
-    lateinit var villageMasterRepo: VillageMasterRepo
-
-    @Inject
-    lateinit var userDao: UserDao
-
-    private var userInfo: UserCache? = null
+//    @Inject
+//    lateinit var stateMasterRepo: StateMasterRepo
+//
+//    @Inject
+//    lateinit var districtMasterRepo: DistrictMasterRepo
+//
+//    @Inject
+//    lateinit var blockMasterRepo: BlockMasterRepo
+//
+//    @Inject
+//    lateinit var villageMasterRepo: VillageMasterRepo
+//
+//    @Inject
+//    lateinit var userDao: UserDao
+//
+//    private var userInfo: UserCache? = null
 
     private val binding by lazy{
         FragmentLocationBinding.inflate(layoutInflater)
@@ -69,12 +69,6 @@ class LocationFragment : Fragment() , NavigationAdapter {
 
     private lateinit var viewModel: LocationViewModel
 
-    private val extension: FhirExtension = FhirExtension(ResourceType.Patient)
-
-    private var selectedState: StateMaster? = null
-    private var selectedDistrict: DistrictMaster? = null
-    private var selectedBlock: BlockMaster? = null
-    private var selectedVillage: VillageMaster? = null
 
     private var patient : Patient? = null
 
@@ -180,37 +174,30 @@ class LocationFragment : Fragment() , NavigationAdapter {
 
     override fun onSubmitAction() {
         addPatientLocationDetalis()
-        if(patient != null){
-            patient!!.patientID = generateUuid()
-            viewModel.insertPatient(patient!!)
-        }
+        val bundle = Bundle()
+        bundle.putSerializable("patient", patient)
         findNavController().navigate(
-            LocationFragmentDirections.actionFragmentLocationToOtherInformationsFragment()
+            R.id.action_fragmentLocation_to_otherInformationsFragment, bundle
         )
-    }
-
-    fun generateUuid(): String {
-        return UUID.randomUUID().toString()
     }
 
 
     private fun addPatientLocationDetalis(){
-        if(selectedState != null && patient != null){
-            patient!!.stateID = selectedState!!.stateID;
+        if(viewModel.selectedState != null && patient != null){
+            patient!!.stateID = viewModel.selectedState!!.stateID;
         }
 
-        if(selectedDistrict != null && patient != null){
-            patient!!.districtID = selectedDistrict!!.districtID;
+        if(viewModel.selectedDistrict != null && patient != null){
+            patient!!.districtID = viewModel.selectedDistrict!!.districtID;
         }
 
-        if(selectedBlock != null && patient != null){
-            patient!!.blockID = selectedBlock!!.blockID;
+        if(viewModel.selectedBlock != null && patient != null){
+            patient!!.blockID = viewModel.selectedBlock!!.blockID;
         }
 
-        if(selectedVillage != null && patient != null){
-            patient!!.districtBranchID = selectedVillage!!.districtBranchID;
+        if(viewModel.selectedVillage != null && patient != null){
+            patient!!.districtBranchID = viewModel.selectedVillage!!.districtBranchID;
         }
-
     }
 
     private fun addPatientOtherDetalis(){

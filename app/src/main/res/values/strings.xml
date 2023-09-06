@@ -322,6 +322,9 @@
     <string name="timer">timer</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="parent_gurdian_name">Parent/Gurdian name</string>
+    <string name="religion">Religion</string>
+    <string name="community">Community</string>
     <string name="select_test_name">Test Name</string>
     <string name="diagnosis">Diagnosis</string>
     <string name="provisional_diagnosis">Provisional Diagnosis <font color="#FF0000">*</font></string>

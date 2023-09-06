@@ -96,7 +96,7 @@ import timber.log.Timber
         PrescriptionCaseRecord::class
     ],
 //    views = [BenBasicCache::class],
-    version = 36, exportSchema = false
+    version = 37, exportSchema = false
 )
 
 
@@ -160,16 +160,16 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .fallbackToDestructiveMigration()
-                        .setQueryCallback(
-                            object : QueryCallback {
-                                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                                    Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
-                                }
-                            },
-                            Dispatchers.IO.asExecutor()
-                        )
-                        .build()
+                    .fallbackToDestructiveMigration()
+                    .setQueryCallback(
+                        object : QueryCallback {
+                            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                                Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
+                            }
+                        },
+                        Dispatchers.IO.asExecutor()
+                    )
+                    .build()
 
                     INSTANCE = instance
                 }

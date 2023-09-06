@@ -5,6 +5,9 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
+import org.piramalswasthya.sakhi.work.PullFromAmritWorker
+import org.piramalswasthya.sakhi.work.PushToAmritWorker
+import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
 
@@ -14,39 +17,19 @@ object WorkerUtils {
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-//    fun triggerAmritSyncWorker(context : Context){
+    fun triggerAmritSyncWorker(context : Context){
 //        val pullWorkRequest = OneTimeWorkRequestBuilder<PullFromAmritWorker>()
 //            .setConstraints(networkOnlyConstraint)
 //            .build()
-//        val pushWorkRequest = OneTimeWorkRequestBuilder<PushToAmritWorker>()
-//            .setConstraints(networkOnlyConstraint)
-//            .build()
-//        val workManager = WorkManager.getInstance(context)
-//        workManager
-//            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullWorkRequest)
-//            .then(pushWorkRequest)
-//            .enqueue()
-//    }
-//
-//    fun triggerD2dSyncWorker(context: Context) {
-//        val workRequest = OneTimeWorkRequestBuilder<PushToD2DWorker>()
-//            .setConstraints(PushToD2DWorker.constraint)
-//            .build()
-//        WorkManager.getInstance(context)
-//            .enqueueUniqueWork(
-//                PushToD2DWorker.name,
-//                ExistingWorkPolicy.APPEND_OR_REPLACE,
-//                workRequest
-//            )
-//    }
-//
-//    fun triggerGenBenIdWorker(context: Context) {
-//        val workRequest = OneTimeWorkRequestBuilder<GenerateBenIdsWorker>()
-//            .setConstraints(GenerateBenIdsWorker.constraint)
-//            .build()
-//        WorkManager.getInstance(context)
-//            .enqueueUniqueWork(GenerateBenIdsWorker.name, ExistingWorkPolicy.KEEP, workRequest)
-//    }
+        val pushWorkRequest = OneTimeWorkRequestBuilder<PushToAmritWorker>()
+//            .setInitialDelay(10, TimeUnit.SECONDS)
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pushWorkRequest)
+            .enqueue()
+    }
 
     fun triggerDownloadCardWorker(
         context: Context,
@@ -62,8 +45,10 @@ object WorkerUtils {
         return WorkManager.getInstance(context)
             .enqueueUniqueWork(DownloadCardWorker.name, ExistingWorkPolicy.REPLACE, workRequest).state
     }
+
     fun cancelAllWork(context: Context) {
         val workManager = WorkManager.getInstance(context)
         workManager.cancelAllWork()
     }
+
 }

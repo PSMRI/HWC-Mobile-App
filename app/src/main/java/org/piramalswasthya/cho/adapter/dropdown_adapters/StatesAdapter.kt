@@ -40,35 +40,35 @@ class StatesAdapter(
         (view as? TextView)?.text = state.stateName
         return view
     }
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val results = FilterResults()
-
-                constraint?.let { query ->
-                    val filteredData = ArrayList<State>()
-                    for (item in filterList) {
-                        if (item.stateName.lowercase().contains(query.toString().lowercase())) {
-                            filteredData.add(item)
-                        }
-                    }
-                    results.values = filteredData
-                    results.count = filteredData.size
-                }
-
-                return results
-            }
-
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                results?.let { filterResults ->
-                    clear()
-                    if (filterResults.count > 0) {
-                        addAll(filterResults.values as List<State>)
-                        notifyDataSetChanged()
-                    }
-                }
-            }
-        }
-    }
+//    override fun getFilter(): Filter {
+//        return object : Filter() {
+//            override fun performFiltering(constraint: CharSequence?): FilterResults {
+//                val results = FilterResults()
+//
+//                constraint?.let { query ->
+//                    val filteredData = ArrayList<State>()
+//                    for (item in filterList) {
+//                        if (item.stateName.lowercase().contains(query.toString().lowercase())) {
+//                            filteredData.add(item)
+//                        }
+//                    }
+//                    results.values = filteredData
+//                    results.count = filteredData.size
+//                }
+//
+//                return results
+//            }
+//
+//            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+//                results?.let { filterResults ->
+//                    clear()
+//                    if (filterResults.count > 0) {
+//                        addAll(filterResults.values as List<State>)
+//                        notifyDataSetChanged()
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 }

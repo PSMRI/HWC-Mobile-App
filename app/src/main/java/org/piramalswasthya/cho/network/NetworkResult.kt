@@ -11,6 +11,12 @@ import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
+const val ioException = -1
+const val jsonException = -2
+const val socketTimeoutException = -3
+const val exception = -4
+
+
 suspend inline fun networkResultInterceptor(
     crossinline action: suspend () -> NetworkResult<NetworkResponse>,
 ): NetworkResult<NetworkResponse> {
@@ -19,15 +25,15 @@ suspend inline fun networkResultInterceptor(
         try {
             action()
         } catch (e: IOException) {
-            NetworkResult.Error(-1, "Unable to connect to Internet!")
+            NetworkResult.Error(ioException, "Unable to connect to Internet!")
         } catch (e: JSONException) {
-            NetworkResult.Error(-2, "Invalid response! Please try again!")
+            NetworkResult.Error(jsonException, "Invalid response! Please try again!")
         } catch (e: SocketTimeoutException) {
-            NetworkResult.Error(-3, "Request Timed out! Please try again!")
+            NetworkResult.Error(socketTimeoutException, "Request Timed out! Please try again!")
         } catch (e: java.lang.Exception) {
-            NetworkResult.Error(-4, e.message ?: "Unknown Error")
+            NetworkResult.Error(exception, e.message ?: "Unknown Error")
         } catch (e: Exception) {
-            NetworkResult.Error(-4, e.message ?: "exception occured is")
+            NetworkResult.Error(exception, e.message ?: "exception occured is")
         }
 
     }

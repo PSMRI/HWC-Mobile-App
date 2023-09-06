@@ -10,4 +10,4 @@ import com.squareup.moshi.JsonClass
 data class ReligionMaster (
     @PrimaryKey val religionID: Int,
     @ColumnInfo(name = "religion_type") val religionType: String
-        )
+)

@@ -48,6 +48,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private var patient = Patient();
 
+    private val dobUtil : DateTimeUtil = DateTimeUtil()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -101,7 +103,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            DateTimeUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth)
+            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth)
         }
 
         binding.age.addTextChangedListener(ageTextWatcher)
@@ -160,7 +162,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
         }
 
-        DateTimeUtil.selectedDate.observe(viewLifecycleOwner) { date ->
+        dobUtil.selectedDate.observe(viewLifecycleOwner) { date ->
             if(date != null){
                 setDateOfBirthToAge(date);
             }
