@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding
         get() = _binding!!
 
-    private val viewModel: HomeViewModel by viewModels()
+    private lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,6 +62,8 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        WorkerUtils.triggerAmritSyncWorker(requireContext())
+        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
@@ -70,7 +72,6 @@ class HomeFragment : Fragment() {
         binding.registration.setOnClickListener {
             val intent = Intent(context, RegisterPatientActivity::class.java)
             startActivity(intent)
-//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToRegisterPatientFragment())
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {

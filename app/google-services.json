@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "655690913186",
-    "project_id": "org-piramalswasthya-cho",
-    "storage_bucket": "org-piramalswasthya-cho.appspot.com"
+    "project_number": "901856853263",
+    "project_id": "cho-application",
+    "storage_bucket": "cho-application.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:655690913186:android:112ee5bd135851b9c40efb",
+        "mobilesdk_app_id": "1:901856853263:android:7438ba6acd9c990c42527a",
         "android_client_info": {
           "package_name": "org.piramalswasthya.cho"
         }
       },
       "oauth_client": [
         {
-          "client_id": "655690913186-u2v40o4aiaro1m3ck7h887uukgpn30ij.apps.googleusercontent.com",
+          "client_id": "901856853263-h2aspirhk025qfvajlj4vd7r7a0qc10t.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDu28czca5tNdVtUR9V_ijRrnuLVaPd-do"
+          "current_key": "AIzaSyDSmzTV2VBSik7UUWLUJBZwS_kbOWT08Ag"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "655690913186-u2v40o4aiaro1m3ck7h887uukgpn30ij.apps.googleusercontent.com",
+              "client_id": "901856853263-h2aspirhk025qfvajlj4vd7r7a0qc10t.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

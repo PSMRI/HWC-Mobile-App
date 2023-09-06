@@ -95,6 +95,7 @@ class HomeViewModel @Inject constructor(
         get() = _unprocessedRecords
 
 
+
     private val _navigateToLoginPage = MutableLiveData(false)
     val navigateToLoginPage: MutableLiveData<Boolean>
         get() = _navigateToLoginPage
