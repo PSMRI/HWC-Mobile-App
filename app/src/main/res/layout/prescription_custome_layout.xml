@@ -19,14 +19,32 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/medicine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textPrescriptionHeading"
+        android:hint="Medicine"
+        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputMedicine"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:textSize="18sp"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/formDropDown"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textPrescriptionHeading"
+        app:layout_constraintTop_toBottomOf="@+id/medicine"
         android:textSize="18sp"
         android:hint="Form"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
@@ -41,24 +59,6 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/medicine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/formDropDown"
-        android:hint="Medicine"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputMedicine"
-            android:layout_width="match_parent"
-            android:inputType="text"
-            android:textSize="18sp"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dosagesDropDown"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -66,7 +66,7 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/medicine"
+        app:layout_constraintTop_toBottomOf="@+id/formDropDown"
         android:hint="Dosage"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
 

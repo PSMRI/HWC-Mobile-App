@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -7,8 +8,11 @@ import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.Language
+import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.VisitCategory
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
@@ -79,5 +83,32 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
 
     suspend fun getVisitCategoriesCachedResponse(): List<VisitCategory> {
         return visitReasonsAndCategoriesDao.getVisitCategories()
+    }
+
+    suspend fun saveVisitDbToCache(visitDB: VisitDB) {
+        try{
+            withContext(Dispatchers.IO){
+                visitReasonsAndCategoriesDao.insertVisitDB(visitDB)
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving vitals information $e")
+        }
+    }
+
+//     fun getVisitDbInfo(id:String): LiveData<VisitDB> {
+//        return visitReasonsAndCategoriesDao.getVisitDb(id)
+//    }
+//
+//     fun getChiefComplaintDbInfo(id:String): LiveData<ChiefComplaintDB> {
+//        return visitReasonsAndCategoriesDao.getChiefComplaintDb(id)
+//    }
+    suspend fun saveChiefComplaintDbToCache(chiefComplaintDB: ChiefComplaintDB) {
+        try{
+            withContext(Dispatchers.IO){
+                visitReasonsAndCategoriesDao.insertChiefComplaintDb(chiefComplaintDB)
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Chief Complaint Db information $e")
+        }
     }
 }
