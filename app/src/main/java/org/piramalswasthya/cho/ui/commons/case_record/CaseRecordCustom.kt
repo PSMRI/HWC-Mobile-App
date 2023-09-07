@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.commons.case_record
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,11 +27,15 @@ import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalTestList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFormsList
@@ -65,6 +70,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val frequencyListVal = medicationFrequencyList
     private val unitListVal = unitVal
     private val routeListVal = medicationRouteList
+    private var masterDb: MasterDb? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,6 +83,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         super.onViewCreated(view, savedInstanceState)
         familyM = binding.testName
         selectF = binding.selectF
+
+        masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+        Log.d("aryan","${masterDb?.vitalsMasterDb?.bpSystolic}")
 
         familyM!!.setOnClickListener {
             showDialogWithFamilyMembers(medicalTestListVal)
@@ -180,13 +189,13 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         return false
     }
-    private fun addCaseRecordData() {
+    private fun addCaseRecordDataToCatche() {
         // save diagnosis
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
             if (diagnosisData.diagnosis.isNotEmpty()) {
                 var diagnosis = DiagnosisCaseRecord(
-                    diagnosisCaseRecordId = "21+i",
+                    diagnosisCaseRecordId = "33+${i}",
                    diagnosis= diagnosisData.diagnosis
                 )
                 viewModel.saveDiagnosisToCache(diagnosis)
@@ -195,7 +204,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val testName = binding.selectF.text.toString()
         val externalInvestigation = binding.inputExternalI.text.toString()
         val investigation = InvestigationCaseRecord(
-            investigationCaseRecordId = "21",
+            investigationCaseRecordId = "33",
             testName = testName,
             externalInvestigation = externalInvestigation
         )
@@ -205,7 +214,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val prescriptionData = itemListP[i]
             if (prescriptionData.form.isNotEmpty()||prescriptionData.dosage.isNotEmpty()||prescriptionData.frequency.isNotEmpty()||prescriptionData.unit.isNotEmpty()) {
                 var pres = PrescriptionCaseRecord(
-                    prescriptionCaseRecordId = "21+i",
+                    prescriptionCaseRecordId = "33+${i}",
                     form = prescriptionData.form,
                     medication = prescriptionData.medicine,
                     dosage = prescriptionData.dosage,
@@ -217,6 +226,44 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     )
                 viewModel.savePrescriptionToCache(pres)
             }
+        }
+    }
+    private fun addVitalsDataToCache(){
+        val patientVitals = PatientVitalsModel(
+            vitalsId = "1",
+            height = masterDb?.vitalsMasterDb?.height,
+            weight = masterDb?.vitalsMasterDb?.weight,
+            bmi = masterDb?.vitalsMasterDb?.bmi,
+            waistCircumference = masterDb?.vitalsMasterDb?.waistCircumference,
+            temperature = masterDb?.vitalsMasterDb?.temperature,
+            pulseRate = masterDb?.vitalsMasterDb?.pulseRate,
+            spo2 = masterDb?.vitalsMasterDb?.spo2,
+            bpDiastolic = masterDb?.vitalsMasterDb?.bpDiastolic,
+            bpSystolic = masterDb?.vitalsMasterDb?.bpSystolic,
+            respiratoryRate = masterDb?.vitalsMasterDb?.respiratoryRate,
+            rbs = masterDb?.vitalsMasterDb?.rbs
+        )
+        viewModel.savePatientVitalInfoToCache(patientVitals)
+    }
+    private fun addVisitRecordDataToCache(){
+        val visitDB = VisitDB(
+            visitId = "33",
+            category = masterDb?.visitMasterDb?.category ?: "",
+            reasonForVisit = masterDb?.visitMasterDb?.reason ?: "",
+            subCategory = masterDb?.visitMasterDb?.subCategory ?: ""
+        )
+
+        viewModel.saveVisitDbToCatche(visitDB)
+        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+            val chiefC = ChiefComplaintDB(
+                id = "33+${i}",
+                chiefComplaint = chiefComplaintItem.chiefComplaint,
+                duration =  chiefComplaintItem.duration,
+                durationUnit = chiefComplaintItem.durationUnit,
+                description = chiefComplaintItem.description
+            )
+            viewModel.saveChiefComplaintDbToCatche(chiefC)
         }
     }
     override fun getFragmentId(): Int {
@@ -231,7 +278,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         findNavController().navigateUp()
     }
     fun navigateNext(){
-        addCaseRecordData()
+        addVisitRecordDataToCache()
+        addVitalsDataToCache()
+        addCaseRecordDataToCatche()
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
     }

@@ -119,15 +119,15 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         }
     }
 
-    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
-                }
-            } catch (e: Exception) {
-                Timber.e("Error in saving vitals information : $e")
-            }
-        }
-    }
+//    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+//        viewModelScope.launch {
+//            try {
+//                withContext(Dispatchers.IO) {
+//                    vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+//                }
+//            } catch (e: Exception) {
+//                Timber.e("Error in saving vitals information : $e")
+//            }
+//        }
+//    }
 }

@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,8 +23,13 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryRegID
 import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBy
+import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VisitMasterDb
+import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import java.math.BigDecimal
@@ -62,6 +68,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     var bpDiastolicValue :String?=null
     var respiratoryValue :String?=null
     var rbsValue :String?=null
+    private val bundle = Bundle()
+
+    private var masterDb: MasterDb? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -74,6 +83,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+        Log.d("aryan","category --  ${masterDb?.visitMasterDb?.subCategory}")
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
             if(it){
@@ -106,23 +118,23 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         rbsValue = binding.inputRbs.text.toString().trim()
     }
 
-    private fun addVitalsDataToCache(){
-        val patientVitals = PatientVitalsModel(
-            vitalsId = "1",
-            height = heightValue,
-            weight = weightValue,
-            bmi = bmiValue,
-            waistCircumference = waistCircumferenceValue,
-            temperature = temperatureValue,
-            pulseRate = pulseRateValue,
-            spo2 = spo2Value,
-            bpDiastolic = bpDiastolicValue,
-            bpSystolic = bpSystolicValue,
-            respiratoryRate = respiratoryValue,
-            rbs = rbsValue
-        )
-        viewModel.savePatientVitalInfoToCache(patientVitals)
-    }
+//    private fun addVitalsDataToCache(){
+//        val patientVitals = PatientVitalsModel(
+//            vitalsId = "1",
+//            height = heightValue,
+//            weight = weightValue,
+//            bmi = bmiValue,
+//            waistCircumference = waistCircumferenceValue,
+//            temperature = temperatureValue,
+//            pulseRate = pulseRateValue,
+//            spo2 = spo2Value,
+//            bpDiastolic = bpDiastolicValue,
+//            bpSystolic = bpSystolicValue,
+//            respiratoryRate = respiratoryValue,
+//            rbs = rbsValue
+//        )
+//        viewModel.savePatientVitalInfoToCache(patientVitals)
+//    }
     private fun createObservationResource(){
         //Code
         var observationCode = Coding()
@@ -313,15 +325,34 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     override fun navigateNext() {
         extractFormValues()
-        addVitalsDataToCache()
+//        addVitalsDataToCache()
         createObservationResource()
         if(!isNull) {
             viewModel.saveObservationResource(observation)
             isNull = true
         }
+        setVitalsMasterData()
         findNavController().navigate(
-            FhirVitalsFragmentDirections.actionCustomVitalsFragmentToCaseRecordCustom()
+            R.id.action_customVitalsFragment_to_caseRecordCustom,bundle
         )
+    }
+
+    private fun setVitalsMasterData(){
+        var vitalDb = VitalsMasterDb(
+            height = heightValue,
+            weight = weightValue,
+            bmi = bmiValue,
+            waistCircumference = waistCircumferenceValue,
+            temperature = temperatureValue,
+            pulseRate = pulseRateValue,
+            spo2 = spo2Value,
+            bpSystolic = bpSystolicValue,
+            bpDiastolic = bpDiastolicValue,
+             respiratoryRate = respiratoryValue,
+            rbs = rbsValue
+        )
+        masterDb?.vitalsMasterDb = vitalDb
+        bundle.putSerializable("MasterDb", masterDb)
     }
 
 }

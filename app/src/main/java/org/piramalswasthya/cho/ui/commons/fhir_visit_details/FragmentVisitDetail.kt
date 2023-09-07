@@ -13,9 +13,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -28,6 +27,7 @@ import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
+import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -39,8 +39,10 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
@@ -74,7 +76,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     private var addCount: Int = 0
     private var deleteCount: Int = 0
-
     private var category: String = ""
     private var subCategory: String = ""
     private var reason: String = ""
@@ -86,6 +87,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private var currChiefPos = -1
     private var catBool: Boolean = false
     private var subCat: Boolean = false
+    private val bundle = Bundle()
 
 
     private lateinit var adapter: VisitDetailAdapter
@@ -368,15 +370,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         // calling to add Chief Complaints
         val chiefData =  addChiefComplaintsData()
 
+        setVisitMasterData()
+
+
         if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCustomVitalsFragment()
+                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
             )
         } else if (!isFileSelected && catBool && subCat && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
-                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCustomVitalsFragment()
+                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
             )
         } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
             Toast.makeText(
@@ -387,6 +392,46 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
 
     }
+    private fun setVisitMasterData() {
+        val masterDb = MasterDb()
+        val visitMasterDb = VisitMasterDb()
+
+        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
+        val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
+
+        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
+
+        visitMasterDb.category = selectedCategoryRadioButton?.text.toString()
+        visitMasterDb.reason = selectedReasonRadioButton?.text.toString()
+Log.d("aryan","   ${masterDb?.visitMasterDb?.chiefComplaint?.size}")
+        val subCategory = binding.subCatInput.text.toString()
+        visitMasterDb.subCategory = subCategory
+
+        val chiefComplaintList = mutableListOf<ChiefComplaintValues>()
+        for (i in 0 until itemList.size) {
+            val chiefComplaintData = itemList[i]
+
+            if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
+                chiefComplaintData.duration.isNotEmpty() &&
+                chiefComplaintData.durationUnit.isNotEmpty() &&
+                chiefComplaintData.description.isNotEmpty()
+            ) {
+                var cc = ChiefComplaintValues(
+                    chiefComplaint = chiefComplaintData.chiefComplaint,
+                    duration = chiefComplaintData.duration,
+                    durationUnit = chiefComplaintData.durationUnit,
+                    description = chiefComplaintData.description
+                )
+                chiefComplaintList.add(cc)
+            }
+        }
+
+        visitMasterDb.chiefComplaint = chiefComplaintList
+        masterDb.visitMasterDb = visitMasterDb
+        bundle.putSerializable("MasterDb", masterDb)
+    }
+
 
     private fun createEncounterResource() {
         // Set Encounter type

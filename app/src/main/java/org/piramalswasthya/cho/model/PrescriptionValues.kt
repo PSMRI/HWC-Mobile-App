@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.model
 
+import java.io.Serializable
+
 data class PrescriptionValues(
     var form: String = "",
     var medicine: String = "",
@@ -9,4 +11,4 @@ data class PrescriptionValues(
     var instruction: String = "",
     var unit: String = "",
     var route: String = ""
-)
+):Serializable
