@@ -28,9 +28,8 @@ class DateTimeUtil {
         get() = _selectedDate
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun showDatePickerDialog(context: Context, initialDate: Date?,) {
-
-        val calendar: Calendar = Calendar.getInstance()
+    fun showDatePickerDialog(context: Context, initialDate: Date?) {
+        val calendar = Calendar.getInstance()
         initialDate?.let {
             calendar.time = it
             _selectedDate.value = it
@@ -40,7 +39,8 @@ class DateTimeUtil {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val datePickerDialog = DatePickerDialog(context,
+        val datePickerDialog = DatePickerDialog(
+            context,
             { view: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int ->
                 // This callback is called when the user selects a date
                 calendar.set(Calendar.YEAR, year)
@@ -48,12 +48,22 @@ class DateTimeUtil {
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
                 _selectedDate.value = calendar.time
-                _selectedDate.value = null
+            }, year, month, day
+        )
 
-            }, year, month, day)
+        // Set max date to the current date
+        val maxCalendar = Calendar.getInstance()
+        datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
+
+        // Set min date to 99 years ago from the current date
+        val minCalendar = Calendar.getInstance()
+        minCalendar.add(Calendar.YEAR, -99)
+        datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
 
         datePickerDialog.show()
     }
+
+
 
     companion object {
 

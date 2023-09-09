@@ -31,11 +31,11 @@
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
     <string name="personal_details">Personal Details</string>
-    <string name="first_name">First Name</string>
+    <string name="first_name">First Name </string>
     <string name="last_name_surname">Last Name/Surname</string>
     <string name="contact_no">Contact No</string>
-    <string name="gender">Gender</string>
-    <string name="age">Age</string>
+    <string name="gender">Gender <font color="#FF0000">*</font></string>
+    <string name="age">Age <font color="#FF0000">*</font></string>
     <string name="select_subcategory">Select Subcategory</string>
     <string-array name="subcategories_array">
         <item>Management of Common Communicable Diseases</item>
@@ -292,13 +292,13 @@
     <string name="higher_center">Higher Center</string>
     <string name="reason_for_referral">Reason for referral</string>
     <string name="linkage_with_other_health_services">Linkage with other health services</string>
-    <string name="date_of_birth">Date Of Birth</string>
-    <string name="age_in_unit">Age in Unit</string>
-    <string name="phone_number">Phone Number</string>
+    <string name="date_of_birth">Date Of Birth <font color="#FF0000">*</font></string>
+    <string name="age_in_unit">Age in Unit <font color="#FF0000">*</font></string>
+    <string name="phone_number">Phone Number <font color="#FF0000">*</font></string>
     <string name="registration_date">Registration Date</string>
-    <string name="marital_status">Marital Status</string>
-    <string name="spouse_name">Spouse Name</string>
-    <string name="age_at_marriage">Age at Marriage</string>
+    <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
+    <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
+    <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>
     <string name="saved">Saved !!</string>
@@ -341,5 +341,15 @@
     <string name="personal_information">Personal Information</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>
-
+    <string name="invalid_phone_number">Enter a Valid Phone Number</string>
+    <string name="enter_a_valid_phone_number">Enter a valid phone number</string>
+    <string name="enter_your_first_name">Enter Your First Name</string>
+    <string name="enter_last_name">Enter Your Last Name</string>
+    <string name="fill_dob">Fill Your Date Of Birth</string>
+    <string name="enter_your_age">Enter Your Age</string>
+    <string name="select_age_in_unit">Select Age in Unit</string>
+    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="enter_spouse_name">Enter Spouse Name</string>
+    <string name="enter_age_at_marriage">Enter age at Marriage</string>
+    <string name="select_gender">Select Gender</string>
 </resources>
