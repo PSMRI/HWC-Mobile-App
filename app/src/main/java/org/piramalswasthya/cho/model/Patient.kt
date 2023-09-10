@@ -155,7 +155,7 @@ data class PatientDisplay(
         parentColumn = "maritalStatusID",
         entityColumn = "maritalStatusID"
     )
-    val maritalStatus: MaritalStatusMaster,
+    val maritalStatus: MaritalStatusMaster?,
     @Relation(
         parentColumn = "stateID",
         entityColumn = "stateID"
@@ -284,7 +284,7 @@ data class PatientNetwork(
         patientDisplay.patient.lastName,
         null,
         patientDisplay.patient.maritalStatusID,
-        patientDisplay.maritalStatus.status,
+        patientDisplay.maritalStatus?.status,
         null,
         null,
         user?.parkingPlaceId,

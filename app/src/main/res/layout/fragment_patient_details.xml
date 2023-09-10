@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:scrollbars="none"
     tools:context=".ui.register_patient_activity.patient_details.PatientDetailsFragment">
 
@@ -37,6 +37,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:textColorHint="#888888"
             android:hint="@string/first_name">
 
@@ -45,6 +47,8 @@
                 android:layout_width="match_parent"
                 android:inputType="text"
                 android:textSize="18sp"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -54,6 +58,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:textColorHint="#888888"
             android:hint="@string/last_name_surname">
 
@@ -62,7 +68,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:drawableEnd="@drawable/ic_mic"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -189,6 +196,8 @@
                 android:layout_width="match_parent"
                 android:inputType="number"
                 android:textSize="18sp"
+                android:maxEms="10"
+                android:maxLength="10"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 

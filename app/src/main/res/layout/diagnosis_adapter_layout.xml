@@ -23,7 +23,6 @@
             android:inputType="text"
             android:textSize="18sp"
             android:textColorHint="#888888"
-            android:drawableEnd="@drawable/baseline_search_24"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 

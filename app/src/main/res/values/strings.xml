@@ -31,8 +31,8 @@
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
     <string name="personal_details">Personal Details</string>
-    <string name="first_name">First Name </string>
-    <string name="last_name_surname">Last Name/Surname</string>
+    <string name="first_name">First Name <font color="#FF0000">*</font></string>
+    <string name="last_name_surname">Last Name/Surname <font color="#FF0000">*</font></string>
     <string name="contact_no">Contact No</string>
     <string name="gender">Gender <font color="#FF0000">*</font></string>
     <string name="age">Age <font color="#FF0000">*</font></string>

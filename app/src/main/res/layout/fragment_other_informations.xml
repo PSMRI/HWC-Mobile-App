@@ -20,6 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:textColorHint="#888888"
             android:hint="@string/parent_gurdian_name">
 
@@ -27,6 +29,7 @@
                 android:id="@+id/parent_gurdian_name"
                 android:layout_width="match_parent"
                 android:inputType="text"
+                android:textSize="18sp"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,6 +47,7 @@
                 android:id="@+id/religion_dropdown"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
+                android:textSize="18sp"
                 android:layout_height="match_parent"
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -62,6 +66,7 @@
                 android:id="@+id/community_dropdown"
                 android:layout_width="match_parent"
                 android:layout_weight="1"
+                android:textSize="18sp"
                 android:layout_height="match_parent"
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
