@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.setBoxColor
@@ -37,6 +38,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var viewModel: PatientDetailsViewModel
 
     private var doAgeToDob = true;
+    private var speechToText = ""
 
     private var patient = Patient();
 
@@ -59,6 +61,22 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+        binding.firstNameText.setEndIconOnClickListener {
+            speechToTextLauncherForFirstName.launch(Unit)
+        }
+        binding.lastNameText.setEndIconOnClickListener {
+            speechToTextLauncherForLastName.launch(Unit)
+        }
+    }
+    private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+             binding.firstName.setText(result)
+        }
+    }
+    private val speechToTextLauncherForLastName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.lastName.setText(result)
+        }
     }
     fun watchAllFields(){
         if (!viewModel.isClickedSS.value!!) {

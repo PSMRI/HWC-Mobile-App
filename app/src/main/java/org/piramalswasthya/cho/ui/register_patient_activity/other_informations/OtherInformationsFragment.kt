@@ -43,6 +43,7 @@ import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.GovIdEntityMasterRepo
 import org.piramalswasthya.cho.repositories.OtherGovIdEntityMasterRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.commons.govt_health_prog.GovtHealthProgFragment
 import org.piramalswasthya.cho.ui.commons.govt_id.GovtIdFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -76,12 +77,19 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
         _binding = FragmentOtherInformationsBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
-
+    private val speechToTextLauncherForName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.parentGurdianName.setText(result)
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(OtherInformationsViewModel::class.java)
         patient = arguments?.getSerializable("patient") as? Patient
         setChangeListeners()
         setAdapters()
+        binding.parentGurdianNameText.setEndIconOnClickListener {
+            speechToTextLauncherForName.launch(Unit)
+        }
     }
 
     private fun setChangeListeners(){
