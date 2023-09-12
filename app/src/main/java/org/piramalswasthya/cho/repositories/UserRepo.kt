@@ -1,11 +1,13 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
@@ -283,6 +285,22 @@ class UserRepo @Inject constructor(
                 return@withContext null
             }
         }
+    }
+
+    suspend fun insertFPDataToLocalDB(fpList: List<FingerPrint>){
+        return withContext(Dispatchers.IO){
+            try{
+                for(item in fpList){
+                    userDao.insertFpData(item)
+                }
+            } catch (e: Exception){
+                Timber.d("Error in inserting Finger Print Data $e")
+            }
+        }
+    }
+
+    fun getFPDataFromLocalDB(): LiveData<List<FingerPrint>>{
+        return  userDao.getAllFpData()
     }
 
 }

@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.database.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
@@ -59,5 +60,11 @@ interface UserDao {
 
     @Query("UPDATE USER SET districtBranchID = :districtBranchID")
     suspend fun updateUserVillageId(districtBranchID : Int) : Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFpData(fpVal:FingerPrint)
+
+    @Query("select * from FP_DATA")
+    fun getAllFpData(): LiveData<List<FingerPrint>>
 
 }

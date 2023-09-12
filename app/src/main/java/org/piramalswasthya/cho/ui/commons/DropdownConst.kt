@@ -16,6 +16,7 @@ class DropdownConst {
         val jointsList = mutableListOf("Ankle", "Elbow", "Hip", "Knee", "Shoulder", "Small Joints", "Temporo-mandibular", "Wrist")
         val lateralityList = mutableListOf("Left", "Right", "Bilateral")
         val abnormalityList = mutableListOf("Swelling", "Tenderness", "Deformity", "Restriction")
+        val fingerList = mutableListOf("Right Thumb","Right Index Finger","Left Thumb","Left Index Finger")
         val medicalTestList = mutableListOf("Blood Glucose", "Chikungunya", "Cholesterol", "Dengue", "HBA1C",
             "Haemoglobin", "Hepatitis B", "Hepatitis C", "HIV", "Malaria Test", "RBC", "RBS", "SPo2 Test", "Syphillis", "TB", "Typhoid Test Check",
             "Uric Acid", "Urine Albumin Test", "Urine Pregnancy Rapid Test", "Urine Sugar Test", "Visual Acuty Test")

@@ -41,6 +41,9 @@
         <action
             android:id="@+id/actionLoginSettingsToUsername"
             app:destination="@id/usernameFragment" />
+        <action
+            android:id="@+id/actionLoginSettingsFragmentToFingerPrintRegisterFragment"
+            app:destination="@id/fingerPrintRegisterFragment" />
     </fragment>
 
     <fragment
@@ -115,6 +118,18 @@
         android:label="activity_home_content"
         tools:layout="@layout/activity_home" >
     </activity>
+    <fragment
+        android:id="@+id/fingerPrintRegisterFragment"
+        android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.FingerPrintRegisterFragment"
+        android:label="FingerPrintRegisterFragment"
+        tools:layout="@layout/fp_register">
+        <argument
+            android:name="userName"
+            app:argType="string"/>
+        <action
+            android:id="@+id/action_fingerPrintRegisterFragment_to_choLoginFragment"
+            app:destination="@id/choLoginFragment" />
+    </fragment>
 
 
 </navigation>
