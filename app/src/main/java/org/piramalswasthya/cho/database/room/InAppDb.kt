@@ -91,6 +91,7 @@ import timber.log.Timber
         PastSurgeryHistory::class,
         PastIllnessHistory::class,
         CovidVaccinationStatusHistory::class,
+        FingerPrint::class,
         DiagnosisCaseRecord::class,
         InvestigationCaseRecord::class,
         PrescriptionCaseRecord::class,
@@ -162,16 +163,16 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                    .fallbackToDestructiveMigration()
-                    .setQueryCallback(
-                        object : QueryCallback {
-                            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                                Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
-                            }
-                        },
-                        Dispatchers.IO.asExecutor()
-                    )
-                    .build()
+                        .fallbackToDestructiveMigration()
+                        .setQueryCallback(
+                            object : QueryCallback {
+                                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                                    Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
+                                }
+                            },
+                            Dispatchers.IO.asExecutor()
+                        )
+                        .build()
 
                     INSTANCE = instance
                 }

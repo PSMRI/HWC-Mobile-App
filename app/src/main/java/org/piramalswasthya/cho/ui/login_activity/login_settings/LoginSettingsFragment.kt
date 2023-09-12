@@ -1,9 +1,12 @@
 package org.piramalswasthya.cho.ui.login_activity.login_settings
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -74,6 +77,7 @@ class LoginSettingsFragment : Fragment() {
 
 
     private var myLocation: Location? = null
+    private var myInitialLoc: Location? = null
     private var locationManager: LocationManager? = null
 
     private var locationListener: LocationListener? = null
@@ -83,6 +87,10 @@ class LoginSettingsFragment : Fragment() {
 
     private lateinit var viewModel: LoginSettingsViewModel
 
+    private var stateBool = false
+    private var distBool = false
+    private var talukBool = false
+    private var pancBool = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,31 +100,31 @@ class LoginSettingsFragment : Fragment() {
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val userName = (arguments?.getString("userName", ""))!!;
-        viewModel = ViewModelProvider(this).get(LoginSettingsViewModel::class.java)
+        val userName = (arguments?.getString("userName", ""))!!
+        viewModel = ViewModelProvider(this)[LoginSettingsViewModel::class.java]
 
-        binding.dropdownState.setOnItemClickListener { parent, _, position, _ ->
+        binding.dropdownState.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedState = viewModel.stateList[position]
             viewModel.updateUserStateId(viewModel.selectedState!!.stateID)
             viewModel.fetchDistricts(viewModel.selectedState!!.stateID)
             binding.dropdownState.setText(viewModel.selectedState!!.stateName,false)
         }
 
-        binding.dropdownDist.setOnItemClickListener { parent, _, position, _ ->
+        binding.dropdownDist.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedDistrict = viewModel.districtList[position]
             viewModel.updateUserDistrictId(viewModel.selectedDistrict!!.districtID)
             viewModel.fetchTaluks(viewModel.selectedDistrict!!.districtID)
             binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName,false)
         }
 
-        binding.dropdownTaluk.setOnItemClickListener { parent, _, position, _ ->
+        binding.dropdownTaluk.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedBlock = viewModel.blockList[position]
             viewModel.updateUserBlockId(viewModel.selectedBlock!!.blockID)
             viewModel.fetchVillageMaster(viewModel.selectedBlock!!.blockID)
             binding.dropdownTaluk.setText(viewModel.selectedBlock!!.blockName,false)
         }
 
-        binding.dropdownPanchayat.setOnItemClickListener { parent, _, position, _ ->
+        binding.dropdownPanchayat.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedVillage = viewModel.villageList[position]
             viewModel.updateUserVillageId(viewModel.selectedVillage!!.districtBranchID)
             binding.dropdownPanchayat.setText(viewModel.selectedVillage!!.villageName,false)
@@ -220,10 +228,107 @@ class LoginSettingsFragment : Fragment() {
 ////                getCurrentLocation()
 ////            }
 //        }
+        binding.getGPSLoc.setOnClickListener {
+            getCurrentLocation()
+            if(myInitialLoc != null){
+                binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
+                binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
+            }
+        }
+        binding.enrollFpScreen.setOnClickListener {
+            findNavController().navigate(
+                LoginSettingsFragmentDirections.actionLoginSettingsFragmentToFingerPrintRegisterFragment(userName)
+            )
+        }
+
+        binding.retry.setOnClickListener {
+            resetData()
+        }
+        binding.submit.setOnClickListener {
+            submitLocationData()
+        }
+    }
+
+    private fun resetData(){
+        binding.dropdownState.setText("",false)
+        binding.dropdownDist.setText("",false)
+        binding.dropdownTaluk.setText("",false)
+        binding.dropdownPanchayat.setText("",false)
+        binding.inputMasterLat.setText("")
+        binding.inputMasterLong.setText("")
+    }
+
+    private fun submitLocationData(){
+        if(binding.dropdownState.text.isNullOrEmpty()){
+            binding.dropdownState.requestFocus()
+            binding.state.apply {
+                boxStrokeColor = Color.RED
+                hintTextColor = ColorStateList.valueOf(Color.RED)
+            }
+            stateBool = false
+        } else {
+            binding.state.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor
+            }
+            stateBool = true
+        }
+
+        if(binding.dropdownDist.text.isNullOrEmpty()){
+            binding.dropdownDist.requestFocus()
+            binding.dist.apply {
+                boxStrokeColor = Color.RED
+                hintTextColor = ColorStateList.valueOf(Color.RED)
+            }
+            distBool = false
+        } else {
+            binding.dist.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor
+            }
+            distBool = true
+        }
+
+        if(binding.dropdownTaluk.text.isNullOrEmpty()){
+            binding.dropdownTaluk.requestFocus()
+            binding.taluk.apply {
+                boxStrokeColor = Color.RED
+                hintTextColor = ColorStateList.valueOf(Color.RED)
+            }
+            talukBool = false
+        } else{
+            binding.taluk.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor
+            }
+            talukBool = true
+        }
+
+        if(binding.dropdownPanchayat.text.isNullOrEmpty()){
+            binding.dropdownPanchayat.requestFocus()
+            binding.panchayat.apply {
+                boxStrokeColor = Color.RED
+                hintTextColor = ColorStateList.valueOf(Color.RED)
+            }
+            pancBool = false
+        } else{
+            binding.panchayat.apply {
+                boxStrokeColor = resources.getColor(R.color.purple)
+                hintTextColor = defaultHintTextColor
+            }
+            pancBool = true
+        }
+
+        if(stateBool && distBool && talukBool && pancBool){
+            Toast.makeText(activity,"Data is Saved!",Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(activity,"Please fill all the details",Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        locationManager!!.removeUpdates(locationListener!!)
     }
 
     private fun getCurrentLocation() {
@@ -239,13 +344,26 @@ class LoginSettingsFragment : Fragment() {
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
-//                    val formattedLocation = "Latitude: ${location.latitude}\nLongitude: ${location.latitude}"
-//                    Toast.makeText(
-//                        context, formattedLocation,
-//                        Toast.LENGTH_SHORT
-//                    ).show()
+                    if(myInitialLoc == null && myLocation != null) {
+                        myInitialLoc = myLocation
+                        Log.i("Initial Location","$myInitialLoc")
+                    } else if(myInitialLoc != null) {
+                        val distance = calculateDistance(
+                            myInitialLoc!!.latitude,
+                            myInitialLoc!!.longitude,
+                            location.latitude,
+                            location.longitude
+                        )
+
+                        // Check if the user has moved more than 500 meters
+                        if (distance > 500) {
+                            // Show the dialog to ask for an update
+                            showDialog()
+                            Toast.makeText(activity,"Value of distance $distance and location is ${location.longitude} and ${location.latitude}",Toast.LENGTH_LONG).show()
+                        }
+                    }
                     // Stop listening for location updates once you have the current location
-                    locationManager?.removeUpdates(this)
+//                    locationManager?.removeUpdates(this)
                 }
 
                 override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -265,8 +383,8 @@ class LoginSettingsFragment : Fragment() {
             // Request location updates
             locationManager?.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BETWEEN_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                0,
+                0f,
                 locationListener!!
             )
         } else {
@@ -281,6 +399,29 @@ class LoginSettingsFragment : Fragment() {
             )
         }
     }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        return results[0]
+    }
+    private fun showDialog() {
+        val alertDialogBuilder = AlertDialog.Builder(activity)
+        alertDialogBuilder.setMessage("You have moved more than 2 meters from the fixed point. Do you want to update your location?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                // Handle the user's choice to update location here
+                // You can perform any necessary actions when the user selects "Yes"
+            }
+            .setNegativeButton("No") { _, _ ->
+                // Handle the user's choice not to update location here
+                // You can perform any necessary actions when the user selects "No"
+            }
+
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123
