@@ -99,7 +99,7 @@ import timber.log.Timber
         ChiefComplaintDB::class
     ],
 //    views = [BenBasicCache::class],
-    version = 38, exportSchema = false
+    version = 40, exportSchema = false
 )
 
 

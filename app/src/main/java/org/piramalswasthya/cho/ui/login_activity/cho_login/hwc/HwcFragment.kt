@@ -38,11 +38,11 @@ class HwcFragment constructor(
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        binding.btnHwcLogin.setOnClickListener {
-            findNavController().navigate(
-                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
-            )
-        }
+//        binding.btnHwcLogin.setOnClickListener {
+//            findNavController().navigate(
+//                ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+//            )
+//        }
         // TODO: Use the ViewModel
     }
 

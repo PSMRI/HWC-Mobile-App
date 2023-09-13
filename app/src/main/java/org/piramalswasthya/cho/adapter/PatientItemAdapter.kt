@@ -44,6 +44,7 @@ class PatientItemAdapter(
         var age: TextView = itemView.findViewById(R.id.patient_age)
         var phoneNo: TextView = itemView.findViewById(R.id.patient_phone_no)
         var gender: TextView = itemView.findViewById(R.id.patient_gender)
+
     }
 
 
