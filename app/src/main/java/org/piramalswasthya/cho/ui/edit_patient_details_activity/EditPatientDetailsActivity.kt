@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -19,6 +21,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
     private lateinit var currFragment: NavigationAdapter
 
     private lateinit var navHostFragment: NavHostFragment
+
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
 
     private var _binding : ActivityEditPatientDetailsBinding? = null
 
@@ -38,6 +43,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
+
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
         navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
 
@@ -55,8 +61,13 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                }
                 R.id.customVitalsFragment ->{
                     binding.headerTextEditPatient.text = resources.getString(R.string.vitals_text)
-                    binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
+                    if(preferenceDao.isUserDoctor()){
+                        binding.btnSubmit.text = resources.getString(R.string.next)
+                    }
+                    else{
+                        binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
+                    }
                 }
 //                R.id.examinationFragment ->{
 //                    binding.headerTextEditPatient.text = resources.getString(R.string.examination_text)

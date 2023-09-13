@@ -45,6 +45,28 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.putString(prefKey, token)
         editor.apply()
     }
+
+    fun setUserRoles(roles: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.USER_ROLES)
+        editor.putString(prefKey, roles)
+        editor.apply()
+    }
+
+    fun getUserRoles(): String? {
+        val prefKey = context.getString(R.string.USER_ROLES)
+        return pref.getString(prefKey, null)
+    }
+
+    fun isUserDoctor(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Doctor")
+        }
+        return false;
+    }
+
+
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.login_settings)

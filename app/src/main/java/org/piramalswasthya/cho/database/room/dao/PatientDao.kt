@@ -34,8 +34,8 @@ interface PatientDao {
     suspend fun updatePatientSyncing(syncing: SyncState = SyncState.SYNCING, patientID: String) : Int
 
     @Transaction
-    @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
-    suspend fun updatePatientSynced(synced: SyncState = SyncState.SYNCED, patientID: String) : Int
+    @Query("UPDATE PATIENT SET syncState = :synced, beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID =:patientID")
+    suspend fun updatePatientSynced(synced: SyncState = SyncState.SYNCED, beneficiaryID: Long, beneficiaryRegID: Long, patientID: String) : Int
 
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")

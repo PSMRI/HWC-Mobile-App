@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import androidx.lifecycle.LiveData
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -59,8 +60,8 @@ class UserRepo @Inject constructor(
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
                 if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
+                    preferenceDao.setUserRoles(loggedInUser.roles);
                     val tokenB = preferenceDao.getPrimaryApiToken()
-
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
                             ?: throw IllegalStateException("User logging offline without pref saved token B!")
@@ -211,9 +212,11 @@ class UserRepo @Inject constructor(
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
-
+                    val rolesArray = extractRoles(privilegesObject);
+//                    val roles = rolesArray;
+//                    Log.i("roles are ", roles);
                     val name = data.getString("fullName")
-                    user = UserNetwork(userId, userName, password, name)
+                    user = UserNetwork(userId, userName, password, name, rolesArray)
                     val serviceId = privilegesObject.getInt("serviceID")
                     user?.serviceId = serviceId
                     val serviceMapId =
@@ -232,6 +235,16 @@ class UserRepo @Inject constructor(
 
         }
 
+    }
+
+    fun extractRoles(privilegesObject : JSONObject) : String{
+        val rolesObjectArray = privilegesObject.getJSONArray("roles")
+        var roles = ""
+        for (i in 0 until rolesObjectArray.length()) {
+            val roleObject = rolesObjectArray.getJSONObject(i)
+            roles += roleObject.getString("RoleName") + ","
+        }
+        return roles.substring(0, roles.length - 1)
     }
 
      fun encrypt(password: String): String {

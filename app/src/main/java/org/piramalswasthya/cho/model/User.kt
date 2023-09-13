@@ -117,6 +117,9 @@ data class UserCache(
     @ColumnInfo(name="logged_in")
     var loggedIn : Boolean,
 
+    @ColumnInfo(name="roles")
+    val roles : String,
+
     @ColumnInfo(name="stateID")
     var stateID : Int?,
 
@@ -170,6 +173,7 @@ data class UserCache(
 
             contactNo = emergencyContactNo,
             userType = userType,
+            roles = roles,
             loggedIn = loggedIn
         )
     }
@@ -216,7 +220,7 @@ data class UserDomain(
     val contactNo: String,
     val userType: String,
     var loggedIn: Boolean,
-
+    val roles: String
 )
 
 
@@ -225,6 +229,7 @@ data class UserNetwork(
     val userName: String,
     val password: String,
     var name: String,
+    val roles: String,
     var serviceMapId : Int = -1,
     var serviceId : Int = -1,
     var servicePointId : Int = -1,
@@ -312,6 +317,7 @@ data class UserNetwork(
             emergencyContactNo = emergencyContactNo?:"",
             userType = userType?:"",
             loggedIn = loggedIn?:false,
+            roles = roles,
             stateID = null,
             districtID = null,
             blockID = null,

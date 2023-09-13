@@ -3,6 +3,7 @@
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="USER_ROLES" translatable="false">User_Roles</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -325,7 +326,6 @@
     <string name="fp_tv">Please Place your Finger on the fingerprint sensor to proceed</string>
     <string name="fp_try_again">Finger Not Recognised Try Again!</string>
     <string name="fingerprint_captured">FingerPrint Captured!</string>
-
     <string name="parent_gurdian_name">Parent/Gurdian name</string>
     <string name="religion">Religion</string>
     <string name="community">Community</string>

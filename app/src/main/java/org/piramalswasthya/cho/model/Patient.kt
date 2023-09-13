@@ -136,6 +136,12 @@ data class Patient (
     @ColumnInfo(name="syncState")
     var syncState: SyncState = SyncState.UNSYNCED,
 
+    @ColumnInfo(name="beneficiaryID")
+    var beneficiaryID: Long? = null,
+
+    @ColumnInfo(name="beneficiaryRegID")
+    var beneficiaryRegID: Long? = null,
+
 ) : Serializable
 
 

@@ -1,15 +1,11 @@
 package org.piramalswasthya.cho.repositories
 
-import android.net.Network
 import android.util.Log
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
-import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientNetwork
@@ -28,7 +24,6 @@ import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class PatientRepo  @Inject constructor(
-    private val database: InAppDb,
     private val patientDao: PatientDao,
     private val userRepo: UserRepo,
     private val apiService: AmritApiService
@@ -46,11 +41,8 @@ class PatientRepo  @Inject constructor(
         patientDao.updatePatientSyncFailed(SyncState.UNSYNCED, patient.patientID)
     }
 
-    suspend fun deletePreviousAndInsertNew(patient: Patient, newPatientId: String){
-        patientDao.deletePatient(patient.patientID);
-        patient.patientID = newPatientId;
-        patient.syncState = SyncState.SYNCED;
-        patientDao.insertPatient(patient);
+    suspend fun updatePatientSyncSuccess(patient: Patient, benificiarySaveResponse: BenificiarySaveResponse){
+        patientDao.updatePatientSynced(SyncState.SYNCED, benificiarySaveResponse.beneficiaryID, benificiarySaveResponse.beneficiaryRegID, patient.patientID)
     }
 
     suspend fun getPatientList() : List<PatientDisplay>{
@@ -63,20 +55,34 @@ class PatientRepo  @Inject constructor(
             val patNet = PatientNetwork(patient, user)
             val response = apiService.saveBenificiaryDetails(patNet)
             val responseBody = response.body()?.string()
-            refreshTokenInterceptor(
-                responseBody = responseBody,
-                onSuccess = {
-                    val data = responseBody.let { JSONObject(it).getString("data") }
-                    Log.i("data saved is", data)
-                    val result = BenificiarySaveResponse(data)
-                    NetworkResult.Success(result)
-                },
-                onTokenExpired = {
-                    val user = userRepo.getLoggedInUser()!!
-                    userRepo.refreshTokenTmc(user.userName, user.password)
-                    registerNewPatient(patient, user)
-                },
-            )
+
+            val result = Gson().fromJson(responseBody!!, BenificiarySaveResponse::class.java)
+            NetworkResult.Success(result)
+
+//            refreshTokenInterceptor(
+//                responseBody = responseBody,
+//                onSuccess = {
+//                    val beneficiaryID = responseBody.let { JSONObject(it).getLong("beneficiaryID") }
+//                    val beneficiaryRegID = responseBody.let { JSONObject(it).getLong("beneficiaryRegID") }
+//                    val benID = beneficiaryID;
+//                    val benRegId = beneficiaryRegID;
+//                    Log.i("beneficiaryID", benID.toString())
+//                    Log.i("beneficiaryRegID", benRegId.toString())
+//
+////                    val result = Gson().fromJson(data, StateList::class.java)
+////                    val data = responseBody.let { JSONObject(it).getString("data") }
+////                    val resp = responseBody
+//                    val result = Gson().fromJson(responseBody!!, BenificiarySaveResponse::class.java)
+////                    Log.i("fdgdgsdfgsfd", responseBody ?: "")
+//////                    val result = BenificiarySaveResponse(" ")
+//                    NetworkResult.Success(result)
+//                },
+//                onTokenExpired = {
+//                    val user = userRepo.getLoggedInUser()!!
+//                    userRepo.refreshTokenTmc(user.userName, user.password)
+//                    registerNewPatient(patient, user)
+//                },
+//            )
         }
 
     }
@@ -91,9 +97,7 @@ class PatientRepo  @Inject constructor(
             when(val response = registerNewPatient(it, user)){
                 is NetworkResult.Success -> {
                     val benificiarySaveResponse = response.data as BenificiarySaveResponse
-                    var newPatientID = benificiarySaveResponse.response.split("}").first().split(" ").last()
-                    newPatientID = newPatientID.substring(0, newPatientID.length - 1)
-                    deletePreviousAndInsertNew(it.patient, newPatientID)
+                    updatePatientSyncSuccess(it.patient, benificiarySaveResponse)
                 }
                 is NetworkResult.Error -> {
                     updatePatientSyncingFailed(it.patient)
