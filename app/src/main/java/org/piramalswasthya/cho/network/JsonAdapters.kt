@@ -372,6 +372,7 @@ data class BenificiarySaveResponse(
 @JsonClass(generateAdapter = true)
 data class State(
     val stateID: Int,
+    val govtLGDStateID: Int,
     val stateName: String
 )
 
@@ -391,6 +392,7 @@ data class DistrictList(
 @JsonClass(generateAdapter = true)
 data class District(
     val districtID: Int,
+    val govtLGDDistrictID: Int,
     val districtName: String
 )
 
@@ -410,6 +412,7 @@ data class BlockList(
 @JsonClass(generateAdapter = true)
 data class DistrictBlock(
     val blockID: Int,
+    val govLGDSubDistrictID: Int,
     val blockName: String,
     val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
 )
@@ -430,6 +433,7 @@ data class VillageList(
 @JsonClass(generateAdapter = true)
 data class Village(
     val districtBranchID: Int,
+    val govtLGDVillageID: Int,
     val villageName: String,
     val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
 )

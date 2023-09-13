@@ -12,11 +12,11 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface ESanjeevaniApiService {
-    @Suppress("SpellCheckingInspection")
-    private companion object ApiMappings{
-        const val authenticate = "authenticateReference"
-    }
-    @POST(authenticate)
+//    @Suppress("SpellCheckingInspection")
+//    private companion object ApiMappings{
+//        const val authenticate = "authenticateReference"
+//    }
+    @POST("aus/api/ThirdPartyAuth/authenticateReference")
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 
     @Headers("No-Auth: true")

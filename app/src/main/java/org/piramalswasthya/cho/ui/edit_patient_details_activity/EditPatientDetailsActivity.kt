@@ -52,7 +52,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 R.id.fhirVisitDetailsFragment -> {
                     binding.headerTextEditPatient.text = resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.esanjeevni)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
 //                R.id.historyCustomFragment -> {
 //                    binding.headerTextEditPatient.text = resources.getString(R.string.history_text)

@@ -21,5 +21,7 @@ import com.squareup.moshi.JsonClass
 data class BlockMaster (
     @PrimaryKey val blockID: Int,
     @ColumnInfo(name = "districtID") val districtID: Int,
+    @ColumnInfo(name = "lgd_districtID") val govtLGDDistrictID: Int,
+    @ColumnInfo(name = "lgd_subDistrictID") val govLGDSubDistrictID: Int,
     @ColumnInfo(name = "block_name") val blockName: String
 )

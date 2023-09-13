@@ -29,6 +29,8 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.syncState =:unsynced ")
     suspend fun getPatientListUnsynced(unsynced: SyncState = SyncState.UNSYNCED) : List<PatientDisplay>
 
+    @Query("SELECT * FROM PATIENT WHERE patientID =:patientID")
+    suspend fun getPatientById(patientID: String) : PatientDisplay
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :syncing WHERE patientID =:patientID")
     suspend fun updatePatientSyncing(syncing: SyncState = SyncState.SYNCING, patientID: String) : Int

@@ -7,6 +7,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.Language
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.StateMaster
@@ -81,9 +82,11 @@ class StateMasterRepo @Inject constructor(
     }
 
     suspend fun getAllStates(): List<State> {
-        return stateMasterDao.getAllStates().map { it -> State(it.stateID, it.stateName) }
+        return stateMasterDao.getAllStates().map { it -> State(it.stateID,it.govtLGDStateID, it.stateName) }
     }
-
+    suspend fun getStateById(stateId: Int): StateMaster {
+        return stateMasterDao.getStateById(stateId)
+    }
     suspend fun getCachedResponseLang(): List<StateMaster> {
         return stateMasterDao.getAllStates()
     }

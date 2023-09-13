@@ -1,9 +1,18 @@
 package org.piramalswasthya.cho.ui.web_view_activity
 
+import android.app.AlertDialog
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.navigation.fragment.findNavController
 import com.google.android.fhir.FhirEngine
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +20,9 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ResourceType
+import org.json.JSONObject
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.ActivityWebViewBinding
 import org.piramalswasthya.cho.model.EsanjeevniPatient
 import org.piramalswasthya.cho.model.EsanjeevniPatientAddress
@@ -28,16 +40,18 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class WebViewActivity : AppCompatActivity() {
+    @Inject
+    lateinit var patientDao: PatientDao
 
-//    @Inject
-//    lateinit var apiService : AmritApiService
     @Inject
     lateinit var apiService : ESanjeevaniApiService
+
 
     private var _binding : ActivityWebViewBinding? = null
 
     @Inject
     lateinit var fhirEngine : FhirEngine
+
 
     private val binding  : ActivityWebViewBinding
         get() = _binding!!
@@ -49,15 +63,15 @@ class WebViewActivity : AppCompatActivity() {
         launchESanjeenvani()
     }
 
-    fun launchESanjeenvani(){
 
-        var user = "Cdac@1234";
-        var token = "token"
-        var passWord = encryptSHA512(encryptSHA512(user) + encryptSHA512(token))
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun launchESanjeenvani(){
+        var username = intent.getStringExtra("usernameEs")!!
+        var passWord = encryptSHA512(encryptSHA512(intent.getStringExtra("passwordEs")!!) + encryptSHA512("token"))
 
         //creating object using encrypted Password and other details
         var networkBody = NetworkBody(
-            "8501258162",
+            username,
             passWord,
             "token",
             "11001"
@@ -65,28 +79,36 @@ class WebViewActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val responseToken = apiService.getJwtToken(networkBody)
-                val token = responseToken.model.access_token;
-                TokenESanjeevaniInterceptor.setToken(token)
-
                 val patientId = intent.getStringExtra("patientId")!!
-                val fhirPatient = fhirEngine.get(ResourceType.Patient, patientId) as Patient
-                val patient = EsanjeevniPatient(fhirPatient)
-                val patientResponse = apiService.savePatient(patient)
-                Log.d("patient Response is ", patientResponse.toString())
-
-                val response = apiService.getAuthRefIdForWebView(networkBody)
-                Log.d("Resp", "$response")
-                if (response != null) {
-                    val referenceId = response.model.referenceId
-                    val url = "https://uat.esanjeevani.in/#/external-provider-signin/$referenceId"
-                    Log.d("here is act the url","ssds $url")
-                    val fragmentWebView = WebViewFragment(url);
-                    supportFragmentManager.beginTransaction().replace(binding.webView.id, fragmentWebView).commit()
+                val patientById = patientDao.getPatientById(patientId)
+                val patient = EsanjeevniPatient(patientById)
+                val savePatientResponse = apiService.savePatient(patient)
+                val responseBody = savePatientResponse.body()?.string()
+                if(responseBody.let { JSONObject(it).getInt("msgCode") }!=1)
+                {
+                    Toast.makeText(baseContext, responseBody.let { JSONObject(it).getString("message") }, Toast.LENGTH_LONG).show()
+                    finish()
+                }
+                else {
+                    val response = apiService.getAuthRefIdForWebView(networkBody)
+                    if (response != null) {
+                        val referenceId = response.model.referenceId
+                        val url =
+                            getString(R.string.url_uat_esanjeevani) + referenceId
+                        val fragmentWebView = WebViewFragment(url);
+                        supportFragmentManager.beginTransaction()
+                            .replace(binding.webView.id, fragmentWebView).commit()
+                    } else {
+                        finish()
+                        Toast.makeText(baseContext, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
             catch (e: Exception){
-                Timber.d("GHere is error $e")
+                finish()
+                Toast.makeText(baseContext, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -103,7 +125,6 @@ class WebViewActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("activity destroyed", "destroyed")
     }
 
     private fun encryptSHA512(input: String): String {

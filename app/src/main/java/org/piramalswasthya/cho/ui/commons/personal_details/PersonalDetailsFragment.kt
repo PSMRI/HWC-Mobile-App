@@ -14,12 +14,15 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class PersonalDetailsFragment : Fragment() {
-
+    @Inject
+    lateinit var apiService : ESanjeevaniApiService
     private lateinit var viewModel: PersonalDetailsViewModel
 
     private lateinit var searchView: SearchView
@@ -49,11 +52,14 @@ class PersonalDetailsFragment : Fragment() {
             when (state!!){
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
                     binding.patientListContainer.patientCount.text = viewModel.patientList.size.toString() + " Patients"
-                    val itemAdapter = PatientItemAdapter(viewModel.patientList
-                    ) {
-                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                        intent.putExtra("patientId", it.patient.patientID);
-                        startActivity(intent)
+                    val itemAdapter = context?.let {
+                        PatientItemAdapter(apiService,
+                            it,viewModel.patientList
+                        ) {
+                            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                            intent.putExtra("patientId", it.patient.patientID);
+                            startActivity(intent)
+                        }
                     }
                     binding.patientListContainer.patientList.adapter = itemAdapter
                 }

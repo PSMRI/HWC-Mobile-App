@@ -165,16 +165,16 @@ interface AmritApiService {
         @Body vanServiceType: TmcUserVanSpDetailsRequest
     ): Response<ResponseBody>
 
-    @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
+    @POST("hwc-facility-service/wo/location/getLocDetailsBasedOnSpIDAndPsmID/wo")
     suspend fun getStates(@Body request: LocationRequest): Response<ResponseBody>
 
-    @GET("hwc-facility-service/location/get/districtMaster/{stateId}")
+    @GET("hwc-facility-service/wo/location/get/districtMaster/{stateId}/wo")
     suspend fun getDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>
 
-    @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
+    @GET("hwc-facility-service/wo/location/get/districtBlockMaster/{districtId}/wo")
     suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 
-    @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
+    @GET("hwc-facility-service/wo/location/get/villageMasterFromBlockID/{blockId}/wo")
     suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")

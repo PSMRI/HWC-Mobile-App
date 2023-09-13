@@ -83,5 +83,13 @@
         <item name="android:textSize">18sp</item> <!-- Adjust the text size as per your preference -->
         <item name="android:textStyle">bold</item> <!-- Optional: Add text style if desired -->
     </style>
-
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:backgroundDimAmount">0.5</item>
+    </style>
+    <style name="CustomDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+<!--        <item name="android:backgroundDimAmount">0.5</item>-->
+<!--        <item name="android:backgroundDimEnabled">true</item>-->
+        <!-- Customize dialog styles here if needed -->
+        <item name="android:windowBackground">@color/green</item>
+    </style>
 </resources>
