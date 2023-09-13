@@ -101,7 +101,7 @@ class VisitDetailAdapter(
         // Bind data and set listeners for user interactions
         holder.chiefComplaintOptions.setText(itemData.chiefComplaint)
         holder.durationInput.setText(itemData.duration)
-        holder.durationUnitDropdown.setText(itemData.durationUnit)
+        holder.durationUnitDropdown.setText(unitDropDown[1])
         holder.descriptionInput.setText(itemData.description)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
@@ -127,9 +127,22 @@ class VisitDetailAdapter(
 
         // Set listeners to update data when user interacts
         holder.chiefComplaintOptions.addTextChangedListener {
-            itemData.chiefComplaint = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
+                if(chiefComplaints.map{it.chiefComplaint}.contains(it.toString())){
+                    itemData.chiefComplaint = it.toString()
+                    holder.updateResetButtonState()
+                    itemChangeListener.onItemChanged()
+                    holder.chiefComplaintOptionInput.apply {
+                        boxStrokeColor = resources.getColor(R.color.purple)
+                        hintTextColor = defaultHintTextColor
+                    }
+                }else{
+                    itemData.chiefComplaint = ""
+                    holder.chiefComplaintOptionInput.apply {
+                        requestFocus()
+                        boxStrokeColor = Color.RED
+                        hintTextColor = ColorStateList.valueOf(Color.RED)
+                    }
+                }
         }
         holder.durationInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -140,6 +153,7 @@ class VisitDetailAdapter(
 
                 if (s.isNullOrEmpty()) {
                     holder.durationInputLayout.apply {
+                        requestFocus()
                         boxStrokeColor = Color.RED
                         hintTextColor = ColorStateList.valueOf(Color.RED)
                     }

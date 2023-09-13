@@ -93,7 +93,7 @@ class EditPatientDetailsFragment : Fragment() {
                     binding.headerTextEditPatient.text =
                         resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.esanjeevni)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_prescription -> {
                     binding.headerTextEditPatient.text =

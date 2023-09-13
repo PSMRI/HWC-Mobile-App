@@ -27,7 +27,6 @@ import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
-import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -46,7 +45,6 @@ import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 
 @AndroidEntryPoint
 class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
@@ -59,7 +57,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override val jsonFile = "patient-visit-details-paginated.json"
 
-
+    private var usernameEs : String = ""
+    private var passwordEs : String = ""
     private var userInfo: UserCache? = null
 
     private var _binding: VisitDetailsInfoBinding? = null
@@ -143,7 +142,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.drop_down, subCatOptions)
+        subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
         viewModel.getLoggedInUserDetails()
@@ -156,12 +155,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         viewModel.subCatVisitList.observe(viewLifecycleOwner) { subCats ->
             subCatOptions.clear()
             subCatOptions.addAll(subCats)
+            subCatAdapter.addAll(subCatOptions.map { it.name })
             subCatAdapter.notifyDataSetChanged()
         }
 
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
-            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
-            binding.subCatInput.setText(subCat?.name, false)
+//            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
+            var subCat = parent.getItemAtPosition(position)
+            binding.subCatInput.setText(subCat.toString(), false)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
                 hintTextColor = defaultHintTextColor }
@@ -571,11 +572,11 @@ Log.d("aryan","   ${masterDb?.visitMasterDb?.chiefComplaint?.size}")
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, WebViewActivity::class.java)
-        intent.putExtra("patientId", patientId);
-        startActivity(intent)
+//        val intent = Intent(context, WebViewActivity::class.java)
+//        intent.putExtra("patientId", patientId);
+//        startActivity(intent)
+//        callLoginDialog()
     }
-
 
     //methods for voice to text conversion and update the input fields
     override fun onEndIconDurationClick(position: Int) {

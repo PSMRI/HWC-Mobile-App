@@ -21,5 +21,7 @@ import com.squareup.moshi.JsonClass
 data class VillageMaster (
     @PrimaryKey val districtBranchID: Int,
     @ColumnInfo(name = "blockID") val blockID: Int,
+    @ColumnInfo(name = "lgd_subDistrictID") val govtLGDSubDistrictID: Int,
+    @ColumnInfo(name = "lgd_villageID") val govtLGDVillageID: Int,
     @ColumnInfo(name = "village_name") val villageName: String
 )

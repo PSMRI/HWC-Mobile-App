@@ -10,5 +10,6 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class StateMaster (
     @PrimaryKey val stateID: Int,
-    @ColumnInfo(name = "state_name") val stateName: String
+    @ColumnInfo(name = "state_name") val stateName: String,
+    @ColumnInfo(name = "govtLGDStateID") val govtLGDStateID: Int
 )

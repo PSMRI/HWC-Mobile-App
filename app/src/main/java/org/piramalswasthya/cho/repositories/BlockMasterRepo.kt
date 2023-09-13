@@ -55,7 +55,10 @@ class BlockMasterRepo @Inject constructor(private val blockMasterDao: BlockMaste
     }
 
     suspend fun getBlocksByDistrictId(districtId: Int): List<DistrictBlock> {
-        return blockMasterDao.getBlocks(districtId).map { it -> DistrictBlock(it.blockID, it.blockName, mapOf()) }
+        return blockMasterDao.getBlocks(districtId).map { it -> DistrictBlock(it.blockID,it.govLGDSubDistrictID, it.blockName, mapOf()) }
+    }
+    suspend fun getBlocksById(blockId: Int): BlockMaster {
+        return blockMasterDao.getBlockById(blockId)
     }
 
 }

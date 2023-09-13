@@ -13,6 +13,8 @@ interface DistrictMasterDao {
 
     @Query("SELECT * FROM DISTRICT_MASTER WHERE stateID = :stateID")
     suspend fun getDistricts(stateID: Int) : List<DistrictMaster>
+    @Query("SELECT * FROM DISTRICT_MASTER WHERE districtID = :districtID")
+    suspend fun getDistrictById(districtID: Int) : DistrictMaster
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDistrict(districtMaster: DistrictMaster)

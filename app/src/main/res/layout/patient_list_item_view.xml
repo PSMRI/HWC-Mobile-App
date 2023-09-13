@@ -18,6 +18,7 @@
       app:contentPadding="@dimen/padding_big">
 
     <LinearLayout
+        android:id="@+id/cardLL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -175,9 +176,24 @@
             android:layout_marginStart="@dimen/margin_small"
             android:text="ABHA"
             android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_hh_id"
+            app:layout_constraintStart_toStartOf="parent"
             android:backgroundTint="@color/green"
              />
+        <Space
+            android:layout_width="93dp"
+            android:layout_height="match_parent" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_eSanjeevani"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:cornerRadius="@dimen/padding_normal"
+            android:text="@string/esanjeevni"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/green"
+            />
       </LinearLayout>
     </LinearLayout>
 
