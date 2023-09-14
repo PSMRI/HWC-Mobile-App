@@ -96,10 +96,15 @@ import timber.log.Timber
         InvestigationCaseRecord::class,
         PrescriptionCaseRecord::class,
         VisitDB::class,
-        ChiefComplaintDB::class
+        ChiefComplaintDB::class,
+        ItemMasterList::class,
+        DrugFrequencyMaster::class,
+       CounsellingTypes::class,
+       DrugFormMaster::class,
+       ProceduresMasterData::class
     ],
 //    views = [BenBasicCache::class],
-    version = 40, exportSchema = false
+    version = 51, exportSchema = false
 )
 
 

@@ -76,6 +76,9 @@ data class UserCache(
     @ColumnInfo(name = "zone_id")
     val zoneId : Int,
 
+    @ColumnInfo(name = "facilityID")
+    val facilityID: Int?,
+
     @ColumnInfo(name = "zone_name")
     val zoneName : String,
 
@@ -136,6 +139,7 @@ data class UserCache(
             serviceId = serviceId,
             servicePointName = servicePointName,
             vanId = vanId,
+            facilityID = facilityID,
             zoneId = zoneId,
             zoneName = zoneName,
             parkingPlaceId = parkingPlaceId,
@@ -188,6 +192,7 @@ data class UserDomain(
     val zoneId: Int,
     val zoneName: String,
     val vanId: Int,
+    val facilityID : Int?,
     val country: LocationEntity,
     val states : List<LocationEntity>,
     val districts : List<LocationEntity>,
@@ -229,7 +234,7 @@ data class UserNetwork(
     var parkingPlaceId: Int = -1,
     var zoneId: Int = -1,
     var vanId : Int = -1,
-
+    var facilityID:Int=-1,
     var parkingPlaceName: String?=null,
     var servicePointName: String?=null,
     var zoneName : String?=null,
@@ -281,6 +286,7 @@ data class UserNetwork(
             servicePointName = servicePointName?:"",
             vanId = vanId,
             zoneId = zoneId,
+            facilityID = facilityID,
             zoneName = zoneName?:"",
             parkingPlaceId = parkingPlaceId,
             parkingPlaceName = parkingPlaceName?:"",
@@ -315,8 +321,6 @@ data class UserNetwork(
             districtID = null,
             blockID = null,
             districtBranchID = null
-
-
         )
     }
 }

@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
+import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import org.piramalswasthya.cho.model.TobaccoDropdown
@@ -39,6 +40,8 @@ interface HistoryDao {
     suspend fun insertSurgeryDropdown(surgeryDropdown: SurgeryDropdown)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComorbidConditionDropdown(comorbidConditionsDropdown: ComorbidConditionsDropdown)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProcedureDropdown(proceduresMasterData: ProceduresMasterData)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFamilyDiseaseDropdown(familyMemberDiseaseTypeDropdown: FamilyMemberDiseaseTypeDropdown)
 
@@ -80,6 +83,9 @@ interface HistoryDao {
 
     @Query("select * from Alcohol_Dropdown")
     fun getAllAlcoholDropdown(): LiveData<List<AlcoholDropdown>>
+
+    @Query("select * from Procedures_Master_Data")
+    fun getAllProcedureDropdown(): LiveData<List<ProceduresMasterData>>
 
     @Query("select * from Allergic_Reaction_Dropdown")
     fun getAllAllergicReactionDropdown(): LiveData<List<AllergicReactionDropdown>>

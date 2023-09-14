@@ -42,7 +42,14 @@ interface UserDao {
 
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     fun getLoggedInUserLiveData(): LiveData<UserCache>
+    @Query("SELECT facilityID FROM USER WHERE logged_in = 1 LIMIT 1")
+    fun getLoggedInUserFacilityID(): LiveData<Int>
 
+    @Query("SELECT van_id FROM USER WHERE logged_in = 1 LIMIT 1")
+    fun getLoggedInUserVanID(): LiveData<Int>
+
+    @Query("SELECT service_map_id FROM USER WHERE logged_in = 1 LIMIT 1")
+    fun getLoggedInUserProviderServiceMapId(): LiveData<Int>
 //    @Delete
 //    suspend fun logout(loggedInUser: UserCache)
 
@@ -66,5 +73,6 @@ interface UserDao {
 
     @Query("select * from FP_DATA")
     fun getAllFpData(): LiveData<List<FingerPrint>>
+
 
 }

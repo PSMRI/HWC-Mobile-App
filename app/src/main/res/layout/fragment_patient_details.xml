@@ -99,12 +99,18 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/age">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age"
                 android:layout_width="match_parent"
                 android:textSize="18sp"
+                android:maxEms="2"
+                android:maxLength="2"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
                 android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -155,12 +161,16 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/spouse_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/spouse_name"
                 android:layout_width="match_parent"
                 android:inputType="text"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
                 android:textSize="18sp"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -172,12 +182,18 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/age_at_marriage">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_at_marriage"
                 android:layout_width="match_parent"
                 android:textSize="18sp"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
+                android:maxEms="2"
+                android:maxLength="2"
                 android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -188,16 +204,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_mic"
+            android:maxLength="2"
+            android:inputType="number"
             android:textColorHint="#888888"
             android:hint="@string/phone_number">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phone_no"
                 android:layout_width="match_parent"
-                android:inputType="number"
                 android:textSize="18sp"
                 android:maxEms="10"
                 android:maxLength="10"
+                android:drawableEnd="@null"
+                android:inputType="number"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 

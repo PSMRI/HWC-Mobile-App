@@ -11,11 +11,9 @@ data class PrescriptionCaseRecord(
     @PrimaryKey
     var prescriptionCaseRecordId:String,
     @ColumnInfo(name = "form") val form: String,
-    @ColumnInfo(name = "medicaiton") val medication: String?,
-    @ColumnInfo(name = "dosage") val dosage: String,
     @ColumnInfo(name = "frequency") val frequency: String,
     @ColumnInfo(name = "duration") val duration: String,
     @ColumnInfo(name = "instruction") val instruciton: String?,
     @ColumnInfo(name = "unit") val unit: String,
-    @ColumnInfo(name = "route") val route: String?
+    @ColumnInfo(name = "CounsellingTypes") val counsellingTypes:  String?
 )

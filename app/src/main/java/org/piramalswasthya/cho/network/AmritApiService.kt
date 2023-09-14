@@ -246,6 +246,8 @@ interface AmritApiService {
                                    @Path("gender") gender: String,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
+
+
     @GET("hwc-facility-service/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
     suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,
                                    @Path("providerServiceMapID") providerServiceMapID : Int,

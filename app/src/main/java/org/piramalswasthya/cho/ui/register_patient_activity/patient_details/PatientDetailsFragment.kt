@@ -38,7 +38,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var viewModel: PatientDetailsViewModel
 
     private var doAgeToDob = true;
-    private var speechToText = ""
 
     private var patient = Patient();
 
@@ -67,6 +66,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.lastNameText.setEndIconOnClickListener {
             speechToTextLauncherForLastName.launch(Unit)
         }
+        binding.ageText.setEndIconOnClickListener {
+            speechToTextLauncherForAge.launch(Unit)
+        }
+        binding.phoneNoText.setEndIconOnClickListener {
+            speechToTextLauncherForPhoneNumber.launch(Unit)
+        }
+        binding.spouseNameText.setEndIconOnClickListener {
+            speechToTextLauncherForSpouseName.launch(Unit)
+        }
+        binding.ageAtMarriageText.setEndIconOnClickListener {
+            speechToTextLauncherForAgeAtMarriage.launch(Unit)
+        }
     }
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
@@ -76,6 +87,40 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val speechToTextLauncherForLastName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
             binding.lastName.setText(result)
+        }
+    }
+    private val speechToTextLauncherForSpouseName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.spouseName.setText(result)
+        }
+    }
+    private val speechToTextLauncherForAge = registerForActivityResult(SpeechToTextContract()) { result ->
+            if (result.isNotBlank() && result.isNumeric()) {
+                val pattern = "\\d{2}".toRegex()
+                val match = pattern.find(result)
+                val firstTwoDigits = match?.value
+                if(result.toInt() > 0) binding.age.setText(result)
+            }
+    }
+    private val speechToTextLauncherForAgeAtMarriage = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNumeric()) {
+            val pattern = "\\d{2}".toRegex()
+            val match = pattern.find(result)
+            val firstTwoDigits = match?.value
+            if(result.toInt() > 0) binding.ageAtMarriage.setText(result)
+        }
+    }
+    private fun String.isNumeric(): Boolean {
+        return try { this.toDouble()
+            true
+        } catch (e: NumberFormatException) {
+            false
+        }
+    }
+    private val speechToTextLauncherForPhoneNumber = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNumeric()) {
+            binding.phoneNo.setText(result)
+
         }
     }
     fun watchAllFields(){

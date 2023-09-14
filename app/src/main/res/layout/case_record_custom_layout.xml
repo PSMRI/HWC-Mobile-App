@@ -135,7 +135,6 @@
                             android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-
                 <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/prescriptionExtra"
                         android:layout_width="match_parent"
