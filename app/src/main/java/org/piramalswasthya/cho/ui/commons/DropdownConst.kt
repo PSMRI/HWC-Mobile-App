@@ -23,7 +23,16 @@ class DropdownConst {
         val medicationFormsList = mutableListOf("Tablet", "Capsule", "Syrup", "Suspension", "Oral Drops",
             "Ointment", "Cream", "Lotion", "Eye Drops", "Ear Drops")
         val tabletDosageList = mutableListOf("Half Tab", "One and Half Tab", "1 Tablet", "2 Tablets")
-        val medicationFrequencyList = mutableListOf("4 times a day (QID)", "Once daily (OD)", "Once in a week", "Single Dose", "SOS")
+        val medicationFrequencyList = mutableListOf(
+            "1-0-0",
+            "0-1-0",
+            "0-0-1",
+            "1-1-0",
+            "1-0-1",
+            "0-1-1",
+            "1-1-1",
+            "1-1-1-1"
+        )
         val medicationRouteList = mutableListOf("Ears","Eyes/Ear","Eyes","ID","IM","IV","Local application","Nostrils","Oral","Rectal")
         val unitVal = mutableListOf("Day","Month","Week")
     }

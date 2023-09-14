@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.internal.notify
 import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
@@ -28,13 +29,16 @@ import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.CounsellingTypes
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
+import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalTestList
@@ -64,12 +68,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
-    private val medicalTestListVal = medicalTestList
-    private val formListVal = medicationFormsList
-    private val dosageListVal = tabletDosageList
+    private val formMListVal = ArrayList<ItemMasterList>()
+    private val counsellingTypes = ArrayList<CounsellingTypes>()
+    private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
     private val unitListVal = unitVal
-    private val routeListVal = medicationRouteList
     private var masterDb: MasterDb? = null
 
     override fun onCreateView(
@@ -85,11 +88,26 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         selectF = binding.selectF
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
-        Log.d("aryan","${masterDb?.vitalsMasterDb?.bpSystolic}")
 
-        familyM!!.setOnClickListener {
-            showDialogWithFamilyMembers(medicalTestListVal)
+        viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
+            formMListVal.clear()
+            formMListVal.addAll(f)
+            pAdapter.notifyDataSetChanged()
         }
+        viewModel.counsellingTypes.observe(viewLifecycleOwner) { f ->
+            counsellingTypes.clear()
+            counsellingTypes.addAll(f)
+            pAdapter.notifyDataSetChanged()
+        }
+        viewModel.procedureDropdown.observe(viewLifecycleOwner) { f ->
+            procedureDropdown.clear()
+            procedureDropdown.addAll(f)
+            familyM!!.setOnClickListener {
+                showDialogWithFamilyMembers(procedureDropdown)
+            }
+        }
+
+
         dAdapter = DiagnosisAdapter(
             itemListD,
             object : RecyclerViewItemChangeListenerD {
@@ -112,11 +130,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         pAdapter = PrescriptionAdapter(
             itemListP,
-            formListVal,
-            dosageListVal,
+            formMListVal,
             frequencyListVal,
             unitListVal,
-            routeListVal,
+            counsellingTypes,
             object : RecyclerViewItemChangeListenersP {
                 override fun onItemChanged() {
                     binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
@@ -138,14 +155,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
     }
 
-    private fun showDialogWithFamilyMembers(familyMembers: List<String>) {
-        val selectedItems = BooleanArray(familyMembers.size) { selectedTestName.contains(it) }
+    private fun showDialogWithFamilyMembers(proceduresMasterData: List<ProceduresMasterData>) {
+        val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
 
         val builder = AlertDialog.Builder(requireContext())
             .setTitle("Select Test Name")
             .setCancelable(false)
             .setMultiChoiceItems(
-                familyMembers.toTypedArray(),
+                procedureDropdown.map { it.procedureName }.toTypedArray(),
                 selectedItems
             ) { _, which, isChecked ->
                 if (isChecked) {
@@ -155,7 +172,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
             .setPositiveButton("Ok") { dialog, which ->
-                val selectedRelationTypes = selectedTestName.map { familyMembers[it] }
+                val selectedRelationTypes = selectedTestName.map { proceduresMasterData[it].procedureName }
                 val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
                 binding.selectF.text = selectedRelationTypesString
                 binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
@@ -183,7 +200,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun isAnyItemEmptyP(): Boolean {
         for (item in itemListP) {
-            if (item.form.isEmpty()||item.dosage.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()||item.unit.isEmpty()) {
+            if (item.form.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()||item.unit.isEmpty()) {
                 return true
             }
         }
@@ -212,17 +229,24 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         //save investigation
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
-            if (prescriptionData.form.isNotEmpty()||prescriptionData.dosage.isNotEmpty()||prescriptionData.frequency.isNotEmpty()||prescriptionData.unit.isNotEmpty()) {
+            var freq = ""
+            if (prescriptionData.form.isNotEmpty()||prescriptionData.frequency.isNotEmpty()||prescriptionData.unit.isNotEmpty()) {
+                if(prescriptionData.frequency.equals("1-0-0")||prescriptionData.frequency.equals("0-1-0")||prescriptionData.frequency.equals("0-0-1"))
+                    freq = "Once Daily"
+                if(prescriptionData.frequency.equals("1-1-0")||prescriptionData.frequency.equals("0-1-1")||prescriptionData.frequency.equals("1-0-1"))
+                    freq = "Twice Daily"
+                if(prescriptionData.frequency.equals("1-1-1"))
+                    freq = "Thrice Daily"
+                if(prescriptionData.frequency.equals("1-1-1-1"))
+                    freq = "Four Times in a Day"
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = "33+${i}",
                     form = prescriptionData.form,
-                    medication = prescriptionData.medicine,
-                    dosage = prescriptionData.dosage,
-                    frequency = prescriptionData.frequency ,
+                    frequency = freq ,
                     duration = prescriptionData.duration,
                     instruciton = prescriptionData.instruction,
                     unit = prescriptionData.unit,
-                    route = prescriptionData.route
+                    counsellingTypes = prescriptionData.counsellingTypes
                     )
                 viewModel.savePrescriptionToCache(pres)
             }

@@ -9,14 +9,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.CounsellingTypes
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
+import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.HistoryRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
@@ -28,10 +33,58 @@ import kotlin.Exception
 @HiltViewModel
 class CaseRecordViewModel @Inject constructor(
     private val caseRecordeRepo: CaseRecordeRepo,
+    private val maleMasterDataRepository: MaleMasterDataRepository,
+    private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val vitalsRepo: VitalsRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo
 
     ): ViewModel() {
+
+    private var _formMedicineDosage: LiveData<List<ItemMasterList>>
+    val formMedicineDosage: LiveData<List<ItemMasterList>>
+        get() = _formMedicineDosage
+
+    private var _counsellingTypes: LiveData<List<CounsellingTypes>>
+    val counsellingTypes: LiveData<List<CounsellingTypes>>
+        get() = _counsellingTypes
+
+    private var _procedureDropdown: LiveData<List<ProceduresMasterData>>
+    val procedureDropdown: LiveData<List<ProceduresMasterData>>
+        get() = _procedureDropdown
+
+    init {
+        _counsellingTypes = MutableLiveData()
+        getCounsellingTypes()
+        _formMedicineDosage = MutableLiveData()
+        getFormMaster()
+        _procedureDropdown = MutableLiveData()
+        getProcedureDropdown()
+
+    }
+    private fun getCounsellingTypes(){
+        try{
+            _counsellingTypes = doctorMasterDataMaleRepo.getAllCounsellingList()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getFormMaster $e")
+        }
+    }
+    private fun getFormMaster(){
+        try{
+            _formMedicineDosage  = doctorMasterDataMaleRepo.getAllItemMasterList()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in getFormMaster $e")
+        }
+    }
+    private fun getProcedureDropdown(){
+        try{
+            _procedureDropdown  = maleMasterDataRepository.getAllProcedureDropdown()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in Get Procedure $e")
+        }
+    }
 
 fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     viewModelScope.launch {

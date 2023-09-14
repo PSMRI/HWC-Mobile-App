@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoDropdown
@@ -93,6 +94,10 @@ class MaleMasterDataRepository @Inject constructor(
                     val tobaccoList = MasterDataListConverter.toTobaccoList(tobaccoString.toString())
                     saveTobaccoDropdownToCache(tobaccoList)
 
+                    val proceduresString = jsonObject.getJSONArray("procedures")
+                    val proceduresList = MasterDataListConverter.toProcedureList(proceduresString.toString())
+                    saveProcedureDropdownToCache(proceduresList)
+
                     val comorbidConditionString = jsonObject.getJSONArray("comorbidConditions")
                     val comorbidConditionList = MasterDataListConverter.toComorbidList(comorbidConditionString.toString())
                     saveComorbidConditionDropdownToCache(comorbidConditionList)
@@ -111,6 +116,19 @@ class MaleMasterDataRepository @Inject constructor(
                     getMasterDataForNurse()
                 },
             )
+        }
+    }
+
+    private suspend fun saveProcedureDropdownToCache(proceduresMasterData: List<ProceduresMasterData>){
+
+        try{
+            proceduresMasterData.forEach { cc: ProceduresMasterData ->
+                withContext(Dispatchers.IO){
+                    historyDao.insertProcedureDropdown(cc)
+                }
+            }
+        } catch (e: Exception){
+            Timber.d("Error in saving Comorbid Condition history $e")
         }
     }
     private suspend fun saveComorbidConditionDropdownToCache(comorbidConditionsDropdown: List<ComorbidConditionsDropdown>){
@@ -244,6 +262,10 @@ class MaleMasterDataRepository @Inject constructor(
     fun getAllAlcoholDropdown(): LiveData<List<AlcoholDropdown>> {
         return historyDao.getAllAlcoholDropdown()
     }
+    fun getAllProcedureDropdown(): LiveData<List<ProceduresMasterData>> {
+        return historyDao.getAllProcedureDropdown()
+    }
+
     fun getAllAllergyDropdown(): LiveData<List<AllergicReactionDropdown>> {
         return historyDao.getAllAllergicReactionDropdown()
     }

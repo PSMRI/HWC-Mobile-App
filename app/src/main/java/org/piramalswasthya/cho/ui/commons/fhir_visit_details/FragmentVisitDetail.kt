@@ -168,9 +168,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
-        if (requireArguments().getString("patientId") != null) {
-            patientId = requireArguments().getString("patientId")!!
-        }
+        patientId = requireArguments().getString("patientId")!!
 
         binding.subCatInput.threshold = 1
 
@@ -394,7 +392,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     }
     private fun setVisitMasterData() {
-        val masterDb = MasterDb()
+        val masterDb = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
 
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId

@@ -172,6 +172,8 @@ class UserRepo @Inject constructor(
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
+                    val facilityId = vanSp.getInt("facilityID")
+                    user?.facilityID = facilityId
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
                 }

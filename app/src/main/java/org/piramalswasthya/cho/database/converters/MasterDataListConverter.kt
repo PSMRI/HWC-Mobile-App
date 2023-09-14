@@ -11,8 +11,11 @@ import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
+import org.piramalswasthya.cho.model.CounsellingTypes
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.DrugFormMaster
+import org.piramalswasthya.cho.model.DrugFrequencyMaster
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
@@ -20,10 +23,12 @@ import org.piramalswasthya.cho.model.GovIdEntityMaster
 import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.IncomeMaster
+import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.Language
 import org.piramalswasthya.cho.model.LiteracyStatus
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
+import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
@@ -206,10 +211,39 @@ object MasterDataListConverter {
         return Gson().fromJson(value,listType)
     }
     @TypeConverter
+    fun toItemMasterList(value: String?):List<ItemMasterList>{
+        val listType = object :TypeToken<List<ItemMasterList?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+
+    @TypeConverter
+    fun toDrugFrequencyMasterList(value: String?):List<DrugFrequencyMaster>{
+        val listType = object :TypeToken<List<DrugFrequencyMaster?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+
+    @TypeConverter
+    fun toCounsellingTypeMasterList(value: String?):List<CounsellingTypes>{
+        val listType = object :TypeToken<List<CounsellingTypes?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toDrugFormMasterList(value: String?):List<DrugFormMaster>{
+        val listType = object :TypeToken<List<DrugFormMaster?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+
+    @TypeConverter
     fun toComorbidList(value: String?):List<ComorbidConditionsDropdown>{
         val listType = object :TypeToken<List<ComorbidConditionsDropdown?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
+    @TypeConverter
+    fun toProcedureList(value: String?):List<ProceduresMasterData>{
+        val listType = object :TypeToken<List<ProceduresMasterData?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+
     @TypeConverter
     fun toFamilyDiseaseList(value: String?):List<FamilyMemberDiseaseTypeDropdown>{
         val listType = object :TypeToken<List<FamilyMemberDiseaseTypeDropdown?>?>(){}.type

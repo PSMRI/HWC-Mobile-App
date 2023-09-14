@@ -10,26 +10,27 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.setSpinnerItems
 
 class PrescriptionAdapter(
     private val itemList: MutableList<PrescriptionValues>,
-    private val formDropDown: List<String>,
-    private val dosageDropDown: List<String>,
+    private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
     private val unitDropDown: List<String>,
-    private val routeDropdown: List<String>,
+    private val counsellingTypes: List<CounsellingTypes>,
     private val itemChangeListener: RecyclerViewItemChangeListenersP
 ) :
     RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
 
+    private var durationCount = 0
+    private val maxDuration = 6
+
     private val viewHolders = mutableListOf<PrescriptionAdapter.ViewHolder>()
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val formOptions: AutoCompleteTextView =
-            itemView.findViewById(R.id.formDropDownVal)
-        val medicineOption: TextInputEditText = itemView.findViewById(R.id.inputMedicine)
-        val dosageOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.dosagesDropDownVal)
         val frequencyOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.frequencyDropDownVal)
@@ -37,10 +38,12 @@ class PrescriptionAdapter(
         val instructionInput: TextInputEditText = itemView.findViewById(R.id.inputInstruction)
         val unitOption: AutoCompleteTextView =
             itemView.findViewById(R.id.unitDropDownVal)
-        val routeOption: AutoCompleteTextView =
+        val counsellingTypesOption: AutoCompleteTextView =
             itemView.findViewById(R.id.routeDropDownVal)
         val resetButton: Button = itemView.findViewById(R.id.resetButton)
         val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
+        val addButton : Button = itemView.findViewById(R.id.addButton)
+        val subtractButton : Button = itemView.findViewById(R.id.subtractButton)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -64,13 +67,11 @@ class PrescriptionAdapter(
         fun updateResetButtonState() {
             val isItemFilled = formOptions.text.isNotEmpty() ||
                     formOptions.text.isNotEmpty() ||
-                    medicineOption.text!!.isNotEmpty() ||
-                    dosageOptions.text.isNotEmpty() ||
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
                     instructionInput.text!!.isNotEmpty() ||
                     unitOption.text.isNotEmpty() ||
-                    routeOption.text.isNotEmpty()
+                    counsellingTypesOption.text.isNotEmpty()
             resetButton.isEnabled = isItemFilled
         }
 
@@ -92,13 +93,11 @@ class PrescriptionAdapter(
             if (position in 0 until itemList.size) {
                 val itemData = itemList[position]
                 itemData.form = ""
-                itemData.medicine = ""
-                itemData.dosage = ""
                 itemData.frequency = ""
                 itemData.duration = ""
                 itemData.instruction = ""
                 itemData.unit = ""
-                itemData.route = ""
+                itemData.counsellingTypes = ""
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()
             }
@@ -106,32 +105,55 @@ class PrescriptionAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        durationCount=0
         val itemData = itemList[position]
+       holder.subtractButton.isEnabled = false
+        holder.addButton.setOnClickListener {
+            if (durationCount < maxDuration) {
+                durationCount++
+                holder.durationInput.setText(durationCount.toString())
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            }
+            // Disable the "Add" button when the duration count reaches the maximum
+            if (durationCount >= maxDuration) {
+                holder.addButton.isEnabled = false
+            }
+            // Enable the "Subtract" button
+            holder.subtractButton.isEnabled = true
+        }
+
+        // Set up click listener for the "Subtract" button
+        holder.subtractButton.setOnClickListener {
+            if (durationCount > 1) {
+                durationCount--
+                holder.durationInput.setText(durationCount.toString())
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            } else if (durationCount == 1) {
+                // When durationCount is 1, show the hint "duration" and disable "Subtract"
+                holder.durationInput.hint = holder.itemView.context.getString(R.string.duration2)
+                holder.durationInput.text = null
+                holder.subtractButton.isEnabled = false
+            }
+            // Enable the "Add" button
+            holder.addButton.isEnabled = true
+        }
+
         // Bind data and set listeners for user interactions
         holder.formOptions.setText(itemData.form)
-        holder.medicineOption.setText(itemData.medicine)
-        holder.dosageOptions.setText(itemData.dosage)
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
         holder.instructionInput.setText(itemData.instruction)
         holder.unitOption.setText(itemData.unit)
-        holder.routeOption.setText(itemData.route)
+        holder.counsellingTypesOption.setText(itemData.counsellingTypes)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
 
-//        val illnessDropdownAdapter = ArrayAdapter(holder.itemView.context, android.R.layout.simple_spinner_dropdown_item, illnessDropdown.map { it.illnessType })
 
-//        holder.illnessOptions.setAdapter(illnessDropdownAdapter)
+       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
 
-
-        // Set up dropdown adapter and populate dropdown values
-        val formAdapter =
-            ArrayAdapter(holder.itemView.context, R.layout.drop_down, formDropDown)
-        holder.formOptions.setAdapter(formAdapter)
-
-        val dosageAdapter =
-            ArrayAdapter(holder.itemView.context, R.layout.drop_down, dosageDropDown)
-        holder.dosageOptions.setAdapter(dosageAdapter)
+        holder.counsellingTypesOption.setSpinnerItems(counsellingTypes.map { it.counsellingType }.toTypedArray())
 
         val frequencyAdapter =
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, frequencyDropDown)
@@ -141,9 +163,14 @@ class PrescriptionAdapter(
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
         holder.unitOption.setAdapter(unitAdapter)
 
-        val routeAdapter =
-            ArrayAdapter(holder.itemView.context, R.layout.drop_down, routeDropdown)
-        holder.routeOption.setAdapter(routeAdapter)
+        formMD.map { it.dropdownForMed }.toTypedArray()
+            ?.let { holder.formOptions.setSpinnerItems(it) }
+
+        holder.formOptions.addTextChangedListener{
+            itemData.form= it.toString()
+            holder.updateResetButtonState()
+            itemChangeListener.onItemChanged()
+        }
 
         holder.formOptions.addTextChangedListener {
             itemData.form = it.toString()
@@ -151,17 +178,6 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
-        holder.medicineOption.addTextChangedListener {
-            itemData.medicine = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
-
-        holder.dosageOptions.addTextChangedListener {
-            itemData.dosage = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
 
         holder.frequencyOptions.addTextChangedListener {
             itemData.frequency = it.toString()
@@ -186,8 +202,8 @@ class PrescriptionAdapter(
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }
-        holder.routeOption.addTextChangedListener {
-            itemData.route = it.toString()
+        holder.counsellingTypesOption.addTextChangedListener {
+            itemData.counsellingTypes = it.toString()
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }

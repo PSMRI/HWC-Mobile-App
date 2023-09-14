@@ -18,45 +18,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/medicine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textPrescriptionHeading"
-        android:hint="Medicine"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputMedicine"
-            android:layout_width="match_parent"
-            android:inputType="text"
-            android:textSize="18sp"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/medicine"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="4dp"-->
+<!--        android:layout_marginRight="4dp"-->
+<!--        android:textSize="18sp"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/textPrescriptionHeading"-->
+<!--        android:hint="Medicine"-->
+<!--        android:textColorHint="#808080"> &lt;!&ndash; Set text color hint to black &ndash;&gt;-->
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/inputMedicine"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:inputType="text"-->
+<!--            android:textSize="18sp"-->
+<!--            android:layout_height="wrap_content" />-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/formDropDown"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/medicine"
-        android:textSize="18sp"
-        android:hint="Form"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/formDropDown"-->
+<!--        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="4dp"-->
+<!--        android:layout_marginRight="4dp"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/medicine"-->
+<!--        android:textSize="18sp"-->
+<!--        android:hint="Form"-->
+<!--        android:textColorHint="#808080"> &lt;!&ndash; Set text color hint to black &ndash;&gt;-->
 
-        <AutoCompleteTextView
-            android:id="@+id/formDropDownVal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textSize="18sp"
-            android:inputType="none" />
-    </com.google.android.material.textfield.TextInputLayout>
+<!--        <AutoCompleteTextView-->
+<!--            android:id="@+id/formDropDownVal"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:textSize="18sp"-->
+<!--            android:inputType="none" />-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dosagesDropDown"
@@ -66,8 +66,9 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/formDropDown"
-        android:hint="Dosage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"
+        android:hint="@string/form_medicine_dosage"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
 
         <AutoCompleteTextView
@@ -76,7 +77,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:textSize="18sp"
-            android:inputType="none" />
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -100,41 +101,69 @@
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/duration"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="4dp"-->
+<!--        android:layout_marginRight="4dp"-->
+<!--        android:textSize="18sp"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown"-->
+<!--        android:hint="Duration"-->
+<!--        android:textColorHint="#808080"> &lt;!&ndash; Set text color hint to black &ndash;&gt;-->
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/inputDuration"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:inputType="number"-->
+<!--            android:textSize="18sp"-->
+<!--            android:layout_height="wrap_content" />-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/duration"
-        android:layout_width="match_parent"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown"
-        android:hint="Duration"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:hint="@string/duration2"
+        android:textColorHint="#808080">
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputDuration"
             android:layout_width="match_parent"
-            android:inputType="number"
-            android:textSize="18sp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:inputType="none"
+            android:textSize="18sp" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/instruction"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/subtractButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/duration"
-        android:hint="Instructions"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputInstruction"
-            android:layout_width="match_parent"
-            android:inputType="text"
-            android:textSize="18sp"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:text="@string/subtractSign"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown" />
+
+
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:layout_marginTop="12dp"
+        android:text="@string/addSign"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/duration"
+        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/unitDropDown"
@@ -144,7 +173,8 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/instruction"
+        android:paddingTop="4dp"
+        app:layout_constraintTop_toBottomOf="@+id/addButton"
         android:hint="Unit"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
 
@@ -158,6 +188,25 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/unitDropDown"
+        android:hint="Instructions"
+        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputInstruction"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:textSize="18sp"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/routeDropDown"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -166,8 +215,8 @@
         android:layout_marginRight="4dp"
         android:textSize="18sp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/unitDropDown"
-        android:hint="Route"
+        app:layout_constraintTop_toBottomOf="@+id/instruction"
+        android:hint="@string/councilling_advice"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
 
         <AutoCompleteTextView
@@ -176,7 +225,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:textSize="18sp"
-            android:inputType="none" />
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

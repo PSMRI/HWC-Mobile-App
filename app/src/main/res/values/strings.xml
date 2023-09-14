@@ -361,4 +361,9 @@
     <string name="url_uat_esanjeevani">https://uat.esanjeevani.in/#/external-provider-signin/</string>
     <string name="something_went_wrong">Something went wrong !</string>
 
+    <string name="subtractSign">-</string>
+    <string name="addSign">+</string>
+    <string name="_1">1</string>
+    <string name="form_medicine_dosage">Form/Medicine/Dosage</string>
+    <string name="councilling_advice">Councilling/ Advice</string>
 </resources>

@@ -74,11 +74,11 @@ class HomeViewModel @Inject constructor(
                     registrarMasterDataRepo.saveOccupationMasterResponseToCache()
                     registrarMasterDataRepo.saveQualificationMasterResponseToCache()
                     registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-//                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-//                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-//                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-//                    malMasterDataRepo.getMasterDataForNurse()
-//                    dataLoadFlagManager.setDataLoaded(true)
+                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+                    malMasterDataRepo.getMasterDataForNurse()
+                    dataLoadFlagManager.setDataLoaded(true)
                     _state.postValue(State.SAVE_SUCCESS)
             } catch (_e: Exception) {
 
