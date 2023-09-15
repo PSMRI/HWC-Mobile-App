@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.app.Application
+import android.location.Location
 import android.os.Build
 import android.text.format.DateFormat
 import android.util.Log
@@ -26,11 +27,16 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
 import java.lang.Exception
+import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -101,9 +107,30 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     val navigateToLoginPage: MutableLiveData<Boolean>
         get() = _navigateToLoginPage
 
-    fun logout() {
+    fun logout(myLocation:Location?,logoutType: String) {
         viewModelScope.launch {
             _navigateToLoginPage.value = true
+            val user = userDao.getLoggedInUser()
+            val lat = myLocation?.latitude
+            val long = myLocation?.longitude
+            val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+            val timeZone = TimeZone.getTimeZone("GMT+0530")
+            val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+            formatter.timeZone = timeZone
+
+            val logoutTimestamp = formatter.format(Date())
+
+            val selectedOutreachProgram = SelectedOutreachProgram(0,
+                user?.userId,
+                user?.userName,
+                null,
+                null,
+                logoutTimestamp,
+                null,
+                lat,
+                long,
+                logoutType)
+            userDao.insertOutreachProgram(selectedOutreachProgram)
             userDao.resetAllUsersLoggedInState()
         }
     }

@@ -2,12 +2,18 @@ package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -33,6 +39,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -62,6 +69,16 @@ class OutreachFragment(
     var image: Bitmap? = null
 
     private lateinit var faceDetector: FirebaseVisionFaceDetector
+
+    private var myLocation: Location? = null
+    private var myInitialLoc: Location? = null
+    private var locationManager: LocationManager? = null
+
+    private var locationListener: LocationListener? = null
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private var loginType: String = ""
+
     private fun requestCameraPermission() {
         requireContext()
         if (ContextCompat.checkSelfPermission(
@@ -136,7 +153,7 @@ class OutreachFragment(
             .build()
 
         faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
-
+        getCurrentLocation()
         return binding.root
     }
 
@@ -210,23 +227,39 @@ class OutreachFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.tag("Outreach username").i(userName);
+        getCurrentLocation()
         binding.imageView.setOnClickListener {
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
+            // call for lat long
+            getCurrentLocation()
 
             val radioGroup = binding.selectProgram
             val selectedOptionId = radioGroup.checkedRadioButtonId
             val selectedOption =
                 view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
-            val timestamp =
-                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+            val timeZone = TimeZone.getTimeZone("GMT+0530")
+            val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+            formatter.timeZone = timeZone
 
+            val timestamp = formatter.format(Date())
+
+            if(myLocation != null){
+                latitude = myLocation!!.latitude
+                longitude = myLocation!!.longitude
+            }
             viewModel.authUser(
                 userName,
                 binding.etPassword.text.toString(),
+                "Out Reach",
                 selectedOption,
-                timestamp
+                timestamp,
+                null,
+                latitude,
+                longitude,
+                null
             )
 
             viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -263,6 +296,99 @@ class OutreachFragment(
         }
 
 
+    }
+
+    private fun getCurrentLocation() {
+        // Check if location permissions are granted
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+            //  Location listener
+            locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    myLocation = location
+                    val distance = calculateDistance(
+                        myLocation!!.latitude,
+                        myLocation!!.longitude,
+                        location.latitude,
+                        location.longitude
+                    )
+
+                    // Check if the user has moved more than 500 meters
+                    if (distance > 500) {
+                        // Show the dialog to ask for an update
+                        showDialog()
+                        Toast.makeText(activity,"Value of distance $distance and location is ${location.longitude} and ${location.latitude}",Toast.LENGTH_LONG).show()
+                    }
+
+                    // Stop listening for location updates once you have the current location
+//                    locationManager?.removeUpdates(this)
+                }
+
+                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+
+                override fun onProviderEnabled(provider: String) {}
+
+                override fun onProviderDisabled(provider: String) {
+                    Toast.makeText(
+                        context, "Location Provider/GPS disabled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val settingsIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(settingsIntent)
+                }
+            }
+
+            // Request location updates
+            locationManager?.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                0,
+                0f,
+                locationListener!!
+            )
+        } else {
+            // Request location permissions if not granted
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        return results[0]
+    }
+    private fun showDialog() {
+        val alertDialogBuilder = AlertDialog.Builder(activity)
+        alertDialogBuilder.setMessage("You have moved more than 2 meters from the fixed point. Do you want to update your location?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                // Handle the user's choice to update location here
+                // You can perform any necessary actions when the user selects "Yes"
+            }
+            .setNegativeButton("No") { _, _ ->
+                // Handle the user's choice not to update location here
+                // You can perform any necessary actions when the user selects "No"
+            }
+
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 123
+        private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
     }
 
 }

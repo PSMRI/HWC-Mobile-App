@@ -40,22 +40,43 @@ class UserRepo @Inject constructor(
         }
     }
 
-    private suspend fun setOutreachProgram(selectedOption: String, timestamp: String) {
-        var userId = userDao.getLoggedInUser()?.userId
+     suspend fun setOutreachProgram(loginType: String?,
+                                      selectedOption: String?,
+                                      loginTimeStamp: String?,
+                                      logoutTimeStamp: String?,
+                                      lat: Double?,
+                                      long: Double?,
+                                      logoutType: String?) {
+         var user = userDao.getLoggedInUser()
+         var userName = user?.userName
+         var userId = user?.userId
         val selectedOutreachProgram = SelectedOutreachProgram(
             userId = userId,
-            option = selectedOption, timestamp = timestamp
-        )
+            userName = userName,
+            loginType = loginType,
+            option = selectedOption,
+            logoutTimestamp = logoutTimeStamp,
+            loginTimestamp = loginTimeStamp,
+            latitude = lat,
+            longitude = long,
+            logoutType = logoutType)
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
 
     suspend fun authenticateUser(
         userName: String,
         password: String,
-        selectedOption: String,
-        timestamp: String
+        loginType: String?,
+        selectedOption: String?,
+        loginTimeStamp: String?,
+        logoutTimeStamp: String?,
+        lat: Double?,
+        long: Double?,
+        logoutType: String?
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
+            //reset all login before another login
+            userDao.resetAllUsersLoggedInState()
             val loggedInUser = userDao.getUser(userName, password)
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
@@ -69,7 +90,14 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    setOutreachProgram(selectedOption, timestamp)
+                    setOutreachProgram(
+                        loginType,
+                        selectedOption,
+                        loginTimeStamp,
+                        logoutTimeStamp,
+                        lat,
+                        long,
+                        logoutType)
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -86,7 +114,13 @@ class UserRepo @Inject constructor(
                         userDao.insert(user!!.asCacheModel())
                     }
                     preferenceDao.registerUser(user!!)
-                    setOutreachProgram(selectedOption, timestamp)
+                    setOutreachProgram(   loginType,
+                        selectedOption,
+                        loginTimeStamp,
+                        logoutTimeStamp,
+                        lat,
+                        long,
+                        logoutType)
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }
@@ -316,6 +350,15 @@ class UserRepo @Inject constructor(
 
     fun getFPDataFromLocalDB(): LiveData<List<FingerPrint>>{
         return  userDao.getAllFpData()
+    }
+
+    suspend fun updateLoginStatus(userName: String){
+        try {
+            userDao.resetAllUsersLoggedInState()
+            userDao.updateLoggedInStatus(userName)
+        } catch (e: Exception){
+            Timber.d("Error in updating login status $e")
+        }
     }
 
 }
