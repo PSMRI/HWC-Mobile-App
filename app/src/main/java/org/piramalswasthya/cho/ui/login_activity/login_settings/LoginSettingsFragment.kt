@@ -231,6 +231,7 @@ class LoginSettingsFragment : Fragment() {
         binding.getGPSLoc.setOnClickListener {
             getCurrentLocation()
             if(myInitialLoc != null){
+                Log.i("Current Location is","${myInitialLoc?.longitude}")
                 binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
                 binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
             }
@@ -406,6 +407,7 @@ class LoginSettingsFragment : Fragment() {
         return results[0]
     }
     private fun showDialog() {
+        var alertDialog: AlertDialog? = null
         val alertDialogBuilder = AlertDialog.Builder(activity)
         alertDialogBuilder.setMessage("You have moved more than 2 meters from the fixed point. Do you want to update your location?")
             .setCancelable(false)
@@ -414,11 +416,10 @@ class LoginSettingsFragment : Fragment() {
                 // You can perform any necessary actions when the user selects "Yes"
             }
             .setNegativeButton("No") { _, _ ->
-                // Handle the user's choice not to update location here
-                // You can perform any necessary actions when the user selects "No"
+               alertDialog!!.dismiss()
             }
 
-        val alertDialog = alertDialogBuilder.create()
+        alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
 

@@ -1,14 +1,26 @@
 package org.piramalswasthya.cho.ui.home_activity
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.provider.Settings
+import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -24,6 +36,8 @@ import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment
+import java.util.Calendar
 import javax.inject.Inject
 
 
@@ -42,7 +56,14 @@ class HomeActivity : AppCompatActivity() {
     private val viewModel: HomeActivityViewModel by viewModels()
     @Inject
     lateinit var prefDao: PreferenceDao
+
+    private var myLocation: Location? = null
+    private var myInitialLoc: Location? = null
+    private var locationManager: LocationManager? = null
+
+    private var locationListener: LocationListener? = null
     val patientDetails = PatientDetails()
+    private val handler = Handler()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +73,7 @@ class HomeActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
         navController = navHostFragment.navController
         viewModel.updateLastSyncTimestamp()
-
+        getCurrentLocation()
         setUpNavHeader()
 
         drawerLayout = binding.drawerLayout
@@ -106,12 +127,31 @@ class HomeActivity : AppCompatActivity() {
         var adapter = PatientListAdapter(this, benificiaryList)
 
 
+        // Set the desired time (hour and minute) when you want the method to run
+        val desiredHour = 17 // Change this to your desired hour (0-23)
+        val desiredMinute = 0 // Change this to your desired minute (0-59)
+
+        // Get the current time
+        val currentTime = Calendar.getInstance()
+        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = currentTime.get(Calendar.MINUTE)
+
+        // Calculate the delay until the desired time
+        val delayMillis = calculateDelayMillis(currentHour, currentMinute, desiredHour, desiredMinute)
+
+        // Schedule the method to run after the delay
+        handler.postDelayed({
+            // Call your method here
+            myMethodToRunAtSpecificTime()
+
+        }, delayMillis)
+
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
             .setMessage(getString(R.string.please_confirm_to_logout))
             .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
-                viewModel.logout()
+                viewModel.logout(myLocation,"By User")
                 dialog.dismiss()
             }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
 
@@ -146,4 +186,86 @@ class HomeActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+    private fun getCurrentLocation() {
+        // Check if location permissions are granted
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+            //  Location listener
+            locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    myLocation = location
+                    Log.i("Location From home is", "${myLocation!!.longitude}")
+                }
+
+                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+
+                override fun onProviderEnabled(provider: String) {}
+
+                override fun onProviderDisabled(provider: String) {
+                    Toast.makeText(
+                        applicationContext, "Location Provider/GPS disabled",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val settingsIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(settingsIntent)
+                }
+            }
+
+            // Request location updates
+            locationManager?.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                0,
+                0f,
+                locationListener!!
+            )
+        } else {
+            // Request location permissions if not granted
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 123
+        private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
+    }
+
+
+
+
+private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.HOUR_OF_DAY, desiredHour)
+    calendar.set(Calendar.MINUTE, desiredMinute)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    val desiredTimeMillis = calendar.timeInMillis
+    val currentTimeMillis = Calendar.getInstance().timeInMillis
+
+    if (currentTimeMillis > desiredTimeMillis) {
+        // The desired time is already in the past, schedule it for the next day
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+    }
+
+    // Calculate the delay in milliseconds
+    return calendar.timeInMillis - currentTimeMillis
+}
+
+private fun myMethodToRunAtSpecificTime() {
+    // Your method code here
+    viewModel.logout(myLocation,"By System")
+}
 }

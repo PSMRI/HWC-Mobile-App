@@ -73,6 +73,10 @@ interface UserDao {
 
     @Query("select * from FP_DATA")
     fun getAllFpData(): LiveData<List<FingerPrint>>
+    @Query("select * from user where username = :username")
+    suspend fun getUserByName(username: String): UserCache?
+    @Query("update user set logged_in = 1 where username = :username")
+    suspend fun updateLoggedInStatus(username: String)
 
 
 }

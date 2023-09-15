@@ -25,9 +25,27 @@ data class SelectedOutreachProgram(
     @ColumnInfo(name = "user_id")
     val userId: Int?,
 
-    @ColumnInfo(name = "option")
-    val option: String,
+    @ColumnInfo(name = "user_name")
+    val userName: String?,
 
-    @ColumnInfo(name = "timestamp")
-    val timestamp: String
+    @ColumnInfo(name = "login_type")
+    val loginType: String?,
+
+    @ColumnInfo(name = "option")
+    val option: String?,
+
+    @ColumnInfo(name = "logoutTimestamp")
+    val logoutTimestamp: String?,
+
+    @ColumnInfo(name = "loginTimestamp")
+    val loginTimestamp: String?,
+
+    @ColumnInfo(name = "latitude")
+    val latitude: Double?,
+
+    @ColumnInfo(name = "longitude")
+    val longitude: Double?,
+
+    @ColumnInfo(name = "logout_type")
+    val logoutType: String?
 )

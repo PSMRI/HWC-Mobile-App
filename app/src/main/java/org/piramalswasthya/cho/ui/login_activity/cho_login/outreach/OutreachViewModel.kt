@@ -85,11 +85,27 @@ class OutreachViewModel @Inject constructor(
     fun authUser(
         username: String,
         password: String,
+        loginType: String,
         selectedOption: String,
-        timestamp: String
+        loginTimeStamp: String,
+        logoutTimeStamp: String?,
+        lat: Double?,
+        long: Double?,
+        logoutType: String?
     ) {
         viewModelScope.launch {
-            _state.value = userRepo.authenticateUser(username, password,selectedOption,timestamp)
+            _state.value = userRepo.authenticateUser(
+                username,
+                password,
+                loginType,
+                selectedOption,
+                loginTimeStamp,
+                logoutTimeStamp,
+                lat,
+                long,
+                logoutType)
+//            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
+//            _state.value = State.SUCCESS
         }
     }
     fun rememberUser(username: String) {
