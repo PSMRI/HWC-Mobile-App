@@ -118,9 +118,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
     private val speechToTextLauncherForPhoneNumber = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNumeric()) {
+        if (result.isNotBlank()) {
             binding.phoneNo.setText(result)
-
         }
     }
     fun watchAllFields(){

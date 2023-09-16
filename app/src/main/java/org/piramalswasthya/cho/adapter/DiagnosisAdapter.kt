@@ -4,22 +4,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import org.piramalswasthya.cho.utils.setBoxColor
+import androidx.compose.ui.res.booleanResource
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.DiagnosisValue
+import org.piramalswasthya.cho.utils.setBoxColor
 
 class DiagnosisAdapter(
     private val itemList: MutableList<DiagnosisValue>,
     private val itemChangeListener: RecyclerViewItemChangeListenerD
 ) : RecyclerView.Adapter<DiagnosisAdapter.ViewHolder>(){
-
+    private var booleanVal:Boolean = false
     private val viewHolders = mutableListOf<DiagnosisAdapter.ViewHolder>()
 
     inner class ViewHolder(itemView: View):RecyclerView.ViewHolder(itemView) {
         val diagnosisInput: TextInputEditText = itemView.findViewById(R.id.inputDignosis)
-
+        val diagnosisInpuTextt: TextInputLayout = itemView.findViewById(R.id.diagnosis)
         val resetButton: Button = itemView.findViewById(R.id.resetButton)
         val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
 
@@ -80,7 +84,16 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     holder.resetButton.isEnabled = false
 
     holder.diagnosisInput.addTextChangedListener{
-        itemData.diagnosis = it.toString()
+         it?.toString()?.let{
+             itemData.diagnosis =  it
+        }
+        booleanVal = itemData.diagnosis.isNotEmpty()
+        if(!booleanVal){
+            holder.diagnosisInpuTextt.error = "fill"
+        }
+        else{
+            holder.diagnosisInpuTextt.error=null
+        }
         holder.updateResetButtonState()
         itemChangeListener.onItemChanged()
     }
@@ -90,6 +103,10 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
     // Update the visibility of the "Reset" button for all items
     holder.updateResetButtonState()
+
+    fun isFieldFilled():Boolean{
+        return booleanVal
+    }
 }
 
 
@@ -103,7 +120,17 @@ override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
 override fun getItemCount(): Int = itemList.size
 
+
+    fun setError():Int{
+        this.itemList.forEachIndexed {i , it ->
+            if(it.diagnosis.isNullOrEmpty())
+                return i
+        }
+        return -1
+    }
 }
+
 interface  RecyclerViewItemChangeListenerD {
     fun onItemChanged()
+
 }

@@ -35,6 +35,7 @@ class DropdownConst {
         )
         val medicationRouteList = mutableListOf("Ears","Eyes/Ear","Eyes","ID","IM","IV","Local application","Nostrils","Oral","Rectal")
         val unitVal = mutableListOf("Day","Month","Week")
+        val instructionDropdownList = mutableListOf("After Food","Before Food")
     }
 
 }

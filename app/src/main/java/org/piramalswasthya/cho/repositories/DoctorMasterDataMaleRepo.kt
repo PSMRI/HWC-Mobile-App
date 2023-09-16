@@ -8,14 +8,11 @@ import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
-import org.piramalswasthya.cho.database.room.dao.UserDao_Impl
-import org.piramalswasthya.cho.model.AssociateAilmentsHistory
-import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
 import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.ItemMasterList
-import org.piramalswasthya.cho.model.TobaccoDropdown
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.lang.Exception
@@ -78,7 +75,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
                 val drugFrequencyMasterList = MasterDataListConverter.toDrugFrequencyMasterList(drugFrequencyMasterListString.toString())
                 saveDrugFrequencyMasterListToCache(drugFrequencyMasterList)
 
-                val counsellingTypesListString = jsonObject.getJSONArray("counsellingTypes")
+                val counsellingTypesListString = jsonObject.getJSONArray("counsellingProvided")
                 val counsellingTypesMasterList = MasterDataListConverter.toCounsellingTypeMasterList(counsellingTypesListString.toString())
                 saveCounsellingTypesMasterListToCache(counsellingTypesMasterList)
 
@@ -100,9 +97,9 @@ class DoctorMasterDataMaleRepo @Inject constructor(
         }
     }
 
-    private suspend fun saveCounsellingTypesMasterListToCache(counsellingTypes: List<CounsellingTypes>){
+    private suspend fun saveCounsellingTypesMasterListToCache(counsellingTypes: List<CounsellingProvided>){
         try{
-            counsellingTypes.forEach { counselling:CounsellingTypes ->
+            counsellingTypes.forEach { counselling:CounsellingProvided ->
                 withContext(Dispatchers.IO){
                     healthCenterDao.insertCounsellingTypeMasterList(counselling)
                 }
@@ -151,8 +148,8 @@ class DoctorMasterDataMaleRepo @Inject constructor(
         return healthCenterDao.getAllItemMasterList()
     }
 
-    fun getAllCounsellingList(): LiveData<List<CounsellingTypes>> {
-        return healthCenterDao.getAllCounsellingType()
+    fun getAllCounsellingList(): LiveData<List<CounsellingProvided>> {
+        return healthCenterDao.getAllCounsellingProvided()
     }
 
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {

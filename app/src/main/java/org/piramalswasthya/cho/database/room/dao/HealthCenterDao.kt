@@ -5,7 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
 import org.piramalswasthya.cho.model.HigherHealthCenter
@@ -28,7 +28,7 @@ interface HealthCenterDao {
     suspend fun insertDrugFrequencyMasterList(drugFrequencyMaster: DrugFrequencyMaster)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCounsellingTypeMasterList(counsellingTypes: CounsellingTypes)
+    suspend fun insertCounsellingTypeMasterList(counsellingProvided: CounsellingProvided)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDrugFormMasterList(drugFormMaster: DrugFormMaster)
@@ -39,6 +39,6 @@ interface HealthCenterDao {
     @Query("SELECT * from Item_Master_List")
      fun getAllItemMasterList():LiveData<List<ItemMasterList>>
 
-    @Query("SELECT * from Counselling_Types")
-    fun getAllCounsellingType():LiveData<List<CounsellingTypes>>
+    @Query("SELECT * from Counselling_Provided")
+    fun getAllCounsellingProvided():LiveData<List<CounsellingProvided>>
 }

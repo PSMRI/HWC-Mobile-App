@@ -14,6 +14,5 @@ data class PrescriptionCaseRecord(
     @ColumnInfo(name = "frequency") val frequency: String,
     @ColumnInfo(name = "duration") val duration: String,
     @ColumnInfo(name = "instruction") val instruciton: String?,
-    @ColumnInfo(name = "unit") val unit: String,
-    @ColumnInfo(name = "CounsellingTypes") val counsellingTypes:  String?
+    @ColumnInfo(name = "unit") val unit: String
 )

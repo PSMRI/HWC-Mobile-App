@@ -168,7 +168,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
-        patientId = requireArguments().getString("patientId")!!
+        if(requireArguments().getString("patientId") != null){
+            patientId = requireArguments().getString("patientId")!!
+        }
+
 
         binding.subCatInput.threshold = 1
 
@@ -371,6 +374,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         setVisitMasterData()
 
+//        findNavController().navigate(
+//            R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
+//        )
 
         if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
@@ -389,10 +395,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 Toast.LENGTH_SHORT
             ).show()
         }
-
     }
     private fun setVisitMasterData() {
-        val masterDb = MasterDb(patientId)
+        val masterDb = MasterDb("")
         val visitMasterDb = VisitMasterDb()
 
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
@@ -403,7 +408,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         visitMasterDb.category = selectedCategoryRadioButton?.text.toString()
         visitMasterDb.reason = selectedReasonRadioButton?.text.toString()
-Log.d("aryan","   ${masterDb?.visitMasterDb?.chiefComplaint?.size}")
+        Log.d("aryan","   ${masterDb?.visitMasterDb?.chiefComplaint?.size}")
         val subCategory = binding.subCatInput.text.toString()
         visitMasterDb.subCategory = subCategory
 

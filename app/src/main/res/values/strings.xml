@@ -366,4 +366,11 @@
     <string name="_1">1</string>
     <string name="form_medicine_dosage">Form/Medicine/Dosage</string>
     <string name="councilling_advice">Councilling/ Advice</string>
+    <string name="refer">Refer</string>
+    <string name="instruction">Instruction</string>
+    <string name="Unit">Unit</string>
+    <string name="Frequency">Frequency</string>
+    <string name="Prescription">Prescription</string>
+    <string name="dataSavedCaseRecord">Case Record Data Saved</string>
+    <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
 </resources>
