@@ -11,5 +11,7 @@ data class InvestigationCaseRecord(
     @PrimaryKey
     var investigationCaseRecordId:String,
     @ColumnInfo(name = "testName") val testName: String?,
-    @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?
+    @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?,
+    @ColumnInfo(name = "CounsellingTypes") val counsellingTypes:  String?,
+    @ColumnInfo(name = "refer") val refer:  String?
 )

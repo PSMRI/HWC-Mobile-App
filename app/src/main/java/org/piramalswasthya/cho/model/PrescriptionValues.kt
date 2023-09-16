@@ -7,6 +7,5 @@ data class PrescriptionValues(
     var frequency: String = "",
     var duration: String = "",
     var instruction: String = "",
-    var unit: String = "",
-    var counsellingTypes: String = ""
+    var unit: String = ""
 ):Serializable

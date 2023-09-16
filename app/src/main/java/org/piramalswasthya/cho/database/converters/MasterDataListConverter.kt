@@ -11,7 +11,7 @@ import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CommunityMaster
 import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
-import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.DrugFormMaster
@@ -223,8 +223,8 @@ object MasterDataListConverter {
     }
 
     @TypeConverter
-    fun toCounsellingTypeMasterList(value: String?):List<CounsellingTypes>{
-        val listType = object :TypeToken<List<CounsellingTypes?>?>(){}.type
+    fun toCounsellingTypeMasterList(value: String?):List<CounsellingProvided>{
+        val listType = object :TypeToken<List<CounsellingProvided?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
     @TypeConverter

@@ -9,20 +9,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.model.ChiefComplaintDB
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
-import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
-import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
-import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
-import org.piramalswasthya.cho.repositories.HistoryRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
@@ -40,20 +36,29 @@ class CaseRecordViewModel @Inject constructor(
 
     ): ViewModel() {
 
+    private val _isClickedSS=MutableLiveData<Boolean>(false)
+
+    val isClickedSS: MutableLiveData<Boolean>
+        get() = _isClickedSS
+
+    private val _diagnosisVal=MutableLiveData<Boolean>(false)
+    val diagnosisVal: MutableLiveData<Boolean>
+        get() = _diagnosisVal
+
     private var _formMedicineDosage: LiveData<List<ItemMasterList>>
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
 
-    private var _counsellingTypes: LiveData<List<CounsellingTypes>>
-    val counsellingTypes: LiveData<List<CounsellingTypes>>
-        get() = _counsellingTypes
+    private var _counsellingProvided: LiveData<List<CounsellingProvided>>
+    val counsellingProvided: LiveData<List<CounsellingProvided>>
+        get() = _counsellingProvided
 
     private var _procedureDropdown: LiveData<List<ProceduresMasterData>>
     val procedureDropdown: LiveData<List<ProceduresMasterData>>
         get() = _procedureDropdown
 
     init {
-        _counsellingTypes = MutableLiveData()
+        _counsellingProvided = MutableLiveData()
         getCounsellingTypes()
         _formMedicineDosage = MutableLiveData()
         getFormMaster()
@@ -63,7 +68,7 @@ class CaseRecordViewModel @Inject constructor(
     }
     private fun getCounsellingTypes(){
         try{
-            _counsellingTypes = doctorMasterDataMaleRepo.getAllCounsellingList()
+            _counsellingProvided = doctorMasterDataMaleRepo.getAllCounsellingList()
 
         } catch (e: java.lang.Exception){
             Timber.d("Error in getFormMaster $e")

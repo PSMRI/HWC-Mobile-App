@@ -3,10 +3,13 @@ package org.piramalswasthya.cho.ui.commons.case_record
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -16,12 +19,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.internal.notify
-import org.hl7.fhir.r4.model.Annotation
-import org.hl7.fhir.r4.model.CodeableConcept
-import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.Condition
-import org.hl7.fhir.r4.model.Reference
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
@@ -29,7 +26,7 @@ import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
-import org.piramalswasthya.cho.model.CounsellingTypes
+import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
@@ -40,15 +37,12 @@ import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
-import org.piramalswasthya.cho.ui.commons.DropdownConst
-import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalTestList
-import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFormsList
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
-import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationRouteList
-import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.setBoxColor
 import java.util.Arrays
 
 @AndroidEntryPoint
@@ -68,12 +62,24 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
+    private val instructionDropdown= instructionDropdownList
     private val formMListVal = ArrayList<ItemMasterList>()
-    private val counsellingTypes = ArrayList<CounsellingTypes>()
+    private val counsellingTypes = ArrayList<CounsellingProvided>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
     private val unitListVal = unitVal
     private var masterDb: MasterDb? = null
+    private lateinit var referDropdown: AutoCompleteTextView
+    private val referDropdownVal = arrayOf(
+                "Select none",
+                "CHC",
+                "FRU",
+                "Other",
+                "RH",
+                "SDH",
+                "UPHC",
+                "PHC"
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -86,6 +92,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         super.onViewCreated(view, savedInstanceState)
         familyM = binding.testName
         selectF = binding.selectF
+        referDropdown = binding.referDropdownText
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
 
@@ -94,7 +101,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             formMListVal.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
-        viewModel.counsellingTypes.observe(viewLifecycleOwner) { f ->
+        viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
             counsellingTypes.addAll(f)
             pAdapter.notifyDataSetChanged()
@@ -106,7 +113,25 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 showDialogWithFamilyMembers(procedureDropdown)
             }
         }
+//        val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+//        binding.referDropdownText.setAdapter(referAdapter)
+//
+//        viewModel.counsellingTypes.observe(viewLifecycleOwner){c->
+//            counsellingTypesAdapter.clear()
+//            counsellingTypesAdapter.addAll(c.map{it.counsellingType})
+//            counsellingTypesAdapter.notifyDataSetChanged()
+//        }
+        val ageAAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, referDropdownVal)
+        referDropdown.setAdapter(ageAAdapter)
 
+        val counsellingTypesAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.routeDropDownVal.setAdapter(counsellingTypesAdapter)
+
+        viewModel.counsellingProvided.observe(viewLifecycleOwner){ c->
+            counsellingTypesAdapter.clear()
+            counsellingTypesAdapter.addAll(c.map{it.name})
+            counsellingTypesAdapter.notifyDataSetChanged()
+        }
 
         dAdapter = DiagnosisAdapter(
             itemListD,
@@ -133,7 +158,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             formMListVal,
             frequencyListVal,
             unitListVal,
-            counsellingTypes,
+            instructionDropdown,
             object : RecyclerViewItemChangeListenersP {
                 override fun onItemChanged() {
                     binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
@@ -152,7 +177,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-
     }
 
     private fun showDialogWithFamilyMembers(proceduresMasterData: List<ProceduresMasterData>) {
@@ -220,10 +244,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         val testName = binding.selectF.text.toString()
         val externalInvestigation = binding.inputExternalI.text.toString()
+        val counsellingTypesVal = binding.routeDropDownVal.text.toString()
+        val referVal = binding.referDropdownText.text.toString()
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = "33",
             testName = testName,
-            externalInvestigation = externalInvestigation
+            externalInvestigation = externalInvestigation,
+            counsellingTypes = counsellingTypesVal,
+            refer = referVal
         )
         viewModel.saveInvestigationToCache(investigation)
         //save investigation
@@ -231,22 +259,13 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val prescriptionData = itemListP[i]
             var freq = ""
             if (prescriptionData.form.isNotEmpty()||prescriptionData.frequency.isNotEmpty()||prescriptionData.unit.isNotEmpty()) {
-                if(prescriptionData.frequency.equals("1-0-0")||prescriptionData.frequency.equals("0-1-0")||prescriptionData.frequency.equals("0-0-1"))
-                    freq = "Once Daily"
-                if(prescriptionData.frequency.equals("1-1-0")||prescriptionData.frequency.equals("0-1-1")||prescriptionData.frequency.equals("1-0-1"))
-                    freq = "Twice Daily"
-                if(prescriptionData.frequency.equals("1-1-1"))
-                    freq = "Thrice Daily"
-                if(prescriptionData.frequency.equals("1-1-1-1"))
-                    freq = "Four Times in a Day"
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = "33+${i}",
                     form = prescriptionData.form,
-                    frequency = freq ,
+                    frequency = prescriptionData.frequency ,
                     duration = prescriptionData.duration,
                     instruciton = prescriptionData.instruction,
-                    unit = prescriptionData.unit,
-                    counsellingTypes = prescriptionData.counsellingTypes
+                    unit = prescriptionData.unit
                     )
                 viewModel.savePrescriptionToCache(pres)
             }
@@ -302,11 +321,26 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         findNavController().navigateUp()
     }
     fun navigateNext(){
+
         addVisitRecordDataToCache()
         addVitalsDataToCache()
         addCaseRecordDataToCatche()
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
+        val validate = dAdapter.setError()
+        if(validate==-1) {
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.dataSavedCaseRecord),
+                Toast.LENGTH_SHORT
+            ).show()
+            val intent = Intent(context, HomeActivity::class.java)
+            startActivity(intent)
+        }else{
+            binding.diagnosisExtra.scrollToPosition(validate)
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.diagnosisCannotBeEmpty),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
-
 }
