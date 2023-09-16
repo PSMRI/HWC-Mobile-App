@@ -5,6 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.GenderMaster
@@ -20,10 +22,15 @@ interface PatientDao {
     @Transaction
     @Query("DELETE FROM PATIENT WHERE patientID = :patientID")
     suspend fun deletePatient(patientID : String)
-
+    @Update
+    suspend fun updatePatient(patient: Patient)
     @Transaction
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
     suspend fun getPatientList() : List<PatientDisplay>
+
+//    @Transaction
+//    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
+//    suspend fun getPatientListFlow() : Flow<List<PatientDisplay>>
 
     @Transaction
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.syncState =:unsynced ")
@@ -42,5 +49,7 @@ interface PatientDao {
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
     suspend fun updatePatientSyncFailed(synced: SyncState = SyncState.UNSYNCED, patientID: String) : Int
+    @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
+    suspend fun getBen(benId: Long): Patient?
 
 }

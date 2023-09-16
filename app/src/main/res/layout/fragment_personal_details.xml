@@ -9,18 +9,22 @@
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="69dp"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.SearchView
+
+        <EditText
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/searchview_background"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:drawableStart="@drawable/ic_search"
             android:padding="8dp"
-            app:iconifiedByDefault="false"
-            android:paddingTop="10dp"
-            app:queryHint="@string/query_hint_patient_search" />
-
+            android:singleLine="true"
+            android:drawablePadding="@dimen/padding_normal"
+            android:hint="@string/query_hint_patient_search"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <include
             android:id="@+id/patient_list_container"

@@ -231,6 +231,8 @@ interface AmritApiService {
 //
     @POST("fhirapi-v1.0/healthIDWithUID/createHealthIDWithUID")
     suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
+    @POST("fhirapi-v1.0/healthID/getBenhealthID")
+    suspend fun getBenHealthID(@Body getBenHealthIdRequest: GetBenHealthIdRequest): Response<ResponseBody>
 
     @POST("fhirapi-v1.0/healthID/mapHealthIDToBeneficiary")
     suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>

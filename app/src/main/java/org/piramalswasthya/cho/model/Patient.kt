@@ -141,6 +141,8 @@ data class Patient (
 
     @ColumnInfo(name="beneficiaryRegID")
     var beneficiaryRegID: Long? = null,
+    @Embedded(prefix = "abha_")
+    var healthIdDetails: BenHealthIdDetails? = null,
 
 ) : Serializable
 
@@ -193,7 +195,10 @@ data class PatientDisplay(
     )
     val religion: ReligionMaster?,
 )
-
+data class BenHealthIdDetails(
+    var healthId: String? = null,
+    var healthIdNumber: String? = null
+)
 @JsonClass(generateAdapter = true)
 data class PatientNetwork(
     val accountNo: String?,
