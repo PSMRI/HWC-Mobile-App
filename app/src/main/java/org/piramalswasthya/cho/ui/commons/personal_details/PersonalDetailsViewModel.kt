@@ -1,41 +1,17 @@
 package org.piramalswasthya.cho.ui.commons.personal_details
 
-import android.app.Application
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.android.fhir.FhirEngine
-import com.google.android.fhir.search.Order
-import com.google.android.fhir.search.StringFilterModifier
-import com.google.android.fhir.search.count
-import com.google.android.fhir.search.search
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Patient
 
-import org.piramalswasthya.cho.model.Patient as patient
-import org.hl7.fhir.r4.model.RiskAssessment
-import org.piramalswasthya.cho.database.room.InAppDb
-import org.piramalswasthya.cho.database.room.dao.UserDao
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.PatientDisplay
-import org.piramalswasthya.cho.repositories.LanguageRepo
-import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
-import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
-import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
-import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
-import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationViewModel
-import timber.log.Timber
+import org.piramalswasthya.cho.utils.filterBenList
 import javax.inject.Inject
 
 /**
@@ -47,9 +23,21 @@ import javax.inject.Inject
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
 ) : ViewModel() {
-
     var patientList = listOf<PatientDisplay>()
+    private val _abha = MutableLiveData<String?>()
+    val abha: LiveData<String?>
+        get() = _abha
 
+    private val _benId = MutableLiveData<Long?>()
+    val benId: LiveData<Long?>
+        get() = _benId
+
+    private val _benRegId = MutableLiveData<Long?>()
+    val benRegId: LiveData<Long?>
+        get() = _benRegId
+    fun filterPatientList(text: String):List<PatientDisplay> {
+        return filterBenList(patientList,text)
+    }
     enum class NetworkState {
         IDLE,
         LOADING,
@@ -68,9 +56,35 @@ class PersonalDetailsViewModel @Inject constructor(
     fun getPatientList() {
         viewModelScope.launch {
             _patientObserver.value = NetworkState.LOADING
-            patientList = patientRepo.getPatientList();
+            patientList = patientRepo.getPatientList()
+
             _patientObserver.value = NetworkState.SUCCESS
         }
     }
+
+
+
+    fun fetchAbha(benId: Long) {
+        _abha.value = null
+        _benRegId.value = null
+        _benId.value = benId
+        viewModelScope.launch {
+            patientRepo.getBenFromId(benId)?.let {
+                val result = it.beneficiaryRegID?.let { it1 -> patientRepo.getBeneficiaryWithId(it1) }
+                if (result != null) {
+                    _abha.value = result.healthIdNumber
+                    it.healthIdDetails = BenHealthIdDetails(result.healthId, result.healthIdNumber)
+                    patientRepo.updateRecord(it)
+                } else {
+                    _benRegId.value = it.beneficiaryRegID
+                }
+            }
+        }
+    }
+
+    fun resetBenRegId() {
+        _benRegId.value = null
+    }
+
 
 }

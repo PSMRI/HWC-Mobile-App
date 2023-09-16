@@ -2,6 +2,9 @@ package org.piramalswasthya.cho.repositories
 
 import android.util.Log
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
@@ -11,8 +14,10 @@ import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.DistrictList
+import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.StateList
@@ -32,7 +37,16 @@ class PatientRepo  @Inject constructor(
     suspend fun insertPatient(patient: Patient) {
         patientDao.insertPatient(patient)
     }
-
+    suspend fun getBenFromId(benId: Long): Patient? {
+        return withContext(Dispatchers.IO) {
+            patientDao.getBen(benId)
+        }
+    }
+    suspend fun updateRecord(it: Patient) {
+        withContext(Dispatchers.IO) {
+            patientDao.updatePatient(it)
+        }
+    }
     suspend fun updatePatientSyncing(patient: Patient) {
         patientDao.updatePatientSyncing(SyncState.SYNCING, patient.patientID)
     }
@@ -48,6 +62,9 @@ class PatientRepo  @Inject constructor(
     suspend fun getPatientList() : List<PatientDisplay>{
         return patientDao.getPatientList()
     }
+//    suspend fun getPatientListFlow() : Flow<List<PatientDisplay>> {
+//        return patientDao.getPatientListFlow()
+//    }
 
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
@@ -55,34 +72,19 @@ class PatientRepo  @Inject constructor(
             val patNet = PatientNetwork(patient, user)
             val response = apiService.saveBenificiaryDetails(patNet)
             val responseBody = response.body()?.string()
-
-            val result = Gson().fromJson(responseBody!!, BenificiarySaveResponse::class.java)
-            NetworkResult.Success(result)
-
-//            refreshTokenInterceptor(
-//                responseBody = responseBody,
-//                onSuccess = {
-//                    val beneficiaryID = responseBody.let { JSONObject(it).getLong("beneficiaryID") }
-//                    val beneficiaryRegID = responseBody.let { JSONObject(it).getLong("beneficiaryRegID") }
-//                    val benID = beneficiaryID;
-//                    val benRegId = beneficiaryRegID;
-//                    Log.i("beneficiaryID", benID.toString())
-//                    Log.i("beneficiaryRegID", benRegId.toString())
-//
-////                    val result = Gson().fromJson(data, StateList::class.java)
-////                    val data = responseBody.let { JSONObject(it).getString("data") }
-////                    val resp = responseBody
-//                    val result = Gson().fromJson(responseBody!!, BenificiarySaveResponse::class.java)
-////                    Log.i("fdgdgsdfgsfd", responseBody ?: "")
-//////                    val result = BenificiarySaveResponse(" ")
-//                    NetworkResult.Success(result)
-//                },
-//                onTokenExpired = {
-//                    val user = userRepo.getLoggedInUser()!!
-//                    userRepo.refreshTokenTmc(user.userName, user.password)
-//                    registerNewPatient(patient, user)
-//                },
-//            )
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+                    NetworkResult.Success(result)
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    registerNewPatient(patient, user)
+                },
+            )
         }
 
     }
@@ -113,6 +115,52 @@ class PatientRepo  @Inject constructor(
         return true;
 
     }
+
+    suspend fun getBeneficiaryWithId(benRegId: Long): BenHealthDetails? {
+        try {
+            val response = apiService
+                .getBenHealthID(GetBenHealthIdRequest(benRegId, null))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+
+                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+                    200 -> {
+                        val jsonObj = JSONObject(responseBody)
+                        val data = jsonObj.getJSONObject("data").getJSONArray("BenHealthDetails")
+                            .toString()
+                        val bens = Gson().fromJson(data, Array<BenHealthDetails>::class.java)
+                        return if (bens.isNotEmpty()) {
+                            bens.last()
+                        } else {
+                            null
+                        }
+                    }
+
+                    5000, 5002 -> {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")
+                        ) {
+                            val user = userRepo.getLoggedInUser()!!
+                            userRepo.refreshTokenTmc(user.userName, user.password)
+                            return getBeneficiaryWithId(benRegId)
+                        } else {
+                            NetworkResult.Error(
+                                0,
+                                JSONObject(responseBody).getString("errorMessage")
+                            )
+                        }
+                    }
+
+                    else -> {
+                        NetworkResult.Error(0, responseBody.toString())
+                    }
+                }
+            }
+        } catch (_: java.lang.Exception) {
+        }
+        return null
+    }
+
 
 
 

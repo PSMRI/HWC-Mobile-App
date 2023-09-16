@@ -28,7 +28,7 @@
     <string name="health_mela">Health Mela</string>
     <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
     <string name="add_patient">Add Patient\n</string>
-    <string name="query_hint_patient_search">Find by Patient Name</string>
+    <string name="query_hint_patient_search">Search</string>
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
     <string name="personal_details">Personal Details</string>
@@ -360,7 +360,9 @@
     <string name="duration_tv">Duration</string>
     <string name="url_uat_esanjeevani">https://uat.esanjeevani.in/#/external-provider-signin/</string>
     <string name="something_went_wrong">Something went wrong !</string>
-
+    <string name="beneficiary_abha_number">Beneficiary ABHA Number.</string>
+    <string name="no_records_found">No Records Found!!</string>
+    <string name="patients_cnt_display">" Patients"</string>
     <string name="subtractSign">-</string>
     <string name="addSign">+</string>
     <string name="_1">1</string>
@@ -373,4 +375,6 @@
     <string name="Prescription">Prescription</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
+    <string name="note_ben_reg">Note!</string>
+    <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
 </resources>

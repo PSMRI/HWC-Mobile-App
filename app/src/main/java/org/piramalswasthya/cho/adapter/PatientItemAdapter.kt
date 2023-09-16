@@ -10,7 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.startActivity
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -20,10 +23,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 import timber.log.Timber
 import java.security.MessageDigest
@@ -32,8 +39,10 @@ import java.security.MessageDigest
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
     private val context: Context,
-    private val items: List<PatientDisplay>,
-    private val onItemClicked: (PatientDisplay) -> Unit
+    private var items: List<PatientDisplay>,
+    private val onItemClicked: (PatientDisplay) -> Unit,
+    private val clickListener: BenClickListener? = null,
+    private val showAbha: Boolean = false,
 ) : RecyclerView.Adapter<PatientItemAdapter.ItemViewHolder>() {
     private var usernameEs : String = ""
     private var passwordEs : String = ""
@@ -41,16 +50,20 @@ class PatientItemAdapter(
     private var patientId : String = ""
     private var network : Boolean = false
     private lateinit var viewHolder : ItemViewHolder;
+    private var dbu: PatientListItemViewBinding? = null
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+
         network = isInternetAvailable(context)
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.patient_list_item_view, parent, false)
+        dbu = DataBindingUtil.getBinding<PatientListItemViewBinding>(itemView)
         viewHolder = ItemViewHolder(itemView)
         return viewHolder
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+
         patientId = items[position].patient.patientID
         holder.name.text = (items[position].patient.firstName ?: "") + " " + (items[position].patient.lastName ?: "")
         holder.abhaNumber.text = ""
@@ -62,10 +75,38 @@ class PatientItemAdapter(
             network = isInternetAvailable(context)
             callLoginDialog()
         }
+
+        dbu?.showAbha = showAbha
+        dbu?.hasAbha = !items[position].patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
+        dbu?.clickListener = clickListener
+//        holder.showAbha = showAbha
+//        holder.hasAbha = !items[position].patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
+//        holder.clickListener = clickListener
+
+
+//        holder.btnAbha.setOnClickListener {
+//            if(items[position].patient.syncState == SyncState.SYNCED) {
+//                val intent = Intent(context, AbhaIdActivity::class.java)
+//                intent.putExtra("benId", items[position].patient.beneficiaryID)
+//                intent.putExtra("benRegId", items[position].patient.beneficiaryRegID)
+//                context.startActivity(intent)
+//            }else{
+//                Toast.makeText(context, "Beneficiary not synced yet!", Toast.LENGTH_SHORT).show()
+//            }
+//        }
     }
 
     override fun getItemCount() = items.size
-
+    fun updateData(filteredPatients: List<PatientDisplay>):Int {
+        items = filteredPatients
+        notifyDataSetChanged()
+        return filteredPatients.size
+    }
+    class BenClickListener(
+        private val clickedABHA: (benId: Long?) -> Unit,
+    ) {
+        fun onClickABHA(item: Patient) = clickedABHA(item.beneficiaryID)
+    }
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var name: TextView = itemView.findViewById(R.id.patient_name)
         var abhaNumber: TextView = itemView.findViewById(R.id.patient_abha_number)
@@ -74,7 +115,11 @@ class PatientItemAdapter(
         var gender: TextView = itemView.findViewById(R.id.patient_gender)
         var btnEsanjeevani:MaterialButton = itemView.findViewById(R.id.btn_eSanjeevani)
 
-    }
+//        var btnAbha:MaterialButton = itemView.findViewById(R.id.btn_abha)
+//        var showAbha = dbu?.showAbha
+//        var hasAbha = dbu?.hasAbha
+//        dbu?.clickListener = clickListener
+            }
     private fun encryptSHA512(input: String): String {
         val digest = MessageDigest.getInstance("SHA-512")
         val hashBytes = digest.digest(input.toByteArray())

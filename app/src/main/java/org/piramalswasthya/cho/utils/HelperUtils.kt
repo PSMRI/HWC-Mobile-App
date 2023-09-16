@@ -1,10 +1,6 @@
 package org.piramalswasthya.cho.utils
-
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.widget.AutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
-import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.PatientDisplay
 
 fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
     if (!boolean) {
@@ -16,3 +12,22 @@ fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
     }
     invalidate()
 }
+fun filterBenList(list: List<PatientDisplay>, text: String): List<PatientDisplay> {
+    if (text == "")
+        return list
+    else {
+        val filterText = text.lowercase()
+        return list.filter {
+            filterForBen(it, filterText)
+        }
+    }
+}
+
+fun filterForBen(
+    ben: PatientDisplay,
+    filterText: String
+) =     ben.patient.firstName!!.lowercase().contains(filterText) ||
+        ben.patient.lastName!!.lowercase().contains(filterText)||
+        ben.patient.beneficiaryID.toString().lowercase().contains(filterText) ||
+        ben.patient.phoneNo!!.contains(filterText)||
+        ben.patient.healthIdDetails?.healthIdNumber?.contains(filterText) ?: false

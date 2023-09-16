@@ -306,7 +306,18 @@ data class CreateHealthIdRequest(
     val providerServiceMapID: Int?,
     val createdBy: String?
 )
-
+@JsonClass(generateAdapter = true)
+data class GetBenHealthIdRequest(
+    val beneficiaryRegID: Long?,
+    val beneficiaryID: Long?,
+)
+@JsonClass(generateAdapter = true)
+data class BenHealthDetails(
+    val benHealthID: Int,
+    val healthIdNumber: String,
+    val beneficiaryRegID: Long,
+    val healthId: String
+)
 data class MapHIDtoBeneficiary(
     val beneficiaryRegID: Long?,
     val beneficiaryID: Long?,
