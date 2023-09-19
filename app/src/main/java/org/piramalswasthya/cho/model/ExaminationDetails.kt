@@ -1,27 +1,39 @@
 package org.piramalswasthya.cho.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class ExaminationDetails(
-    val cardioVascularExamination: CardioVascularExamination,
-    val centralNervousSystemExamination: CentralNervousSystemExamination,
-    val gastroIntestinalExamination: GastroIntestinalExamination,
-    val generalExamination: GeneralExamination,
-    val genitoUrinarySystemExamination: GenitoUrinarySystemExamination,
-    val headToToeExamination: HeadToToeExamination,
-    val musculoskeletalSystemExamination: MusculoskeletalSystemExamination,
-    val respiratorySystemExamination: RespiratorySystemExamination,
+    val cardioVascularExamination: CardioVascularExamination?,
+    val centralNervousSystemExamination: CentralNervousSystemExamination?,
+    val gastroIntestinalExamination: GastroIntestinalExamination?,
+    val generalExamination: GeneralExamination?,
+    val genitoUrinarySystemExamination: GenitoUrinarySystemExamination?,
+    val headToToeExamination: HeadToToeExamination?,
+    val musculoskeletalSystemExamination: MusculoskeletalSystemExamination?,
+    val respiratorySystemExamination: RespiratorySystemExamination?,
 ){
-    constructor(user: UserDomain?) : this(
-        CardioVascularExamination(user),
-        CentralNervousSystemExamination(user),
-        GastroIntestinalExamination(user),
-        GeneralExamination(user),
-        GenitoUrinarySystemExamination(user),
-        HeadToToeExamination(user),
-        MusculoskeletalSystemExamination(user),
-        RespiratorySystemExamination(user),
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+        CardioVascularExamination(user, benFlow),
+        CentralNervousSystemExamination(user, benFlow),
+        GastroIntestinalExamination(user, benFlow),
+        GeneralExamination(user, benFlow),
+        GenitoUrinarySystemExamination(user, benFlow),
+        HeadToToeExamination(user, benFlow),
+        MusculoskeletalSystemExamination(user, benFlow),
+        RespiratorySystemExamination(user, benFlow),
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class CardioVascularExamination(
     val additionalHeartSounds: String?,
     val apexbeatLocation: String?,
@@ -38,12 +50,12 @@ data class CardioVascularExamination(
     val secondHeartSound_S2: String?,
     val vanID: Int?
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
         null,
         null,
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         null,
@@ -56,6 +68,7 @@ data class CardioVascularExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class CentralNervousSystemExamination(
     val autonomicSystem: String?,
     val benVisitID: String?,
@@ -86,12 +99,12 @@ data class CentralNervousSystemExamination(
 //    skull:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
         null,
+        benFlow?.beneficiaryRegID.toString(),
         null,
         null,
-        "33195",
         user?.userName,
         null,
         null,
@@ -104,6 +117,7 @@ data class CentralNervousSystemExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class GastroIntestinalExamination(
     val analRegion: String?,
     val auscultation: String?,
@@ -136,11 +150,11 @@ data class GastroIntestinalExamination(
 //    providerServiceMapID:"13"
 //    vanID:61
 ) {
-    constructor(user : UserDomain?) : this(
+    constructor(user : UserDomain?, benFlow: BenFlow?) : this(
         null,
         null,
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         null,
@@ -155,6 +169,7 @@ data class GastroIntestinalExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class GeneralExamination(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -209,9 +224,9 @@ data class GeneralExamination(
 //    typeOfLymphadenopathy:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         null,
         null,
@@ -239,6 +254,7 @@ data class GeneralExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class GenitoUrinarySystemExamination(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -259,9 +275,9 @@ data class GenitoUrinarySystemExamination(
 //    suprapubicRegion:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         user?.parkingPlaceId,
@@ -272,6 +288,7 @@ data class GenitoUrinarySystemExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class HeadToToeExamination(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -316,9 +333,9 @@ data class HeadToToeExamination(
 //    upperLimbs:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         user?.userName,
         null,
@@ -341,6 +358,7 @@ data class HeadToToeExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class MusculoskeletalSystemExamination(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -373,9 +391,9 @@ data class MusculoskeletalSystemExamination(
 //    upperLimb_Laterality:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         user?.userName,
         null,
@@ -392,6 +410,7 @@ data class MusculoskeletalSystemExamination(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class RespiratorySystemExamination(
     val auscultation_BreathSounds: String?,
     val auscultation_ConductedSounds: String?,
@@ -428,7 +447,7 @@ data class RespiratorySystemExamination(
 //    trachea:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
         null,
         null,
@@ -436,7 +455,7 @@ data class RespiratorySystemExamination(
         null,
         null,
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         null,

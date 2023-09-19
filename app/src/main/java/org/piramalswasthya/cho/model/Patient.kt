@@ -144,6 +144,15 @@ data class Patient (
     @Embedded(prefix = "abha_")
     var healthIdDetails: BenHealthIdDetails? = null,
 
+    @ColumnInfo(name = "nurseFlag")
+    val nurseFlag: Int? = 1,
+
+    @ColumnInfo(name = "doctorFlag")
+    val doctorFlag: Int? = 0,
+
+    @ColumnInfo(name = "pharmacist_flag")
+    val pharmacist_flag: Int? = 0,
+
 ) : Serializable
 
 
@@ -373,16 +382,22 @@ data class Bendemographics(
         null,
         null,
         null,
-        patientDisplay.patient.blockID,
-        patientDisplay.block?.blockName,
+        223,
+        "Araria",
+//        patientDisplay.patient.blockID,
+//        patientDisplay.block?.blockName,
         patientDisplay.patient.communityID,
         patientDisplay.community?.communityType,
         1,
         "India",
-        patientDisplay.patient.districtBranchID,
-        patientDisplay.village?.villageName,
-        patientDisplay.patient.districtID,
-        patientDisplay.district?.districtName,
+        54151,
+        "Araria",
+//        patientDisplay.patient.districtBranchID,
+//        patientDisplay.village?.villageName,
+        70,
+        "Araria",
+//        patientDisplay.patient.districtID,
+//        patientDisplay.district?.districtName,
         null,
         null,
         null,
@@ -396,7 +411,8 @@ data class Bendemographics(
         patientDisplay.religion?.religionType,
         user?.servicePointId.toString(),
         user?.servicePointName,
-        patientDisplay.patient.stateID
+        6
+//        patientDisplay.patient.stateID
     )
 //    addressLine1:null
 //    addressLine2:null

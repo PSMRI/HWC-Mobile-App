@@ -33,9 +33,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val patientId = intent.getStringExtra("patientId")
-        val args = Bundle()
-        args.putString("patientId", patientId)
+//        val patientId = intent.getStringExtra("patientId")
+//        val args = Bundle()
+//        args.putString("patientId", patientId)
 
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
@@ -45,7 +45,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-        navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
+//        navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
 
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {

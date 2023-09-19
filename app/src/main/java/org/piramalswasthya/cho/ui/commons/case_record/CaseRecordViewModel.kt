@@ -11,8 +11,11 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.ProceduresMasterData
@@ -20,6 +23,8 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
@@ -32,7 +37,9 @@ class CaseRecordViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val vitalsRepo: VitalsRepo,
-    private val visitRepo: VisitReasonsAndCategoriesRepo
+    private val visitRepo: VisitReasonsAndCategoriesRepo,
+    private val patientRepo: PatientRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
 
     ): ViewModel() {
 
@@ -95,6 +102,9 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     viewModelScope.launch {
         try {
             withContext(Dispatchers.IO) {
+                val patient = patientRepo.getPatient(investigationCaseRecord.patientID)
+                investigationCaseRecord.beneficiaryID = patient.beneficiaryID
+                investigationCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                 caseRecordeRepo.saveInvestigationToCatche(investigationCaseRecord)
             }
         } catch (e: Exception) {
@@ -106,6 +116,9 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
+                    val patient = patientRepo.getPatient(diagnosisCaseRecord.patientID)
+                    diagnosisCaseRecord.beneficiaryID = patient.beneficiaryID
+                    diagnosisCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                     caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
                 }
             } catch (e: Exception) {
@@ -117,6 +130,9 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
+                    val patient = patientRepo.getPatient(prescriptionCaseRecord.patientID)
+                    prescriptionCaseRecord.beneficiaryID = patient.beneficiaryID
+                    prescriptionCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                     caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
                 }
             } catch (e: Exception) {
@@ -124,10 +140,14 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
             }
         }
     }
+
     fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
+                    val patient = patientRepo.getPatient(patientVitalsModel.patientID)
+                    patientVitalsModel.beneficiaryID = patient.beneficiaryID
+                    patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
                     vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
                 }
             } catch (e: Exception) {
@@ -135,10 +155,14 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
             }
         }
     }
+
     fun saveVisitDbToCatche(visitDB: VisitDB){
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO){
+                    val patient = patientRepo.getPatient(visitDB.patientID)
+                    visitDB.beneficiaryID = patient.beneficiaryID
+                    visitDB.beneficiaryRegID = patient.beneficiaryRegID
                     visitRepo.saveVisitDbToCache(visitDB)
                 }
             }catch (e:Exception){
@@ -151,6 +175,9 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO){
+                    val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
+                    chiefComplaintDB.beneficiaryID = patient.beneficiaryID
+                    chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
                     visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
                 }
             }catch (e:Exception){
@@ -158,5 +185,21 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
             }
         }
     }
-    
+
+    fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO){
+                    val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
+                    patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
+                    patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                    patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
+                }
+            }catch (e:Exception){
+                Timber.e("Error in saving chieft complaint Db : $e")
+            }
+        }
+    }
+
 }

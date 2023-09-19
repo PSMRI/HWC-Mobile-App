@@ -6,7 +6,10 @@ import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.PatientDoctorForm
 import org.piramalswasthya.cho.model.PatientNetwork
+import org.piramalswasthya.cho.model.PatientVisitInformation
+import org.piramalswasthya.cho.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -16,28 +19,25 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface AmritApiService {
-
-//---------------Ng Rok------------------
-
 //    @Suppress("SpellCheckingInspection")
 //    private companion object ApiMappings{
 //        const val authenticate = "authenticateReference"
 //    }
 //    @Headers("No-Auth: true")
-//    @POST("https://d157-183-82-96-201.ngrok-free.app/user/userAuthenticate/")
+//    @POST(Constants.commonApi + "/user/userAuthenticate/")
 //    suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
 //
 //    @Headers("No-Auth: true")
 //    @POST("fhir/Patient")
 //    suspend fun createPatient(@Body json: RequestBody): Response<ResponseBody>
 //
-//    @POST("https://d157-183-82-96-201.ngrok-free.app/doortodoorapp/getUserDetails")
+//    @POST(Constants.commonApi + "/doortodoorapp/getUserDetails")
 //    suspend fun getUserDetailsById(@Body userDetail: TmcUserDetailsRequest) : Response<ResponseBody>
 //
-//    @POST("https://d157-183-82-96-201.ngrok-free.app/user/getLoginResponse")
+//    @POST(Constants.commonApi + "/user/getLoginResponse")
 //    suspend fun getLoginResponse() : Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/user/getUserVanSpDetails?apiKey=undefined")
+//    @POST(Constants.hwcApi + "/user/getUserVanSpDetails?apiKey=undefined")
 //    suspend fun getUserVanSpDetails(
 //        @Body vanServiceType: TmcUserVanSpDetailsRequest
 //    ): Response<ResponseBody>
@@ -48,40 +48,52 @@ interface AmritApiService {
 //        @Body vanServiceType: TmcUserVanSpDetailsRequest
 //    ): Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/location/getLocDetailsBasedOnSpIDAndPsmID")
+//    @POST(Constants.hwcApi + "/location/getLocDetailsBasedOnSpIDAndPsmID")
 //    suspend fun getStates(@Body request: LocationRequest): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/location/get/districtMaster/{stateId}")
+//    @GET(Constants.hwcApi + "/location/get/districtMaster/{stateId}")
 //    suspend fun getDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/location/get/districtBlockMaster/{districtId}")
+//    @GET(Constants.hwcApi + "/location/get/districtBlockMaster/{districtId}")
 //    suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/location/get/villageMasterFromBlockID/{blockId}")
+//    @GET(Constants.hwcApi + "/location/get/villageMasterFromBlockID/{blockId}")
 //    suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/location/get/stateMaster?apiKey=undefined")
+//    @GET(Constants.hwcApi + "/location/get/stateMaster?apiKey=undefined")
 //    suspend fun getStatesMasterList(): Response<ResponseBody>
 //
-//    @GET("https://d157-183-82-96-201.ngrok-free.app/beneficiary/getLanguageList?apiKey=undefined")
+//    @GET(Constants.commonApi + "/beneficiary/getLanguageList?apiKey=undefined")
 //    suspend fun getLanguagesList(): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/master/get/visitReasonAndCategories?apiKey=undefined")
+//    @GET(Constants.hwcApi + "/master/get/visitReasonAndCategories?apiKey=undefined")
 //    suspend fun getVisitReasonAndCategories(): Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/registrar/registrarMasterData?apiKey=undefined")
+//    @POST(Constants.hwcApi + "/registrar/registrarMasterData?apiKey=undefined")
 //    suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
+//    @POST(Constants.hwcApi + "/sync/beneficiariesToServer")
 //    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
 //
-//    @GET("https://d157-183-82-96-201.ngrok-free.app/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
+//    @POST(Constants.hwcApi + "/generalOPD/save/nurseData?apiKey=undefined")
+//    suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
+//
+////    @GET("/flw-0.0.1/user/getUserDetail")
+////    suspend fun getUserDetail(@Query("userId") userId: Int) : Response<ResponseBody>
+//
+//    @POST(Constants.hwcApi + "/sync/benFlowStatusRecordsToApp")
+//    suspend fun getBenFlowRecords(@Body villageList : VillageIdList) : Response<ResponseBody>
+//
+////    @POST("https://55f8-183-82-96-201.ngrok-free.app/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
+////    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+//
+//    @GET(Constants.commonApi + "/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
 //    suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
 //
 //    @POST(authenticate)
 //    suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
 //
-//    //    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
+////    @POST("tmapi-v1.0/user/getUserVanSpDetails/")
 ////    suspend fun getTMVanSpDetails(
 ////        @Body vanServiceType: TmcUserVanSpDetailsRequest
 ////    ): Response<ResponseBody>
@@ -109,24 +121,24 @@ interface AmritApiService {
 ////    @POST("identity-0.0.1/id/getByBenId")
 ////    suspend fun getBeneficiaryWithId(@Query("benId") benId: Long) : Response<ResponseBody>
 ////
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/healthIDWithUID/createHealthIDWithUID")
+//    @POST(Constants.hwcApi + "/healthIDWithUID/createHealthIDWithUID")
 //    suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/healthID/mapHealthIDToBeneficiary")
+//    @POST(Constants.hwcApi + "/healthID/mapHealthIDToBeneficiary")
 //    suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/healthIDCard/generateOTP")
+//    @POST(Constants.hwcApi + "/healthIDCard/generateOTP")
 //    suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
 //
-//    @POST("https://55f8-183-82-96-201.ngrok-free.app/healthIDCard/verifyOTPAndGenerateHealthCard")
+//    @POST(Constants.hwcApi + "/healthIDCard/verifyOTPAndGenerateHealthCard")
 //    suspend fun verifyOtpAndGenerateHealthCard(@Body validateOtpHid: ValidateOtpHid): Response<ResponseBody>
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/master/nurse/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}")
+//    @GET(Constants.hwcApi + "/master/nurse/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}")
 //    suspend fun getNurseMasterData(@Path("visitCategoryID") visitCategoryID: Int,
 //                                   @Path("providerServiceMapID") providerServiceMapID : Int,
 //                                   @Path("gender") gender: String,
 //                                   @Query("apiKey") apiKey :String): Response<ResponseBody>
 //
-//    @GET("https://55f8-183-82-96-201.ngrok-free.app/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
+//    @GET(Constants.hwcApi + "/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
 //    suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,
 //                                    @Path("providerServiceMapID") providerServiceMapID : Int,
 //                                    @Path("gender") gender: String,
@@ -165,16 +177,16 @@ interface AmritApiService {
         @Body vanServiceType: TmcUserVanSpDetailsRequest
     ): Response<ResponseBody>
 
-    @POST("hwc-facility-service/wo/location/getLocDetailsBasedOnSpIDAndPsmID/wo")
+    @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
     suspend fun getStates(@Body request: LocationRequest): Response<ResponseBody>
 
-    @GET("hwc-facility-service/wo/location/get/districtMaster/{stateId}/wo")
+    @GET("hwc-facility-service/location/get/districtMaster/{stateId}")
     suspend fun getDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>
 
-    @GET("hwc-facility-service/wo/location/get/districtBlockMaster/{districtId}/wo")
+    @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
     suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 
-    @GET("hwc-facility-service/wo/location/get/villageMasterFromBlockID/{blockId}/wo")
+    @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
     suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/stateMaster?apiKey=undefined")
@@ -191,6 +203,18 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/sync/beneficiariesToServer")
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+
+    @POST("/hwc-facility-service/generalOPD/save/nurseData?apiKey=undefined")
+    suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
+
+    @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
+    suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorForm) : Response<ResponseBody>
+
+    @GET("/flw-0.0.1/user/getUserDetail")
+    suspend fun getUserDetail(@Query("userId") userId: Int) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/benFlowStatusRecordsToApp")
+    suspend fun getBenFlowRecords(@Body villageList : VillageIdList) : Response<ResponseBody>
 
 //    @POST("hwc-facility-service/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
 //    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
@@ -247,8 +271,6 @@ interface AmritApiService {
                                    @Path("providerServiceMapID") providerServiceMapID : Int,
                                    @Path("gender") gender: String,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
-
-
 
     @GET("hwc-facility-service/master/doctor/masterData/{visitCategoryID}/{providerServiceMapID}/{gender}/{facilityID}/{vanID}")
     suspend fun getDoctorMasterData(@Path("visitCategoryID") visitCategoryID: Int,

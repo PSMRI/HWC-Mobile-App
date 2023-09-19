@@ -1,18 +1,31 @@
 package org.piramalswasthya.cho.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class VisitDetails(
-    val adherence: Adherence,
-    val chiefComplaints: List<ChiefComplaints>,
-    val visitDetails: VisitDetailsNetwork,
+    val adherence: Adherence?,
+    val chiefComplaints: List<ChiefComplaintsNetwork>?,
+    val visitDetails: VisitDetailsNetwork?,
 ){
-    constructor(user: UserDomain?) : this(
-        Adherence(user),
-        arrayListOf(ChiefComplaints(user)),
-        VisitDetailsNetwork(user),
+    constructor(user: UserDomain?, visit: VisitDB?, chiefComplaints: List<ChiefComplaintDB>?, benFlow: BenFlow) : this(
+        Adherence(user, benFlow),
+        chiefComplaints?.map { it ->
+            ChiefComplaintsNetwork(
+                user = user,
+                chiefComplaint = it,
+                benFlow = benFlow
+            )
+        },
+        VisitDetailsNetwork(
+            user = user,
+            visit = visit,
+            benFlow = benFlow
+        ),
     )
 }
 
-
+@JsonClass(generateAdapter = true)
 data class Adherence(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -37,9 +50,9 @@ data class Adherence(
 //    toReferral:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow) : this(
         null,
-        "33140",
+        benFlow.beneficiaryRegID!!.toString(),
         user?.userName,
         null,
         user?.parkingPlaceId,
@@ -52,7 +65,8 @@ data class Adherence(
     )
 }
 
-data class ChiefComplaints(
+@JsonClass(generateAdapter = true)
+data class ChiefComplaintsNetwork(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
     val chiefComplaint: String?,
@@ -70,10 +84,10 @@ data class ChiefComplaints(
 //    providerServiceMapID:"13"
 //    vanID:null
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, chiefComplaint: ChiefComplaintDB, benFlow: BenFlow) : this(
         null,
-        "33140",
-        null,
+        benFlow.beneficiaryRegID!!.toString(),
+        chiefComplaint.chiefComplaint,
         null,
         user?.userName,
         user?.parkingPlaceId,
@@ -82,6 +96,7 @@ data class ChiefComplaints(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class VisitDetailsNetwork(
     val IdrsOrCbac: String?,
     val beneficiaryRegID: String?,
@@ -124,9 +139,9 @@ data class VisitDetailsNetwork(
 //    visitNo:null
 //    visitReason:"New Chief Complaint"
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, visit: VisitDB?, benFlow: BenFlow) : this(
         null,
-        "33140",
+        benFlow.beneficiaryRegID!!.toString(),
         user?.userName,
         null,
         null,
@@ -142,9 +157,9 @@ data class VisitDetailsNetwork(
         null,
         "Basic Oral Health Care Services",
         user?.vanId,
-        "General OPD",
+        visit?.category,
         null,
-        "New Chief Complaint",
+        visit?.reasonForVisit,
     )
 }
 

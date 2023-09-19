@@ -168,9 +168,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
-        if(requireArguments().getString("patientId") != null){
-            patientId = requireArguments().getString("patientId")!!
-        }
+
+        patientId = requireActivity().intent?.extras?.getString("patientId")!!
 
 
         binding.subCatInput.threshold = 1
@@ -348,56 +347,60 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
          // initially calling checkAndAddCatSubCat() but now changed to
          // validation on category and Subcategory
-        catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
-            Toast.makeText(requireContext(), resources.getString(R.string.toast_cat_select), Toast.LENGTH_SHORT).show()
-            false
-        } else true
-
-
-        if (binding.subCatInput.text.isNullOrEmpty()) {
-            if(catBool) binding.subCatInput.requestFocus()
-            binding.subCatDropDown.apply {
-                boxStrokeColor = Color.RED
-                hintTextColor = ColorStateList.valueOf(Color.RED)
-            }
-            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
-            subCat = false
-        } else {
-            subCategory = binding.subCatInput.text.toString()
-            subCat = true
-        }
-
-        if(subCat && catBool) createEncounterResource()
-
-        // calling to add Chief Complaints
-        val chiefData =  addChiefComplaintsData()
+//        catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
+//            Toast.makeText(requireContext(), resources.getString(R.string.toast_cat_select), Toast.LENGTH_SHORT).show()
+//            false
+//        } else true
+//
+//
+//        if (binding.subCatInput.text.isNullOrEmpty()) {
+//            if(catBool) binding.subCatInput.requestFocus()
+//            binding.subCatDropDown.apply {
+//                boxStrokeColor = Color.RED
+//                hintTextColor = ColorStateList.valueOf(Color.RED)
+//            }
+//            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
+//            subCat = false
+//        } else {
+//            subCategory = binding.subCatInput.text.toString()
+//            subCat = true
+//        }
+//
+//        if(subCat && catBool) createEncounterResource()
+//
+//        // calling to add Chief Complaints
+//        val chiefData =  addChiefComplaintsData()
 
         setVisitMasterData()
+
+        findNavController().navigate(
+            R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
+        )
 
 //        findNavController().navigate(
 //            R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
 //        )
 
-        if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
-            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
-            findNavController().navigate(
-                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
-            )
-        } else if (!isFileSelected && catBool && subCat && chiefData) {
-            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
-            findNavController().navigate(
-                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
-            )
-        } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.toast_upload_file),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+//        if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
+//            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
+//            findNavController().navigate(
+//                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
+//            )
+//        } else if (!isFileSelected && catBool && subCat && chiefData) {
+//            if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
+//            findNavController().navigate(
+//                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
+//            )
+//        } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
+//            Toast.makeText(
+//                requireContext(),
+//                resources.getString(R.string.toast_upload_file),
+//                Toast.LENGTH_SHORT
+//            ).show()
+//        }
     }
     private fun setVisitMasterData() {
-        val masterDb = MasterDb("")
+        val masterDb = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
 
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId

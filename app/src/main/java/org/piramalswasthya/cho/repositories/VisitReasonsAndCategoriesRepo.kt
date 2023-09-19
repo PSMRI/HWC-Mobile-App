@@ -111,4 +111,23 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
             Timber.d("Error in saving Chief Complaint Db information $e")
         }
     }
+
+    suspend fun getVisitDB(beneficiaryRegID: Long) : VisitDB?{
+        return visitReasonsAndCategoriesDao.getVisitDb(beneficiaryRegID)
+    }
+
+    suspend fun getChiefComplaintDB(beneficiaryRegID: Long) : List<ChiefComplaintDB>?{
+        return visitReasonsAndCategoriesDao.getChiefComplaints(beneficiaryRegID)
+    }
+
+    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long){
+        visitReasonsAndCategoriesDao.updateVisitDbBenflow(benFlowId, beneficiaryRegID)
+        visitReasonsAndCategoriesDao.updateChiefComplaintsBenflow(benFlowId, beneficiaryRegID)
+    }
+
+    suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
+        visitReasonsAndCategoriesDao.updateBenIdBenRegIdVisitDb(beneficiaryID, beneficiaryRegID, patientID)
+        visitReasonsAndCategoriesDao.updateBenIdBenRegIdChiefComplaint(beneficiaryID, beneficiaryRegID, patientID)
+    }
+
 }

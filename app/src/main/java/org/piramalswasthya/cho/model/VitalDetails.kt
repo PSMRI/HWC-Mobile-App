@@ -1,5 +1,8 @@
 package org.piramalswasthya.cho.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class VitalDetails(
     val bMI: Double?,
     val benVisitID: String?,
@@ -68,10 +71,10 @@ data class VitalDetails(
 //    weight_Kg:"100"
 //    wheezingChecked:null
 ){
-    constructor(user: UserDomain?): this(
-        30.9,
+    constructor(user: UserDomain?, vitals: PatientVitalsModel?, benFlow: BenFlow): this(
+        vitals?.bmi?.toDouble(),
         null,
-        "33140",
+        benFlow.beneficiaryRegID.toString(),
         null,
         null,
         null,
@@ -80,7 +83,7 @@ data class VitalDetails(
         null,
         null,
         null,
-        "180",
+        vitals?.height,
         null,
         null,
         null,
@@ -100,7 +103,42 @@ data class VitalDetails(
         user?.vanId,
         null,
         null,
-        "100",
+        vitals?.weight,
         null
     )
+//    constructor(user: UserDomain?, vitals: PatientVitalsModel?, benFlow: BenFlow): this(
+//        vitals?.bmi?.toDouble(),
+//        null,
+//        benFlow.beneficiaryRegID.toString(),
+//        null,
+//        null,
+//        null,
+//        null,
+//        user?.userName,
+//        vitals?.bpDiastolic,
+//        null,
+//        null,
+//        vitals?.height,
+//        null,
+//        null,
+//        null,
+//        null,
+//        user?.parkingPlaceId,
+//        user?.serviceMapId.toString(),
+//        vitals?.pulseRate,
+//        true,
+//        null,
+//        vitals?.rbs,
+//        vitals?.respiratoryRate,
+//        vitals?.spo2,
+//        null,
+//        null,
+//        vitals?.bpSystolic,
+//        vitals?.temperature,
+//        user?.vanId,
+//        vitals?.waistCircumference,
+//        null,
+//        vitals?.weight,
+//        null
+//    )
 }

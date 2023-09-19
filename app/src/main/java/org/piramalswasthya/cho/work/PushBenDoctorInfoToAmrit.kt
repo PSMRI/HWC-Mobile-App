@@ -1,4 +1,4 @@
-package org.piramalswasthya.sakhi.work
+package org.piramalswasthya.cho.work
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -8,27 +8,27 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.BenVisitRepo
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
+
 @HiltWorker
-class PushToAmritWorker @AssistedInject constructor(
+class PushBenDoctorInfoToAmrit @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    private val patientRepo: PatientRepo,
+    private val benVisitRepo: BenVisitRepo,
     private val preferenceDao: PreferenceDao,
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PushToAmritWorker"
+        const val name = "PushBenDoctorInfoToAmrit"
     }
-
 
     override suspend fun doWork(): Result {
         init()
         try {
-            val workerResult = patientRepo.processUnsyncedData()
+            val workerResult = benVisitRepo.processUnsyncedDoctorData()
             return if (workerResult) {
                 Timber.d("Worker completed")
                 Result.success()
@@ -48,4 +48,5 @@ class PushToAmritWorker @AssistedInject constructor(
                 TokenInsertTmcInterceptor.setToken(it)
             }
     }
+
 }

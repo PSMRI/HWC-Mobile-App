@@ -50,6 +50,7 @@ import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragmentDirections
 import org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationViewModel
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
+import org.piramalswasthya.cho.utils.generateUuid
 import java.util.UUID
 import javax.inject.Inject
 
@@ -169,9 +170,6 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
 
     }
 
-    fun generateUuid(): String {
-        return UUID.randomUUID().toString()
-    }
 
     override fun onCancelAction() {
         findNavController().navigateUp()

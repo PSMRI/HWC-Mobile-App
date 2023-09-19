@@ -31,6 +31,7 @@
     <string name="query_hint_patient_search">Search</string>
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
+    <string name="last_sync_time">last_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="last_name_surname">Last Name/Surname <font color="#FF0000">*</font></string>

@@ -1,35 +1,51 @@
 package org.piramalswasthya.cho.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class HistoryDetails(
-    val childVaccineDetails: ChildVaccineDetails,
-    val comorbidConditions: ComorbidConditions,
-    val developmentHistory: DevelopmentHistory,
-    val familyHistory: FamilyHistory,
-    val feedingHistory: FeedingHistory,
-    val femaleObstetricHistory: FemaleObstetricHistory,
-    val immunizationHistory: ImmunizationHistory,
-    val medicationHistory: MedicationHistoryNetwork,
-    val menstrualHistory: MenstrualHistory,
-    val pastHistory: PastHistory,
-    val perinatalHistroy: PerinatalHistroy,
-    val personalHistory: PersonalHistory,
+    val childVaccineDetails: ChildVaccineDetails?,
+    val comorbidConditions: ComorbidConditions?,
+    val developmentHistory: DevelopmentHistory?,
+    val familyHistory: FamilyHistory?,
+    val feedingHistory: FeedingHistory?,
+    val femaleObstetricHistory: FemaleObstetricHistory?,
+    val immunizationHistory: ImmunizationHistory?,
+    val medicationHistory: MedicationHistoryNetwork?,
+    val menstrualHistory: MenstrualHistory?,
+    val pastHistory: PastHistory?,
+    val perinatalHistroy: PerinatalHistroy?,
+    val personalHistory: PersonalHistory?,
 ){
-    constructor(user: UserDomain?) : this(
-        ChildVaccineDetails(user),
-        ComorbidConditions(user),
-        DevelopmentHistory(user),
-        FamilyHistory(user),
-        FeedingHistory(user),
-        FemaleObstetricHistory(user),
-        ImmunizationHistory(user),
-        MedicationHistoryNetwork(user),
-        MenstrualHistory(user),
-        PastHistory(user),
-        PerinatalHistroy(user),
-        PersonalHistory(user),
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+//        null,
+        ChildVaccineDetails(user, benFlow),
+        ComorbidConditions(user, benFlow),
+        DevelopmentHistory(user, benFlow),
+        FamilyHistory(user, benFlow),
+        FeedingHistory(user, benFlow),
+        FemaleObstetricHistory(user, benFlow),
+        ImmunizationHistory(user, benFlow),
+        MedicationHistoryNetwork(user, benFlow),
+        MenstrualHistory(user, benFlow),
+        PastHistory(user, benFlow),
+        PerinatalHistroy(user, benFlow),
+        PersonalHistory(user, benFlow),
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class ChildVaccineDetails(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -46,9 +62,9 @@ data class ChildVaccineDetails(
 //providerServiceMapID:"13"
 //vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         arrayListOf(ChildOptionalVaccine()),
         user?.userName,
         user?.parkingPlaceId,
@@ -57,6 +73,7 @@ data class ChildVaccineDetails(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class ChildOptionalVaccine(
     val ageUnitID: String?,
     val otherVaccineName: String?,
@@ -75,6 +92,7 @@ data class ChildOptionalVaccine(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class ComorbidConditions(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -91,9 +109,9 @@ data class ComorbidConditions(
 //providerServiceMapID:"13"
 //vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         arrayListOf(ComorbidityConcurrentConditions()),
         user?.userName,
         user?.parkingPlaceId,
@@ -102,6 +120,7 @@ data class ComorbidConditions(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class ComorbidityConcurrentConditions(
     val comorbidConditions: String?,
     val otherComorbidCondition: String?,
@@ -114,6 +133,7 @@ data class ComorbidityConcurrentConditions(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class DevelopmentHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -146,9 +166,9 @@ data class DevelopmentHistory(
 //    socialMilestones:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         null,
@@ -165,6 +185,7 @@ data class DevelopmentHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class FamilyHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -187,9 +208,9 @@ data class FamilyHistory(
 //    providerServiceMapID:"13"
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         arrayListOf(FamilyDisease()),
         null,
@@ -201,6 +222,7 @@ data class FamilyHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class FamilyDisease(
     val diseaseType: String?,
     val diseaseTypeID: String?,
@@ -222,6 +244,7 @@ data class FamilyDisease(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class FeedingHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -248,9 +271,9 @@ data class FeedingHistory(
 //    typeOfFoodIntolerances:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33195",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         user?.userName,
         0,
@@ -264,6 +287,7 @@ data class FeedingHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class FemaleObstetricHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -284,9 +308,9 @@ data class FemaleObstetricHistory(
 //    totalNoOfPreg:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33211",
+        benFlow?.beneficiaryRegID.toString(),
         emptyList(),
         user?.userName,
         emptyList(),
@@ -298,7 +322,7 @@ data class FemaleObstetricHistory(
 }
 
 
-
+@JsonClass(generateAdapter = true)
 data class ImmunizationHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -315,9 +339,9 @@ data class ImmunizationHistory(
 //    processed:null
 //    providerServiceMapID:"13"
 ){
-    constructor(user: UserDomain?): this(
+    constructor(user: UserDomain?, benFlow: BenFlow?): this(
         null,
-        "33211",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         arrayListOf(immunization_at_birth, immunization_6_weeks),
@@ -326,12 +350,14 @@ data class ImmunizationHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class Immunization(
     val defaultReceivingAge: String?,
     val hideSelectAll: Boolean?,
     val vaccines: List<Vaccine>?
 )
 
+@JsonClass(generateAdapter = true)
 data class Vaccine(
     val hide: Boolean?,
     val sctCode: String?,
@@ -357,6 +383,7 @@ val vaccine_6_weeks = arrayListOf(pentavalent_1_vaccine, rota_vaccine_1_vaccine,
 val immunization_at_birth = Immunization("At Birth", false, vaccine_at_birth)
 val immunization_6_weeks = Immunization("6 Weeks", false, vaccine_6_weeks)
 
+@JsonClass(generateAdapter = true)
 data class MedicationHistoryNetwork(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -373,9 +400,9 @@ data class MedicationHistoryNetwork(
 //    providerServiceMapID:"13"
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33212",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         arrayListOf(MedicationHistoryList()),
         user?.parkingPlaceId,
@@ -384,6 +411,7 @@ data class MedicationHistoryNetwork(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class MedicationHistoryList(
     val currentMedication: String?
 ){
@@ -392,6 +420,7 @@ data class MedicationHistoryList(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class MenstrualHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -422,9 +451,9 @@ data class MenstrualHistory(
 //        regularity:null
 //        vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33212",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         user?.userName,
         null,
@@ -440,6 +469,7 @@ data class MenstrualHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class PastHistory(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -458,9 +488,9 @@ data class PastHistory(
 //    providerServiceMapID:"13"
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33212",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         user?.parkingPlaceId,
         arrayListOf(PastIllness()),
@@ -470,6 +500,7 @@ data class PastHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class PastIllness(
     val illnessType: String?,
     val illnessTypeID: String?,
@@ -485,6 +516,7 @@ data class PastIllness(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class PastSurgery(
     val otherSurgeryType: String?,
     val surgeryID: String?,
@@ -500,6 +532,7 @@ data class PastSurgery(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class PerinatalHistroy(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
@@ -534,13 +567,13 @@ data class PerinatalHistroy(
 //    typeOfDelivery:null
 //    vanID:61
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
-        "33212",
+        benFlow?.beneficiaryRegID.toString(),
         null,
         null,
         null,
-        "Pranathi",
+        user?.userName,
         null,
         null,
         null,
@@ -554,6 +587,7 @@ data class PerinatalHistroy(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class PersonalHistory(
     val alcoholIntakeStatus: String?,
     val alcoholList: List<Alcohol>?,
@@ -586,13 +620,13 @@ data class PersonalHistory(
 //    tobaccoUseStatus:null
 //    vanID:null
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
         null,
         arrayListOf(Alcohol()),
         arrayListOf(Allergic()),
         null,
         null,
-        "33212",
+        benFlow?.beneficiaryRegID.toString(),
         user?.userName,
         null,
         user?.parkingPlaceId,
@@ -605,6 +639,7 @@ data class PersonalHistory(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class Alcohol(
     val alcoholIntakeFrequency: String?,
     val alcoholTypeID: String?,
@@ -632,6 +667,7 @@ data class Alcohol(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class Allergic(
     val allergyName: String?,
     val allergyType: String?,
@@ -659,6 +695,7 @@ data class Allergic(
     )
 }
 
+@JsonClass(generateAdapter = true)
 data class Tobacco(
     val duration: String?,
     val durationUnit: String?,

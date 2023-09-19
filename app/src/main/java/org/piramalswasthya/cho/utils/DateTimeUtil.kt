@@ -5,11 +5,9 @@ import android.content.Context
 import android.os.Build
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.piramalswasthya.cho.model.AgeUnit
-import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
@@ -121,6 +119,13 @@ class DateTimeUtil {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             return sdf.format(date)
+        }
+
+        fun formatCustDateAndTime(timestamp: Long): String {
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+            return Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
+                .format(formatter)
         }
 
     }
