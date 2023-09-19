@@ -2,11 +2,28 @@ package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
 
-@Entity(tableName = "PATIENT_VITALS")
+@Entity(
+    tableName = "PATIENT_VITALS",
+    foreignKeys = [
+        ForeignKey(
+            entity = Patient::class,
+            parentColumns = ["patientID"],
+            childColumns = ["patientID"],
+            onDelete = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = BenFlow::class,
+            parentColumns = ["benFlowID"],
+            childColumns = ["benFlowID"],
+            onDelete = ForeignKey.NO_ACTION
+        ),
+    ]
+)
 @JsonClass(generateAdapter = true)
 data class PatientVitalsModel (
     @PrimaryKey
@@ -21,5 +38,9 @@ data class PatientVitalsModel (
     @ColumnInfo(name = "bp_systolic") val bpSystolic : String?,
     @ColumnInfo(name = "bp_diastolic") val bpDiastolic : String?,
     @ColumnInfo(name = "respiratory_rate") val respiratoryRate : String?,
-    @ColumnInfo(name = "rbs") val rbs: String?
+    @ColumnInfo(name = "rbs") val rbs: String?,
+    @ColumnInfo(name = "patientID") val patientID: String,
+    @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
+    @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
+    @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
 )

@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitDB
@@ -35,5 +36,24 @@ interface VisitReasonsAndCategoriesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChiefComplaintDb(chiefComplaintDB: ChiefComplaintDB)
 
+    @Query("SELECT * FROM Visit_DB WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun getVisitDb(beneficiaryRegID: Long) : VisitDB?
+
+    @Query("SELECT * FROM Chielf_Complaint_DB WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun getChiefComplaints(beneficiaryRegID: Long) : List<ChiefComplaintDB>?
+
+    @Query("UPDATE Visit_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun updateVisitDbBenflow(benflowId: Long, beneficiaryRegID: Long) : Int
+
+    @Query("UPDATE Chielf_Complaint_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun updateChiefComplaintsBenflow(benflowId: Long, beneficiaryRegID: Long) : Int
+
+    @Transaction
+    @Query("UPDATE Visit_DB SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
+    suspend fun updateBenIdBenRegIdVisitDb(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
+    @Transaction
+    @Query("UPDATE Chielf_Complaint_DB SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
+    suspend fun updateBenIdBenRegIdChiefComplaint(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
 
 }

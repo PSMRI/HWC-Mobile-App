@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
@@ -13,6 +14,7 @@ import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 interface CaseRecordeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDiagnosisCaseRecord(diagnosisCaseRecord: DiagnosisCaseRecord)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertInvestigationCaseRecord(investigationCaseRecord: InvestigationCaseRecord)
 
@@ -21,9 +23,23 @@ interface CaseRecordeDao {
 
     @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE diagnosisCaseRecordId = :diagnosisId")
     fun getDiagnosisCasesRecordById(diagnosisId: String): LiveData<DiagnosisCaseRecord>
+
     @Query("SELECT * FROM Investigation_Case_Record WHERE investigationCaseRecordId = :investigationId")
     fun getInvestigationCasesRecordId(investigationId: String): LiveData<InvestigationCaseRecord>
 
     @Query("SELECT * FROM Prescription_Cases_Recorde WHERE prescriptionCaseRecordId = :prescriptionId")
     fun getPrescriptionCasesRecordId(prescriptionId: String): LiveData<PrescriptionCaseRecord>
+
+    @Transaction
+    @Query("UPDATE Prescription_Cases_Recorde SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
+    suspend fun updateBenIdBenRegIdPrescription(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
+    @Transaction
+    @Query("UPDATE Investigation_Case_Record SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
+    suspend fun updateBenIdBenRegIdInvestigation(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
+    @Transaction
+    @Query("UPDATE Diagnosis_Cases_Recorde SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
+    suspend fun updateBenIdBenRegIdDiagnosis(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
 }

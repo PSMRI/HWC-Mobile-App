@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.network
 
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.model.BenFlow
 
 @JsonClass(generateAdapter = true)
 data class D2DAuthUserRequest(
@@ -381,6 +382,12 @@ data class BenificiarySaveResponse(
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
+data class NurseDataResponse(
+    val response: String,
+    val visitCode: String
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
 data class State(
     val stateID: Int,
     val govtLGDStateID: Int,
@@ -448,6 +455,17 @@ data class Village(
     val villageName: String,
     val outputMapper: Map<String, Any> // You can adjust the type of `outputMapper` as per its structure
 )
+
+@JsonClass(generateAdapter = true)
+data class VillageIdList(
+    val villageID: List<Int>,
+    val lastSyncDate: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class BenflowResponse(
+    val benflowList: MutableList<BenFlow>,
+) : NetworkResponse()
 
 
 

@@ -52,5 +52,11 @@ class CaseRecordeRepo @Inject constructor(
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
     }
+
+    suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
+        caseRecordDao.updateBenIdBenRegIdPrescription(beneficiaryID, beneficiaryRegID, patientID)
+        caseRecordDao.updateBenIdBenRegIdInvestigation(beneficiaryID, beneficiaryRegID, patientID)
+        caseRecordDao.updateBenIdBenRegIdDiagnosis(beneficiaryID, beneficiaryRegID, patientID)
+    }
     
 }

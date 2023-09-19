@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
     private val malMasterDataRepo: MaleMasterDataRepository,
     private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo,
-    private val dataLoadFlagManager: DataLoadFlagManager
+    private val dataLoadFlagManager: DataLoadFlagManager,
 ) : ViewModel() {
 
     enum class State {
@@ -74,11 +74,11 @@ class HomeViewModel @Inject constructor(
                     registrarMasterDataRepo.saveOccupationMasterResponseToCache()
                     registrarMasterDataRepo.saveQualificationMasterResponseToCache()
                     registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-                    malMasterDataRepo.getMasterDataForNurse()
-                    dataLoadFlagManager.setDataLoaded(true)
+//                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+//                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+//                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+//                    malMasterDataRepo.getMasterDataForNurse()
+//                    dataLoadFlagManager.setDataLoaded(true)
                     _state.postValue(State.SAVE_SUCCESS)
             } catch (_e: Exception) {
 

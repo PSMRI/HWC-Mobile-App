@@ -261,6 +261,7 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails()
+                    getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     Timber.d("Error Message $errorMessage")
@@ -271,6 +272,17 @@ class UserRepo @Inject constructor(
 
         }
 
+    }
+
+    private suspend fun getUserAssignedVillageIds(){
+        user!!.assignVillageIds = "54151,54676,463267"
+//        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
+//        val responseBody = JSONObject(response.body()?.string() ?: "")
+//        if(responseBody.has("data")){
+//            val data = responseBody.getJSONObject("data")
+//            user!!.assignVillageIds = data.getString("villageId")
+//            user!!.assignVillageNames = data.getString("villageName")
+//        }
     }
 
     fun extractRoles(privilegesObject : JSONObject) : String{

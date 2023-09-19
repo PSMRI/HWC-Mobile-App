@@ -127,6 +127,12 @@ data class UserCache(
 
     @ColumnInfo(name="districtBranchID")
     var districtBranchID : Int?,
+
+    @ColumnInfo(name="assignVillageIds")
+    var assignVillageIds : String,
+
+    @ColumnInfo(name="assignVillageNames")
+    var assignVillageNames : String,
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(
@@ -171,7 +177,8 @@ data class UserCache(
             contactNo = emergencyContactNo,
             userType = userType,
             roles = roles,
-            loggedIn = loggedIn
+            loggedIn = loggedIn,
+            assignVillageIds = assignVillageIds ?: ""
         )
     }
 }
@@ -218,7 +225,8 @@ data class UserDomain(
     val contactNo: String,
     val userType: String,
     var loggedIn: Boolean,
-    val roles: String
+    val roles: String,
+    val assignVillageIds: String,
 )
 
 
@@ -238,6 +246,9 @@ data class UserNetwork(
     var parkingPlaceName: String?=null,
     var servicePointName: String?=null,
     var zoneName : String?=null,
+
+    var assignVillageIds: String? = null,
+    var assignVillageNames: String? = null,
 
     var country : LocationEntity? = null,
 
@@ -320,7 +331,9 @@ data class UserNetwork(
             stateID = null,
             districtID = null,
             blockID = null,
-            districtBranchID = null
+            districtBranchID = null,
+            assignVillageIds = assignVillageIds ?: "",
+            assignVillageNames = assignVillageNames ?: ""
         )
     }
 }

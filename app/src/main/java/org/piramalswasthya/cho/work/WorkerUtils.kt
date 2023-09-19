@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
-import org.piramalswasthya.sakhi.work.PullFromAmritWorker
-import org.piramalswasthya.sakhi.work.PushToAmritWorker
+import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
+import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
 import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
@@ -18,16 +18,25 @@ object WorkerUtils {
         .build()
 
     fun triggerAmritSyncWorker(context : Context){
-//        val pullWorkRequest = OneTimeWorkRequestBuilder<PullFromAmritWorker>()
-//            .setConstraints(networkOnlyConstraint)
-//            .build()
-        val pushWorkRequest = OneTimeWorkRequestBuilder<PushToAmritWorker>()
-//            .setInitialDelay(10, TimeUnit.SECONDS)
+        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
+        val pushBenToAmritWorker = OneTimeWorkRequestBuilder<PushBenToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushBenVisitInfoRequest = OneTimeWorkRequestBuilder<PushBenVisitInfoToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pushBenDoctorInfoToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pushWorkRequest)
+            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pushBenToAmritWorker)
+            .then(pullBenFlowFromAmritWorker)
+            .then(pushBenVisitInfoRequest)
+            .then(pushBenDoctorInfoToAmrit)
             .enqueue()
     }
 

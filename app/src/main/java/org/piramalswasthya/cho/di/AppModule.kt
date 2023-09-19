@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
@@ -25,6 +26,7 @@ import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -38,6 +40,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
+import org.piramalswasthya.cho.network.FlwApiService
 //import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.network.AbhaApiService
 //import org.piramalswasthya.sakhi.network.AmritApiService
@@ -70,6 +73,10 @@ object AppModule {
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 //         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
     private const val  baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
+
+//    private const val  baseAmritUrl = "http://example.com/"
+
+    private const val  baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
 //    private const val  baseAmritUrl = "http://example.com/"
 
@@ -171,6 +178,7 @@ fun provideESanjeevaniApiService(
         .build()
         .create(ESanjeevaniApiService::class.java)
 }
+
     @Singleton
     @Provides
     fun provideAmritApiService(
@@ -184,6 +192,21 @@ fun provideESanjeevaniApiService(
             .client(httpClient)
             .build()
             .create(AmritApiService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideFlwApiService(
+        moshi: Moshi,
+        @Named("uatClient") httpClient: OkHttpClient
+    ): FlwApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+//            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseFlwUrl)
+            .client(httpClient)
+            .build()
+            .create(FlwApiService::class.java)
     }
 //
     @Singleton
@@ -288,9 +311,18 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun providePatientDao(database: InAppDb): PatientDao = database.patientDao
+
     @Singleton
     @Provides
     fun provideCasesReaderDao(database: InAppDb): CaseRecordeDao = database.caseRecordeDao
+
+    @Singleton
+    @Provides
+    fun provideBenFlowDao(database: InAppDb): BenFlowDao = database.benFlowDao
+
+    @Singleton
+    @Provides
+    fun providePatientVisitInfoSyncDao(database: InAppDb): PatientVisitInfoSyncDao = database.patientVisitInfoSyncDao
 
 
 //    @Singleton

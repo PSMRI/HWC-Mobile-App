@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
@@ -30,6 +31,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -99,12 +101,14 @@ import timber.log.Timber
         ChiefComplaintDB::class,
         ItemMasterList::class,
         DrugFrequencyMaster::class,
-       CounsellingProvided::class,
-       DrugFormMaster::class,
-       ProceduresMasterData::class
+        CounsellingProvided::class,
+        DrugFormMaster::class,
+        ProceduresMasterData::class,
+        BenFlow::class,
+        PatientVisitInfoSync::class
     ],
 //    views = [BenBasicCache::class],
-    version = 53, exportSchema = false
+    version = 54, exportSchema = false
 )
 
 
@@ -150,6 +154,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val caseRecordeDao: CaseRecordeDao
 
     abstract val patientDao: PatientDao
+    abstract val benFlowDao: BenFlowDao
+    abstract val patientVisitInfoSyncDao: PatientVisitInfoSyncDao
 
 
 

@@ -8,7 +8,10 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientNetwork
@@ -31,7 +34,11 @@ import javax.inject.Inject
 class PatientRepo  @Inject constructor(
     private val patientDao: PatientDao,
     private val userRepo: UserRepo,
-    private val apiService: AmritApiService
+    private val apiService: AmritApiService,
+    private val caseRecordeRepo: CaseRecordeRepo,
+    private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
+    private val vitalsRepo: VitalsRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
 ) {
 
     suspend fun insertPatient(patient: Patient) {
@@ -65,6 +72,18 @@ class PatientRepo  @Inject constructor(
 //    suspend fun getPatientListFlow() : Flow<List<PatientDisplay>> {
 //        return patientDao.getPatientListFlow()
 //    }
+
+    suspend fun getPatient(patientId : String) : Patient{
+        return patientDao.getPatient(patientId)
+    }
+
+    suspend fun updateNurseSubmitted(patientId : String) {
+        patientDao.updateNurseSubmitted(patientId)
+    }
+
+    suspend fun updateDoctorSubmitted(patientId : String) {
+        patientDao.updateDoctorSubmitted(patientId)
+    }
 
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
@@ -100,6 +119,26 @@ class PatientRepo  @Inject constructor(
                 is NetworkResult.Success -> {
                     val benificiarySaveResponse = response.data as BenificiarySaveResponse
                     updatePatientSyncSuccess(it.patient, benificiarySaveResponse)
+                    caseRecordeRepo.updateBenIdAndBenRegId(
+                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+                        patientID = it.patient.patientID
+                    )
+                    visitReasonsAndCategoriesRepo.updateBenIdAndBenRegId(
+                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+                        patientID = it.patient.patientID
+                    )
+                    vitalsRepo.updateBenIdBenRegId(
+                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+                        patientID = it.patient.patientID
+                    )
+                    patientVisitInfoSyncRepo.updatePatientVisitInfoBenIdAndBenRegId(
+                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+                        patientID = it.patient.patientID
+                    )
                 }
                 is NetworkResult.Error -> {
                     updatePatientSyncingFailed(it.patient)

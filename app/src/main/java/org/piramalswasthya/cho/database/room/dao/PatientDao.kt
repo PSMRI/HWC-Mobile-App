@@ -19,6 +19,17 @@ interface PatientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPatient(patient: Patient)
 
+    @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
+    suspend fun getPatient(patientID : String) : Patient
+
+    @Transaction
+    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID")
+    suspend fun updateNurseSubmitted(patientID : String)
+
+    @Transaction
+    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
+    suspend fun updateDoctorSubmitted(patientID : String)
+
     @Transaction
     @Query("DELETE FROM PATIENT WHERE patientID = :patientID")
     suspend fun deletePatient(patientID : String)
@@ -51,5 +62,13 @@ interface PatientDao {
     suspend fun updatePatientSyncFailed(synced: SyncState = SyncState.UNSYNCED, patientID: String) : Int
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
+
+    @Transaction
+    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun updateNurseCompleted(beneficiaryRegID: Long)
+
+    @Transaction
+    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun updateDoctorCompleted(beneficiaryRegID: Long)
 
 }

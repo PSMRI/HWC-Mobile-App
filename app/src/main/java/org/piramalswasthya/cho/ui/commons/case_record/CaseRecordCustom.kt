@@ -32,6 +32,7 @@ import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
@@ -42,6 +43,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFreq
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
 import java.util.Arrays
 
@@ -236,8 +238,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val diagnosisData = itemListD[i]
             if (diagnosisData.diagnosis.isNotEmpty()) {
                 var diagnosis = DiagnosisCaseRecord(
-                    diagnosisCaseRecordId = "33+${i}",
-                   diagnosis= diagnosisData.diagnosis
+                    diagnosisCaseRecordId = generateUuid(),
+                    diagnosis= diagnosisData.diagnosis,
+                    patientID = masterDb!!.patientId
                 )
                 viewModel.saveDiagnosisToCache(diagnosis)
             }
@@ -247,9 +250,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val counsellingTypesVal = binding.routeDropDownVal.text.toString()
         val referVal = binding.referDropdownText.text.toString()
         val investigation = InvestigationCaseRecord(
-            investigationCaseRecordId = "33",
+            investigationCaseRecordId = generateUuid(),
             testName = testName,
             externalInvestigation = externalInvestigation,
+            patientID = masterDb!!.patientId,
             counsellingTypes = counsellingTypesVal,
             refer = referVal
         )
@@ -260,20 +264,21 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             var freq = ""
             if (prescriptionData.form.isNotEmpty()||prescriptionData.frequency.isNotEmpty()||prescriptionData.unit.isNotEmpty()) {
                 var pres = PrescriptionCaseRecord(
-                    prescriptionCaseRecordId = "33+${i}",
+                    prescriptionCaseRecordId = generateUuid(),
                     form = prescriptionData.form,
                     frequency = prescriptionData.frequency ,
                     duration = prescriptionData.duration,
                     instruciton = prescriptionData.instruction,
-                    unit = prescriptionData.unit
-                    )
+                    unit = prescriptionData.unit,
+                    patientID = masterDb!!.patientId
+                 )
                 viewModel.savePrescriptionToCache(pres)
             }
         }
     }
     private fun addVitalsDataToCache(){
         val patientVitals = PatientVitalsModel(
-            vitalsId = "1",
+            vitalsId = generateUuid(),
             height = masterDb?.vitalsMasterDb?.height,
             weight = masterDb?.vitalsMasterDb?.weight,
             bmi = masterDb?.vitalsMasterDb?.bmi,
@@ -284,31 +289,41 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             bpDiastolic = masterDb?.vitalsMasterDb?.bpDiastolic,
             bpSystolic = masterDb?.vitalsMasterDb?.bpSystolic,
             respiratoryRate = masterDb?.vitalsMasterDb?.respiratoryRate,
-            rbs = masterDb?.vitalsMasterDb?.rbs
+            rbs = masterDb?.vitalsMasterDb?.rbs,
+            patientID = masterDb!!.patientId
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
     }
     private fun addVisitRecordDataToCache(){
         val visitDB = VisitDB(
-            visitId = "33",
+            visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category ?: "",
             reasonForVisit = masterDb?.visitMasterDb?.reason ?: "",
-            subCategory = masterDb?.visitMasterDb?.subCategory ?: ""
+            subCategory = masterDb?.visitMasterDb?.subCategory ?: "",
+            patientID = masterDb!!.patientId
         )
 
         viewModel.saveVisitDbToCatche(visitDB)
         for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
             val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
             val chiefC = ChiefComplaintDB(
-                id = "33+${i}",
+                id = generateUuid(),
                 chiefComplaint = chiefComplaintItem.chiefComplaint,
                 duration =  chiefComplaintItem.duration,
                 durationUnit = chiefComplaintItem.durationUnit,
-                description = chiefComplaintItem.description
+                description = chiefComplaintItem.description,
+                visitId = visitDB.visitId,
+                patientID = masterDb!!.patientId
             )
             viewModel.saveChiefComplaintDbToCatche(chiefC)
         }
     }
+
+    private fun addPatientVisitInfoSyncToCache(){
+        val patientVisitInfoSync = PatientVisitInfoSync(masterDb!!.patientId)
+        viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
+    }
+
     override fun getFragmentId(): Int {
         return R.id.case_record_custome_layout
     }
@@ -321,10 +336,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         findNavController().navigateUp()
     }
     fun navigateNext(){
-
         addVisitRecordDataToCache()
         addVitalsDataToCache()
         addCaseRecordDataToCatche()
+        addPatientVisitInfoSyncToCache()
         val validate = dAdapter.setError()
         if(validate==-1) {
             Toast.makeText(
@@ -343,4 +358,5 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             ).show()
         }
     }
+
 }

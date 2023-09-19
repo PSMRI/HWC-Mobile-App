@@ -1,12 +1,18 @@
 package org.piramalswasthya.cho.database.shared_preferences
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.UserNetwork
+import org.piramalswasthya.cho.utils.DateTimeUtil
+import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,6 +20,13 @@ import javax.inject.Singleton
 class PreferenceDao @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val pref = PreferenceManager.getInstance(context)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    val date = LocalDate.of(2022, 9, 11)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
 
 //    fun getD2DApiToken(): String? {
 //        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
@@ -74,19 +87,32 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.putString(prefKey, loginSettingsJson)
         editor.apply()
     }
+
     fun getLoginSettingsRecord(): LoginSettingsData? {
         val prefKey = context.getString(R.string.login_settings)
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, LoginSettingsData::class.java)
     }
-//
+
+    fun getLastSyncTime(): String {
+        val prefKey = context.getString(R.string.last_sync_time)
+        return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
+    fun setLastSyncTime(timestamp: Long){
+        val prefKey = context.getString(R.string.last_sync_time)
+        val editor = pref.edit()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(timestamp))
+        editor.apply()
+    }
+
 //    fun deleteD2DApiToken() {
 //        val editor = pref.edit()
 //        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
 //        editor.remove(prefKey)
 //        editor.apply()
 //    }
-//
+
     fun registerLoginCred(userName: String) {
         val editor = pref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)
