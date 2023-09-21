@@ -122,8 +122,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingBottom="5dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subCatDropDown" />
+
+        <FrameLayout
+            android:id="@+id/chf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv"
@@ -134,16 +141,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"/>
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/add_text"
+            style="@style/Widget.Material3.Button"
+            android:layout_gravity="bottom|center_horizontal"
+            android:src="@drawable/baseline_add_icon"
             android:layout_margin="@dimen/custom_ui_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rv" />
+        </FrameLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardUpload"
@@ -154,7 +163,7 @@
             android:radius="8dp"
             android:shape="rectangle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/plusButton">
+            app:layout_constraintTop_toBottomOf="@+id/chf">
 
             <LinearLayout
                 android:id="@+id/mainLinear"

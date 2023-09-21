@@ -33,9 +33,22 @@ class DropdownConst {
             "1-1-1",
             "1-1-1-1"
         )
+
+        val medicalReferDropdownVal = mutableListOf(
+            "Select none",
+            "CHC",
+            "FRU",
+            "Other",
+            "RH",
+            "SDH",
+            "UPHC",
+            "PHC"
+        )
         val medicationRouteList = mutableListOf("Ears","Eyes/Ear","Eyes","ID","IM","IV","Local application","Nostrils","Oral","Rectal")
         val unitVal = mutableListOf("Day","Month","Week")
         val instructionDropdownList = mutableListOf("After Food","Before Food")
+
+        val mutualVisitUnitsVal = mutableListOf("Hours", "Days", "Weeks", "Months", "Years")
     }
 
 }

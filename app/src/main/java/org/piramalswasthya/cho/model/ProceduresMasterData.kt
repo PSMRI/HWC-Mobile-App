@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 
 @Entity(tableName = "Procedures_Master_Data")
 @JsonClass(generateAdapter = true)
-data class ProceduresMasterData(
+data class  ProceduresMasterData(
     @PrimaryKey
     var procedureID:Int,
     @ColumnInfo(name = "procedureName") val procedureName: String,

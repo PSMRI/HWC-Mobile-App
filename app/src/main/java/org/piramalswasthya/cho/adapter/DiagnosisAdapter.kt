@@ -8,6 +8,7 @@ import org.piramalswasthya.cho.utils.setBoxColor
 import androidx.compose.ui.res.booleanResource
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
@@ -24,8 +25,8 @@ class DiagnosisAdapter(
     inner class ViewHolder(itemView: View):RecyclerView.ViewHolder(itemView) {
         val diagnosisInput: TextInputEditText = itemView.findViewById(R.id.inputDignosis)
         val diagnosisInpuTextt: TextInputLayout = itemView.findViewById(R.id.diagnosis)
-        val resetButton: Button = itemView.findViewById(R.id.resetButton)
-        val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
+        val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
+        val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
 
     init {
         // Set up click listener for the "Cancel" button

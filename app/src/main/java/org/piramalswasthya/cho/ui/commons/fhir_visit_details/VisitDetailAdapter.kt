@@ -12,6 +12,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
@@ -36,8 +37,8 @@ class VisitDetailAdapter(
         val durationInput: TextInputEditText = itemView.findViewById(R.id.inputDuration)
         val durationUnitDropdown: AutoCompleteTextView = itemView.findViewById(R.id.dropdownDurUnit)
         val descriptionInput: TextInputEditText = itemView.findViewById(R.id.descInputText)
-        val resetButton: Button = itemView.findViewById(R.id.resetButton)
-        val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
+        val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
+        val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
         val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
         val descInputLayout: TextInputLayout = itemView.findViewById(R.id.descriptionText)
         val chiefComplaintOptionInput : TextInputLayout = itemView.findViewById(R.id.chiefComplaintOptions)
@@ -170,7 +171,6 @@ class VisitDetailAdapter(
         })
         holder.durationUnitDropdown.addTextChangedListener {
             itemData.durationUnit = it.toString()
-            holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }
         holder.descriptionInput.addTextChangedListener {

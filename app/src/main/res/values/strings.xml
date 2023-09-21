@@ -378,4 +378,5 @@
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
+    <string name="chief_complaint2">Chief Complaint List</string>
 </resources>
