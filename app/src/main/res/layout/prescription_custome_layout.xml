@@ -101,6 +101,27 @@
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dosageDropdown"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown"
+        android:hint="@string/dosage"
+        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+
+        <AutoCompleteTextView
+            android:id="@+id/dosageDropdownVal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
 <!--    <com.google.android.material.textfield.TextInputLayout-->
 <!--        android:id="@+id/duration"-->
 <!--        android:layout_width="match_parent"-->
@@ -118,12 +139,13 @@
 <!--            android:textSize="18sp"-->
 <!--            android:layout_height="wrap_content" />-->
 <!--    </com.google.android.material.textfield.TextInputLayout>-->
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/duration"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown"
+        app:layout_constraintTop_toBottomOf="@+id/dosageDropdown"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:hint="@string/duration2"
@@ -139,31 +161,30 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/subtractButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
+        android:src="@drawable/baseline_remove_icon"
         android:layout_margin="@dimen/custom_ui_margin"
-        android:text="@string/subtractSign"
-        android:textSize="20sp"
         app:layout_constraintEnd_toStartOf="@+id/duration"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown" />
+        app:layout_constraintTop_toBottomOf="@+id/dosageDropdown" />
 
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
+        android:src="@drawable/baseline_add_icon"
         android:layout_margin="@dimen/custom_ui_margin"
-        android:layout_marginTop="12dp"
-        android:text="@string/addSign"
-        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/duration"
-        app:layout_constraintTop_toBottomOf="@+id/frequencyDropDown" />
+        app:layout_constraintTop_toBottomOf="@+id/dosageDropdown" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/unitDropDown"
@@ -196,6 +217,7 @@
         android:layout_marginRight="4dp"
         android:textSize="18sp"
         android:paddingTop="4dp"
+        android:paddingBottom="10dp"
         app:layout_constraintTop_toBottomOf="@+id/unitDropDown"
         android:hint="@string/instruction"
         android:textColorHint="#808080">
@@ -209,24 +231,38 @@
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <!--    <Button-->
+<!--        android:id="@+id/deleteButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_margin="@dimen/custom_ui_margin"-->
+<!--        android:text="@string/cancel"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/resetButton"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/instruction" />-->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/resetButton"
+        style="@style/Widget.Material3.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/custom_ui_margin"
-        android:text="@string/reset"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_refresh_icon"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/instruction" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
+        android:src="@drawable/baseline_cross_line"
         android:layout_margin="@dimen/custom_ui_margin"
-        android:text="@string/cancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintTop_toBottomOf="@+id/instruction" />

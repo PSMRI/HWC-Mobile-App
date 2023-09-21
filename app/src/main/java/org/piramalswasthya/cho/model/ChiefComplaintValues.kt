@@ -7,5 +7,5 @@ data class ChiefComplaintValues(
     var chiefComplaint: String = "",
     var duration: String = "",
     var durationUnit: String = "Days",
-    var description: String = ""
+    var description: String? = ""
 ): Serializable

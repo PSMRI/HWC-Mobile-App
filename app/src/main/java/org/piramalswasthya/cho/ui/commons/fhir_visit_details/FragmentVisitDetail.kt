@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitMasterDb
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
@@ -62,11 +63,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private var userInfo: UserCache? = null
 
     private var _binding: VisitDetailsInfoBinding? = null
-
-    private var units = mutableListOf("Hours", "Days", "Weeks", "Months", "Years")
     private var chiefComplaints = ArrayList<ChiefComplaintMaster>()
     private var chiefComplaintsForFilter = ArrayList<ChiefComplaintMaster>()
-
+    private var units = mutualVisitUnitsVal
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
     private lateinit var subCatAdapter: SubCategoryAdapter
@@ -250,7 +249,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
-            if (item.chiefComplaint.isEmpty() || item.duration.isEmpty() || item.durationUnit.isEmpty() || item.description.isEmpty()) {
+            if (item.chiefComplaint.isEmpty() || item.duration.isEmpty() || item.durationUnit.isEmpty()) {
                 return true
             }
         }
@@ -413,8 +412,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
                 chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty() &&
-                chiefComplaintData.description.isNotEmpty()
+                chiefComplaintData.durationUnit.isNotEmpty()
             ) {
                 var cc = ChiefComplaintValues(
                     chiefComplaint = chiefComplaintData.chiefComplaint,
@@ -501,8 +499,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
                 chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty() &&
-                chiefComplaintData.description.isNotEmpty()
+                chiefComplaintData.durationUnit.isNotEmpty()
             ) {
 
                 // Creating the "Condition" resource

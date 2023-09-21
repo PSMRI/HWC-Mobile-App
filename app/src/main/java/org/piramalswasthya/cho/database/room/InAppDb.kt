@@ -86,7 +86,6 @@ import timber.log.Timber
         AssociateAilmentsDropdown::class,
         MedicationHistory::class,
         AssociateAilmentsHistory::class,
-        PatientVitalsModel::class,
         ReferRevisitModel::class,
         Patient::class,
         HigherHealthCenter::class,
@@ -94,10 +93,8 @@ import timber.log.Timber
         PastIllnessHistory::class,
         CovidVaccinationStatusHistory::class,
         FingerPrint::class,
-        DiagnosisCaseRecord::class,
         InvestigationCaseRecord::class,
         PrescriptionCaseRecord::class,
-        VisitDB::class,
         ChiefComplaintDB::class,
         ItemMasterList::class,
         DrugFrequencyMaster::class,
@@ -105,10 +102,13 @@ import timber.log.Timber
         DrugFormMaster::class,
         ProceduresMasterData::class,
         BenFlow::class,
+        PatientVitalsModel::class,
+        DiagnosisCaseRecord::class,
+        VisitDB::class,
         PatientVisitInfoSync::class
     ],
 //    views = [BenBasicCache::class],
-    version = 54, exportSchema = false
+    version = 60, exportSchema = false
 )
 
 
@@ -134,7 +134,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val stateMasterDao: StateMasterDao
 
     abstract val vaccinationTypeAndDoseDao: VaccinationTypeAndDoseDao
-    abstract val visitReasonsAndCategoriesDao:VisitReasonsAndCategoriesDao
+    abstract val visitReasonsAndCategoriesDao: VisitReasonsAndCategoriesDao
     abstract val registrarMasterDataDao:RegistrarMasterDataDao
 
     abstract val loginSettingsDataDao: LoginSettingsDataDao

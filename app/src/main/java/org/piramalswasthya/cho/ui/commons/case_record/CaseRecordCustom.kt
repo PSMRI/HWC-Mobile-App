@@ -1,25 +1,31 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
@@ -39,10 +45,13 @@ import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
 import java.util.Arrays
@@ -60,6 +69,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val initialItemP = PrescriptionValues()
     private val itemListP = mutableListOf(initialItemP)
     private lateinit var dAdapter : DiagnosisAdapter
+    private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
     private val selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
@@ -69,19 +79,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val counsellingTypes = ArrayList<CounsellingProvided>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
+    private val referDropdownVal = medicalReferDropdownVal
     private val unitListVal = unitVal
+    private val dosage = tabletDosageList
     private var masterDb: MasterDb? = null
     private lateinit var referDropdown: AutoCompleteTextView
-    private val referDropdownVal = arrayOf(
-                "Select none",
-                "CHC",
-                "FRU",
-                "Other",
-                "RH",
-                "SDH",
-                "UPHC",
-                "PHC"
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,8 +97,32 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
-
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>() // Create an empty mutable list
+
+        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+            val chiefC = ChiefComplaintDB(
+                id = "33+${i}",
+                chiefComplaint = chiefComplaintItem.chiefComplaint,
+                duration = chiefComplaintItem.duration,
+                durationUnit = chiefComplaintItem.durationUnit,
+                description = chiefComplaintItem.description,
+                visitId = "",
+                patientID = "",
+                beneficiaryID = 0,
+                beneficiaryRegID = 0,
+                benFlowID = 0
+            )
+            chiefComplaintDB.add(chiefC) // Add the item to the list
+        }
+
+      chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+        binding.chiefComplaintExtra.adapter = chAdapter
+        val layoutManagerC = LinearLayoutManager(requireContext())
+        binding.chiefComplaintExtra.layoutManager = layoutManagerC
+
+
 
         viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
             formMListVal.clear()
@@ -151,7 +177,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.plusButtonD.setOnClickListener {
             val newItem = DiagnosisValue()
             itemListD.add(newItem)
-            dAdapter.notifyItemInserted(itemListD.size - 1)
+//            dAdapter.notifyItemInserted(itemListD.size - 1)
+             view.clearFocus()
+            dAdapter.notifyDataSetChanged()
             binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
             binding.plusButtonD.isEnabled = false
         }
@@ -159,6 +187,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             itemListP,
             formMListVal,
             frequencyListVal,
+            dosage,
             unitListVal,
             instructionDropdown,
             object : RecyclerViewItemChangeListenersP {
@@ -175,11 +204,82 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.plusButtonP.setOnClickListener {
             val newItem = PrescriptionValues()
             itemListP.add(newItem)
-            pAdapter.notifyItemInserted(itemListP.size - 1)
+//            pAdapter.notifyItemInserted(itemListP.size -   1)
+            view.clearFocus()
+            pAdapter.notifyItemInserted(itemListP.size -   1)
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
+        populateVitalsFields()
     }
+    private fun populateVitalsFields() {
+        hideNullFields()
+        // Check if the masterDb and vitalsMasterDb are not null
+        if (masterDb != null && masterDb?.vitalsMasterDb != null) {
+            val vitals = masterDb?.vitalsMasterDb
+            binding.inputHeight.setText(vitals?.height.toString())
+            binding.inputWeight.setText(vitals?.weight.toString())
+            binding.inputBmi.setText(vitals?.bmi.toString())
+            binding.inputWaistCircum.setText(vitals?.waistCircumference.toString())
+            binding.inputTemperature.setText(vitals?.temperature.toString())
+            binding.inputPulseRate.setText(vitals?.pulseRate.toString())
+            binding.inputSpo2.setText(vitals?.spo2.toString())
+            binding.inputBpDiastolic.setText(vitals?.bpDiastolic.toString())
+            binding.inputBpSystolic.setText(vitals?.bpSystolic.toString())
+            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate.toString())
+            binding.inputRbs.setText(vitals?.rbs.toString())
+        }
+    }
+    private fun hideNullFields(){
+        var  itemH = masterDb?.vitalsMasterDb?.height.toString()
+        var  itemW = masterDb?.vitalsMasterDb?.weight.toString()
+        var  itemB = masterDb?.vitalsMasterDb?.bmi.toString()
+        var  itemC = masterDb?.vitalsMasterDb?.waistCircumference.toString()
+        var  itemT = masterDb?.vitalsMasterDb?.temperature.toString()
+        var  itemP = masterDb?.vitalsMasterDb?.pulseRate.toString()
+        var  itemS = masterDb?.vitalsMasterDb?.spo2.toString()
+        var  itemBs = masterDb?.vitalsMasterDb?.bpSystolic.toString()
+        var  itemBd = masterDb?.vitalsMasterDb?.bpDiastolic.toString()
+        var  itemRs = masterDb?.vitalsMasterDb?.respiratoryRate.toString()
+        var  itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
+        if(itemH.isNullOrEmpty()){
+            binding.heightEditTxt.visibility = View.GONE
+        }
+        if(itemW.isNullOrEmpty()){
+            binding.weightEditTxt.visibility = View.GONE
+        }
+        if(itemB.isNullOrEmpty()){
+            binding.bmill.visibility = View.GONE
+        }
+        if(itemC.isNullOrEmpty()){
+            binding.waistCircumEditTxt.visibility = View.GONE
+        }
+        if(itemT.isNullOrEmpty()){
+            binding.temperatureEditTxt.visibility = View.GONE
+        }
+        if(itemP.isNullOrEmpty()){
+            binding.pulseRateEditTxt.visibility = View.GONE
+        }
+        if(itemS.isNullOrEmpty()){
+            binding.spo2EditTxt.visibility = View.GONE
+        }
+        if(itemBs.isNullOrEmpty()){
+            binding.bpSystolicEditTxt.visibility = View.GONE
+        }
+        if(itemBd.isNullOrEmpty()){
+            binding.bpDiastolicEditTxt.visibility = View.GONE
+        }
+        if(itemRs.isNullOrEmpty()){
+            binding.respiratoryEditTxt.visibility = View.GONE
+        }
+        if(itemRb.isNullOrEmpty()){
+            binding.rbsEditTxt.visibility = View.GONE
+        }
+        if(itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()){
+            binding.vitalsExtra.visibility= View.INVISIBLE
+        }
+    }
+
 
     private fun showDialogWithFamilyMembers(proceduresMasterData: List<ProceduresMasterData>) {
         val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
@@ -253,8 +353,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             investigationCaseRecordId = generateUuid(),
             testName = testName,
             externalInvestigation = externalInvestigation,
-            patientID = masterDb!!.patientId,
             counsellingTypes = counsellingTypesVal,
+            patientID = masterDb!!.patientId,
             refer = referVal
         )
         viewModel.saveInvestigationToCache(investigation)
@@ -336,6 +436,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         findNavController().navigateUp()
     }
     fun navigateNext(){
+
         addVisitRecordDataToCache()
         addVitalsDataToCache()
         addCaseRecordDataToCatche()

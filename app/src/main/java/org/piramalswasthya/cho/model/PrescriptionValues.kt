@@ -5,6 +5,7 @@ import java.io.Serializable
 data class PrescriptionValues(
     var form: String = "",
     var frequency: String = "",
+    var dosage:String = "",
     var duration: String = "",
     var instruction: String = "",
     var unit: String = ""

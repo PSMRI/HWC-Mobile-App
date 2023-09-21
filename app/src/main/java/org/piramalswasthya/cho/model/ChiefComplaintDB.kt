@@ -36,7 +36,7 @@ data class ChiefComplaintDB(
     @ColumnInfo(name = "chiefComplaint") val chiefComplaint: String,
     @ColumnInfo(name = "duration") val duration: String,
     @ColumnInfo(name = "durationUnit") val durationUnit: String,
-    @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "visitId") val visitId:String,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,

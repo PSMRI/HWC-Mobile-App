@@ -8,6 +8,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ItemMasterList
@@ -18,6 +19,7 @@ class PrescriptionAdapter(
     private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
+    private val dosage:List<String>,
     private val unitDropDown: List<String>,
     private val instructionDropdown: List<String>,
     private val itemChangeListener: RecyclerViewItemChangeListenersP
@@ -33,14 +35,15 @@ class PrescriptionAdapter(
             itemView.findViewById(R.id.dosagesDropDownVal)
         val frequencyOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.frequencyDropDownVal)
+        val dosageOption:AutoCompleteTextView = itemView.findViewById(R.id.dosageDropdownVal)
         val durationInput: TextInputEditText = itemView.findViewById(R.id.inputDuration)
         val instructionOption: AutoCompleteTextView = itemView.findViewById(R.id.inputInstruction)
         val unitOption: AutoCompleteTextView =
             itemView.findViewById(R.id.unitDropDownVal)
-        val resetButton: Button = itemView.findViewById(R.id.resetButton)
-        val cancelButton: Button = itemView.findViewById(R.id.deleteButton)
-        val addButton : Button = itemView.findViewById(R.id.addButton)
-        val subtractButton : Button = itemView.findViewById(R.id.subtractButton)
+        val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
+        val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
+        val addButton : FloatingActionButton = itemView.findViewById(R.id.addButton)
+        val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButton)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -64,6 +67,7 @@ class PrescriptionAdapter(
         fun updateResetButtonState() {
             val isItemFilled = formOptions.text.isNotEmpty() ||
                     formOptions.text.isNotEmpty() ||
+                      dosageOption.text.isNotEmpty()||
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
                     instructionOption.text!!.isNotEmpty() ||
@@ -90,6 +94,7 @@ class PrescriptionAdapter(
                 val itemData = itemList[position]
                 itemData.form = ""
                 itemData.frequency = ""
+                itemData.dosage = ""
                 itemData.duration = ""
                 itemData.instruction = ""
                 itemData.unit = ""
@@ -138,6 +143,7 @@ class PrescriptionAdapter(
         // Bind data and set listeners for user interactions
         holder.formOptions.setText(itemData.form)
         holder.frequencyOptions.setText(itemData.frequency)
+        holder.dosageOption.setText(itemData.dosage)
         holder.durationInput.setText(itemData.duration)
         holder.instructionOption.setText(itemData.instruction)
         holder.unitOption.setText(unitDropDown[0])
@@ -150,6 +156,10 @@ class PrescriptionAdapter(
         val frequencyAdapter =
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, frequencyDropDown)
         holder.frequencyOptions.setAdapter(frequencyAdapter)
+
+        val dosageAdapter =
+            ArrayAdapter(holder.itemView.context, R.layout.drop_down, dosage)
+        holder.dosageOption.setAdapter(dosageAdapter)
 
         val unitAdapter =
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, unitDropDown)
@@ -168,15 +178,15 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
-        holder.formOptions.addTextChangedListener {
-            itemData.form = it.toString()
+
+        holder.frequencyOptions.addTextChangedListener {
+            itemData.frequency = it.toString()
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }
 
-
-        holder.frequencyOptions.addTextChangedListener {
-            itemData.frequency = it.toString()
+        holder.dosageOption.addTextChangedListener {
+            itemData.dosage = it.toString()
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }
