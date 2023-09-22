@@ -28,10 +28,10 @@ import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import java.math.BigDecimal
 import kotlin.math.pow
 
@@ -105,17 +105,17 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
    private fun extractFormValues(){
-        heightValue = binding.inputHeight.text.toString().trim()
-        weightValue = binding.inputWeight.text.toString().trim()
-        bmiValue = binding.inputBmi.text.toString().trim()
-        waistCircumferenceValue = binding.inputWaistCircum.text.toString().trim()
-        temperatureValue = binding.inputTemperature.text.toString().trim()
-        pulseRateValue = binding.inputPulseRate.text.toString().trim()
-        spo2Value = binding.inputSpo2.text.toString().trim()
-        bpSystolicValue = binding.inputBpSystolic.text.toString().trim()
-        bpDiastolicValue = binding.inputBpDiastolic.text.toString().trim()
-        respiratoryValue = binding.inputRespiratoryPerMin.text.toString().trim()
-        rbsValue = binding.inputRbs.text.toString().trim()
+        heightValue = binding.inputHeight.text?.toString()?.trim()
+        weightValue = binding.inputWeight.text?.toString()?.trim()
+        bmiValue = binding.inputBmi.text?.toString()?.trim()
+        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
+        temperatureValue = binding.inputTemperature.text?.toString()?.trim()
+        pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
+        spo2Value = binding.inputSpo2.text?.toString()?.trim()
+        bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
+        bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
+        respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
+        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
 //    private fun addVitalsDataToCache(){
@@ -244,41 +244,41 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         if (weightValue != null && heightValue != null && heightValue > 0 &&  weightValue > 0) {
             val bmi = weightValue / (heightValue / 100).pow(2)
             val formattedBMI = "%.2f".format(bmi)
-//            var status : String
+    //            var status : String
             binding.inputBmi.text = Editable.Factory.getInstance().newEditable(formattedBMI)
             if(bmi > 25 && bmi < 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.overweight_txt)
-//                status = getString(R.string.overweight_txt)
+    //                status = getString(R.string.overweight_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else if (bmi > 30){
                 binding.bmiCategory.isVisible = true
                 binding.bmiCategory.text = getString(R.string.obese_txt)
-//                status = getString(R.string.obese_txt)
+    //                status = getString(R.string.obese_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.red))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.red))
             }
             else{
                 binding.bmiCategory.isVisible = true
-//                status = getString(R.string.normal_txt)
+    //                status = getString(R.string.normal_txt)
                 binding.bmiCategory.text = getString(R.string.normal_txt)
                 binding.bmiCategory.setTextColor(resources.getColor(R.color.green))
                 binding.inputBmi.setTextColor(resources.getColor(R.color.black))
             }
-//            val bmiText = "$formattedBMI                          Status: $status"
-//
-//            val spannable = SpannableString(bmiText)
-//
-//            // Color status text
-//            val statusStart = bmiText.indexOf("Status:")
-//            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//
-//            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
-//            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    //            val bmiText = "$formattedBMI                          Status: $status"
+    //
+    //            val spannable = SpannableString(bmiText)
+    //
+    //            // Color status text
+    //            val statusStart = bmiText.indexOf("Status:")
+    //            spannable.setSpan(ForegroundColorSpan(resources.getColor(R.color.red)), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    //
+    //            val indentation = resources.getDimensionPixelSize(R.dimen.bmi_status_indentation) // Define this dimension in resources
+    //            spannable.setSpan(LeadingMarginSpan.Standard(0, indentation), statusStart, bmiText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-//            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
+    //            binding.inputBmi.text = Editable.Factory.getInstance().newEditable(spannable)
         }
         else{
             binding.inputBmi.text = null
@@ -312,20 +312,20 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun onSubmitAction() {
-//        saveEntity()
+    //        saveEntity()
         navigateNext()
     }
 
     override fun onCancelAction() {
-//        findNavController().navigate(
-//            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-//        )
+    //        findNavController().navigate(
+    //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
+    //        )
         findNavController().navigateUp()
     }
 
     override fun navigateNext() {
         extractFormValues()
-//        addVitalsDataToCache()
+    //        addVitalsDataToCache()
         createObservationResource()
         if(!isNull) {
             viewModel.saveObservationResource(observation)
@@ -339,20 +339,21 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     private fun setVitalsMasterData(){
         var vitalDb = VitalsMasterDb(
-            height = heightValue,
-            weight = weightValue,
-            bmi = bmiValue,
-            waistCircumference = waistCircumferenceValue,
-            temperature = temperatureValue,
-            pulseRate = pulseRateValue,
-            spo2 = spo2Value,
-            bpSystolic = bpSystolicValue,
-            bpDiastolic = bpDiastolicValue,
-             respiratoryRate = respiratoryValue,
-            rbs = rbsValue
+            height = heightValue.nullIfEmpty(),
+            weight = weightValue.nullIfEmpty(),
+            bmi = bmiValue.nullIfEmpty(),
+            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
+            temperature = temperatureValue.nullIfEmpty(),
+            pulseRate = pulseRateValue.nullIfEmpty(),
+            spo2 = spo2Value.nullIfEmpty(),
+            bpSystolic = bpSystolicValue.nullIfEmpty(),
+            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
+            respiratoryRate = respiratoryValue.nullIfEmpty(),
+            rbs = rbsValue.nullIfEmpty()
         )
         masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
     }
+
 
 }

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.utils.generateUuid
 
 
 @Entity(
@@ -43,4 +44,23 @@ data class PatientVitalsModel (
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
-)
+){
+    constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
+        generateUuid(),
+        nurseData.benAnthropometryDetail?.height_cm?.toString(),
+        nurseData.benAnthropometryDetail?.weight_Kg?.toString(),
+        nurseData.benAnthropometryDetail?.bMI?.toString(),
+        nurseData.benAnthropometryDetail?.waistCircumference_cm?.toString(),
+        nurseData.benPhysicalVitalDetail?.temperature?.toString(),
+        nurseData.benPhysicalVitalDetail?.pulseRate?.toString(),
+        nurseData.benPhysicalVitalDetail?.sPO2,
+        nurseData.benPhysicalVitalDetail?.systolicBP_1stReading?.toString(),
+        nurseData.benPhysicalVitalDetail?.diastolicBP_1stReading?.toString(),
+        nurseData.benPhysicalVitalDetail?.respiratoryRate?.toString(),
+        nurseData.benPhysicalVitalDetail?.rbsTestResult,
+        patient.patientID,
+        benFlow.beneficiaryID,
+        benFlow.beneficiaryRegID,
+        benFlow.benFlowID
+    )
+}

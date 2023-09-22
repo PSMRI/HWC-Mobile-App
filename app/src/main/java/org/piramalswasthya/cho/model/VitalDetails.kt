@@ -70,8 +70,8 @@ data class VitalDetails(
 //    waistHipRatio:null
 //    weight_Kg:"100"
 //    wheezingChecked:null
-){
-    constructor(user: UserDomain?, vitals: PatientVitalsModel?, benFlow: BenFlow): this(
+) {
+    constructor(user: UserDomain?, vitals: PatientVitalsModel?, benFlow: BenFlow) : this(
         vitals?.bmi?.toDouble(),
         null,
         benFlow.beneficiaryRegID.toString(),
@@ -106,39 +106,42 @@ data class VitalDetails(
         vitals?.weight,
         null
     )
-//    constructor(user: UserDomain?, vitals: PatientVitalsModel?, benFlow: BenFlow): this(
-//        vitals?.bmi?.toDouble(),
-//        null,
-//        benFlow.beneficiaryRegID.toString(),
-//        null,
-//        null,
-//        null,
-//        null,
-//        user?.userName,
-//        vitals?.bpDiastolic,
-//        null,
-//        null,
-//        vitals?.height,
-//        null,
-//        null,
-//        null,
-//        null,
-//        user?.parkingPlaceId,
-//        user?.serviceMapId.toString(),
-//        vitals?.pulseRate,
-//        true,
-//        null,
-//        vitals?.rbs,
-//        vitals?.respiratoryRate,
-//        vitals?.spo2,
-//        null,
-//        null,
-//        vitals?.bpSystolic,
-//        vitals?.temperature,
-//        user?.vanId,
-//        vitals?.waistCircumference,
-//        null,
-//        vitals?.weight,
-//        null
-//    )
+
 }
+
+
+//    val bMI: Double?,
+//    val benVisitID: String?,
+//    val beneficiaryRegID: String?,
+//    val bloodGlucose_2hr_PP: String?,
+//    val bloodGlucose_Fasting: String?,
+//    val bloodGlucose_Random: String?,
+//    val coughAtNightChecked: String?,
+//    val createdBy: String?,
+//    val diastolicBP_1stReading: String?,
+//    val frequentCoughChecked: String?,
+//    val headCircumference_cm: String?,
+//    val height_cm: String?,
+//    val hemoglobin: String?,
+//    val hipCircumference_cm: String?,
+//    val midUpperArmCircumference_MUAC_cm: String?,
+//    val painInChestChecked: String?,
+//    val parkingPlaceID: Int?,
+//    val providerServiceMapID: String?,
+//    val pulseRate: String?,
+//    val rbsCheckBox: Boolean?,
+//    val rbsTestRemarks: String?,
+//    val rbsTestResult: String?,
+//    val respiratoryRate: String?,
+//    val sPO2: String?,
+//    val shortnessOfBreathChecked: String?,
+//    val sputumChecked: String?,
+//    val systolicBP_1stReading: String?,
+//    val temperature: String?,
+//    val vanID: Int?,
+//    val waistCircumference_cm: String?,
+//    val waistHipRatio: String?,
+//    val weight_Kg: String?,
+//    val wheezingChecked: String?,
+
+

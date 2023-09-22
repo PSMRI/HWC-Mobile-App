@@ -65,6 +65,13 @@ class DateTimeUtil {
 
     companion object {
 
+        val ageUnitMap = mapOf(
+            AgeUnitEnum.YEARS to "y",
+            AgeUnitEnum.MONTHS to "m",
+            AgeUnitEnum.WEEKS to "w",
+            AgeUnitEnum.DAYS to "d",
+        )
+
         const val format = "yyyy-MM-dd HH:mm:ss"
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -115,17 +122,26 @@ class DateTimeUtil {
             return calendar.time
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun formatDateToUTC(date: Date): String {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             return sdf.format(date)
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun formatCustDateAndTime(timestamp: Long): String {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
             return Instant.ofEpochMilli(timestamp)
                 .atZone(ZoneId.systemDefault())
                 .format(formatter)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun formatUTCToDate(dateString: String): Date? {
+            val instant = Instant.parse(dateString)
+            val date = Date.from(instant)
+            return date
         }
 
     }

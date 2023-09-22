@@ -125,7 +125,7 @@ class BenVisitRepo @Inject constructor(
                             is NetworkResult.Success -> {
                                 val nurseDataResponse = response.data as NurseDataResponse
                                 val visitCode = nurseDataResponse.visitCode.toLong()
-                                val benVisitID = findVisitId(visitCode)
+                                val benVisitID = nurseDataResponse.visitID
                                 patientRepo.updateNurseSubmitted(it.patientID)
                                 benFlowRepo.updateNurseCompletedAndVisitCode(visitCode = visitCode, benVisitID = benVisitID, benFlowID = benFlow.benFlowID)
                                 patientVisitInfoSyncRepo.updatePatientNurseDataSyncSuccess(it.patientID)
@@ -183,7 +183,6 @@ class BenVisitRepo @Inject constructor(
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
-//                                val nurseDataResponse = response.data as NurseDataResponse
                                 patientRepo.updateDoctorSubmitted(it.patientID)
                                 benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
                                 patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patientID)

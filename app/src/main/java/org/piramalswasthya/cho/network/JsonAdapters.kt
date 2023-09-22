@@ -383,7 +383,8 @@ data class BenificiarySaveResponse(
 @JsonClass(generateAdapter = true)
 data class NurseDataResponse(
     val response: String,
-    val visitCode: String
+    val visitCode: String,
+    val visitID: Long,
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
@@ -465,6 +466,12 @@ data class VillageIdList(
 data class BenflowResponse(
     val benflowList: MutableList<BenFlow>,
 ) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
+data class NurseDataRequest(
+    val benRegID: Long,
+    val visitCode: Long,
+)
 
 
 

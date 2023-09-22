@@ -46,8 +46,10 @@ class HomeViewModel @Inject constructor(
     }
 
     private val _state = MutableLiveData(State.IDLE)
+
     val state: LiveData<State>
         get() = _state
+
     init {
         viewModelScope.launch {
             if (!dataLoadFlagManager.isDataLoaded())

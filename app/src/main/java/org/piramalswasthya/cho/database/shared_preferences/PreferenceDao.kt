@@ -22,7 +22,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     private val pref = PreferenceManager.getInstance(context)
 
     @RequiresApi(Build.VERSION_CODES.O)
-    val date = LocalDate.of(2022, 9, 11)
+    val date = LocalDate.of(2023, 9, 11)
 
     @RequiresApi(Build.VERSION_CODES.O)
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -99,6 +99,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setLastSyncTime(timestamp: Long){
         val prefKey = context.getString(R.string.last_sync_time)
         val editor = pref.edit()

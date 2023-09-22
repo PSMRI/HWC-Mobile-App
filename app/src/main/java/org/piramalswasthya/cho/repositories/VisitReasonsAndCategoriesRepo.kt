@@ -130,4 +130,6 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
         visitReasonsAndCategoriesDao.updateBenIdBenRegIdChiefComplaint(beneficiaryID, beneficiaryRegID, patientID)
     }
 
+
+
 }

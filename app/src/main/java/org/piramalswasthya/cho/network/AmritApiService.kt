@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Patient
+import org.piramalswasthya.cho.model.DownloadPatRequest
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -203,9 +204,14 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/sync/beneficiariesToServer")
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+    @POST("hwc-facility-service/sync/beneficiariesToApp")
+    suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
 
     @POST("/hwc-facility-service/generalOPD/save/nurseData?apiKey=undefined")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/beneficiaryGeneralOPDNurseFormDataToApp")
+    suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorForm) : Response<ResponseBody>
