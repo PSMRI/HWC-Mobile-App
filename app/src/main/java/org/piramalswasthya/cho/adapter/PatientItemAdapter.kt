@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -25,6 +28,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
+import org.piramalswasthya.cho.databinding.PatientListViewBinding
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
@@ -39,87 +43,88 @@ import java.security.MessageDigest
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
     private val context: Context,
-    private var items: List<PatientDisplay>,
     private val onItemClicked: (PatientDisplay) -> Unit,
-    private val clickListener: BenClickListener? = null,
+    private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
-) : RecyclerView.Adapter<PatientItemAdapter.ItemViewHolder>() {
+) : ListAdapter<PatientDisplay,PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
+
+    private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplay>() {
+        override fun areItemsTheSame(
+            oldItem: PatientDisplay, newItem: PatientDisplay
+        ) = oldItem.patient.beneficiaryID == newItem.patient.beneficiaryID
+
+        override fun areContentsTheSame(
+            oldItem: PatientDisplay, newItem: PatientDisplay
+        ) = oldItem == newItem
+
+    }
     private var usernameEs : String = ""
     private var passwordEs : String = ""
     private var errorEs : String = ""
     private var patientId : String = ""
     private var network : Boolean = false
-    private lateinit var viewHolder : ItemViewHolder;
-    private var dbu: PatientListItemViewBinding? = null
 
+    class BenViewHolder private constructor(private val binding: PatientListItemViewBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): BenViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = PatientListItemViewBinding.inflate(layoutInflater, parent, false)
+                return BenViewHolder(binding)
+            }
+        }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        fun bind(
+            item:PatientDisplay,
+            clickListener: BenClickListener?,
+            showAbha: Boolean,
+        ) {
+            binding.ben = item.patient
+            binding.clickListener = clickListener
+            binding.showAbha = showAbha
+            binding.hasAbha = !item.patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
 
-        network = isInternetAvailable(context)
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.patient_list_item_view, parent, false)
-        dbu = DataBindingUtil.getBinding<PatientListItemViewBinding>(itemView)
-        viewHolder = ItemViewHolder(itemView)
-        return viewHolder
+            binding.patientName.text = (item.patient.firstName ?: "") + " " + (item.patient.lastName ?: "")
+            binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
+            binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit.name
+            binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
+            binding.patientGender.text = item.gender.genderName
+            if(item.patient.syncState == SyncState.SYNCED){
+                binding.ivSyncState.visibility = View.VISIBLE
+            }else {
+                binding.ivSyncState.visibility = View.GONE
+            }
+
+            binding.executePendingBindings()
+
+        }
     }
 
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ) = BenViewHolder.from(parent)
 
-        patientId = items[position].patient.patientID
-        holder.name.text = (items[position].patient.firstName ?: "") + " " + (items[position].patient.lastName ?: "")
-        holder.abhaNumber.text = ""
-        holder.age.text = (items[position].patient.age?.toString() ?: "") + " " + items[position].ageUnit.name
-        holder.phoneNo.text = items[position].patient.phoneNo ?: ""
-        holder.gender.text = items[position].gender.genderName
-        holder.itemView.setOnClickListener{ onItemClicked(items[position]) }
-        holder.btnEsanjeevani.setOnClickListener {
+    override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
+        patientId = getItem(position).patient.patientID
+        holder.bind(getItem(position), clickListener, showAbha)
+        holder.itemView.setOnClickListener{ onItemClicked(getItem(position)) }
+        holder.itemView.findViewById<MaterialButton>(R.id.btn_eSanjeevani).setOnClickListener {
             network = isInternetAvailable(context)
             callLoginDialog()
         }
-
-        dbu?.showAbha = showAbha
-        dbu?.hasAbha = !items[position].patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
-        dbu?.clickListener = clickListener
-//        holder.showAbha = showAbha
-//        holder.hasAbha = !items[position].patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
-//        holder.clickListener = clickListener
-
-
-//        holder.btnAbha.setOnClickListener {
-//            if(items[position].patient.syncState == SyncState.SYNCED) {
-//                val intent = Intent(context, AbhaIdActivity::class.java)
-//                intent.putExtra("benId", items[position].patient.beneficiaryID)
-//                intent.putExtra("benRegId", items[position].patient.beneficiaryRegID)
-//                context.startActivity(intent)
-//            }else{
-//                Toast.makeText(context, "Beneficiary not synced yet!", Toast.LENGTH_SHORT).show()
-//            }
-//        }
     }
 
-    override fun getItemCount() = items.size
-    fun updateData(filteredPatients: List<PatientDisplay>):Int {
-        items = filteredPatients
-        notifyDataSetChanged()
-        return filteredPatients.size
-    }
     class BenClickListener(
         private val clickedABHA: (benId: Long?) -> Unit,
     ) {
-        fun onClickABHA(item: Patient) = clickedABHA(item.beneficiaryID)
+        fun onClickABHA(item: Patient) {
+            Log.d("ABHA Item Click", "ABHA item clicked")
+            clickedABHA(item.beneficiaryID)
+        }
     }
-    inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var name: TextView = itemView.findViewById(R.id.patient_name)
-        var abhaNumber: TextView = itemView.findViewById(R.id.patient_abha_number)
-        var age: TextView = itemView.findViewById(R.id.patient_age)
-        var phoneNo: TextView = itemView.findViewById(R.id.patient_phone_no)
-        var gender: TextView = itemView.findViewById(R.id.patient_gender)
-        var btnEsanjeevani:MaterialButton = itemView.findViewById(R.id.btn_eSanjeevani)
 
-//        var btnAbha:MaterialButton = itemView.findViewById(R.id.btn_abha)
-//        var showAbha = dbu?.showAbha
-//        var hasAbha = dbu?.hasAbha
-//        dbu?.clickListener = clickListener
-            }
+
+    // E-SANJEEVANI
     private fun encryptSHA512(input: String): String {
         val digest = MessageDigest.getInstance("SHA-512")
         val hashBytes = digest.digest(input.toByteArray())
@@ -139,7 +144,7 @@ class PatientItemAdapter(
             return networkInfo != null && networkInfo.isConnected
         }
     }
-    private fun callLoginDialog() {
+     private fun callLoginDialog() {
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
             val dialog = MaterialAlertDialogBuilder(context)

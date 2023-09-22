@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.databinding.BindingAdapter
 
-class BindingUtils {
+
     @BindingAdapter("showLayout")
     fun Button.setVisibilityOfLayout(show: Boolean?) {
         show?.let {
@@ -24,5 +24,3 @@ class BindingUtils {
             visibility = if (it) View.VISIBLE else View.GONE
         }
     }
-
-}

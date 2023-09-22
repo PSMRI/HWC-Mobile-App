@@ -16,8 +16,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
@@ -74,14 +76,10 @@ class PersonalDetailsFragment : Fragment() {
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
-                    patientCount = viewModel.patientList.size
-                    binding.patientListContainer.patientCount.text =
-                        patientCount.toString() + " Patients"
                      itemAdapter = context?.let {
                         PatientItemAdapter(
                             apiService,
                             it,
-                            viewModel.patientList,
                             onItemClicked = {
                                 val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                 intent.putExtra("patientId", it.patient.patientID);
@@ -95,6 +93,15 @@ class PersonalDetailsFragment : Fragment() {
                         )
                     }
                     binding.patientListContainer.patientList.adapter = itemAdapter
+                    lifecycleScope.launch {
+                        viewModel.patientList?.collect {
+                            itemAdapter?.submitList(it)
+                            binding.patientListContainer.patientCount.text =
+                        itemAdapter?.itemCount.toString() + getString(
+                            R.string.patients_cnt_display)
+                            patientCount = it.size
+                        }
+                    }
 
                 }
 
@@ -136,9 +143,11 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 override fun afterTextChanged(p0: Editable?) {
+                    viewModel.filterText(p0?.toString() ?: "")
                     binding.patientListContainer.patientCount.text =
-                        itemAdapter?.updateData(viewModel.filterPatientList(p0?.toString() ?: "")).toString()+ getString(
-                                                    R.string.patients_cnt_display)
+                        patientCount.toString()+ getString(
+                            R.string.patients_cnt_display)
+
                 }
 
             }

@@ -5,14 +5,18 @@ import android.util.Log
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.network.*
 import org.piramalswasthya.cho.repositories.AbhaIdRepo
+import org.piramalswasthya.cho.repositories.PatientRepo
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateAbhaViewModel @Inject constructor(
-    private val abhaIdRepo: AbhaIdRepo, savedStateHandle: SavedStateHandle
+    private val abhaIdRepo: AbhaIdRepo,
+    private val patientRepo: PatientRepo,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     enum class State {
         IDLE, LOADING, ERROR_NETWORK, ERROR_SERVER, ERROR_INTERNAL, DOWNLOAD_SUCCESS, ABHA_GENERATE_SUCCESS, OTP_GENERATE_SUCCESS, OTP_VERIFY_SUCCESS, DOWNLOAD_ERROR
@@ -21,6 +25,9 @@ class CreateAbhaViewModel @Inject constructor(
     private val _state = MutableLiveData<State>()
     val state: LiveData<State>
         get() = _state
+    private val _benMapped = MutableLiveData<String?>(null)
+    val benMapped: LiveData<String?>
+        get() = _benMapped
 
     var abha = MutableLiveData<CreateAbhaIdResponse?>(null)
 
@@ -76,13 +83,26 @@ class CreateAbhaViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    private fun mapBeneficiary(benId: Long, benRegId: Long, healthId: String, healthIdNumber: String?) {
+    private suspend fun mapBeneficiary(benId: Long, benRegId: Long, healthId: String, healthIdNumber: String?) {
+        val ben = patientRepo.getBenFromId(benId)
+
         val req = MapHIDtoBeneficiary(benRegId, benId, healthId, healthIdNumber,34, "")
 
         viewModelScope.launch {
             when (val result =
                 abhaIdRepo.mapHealthIDToBeneficiary(req)) {
+
                 is NetworkResult.Success -> {
+                    ben?.let {
+                        ben.firstName?.let {
+                                firstName -> _benMapped.value = firstName
+                        }
+                        ben.lastName?.let {
+                                lastName -> _benMapped.value = ben.firstName + " $lastName"
+                        }
+                        it.healthIdDetails = BenHealthIdDetails(healthId, healthIdNumber)
+                        patientRepo.updateRecord(ben)
+                    }
                     _state.value = State.ABHA_GENERATE_SUCCESS
                 }
                 is NetworkResult.Error -> {
