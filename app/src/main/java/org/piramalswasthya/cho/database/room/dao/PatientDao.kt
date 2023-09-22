@@ -39,9 +39,9 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
     suspend fun getPatientList() : List<PatientDisplay>
 
-//    @Transaction
-//    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
-//    suspend fun getPatientListFlow() : Flow<List<PatientDisplay>>
+    @Transaction
+    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
+    fun getPatientListFlow() : Flow<List<PatientDisplay>>
 
     @Transaction
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.syncState =:unsynced ")

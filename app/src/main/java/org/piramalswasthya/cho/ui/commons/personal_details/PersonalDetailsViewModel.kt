@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 import org.piramalswasthya.cho.model.BenHealthIdDetails
@@ -23,7 +26,12 @@ import javax.inject.Inject
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
 ) : ViewModel() {
-    var patientList = listOf<PatientDisplay>()
+    private val filter = MutableStateFlow("")
+
+    var patientList : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlow().combine(filter){
+        list, filter -> filterBenList(list, filter)
+}
+    var count : Int = 0
     private val _abha = MutableLiveData<String?>()
     val abha: LiveData<String?>
         get() = _abha
@@ -35,9 +43,9 @@ class PersonalDetailsViewModel @Inject constructor(
     private val _benRegId = MutableLiveData<Long?>()
     val benRegId: LiveData<Long?>
         get() = _benRegId
-    fun filterPatientList(text: String):List<PatientDisplay> {
-        return filterBenList(patientList,text)
-    }
+
+
+
     enum class NetworkState {
         IDLE,
         LOADING,
@@ -55,14 +63,16 @@ class PersonalDetailsViewModel @Inject constructor(
 
     fun getPatientList() {
         viewModelScope.launch {
-            _patientObserver.value = NetworkState.LOADING
-            patientList = patientRepo.getPatientList()
-
             _patientObserver.value = NetworkState.SUCCESS
         }
     }
 
+    fun filterText(text: String) {
+        viewModelScope.launch {
+            filter.emit(text)
+        }
 
+    }
 
     fun fetchAbha(benId: Long) {
         _abha.value = null

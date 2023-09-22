@@ -256,6 +256,7 @@
                 android:focusable="false"
                 android:textSize="18sp"
                 android:textColorHint="#888888"
+                android:textColor="#888888"
                 android:layout_height="wrap_content"
                 android:drawableRight="@drawable/ic_calendar"/>
         </com.google.android.material.textfield.TextInputLayout>

@@ -118,6 +118,13 @@ class CreateAbhaFragment : Fragment() {
 
         viewModel.createHID(benId, benRegId)
 
+        viewModel.benMapped.observe(viewLifecycleOwner) {
+            it?.let {
+                binding.abhBenMappedTxt.text = String.format("%s%s%s", resources.getString(R.string.linked_to_beneficiary), " ",it)
+                binding.llAbhaBenMapped.visibility = View.VISIBLE
+            }
+        }
+
         binding.tietAadhaarOtp.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -136,7 +143,7 @@ class CreateAbhaFragment : Fragment() {
 
         binding.btnDownloadAbhaNo.setOnClickListener{
             binding.txtDownloadAbha.visibility = View.INVISIBLE
-            binding.clDownloadAbha.visibility = View.INVISIBLE
+            binding.clDownloadAbha.visibility = View.GONE
         }
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,

@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.network
 
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
 
 @JsonClass(generateAdapter = true)
@@ -89,11 +90,9 @@ data class BenAbhaResponse(
 
 @JsonClass(generateAdapter = true)
 data class AbhaTokenRequest(
-    val clientId: String = "SBX_001542",
-    val clientSecret: String = "87b7eb89-b236-43b6-82b0-6eef154a9b90",
-    val grantType: String = "client_credentials"
-//    val clientId: String = "healthid-api",
-//    val clientSecret: String = "9042c774-f57b-46ba-bb11-796a4345ada1"
+    val clientId: String = AbhaClientConstants.clientId,
+    val clientSecret: String = AbhaClientConstants.clientSecret,
+    val grantType: String = AbhaClientConstants.grantType
 )
 
 @JsonClass(generateAdapter = true)
@@ -324,8 +323,8 @@ data class MapHIDtoBeneficiary(
     val beneficiaryID: Long?,
     val healthId: String?,
     val healthIdNumber: String?,
-    val providerServiceMapId: Int?,
-    val createdBy: String?
+    var providerServiceMapId: Int?,
+    var createdBy: String?
 )
 
 //  For getting VanSpDetails
