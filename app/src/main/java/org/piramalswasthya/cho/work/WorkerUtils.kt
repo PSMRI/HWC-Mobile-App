@@ -30,10 +30,14 @@ object WorkerUtils {
         val pushBenDoctorInfoToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoToAmrit>()
             .setConstraints(networkOnlyConstraint)
             .build()
+        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pushBenToAmritWorker)
+            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .then(pushBenToAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)
             .then(pushBenDoctorInfoToAmrit)

@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.list
 
-import org.piramalswasthya.cho.model.ChiefComplaint
 import org.piramalswasthya.cho.model.PatientDetails
 
 

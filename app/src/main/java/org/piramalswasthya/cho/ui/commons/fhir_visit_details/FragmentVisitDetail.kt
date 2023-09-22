@@ -415,6 +415,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 chiefComplaintData.durationUnit.isNotEmpty()
             ) {
                 var cc = ChiefComplaintValues(
+                    id = chiefComplaintData.id,
                     chiefComplaint = chiefComplaintData.chiefComplaint,
                     duration = chiefComplaintData.duration,
                     durationUnit = chiefComplaintData.durationUnit,

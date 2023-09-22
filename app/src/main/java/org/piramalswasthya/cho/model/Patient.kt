@@ -12,6 +12,10 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.io.Serializable
 import java.util.Date
+import java.math.BigInteger
+import java.sql.Timestamp
+import com.google.gson.annotations.Expose
+
 
 @Entity(
     tableName = "PATIENT",
@@ -141,6 +145,7 @@ data class Patient (
 
     @ColumnInfo(name="beneficiaryRegID")
     var beneficiaryRegID: Long? = null,
+
     @Embedded(prefix = "abha_")
     var healthIdDetails: BenHealthIdDetails? = null,
 
@@ -204,6 +209,7 @@ data class PatientDisplay(
     )
     val religion: ReligionMaster?,
 )
+@JsonClass(generateAdapter = true)
 data class BenHealthIdDetails(
     var healthId: String? = null,
     var healthIdNumber: String? = null
@@ -517,4 +523,223 @@ data class Bendemographics(
 //spouseName:null
 //titleId:null
 //vanID:61
+
+
+@JsonClass(generateAdapter = true)
+data class BeneficiariesDTO(
+    val benMapId: BigInteger?,
+    val benId: BigInteger?,
+    val benRegId: BigInteger?,
+    val createdBy: String?,
+    val createdDate: Timestamp?,
+    val deleted: Boolean?,
+    val lastModDate: Timestamp?,
+    val modifiedBy: String?,
+    val currentAddress: Address?,
+    val permanentAddress: Address?,
+    val emergencyAddress: Address?,
+    val preferredPhoneNum: String?,
+    val preferredPhoneTyp: String?,
+    val preferredSMSPhoneNum: String?,
+    val preferredSMSPhoneTyp: String?,
+    val emergencyContactNum: String?,
+    val emergencyContactTyp: String?,
+    val preferredEmailId: String?,
+    val beneficiaryDetails: BenDetailDTO?,
+    val beneficiaryFamilyTags: List<BenFamilyDTO>?,
+    val beneficiaryIdentites: List<BenIdentityDTO>?,
+    val beneficiaryServiceMap: List<BenServiceDTO>?,
+    val contacts: List<Phone>?,
+    val abhaDetails: List<AbhaAddressDTO>?,
+    val marriageDate: Timestamp?,
+    val ageAtMarriage: Int?,
+    val literacyStatus: String?,
+    val motherName: String?,
+    val email: String?,
+    val bankName: String?,
+    val branchName: String?,
+    val ifscCode: String?,
+    val accountNo: String?,
+    val benAccountID: Long?,
+    val occupationId: Int?,
+    val occupation: String?,
+    val incomeStatus: String?,
+    val religionId: BigInteger?,
+    val religion: String?,
+    val monthlyFamilyIncome: String?,
+    val beneficiaryAge: Int?,
+    val sourceOfInformation: String?,
+    val isHIVPos: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class Address(
+    val addrLine1: String?,
+    val addrLine2: String?,
+    val addrLine3: String?,
+    val countryId: Int?,
+    val country: String?,
+    val stateId: Int?,
+    val state: String?,
+    val districtId: Int?,
+    val district: String?,
+    val subDistrictId: Int?,
+    val subDistrict: String?,
+    val villageId: Int?,
+    val village: String?,
+    val habitation: String?,
+    val addressValue: String?,
+    val pinCode: String?,
+    val zoneID: Int?,
+    val zoneName: String?,
+    val parkingPlaceName: String?,
+    val servicePointID: Int?,
+    val servicePointName: String?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class BenDetailDTO(
+    val beneficiaryDetailsId: BigInteger?,
+    val areaId: Int?,
+    val beneficiaryRegID: BigInteger?,
+    val community: String?,
+    val createdBy: String?,
+    val createdDate: Timestamp?,
+    val deleted: Boolean = false,
+    val dob: Timestamp?,
+    val education: String?,
+    val emergencyRegistration: Boolean?,
+    val healthCareWorkerId: Int?,
+    val healthCareWorker: String?,
+    val fatherName: String?,
+    val firstName: String?,
+    val motherName: String?,
+    val gender: String?,
+    val incomeStatusId: Int?,
+    val incomeStatus: String?,
+    val lastModDate: Timestamp?,
+    val lastName: String?,
+    val maritalStatus: String?,
+    val middleName: String?,
+    val modifiedBy: String?,
+    val occupationId: Int?,
+    val occupation: String?,
+    val phcId: Int?,
+    val placeOfWork: String?,
+    val preferredLanguage: String?,
+    val preferredLanguageId: Int?,
+    val religionId: Int?,
+    val religion: String?,
+    val remarks: String?,
+    val servicePointId: BigInteger?,
+    val sourceOfInfo: String?,
+    val spouseName: String?,
+    val status: String?,
+    val title: String?,
+    val zoneId: Int?,
+    val genderId: Int?,
+    val maritalStatusId: Int?,
+    val titleId: Int?,
+    val communityId: Int?,
+    val educationId: Int?,
+    val monthlyFamilyIncome: String?,
+    val beneficiaryAge: Int?,
+    val isHIVPositive: String?,
+    val sexualOrientationID: Int?,
+    val sexualOrientationType: String?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?,
+    val houseHoldID: Long?,
+    val guideLineID: String?,
+    val rchID: String?,
+    val headOfFamily_RelationID: Int?,
+    val familyId: String?,
+    val other: String?,
+    val headOfFamily_Relation: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class BenFamilyDTO(
+    val benFamilyMapId: BigInteger?,
+    val associatedBenRegId: BigInteger?,
+    val createdBy: String?,
+    val createdDate: Timestamp?,
+    val deleted: Boolean?,
+    val isEmergencyContact: Boolean?,
+    val lastModDate: Timestamp?,
+    val modifiedBy: String?,
+    val relationshipToSelf: String?,
+    val relationshipID: Int?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class BenIdentityDTO(
+    val benIdentityId: BigInteger?,
+    val createdBy: String?,
+    val createdDate: Timestamp?,
+    val deleted: Boolean = false,
+    val expiryDate: Timestamp?,
+    val identityFilePath: String?,
+    val identityNameId: Int?,
+    val identityName: String?,
+    val identityNo: String?,
+    val identityTypeId: Int?,
+    val identityType: String?,
+    val issueDate: Timestamp?,
+    val isVerified: Boolean?,
+    val lastModDate: Timestamp?,
+    val modifiedBy: String?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class BenServiceDTO(
+    val benServiceMapID: BigInteger?,
+    val createdBy: String?,
+    val createdDate: Timestamp?,
+    val firstAvailedOn: Timestamp?,
+    val lastModDate: Timestamp?,
+    val modifiedBy: String?,
+    val registeredByName: String?,
+    val registeredById: Int?,
+    val registeredDate: Timestamp?,
+    val providerServiceMapId: Int?,
+    val serviceId: Int?,
+    val serviceName: String?,
+    val serviceProviderId: Int?,
+    val serviceProviderName: String?,
+    val stateId: Int?,
+    val stateName: String?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class Phone(
+    val phoneNum: String?,
+    val phoneType: String?,
+    val isPreferredCallIncoming: Boolean?,
+    val isPreferredCallOutgoing: Boolean?,
+    val isPreferredForSMSSend: Boolean?,
+    val isPreferredForSMSRecv: Boolean?,
+    val isSmartPhone: Boolean?,
+    val isSelfNumber: Boolean?,
+    val belongsToBenRegId: String?,
+    val belongsToName: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class AbhaAddressDTO(
+    val BeneficiaryRegID: BigInteger?,
+    @Expose val HealthID: String?,
+    @Expose val HealthIDNumber: String?,
+    @Expose val AuthenticationMode: String?,
+    @Expose val CreatedDate: Timestamp?
+)
+
 

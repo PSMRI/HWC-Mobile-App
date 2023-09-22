@@ -36,6 +36,9 @@ interface VisitReasonsAndCategoriesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChiefComplaintDb(chiefComplaintDB: ChiefComplaintDB)
 
+    @Insert
+    suspend fun insertAll(chiefComplaints: List<ChiefComplaintDB>)
+
     @Query("SELECT * FROM Visit_DB WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getVisitDb(beneficiaryRegID: Long) : VisitDB?
 
@@ -55,5 +58,13 @@ interface VisitReasonsAndCategoriesDao {
     @Transaction
     @Query("UPDATE Chielf_Complaint_DB SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
     suspend fun updateBenIdBenRegIdChiefComplaint(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
+    @Transaction
+    @Query("DELETE FROM Visit_DB WHERE patientID = :patientID")
+    suspend fun deleteVisitDbByPatientId(patientID: String): Int
+
+    @Transaction
+    @Query("DELETE FROM Chielf_Complaint_DB WHERE patientID = :patientID")
+    suspend fun deleteChiefComplaintsByPatientId(patientID: String): Int
 
 }

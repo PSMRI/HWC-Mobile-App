@@ -104,11 +104,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
             val chiefC = ChiefComplaintDB(
                 id = "33+${i}",
+                chiefComplaintId = chiefComplaintItem.id,
                 chiefComplaint = chiefComplaintItem.chiefComplaint,
                 duration = chiefComplaintItem.duration,
                 durationUnit = chiefComplaintItem.durationUnit,
                 description = chiefComplaintItem.description,
-                visitId = "",
                 patientID = "",
                 beneficiaryID = 0,
                 beneficiaryRegID = 0,
@@ -397,9 +397,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private fun addVisitRecordDataToCache(){
         val visitDB = VisitDB(
             visitId = generateUuid(),
-            category = masterDb?.visitMasterDb?.category ?: "",
-            reasonForVisit = masterDb?.visitMasterDb?.reason ?: "",
-            subCategory = masterDb?.visitMasterDb?.subCategory ?: "",
+            category = masterDb?.visitMasterDb?.category,
+            reasonForVisit = masterDb?.visitMasterDb?.reason,
+            subCategory = masterDb?.visitMasterDb?.subCategory,
             patientID = masterDb!!.patientId
         )
 
@@ -408,11 +408,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
             val chiefC = ChiefComplaintDB(
                 id = generateUuid(),
+                chiefComplaintId = chiefComplaintItem.id,
                 chiefComplaint = chiefComplaintItem.chiefComplaint,
                 duration =  chiefComplaintItem.duration,
                 durationUnit = chiefComplaintItem.durationUnit,
                 description = chiefComplaintItem.description,
-                visitId = visitDB.visitId,
                 patientID = masterDb!!.patientId
             )
             viewModel.saveChiefComplaintDbToCatche(chiefC)
@@ -459,5 +459,4 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             ).show()
         }
     }
-
 }

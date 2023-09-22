@@ -30,6 +30,10 @@ interface PatientDao {
     @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
     suspend fun updateDoctorSubmitted(patientID : String)
 
+    @Query("SELECT * FROM PATIENT WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun getPatientByBenRegId(beneficiaryRegID: Long) : Patient?
+
+
     @Transaction
     @Query("DELETE FROM PATIENT WHERE patientID = :patientID")
     suspend fun deletePatient(patientID : String)
@@ -71,4 +75,6 @@ interface PatientDao {
     @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun updateDoctorCompleted(beneficiaryRegID: Long)
 
+    @Query("select count(*) from patient where beneficiaryID = :benId")
+    suspend fun getCountByBenId(benId:Long): Int
 }

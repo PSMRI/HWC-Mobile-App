@@ -70,10 +70,13 @@ data class ChiefComplaintsNetwork(
     val benVisitID: String?,
     val beneficiaryRegID: String?,
     val chiefComplaint: String?,
-    val chiefComplaintID: String?,
+    val chiefComplaintID: Int?,
     val createdBy: String?,
+    val description: String?,
+    val duration: String?,
     val parkingPlaceID: Int?,
     val providerServiceMapID: String?,
+    val unitOfDuration: String?,
     val vanID: Int?,
 //    benVisitID: null
 //    beneficiaryRegID: "33140"
@@ -86,13 +89,16 @@ data class ChiefComplaintsNetwork(
 ){
     constructor(user: UserDomain?, chiefComplaint: ChiefComplaintDB, benFlow: BenFlow) : this(
         null,
-        benFlow.beneficiaryRegID!!.toString(),
-        chiefComplaint.chiefComplaint,
-        null,
-        user?.userName,
-        user?.parkingPlaceId,
-        user?.serviceMapId.toString(),
-        user?.vanId,
+        beneficiaryRegID = benFlow.beneficiaryRegID!!.toString(),
+        chiefComplaint = chiefComplaint.chiefComplaint,
+        chiefComplaintID = chiefComplaint.chiefComplaintId,
+        createdBy = user?.userName,
+        description = chiefComplaint.description,
+        duration = chiefComplaint.duration,
+        parkingPlaceID = user?.parkingPlaceId,
+        providerServiceMapID = user?.serviceMapId.toString(),
+        unitOfDuration = chiefComplaint.durationUnit,
+        vanID = user?.vanId,
     )
 }
 
@@ -155,7 +161,7 @@ data class VisitDetailsNetwork(
         null,
         null,
         null,
-        "Basic Oral Health Care Services",
+        visit?.subCategory,
         user?.vanId,
         visit?.category,
         null,

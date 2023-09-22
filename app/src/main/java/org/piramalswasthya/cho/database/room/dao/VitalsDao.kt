@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVitalsModel
 
 @Dao
@@ -26,5 +28,9 @@ interface VitalsDao {
     @Transaction
     @Query("UPDATE PATIENT_VITALS SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
     suspend fun updateBenIdBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+
+    @Transaction
+    @Query("DELETE FROM PATIENT_VITALS WHERE patientID = :patientID")
+    suspend fun deletePatientVitalsByPatientId(patientID: String): Int
 
 }

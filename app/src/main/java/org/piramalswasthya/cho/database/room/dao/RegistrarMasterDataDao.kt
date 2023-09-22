@@ -22,7 +22,10 @@ import org.piramalswasthya.cho.model.VisitReason
 
 @Dao
 interface RegistrarMasterDataDao {
-    //GENDER
+
+    @Query("SELECT * FROM AGE_UNIT WHERE LOWER(age_name) LIKE :start || '%' LIMIT 1")
+    suspend fun getAgeUnit(start: String): AgeUnit
+
     @Query("SELECT * FROM GENDER_MASTER")
     suspend fun getGenders(): List<GenderMaster>
 

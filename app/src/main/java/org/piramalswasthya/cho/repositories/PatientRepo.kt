@@ -1,7 +1,10 @@
 package org.piramalswasthya.cho.repositories
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -10,6 +13,10 @@ import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BenHealthIdDetails
+import org.piramalswasthya.cho.model.BeneficiariesDTO
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.model.Patient
@@ -23,12 +30,14 @@ import org.piramalswasthya.cho.network.DistrictList
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
-import org.piramalswasthya.cho.network.StateList
+import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
-import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
+import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.generateUuid
 import java.net.SocketTimeoutException
+import java.util.Date
 import javax.inject.Inject
 
 class PatientRepo  @Inject constructor(
@@ -38,7 +47,9 @@ class PatientRepo  @Inject constructor(
     private val caseRecordeRepo: CaseRecordeRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
-    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+    private val preferenceDao: PreferenceDao,
+    private val registrarMasterDataDao: RegistrarMasterDataDao
 ) {
 
     suspend fun insertPatient(patient: Patient) {
@@ -85,6 +96,10 @@ class PatientRepo  @Inject constructor(
         patientDao.updateDoctorSubmitted(patientId)
     }
 
+    suspend fun getPatientByBenRegId(beneficiaryRegID : Long) : Patient?{
+        return patientDao.getPatientByBenRegId(beneficiaryRegID)
+    }
+
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -105,7 +120,114 @@ class PatientRepo  @Inject constructor(
                 },
             )
         }
+    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun downloadAndSyncPatientRecords(): Boolean {
+        val user = userRepo.getLoggedInUser()
+        val villageList = VillageIdList(
+            convertStringToIntList(user?.assignVillageIds ?: ""),
+            preferenceDao.getLastSyncTime()
+        )
+
+        when(val response = downloadRegisterPatientFromServer(villageList)){
+            is NetworkResult.Success -> {
+                return true
+            }
+            is NetworkResult.Error -> {
+                if(response.code == socketTimeoutException){
+                    throw SocketTimeoutException("This is an example exception message")
+                }
+                return false
+            }
+            else -> {}
+        }
+        return true
+    }
+    private fun convertStringToIntList(villageIds : String) : List<Int>{
+        return villageIds.split(",").map {
+            it.trim().toInt()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private suspend  fun setPatientAge(patient: Patient){
+        val age = DateTimeUtil.calculateAge(patient.dob!!)
+        val start = DateTimeUtil.ageUnitMap.get(age.unit)
+        val ageUnit = registrarMasterDataDao.getAgeUnit(start!!)
+        patient.age = age.value
+        patient.ageUnitID = ageUnit.id
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private suspend fun downloadRegisterPatientFromServer(villageList: VillageIdList): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+                val response = apiService.downloadBeneficiariesFromServer(villageList)
+                val responseBody = response.body()?.string()
+                refreshTokenInterceptor(
+                    responseBody = responseBody,
+                    onSuccess = {
+                        val data = responseBody.let { JSONObject(it).getString("data") }
+                        val gson = Gson()
+                        val dataListType = object : TypeToken<List<BeneficiariesDTO>>() {}.type
+                        val beneficiariesDTO : List<BeneficiariesDTO> = gson.fromJson(data, dataListType)
+
+                        for(beneficiary in beneficiariesDTO){
+                            var benHealthIdDetails: BenHealthIdDetails? = null
+                            if(beneficiary.abhaDetails != null){
+                                benHealthIdDetails = BenHealthIdDetails(
+                                    healthId = beneficiary.abhaDetails[0].HealthID,
+                                    healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
+                                )
+                            }
+                            val patient = Patient(
+                                patientID = generateUuid(),
+                                firstName = beneficiary.beneficiaryDetails?.firstName,
+                                lastName = beneficiary.beneficiaryDetails?.lastName,
+                                dob = beneficiary.beneficiaryDetails?.dob,
+//                                age = beneficiary.beneficiaryDetails?.beneficiaryAge,
+//                                ageUnitID = 1,
+                                maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
+                                spouseName = beneficiary.beneficiaryDetails?.spouseName,
+                                ageAtMarriage = beneficiary.ageAtMarriage,
+                                phoneNo = beneficiary.preferredPhoneNum,
+                                genderID = beneficiary.beneficiaryDetails?.genderId,
+                                registrationDate = beneficiary.createdDate,
+                                stateID = null,
+                                districtID = null,
+                                blockID = null,
+                                districtBranchID = null,
+//                                stateID = beneficiary.currentAddress?.stateId,
+//                                districtID = beneficiary.currentAddress?.districtId,
+//                                blockID = beneficiary.currentAddress?.subDistrictId,
+//                                districtBranchID = beneficiary.currentAddress?.villageId,
+                                communityID = beneficiary.beneficiaryDetails?.communityId,
+                                religionID = beneficiary.beneficiaryDetails?.religionId,
+                                parentName = null,
+                                syncState = SyncState.SYNCED,
+                                beneficiaryID = beneficiary.benId?.toLong(),
+                                beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                healthIdDetails = benHealthIdDetails
+                            )
+
+                            setPatientAge(patient)
+
+                            // check if patient is present or not
+                            if(patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0){
+                                patientDao.updatePatient(patient)
+                            } else {
+                                patientDao.insertPatient(patient)
+                            }
+                        }
+
+                        NetworkResult.Success(NetworkResponse())
+                    },
+                    onTokenExpired = {
+                        val user = userRepo.getLoggedInUser()!!
+                        userRepo.refreshTokenTmc(user.userName, user.password)
+                        downloadRegisterPatientFromServer(villageList)
+                })
+            }
     }
 
     suspend fun processUnsyncedData() : Boolean{

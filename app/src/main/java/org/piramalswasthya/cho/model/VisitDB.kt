@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.utils.generateUuid
 
 @Entity(
     tableName = "Visit_DB",
@@ -27,11 +28,22 @@ import com.squareup.moshi.JsonClass
 data class VisitDB(
     @PrimaryKey
     val visitId:String,
-    @ColumnInfo(name = "category") val category: String,
-    @ColumnInfo(name = "reasonForVisit") val reasonForVisit: String,
-    @ColumnInfo(name = "subCategory") val subCategory: String,
+    @ColumnInfo(name = "category") val category: String?,
+    @ColumnInfo(name = "reasonForVisit") val reasonForVisit: String?,
+    @ColumnInfo(name = "subCategory") val subCategory: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
-)
+){
+    constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
+        generateUuid(),
+        nurseData.GOPDNurseVisitDetail?.visitCategory,
+        nurseData.GOPDNurseVisitDetail?.visitReason,
+        nurseData.GOPDNurseVisitDetail?.subVisitCategory,
+        patient.patientID,
+        benFlow.beneficiaryID,
+        benFlow.beneficiaryRegID,
+        benFlow.benFlowID
+    )
+}
