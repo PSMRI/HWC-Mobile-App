@@ -13,29 +13,31 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/village_text"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/village_hint"
+            android:layout_height="wrap_content">
 
-        <!--    <com.google.android.material.textfield.TextInputLayout-->
-        <!--        android:id="@+id/duration"-->
-        <!--        android:layout_width="match_parent"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        android:hint="@string/first_name"-->
-        <!--        app:layout_constraintTop_toBottomOf="@+id/durationTxt">-->
-
-        <!--        <com.google.android.material.textfield.TextInputEditText-->
-        <!--            android:id="@+id/inputDuration"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:inputType="number"-->
-        <!--            android:maxEms="2"-->
-        <!--            android:maxLength="2"-->
-        <!--            android:layout_height="wrap_content" />-->
-        <!--    </com.google.android.material.textfield.TextInputLayout>-->
+            <AutoCompleteTextView
+                android:id="@+id/village_dropdown"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:layout_height="match_parent"
+                android:inputType="none"
+                android:textColorHint="#888888" />
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/first_name_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_mic"
@@ -72,7 +74,6 @@
                 android:drawableEnd="@null"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/date_of_birth_text"
             android:layout_width="match_parent"
@@ -91,7 +92,6 @@
                 android:layout_height="wrap_content"
                 android:drawableEnd="@drawable/ic_calendar"/>
         </com.google.android.material.textfield.TextInputLayout>
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/age_text"
             android:layout_width="match_parent"
@@ -133,6 +133,27 @@
                 android:layout_height="match_parent"
                 android:inputType="none"
                 android:textColorHint="#888888" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/gender_text"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/gender"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/gender_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="18sp"
+                android:textColorHint="#888888"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -222,69 +243,10 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/gender_text"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:textSize="18sp"
-            android:textColorHint="#888888"
-            android:hint="@string/gender"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/gender_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:textSize="18sp"
-                android:textColorHint="#888888"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/registration_date_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:textSize="18sp"
-            android:hint="@string/registration_date">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/registration_date"
-                android:layout_width="match_parent"
-                android:inputType="text"
-                android:focusable="false"
-                android:textSize="18sp"
-                android:textColorHint="#888888"
-                android:textColor="#888888"
-                android:layout_height="wrap_content"
-                android:drawableRight="@drawable/ic_calendar"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
         <Space
             android:layout_width="wrap_content"
             android:layout_height="@dimen/bottom_space_height" />
 
-
-
-        <!--    <com.google.android.material.textfield.TextInputLayout-->
-        <!--        android:id="@+id/state"-->
-        <!--        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"-->
-        <!--        android:layout_width="match_parent"-->
-        <!--        android:layout_marginTop="8dp"-->
-        <!--        android:layout_height="wrap_content"-->
-        <!--        app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--        app:layout_constraintRight_toRightOf="parent"-->
-        <!--        app:layout_constraintTop_toBottomOf="@+id/dropdown_label_state">-->
-        <!--        <AutoCompleteTextView-->
-        <!--            android:id="@+id/dropdown_state"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent"-->
-        <!--            android:layout_weight="1"-->
-        <!--            android:inputType="none"-->
-        <!--            android:text="Choose State"-->
-        <!--            />-->
-        <!--    </com.google.android.material.textfield.TextInputLayout>-->
 
 
     </LinearLayout>

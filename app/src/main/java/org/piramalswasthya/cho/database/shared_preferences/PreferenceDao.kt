@@ -7,10 +7,10 @@ import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
+import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.utils.DateTimeUtil
-import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -147,6 +147,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.PREF_user_entry)
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, UserNetwork::class.java)
+    }
+    fun saveUserLocationData(location: LocationData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(location)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserLocationData(): LocationData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, LocationData::class.java)
     }
 
 //

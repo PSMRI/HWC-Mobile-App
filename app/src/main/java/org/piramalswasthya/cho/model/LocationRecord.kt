@@ -21,3 +21,18 @@ data class LocationEntity(
     val nameHindi : String? = null,
     val nameAssamese : String? = null
 ) : java.io.Serializable
+
+data class LocationData(
+    val stateId: Int,
+    val stateName: String,
+    val districtId: Int,
+    val districtName: String,
+    val blockId: Int,
+    val blockName: String,
+    val villageList: List<VillageLocationData>
+
+)
+data class VillageLocationData(
+    val districtBranchID: String,
+    val villageName: String,
+)

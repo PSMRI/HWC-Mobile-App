@@ -295,10 +295,10 @@ class LoginSettingsViewModel@Inject constructor(
 
     private suspend fun addDistrictsToDb(stateId : Int){
         try {
-            val govtLGDStateID = stateMasterRepo.getStateById(stateId).govtLGDStateID
+            val govtLGDStateID = stateMasterRepo.getStateById(stateId)?.govtLGDStateID
             districtList.let{
                 for(district in districtList){
-                    districtMasterRepo.insertDistrict(DistrictMaster(district.districtID, stateId,govtLGDStateID,district.govtLGDDistrictID, district.districtName))
+                    districtMasterRepo.insertDistrict(DistrictMaster(district.districtID, stateId,govtLGDStateID!!,district.govtLGDDistrictID, district.districtName))
                 }
             }
         }
@@ -309,11 +309,11 @@ class LoginSettingsViewModel@Inject constructor(
 
     private suspend fun addBlocksToDb(districtId : Int){
         try {
-            val govtLGDDistrictID = districtMasterRepo.getDistrictByDistrictId(districtId).govtLGDDistrictID
+            val govtLGDDistrictID = districtMasterRepo.getDistrictByDistrictId(districtId)?.govtLGDDistrictID
 
             blockList.let{
                 for(block in blockList){
-                    blockMasterRepo.insertBlock(BlockMaster(blockID = block.blockID, districtID = districtId, govtLGDDistrictID = govtLGDDistrictID, govLGDSubDistrictID = block.govLGDSubDistrictID, blockName = block.blockName))
+                    blockMasterRepo.insertBlock(BlockMaster(blockID = block.blockID, districtID = districtId, govtLGDDistrictID = govtLGDDistrictID!!, govLGDSubDistrictID = block.govLGDSubDistrictID, blockName = block.blockName))
                 }
             }
         }
@@ -344,7 +344,7 @@ class LoginSettingsViewModel@Inject constructor(
 
     private suspend fun addVillagesToDb(currVillageList : List<Village>,  blockId : Int){
         try {
-            val govtLGDSubDistrictID = blockMasterRepo.getBlocksById(blockId).govLGDSubDistrictID
+            val govtLGDSubDistrictID = blockMasterRepo.getBlocksById(blockId)?.govLGDSubDistrictID
             currVillageList.let{
                 for(village in currVillageList){
                     villageMasterRepo.insertVillage(VillageMaster(districtBranchID = village.districtBranchID, blockID = blockId, govtLGDSubDistrictID, govtLGDVillageID = village.govtLGDVillageID, villageName = village.villageName))

@@ -12,8 +12,11 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.MaritalStatusMaster
+import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
@@ -25,9 +28,10 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientDetailsViewModel @Inject constructor(
     private val database: InAppDb,
-    private val pref: PreferenceDao,
+    private val prefDao: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
+    private val patientRepo: PatientRepo,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
@@ -90,10 +94,16 @@ class PatientDetailsViewModel @Inject constructor(
     private val _genderVal=MutableLiveData<Boolean>(false)
     val genderVal: MutableLiveData<Boolean>
         get() = _genderVal
+    private val _villageBoolVal=MutableLiveData<Boolean>(false)
+    val villageBoolVal: MutableLiveData<Boolean>
+        get() = _villageBoolVal
 
     private val _ageUnit = MutableLiveData(NetworkState.IDLE)
     val ageUnit: LiveData<NetworkState>
         get() = _ageUnit
+    private val _villageVal = MutableLiveData(NetworkState.IDLE)
+    val villageVal: LiveData<NetworkState>
+        get() = _villageVal
 
     private val _maritalStatus = MutableLiveData(NetworkState.IDLE)
     val maritalStatus: MutableLiveData<NetworkState>
@@ -106,6 +116,7 @@ class PatientDetailsViewModel @Inject constructor(
     var ageUnitMap = mutableMapOf<AgeUnitEnum, AgeUnit>();
     var ageUnitEnumMap = mutableMapOf<AgeUnit, AgeUnitEnum>();
     var ageUnitList : List<AgeUnit> = mutableListOf()
+    var villageList : List<VillageLocationData> = mutableListOf()//TODO
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
@@ -115,12 +126,14 @@ class PatientDetailsViewModel @Inject constructor(
     var selectedAgeUnit : AgeUnit? = null;
     var selectedMaritalStatus : MaritalStatusMaster? = null;
     var selectedGenderMaster : GenderMaster? = null;
+    var selectedVillage : VillageLocationData? = null;
 
     init {
         viewModelScope.launch {
             fetchAgeUnits()
             fetchMaritalStatus()
             fetchGenderMaster()
+            fetchVillages()
         }
     }
    fun setDob(boolean: Boolean){
@@ -144,6 +157,9 @@ class PatientDetailsViewModel @Inject constructor(
     }
     fun setGender(boolean: Boolean){
         _genderVal.value = boolean
+    }
+    fun setVillageBool(boolean: Boolean){
+        _villageBoolVal.value = boolean
     }   fun setMarital(boolean: Boolean){
         _maritalStatusVal.value = boolean
     }   fun setMaritalAge(boolean: Boolean){
@@ -165,6 +181,17 @@ class PatientDetailsViewModel @Inject constructor(
             ageUnitList = registrarMasterDataRepo.getAgeUnitMasterCachedResponse()
             _ageUnit.value = NetworkState.SUCCESS
             setAgeUnitMap()
+        }
+        catch (_: Exception){
+            _ageUnit.value = NetworkState.FAILURE
+        }
+    }
+
+    private fun fetchVillages(){
+        _villageVal.value = NetworkState.LOADING
+        try {
+            villageList = prefDao.getUserLocationData()?.villageList!!
+            _villageVal.value = NetworkState.SUCCESS
         }
         catch (_: Exception){
             _ageUnit.value = NetworkState.FAILURE
@@ -213,6 +240,11 @@ class PatientDetailsViewModel @Inject constructor(
         }
         catch (_: Exception){
             _genderMaster.value = NetworkState.FAILURE
+        }
+    }
+    fun insertPatient(patient: Patient){
+        viewModelScope.launch {
+            patientRepo.insertPatient(patient)
         }
     }
 

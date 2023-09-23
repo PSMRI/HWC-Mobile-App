@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.VillageLocationData
 
 @JsonClass(generateAdapter = true)
 data class D2DAuthUserRequest(
@@ -340,6 +341,11 @@ data class VanSpDetailsResponse(
 data class VanSpDetailsData(
     val userVanSpDetails: List<UserVanSpDetails>?
 )
+@JsonClass(generateAdapter = true)
+data class VillageLocationMaster(
+    val villageLocationData: List<VillageLocationData>?
+)
+
 
 @JsonClass(generateAdapter = true)
 data class UserVanSpDetails(

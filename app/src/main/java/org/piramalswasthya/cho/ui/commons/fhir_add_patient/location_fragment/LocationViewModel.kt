@@ -1,7 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment
 
-import android.util.Log
-import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.District
@@ -50,7 +47,7 @@ class LocationViewModel @Inject constructor(private val apiService: AmritApiServ
                 _refreshState.value = RefreshState.REFRESHING
                 val request = LocationRequest(vanID = 153, spPSMID = "64")
                 withContext(Dispatchers.IO) {
-                    val stateData = apiService.getStates(request)
+                    val stateData = apiService.getLocDetailsBasedOnSpIDAndPsmID(request)
                     if (stateData != null) {
                         stateList = listOf()
                     }

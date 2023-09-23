@@ -1,17 +1,29 @@
 package org.piramalswasthya.cho.repositories
 
 import androidx.lifecycle.LiveData
-import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
+import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
+import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
+import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BlockMaster
+import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.FingerPrint
+import org.piramalswasthya.cho.model.LocationData
+import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserNetwork
+import org.piramalswasthya.cho.model.VillageLocationData
+import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
@@ -28,6 +40,10 @@ import javax.inject.Inject
 class UserRepo @Inject constructor(
     private val userDao: UserDao,
     private val preferenceDao: PreferenceDao,
+    private val stateMasterDao: StateMasterDao,
+    private val districtMasterDao: DistrictMasterDao,
+    private val blockMasterDao: BlockMasterDao,
+    private val villageMasterDao: VillageMasterDao,
     private val tmcNetworkApiService: AmritApiService
 ) {
 
@@ -140,47 +156,6 @@ class UserRepo @Inject constructor(
     }
 
 
-//    suspend fun createHealthIdWithUid(createHealthIdRequest: CreateHealthIdRequest): NetworkResult<CreateHIDResponse> {
-//
-//        JSONObject()
-//        return withContext((Dispatchers.IO)) {
-//            try {
-//                val response = amritApiService.createHid(createHealthIdRequest)
-//                val responseBody = response.body()?.string()
-//                JSONObject(responseBody)
-//                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
-//                    200 -> {
-//                        val data = responseBody.let { JSONObject(it).getString("data") }
-//                        val result = Gson().fromJson(data, CreateHIDResponse::class.java)
-//                        NetworkResult.Success(result)
-//                    }
-//                    5000 -> {
-//                        if (JSONObject(responseBody).getString("errorMessage")
-//                                .contentEquals("Invalid login key or session is expired")) {
-//                            val user = userRepo.getLoggedInUser()!!
-//                            userRepo.refreshTokenTmc(user.userName, user.password)
-//                            createHealthIdWithUid(createHealthIdRequest)
-//                        } else {
-//                            NetworkResult.Error(0,JSONObject(responseBody).getString("errorMessage"))
-//                        }
-//                    }
-//                    else -> {
-//                        NetworkResult.Error(0, responseBody.toString())
-//                    }
-//                }
-//            } catch (e: IOException) {
-//                NetworkResult.Error(-1, "Unable to connect to Internet!")
-//            } catch (e: JSONException) {
-//                NetworkResult.Error(-2, "Invalid response! Please try again!")
-//            } catch (e: SocketTimeoutException) {
-//                NetworkResult.Error(-3, "Request Timed out! Please try again!")
-//            } catch (e: java.lang.Exception) {
-//                NetworkResult.Error(-4, e.message ?: "Unknown Error")
-//            }
-//        }
-//    }
-
-
     private suspend fun getUserVanSpDetails(): Boolean {
         return withContext(Dispatchers.IO) {
             val response = tmcNetworkApiService.getUserVanSpDetails(
@@ -261,6 +236,7 @@ class UserRepo @Inject constructor(
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails()
+                    getLocDetailsBasedOnSpIDAndPsmID()
                     getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
@@ -272,6 +248,82 @@ class UserRepo @Inject constructor(
 
         }
 
+    }
+    private suspend fun getLocDetailsBasedOnSpIDAndPsmID() {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getLocDetailsBasedOnSpIDAndPsmID(
+                LocationRequest(
+                    user!!.vanId,
+                    user!!.serviceMapId.toString()
+                )
+            )
+            if (!response.isSuccessful) {
+                return@withContext
+            }
+
+            val responseBody = JSONObject(
+                response.body()?.string()
+                    ?: throw IllegalStateException("Response success but data missing @ $response")
+            )
+            val responseStatusCode = responseBody.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val data = responseBody.getJSONObject("data")
+                val otherLoc = data.getJSONObject("otherLoc")
+                val stateId = otherLoc.getString("stateID")
+                val districtList = otherLoc.getJSONArray("districtList")
+                val districtObject = districtList.getJSONObject(0)
+                val districtId = districtObject.getString("districtID")
+                val districtName = districtObject.getString("districtName")
+                val blockId = districtObject.getString("blockId")
+                val blockName = districtObject.getString("blockName")
+                val villageList = districtObject.getJSONArray("villageList")
+
+                val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
+                val villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+
+                val stateMaster = data.getJSONArray("stateMaster")
+                var stateMasterName : String = ""
+                var govtLGDStateID : Int? = null
+                for (i in 0 until stateMaster.length()) {
+                    val jsonObject = stateMaster.getJSONObject(i)
+                    val id = jsonObject.getInt("stateID").toString()
+                    val stateName = jsonObject.getString("stateName")
+                    val lgdStateId = jsonObject.getString("govtLGDStateID")
+                    if (id == stateId) {
+                         stateMasterName = stateName
+                        govtLGDStateID = lgdStateId.toInt()
+                    }
+                }
+                if(stateMasterDao.getStateById(stateId.toInt()) == null ){
+                    stateMasterDao.insertStates(StateMaster(stateId.toInt(), stateMasterName, govtLGDStateID))
+                }
+                if(districtMasterDao.getDistrictById(districtId.toInt()) == null){
+                    districtMasterDao.insertDistrict(DistrictMaster(districtId.toInt(),stateId.toInt(),govtLGDStateID,null, districtName))
+                }
+                if(blockMasterDao.getBlockById(blockId.toInt()) == null){
+                    blockMasterDao.insertBlock(BlockMaster(blockId.toInt(),districtId.toInt(),null,null, blockName))
+                }
+                for(element in villageLocationDataList) {
+                    var id = element.districtBranchID
+                    var name = element.villageName
+                    if (villageMasterDao.getVillageById(id.toInt()) == null) {
+                        villageMasterDao.insertVillage(
+                            VillageMaster(
+                                id.toInt(),
+                                blockId.toInt(),
+                                null,
+                                null,
+                                name
+                            )
+                        )
+                    }
+                }
+
+
+                preferenceDao.saveUserLocationData(LocationData(
+                    stateId.toInt(), stateMasterName, districtId.toInt(),districtName, blockId.toInt(),blockName, villageLocationDataList))
+            }
+        }
     }
 
     private suspend fun getUserAssignedVillageIds(){

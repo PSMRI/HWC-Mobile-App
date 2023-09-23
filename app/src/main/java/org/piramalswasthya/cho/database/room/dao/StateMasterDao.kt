@@ -13,9 +13,9 @@ interface StateMasterDao {
     @Query("SELECT * FROM STATE_MASTER")
     suspend fun getAllStates(): List<StateMaster>
     @Query("SELECT * FROM STATE_MASTER where stateID = :stateID")
-    suspend fun getStateById(stateID : Int): StateMaster
+    suspend fun getStateById(stateID : Int): StateMaster?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStates(stateMaster: StateMaster)
 
 }

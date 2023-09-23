@@ -14,7 +14,7 @@ import com.squareup.moshi.JsonClass
             entity = StateMaster::class,
             parentColumns = ["stateID"],
             childColumns = ["stateID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.NO_ACTION
         )
     ]
 )
@@ -22,7 +22,7 @@ import com.squareup.moshi.JsonClass
 data class DistrictMaster (
     @PrimaryKey val districtID: Int,
     @ColumnInfo(name = "stateID") val stateID: Int,
-    @ColumnInfo(name = "govtLGDStateID") val govtLGDStateID: Int,
-    @ColumnInfo(name = "govtLGDDistrictID") val govtLGDDistrictID: Int,
+    @ColumnInfo(name = "govtLGDStateID") val govtLGDStateID: Int?,
+    @ColumnInfo(name = "govtLGDDistrictID") val govtLGDDistrictID: Int?,
     @ColumnInfo(name = "district_name") val districtName: String
 )
