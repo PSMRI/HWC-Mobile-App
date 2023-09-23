@@ -242,40 +242,42 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         var  itemBd = masterDb?.vitalsMasterDb?.bpDiastolic.toString()
         var  itemRs = masterDb?.vitalsMasterDb?.respiratoryRate.toString()
         var  itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
-        if(itemH.isNullOrEmpty()){
+        if(itemH.isNullOrEmpty()||itemH.equals("null")){
             binding.heightEditTxt.visibility = View.GONE
         }
-        if(itemW.isNullOrEmpty()){
+        if(itemW.isNullOrEmpty()||itemW.equals("null")){
             binding.weightEditTxt.visibility = View.GONE
         }
-        if(itemB.isNullOrEmpty()){
+        if(itemB.isNullOrEmpty()||itemB.equals("null")){
             binding.bmill.visibility = View.GONE
         }
-        if(itemC.isNullOrEmpty()){
+        if(itemC.isNullOrEmpty()||itemC.equals("null")){
             binding.waistCircumEditTxt.visibility = View.GONE
         }
-        if(itemT.isNullOrEmpty()){
+        if(itemT.isNullOrEmpty()||itemT.equals("null")){
             binding.temperatureEditTxt.visibility = View.GONE
         }
-        if(itemP.isNullOrEmpty()){
+        if(itemP.isNullOrEmpty()||itemP.equals("null")){
             binding.pulseRateEditTxt.visibility = View.GONE
         }
-        if(itemS.isNullOrEmpty()){
+        if(itemS.isNullOrEmpty()||itemS.equals("null")){
             binding.spo2EditTxt.visibility = View.GONE
         }
-        if(itemBs.isNullOrEmpty()){
+        if(itemBs.isNullOrEmpty()||itemBs.equals("null")){
             binding.bpSystolicEditTxt.visibility = View.GONE
         }
-        if(itemBd.isNullOrEmpty()){
+        if(itemBd.isNullOrEmpty()||itemBd.equals("null")){
             binding.bpDiastolicEditTxt.visibility = View.GONE
         }
-        if(itemRs.isNullOrEmpty()){
+        if(itemRs.isNullOrEmpty()||itemRs.equals("null")){
             binding.respiratoryEditTxt.visibility = View.GONE
         }
-        if(itemRb.isNullOrEmpty()){
+        if(itemRb.isNullOrEmpty()||itemRb.equals("null")){
             binding.rbsEditTxt.visibility = View.GONE
         }
-        if(itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()){
+        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty()
+            && itemRb.isNullOrEmpty()) ||
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))){
             binding.vitalsExtra.visibility= View.INVISIBLE
         }
     }
@@ -326,7 +328,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun isAnyItemEmptyP(): Boolean {
         for (item in itemListP) {
-            if (item.form.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()||item.unit.isEmpty()) {
+            if (item.form.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()) {
                 return true
             }
         }
