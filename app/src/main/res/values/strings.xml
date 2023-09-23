@@ -34,6 +34,7 @@
     <string name="last_sync_time">last_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
+    <string name="village_hint">Village <font color="#FF0000">*</font></string>
     <string name="last_name_surname">Last Name/Surname <font color="#FF0000">*</font></string>
     <string name="contact_no">Contact No</string>
     <string name="gender">Gender <font color="#FF0000">*</font></string>
@@ -357,6 +358,7 @@
     <string name="enter_spouse_name">Enter Spouse Name</string>
     <string name="enter_age_at_marriage">Enter age at Marriage</string>
     <string name="select_gender">Select Gender</string>
+    <string name="select_village">Select Village</string>
     <string name="network_error">Network Error!!</string>
     <string name="linked_to_beneficiary">Linked to Beneficiary</string>
     <string name="duration_tv">Duration</string>
@@ -379,6 +381,7 @@
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
+    <string name="pref_location_data">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>

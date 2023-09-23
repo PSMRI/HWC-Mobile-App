@@ -179,7 +179,7 @@ interface AmritApiService {
     ): Response<ResponseBody>
 
     @POST("hwc-facility-service/location/getLocDetailsBasedOnSpIDAndPsmID")
-    suspend fun getStates(@Body request: LocationRequest): Response<ResponseBody>
+    suspend fun getLocDetailsBasedOnSpIDAndPsmID(@Body request: LocationRequest): Response<ResponseBody>
 
     @GET("hwc-facility-service/location/get/districtMaster/{stateId}")
     suspend fun getDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>

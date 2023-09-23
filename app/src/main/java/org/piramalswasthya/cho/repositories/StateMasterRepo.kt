@@ -3,33 +3,27 @@ package org.piramalswasthya.cho.repositories
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
-import org.piramalswasthya.cho.model.BlockMaster
-import org.piramalswasthya.cho.model.Language
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.network.CreateHIDResponse
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.State
 import org.piramalswasthya.cho.network.StateList
-import org.piramalswasthya.cho.network.StateResponseData
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import timber.log.Timber
-import java.io.IOException
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class StateMasterRepo @Inject constructor(
     private val stateMasterDao: StateMasterDao,
     private val apiService: AmritApiService,
-    private val userRepo: UserRepo,
 ){
+    @Inject
+    lateinit var userRepo: UserRepo
 
     suspend fun stateMasterService(): List<StateMaster> {
         val response  = apiService.getStatesMasterList()
@@ -49,7 +43,7 @@ class StateMasterRepo @Inject constructor(
     suspend fun getStateList(request : LocationRequest): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
-            val response = apiService.getStates(request)
+            val response = apiService.getLocDetailsBasedOnSpIDAndPsmID(request)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,
@@ -82,9 +76,9 @@ class StateMasterRepo @Inject constructor(
     }
 
     suspend fun getAllStates(): List<State> {
-        return stateMasterDao.getAllStates().map { it -> State(it.stateID,it.govtLGDStateID, it.stateName) }
+        return stateMasterDao.getAllStates().map { it -> State(it.stateID,it.govtLGDStateID!!, it.stateName) }
     }
-    suspend fun getStateById(stateId: Int): StateMaster {
+    suspend fun getStateById(stateId: Int): StateMaster? {
         return stateMasterDao.getStateById(stateId)
     }
     suspend fun getCachedResponseLang(): List<StateMaster> {

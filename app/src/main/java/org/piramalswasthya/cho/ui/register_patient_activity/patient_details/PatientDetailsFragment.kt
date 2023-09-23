@@ -17,19 +17,24 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
 import timber.log.Timber
 import java.util.Date
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
 
     private val binding by lazy{
         FragmentPatientDetailsBinding.inflate(layoutInflater)
@@ -56,7 +61,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(PatientDetailsViewModel::class.java)
-        binding.registrationDate.setText(DateTimeUtil.formattedDate(Date()))
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
@@ -156,6 +160,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.genderVal.observe(viewLifecycleOwner) {
                 binding.genderText.setBoxColor(it, resources.getString(R.string.select_gender))
             }
+            viewModel.villageBoolVal.observe(viewLifecycleOwner) {
+                binding.villageText.setBoxColor(it, resources.getString(R.string.select_village))
+            }
             viewModel.setIsClickedSS(true)
         }
     }
@@ -206,6 +213,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedGenderMaster = viewModel.genderMasterList[position];
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+        }
+        binding.villageDropdown.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedVillage = viewModel.villageList[position];
+            binding.villageDropdown.setText(viewModel.selectedVillage!!.villageName, false)
         }
 
         binding.dateOfBirth.setOnClickListener {
@@ -285,6 +296,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isGenderFilled = s?.isNotEmpty() == true // Check if not empty
                 viewModel.setGender(isGenderFilled) // Update LiveData
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.villageDropdown.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isVillageFilled = s?.isNotEmpty() == true // Check if not empty
+                viewModel.setVillageBool(isVillageFilled) // Update LiveData
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -399,6 +420,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 }
             }
         }
+        viewModel.villageVal.observe(viewLifecycleOwner) { state ->
+            when (state!!){
+                PatientDetailsViewModel.NetworkState.SUCCESS -> {
+                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
+                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
+                    binding.villageDropdown.setAdapter(dropdownAdapter)
+                }
+                else -> {
+
+                }
+            }
+        }
 
         viewModel.maritalStatus.observe(viewLifecycleOwner) { state ->
             when (state!!){
@@ -479,11 +512,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.registrationDate = Date()
     }
 
+    private fun setLocationDetails(){
+        val locData = preferenceDao.getUserLocationData()
+        patient.stateID = locData?.stateId
+        patient.districtID = locData?.districtId
+        patient.blockID = locData?.blockId
+        patient.districtBranchID = viewModel.selectedVillage?.districtBranchID!!.toInt()
+    }
     override fun getFragmentId(): Int {
         return R.id.fragment_add_patient_location;
     }
     fun checkVisibleFieldIsEmpty():Boolean{
-        if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.phoneN.value?.boolean!! || !viewModel.genderVal.value!!){
+        if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.phoneN.value?.boolean!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
         if(viewModel.ageGreaterThan11.value!!){
@@ -504,11 +544,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         watchAllFields()
         if (checkVisibleFieldIsEmpty()) {
             setPatientDetails()
-            val bundle = Bundle()
-            bundle.putSerializable("patient", patient)
-            findNavController().navigate(
-                R.id.action_patientDetailsFragment_to_fragmentLocation, bundle
-            )
+            setLocationDetails()
+            patient.patientID = generateUuid()
+            viewModel.insertPatient(patient)
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+//            val bundle = Bundle()
+//            bundle.putSerializable("patient", patient)
+//            findNavController().navigate(
+//                R.id.action_patientDetailsFragment_to_fragmentLocation, bundle
+//            )
         }
     }
 

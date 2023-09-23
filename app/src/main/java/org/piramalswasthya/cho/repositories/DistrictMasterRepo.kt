@@ -25,8 +25,9 @@ import java.lang.Exception
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
-class DistrictMasterRepo @Inject constructor(private val districtMasterDao: DistrictMasterDao, private val apiService: AmritApiService, private val userRepo: UserRepo) {
-
+class DistrictMasterRepo @Inject constructor(private val districtMasterDao: DistrictMasterDao, private val apiService: AmritApiService) {
+    @Inject
+    lateinit var userRepo: UserRepo
     suspend fun districtMasterService(stateId : Int): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -53,11 +54,11 @@ class DistrictMasterRepo @Inject constructor(private val districtMasterDao: Dist
         districtMasterDao.insertDistrict(districtMaster)
     }
 
-    suspend fun getDistrictByDistrictId(districtId: Int): DistrictMaster {
+    suspend fun getDistrictByDistrictId(districtId: Int): DistrictMaster? {
         return districtMasterDao.getDistrictById(districtId)
     }
     suspend fun getDistrictsByStateId(stateId: Int): List<District> {
-        return districtMasterDao.getDistricts(stateId).map { it -> District(it.districtID,it.govtLGDDistrictID, it.districtName) }
+        return districtMasterDao.getDistricts(stateId).map { it -> District(it.districtID,it.govtLGDDistrictID!!, it.districtName) }
     }
 
 }
