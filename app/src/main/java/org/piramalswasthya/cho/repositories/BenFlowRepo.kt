@@ -1,20 +1,27 @@
 package org.piramalswasthya.cho.repositories
 
+import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
+import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.DoctorDataDownSync
+import org.piramalswasthya.cho.model.Investigation
+import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -25,6 +32,7 @@ import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.utils.generateUuid
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -39,6 +47,8 @@ class BenFlowRepo @Inject constructor(
     private val vitalsDao: VitalsDao,
     private val patientRepo: PatientRepo,
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
+    private val investigationDao: InvestigationDao,
+    private val prescriptionDao: PrescriptionDao
 ) {
 
     suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?{
@@ -96,6 +106,29 @@ class BenFlowRepo @Inject constructor(
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
+    @Transaction
+    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord,patient: Patient, benFlow: BenFlow){
+
+        prescriptionDao.deletePrescriptionByPatientId(patient.patientID)
+        prescriptionCaseRecord?.let {
+            prescriptionDao.insertAll(it)
+        }
+
+        investigationDao.deleteInvestigationCaseRecordByPatientId(patient.patientID)
+        investigationDao.insertInvestigation(investigationCaseRecord)
+
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = patient.patientID,
+            beneficiaryID = benFlow.beneficiaryID,
+            beneficiaryRegID = benFlow.beneficiaryRegID,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = benFlow.nurseFlag,
+            doctorFlag = benFlow.doctorFlag,
+            pharmacist_flag = benFlow.pharmacist_flag
+        )
+        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+    }
+
     suspend fun getAndSaveNurseDataToDb(benFlow: BenFlow, patient: Patient): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -126,6 +159,61 @@ class BenFlowRepo @Inject constructor(
 
     }
 
+    private suspend fun getAndSaveDoctorDataToDb(benFlow: BenFlow, patient: Patient): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val doctorDataRequest = NurseDataRequest(benRegID = benFlow.beneficiaryRegID!!, visitCode = benFlow.visitCode!!)
+
+            val response = apiService.getDoctorData(doctorDataRequest)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    Log.i("Your response data is","$data")
+
+                    val docData = Gson().fromJson(data, DoctorDataDownSync::class.java)
+                    val prescriptionCaseRecords = docData.prescription?.map{
+                        PrescriptionCaseRecord(
+                            prescriptionCaseRecordId = it.prescriptionID.toString(),
+                            form = it.formName,
+                            frequency = it.frequency,
+                            duration = it.duration,
+                            instruciton = null,
+                            unit = it.unit,
+                            patientID = patient.patientID,
+                            beneficiaryID = patient.beneficiaryID,
+                            beneficiaryRegID = patient.beneficiaryRegID,
+                            benFlowID = benFlow.benFlowID
+                        )
+                    }
+
+                    val investigation = docData.investigation
+                    val investigationVal = InvestigationCaseRecord(
+                        investigationCaseRecordId = generateUuid(),
+                        testName = null,
+                        externalInvestigation = null,
+                        counsellingTypes = null,
+                        refer = docData.Refer?.referralReason,
+                        patientID = patient.patientID,
+                        beneficiaryID = patient.beneficiaryID,
+                        beneficiaryRegID = patient.beneficiaryRegID,
+                        benFlowID = benFlow.benFlowID)
+
+                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal, patient = patient, benFlow = benFlow)
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getAndSaveDoctorDataToDb(benFlow, patient)
+                },
+            )
+        }
+
+    }
+
     suspend fun syncFlowIds(villageList: VillageIdList): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -150,6 +238,10 @@ class BenFlowRepo @Inject constructor(
                         )
                         if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
                             getAndSaveNurseDataToDb(benFlow, patient)
+                        }
+                        if(benFlow.doctorFlag != null &&  benFlow.doctorFlag > 1 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
+                            Log.i("calling doc data saver","Okay bro")
+                            getAndSaveDoctorDataToDb(benFlow, patient)
                         }
                     }
                     NetworkResult.Success(NetworkResponse())
