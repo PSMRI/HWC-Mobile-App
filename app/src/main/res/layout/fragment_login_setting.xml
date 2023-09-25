@@ -17,18 +17,17 @@
             android:layout_margin="8dp"
             android:text="Get Location"
             app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"
-            app:layout_constraintEnd_toStartOf="@+id/enrollFpScreen"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <Button
-            android:id="@+id/enrollFpScreen"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="Enroll FingerPrint"
-            app:layout_constraintBaseline_toBaselineOf="@+id/getLoc"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/getLoc" />
+<!--        <Button-->
+<!--            android:id="@+id/enrollFpScreen"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="8dp"-->
+<!--            android:text="Enroll FingerPrint"-->
+<!--            app:layout_constraintBaseline_toBaselineOf="@+id/getLoc"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/getLoc" />-->
 
         <TextView
             android:id="@+id/dropdown_label_state"
