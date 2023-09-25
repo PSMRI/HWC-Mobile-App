@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
@@ -35,6 +36,9 @@ class PersonalDetailsFragment : Fragment() {
     lateinit var apiService : ESanjeevaniApiService
     private lateinit var viewModel: PersonalDetailsViewModel
     private var itemAdapter : PatientItemAdapter? = null
+
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
 
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount : Int = 0
@@ -72,7 +76,6 @@ class PersonalDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
-
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
@@ -81,6 +84,7 @@ class PersonalDetailsFragment : Fragment() {
                             apiService,
                             it,
                             onItemClicked = {
+
                                 val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                 intent.putExtra("patientId", it.patient.patientID);
                                 startActivity(intent)
@@ -93,13 +97,28 @@ class PersonalDetailsFragment : Fragment() {
                         )
                     }
                     binding.patientListContainer.patientList.adapter = itemAdapter
-                    lifecycleScope.launch {
-                        viewModel.patientList?.collect {
-                            itemAdapter?.submitList(it)
-                            binding.patientListContainer.patientCount.text =
-                        itemAdapter?.itemCount.toString() + getString(
-                            R.string.patients_cnt_display)
-                            patientCount = it.size
+                    if(preferenceDao.isUserDoctor()) {
+                        lifecycleScope.launch {
+                            viewModel.patientList?.collect {
+                                itemAdapter?.submitList(it)
+                                binding.patientListContainer.patientCount.text =
+                                    itemAdapter?.itemCount.toString() + getString(
+                                        R.string.patients_cnt_display
+                                    )
+                                patientCount = it.size
+                            }
+                        }
+                    }
+                    else{
+                        lifecycleScope.launch {
+                            viewModel.patientListForNurse?.collect {
+                                itemAdapter?.submitList(it)
+                                binding.patientListContainer.patientCount.text =
+                                    itemAdapter?.itemCount.toString() + getString(
+                                        R.string.patients_cnt_display
+                                    )
+                                patientCount = it.size
+                            }
                         }
                     }
 

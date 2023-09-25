@@ -84,6 +84,10 @@ class PatientRepo  @Inject constructor(
         return patientDao.getPatientListFlow()
     }
 
+    fun getPatientListFlowForNurse() : Flow<List<PatientDisplay>> {
+        return patientDao.getPatientListFlowForNurse()
+    }
+
     suspend fun getPatient(patientId : String) : Patient{
         return patientDao.getPatient(patientId)
     }

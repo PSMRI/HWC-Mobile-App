@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class VisitDetailViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
+    private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>

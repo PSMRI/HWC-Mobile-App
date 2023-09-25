@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_patient_vitals
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,32 +8,43 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentVitalsCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.fhir_utils.extension_names.benFlowID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryRegID
 import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBy
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.generateUuid
 import java.math.BigDecimal
+import javax.inject.Inject
 import kotlin.math.pow
 
 @AndroidEntryPoint
@@ -48,7 +60,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     override val viewModel: FhirVitalsViewModel by viewModels()
 
     override var fragment: Fragment = this;
-
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
     override var fragmentContainerId = 0;
     private var userInfo: UserCache? = null
     private var isNull:Boolean = true
@@ -118,23 +131,51 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
-//    private fun addVitalsDataToCache(){
-//        val patientVitals = PatientVitalsModel(
-//            vitalsId = "1",
-//            height = heightValue,
-//            weight = weightValue,
-//            bmi = bmiValue,
-//            waistCircumference = waistCircumferenceValue,
-//            temperature = temperatureValue,
-//            pulseRate = pulseRateValue,
-//            spo2 = spo2Value,
-//            bpDiastolic = bpDiastolicValue,
-//            bpSystolic = bpSystolicValue,
-//            respiratoryRate = respiratoryValue,
-//            rbs = rbsValue
-//        )
-//        viewModel.savePatientVitalInfoToCache(patientVitals)
-//    }
+    private fun addVitalsDataToCache(){
+        val patientVitals = PatientVitalsModel(
+            vitalsId = generateUuid(),
+            height = heightValue.nullIfEmpty(),
+            weight = weightValue.nullIfEmpty(),
+            bmi = bmiValue.nullIfEmpty(),
+            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
+            temperature = temperatureValue.nullIfEmpty(),
+            pulseRate = pulseRateValue.nullIfEmpty(),
+            spo2 = spo2Value.nullIfEmpty(),
+            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
+            bpSystolic = bpSystolicValue.nullIfEmpty(),
+            respiratoryRate = respiratoryValue.nullIfEmpty(),
+            rbs = rbsValue.nullIfEmpty(),
+            patientID = masterDb!!.patientId
+        )
+        viewModel.savePatientVitalInfoToCache(patientVitals)
+    }
+    private fun addVisitRecordDataToCache(){
+        val visitDB = VisitDB(
+            visitId = generateUuid(),
+            category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
+            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
+            subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
+            patientID = masterDb!!.patientId
+        )
+
+        viewModel.saveVisitDbToCatche(visitDB)
+        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+            val chiefC = ChiefComplaintDB(
+                id = generateUuid(),
+                chiefComplaintId=chiefComplaintItem.id,
+                chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
+                duration =  chiefComplaintItem.duration.nullIfEmpty(),
+                durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
+                description = chiefComplaintItem.description.nullIfEmpty(),
+                patientID = masterDb!!.patientId,
+                beneficiaryID = null,
+                beneficiaryRegID=null,
+                benFlowID=null
+            )
+            viewModel.saveChiefComplaintDbToCatche(chiefC)
+        }
+    }
     private fun createObservationResource(){
         //Code
         var observationCode = Coding()
@@ -324,17 +365,37 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun navigateNext() {
-        extractFormValues()
-    //        addVitalsDataToCache()
-        createObservationResource()
-        if(!isNull) {
+        if (preferenceDao.isUserDoctor()){
+            extractFormValues()
+            createObservationResource()
+        if (!isNull) {
             viewModel.saveObservationResource(observation)
             isNull = true
         }
         setVitalsMasterData()
         findNavController().navigate(
-            R.id.action_customVitalsFragment_to_caseRecordCustom,bundle
+            R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
         )
+    }else{
+            extractFormValues()
+            setVitalsMasterData()
+            addVisitRecordDataToCache()
+            addVitalsDataToCache()
+            createObservationResource()
+            setNurseComplete()
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.vitals_information_is_saved),
+                Toast.LENGTH_SHORT
+            ).show()
+            val intent = Intent(context, HomeActivity::class.java)
+            startActivity(intent)
+        }
+    }
+    private fun setNurseComplete() {
+        CoroutineScope(Dispatchers.IO).launch {
+            viewModel.setNurseCompleted(masterDb!!.patientId)
+        }
     }
 
     private fun setVitalsMasterData(){
