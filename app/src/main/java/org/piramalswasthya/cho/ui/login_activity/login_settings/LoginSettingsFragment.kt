@@ -236,11 +236,11 @@ class LoginSettingsFragment : Fragment() {
                 binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
             }
         }
-        binding.enrollFpScreen.setOnClickListener {
-            findNavController().navigate(
-                LoginSettingsFragmentDirections.actionLoginSettingsFragmentToFingerPrintRegisterFragment(userName)
-            )
-        }
+//        binding.enrollFpScreen.setOnClickListener {
+//            findNavController().navigate(
+//                LoginSettingsFragmentDirections.actionLoginSettingsFragmentToFingerPrintRegisterFragment(userName)
+//            )
+//        }
 
         binding.retry.setOnClickListener {
             resetData()
