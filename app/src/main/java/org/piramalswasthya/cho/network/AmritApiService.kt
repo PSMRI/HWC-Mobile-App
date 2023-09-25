@@ -286,4 +286,7 @@ interface AmritApiService {
                                    @Path("vanID") vanID: Int,
                                    @Query("apiKey") apiKey :String): Response<ResponseBody>
 
+    @POST("hwc-facility-service/generalOPD/getBenCaseRecordFromDoctorGeneralOPD")
+    suspend fun getDoctorData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
+
 }
