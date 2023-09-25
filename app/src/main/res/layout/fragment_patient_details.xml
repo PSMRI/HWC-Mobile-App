@@ -74,24 +74,7 @@
                 android:drawableEnd="@null"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/date_of_birth_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:textSize="18sp"
-            android:textColorHint="#888888"
-            android:hint="@string/date_of_birth">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/date_of_birth"
-                android:layout_width="match_parent"
-                android:inputType="text"
-                android:focusable="false"
-                android:textSize="18sp"
-                android:layout_height="wrap_content"
-                android:drawableEnd="@drawable/ic_calendar"/>
-        </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/age_text"
             android:layout_width="match_parent"
@@ -134,7 +117,24 @@
                 android:inputType="none"
                 android:textColorHint="#888888" />
         </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/date_of_birth_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="@string/date_of_birth">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/date_of_birth"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:focusable="false"
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/ic_calendar"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
