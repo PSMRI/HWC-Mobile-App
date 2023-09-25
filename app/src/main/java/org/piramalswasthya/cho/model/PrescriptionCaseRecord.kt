@@ -27,11 +27,11 @@ import com.squareup.moshi.JsonClass
 data class PrescriptionCaseRecord(
     @PrimaryKey
     var prescriptionCaseRecordId:String,
-    @ColumnInfo(name = "form") val form: String,
-    @ColumnInfo(name = "frequency") val frequency: String,
-    @ColumnInfo(name = "duration") val duration: String,
+    @ColumnInfo(name = "form") val form: String?,
+    @ColumnInfo(name = "frequency") val frequency: String?,
+    @ColumnInfo(name = "duration") val duration: String?,
     @ColumnInfo(name = "instruction") val instruciton: String?,
-    @ColumnInfo(name = "unit") val unit: String,
+    @ColumnInfo(name = "unit") val unit: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,

@@ -201,4 +201,13 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         }
     }
 
+   suspend fun getTestNameTypeMap(): Map<Int, String> {
+        return try {
+            maleMasterDataRepository.getProcedureTypeByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
+
 }
