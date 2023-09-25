@@ -3,7 +3,7 @@ package org.piramalswasthya.cho.model
 data class Refer(
     val referredToInstituteID: Int?,
     val refrredToAdditionalServiceList: List<String>?,
-    val referredToInstituteName: Int?,
+    val referredToInstituteName: String?,
     val otherReferredToInstituteName: String?,
     val referralReason: String?,
     val referralReasonList: List<String>?,

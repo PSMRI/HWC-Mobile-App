@@ -52,12 +52,12 @@ data class Adherence(
 ){
     constructor(user: UserDomain?, benFlow: BenFlow) : this(
         null,
-        benFlow.beneficiaryRegID!!.toString(),
+        benFlow.beneficiaryRegID?.toString(),
         user?.userName,
         null,
         user?.parkingPlaceId,
         null,
-        user?.serviceMapId.toString(),
+        user?.serviceMapId?.toString(),
         null,
         null,
         null,
@@ -89,14 +89,14 @@ data class ChiefComplaintsNetwork(
 ){
     constructor(user: UserDomain?, chiefComplaint: ChiefComplaintDB, benFlow: BenFlow) : this(
         null,
-        beneficiaryRegID = benFlow.beneficiaryRegID!!.toString(),
+        beneficiaryRegID = benFlow.beneficiaryRegID?.toString(),
         chiefComplaint = chiefComplaint.chiefComplaint,
         chiefComplaintID = chiefComplaint.chiefComplaintId,
         createdBy = user?.userName,
         description = chiefComplaint.description,
         duration = chiefComplaint.duration,
         parkingPlaceID = user?.parkingPlaceId,
-        providerServiceMapID = user?.serviceMapId.toString(),
+        providerServiceMapID = user?.serviceMapId?.toString(),
         unitOfDuration = chiefComplaint.durationUnit,
         vanID = user?.vanId,
     )
@@ -147,7 +147,7 @@ data class VisitDetailsNetwork(
 ){
     constructor(user: UserDomain?, visit: VisitDB?, benFlow: BenFlow) : this(
         null,
-        benFlow.beneficiaryRegID!!.toString(),
+        benFlow.beneficiaryRegID?.toString(),
         user?.userName,
         null,
         null,
@@ -157,13 +157,13 @@ data class VisitDetailsNetwork(
         null,
         user?.parkingPlaceId,
         null,
-        user?.serviceMapId.toString(),
+        user?.serviceMapId?.toString(),
         null,
         null,
         null,
         visit?.subCategory,
         user?.vanId,
-        visit?.category,
+        "General OPD",
         null,
         visit?.reasonForVisit,
     )
