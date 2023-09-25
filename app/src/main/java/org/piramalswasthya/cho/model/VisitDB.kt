@@ -35,6 +35,7 @@ data class VisitDB(
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 ){
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
@@ -44,6 +45,7 @@ data class VisitDB(
         patient.patientID,
         benFlow.beneficiaryID,
         benFlow.beneficiaryRegID,
-        benFlow.benFlowID
+        benFlow.benFlowID,
+        benFlow.benVisitNo
     )
 }

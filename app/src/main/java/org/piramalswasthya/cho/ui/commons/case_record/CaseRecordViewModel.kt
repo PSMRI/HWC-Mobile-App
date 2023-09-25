@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -112,43 +113,39 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
-fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
-    viewModelScope.launch {
-        try {
-            withContext(Dispatchers.IO) {
+    fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
+        viewModelScope.launch {
+            try {
                 val patient = patientRepo.getPatient(investigationCaseRecord.patientID)
                 investigationCaseRecord.beneficiaryID = patient.beneficiaryID
                 investigationCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                 caseRecordeRepo.saveInvestigationToCatche(investigationCaseRecord)
+            } catch (e: Exception) {
+                Timber.e("Error in saving Investigation: $e")
             }
-        } catch (e: Exception) {
-            Timber.e("Error in saving Investigation: $e")
         }
     }
-}
+
     fun saveDiagnosisToCache(diagnosisCaseRecord: DiagnosisCaseRecord) {
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    val patient = patientRepo.getPatient(diagnosisCaseRecord.patientID)
-                    diagnosisCaseRecord.beneficiaryID = patient.beneficiaryID
-                    diagnosisCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
-                    caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
-                }
+                val patient = patientRepo.getPatient(diagnosisCaseRecord.patientID)
+                diagnosisCaseRecord.beneficiaryID = patient.beneficiaryID
+                diagnosisCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
+                caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
             } catch (e: Exception) {
                 Timber.e("Error in saving diagnosis: $e")
             }
         }
     }
+
     fun savePrescriptionToCache(prescriptionCaseRecord: PrescriptionCaseRecord) {
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    val patient = patientRepo.getPatient(prescriptionCaseRecord.patientID)
-                    prescriptionCaseRecord.beneficiaryID = patient.beneficiaryID
-                    prescriptionCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
-                    caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
-                }
+                val patient = patientRepo.getPatient(prescriptionCaseRecord.patientID)
+                prescriptionCaseRecord.beneficiaryID = patient.beneficiaryID
+                prescriptionCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
+                caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
             } catch (e: Exception) {
                 Timber.e("Error in saving Prescription: $e")
             }
@@ -158,12 +155,10 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    val patient = patientRepo.getPatient(patientVitalsModel.patientID)
-                    patientVitalsModel.beneficiaryID = patient.beneficiaryID
-                    patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
-                    vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
-                }
+                val patient = patientRepo.getPatient(patientVitalsModel.patientID)
+                patientVitalsModel.beneficiaryID = patient.beneficiaryID
+                patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
+                vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
             } catch (e: Exception) {
                 Timber.e("Error in saving vitals information : $e")
             }
@@ -173,12 +168,10 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     fun saveVisitDbToCatche(visitDB: VisitDB){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO){
-                    val patient = patientRepo.getPatient(visitDB.patientID)
-                    visitDB.beneficiaryID = patient.beneficiaryID
-                    visitDB.beneficiaryRegID = patient.beneficiaryRegID
-                    visitRepo.saveVisitDbToCache(visitDB)
-                }
+                val patient = patientRepo.getPatient(visitDB.patientID)
+                visitDB.beneficiaryID = patient.beneficiaryID
+                visitDB.beneficiaryRegID = patient.beneficiaryRegID
+                visitRepo.saveVisitDbToCache(visitDB)
             }catch (e:Exception){
                 Timber.e("Error in saving visit Db : $e")
             }
@@ -188,12 +181,10 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO){
-                    val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
-                    chiefComplaintDB.beneficiaryID = patient.beneficiaryID
-                    chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
-                    visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
-                }
+                val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
+                chiefComplaintDB.beneficiaryID = patient.beneficiaryID
+                chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
+                visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }
@@ -203,17 +194,23 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
     fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO){
-                    val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
-                    patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
-                    patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-                    patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
-                }
+                val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
+                patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
+                patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
+                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }
         }
+    }
+
+    suspend fun hasUnSyncedNurseData(patientId : String) : Boolean{
+        return patientVisitInfoSyncRepo.hasUnSyncedNurseData(patientId);
+    }
+
+    suspend fun getLastVisitNo(patientId : String) : Int{
+        return patientVisitInfoSyncRepo.getLastVisitNo(patientId);
     }
 
    suspend fun getTestNameTypeMap(): Map<Int, String> {

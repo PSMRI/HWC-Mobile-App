@@ -124,8 +124,16 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
         return visitReasonsAndCategoriesDao.getVisitDb(beneficiaryRegID)
     }
 
+    suspend fun getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : VisitDB?{
+        return visitReasonsAndCategoriesDao.getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
+    }
+
     suspend fun getChiefComplaintDB(beneficiaryRegID: Long) : List<ChiefComplaintDB>?{
         return visitReasonsAndCategoriesDao.getChiefComplaints(beneficiaryRegID)
+    }
+
+    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : List<ChiefComplaintDB>?{
+        return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
     }
 
     suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long){

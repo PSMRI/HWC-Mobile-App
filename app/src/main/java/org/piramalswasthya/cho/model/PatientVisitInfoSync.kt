@@ -27,13 +27,16 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name="doctorDataSynced")
     var doctorDataSynced: SyncState? = SyncState.UNSYNCED,
 
+    @ColumnInfo(name = "benVisitNo")
+    var benVisitNo: Int? = 0,
+
     @ColumnInfo(name = "nurseFlag")
-    val nurseFlag: Int? = 1,
+    var nurseFlag: Int? = 1,
 
     @ColumnInfo(name = "doctorFlag")
-    val doctorFlag: Int? = 0,
+    var doctorFlag: Int? = 0,
 
     @ColumnInfo(name = "pharmacist_flag")
-    val pharmacist_flag: Int? = 0,
+    var pharmacist_flag: Int? = 0,
 
 )

@@ -53,4 +53,10 @@ interface PatientVisitInfoSyncDao {
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID")
     suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String)
 
+    @Query("SELECT nurseDataSynced FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
+    suspend fun getNurseDataSyncStatus(patientID: String) : SyncState?
+
+    @Query("SELECT benVisitNo FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
+    suspend fun getLastVisitNo(patientID: String) : Int?
+
 }

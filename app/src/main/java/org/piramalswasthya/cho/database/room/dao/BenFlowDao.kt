@@ -17,6 +17,9 @@ interface BenFlowDao {
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")
     suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?
 
+    @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
+    suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?
+
     @Transaction
     @Query("UPDATE BENFLOW SET nurseFlag = 9, doctorFlag = 1, visitCode = :visitCode, benVisitID= :benVisitID WHERE benFlowID = :benFlowID")
     suspend fun updateNurseCompleted(visitCode: Long, benVisitID: Long, benFlowID: Long)

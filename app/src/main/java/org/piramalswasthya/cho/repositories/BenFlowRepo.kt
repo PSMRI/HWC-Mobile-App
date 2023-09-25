@@ -55,6 +55,10 @@ class BenFlowRepo @Inject constructor(
         return benFlowDao.getBenFlowByBenRegId(beneficiaryRegID)
     }
 
+    suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?{
+        return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
+    }
+
     private fun convertStringToIntList(villageIds : String) : List<Int>{
         return villageIds.split(",").map {
             it.trim().toInt()
