@@ -48,6 +48,10 @@ interface PatientDao {
     fun getPatientListFlow() : Flow<List<PatientDisplay>>
 
     @Transaction
+    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.nurseFlag = 1")
+    fun getPatientListFlowForNurse(): Flow<List<PatientDisplay>>
+
+    @Transaction
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.syncState =:unsynced ")
     suspend fun getPatientListUnsynced(unsynced: SyncState = SyncState.UNSYNCED) : List<PatientDisplay>
 

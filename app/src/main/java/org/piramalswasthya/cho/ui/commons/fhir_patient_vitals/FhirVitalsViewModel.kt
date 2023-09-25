@@ -26,9 +26,13 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
 import timber.log.Timber
@@ -39,7 +43,9 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                                               savedStateHandle: SavedStateHandle,
 //                                             private var apiInterface: ESanjeevaniApiService,
                                               private val userRepo: UserRepo,
+                                              private val visitRepo: VisitReasonsAndCategoriesRepo,
                                               private val vitalsRepo: VitalsRepo,
+                                              private val patientRepo: PatientRepo,
 ) :
     ViewModel(), FhirQuestionnaireService {
     private var _loggedInUser: UserCache? = null
@@ -118,16 +124,59 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             }
         }
     }
+fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+    viewModelScope.launch {
+        try {
+            withContext(Dispatchers.IO) {
+                val patient = patientRepo.getPatient(patientVitalsModel.patientID)
+                patientVitalsModel.beneficiaryID = patient.beneficiaryID
+                patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
+                vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+            }
+        } catch (e: Exception) {
+            Timber.e("Error in saving vitals information : $e")
+        }
+    }
+}
 
-//    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
-//        viewModelScope.launch {
-//            try {
-//                withContext(Dispatchers.IO) {
-//                    vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
-//                }
-//            } catch (e: Exception) {
-//                Timber.e("Error in saving vitals information : $e")
-//            }
-//        }
-//    }
+    fun saveVisitDbToCatche(visitDB: VisitDB){
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO){
+                    val patient = patientRepo.getPatient(visitDB.patientID)
+                    visitDB.beneficiaryID = patient.beneficiaryID
+                    visitDB.beneficiaryRegID = patient.beneficiaryRegID
+                    visitRepo.saveVisitDbToCache(visitDB)
+                }
+            }catch (e:Exception){
+                Timber.e("Error in saving visit Db : $e")
+            }
+        }
+    }
+
+    fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO){
+                    val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
+                    chiefComplaintDB.beneficiaryID = patient.beneficiaryID
+                    chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
+                    visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
+                }
+            }catch (e:Exception){
+                Timber.e("Error in saving chieft complaint Db : $e")
+            }
+        }
+    }
+    suspend fun setNurseCompleted(patienId:String){
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO){
+                    patientRepo.updateNurseSubmitted(patienId)
+                }
+            }catch (e:Exception){
+                Timber.e("Error in Updating nurse complete in patient Db : $e")
+            }
+        }
+    }
 }

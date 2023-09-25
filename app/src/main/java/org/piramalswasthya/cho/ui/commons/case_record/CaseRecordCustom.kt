@@ -149,16 +149,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 showDialogWithFamilyMembers(procedureDropdown)
             }
         }
-//        val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
-//        binding.referDropdownText.setAdapter(referAdapter)
-//
-//        viewModel.counsellingTypes.observe(viewLifecycleOwner){c->
-//            counsellingTypesAdapter.clear()
-//            counsellingTypesAdapter.addAll(c.map{it.counsellingType})
-//            counsellingTypesAdapter.notifyDataSetChanged()
-//        }
-        val ageAAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, referDropdownVal)
-        referDropdown.setAdapter(ageAAdapter)
+
+        val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        binding.referDropdownText.setAdapter(referAdapter)
+
+        viewModel.higherHealthCare.observe(viewLifecycleOwner){vc->
+            referAdapter.clear()
+            referAdapter.addAll(vc.map{it.institutionName})
+            referAdapter.notifyDataSetChanged()
+        }
 
         val counsellingTypesAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         binding.routeDropDownVal.setAdapter(counsellingTypesAdapter)

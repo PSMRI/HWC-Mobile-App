@@ -123,6 +123,7 @@ class UserRepo @Inject constructor(
                 if (user != null) {
                     Timber.d("User Auth Complete!!!!")
                     user?.loggedIn = true
+                    preferenceDao.setUserRoles(user!!.roles);
                     if (userDao.getUser(userName, password)?.userName == userName) {
                         userDao.update(user!!.asCacheModel())
                     } else {

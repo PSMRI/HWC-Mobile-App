@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PastIllnessHistory
@@ -63,6 +64,10 @@ class CaseRecordViewModel @Inject constructor(
     val procedureDropdown: LiveData<List<ProceduresMasterData>>
         get() = _procedureDropdown
 
+    private var _higherHealthCare: LiveData<List<HigherHealthCenter>>
+    val higherHealthCare: LiveData<List<HigherHealthCenter>>
+        get() = _higherHealthCare
+
     init {
         _counsellingProvided = MutableLiveData()
         getCounsellingTypes()
@@ -70,7 +75,17 @@ class CaseRecordViewModel @Inject constructor(
         getFormMaster()
         _procedureDropdown = MutableLiveData()
         getProcedureDropdown()
+        _higherHealthCare = MutableLiveData()
+        getHigherHealthCareDropdown()
 
+    }
+    private fun getHigherHealthCareDropdown(){
+        try{
+            _higherHealthCare  = doctorMasterDataMaleRepo.getHigherHealthCenter()
+
+        } catch (e: java.lang.Exception){
+            Timber.d("Error in Getting Higher Health Care $e")
+        }
     }
     private fun getCounsellingTypes(){
         try{
