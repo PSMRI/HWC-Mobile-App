@@ -155,5 +155,4 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {
                 return healthCenterDao.getHealthCenter()
             }
-        }
-
+    }

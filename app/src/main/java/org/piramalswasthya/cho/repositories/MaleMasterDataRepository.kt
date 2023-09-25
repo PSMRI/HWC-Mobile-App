@@ -302,4 +302,9 @@ class MaleMasterDataRepository @Inject constructor(
         return chiefComplaintMasterDao.getChiefCompMasterMap().associate {
             it.chiefComplaintID to it.chiefComplaint}
     }
+    suspend fun getProcedureTypeByNameMap():Map<Int,String>{
+        return historyDao.getProceduresMap().associate {
+            it.procedureID to it.procedureName
+        }
+    }
 }
