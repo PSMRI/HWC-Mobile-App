@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
+import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
@@ -15,6 +16,8 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.Diagnosis
+import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DoctorDataDownSync
 import org.piramalswasthya.cho.model.Investigation
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
@@ -48,7 +51,8 @@ class BenFlowRepo @Inject constructor(
     private val patientRepo: PatientRepo,
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
     private val investigationDao: InvestigationDao,
-    private val prescriptionDao: PrescriptionDao
+    private val prescriptionDao: PrescriptionDao,
+    private val caseRecordeDao: CaseRecordeDao
 ) {
 
     suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?{
@@ -107,7 +111,7 @@ class BenFlowRepo @Inject constructor(
     }
 
     @Transaction
-    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord,patient: Patient, benFlow: BenFlow){
+    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : MutableList<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow){
 
         prescriptionDao.deletePrescriptionByPatientId(patient.patientID)
         prescriptionCaseRecord?.let {
@@ -116,6 +120,11 @@ class BenFlowRepo @Inject constructor(
 
         investigationDao.deleteInvestigationCaseRecordByPatientId(patient.patientID)
         investigationDao.insertInvestigation(investigationCaseRecord)
+
+        caseRecordeDao.deleteDiagnosisByPatientId(patient.patientID)
+        diagnosisCaseRecords?.let {
+            caseRecordeDao.insertAll(it)
+        }
 
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = patient.patientID,
@@ -201,7 +210,23 @@ class BenFlowRepo @Inject constructor(
                         beneficiaryRegID = patient.beneficiaryRegID,
                         benFlowID = benFlow.benFlowID)
 
-                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal, patient = patient, benFlow = benFlow)
+                    val diagnosisDoc = docData.diagnosis
+                    var diagnosisCaseRecords = mutableListOf<DiagnosisCaseRecord>()
+                    if(diagnosisDoc != null){
+                        diagnosisDoc.provisionalDiagnosisList?.map {
+                            val  diagnosisCaseRecord = DiagnosisCaseRecord(
+                                diagnosisCaseRecordId = generateUuid(),
+                                diagnosis = it.term,
+                                patientID = patient.patientID,
+                                beneficiaryID = patient.beneficiaryID,
+                                beneficiaryRegID = patient.beneficiaryRegID,
+                                benFlowID = benFlow.benFlowID)
+                            Log.i("diagnosisCaseRecord data is ","$diagnosisCaseRecord")
+                            diagnosisCaseRecords.add(diagnosisCaseRecord)
+                        }
+                    }
+
+                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal,diagnosisCaseRecords, patient = patient, benFlow = benFlow)
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
@@ -240,7 +265,6 @@ class BenFlowRepo @Inject constructor(
                             getAndSaveNurseDataToDb(benFlow, patient)
                         }
                         if(benFlow.doctorFlag != null &&  benFlow.doctorFlag > 1 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
-                            Log.i("calling doc data saver","Okay bro")
                             getAndSaveDoctorDataToDb(benFlow, patient)
                         }
                     }

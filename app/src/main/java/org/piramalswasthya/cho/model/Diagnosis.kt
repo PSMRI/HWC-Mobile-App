@@ -19,7 +19,7 @@ data class Diagnosis(
         null,
         user?.vanId,
         user?.parkingPlaceId,
-        arrayListOf(ProvisionalDiagnosis("Pain"), ProvisionalDiagnosis("Vomit")),
+        arrayListOf(ProvisionalDiagnosis("Pain",""), ProvisionalDiagnosis("Vomit","")),
         benFlow?.beneficiaryID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),
@@ -31,7 +31,8 @@ data class Diagnosis(
 
 @JsonClass(generateAdapter = true)
 data class ProvisionalDiagnosis(
-    val term: String
+    val term: String,
+    val conceptID: String
 ){
 
 }
