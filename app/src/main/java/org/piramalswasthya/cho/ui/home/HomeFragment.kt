@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,22 @@ class HomeFragment : Fragment() {
         get() = _binding!!
 
     private lateinit var viewModel: HomeViewModel
-
+    private val searchPrompt by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.note_ben_reg))
+            .setMessage(getString(R.string.please_search_for_beneficiary))
+            .setPositiveButton("Search") { dialog, _ ->
+                dialog.dismiss()
+                HomeViewModel.setSearchBool()
+            }
+            .setNegativeButton("Registration"){dialog, _->
+                val intent = Intent(context, RegisterPatientActivity::class.java)
+                startActivity(intent)
+                dialog.dismiss()
+                HomeViewModel.resetSearchBool()
+            }
+            .create()
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,14 +80,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         WorkerUtils.triggerAmritSyncWorker(requireContext())
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
+
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
         binding.registration.setOnClickListener {
-            val intent = Intent(context, RegisterPatientActivity::class.java)
-            startActivity(intent)
+            searchPrompt.show()
+
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
