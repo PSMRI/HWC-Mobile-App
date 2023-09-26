@@ -7,7 +7,7 @@ data class DoctorDataDownSync(
     val Refer: ReferData?,
     val prescription: List<PrescriptionData>?,
     val LabReport: List<LabReportData>?,
-    val diagnosis: Any?,
+    val diagnosis: Diagnosis?,
     val investigation: InvestigationData?,
     val ArchivedVisitcodeForLabResult: List<Any>,
     val GraphData: Any,
