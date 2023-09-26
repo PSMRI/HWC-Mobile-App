@@ -155,4 +155,9 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {
                 return healthCenterDao.getHealthCenter()
             }
+    suspend fun getHigherHealthTypeByNameMap():Map<Int,String>{
+        return healthCenterDao.getHigherHealthMap().associate {
+            it.institutionID to it.institutionName
+        }
     }
+}

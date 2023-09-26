@@ -27,10 +27,10 @@ import com.squareup.moshi.JsonClass
 data class InvestigationCaseRecord(
     @PrimaryKey
     var investigationCaseRecordId:String,
-    @ColumnInfo(name = "testName") val testName: String?,
+    @ColumnInfo(name = "testIds") val testIds: String?,
     @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?,
     @ColumnInfo(name = "CounsellingTypes") val counsellingTypes:  String?,
-    @ColumnInfo(name = "refer") val refer:  String?,
+    @ColumnInfo(name = "institutionId") val institutionId: Int?=-1,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,

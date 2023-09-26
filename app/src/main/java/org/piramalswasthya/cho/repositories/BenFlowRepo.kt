@@ -177,7 +177,7 @@ class BenFlowRepo @Inject constructor(
                     val prescriptionCaseRecords = docData.prescription?.map{
                         PrescriptionCaseRecord(
                             prescriptionCaseRecordId = it.prescriptionID.toString(),
-                            form = it.formName,
+                            itemId = it.drugID,
                             frequency = it.frequency,
                             duration = it.duration,
                             instruciton = null,
@@ -192,10 +192,10 @@ class BenFlowRepo @Inject constructor(
                     val investigation = docData.investigation
                     val investigationVal = InvestigationCaseRecord(
                         investigationCaseRecordId = generateUuid(),
-                        testName = null,
+                        testIds = null,
                         externalInvestigation = null,
                         counsellingTypes = null,
-                        refer = docData.Refer?.referralReason,
+                        institutionId = docData.Refer?.referredToInstituteID,
                         patientID = patient.patientID,
                         beneficiaryID = patient.beneficiaryID,
                         beneficiaryRegID = patient.beneficiaryRegID,

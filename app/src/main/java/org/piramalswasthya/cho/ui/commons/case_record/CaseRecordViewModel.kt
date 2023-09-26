@@ -224,5 +224,13 @@ fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
             emptyMap()
         }
     }
+    suspend fun getReferNameTypeMap(): Map<Int, String> {
+        return try {
+            doctorMasterDataMaleRepo.getHigherHealthTypeByNameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
 
 }

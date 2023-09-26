@@ -9,5 +9,4 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 
 class SubCategoryAdapter(context: Context, resource: Int,textViewResourceId:Int,  subCats: List<String>) :
         ArrayAdapter<String>(context, resource,textViewResourceId, subCats) {
-
 }

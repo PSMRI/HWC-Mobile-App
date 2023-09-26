@@ -411,7 +411,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         visitMasterDb.category = selectedCategoryRadioButton?.text.toString()
         visitMasterDb.reason = selectedReasonRadioButton?.text.toString()
-        Log.d("aryan","   ${masterDb?.visitMasterDb?.chiefComplaint?.size}")
         val subCategory = binding.subCatInput.text.toString()
         visitMasterDb.subCategory = subCategory
 
