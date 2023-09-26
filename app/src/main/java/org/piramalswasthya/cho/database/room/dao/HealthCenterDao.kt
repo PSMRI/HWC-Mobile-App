@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
 import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.ProceduresMasterData
 
 
 @Dao
@@ -17,6 +18,8 @@ interface HealthCenterDao {
 
     @Query("SELECT * FROM HEALTH_CENTER")
     fun getHealthCenter() : LiveData<List<HigherHealthCenter>>
+    @Query("select * from HEALTH_CENTER")
+    suspend fun getHigherHealthMap():List<HigherHealthCenter>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHealthCenter(higherHealthCenter: HigherHealthCenter)

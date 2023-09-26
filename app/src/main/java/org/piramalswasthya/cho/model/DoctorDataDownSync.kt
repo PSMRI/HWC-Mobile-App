@@ -15,21 +15,23 @@ data class DoctorDataDownSync(
 
 @JsonClass(generateAdapter = true)
 data class ReferData(
-    val benReferID: Int,
-    val beneficiaryRegID: Int,
-    val benVisitID: Int,
-    val providerServiceMapID: Int,
-    val visitCode: Long,
-    val serviceName: String,
-    val deleted: Boolean,
-    val processed: String,
-    val createdBy: String,
-    val createdDate: String,
-    val lastModDate: String,
-    val vanID: Int,
-    val parkingPlaceID: Int,
+    val benReferID: Int?,
+    val beneficiaryRegID: Int?,
+    val benVisitID: Int?,
+    val providerServiceMapID: Int?,
+    val visitCode: Long?,
+    val serviceName: String?,
+    val referredToInstituteID:Int?,
+    val referredToInstituteName: String?,
+    val deleted: Boolean?,
+    val processed: String?,
+    val createdBy: String?,
+    val createdDate: String?,
+    val lastModDate: String?,
+    val vanID: Int?,
+    val parkingPlaceID: Int?,
     val refrredToAdditionalServiceList: List<String>,
-    val referralReason: String,
+    val referralReason: String?,
     val referralReasonList: List<Any>
 )
 
