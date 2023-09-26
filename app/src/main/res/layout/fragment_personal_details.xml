@@ -21,6 +21,7 @@
             android:layout_marginRight="16dp"
             android:drawableStart="@drawable/ic_search"
             android:padding="8dp"
+            android:inputType="text"
             android:singleLine="true"
             android:drawablePadding="@dimen/padding_normal"
             android:hint="@string/query_hint_patient_search"
