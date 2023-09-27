@@ -41,6 +41,18 @@ class HomeViewModel @Inject constructor(
     private val dataLoadFlagManager: DataLoadFlagManager
 ) : ViewModel() {
 
+    companion object{
+        private val _searchBool = MutableLiveData<Boolean?>()
+        val searchBool: LiveData<Boolean?>
+            get() = _searchBool
+        fun setSearchBool(){
+            _searchBool.value = true
+        }
+        fun resetSearchBool(){
+            _searchBool.value = false
+        }
+    }
+
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }

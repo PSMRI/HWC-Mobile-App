@@ -1,9 +1,12 @@
 package org.piramalswasthya.cho.ui.commons.personal_details
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -11,15 +14,22 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -27,6 +37,7 @@ import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home.HomeViewModel
 import javax.inject.Inject
 
 
@@ -35,6 +46,7 @@ class PersonalDetailsFragment : Fragment() {
     @Inject
     lateinit var apiService : ESanjeevaniApiService
     private lateinit var viewModel: PersonalDetailsViewModel
+    private lateinit var homeviewModel: HomeViewModel
     private var itemAdapter : PatientItemAdapter? = null
 
     @Inject
@@ -53,21 +65,17 @@ class PersonalDetailsFragment : Fragment() {
             .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
-//    private val searchPrompt by lazy {
-//        MaterialAlertDialogBuilder(requireContext())
-//            .setTitle(getString(R.string.note_ben_reg))
-//            .setMessage(getString(R.string.please_search_for_beneficiary))
-//            .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
-//                binding.search.requestFocus()
-//                dialog.dismiss() }
-//            .create()
+//    private val parentViewModel: HomeViewModel by lazy {
+//        ViewModelProvider(requireActivity()).get(HomeViewModel::class.java)
 //    }
+//private val parentViewModel: HomeViewModel by viewModels({ requireActivity() })
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-//        searchPrompt.show()
+        HomeViewModel.resetSearchBool()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -75,6 +83,36 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//        homeviewModel = ViewModelProvider(requireActivity())[HomeViewModel::class.java]
+//        parentViewModel.searchBool.observe((viewLifecycleOwner)){
+        HomeViewModel.searchBool.observe(viewLifecycleOwner){
+            bool ->
+            when(bool!!) {
+                true ->{
+//                    binding.search.post {
+//                        lifecycleScope.launch {
+//                            withContext(Dispatchers.IO){
+//                                delay(5000)
+//                            }
+                            binding.search.requestFocus()
+                            activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+                        }
+
+//                    }
+//                }
+//                    Handler(Looper.getMainLooper()).postDelayed(
+//                    {
+//                    binding.search.requestFocus()
+//            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//            imm?.showSoftInput(binding.search, InputMethodManager.SHOW_FORCED);
+//                }
+//            , 100)
+                else -> {}
+            }
+
+        }
+
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -99,8 +137,8 @@ class PersonalDetailsFragment : Fragment() {
                     binding.patientListContainer.patientList.adapter = itemAdapter
                     if(preferenceDao.isUserDoctor()) {
                         lifecycleScope.launch {
-                            viewModel.patientList?.collect {
-                                itemAdapter?.submitList(it)
+                            viewModel.patientList?.collect { it ->
+                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
                                     itemAdapter?.itemCount.toString() + getString(
                                         R.string.patients_cnt_display
@@ -111,8 +149,8 @@ class PersonalDetailsFragment : Fragment() {
                     }
                     else{
                         lifecycleScope.launch {
-                            viewModel.patientListForNurse?.collect {
-                                itemAdapter?.submitList(it)
+                            viewModel.patientListForNurse?.collect { it ->
+                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
                                     itemAdapter?.itemCount.toString() + getString(
                                         R.string.patients_cnt_display

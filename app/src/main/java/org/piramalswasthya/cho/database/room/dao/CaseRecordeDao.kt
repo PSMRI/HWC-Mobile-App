@@ -41,5 +41,11 @@ interface CaseRecordeDao {
     @Transaction
     @Query("UPDATE Diagnosis_Cases_Recorde SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
     suspend fun updateBenIdBenRegIdDiagnosis(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String): Int
+    @Transaction
+    @Query("delete from Diagnosis_Cases_Recorde where patientID =:patientID")
+    suspend fun deleteDiagnosisByPatientId(patientID: String): Int
+
+    @Insert
+    suspend fun insertAll(diagnosisCaseRecord: List<DiagnosisCaseRecord>)
 
 }

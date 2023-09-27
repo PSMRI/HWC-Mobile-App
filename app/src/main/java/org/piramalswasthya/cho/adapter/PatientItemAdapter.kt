@@ -91,7 +91,10 @@ class PatientItemAdapter(
             binding.patientGender.text = item.gender.genderName
             if(item.patient.syncState == SyncState.SYNCED){
                 binding.ivSyncState.visibility = View.VISIBLE
+                binding.patientBenId.text = item.patient.beneficiaryID.toString()
+                binding.llBenId.visibility = View.VISIBLE
             }else {
+                binding.llBenId.visibility = View.GONE
                 binding.ivSyncState.visibility = View.GONE
             }
 

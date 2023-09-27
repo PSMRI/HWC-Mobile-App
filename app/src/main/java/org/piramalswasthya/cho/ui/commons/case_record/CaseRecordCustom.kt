@@ -78,6 +78,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
     private var testNameMap = emptyMap<Int,String>()
+    private var referNameMap = emptyMap<Int,String>()
     private val selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
@@ -108,6 +109,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
+        lifecycleScope.launch {
+            referNameMap = viewModel.getReferNameTypeMap()
+        }
+
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
         var chiefComplaintDB = mutableListOf<ChiefComplaintDB>() // Create an empty mutable list
 
@@ -197,7 +202,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             itemListP,
             formMListVal,
             frequencyListVal,
-            dosage,
             unitListVal,
             instructionDropdown,
             object : RecyclerViewItemChangeListenersP {
@@ -369,27 +373,27 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
+        val referId = findKeyByValue(referNameMap,referVal)
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            testName = idString.nullIfEmpty(),
+            testIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = masterDb!!.patientId,
-            refer = referVal
+            institutionId = referId
         )
         viewModel.saveInvestigationToCache(investigation)
         //save investigation
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
-            var freq = ""
-            var formVal = prescriptionData.form.nullIfEmpty()
+            var formVal = prescriptionData.id
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
-                    form = formVal,
+                    itemId = formVal,
                     frequency = freqVal,
                     duration = durVal,
                     instruciton = instruction,
