@@ -110,7 +110,7 @@ import timber.log.Timber
         PatientVisitInfoSync::class
     ],
 //    views = [BenBasicCache::class],
-    version = 59, exportSchema = false
+    version = 60, exportSchema = false
 )
 
 

@@ -27,6 +27,9 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name="doctorDataSynced")
     var doctorDataSynced: SyncState? = SyncState.UNSYNCED,
 
+    @ColumnInfo(name="createNewBenFlow")
+    var createNewBenFlow: Boolean = false,
+
     @ColumnInfo(name = "benVisitNo")
     var benVisitNo: Int? = 0,
 

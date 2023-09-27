@@ -136,9 +136,9 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
         return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
     }
 
-    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long){
-        visitReasonsAndCategoriesDao.updateVisitDbBenflow(benFlowId, beneficiaryRegID)
-        visitReasonsAndCategoriesDao.updateChiefComplaintsBenflow(benFlowId, beneficiaryRegID)
+    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int){
+        visitReasonsAndCategoriesDao.updateVisitDbBenflow(benFlowId, beneficiaryRegID, benVisitNo)
+        visitReasonsAndCategoriesDao.updateChiefComplaintsBenflow(benFlowId, beneficiaryRegID, benVisitNo)
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){

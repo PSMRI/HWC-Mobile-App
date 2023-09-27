@@ -20,6 +20,14 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
+    suspend fun updateCreateBenflowFlag(patientID: String,){
+        patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientID)
+    }
+
+    suspend fun getPatientVisitInfoSync(patientID: String): PatientVisitInfoSync?{
+        return patientVisitInfoSyncDao.getPatientVisitInfoSync(patientID)
+    }
+
     suspend fun getPatientNurseDataUnsynced() : List<PatientVisitInfoSync>{
         return patientVisitInfoSyncDao.getPatientNurseDataUnsynced()
     }

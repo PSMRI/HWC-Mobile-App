@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Patient
+import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.DownloadPatRequest
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
@@ -221,6 +222,9 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/sync/benFlowStatusRecordsToApp")
     suspend fun getBenFlowRecords(@Body villageList : VillageIdList) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/registrar/create/BenReVisitToNurse")
+    suspend fun createBenReVisitToNurse(@Body benNewFlow : BenNewFlow) : Response<ResponseBody>
 
 //    @POST("hwc-facility-service/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
 //    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>

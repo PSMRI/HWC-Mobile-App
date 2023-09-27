@@ -14,14 +14,17 @@ import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.DoctorDataDownSync
 import org.piramalswasthya.cho.model.Investigation
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -65,6 +68,59 @@ class BenFlowRepo @Inject constructor(
         }
     }
 
+    suspend fun createNewBenflow(user: UserDomain, patientDisplay: PatientDisplay): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val nurseNewBenflowRequest = BenNewFlow(user = user, patientDisplay = patientDisplay)
+            val response = apiService.createBenReVisitToNurse(nurseNewBenflowRequest)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    Log.i("data response is", data)
+                    patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientDisplay.patient.patientID)
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    createNewBenflow(user, patientDisplay)
+                },
+            )
+        }
+
+    }
+
+    suspend fun createRevisitBenflowRecords(): Boolean {
+
+        val unsyncedRevisitRecords = patientVisitInfoSyncDao.getUnsyncedRevisitRecords()
+
+        unsyncedRevisitRecords.forEach{
+            val patientDisplay = patientRepo.getPatientDisplay(it.patientID)
+            val user = userRepo.getLoggedInUser()
+
+            if(user != null){
+                when(val response = createNewBenflow(user, patientDisplay)){
+                    is NetworkResult.Success -> {
+
+                    }
+                    is NetworkResult.Error -> {
+//                        if(response.code == socketTimeoutException){
+//                            throw SocketTimeoutException("This is an example exception message")
+//                        }
+//                        return false
+                    }
+                    else -> {}
+                }
+            }
+        }
+
+        return true;
+
+    }
+
     suspend fun downloadAndSyncFlowRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
@@ -90,24 +146,39 @@ class BenFlowRepo @Inject constructor(
 
     @Transaction
     suspend fun refreshNurseData(visit: VisitDB, vitals: PatientVitalsModel, chiefComplaints: List<ChiefComplaintDB>?, patient: Patient, benFlow: BenFlow){
-        visitReasonsAndCategoriesDao.deleteVisitDbByPatientId(patient.patientID)
+        visitReasonsAndCategoriesDao.deleteVisitDbByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         visitReasonsAndCategoriesDao.insertVisitDB(visit)
-        visitReasonsAndCategoriesDao.deleteChiefComplaintsByPatientId(patient.patientID)
+        visitReasonsAndCategoriesDao.deleteChiefComplaintsByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         chiefComplaints?.let {
             visitReasonsAndCategoriesDao.insertAll(it)
         }
-        vitalsDao.deletePatientVitalsByPatientId(patient.patientID)
+        vitalsDao.deletePatientVitalsByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         vitalsDao.insertPatientVitals(vitals)
-        val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = patient.patientID,
-            beneficiaryID = benFlow.beneficiaryID,
-            beneficiaryRegID = benFlow.beneficiaryRegID,
-            nurseDataSynced = SyncState.SYNCED,
-            nurseFlag = benFlow.nurseFlag,
-            doctorFlag = benFlow.doctorFlag,
-            pharmacist_flag = benFlow.pharmacist_flag
-        )
-        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+
+        val existingPatientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSync(patient.patientID)
+
+        if(existingPatientVisitInfoSync != null && benFlow.benVisitNo > existingPatientVisitInfoSync.benVisitNo!!){
+            existingPatientVisitInfoSync.benVisitNo = benFlow.benVisitNo
+            existingPatientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
+            existingPatientVisitInfoSync.nurseFlag = benFlow.nurseFlag
+            existingPatientVisitInfoSync.doctorFlag = benFlow.doctorFlag
+            existingPatientVisitInfoSync.pharmacist_flag = benFlow.pharmacist_flag
+            patientVisitInfoSyncDao.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+        }
+        else if(existingPatientVisitInfoSync == null){
+            val patientVisitInfoSync = PatientVisitInfoSync(
+                patientID = patient.patientID,
+                beneficiaryID = benFlow.beneficiaryID,
+                beneficiaryRegID = benFlow.beneficiaryRegID,
+                nurseDataSynced = SyncState.SYNCED,
+                nurseFlag = benFlow.nurseFlag,
+                doctorFlag = benFlow.doctorFlag,
+                pharmacist_flag = benFlow.pharmacist_flag,
+                benVisitNo = benFlow.benVisitNo
+            )
+            patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        }
+
     }
 
     @Transaction
@@ -234,19 +305,21 @@ class BenFlowRepo @Inject constructor(
                         benFlowDao.insertBenFlow(benFlow)
                         visitReasonsAndCategoriesRepo.updateBenFlowId(
                             benFlowId = benFlow.benFlowID,
-                            beneficiaryRegID = benFlow.beneficiaryRegID!!
+                            beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                            benVisitNo = benFlow.benVisitNo!!,
                         )
                         vitalsRepo.updateBenFlowId(
                             benFlowId = benFlow.benFlowID,
-                            beneficiaryRegID = benFlow.beneficiaryRegID!!
+                            beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                            benVisitNo = benFlow.benVisitNo!!,
                         )
-                        if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
-                            getAndSaveNurseDataToDb(benFlow, patient)
-                        }
-                        if(benFlow.doctorFlag != null &&  benFlow.doctorFlag > 1 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
-                            Log.i("calling doc data saver","Okay bro")
-                            getAndSaveDoctorDataToDb(benFlow, patient)
-                        }
+//                        if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
+//                            getAndSaveNurseDataToDb(benFlow, patient)
+//                        }
+//                        if(benFlow.doctorFlag != null &&  benFlow.doctorFlag > 1 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
+//                            Log.i("calling doc data saver","Okay bro")
+//                            getAndSaveDoctorDataToDb(benFlow, patient)
+//                        }
                     }
                     NetworkResult.Success(NetworkResponse())
                 },

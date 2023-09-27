@@ -92,6 +92,10 @@ class PatientRepo  @Inject constructor(
         return patientDao.getPatient(patientId)
     }
 
+    suspend fun getPatientDisplay(patientId : String) : PatientDisplay{
+        return patientDao.getPatientDisplay(patientId)
+    }
+
     suspend fun updateNurseSubmitted(patientId : String) {
         patientDao.updateNurseSubmitted(patientId)
     }

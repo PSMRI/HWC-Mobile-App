@@ -15,6 +15,16 @@ interface PatientVisitInfoSyncDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync)
 
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET createNewBenFlow = :createNewBenFlow WHERE patientID = :patientID")
+    suspend fun updateCreateBenflowFlag(patientID: String, createNewBenFlow: Boolean? = false)
+
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
+    suspend fun getPatientVisitInfoSync(patientID: String): PatientVisitInfoSync?
+
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1")
+    suspend fun getUnsyncedRevisitRecords(createNewBenFlow: Boolean? = true): List<PatientVisitInfoSync>
+
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :unSynced")
     suspend fun getPatientNurseDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSync>
 

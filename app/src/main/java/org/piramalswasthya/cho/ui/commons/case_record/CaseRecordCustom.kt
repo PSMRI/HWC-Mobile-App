@@ -451,7 +451,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = masterDb!!.patientId,
-            benVisitNo = lastVisitNo+1,
+            benVisitNo = lastVisitNo + 1,
+            createNewBenFlow = true,
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }

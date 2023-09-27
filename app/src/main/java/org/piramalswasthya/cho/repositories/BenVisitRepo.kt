@@ -89,11 +89,6 @@ class BenVisitRepo @Inject constructor(
 
     }
 
-    fun findVisitId(visitCode: Long): Long{
-        val str = visitCode.toString()
-        return str.substring(str.length - 4).toLong();
-    }
-
     suspend fun processUnsyncedNurseData() : Boolean{
 
         val patientNurseDataUnSyncList = patientVisitInfoSyncRepo.getPatientNurseDataUnsynced()

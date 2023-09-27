@@ -53,21 +53,21 @@ class PersonalDetailsFragment : Fragment() {
             .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
-    private val searchPrompt by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.note_ben_reg))
-            .setMessage(getString(R.string.please_search_for_beneficiary))
-            .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
-                binding.search.requestFocus()
-                dialog.dismiss() }
-            .create()
-    }
+//    private val searchPrompt by lazy {
+//        MaterialAlertDialogBuilder(requireContext())
+//            .setTitle(getString(R.string.note_ben_reg))
+//            .setMessage(getString(R.string.please_search_for_beneficiary))
+//            .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
+//                binding.search.requestFocus()
+//                dialog.dismiss() }
+//            .create()
+//    }
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        searchPrompt.show()
+//        searchPrompt.show()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
