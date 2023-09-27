@@ -154,76 +154,76 @@
             app:layout_constraintTop_toBottomOf="@+id/rv" />
         </FrameLayout>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardUpload"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:elevation="8dp"
-            android:radius="8dp"
-            android:shape="rectangle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chf">
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/cardUpload"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/custom_ui_margin"-->
+<!--            android:elevation="8dp"-->
+<!--            android:radius="8dp"-->
+<!--            android:shape="rectangle"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/chf">-->
 
-            <LinearLayout
-                android:id="@+id/mainLinear"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/custom_ui_margin"
-                android:orientation="vertical">
+<!--            <LinearLayout-->
+<!--                android:id="@+id/mainLinear"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="@dimen/custom_ui_margin"-->
+<!--                android:orientation="vertical">-->
 
-                <TextView
-                    android:id="@+id/uploadFileHead"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/select_and_upload_file"
-                    android:textSize="18sp"
-                    android:textStyle="normal|bold" />
+<!--                <TextView-->
+<!--                    android:id="@+id/uploadFileHead"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/select_and_upload_file"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:textStyle="normal|bold" />-->
 
-                <TextView
-                    android:id="@+id/fileType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="10dp"
-                    android:textSize="18sp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/file_type"/>
+<!--                <TextView-->
+<!--                    android:id="@+id/fileType"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:paddingTop="10dp"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:paddingBottom="10dp"-->
+<!--                    android:text="@string/file_type"/>-->
 
-                <LinearLayout
-                    android:id="@+id/layoutUpload"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/layoutUpload"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal">-->
 
-                    <EditText
-                        android:id="@+id/selectFileText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/custom_ui_margin"
-                        android:layout_weight="1"
-                        android:inputType="none"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"/>
+<!--                    <EditText-->
+<!--                        android:id="@+id/selectFileText"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_margin="@dimen/custom_ui_margin"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:inputType="none"-->
+<!--                        android:focusable="false"-->
+<!--                        android:focusableInTouchMode="false"/>-->
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/selectFileBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/custom_ui_margin"
-                        android:textSize="18sp"
-                        android:text="@string/select_file" />
-                </LinearLayout>
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/uploadFileBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:layout_margin="@dimen/custom_ui_margin"
-                    android:textSize="18sp"
-                    android:layout_gravity="center"
-                    android:text="@string/upload_file" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/selectFileBtn"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_margin="@dimen/custom_ui_margin"-->
+<!--                        android:textSize="18sp"-->
+<!--                        android:text="@string/select_file" />-->
+<!--                </LinearLayout>-->
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/uploadFileBtn"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:enabled="false"-->
+<!--                    android:layout_margin="@dimen/custom_ui_margin"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:text="@string/upload_file" />-->
+<!--            </LinearLayout>-->
+<!--        </androidx.cardview.widget.CardView>-->
 
         <Space
             android:layout_width="wrap_content"

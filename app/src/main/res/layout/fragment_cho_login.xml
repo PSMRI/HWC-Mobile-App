@@ -26,8 +26,7 @@
             android:checkedButton="@id/btn_hwc"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingStart="@dimen/padding_wide"
-            android:paddingEnd="@dimen/padding_wide"
+            android:paddingStart="30dp"
             android:weightSum="4">
 
             <com.google.android.material.radiobutton.MaterialRadioButton
@@ -49,6 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <ImageView

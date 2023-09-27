@@ -55,6 +55,11 @@ class UserRepo @Inject constructor(
             userDao.getLoggedInUser()?.asDomainModel()
         }
     }
+    suspend fun isUserLoggedIn(): Int {
+        return withContext(Dispatchers.IO) {
+            userDao.getLoggedInStatus()
+        }
+    }
 
      suspend fun setOutreachProgram(loginType: String?,
                                       selectedOption: String?,

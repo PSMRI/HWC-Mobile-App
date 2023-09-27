@@ -47,6 +47,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUni
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -213,20 +214,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 }
             }
         }
-        binding.selectFileBtn.setOnClickListener {
-            openFilePicker()
-        }
-        binding.uploadFileBtn.setOnClickListener {
-            Toast.makeText(requireContext(), resources.getString(R.string.toast_file_uploaded), Toast.LENGTH_SHORT)
-                .show()
-            isFileUploaded = true
-            binding.uploadFileBtn.text = "Uploaded"
-            binding.uploadFileBtn.isEnabled = false
-        }
-        if (viewModel.fileName.isNotEmpty() && viewModel.base64String.isNotEmpty()) {
-            binding.uploadFileBtn.text = "Uploaded"
-            binding.selectFileText.setText(viewModel.fileName)
-        }
+//        binding.selectFileBtn.setOnClickListener {
+//            openFilePicker()
+//        }
+//        binding.uploadFileBtn.setOnClickListener {
+//            Toast.makeText(requireContext(), resources.getString(R.string.toast_file_uploaded), Toast.LENGTH_SHORT)
+//                .show()
+//            isFileUploaded = true
+//            binding.uploadFileBtn.text = "Uploaded"
+//            binding.uploadFileBtn.isEnabled = false
+//        }
+//        if (viewModel.fileName.isNotEmpty() && viewModel.base64String.isNotEmpty()) {
+//            binding.uploadFileBtn.text = "Uploaded"
+//            binding.selectFileText.setText(viewModel.fileName)
+//        }
         adapter = VisitDetailAdapter(
             itemList,
             units,
@@ -265,38 +266,38 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         return false
     }
 
-    private val filePickerLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                data?.data?.let { uri ->
-//                uploadFileToServer(uri)
-                    val fileSize = getFileSizeFromUri(uri)
-                    if (fileSize > 5242880) {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.toast_file_size_max),
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        binding.uploadFileBtn.text = "Upload File"
-                        binding.uploadFileBtn.isEnabled = false
-                        binding.selectFileText.setTextColor(Color.BLACK)
-                        isFileSelected = false
-                        isFileUploaded = false
-                    } else {
-                        convertFileToBase64String(uri, fileSize)
-                        val fileName = getFileNameFromUri(uri)
-                        binding.selectFileText.setText(fileName)
-                        binding.uploadFileBtn.isEnabled = true
-                        binding.uploadFileBtn.text = "Upload File"
-                        isFileSelected = true
-                        isFileUploaded = false
-                        viewModel.setBase64Str(base64String, fileName)
-                    }
-                }
-            }
-        }
+//    private val filePickerLauncher =
+//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+//            if (result.resultCode == Activity.RESULT_OK) {
+//                val data: Intent? = result.data
+//                data?.data?.let { uri ->
+////                uploadFileToServer(uri)
+//                    val fileSize = getFileSizeFromUri(uri)
+//                    if (fileSize > 5242880) {
+//                        Toast.makeText(
+//                            requireContext(),
+//                            resources.getString(R.string.toast_file_size_max),
+//                            Toast.LENGTH_SHORT
+//                        )
+//                            .show()
+//                        binding.uploadFileBtn.text = "Upload File"
+//                        binding.uploadFileBtn.isEnabled = false
+//                        binding.selectFileText.setTextColor(Color.BLACK)
+//                        isFileSelected = false
+//                        isFileUploaded = false
+//                    } else {
+//                        convertFileToBase64String(uri, fileSize)
+//                        val fileName = getFileNameFromUri(uri)
+//                        binding.selectFileText.setText(fileName)
+//                        binding.uploadFileBtn.isEnabled = true
+//                        binding.uploadFileBtn.text = "Upload File"
+//                        isFileSelected = true
+//                        isFileUploaded = false
+//                        viewModel.setBase64Str(base64String, fileName)
+//                    }
+//                }
+//            }
+//        }
 
     private fun convertFileToBase64String(uri: Uri, fileSize: Long) {
         val contentResolver = requireActivity().contentResolver
@@ -331,7 +332,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "*/*" // You can restrict the file type here if needed
         }
-        filePickerLauncher.launch(intent)
+//        filePickerLauncher.launch(intent)
     }
 
     private fun uploadFileToServer(fileUri: Uri) {
@@ -361,37 +362,37 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         } else true
 
 
-        if (binding.subCatInput.text.isNullOrEmpty()) {
-            if(catBool) binding.subCatInput.requestFocus()
-            binding.subCatDropDown.apply {
-                boxStrokeColor = Color.RED
-                hintTextColor = ColorStateList.valueOf(Color.RED)
-            }
-            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
-            subCat = false
-        } else {
+//        if (binding.subCatInput.text.isNullOrEmpty()) {
+//            if(catBool) binding.subCatInput.requestFocus()
+//            binding.subCatDropDown.apply {
+//                boxStrokeColor = Color.RED
+//                hintTextColor = ColorStateList.valueOf(Color.RED)
+//            }
+//            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
+//            subCat = false
+//        } else {
             subCategory = binding.subCatInput.text.toString()
             subCat = true
-        }
+        //}
 
-        if(subCat && catBool) createEncounterResource()
+        if( catBool) createEncounterResource()
 
         // calling to add Chief Complaints
         val chiefData =  addChiefComplaintsData()
 
         setVisitMasterData()
 
-        if (catBool && subCat && isFileSelected && isFileUploaded && chiefData) {
+        if (catBool && isFileSelected && isFileUploaded && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
             )
-        } else if (!isFileSelected && catBool && subCat && chiefData) {
+        } else if (!isFileSelected && catBool && chiefData) {
             if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
             findNavController().navigate(
                 R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment,bundle
             )
-        } else if(isFileSelected && !isFileUploaded && catBool && subCat && chiefData) {
+        } else if(isFileSelected && !isFileUploaded && catBool  && chiefData) {
             Toast.makeText(
                 requireContext(),
                 resources.getString(R.string.toast_upload_file),
@@ -576,10 +577,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     }
 
     override fun onCancelAction() {
-//        val intent = Intent(context, WebViewActivity::class.java)
-//        intent.putExtra("patientId", patientId);
-//        startActivity(intent)
-//        callLoginDialog()
+        val intent = Intent(context, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     //methods for voice to text conversion and update the input fields
