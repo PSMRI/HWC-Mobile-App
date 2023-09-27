@@ -37,6 +37,7 @@ data class ChiefComplaintDB(
     @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 ){
     constructor(benChiefComplaints: BenChiefComplaints, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
@@ -49,5 +50,6 @@ data class ChiefComplaintDB(
         benFlow.beneficiaryID,
         benFlow.beneficiaryRegID,
         benFlow.benFlowID,
+        benFlow.benVisitNo
     )
 }

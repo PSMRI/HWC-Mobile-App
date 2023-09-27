@@ -42,19 +42,26 @@ interface VisitReasonsAndCategoriesDao {
     @Query("SELECT * FROM Visit_DB WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getVisitDb(beneficiaryRegID: Long) : VisitDB?
 
+    @Query("SELECT * FROM Visit_DB WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
+    suspend fun getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : VisitDB?
+
     @Query("SELECT * FROM Visit_DB WHERE patientID = :patientID")
     suspend fun getVisitDbByPatientId(patientID: String) : VisitDB?
 
     @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID")
     suspend fun getChiefComplaintsByPatientId(patientID: String) : List<ChiefComplaintDB>?
+
     @Query("SELECT * FROM Chielf_Complaint_DB WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getChiefComplaints(beneficiaryRegID: Long) : List<ChiefComplaintDB>?
 
-    @Query("UPDATE Visit_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID")
-    suspend fun updateVisitDbBenflow(benflowId: Long, beneficiaryRegID: Long) : Int
+    @Query("SELECT * FROM Chielf_Complaint_DB WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
+    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : List<ChiefComplaintDB>?
 
-    @Query("UPDATE Chielf_Complaint_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID")
-    suspend fun updateChiefComplaintsBenflow(benflowId: Long, beneficiaryRegID: Long) : Int
+    @Query("UPDATE Visit_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
+    suspend fun updateVisitDbBenflow(benflowId: Long, beneficiaryRegID: Long, benVisitNo: Int) : Int
+
+    @Query("UPDATE Chielf_Complaint_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
+    suspend fun updateChiefComplaintsBenflow(benflowId: Long, beneficiaryRegID: Long, benVisitNo: Int) : Int
 
     @Transaction
     @Query("UPDATE Visit_DB SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
@@ -69,7 +76,15 @@ interface VisitReasonsAndCategoriesDao {
     suspend fun deleteVisitDbByPatientId(patientID: String): Int
 
     @Transaction
+    @Query("DELETE FROM Visit_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun deleteVisitDbByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int)
+
+    @Transaction
     @Query("DELETE FROM Chielf_Complaint_DB WHERE patientID = :patientID")
     suspend fun deleteChiefComplaintsByPatientId(patientID: String): Int
+
+    @Transaction
+    @Query("DELETE FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun deleteChiefComplaintsByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int)
 
 }

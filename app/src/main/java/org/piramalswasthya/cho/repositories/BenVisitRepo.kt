@@ -89,11 +89,6 @@ class BenVisitRepo @Inject constructor(
 
     }
 
-    fun findVisitId(visitCode: Long): Long{
-        val str = visitCode.toString()
-        return str.substring(str.length - 4).toLong();
-    }
-
     suspend fun processUnsyncedNurseData() : Boolean{
 
         val patientNurseDataUnSyncList = patientVisitInfoSyncRepo.getPatientNurseDataUnsynced()
@@ -104,12 +99,12 @@ class BenVisitRepo @Inject constructor(
             if(it.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
-                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.beneficiaryRegID!!)
+                    val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.beneficiaryRegID!!, it.benVisitNo!!)
                     if(benFlow != null && benFlow.nurseFlag == 1){
 
-                        val visit = visitReasonsAndCategoriesRepo.getVisitDB(beneficiaryRegID = benFlow.beneficiaryRegID!!)
-                        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDB(beneficiaryRegID = benFlow.beneficiaryRegID!!)
-                        val vitals = vitalsRepo.getVitalsDetailsByBenRegId(beneficiaryRegID = benFlow.beneficiaryRegID!!)
+                        val visit = visitReasonsAndCategoriesRepo.getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID = benFlow.beneficiaryRegID!!, benVisitNo = benFlow.benVisitNo!!)
+                        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID = benFlow.beneficiaryRegID!!, benVisitNo = benFlow.benVisitNo!!)
+                        val vitals = vitalsRepo.getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID = benFlow.beneficiaryRegID!!, benVisitNo = benFlow.benVisitNo!!)
 
                         val patientVisitInfo = PatientVisitInformation(
                             user = user,

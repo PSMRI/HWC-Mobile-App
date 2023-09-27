@@ -27,10 +27,12 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
@@ -46,6 +48,8 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                                               private val visitRepo: VisitReasonsAndCategoriesRepo,
                                               private val vitalsRepo: VitalsRepo,
                                               private val patientRepo: PatientRepo,
+                                              private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
+
 ) :
     ViewModel(), FhirQuestionnaireService {
     private var _loggedInUser: UserCache? = null
@@ -168,6 +172,29 @@ fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
             }
         }
     }
+
+    fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+        viewModelScope.launch {
+            try {
+                val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
+                patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
+                patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
+                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
+            }catch (e:Exception){
+                Timber.e("Error in saving chieft complaint Db : $e")
+            }
+        }
+    }
+
+    suspend fun hasUnSyncedNurseData(patientId : String) : Boolean{
+        return patientVisitInfoSyncRepo.hasUnSyncedNurseData(patientId);
+    }
+
+    suspend fun getLastVisitNo(patientId : String) : Int{
+        return patientVisitInfoSyncRepo.getLastVisitNo(patientId);
+    }
+
     suspend fun setNurseCompleted(patienId:String){
         viewModelScope.launch {
             try {
