@@ -78,5 +78,6 @@ interface UserDao {
     @Query("update user set logged_in = 1 where username = :username")
     suspend fun updateLoggedInStatus(username: String)
 
-
+    @Query("select logged_in from user")
+    suspend fun getLoggedInStatus():Int
 }
