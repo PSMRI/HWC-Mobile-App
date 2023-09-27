@@ -338,6 +338,9 @@ class BenFlowRepo @Inject constructor(
                             beneficiaryRegID = benFlow.beneficiaryRegID!!,
                             benVisitNo = benFlow.benVisitNo!!,
                         )
+                        patientRepo.updateFlagsByBenRegId(
+                            benFlow = benFlow
+                        )
                         if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null && patient != null){
                             getAndSaveNurseDataToDb(benFlow, patient)
                         }

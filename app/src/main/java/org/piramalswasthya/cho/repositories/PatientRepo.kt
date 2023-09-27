@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.BeneficiariesDTO
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
+import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientNetwork
@@ -86,6 +87,17 @@ class PatientRepo  @Inject constructor(
 
     fun getPatientListFlowForNurse() : Flow<List<PatientDisplay>> {
         return patientDao.getPatientListFlowForNurse()
+    }
+
+    fun getPatientListFlowForDoctor() : Flow<List<PatientDisplay>> {
+        return patientDao.getPatientListFlowForDoctor()
+    }
+
+    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
+        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
+        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
+            patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
+        }
     }
 
     suspend fun getPatient(patientId : String) : Patient{

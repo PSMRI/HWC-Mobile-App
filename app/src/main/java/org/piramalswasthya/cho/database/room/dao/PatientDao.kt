@@ -30,12 +30,15 @@ interface PatientDao {
     suspend fun updateNurseSubmitted(patientID : String)
 
     @Transaction
+    @Query("UPDATE PATIENT SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag WHERE beneficiaryRegID = :beneficiaryRegID")
+    suspend fun updateFlagsByBenRegId(nurseFlag: Int, doctorFlag: Int, beneficiaryRegID: Long)
+
+    @Transaction
     @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
     suspend fun updateDoctorSubmitted(patientID : String)
 
     @Query("SELECT * FROM PATIENT WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getPatientByBenRegId(beneficiaryRegID: Long) : Patient?
-
 
     @Transaction
     @Query("DELETE FROM PATIENT WHERE patientID = :patientID")
@@ -43,16 +46,20 @@ interface PatientDao {
     @Update
     suspend fun updatePatient(patient: Patient)
     @Transaction
-    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
+    @Query("SELECT * FROM PATIENT")
     suspend fun getPatientList() : List<PatientDisplay>
 
     @Transaction
-    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen WHERE gen.genderID = pat.genderID")
+    @Query("SELECT * FROM PATIENT")
     fun getPatientListFlow() : Flow<List<PatientDisplay>>
 
     @Transaction
-    @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.nurseFlag = 1")
+    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 1")
     fun getPatientListFlowForNurse(): Flow<List<PatientDisplay>>
+
+    @Transaction
+    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 9")
+    fun getPatientListFlowForDoctor(): Flow<List<PatientDisplay>>
 
     @Transaction
     @Query("SELECT * FROM PATIENT pat LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID WHERE pat.syncState =:unsynced ")

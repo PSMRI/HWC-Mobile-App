@@ -154,7 +154,6 @@ class HomeActivity : AppCompatActivity() {
                 viewModel.logout(myLocation,"By User")
                 dialog.dismiss()
             }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
-
                 dialog.dismiss()
             }.create()
     }

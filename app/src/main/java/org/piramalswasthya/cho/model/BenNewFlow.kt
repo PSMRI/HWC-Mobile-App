@@ -42,7 +42,7 @@ data class BenNewFlow (
 ){
     constructor(user: UserDomain?, patientDisplay: PatientDisplay?) : this(
         patientDisplay?.patient?.beneficiaryRegID,
-        i_bendemographics = IBenDemographics(user, patientDisplay?.patient),
+        i_bendemographics = IBenDemographics(user, patientDisplay),
         benPhoneMaps = arrayListOf(BenPhoneMap(patientDisplay?.patient)),
         beneficiaryID = patientDisplay?.patient?.beneficiaryID?.toString(),
         m_title = emptyMap(),
@@ -127,37 +127,37 @@ data class IBenDemographics(
     val servicePointID: Int?,
     val servicePointName: String?
 ){
-    constructor(user: UserDomain?, patient: Patient?): this(
-        patient?.beneficiaryRegID,
-        6,
-        "Bihar",
+    constructor(user: UserDomain?, patientDisplay: PatientDisplay?): this(
+        patientDisplay?.patient?.beneficiaryRegID,
+        stateID = patientDisplay?.state?.stateID,
+        stateName = patientDisplay?.state?.stateName,
         m_state = MState(
-            stateID = 6,
-            stateName = "Bihar",
+            stateID = patientDisplay?.state?.stateID,
+            stateName = patientDisplay?.state?.stateName,
             stateCode = "BH",
             countryID = 1
         ),
-        70,
-        "Araria",
+        districtID = patientDisplay?.district?.districtID,
+        districtName = patientDisplay?.district?.districtName,
         m_district = MDistrict(
-            districtID = 70,
-            stateID = 6,
-            districtName = "Araria",
+            districtID = patientDisplay?.district?.districtID,
+            stateID = patientDisplay?.state?.stateID,
+            districtName = patientDisplay?.district?.districtName,
         ),
-        223,
-        "Araria",
+        blockID = patientDisplay?.block?.blockID,
+        blockName = patientDisplay?.block?.blockName,
         m_districtblock = MDistrictblock(
-            blockID = 223,
-            districtID = 70,
-            blockName = "Araria",
-            stateID = 6,
+            blockID = patientDisplay?.block?.blockID,
+            districtID = patientDisplay?.district?.districtID,
+            blockName = patientDisplay?.block?.blockName,
+            stateID = patientDisplay?.state?.stateID,
         ),
-        54151,
-        "Araria",
+        districtBranchID = patientDisplay?.village?.districtBranchID,
+        districtBranchName = patientDisplay?.village?.villageName,
         m_districtbranchmapping = MDistrictbranchmapping(
-            districtBranchID = 54151,
-            blockID = 223,
-            villageName = "Araria"
+            districtBranchID = patientDisplay?.village?.districtBranchID,
+            blockID = patientDisplay?.block?.blockID,
+            villageName = patientDisplay?.village?.villageName,
         ),
         user?.userName,
         user?.parkingPlaceId,

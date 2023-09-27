@@ -238,7 +238,7 @@ class UserRepo @Inject constructor(
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails()
                     getLocDetailsBasedOnSpIDAndPsmID()
-                    getUserAssignedVillageIds()
+//                    getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     Timber.d("Error Message $errorMessage")
@@ -304,8 +304,10 @@ class UserRepo @Inject constructor(
                 if(blockMasterDao.getBlockById(blockId.toInt()) == null){
                     blockMasterDao.insertBlock(BlockMaster(blockId.toInt(),districtId.toInt(),null,null, blockName))
                 }
+                var villageIds = ""
                 for(element in villageLocationDataList) {
                     var id = element.districtBranchID
+                    villageIds += "$id,"
                     var name = element.villageName
                     if (villageMasterDao.getVillageById(id.toInt()) == null) {
                         villageMasterDao.insertVillage(
@@ -320,6 +322,9 @@ class UserRepo @Inject constructor(
                     }
                 }
 
+                if(villageIds.isNotEmpty()){
+                    user!!.assignVillageIds = villageIds.substring(0, villageIds.length-1)
+                }
 
                 preferenceDao.saveUserLocationData(LocationData(
                     stateId.toInt(), stateMasterName, districtId.toInt(),districtName, blockId.toInt(),blockName, villageLocationDataList))
@@ -327,16 +332,16 @@ class UserRepo @Inject constructor(
         }
     }
 
-    private suspend fun getUserAssignedVillageIds(){
-        user!!.assignVillageIds = "54151,54676,463267"
-//        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
-//        val responseBody = JSONObject(response.body()?.string() ?: "")
-//        if(responseBody.has("data")){
-//            val data = responseBody.getJSONObject("data")
-//            user!!.assignVillageIds = data.getString("villageId")
-//            user!!.assignVillageNames = data.getString("villageName")
-//        }
-    }
+//    private suspend fun getUserAssignedVillageIds(){
+//        user!!.assignVillageIds = "54151,54676,463267"
+////        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
+////        val responseBody = JSONObject(response.body()?.string() ?: "")
+////        if(responseBody.has("data")){
+////            val data = responseBody.getJSONObject("data")
+////            user!!.assignVillageIds = data.getString("villageId")
+////            user!!.assignVillageNames = data.getString("villageName")
+////        }
+//    }
 
     fun extractRoles(privilegesObject : JSONObject) : String{
         val rolesObjectArray = privilegesObject.getJSONArray("roles")
