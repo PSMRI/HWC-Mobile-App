@@ -20,6 +20,14 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
+    suspend fun updateCreateBenflowFlag(patientID: String,){
+        patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientID)
+    }
+
+    suspend fun getPatientVisitInfoSync(patientID: String): PatientVisitInfoSync?{
+        return patientVisitInfoSyncDao.getPatientVisitInfoSync(patientID)
+    }
+
     suspend fun getPatientNurseDataUnsynced() : List<PatientVisitInfoSync>{
         return patientVisitInfoSyncDao.getPatientNurseDataUnsynced()
     }
@@ -60,5 +68,13 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePatientDoctorDataSyncSyncing(patientID = patientID)
     }
 
+    suspend fun hasUnSyncedNurseData(patientID: String) : Boolean {
+        val syncState = patientVisitInfoSyncDao.getNurseDataSyncStatus(patientID);
+        return (syncState != null && syncState == SyncState.UNSYNCED);
+    }
+
+    suspend fun getLastVisitNo(patientID: String) : Int {
+        return patientVisitInfoSyncDao.getLastVisitNo(patientID) ?: 0
+    }
 
 }

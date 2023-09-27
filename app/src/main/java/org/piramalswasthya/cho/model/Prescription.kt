@@ -29,11 +29,11 @@ data class Prescription(
         "125ml",
         "Syrup",
         3,
-        "10 ml",
-        1,
+        "10 ml", // nullable
+        1, // hard coded
         "Once Daily(OD)",
         3,
-        "Oral",
+        "Oral", // hard coded
         "3 Day(s)",
         "Day(s)",
         null,

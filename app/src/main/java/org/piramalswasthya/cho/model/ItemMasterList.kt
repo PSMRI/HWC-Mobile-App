@@ -19,5 +19,5 @@ data class ItemMasterList(
     @ColumnInfo(name = "itemFormID") val itemFormID:Int,
     @ColumnInfo(name = "routeID") val routeID:Int,
     @ColumnInfo(name = "facilityID") val facilityID:Int,
-    @ColumnInfo(name = "isEDL") val isEDL:Boolean
-    )
+    @ColumnInfo(name = "isEDL") val isEDL: Boolean,
+)

@@ -33,6 +33,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
@@ -131,7 +132,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
-    private fun addVitalsDataToCache(){
+    private fun addVitalsDataToCache(lastVisitNo: Int){
         val patientVitals = PatientVitalsModel(
             vitalsId = generateUuid(),
             height = heightValue.nullIfEmpty(),
@@ -145,17 +146,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             bpSystolic = bpSystolicValue.nullIfEmpty(),
             respiratoryRate = respiratoryValue.nullIfEmpty(),
             rbs = rbsValue.nullIfEmpty(),
-            patientID = masterDb!!.patientId
+            patientID = masterDb!!.patientId,
+            benVisitNo = lastVisitNo + 1,
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
     }
-    private fun addVisitRecordDataToCache(){
+    private fun addVisitRecordDataToCache(lastVisitNo: Int){
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-            patientID = masterDb!!.patientId
+            patientID = masterDb!!.patientId,
+            benVisitNo = lastVisitNo + 1,
         )
 
         viewModel.saveVisitDbToCatche(visitDB)
@@ -171,11 +174,22 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 patientID = masterDb!!.patientId,
                 beneficiaryID = null,
                 beneficiaryRegID=null,
+                benVisitNo = lastVisitNo + 1,
                 benFlowID=null
             )
             viewModel.saveChiefComplaintDbToCatche(chiefC)
         }
     }
+
+    private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = masterDb!!.patientId,
+            benVisitNo = lastVisitNo + 1,
+            createNewBenFlow = true,
+        )
+        viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
+    }
+
     private fun createObservationResource(){
         //Code
         var observationCode = Coding()
@@ -368,28 +382,42 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         if (preferenceDao.isUserDoctor()){
             extractFormValues()
             createObservationResource()
-        if (!isNull) {
-            viewModel.saveObservationResource(observation)
-            isNull = true
-        }
-        setVitalsMasterData()
-        findNavController().navigate(
-            R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-        )
-    }else{
-            extractFormValues()
+            if (!isNull) {
+                viewModel.saveObservationResource(observation)
+                isNull = true
+            }
             setVitalsMasterData()
-            addVisitRecordDataToCache()
-            addVitalsDataToCache()
-            createObservationResource()
-            setNurseComplete()
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.vitals_information_is_saved),
-                Toast.LENGTH_SHORT
-            ).show()
-            val intent = Intent(context, HomeActivity::class.java)
-            startActivity(intent)
+            findNavController().navigate(
+                R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+            )
+        }else{
+            CoroutineScope(Dispatchers.IO).launch {
+                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
+                if(hasUnSyncedNurseData){
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.unsyncedNurseData),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else{
+                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
+                    extractFormValues()
+                    setVitalsMasterData()
+                    addVisitRecordDataToCache(lastVisitNo)
+                    addVitalsDataToCache(lastVisitNo)
+                    addPatientVisitInfoSyncToCache(lastVisitNo)
+                    setNurseComplete()
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.vitals_information_is_saved),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+
         }
     }
     private fun setNurseComplete() {
