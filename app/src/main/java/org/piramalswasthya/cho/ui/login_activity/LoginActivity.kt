@@ -3,28 +3,41 @@ package org.piramalswasthya.cho.ui.login_activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
+import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.ui.commons.case_record.CaseRecordViewModel
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     private var _binding: ActivityLoginBinding? = null
-
     private val binding: ActivityLoginBinding
         get() = _binding!!
+
+    @Inject
+    lateinit var userRepo: UserRepo
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -46,9 +59,26 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
         print("app started")
 
-        // createSyncServiceNotificationChannel()
-//        setUpCurrentLanguage()
+        lifecycleScope.launch {
+            try {
+                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
+                if (isLoggedIn != null) {
+                    if (isLoggedIn == 1) {
+                        // User is logged in, navigate to the home screen
+                        val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        // User is not logged in, continue with the login process
+                        // Inside the else block when the user is not logged in
+                        val intent = Intent(this@LoginActivity, LoginActivity::class.java)
+                        startActivity(intent)
 
+                    }
+                }
+            }catch (e:Exception){
+                Log.d("Failed to get Login flag","${e}")
+            }
+        }
     }
 
 //    private fun createSyncServiceNotificationChannel() {
