@@ -108,13 +108,16 @@ class OutreachViewModel @Inject constructor(
 //            _state.value = State.SUCCESS
         }
     }
-    fun rememberUser(username: String) {
+    fun rememberUser(username: String,password: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                pref.registerLoginCred(username)
+                pref.registerLoginCred(username,password)
             }
         }
     }
+    fun fetchRememberedPassword(): String? =
+        pref.getRememberedPassword()
+
     fun forgetUser() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

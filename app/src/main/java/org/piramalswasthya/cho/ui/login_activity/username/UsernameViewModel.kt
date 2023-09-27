@@ -24,13 +24,7 @@ class UsernameViewModel@Inject constructor(
 
     }
 
-    fun rememberUser(username: String) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                pref.registerLoginCred(username)
-            }
-        }
-    }
+
     fun fetchRememberedUserName(): String? =
         pref.getRememberedUserName()
 }

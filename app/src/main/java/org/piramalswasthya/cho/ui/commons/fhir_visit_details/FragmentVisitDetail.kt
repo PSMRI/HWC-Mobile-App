@@ -47,6 +47,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUni
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -576,10 +577,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     }
 
     override fun onCancelAction() {
-//        val intent = Intent(context, WebViewActivity::class.java)
-//        intent.putExtra("patientId", patientId);
-//        startActivity(intent)
-//        callLoginDialog()
+        val intent = Intent(context, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     //methods for voice to text conversion and update the input fields

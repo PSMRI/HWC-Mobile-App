@@ -24,19 +24,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@color/purple"
-                android:padding="16dp"
-                android:text="@string/app_title"
-                android:textColor="#FFFFFF"
+            <ImageView
+                android:id="@+id/iv_nhm_logo"
+                android:layout_width="119dp"
+                android:layout_height="115dp"
+                android:layout_marginTop="40dp"
+                android:contentDescription="GOK Logo"
+                android:src="@drawable/ic_logo"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="spread_inside" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.fragment.app.FragmentContainerView
