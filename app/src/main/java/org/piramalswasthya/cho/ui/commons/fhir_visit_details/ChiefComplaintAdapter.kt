@@ -43,7 +43,7 @@ class ChiefComplaintAdapter(
                 constraint?.let { query ->
                     val filteredData = ArrayList<ChiefComplaintMaster>()
                     for (item in dataListConst) {
-                        if (item.chiefComplaint.lowercase().contains(query.toString().lowercase())) {
+                        if (item.chiefComplaint.lowercase().startsWith(query.toString().lowercase())) {
                             filteredData.add(item)
                         }
                     }

@@ -154,6 +154,11 @@ class OutreachFragment(
 
         faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
         getCurrentLocation()
+        if(!viewModel.fetchRememberedPassword().isNullOrBlank()) {
+            viewModel.fetchRememberedPassword()?.let {
+                binding.etPassword.setText(it)
+            }
+        }
         return binding.root
     }
 
@@ -266,7 +271,7 @@ class OutreachFragment(
                 when (state!!) {
                     OutreachViewModel.State.SUCCESS -> {
                         if (rememberUsername)
-                            viewModel.rememberUser(userName)
+                            viewModel.rememberUser(userName,binding.etPassword.text.toString())
                         else {
                             viewModel.forgetUser()
                         }

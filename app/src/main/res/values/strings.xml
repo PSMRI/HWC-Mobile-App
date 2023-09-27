@@ -390,4 +390,5 @@
     <string name="ben_phone_no">Phone No:</string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
+    <string name="password_local_saved">password-local-saved</string>
 </resources>
