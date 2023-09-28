@@ -597,7 +597,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-            patientID = masterDb!!.patientId,
+            patientID = patId,
             benVisitNo = lastVisitNo+1
         )
 
@@ -671,15 +671,18 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         } else {
             patId = masterDb!!.patientId
             CoroutineScope(Dispatchers.IO).launch {
-//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
-//                if (hasUnSyncedNurseData) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.unsyncedNurseData),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                } else {
-                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
+                if(masterDb!!.patientId.toString()!=null) {
+                    patId = masterDb!!.patientId.toString()
+                }
+                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(patId)
+                if (hasUnSyncedNurseData) {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.unsyncedNurseData),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val lastVisitNo = viewModel.getLastVisitNo(patId)
                     addPatientVisitInfoSyncToCache(lastVisitNo)
                     addVisitRecordDataToCache(lastVisitNo)
                     addVitalsDataToCache(lastVisitNo)
@@ -694,14 +697,13 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
-                        binding.diagnosisExtra.scrollToPosition(validate)
                         Toast.makeText(
                             requireContext(),
                             resources.getString(R.string.diagnosisCannotBeEmpty),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-//                }
+                }
             }
         }
     }
