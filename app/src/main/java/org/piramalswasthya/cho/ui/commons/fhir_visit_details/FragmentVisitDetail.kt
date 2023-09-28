@@ -252,7 +252,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
-            if (item.chiefComplaint.isEmpty() || item.duration.isEmpty() || item.durationUnit.isEmpty()) {
+            if (item.chiefComplaint.isEmpty() || item.duration.isEmpty()) {
                 return true
             }
         }

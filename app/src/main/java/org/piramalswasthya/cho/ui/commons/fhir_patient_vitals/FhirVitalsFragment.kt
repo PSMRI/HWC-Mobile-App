@@ -146,7 +146,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             bpSystolic = bpSystolicValue.nullIfEmpty(),
             respiratoryRate = respiratoryValue.nullIfEmpty(),
             rbs = rbsValue.nullIfEmpty(),
-            patientID = masterDb!!.patientId,
+            patientID = masterDb!!.patientId.toString(),
             benVisitNo = lastVisitNo + 1,
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
@@ -157,7 +157,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-            patientID = masterDb!!.patientId,
+            patientID = masterDb!!.patientId.toString(),
             benVisitNo = lastVisitNo + 1,
         )
 
@@ -171,7 +171,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 duration =  chiefComplaintItem.duration.nullIfEmpty(),
                 durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
                 description = chiefComplaintItem.description.nullIfEmpty(),
-                patientID = masterDb!!.patientId,
+                patientID = masterDb!!.patientId.toString(),
                 beneficiaryID = null,
                 beneficiaryRegID=null,
                 benVisitNo = lastVisitNo + 1,
@@ -183,7 +183,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 
     private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = masterDb!!.patientId,
+            patientID = masterDb!!.patientId.toString(),
             benVisitNo = lastVisitNo + 1,
             createNewBenFlow = true,
         )
@@ -379,7 +379,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun navigateNext() {
-        if (preferenceDao.isUserNurseAndDoctorOrMo()){
+        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()){
             extractFormValues()
             createObservationResource()
             if (!isNull) {
@@ -392,7 +392,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             )
         }else{
             CoroutineScope(Dispatchers.IO).launch {
-                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
+                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId.toString())
                 if(hasUnSyncedNurseData){
                     Toast.makeText(
                         requireContext(),
@@ -401,7 +401,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                     ).show()
                 }
                 else{
-                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
+                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId.toString())
                     extractFormValues()
                     setVitalsMasterData()
                     addVisitRecordDataToCache(lastVisitNo)
@@ -422,7 +422,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
     private fun setNurseComplete() {
         CoroutineScope(Dispatchers.IO).launch {
-            viewModel.setNurseCompleted(masterDb!!.patientId)
+            viewModel.setNurseCompleted(masterDb!!.patientId.toString())
         }
     }
 
