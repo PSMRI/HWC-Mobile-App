@@ -121,10 +121,10 @@ class HomeFragment : Fragment() {
                 }
 
                 HomeViewModel.State.SAVE_FAILED -> {
-                    Toast.makeText(
-
-                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
-                    ).show()
+//                    Toast.makeText(
+//
+//                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
+//                    ).show()
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
                 }
