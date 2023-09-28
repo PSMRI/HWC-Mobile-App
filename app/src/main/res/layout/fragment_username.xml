@@ -14,14 +14,31 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="100dp"
+                >
 
+                <ImageView
+                    android:id="@+id/iv_nhm_logo"
+                    android:layout_width="119dp"
+                    android:layout_height="115dp"
+                    android:contentDescription="GOK Logo"
+                    android:src="@drawable/ic_logo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="spread_inside" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 <!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
 <!--                android:id="@+id/fdgfd"-->
 <!--                android:layout_width="match_parent"-->
