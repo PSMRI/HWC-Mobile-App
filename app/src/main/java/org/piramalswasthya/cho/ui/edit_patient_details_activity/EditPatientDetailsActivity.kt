@@ -102,7 +102,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                        binding.headerTextEditPatient.text =
                            resources.getString(R.string.vitals_text)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
-                       if (preferenceDao.isUserNurseAndDoctorOrMo()) {
+                       if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()) {
                            binding.btnSubmit.text = resources.getString(R.string.next)
                        } else {
                            binding.btnSubmit.text =
