@@ -28,10 +28,10 @@ class PersonalDetailsViewModel @Inject constructor(
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
-    var patientList : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlow().combine(filter){
+    var patientListForDoctor : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForDoctor().combine(filter){
         list, filter -> filterBenList(list, filter)
 }
-    var patientListForNurse : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForNurse().combine(filter){
+    var patientListForNurse : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlow().combine(filter){
             list, filter -> filterBenList(list, filter)
     }
 

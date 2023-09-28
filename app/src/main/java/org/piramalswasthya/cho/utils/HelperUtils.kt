@@ -26,8 +26,8 @@ fun filterBenList(list: List<PatientDisplay>, text: String): List<PatientDisplay
 fun filterForBen(
     ben: PatientDisplay,
     filterText: String
-) =     ben.patient.firstName!!.lowercase().contains(filterText) ||
-        ben.patient.lastName!!.lowercase().contains(filterText)||
-        ben.patient.beneficiaryID.toString().lowercase().contains(filterText) ||
-        ben.patient.phoneNo!!.contains(filterText)||
+) =     ben.patient.firstName?.lowercase()?.contains(filterText) ?: false ||
+        ben.patient.lastName?.lowercase()?.contains(filterText) ?: false||
+        ben.patient.beneficiaryID?.toString()?.lowercase()?.contains(filterText) ?: false||
+        ben.patient.phoneNo?.contains(filterText) ?: false||
         ben.patient.healthIdDetails?.healthIdNumber?.contains(filterText) ?: false

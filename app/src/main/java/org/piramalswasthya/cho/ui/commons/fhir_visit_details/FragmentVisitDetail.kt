@@ -145,9 +145,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(preferenceDao.isUserDoctor()){
-            fillFieldsFromDb()
-        }
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details

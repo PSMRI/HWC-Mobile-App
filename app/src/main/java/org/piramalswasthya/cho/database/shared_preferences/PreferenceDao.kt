@@ -51,7 +51,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         return pref.getString(prefKey, null)
     }
-//
+    //
     fun registerPrimaryApiToken(token: String) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
@@ -71,14 +71,47 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null)
     }
 
-    fun isUserDoctor(): Boolean {
+    fun isUserOnlyDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            return rolesArray.contains("Doctor")
+            if(rolesArray.contains("Nurse")){
+                return false
+            }
+            else {
+                if(rolesArray.contains("Doctor")||rolesArray.contains("MO"))
+                    return true
+            }
+        }
+        return false;
+    }
+    fun isUserRegistrar():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Registrar")
+        }
+        return false;
+    }
+    fun isUserOnlyNurse(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            if (rolesArray.contains("Doctor")||rolesArray.contains("MO")){
+                return false
+            }else {
+                return rolesArray.contains("Nurse")
+            }
         }
         return false;
     }
 
+    fun isUserNurseAndDoctorOrMo(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            if(isUserOnlyDoctorOrMo() && rolesArray.contains("Nurse")) {
+                return true
+            }
+        }
+        return false;
+    }
 
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
         val editor = pref.edit()
@@ -156,6 +189,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, UserNetwork::class.java)
     }
+
     fun saveUserLocationData(location: LocationData) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.pref_location_data)
@@ -163,6 +197,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.putString(prefKey, locJson)
         editor.apply()
     }
+
     fun getUserLocationData(): LocationData? {
         val prefKey = context.getString(R.string.pref_location_data)
         val json = pref.getString(prefKey, null)
@@ -171,7 +206,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
 //
 
-//
+    //
 //    fun getRememberedPassword(): String? {
 //        val key = context.getString(R.string.PREF_rem_me_pwd)
 //        return pref.getString(key, null)
@@ -235,7 +270,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
             else -> Languages.ENGLISH
         }
     }
-//
+    //
 //    fun saveProfilePicUri(uri: Uri) {
 //        val key = context.getString(R.string.PREF_current_dp_uri)
 //

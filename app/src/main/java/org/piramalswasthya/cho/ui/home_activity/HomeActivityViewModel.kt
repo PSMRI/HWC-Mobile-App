@@ -109,7 +109,6 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
     fun logout(myLocation:Location?,logoutType: String) {
         viewModelScope.launch {
-            _navigateToLoginPage.value = true
             val user = userDao.getLoggedInUser()
             val lat = myLocation?.latitude
             val long = myLocation?.longitude
@@ -132,6 +131,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 logoutType)
             userDao.insertOutreachProgram(selectedOutreachProgram)
             userDao.resetAllUsersLoggedInState()
+            _navigateToLoginPage.value = true
         }
     }
 
