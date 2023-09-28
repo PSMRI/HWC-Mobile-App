@@ -1,8 +1,10 @@
 package org.piramalswasthya.cho.ui.login_activity.username
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +18,12 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
+import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
+import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,6 +44,8 @@ class UsernameFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        Log.d("refresh created!",Locale.getDefault().language)
+
         viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
 //        binding.loginSettings.visibility = View.INVISIBLE
@@ -122,7 +129,28 @@ class UsernameFragment : Fragment() {
             }
 
         }
+        when (prefDao.getCurrentLanguage()) {
+            Languages.ENGLISH -> binding.rgLangSelect.check(binding.rbEng.id)
+            Languages.KANNADA -> binding.rgLangSelect.check(binding.rbKannada.id)
+        }
 
+        binding.rgLangSelect.setOnCheckedChangeListener { _, i ->
+            val currentLanguage = when (i) {
+                binding.rbEng.id -> Languages.ENGLISH
+                binding.rbKannada.id -> Languages.KANNADA
+                else -> Languages.ENGLISH
+            }
+            prefDao.saveSetLanguage(currentLanguage)
+            Locale.setDefault(Locale(currentLanguage.symbol))
+
+            val refresh = Intent(requireContext(), LoginActivity::class.java)
+            Log.d("refresh Called!",Locale.getDefault().language)
+            requireActivity().finish()
+            startActivity(refresh)
+            activity?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+
+        }
 
     }
 

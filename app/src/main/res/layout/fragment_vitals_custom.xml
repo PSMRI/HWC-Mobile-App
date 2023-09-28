@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            android:hint="BMI"
+            android:hint="@string/bmi"
             android:textColorHint="#888888"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/heightEditTxt">

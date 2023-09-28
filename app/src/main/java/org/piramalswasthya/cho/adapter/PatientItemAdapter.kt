@@ -93,7 +93,9 @@ class PatientItemAdapter(
                 binding.ivSyncState.visibility = View.VISIBLE
                 binding.patientBenId.text = item.patient.beneficiaryID.toString()
                 binding.llBenId.visibility = View.VISIBLE
+                binding.btnAbha.isEnabled = true
             }else {
+                binding.btnAbha.isEnabled = false
                 binding.llBenId.visibility = View.GONE
                 binding.ivSyncState.visibility = View.GONE
             }

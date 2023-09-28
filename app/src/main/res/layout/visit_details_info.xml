@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:text="Other CPHC Services"
+                android:text="@string/other_cphc_services"
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
 
@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
-            android:text="Reason For Visit"
+            android:text="@string/reason_for_visit"
             android:textSize="18sp"
             android:textStyle="normal|bold"
             android:visibility="gone"
