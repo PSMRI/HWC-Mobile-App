@@ -115,13 +115,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
             patientId = requireActivity().intent?.extras?.getString("patientId")!!
             patId= patientId
+            viewModel.getVitalsDB(patId)
+            viewModel.getChiefComplaintDB(patId)
         }
-        else{
-            patId = masterDb!!.patientId
-        }
-        Log.d("arr","${patientId}")
-        viewModel.getVitalsDB(patientId)
-        viewModel.getChiefComplaintDB(patientId)
+
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
@@ -672,6 +669,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 ).show()
             }
         } else {
+            patId = masterDb!!.patientId
             CoroutineScope(Dispatchers.IO).launch {
                 val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
                 if (hasUnSyncedNurseData) {
