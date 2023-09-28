@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.abha_id_activity
 
+import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -8,9 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityAbhaIdBinding
+import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdViewModel.State
 
@@ -18,6 +25,23 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class AbhaIdActivity : AppCompatActivity() {
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface WrapperEntryPoint {
+        val preferenceDao: PreferenceDao
+    }
+    override fun attachBaseContext(newBase: Context) {
+        val pref = EntryPointAccessors.fromApplication(
+            newBase,
+            WrapperEntryPoint::class.java
+        ).preferenceDao
+        super.attachBaseContext(
+            MyContextWrapper.wrap(
+                newBase,
+                newBase.applicationContext,
+                pref.getCurrentLanguage().symbol
+            ))
+    }
 
     private var _binding: ActivityAbhaIdBinding? = null
     private val binding: ActivityAbhaIdBinding

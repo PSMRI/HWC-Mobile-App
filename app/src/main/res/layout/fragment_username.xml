@@ -36,8 +36,46 @@
 <!--                app:hint="asdas"-->
 <!--                app:inputType="number"-->
 <!--                />-->
+            <TextView
+                android:id="@+id/tv_lang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/please_select_your_language"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                 />
+            <TextView
+                android:id="@+id/tv_lang_kannada"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/padding_normal"
+                android:text="@string/please_select_your_language_kannada"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                />
+            <RadioGroup
+                android:id="@+id/rg_lang_select"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/rb_eng"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/padding_wide"
+                android:paddingEnd="@dimen/padding_wide"
+                android:weightSum="3"
+                >
 
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rb_eng"
+                    style="@style/radio_item_lang"
+                    android:text="@string/english_lang" />
 
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rb_kannada"
+                    style="@style/radio_item_lang"
+                    android:text="@string/kannada_lang" />
+
+            </RadioGroup>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_username"
@@ -64,7 +102,7 @@
                 android:id="@+id/cb_remember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Remember Me"
+                android:text="@string/remember_me"
                 app:layout_constraintTop_toBottomOf="@id/et_username" />
 
             <ImageButton

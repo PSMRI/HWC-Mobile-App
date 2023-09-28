@@ -107,12 +107,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
-//    fun deleteD2DApiToken() {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-//        editor.remove(prefKey)
-//        editor.apply()
-//    }
 
     fun registerLoginCred(userName: String,password: String) {
         val editor = pref.edit()
@@ -219,19 +213,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //    }
 //
 //
-//    fun saveSetLanguage(language: Languages) {
-//        val key = context.getString(R.string.PREF_current_saved_language)
-//        val editor = pref.edit()
-//        editor.putString(key, language.symbol)
-//        editor.apply()
-//    }
-//
+    fun saveSetLanguage(language: Languages) {
+        val key = context.getString(R.string.PREF_current_saved_language)
+        val editor = pref.edit()
+        editor.putString(key, language.symbol)
+        editor.apply()
+    }
+
     fun getCurrentLanguage(): Languages {
         val key = context.getString(R.string.PREF_current_saved_language)
         return when (pref.getString(key, null)) {
-            Languages.ASSAMESE.symbol -> Languages.ASSAMESE
-            Languages.HINDI.symbol -> Languages.HINDI
             Languages.ENGLISH.symbol -> Languages.ENGLISH
+            Languages.KANNADA.symbol -> Languages.KANNADA
             else -> Languages.ENGLISH
         }
     }

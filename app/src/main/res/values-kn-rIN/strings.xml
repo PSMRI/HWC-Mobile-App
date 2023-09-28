@@ -13,32 +13,33 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
-    <string name="til_username_hint_text">Username</string>
+    <string name="til_username_hint_text">ಬಳಕೆದಾರ ಹೆಸರು</string>
     <string name="login_failed">"Login failed"</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="next">Next</string>
-    <string name="til_password_hint_text">Password</string>
-    <string name="login">Login</string>
+    <string name="next">ಮುಂದೆ</string>
+    <string name="cancel">ರದ್ದುಮಾಡು</string>
+    <string name="til_password_hint_text">ಪಾಸ್ವರ್ಡ್</string>
+    <string name="login">ಲಾಗಿನ್ ಮಾಡಿ</string>
     <string name="app_title">HWC Mobile App</string>
-    <string name="hwc">HWC</string>
-    <string name="outreach">Outreach</string>
-    <string name="wellness_activity">Wellness Activity</string>
-    <string name="training">Training</string>
-    <string name="health_mela">Health Mela</string>
-    <string name="vhsnc_vhsnd">VHSNC/VHSND</string>
+    <string name="hwc">ಎಚ್.ಡಬ್ಲ್ಯೂ.ಸಿ</string>
+    <string name="outreach">ಔಟ್ರೀಚ್</string>
+    <string name="wellness_activity">ಸ್ವಾಸ್ಥ್ಯ ಚಟುವಟಿಕೆ</string>
+    <string name="training">ತರಬೇತಿ</string>
+    <string name="health_mela">ಆರೋಗ್ಯ ಮೇಳ</string>
+    <string name="vhsnc_vhsnd">ವಿ.ಎಚ್.ಎಸ್.ಎನ್.ಡಿ/ವಿ.ಎಚ್.ಎಸ್.ಎನ್.ಸಿ</string>
     <string name="add_patient">Add Patient\n</string>
     <string name="query_hint_patient_search">Tap here to Search</string>
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
     <string name="last_sync_time">last_sync_time</string>
-    <string name="personal_details">Personal Details</string>
-    <string name="first_name">First Name <font color="#FF0000">*</font></string>
-    <string name="village_hint">Village <font color="#FF0000">*</font></string>
-    <string name="last_name_surname">Last Name/Surname <font color="#FF0000">*</font></string>
-    <string name="contact_no">Contact No</string>
-    <string name="gender">Gender <font color="#FF0000">*</font></string>
-    <string name="age">Age <font color="#FF0000">*</font></string>
+    <string name="personal_details">ವಯಕ್ತಿಕ ಮಾಹಿತಿ</string>
+    <string name="first_name">ಮೊದಲ ಹೆಸರು <font color="#FF0000">*</font></string>
+    <string name="village_hint">ಗ್ರಾಮ <font color="#FF0000">*</font></string>
+    <string name="last_name_surname">ಕೊನೆಯ ಹೆಸರು/ಉಪನಾಮ <font color="#FF0000">*</font></string>
+    <string name="contact_no">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
+    <string name="gender">ಲಿಂಗ <font color="#FF0000">*</font></string>
+    <string name="age">ವಯಸ್ಸು <font color="#FF0000">*</font></string>
     <string name="select_subcategory">Select Subcategory</string>
     <string-array name="subcategories_array">
         <item>Management of Common Communicable Diseases</item>
@@ -57,32 +58,32 @@
     </string-array>
 
     <string name="select_unit_of_duration">Select Unit of Duration</string>
-    <string name="visit_details">Visit Details</string>
-    <string name="duration">Duration <font color="#FF0000">*</font></string>
-    <string name="duration2">Duration</string>
+    <string name="visit_details">ವಿವರಗಳನ್ನು ಭೇಟಿ ಮಾಡಿ</string>
+    <string name="duration">ಅವಧಿ <font color="#FF0000">*</font></string>
+    <string name="duration2">ಅವಧಿ</string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
     <string name="abha_number">ABHA Number</string>
-    <string name="name">Name</string>
+    <string name="name">ಫಲಾನುಭವಿ ಹೆಸರು</string>
     <string name="phone_no">Phone No</string>
-    <string name="registration">Registration</string>
+    <string name="registration">ನೋಂದಣಿ</string>
     <string name="advance_search">Advance Search</string>
 
     <string name="medication_form">Form</string>
     <string name="medicine_text">Medicine</string>
     <string name="dosage_text">Dosage</string>
-    <string name="submit_btn_text">Submit</string>
+    <string name="submit_btn_text">ಸಲ್ಲಿಸು</string>
     <string name="frequency_text">Frequency</string>
     <string name="vitals_text">Vitals</string>
     <string name="location_details">Location Details</string>
     <string name="personal_info">Personal Info</string>
     <string name="revisit_details_text">Revisit Details</string>
-    <string name="case_record_text">Case Record</string>
-    <string name="weight_kg_text">Weight(kg)</string>
+    <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
+    <string name="weight_kg_text">ತೂಕ (ಕೆಜಿ)</string>
     <string name="temperature_f_text">Temperature(F)</string>
-    <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
-    <string name="bp_mmhg_systolic_text">BP (mmHg) Systolic</string>
+    <string name="bp_mmhg_diastolic_text">ಬಿ.ಪಿ ಡಯಾಸ್ಟೊಲಿಕ್</string>
+    <string name="bp_mmhg_systolic_text">ಬಿ.ಪಿ ಸಿಸ್ಟೊಲಿಕ್</string>
     <string name="submit_to_doctor_text">Submit to Doctor</string>
     <string name="prescription_text">Prescription</string>
     <string name="investigation">Investigation</string>
@@ -91,12 +92,11 @@
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
     <string name="view_prescription_text">View Prescription</string>
-    <string name="submit">Submit</string>
+    <string name="submit">ಸಲ್ಲಿಸು</string>
     <string name="categories_heading">Category</string>
-    <string name="categories_subcategory">Sub Category</string>
+    <string name="categories_subcategory">ಉಪ ವರ್ಗ</string>
     <string name="categories_reasonFV">Reason For Visit</string>
     <string name="DurationInUnit">Duration In Unit</string>
-    <string name="cancel">Cancel</string>
     <string name="previous">Previous</string>
     <string name="anthropometry">Anthropometry</string>
     <string name="benificiary_list">Benificiary List</string>
@@ -153,7 +153,9 @@
     <string name="select_associated_ailments">Select Associated Ailments</string>
     <string name="enter_duration">Enter Duration  <font color="#FF0000">*</font></string>
     <string name="enter_inspection">Inspection</string>
-    <string name="duration_unit">Duration Unit</string>
+    <string name="duration_unit">ಅವಧಿ ಘಟಕ</string>
+    <string name="other_cphc_services">ಇತರೆ ಸಿ ಪಿ ಎಚ್ ಸಿ ಸೇವೆಗಳು</string>
+    <string name="reason_for_visit">Reason For Visit</string>
     <string name="select_duration_unit">Select Duration Unit</string>
     <string name="f_h_of_member">F/H of Member</string>
     <string name="select_f_h_of_member">Select F/H of Member</string>
@@ -197,26 +199,26 @@
 
     <string name="choose_abha_gen_mode">Choose Abha gen mode</string>
     <string name="abha_gen_mode">Abha gen mode</string>
-    <string name="state">State</string>
+    <string name="state">ರಾಜ್ಯ</string>
     <string name="choose_state">Choose State</string>
-    <string name="district_town_city">District/Town/City</string>
+    <string name="district_town_city">ಜಿಲ್ಲೆ</string>
     <string name="choose_district">Choose District</string>
-    <string name="taluk_tehsil">Taluk/Tehsil</string>
+    <string name="taluk_tehsil">ತಾಲೂಕು</string>
     <string name="choose_taluk">Choose Taluk</string>
-    <string name="street_panchayat_village">Street/Panchayat/Village</string>
+    <string name="street_panchayat_village">ಗ್ರಾಮ</string>
     <string name="choose_panchayat">Choose Panchayat</string>
-    <string name="select_sub_category">Sub Category</string>
-    <string name="select_chief_complaint">Chief Complaint  <font color="#FF0000">*</font></string>
+    <string name="select_sub_category">ಉಪ ವರ್ಗ</string>
+    <string name="select_chief_complaint">ಮುಖ್ಯ ದೂರುಗಳು  <font color="#FF0000">*</font></string>
     <string name="enter_your_description">Enter description</string>
-    <string name="select_file">Select File</string>
-    <string name="upload_file">Upload File</string>
+    <string name="select_file">ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="upload_file">ಫೈಲ್ ಅನ್ನು ಅಪ್ಲೋಡ್ ಮಾಡಿ</string>
     <string name="category">Category (<font color="#FF0000">*</font>)</string>
     <string name="sub_category">Sub Category (<font color="#FF0000">*</font>)</string>
     <string name="select_and_upload_file">Upload File</string>
     <string name="selected_file">Selected File</string>
-    <string name="chief_complaint">Chief Complaints (<font color="#FF0000">*</font>)</string>
-    <string name="unit_of_duration">Unit of Duration (<font color="#FF0000">*</font>)</string>
-    <string name="description">Description</string>
+    <string name="chief_complaint">ಮುಖ್ಯ ದೂರುಗಳು (<font color="#FF0000">*</font>)</string>
+    <string name="unit_of_duration">ಅವಧಿ ಘಟಕ (<font color="#FF0000">*</font>)</string>
+    <string name="description">ವಿವರಣೆ</string>
     <string name="enter_other_associated_ailments">Enter Other Associated Ailments</string>
     <string name="select_allergy_status">Select Allergy Status</string>
     <string name="allergy_type">Allergy Type</string>
@@ -224,17 +226,17 @@
     <string name="enter_other_type_of_allergic_reaction">Enter other Type of Allergic Reaction</string>
     <string name="allergy_status">Allergy Status</string>
     <string name="enter_weight">Enter Weight</string>
-    <string name="height_cm">Height(cm)</string>
-    <string name="bmi">BMI</string>
-    <string name="waist_circumference_cm">Waist Circumference(cm)</string>
-    <string name="temperature_f">Temperature (F)</string>
-    <string name="pulse_rate_min">Pulse Rate(min)</string>
+    <string name="height_cm">ಎತ್ತರ (ಸೆಂ)</string>
+    <string name="bmi">ಬಿ.ಎಂ.ಐ</string>
+    <string name="waist_circumference_cm">ಸೊಂಟದ ಸುತ್ತಳತೆ(ಸೆಂ)</string>
+    <string name="temperature_f">ತಾಪಮಾನ(ಎಫ್)</string>
+    <string name="pulse_rate_min">ನಾಡಿ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
     <string name="spo2">SPO2(%)</string>
-    <string name="respiratory_per_min">Respiratory Rate(per min)</string>
-    <string name="rbs_mg_dl">RBS Result(mg/dl)</string>
+    <string name="respiratory_per_min">ಉಸಿರಾಟದ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
+    <string name="rbs_mg_dl">RBS ಪರೀಕ್ಷೆ</string>
     <string name="previous_allergy_history">Previous Allergy History</string>
-    <string name="outpatient_care">OutPatient Care</string>
-    <string name="file_type">Upload File(Size limit :5 MB)\nSupported File Formats \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
+    <string name="outpatient_care">ಔಟ್ ಪೇಷಂಟ್ ಕಾಳಜಿ</string>
+    <string name="file_type">ಫೈಲ್ ಅನ್ನು ಅಪ್ಲೋಡ್ ಮಾಡಿ(Size limit :5 MB)\nಬೆಂಬಲಿತ ಫೈಲ್ ಫಾರ್ಮ್ಯಾಟ್ \n(.msg,.pdf,.png,.jpeg,.doc,.docx,.xlsx,.xls,.csv,.txt)</string>
     <string name="lonic_url">http://loinc.org</string>
     <string name="vital_signs_panel">Vital signs panel</string>
     <string name="vital_signs_panel_code_text">Vital signs Panel</string>
@@ -259,10 +261,10 @@
     <string name="higher_center">Higher Center</string>
     <string name="reason_for_referral">Reason for referral</string>
     <string name="linkage_with_other_health_services">Linkage with other health services</string>
-    <string name="date_of_birth">Date Of Birth <font color="#FF0000">*</font></string>
-    <string name="age_in_unit">Age in Unit <font color="#FF0000">*</font></string>
-    <string name="phone_number">Phone Number <font color="#FF0000">*</font></string>
-    <string name="registration_date">Registration Date</string>
+    <string name="date_of_birth">ಹುಟ್ತಿದ ದಿನ <font color="#FF0000">*</font></string>
+    <string name="age_in_unit">ಘಟಕದಲ್ಲಿ ವಯಸ್ಸು <font color="#FF0000">*</font></string>
+    <string name="phone_number">ದೂರವಾಣಿ ಸಂಖ್ಯೆ <font color="#FF0000">*</font></string>
+    <string name="registration_date">ನೋಂದಣಿ ದಿನಾಂಕ</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
     <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
@@ -295,20 +297,20 @@
     <string name="parent_gurdian_name">Parent/Gurdian name</string>
     <string name="religion">Religion</string>
     <string name="community">Community</string>
-    <string name="select_test_name">Test Name</string>
+    <string name="select_test_name">ಪರೀಕ್ಷೆ ಹೆಸರು</string>
     <string name="diagnosis">Diagnosis</string>
-    <string name="provisional_diagnosis">Provisional Diagnosis <font color="#FF0000">*</font></string>
+    <string name="provisional_diagnosis">ತಾತ್ಕಾಲಿಕ / ಅಂತಿಮ ರೋಗನಿರ್ಣಯ <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
     <string name="frequency">Frequency</string>
     <string name="instructions">Instructions</string>
     <string name="unit">Unit</string>
     <string name="route">Route</string>
-    <string name="external_investigation">External Investigation</string>
+    <string name="external_investigation">ಬಾಹ್ಯ ತನಿಖೆ</string>
     <string name="save_successful">Save Successful\n</string>
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>
-    <string name="personal_information">Personal Information</string>
+    <string name="personal_information">ವಯಕ್ತಿಕ ಮಾಹಿತಿ</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>
     <string name="invalid_phone_number">Enter a Valid Phone Number</string>
@@ -334,41 +336,38 @@
     <string name="subtractSign">-</string>
     <string name="addSign">+</string>
     <string name="_1">1</string>
-    <string name="form_medicine_dosage">Form/Medicine/Dosage</string>
-    <string name="councilling_advice">Counselling/ Advice</string>
+    <string name="form_medicine_dosage">ರೂಪ/ಔಷಧಿ/ಡೋಸೇಜ್</string>
+    <string name="councilling_advice">ಸಮಾಲೋಚನ/ ಅಥವಾ ಸಲಹೆ</string>
     <string name="refer">Refer</string>
-    <string name="instruction">Instruction</string>
-    <string name="Unit">Unit</string>
-    <string name="Frequency">Frequency</string>
-    <string name="Prescription">Prescription</string>
+    <string name="instruction">ಸೂಚನಾ</string>
+    <string name="Unit">ಘಟಕ</string>
+    <string name="Frequency">ಆವರ್ತನ</string>
+    <string name="Prescription">ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
-    <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="pref_location_data">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
-    <string name="beneficiary_name">Beneficiary Name:</string>
-    <string name="abha_no">Abha No:</string>
+    <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>
+    <string name="abha_no">ಎ.ಬಿ.ಎಚ್.ಎ ಐ.ಡಿ:</string>
     <string name="ben_id">Ben Id:</string>
-    <string name="ben_age">Age:</string>
-    <string name="ben_phone_no">Phone No:</string>
-    <string name="ben_gender">Gender:</string>
-    <string name="abha">ABHA</string>
+    <string name="ben_age">ವಯಸ್ಸು:</string>
+    <string name="ben_phone_no">ದೂರವಾಣಿ ಸಂಖ್ಯೆ:</string>
+    <string name="ben_gender">ಲಿಂಗ:</string>
+    <string name="abha">ಎ.ಬಿ.ಎಚ್.ಎ</string>
+    <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="password_local_saved">password-local-saved</string>
-    <string name="remember_me">Remember Me</string>
-    <string name="other_cphc_services">Other CPHC Services</string>
-    <string name="reason_for_visit">Reason For Visit</string>
-    <string name="ben_card_name">Name:</string>
+    <string name="remember_me">ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು</string>
+    <string name="ben_card_name">ಹೆಸರು:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>
-    <string name="master_longitude">Master Longitude</string>
-    <string name="get_location">Get Location</string>
-    <string name="master_latitude">Master Latitude</string>
-    <string name="get_gps_location">Get GPS Location</string>
-    <string name="retry">Retry</string>
+    <string name="master_longitude">ಮಾಸ್ಟರ್ ರೇಖಾಂಶ</string>
+    <string name="get_location">ಸ್ಥಳವನ್ನು ಪಡೆಯಿರಿ</string>
+    <string name="master_latitude">ಮಾಸ್ಟರ್ ಅಕ್ಷಾಂಶ</string>
+    <string name="get_gps_location">ಜಿಪಿಎಸ್ ಸ್ಥಳವನ್ನು ಪಡೆಯಿರಿ</string>
+    <string name="retry">ಮರುಪ್ರಯತ್ನಿಸಿ</string>
     <string name="please_select_your_language">Please Select Your Language</string>
     <string name="please_select_your_language_kannada">ದಯವಿಟ್ಟು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
-
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
 </resources>
