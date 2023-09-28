@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_doctor"
+    app:startDestination="@id/caseRecordCustom">
+
+    <fragment
+        android:id="@+id/caseRecordCustom"
+        android:name="org.piramalswasthya.cho.ui.commons.case_record.CaseRecordCustom"
+        android:label="CaseRecordCustom"
+        tools:layout="@layout/case_record_custom_layout" >
+        <argument
+            android:name="patientId"
+            app:argType="string"/>
+    </fragment>
+
+
+</navigation>

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,6 +38,7 @@ class CaseRecordViewModel @Inject constructor(
     private val caseRecordeRepo: CaseRecordeRepo,
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
+    private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
     private val patientRepo: PatientRepo,
@@ -69,6 +71,14 @@ class CaseRecordViewModel @Inject constructor(
     val higherHealthCare: LiveData<List<HigherHealthCenter>>
         get() = _higherHealthCare
 
+    private val _chiefComplaintDB = MutableLiveData<List<ChiefComplaintDB>>()
+    val chiefComplaintDB: LiveData<List<ChiefComplaintDB>>
+        get() = _chiefComplaintDB
+
+    private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
+    val vitalsDB: LiveData<PatientVitalsModel>
+        get() = _vitalsDB
+
     init {
         _counsellingProvided = MutableLiveData()
         getCounsellingTypes()
@@ -80,6 +90,27 @@ class CaseRecordViewModel @Inject constructor(
         getHigherHealthCareDropdown()
 
     }
+      fun getVitalsDB(patientID:String) {
+        viewModelScope.launch {
+            try {
+                _vitalsDB.value =
+                    vitalsRepo.getVitalsDetailsByPatientID(patientID)
+
+            } catch (e: java.lang.Exception) {
+                Timber.d("Error in Getting Higher Health Care $e")
+            }
+        }
+    }
+    fun getChiefComplaintDB(patientID: String) {
+        viewModelScope.launch {
+            try {
+                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID)
+            } catch (e: Exception) {
+                Timber.d("Error in Getting Chief Complaint DB $e")
+            }
+        }
+    }
+
     private fun getHigherHealthCareDropdown(){
         try{
             _higherHealthCare  = doctorMasterDataMaleRepo.getHigherHealthCenter()
