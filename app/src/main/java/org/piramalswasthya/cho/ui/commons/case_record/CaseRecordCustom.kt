@@ -688,19 +688,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     addCaseRecordDataToCatche()
                     val validate = dAdapter.setError()
                     if (validate == -1) {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.dataSavedCaseRecord),
-                            Toast.LENGTH_SHORT
-                        ).show()
+//                        Toast.makeText(
+//                           requireContext(),
+//                            resources.getString(R.string.dataSavedCaseRecord),
+//                            Toast.LENGTH_SHORT
+//                        ).show()
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.diagnosisCannotBeEmpty),
-                            Toast.LENGTH_SHORT
-                        ).show()
+//                        Toast.makeText(
+//                            requireContext(),
+//                            resources.getString(R.string.diagnosisCannotBeEmpty),
+//                            Toast.LENGTH_SHORT
+//                        ).show()
                     }
 //                }
             }

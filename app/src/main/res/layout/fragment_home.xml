@@ -56,7 +56,7 @@
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
                 android:backgroundTint="@color/purple"
-                android:enabled="true"
+                android:enabled="false"
                 android:text="@string/registration" />
 
 <!--            <Button-->
