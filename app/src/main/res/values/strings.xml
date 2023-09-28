@@ -308,7 +308,7 @@
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>
-    <string name="personal_information">Personal Information</string>
+    <string name="personal_information">Patient Registration</string>
     <string name="location_information">Location Information</string>
     <string name="other_information">Other Information</string>
     <string name="invalid_phone_number">Enter a Valid Phone Number</string>
