@@ -15,7 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Get Location"
+            android:text="@string/get_location"
             app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -150,7 +150,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Get GPS Location"
+            android:text="@string/get_gps_location"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/panchayat" />
@@ -160,7 +160,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/padding_normal"
-            android:hint="Master Latitude"
+            android:hint="@string/master_latitude"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/getGPSLoc">
 
@@ -177,7 +177,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/padding_normal"
-            android:hint="Master Longitude"
+            android:hint="@string/master_longitude"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/masterLat">
 
@@ -194,7 +194,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Retry"
+            android:text="@string/retry"
             app:layout_constraintEnd_toStartOf="@id/submit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/masterLong" />
@@ -204,7 +204,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Submit"
+            android:text="@string/submit"
             app:layout_constraintBaseline_toBaselineOf="@+id/retry"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/retry" />

@@ -62,7 +62,7 @@
             android:id="@+id/name_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:"
+            android:text="@string/ben_card_name"
             android:textStyle="bold" />
 
         <TextView
@@ -138,7 +138,7 @@
               android:id="@+id/ben_id_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Beneficiary ID:"
+              android:text="@string/beneficiary_id"
               android:textStyle="bold" />
 
           <TextView
@@ -259,6 +259,7 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="@color/black"
             app:cornerRadius="@dimen/padding_normal"
+            android:enabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
         </LinearLayout>

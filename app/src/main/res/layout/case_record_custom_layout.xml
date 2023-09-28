@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:paddingRight="4dp"
                     app:layout_flexBasisPercent="50%"
-                    android:hint="BMI"
+                    android:hint="@string/bmi"
                     android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent">

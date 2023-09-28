@@ -11,8 +11,8 @@ import java.util.*
 @Suppress("DEPRECATION")
 class MyContextWrapper(base: Context) : ContextWrapper(base) {
     companion object {
-        fun wrap(context: Context, language: String): ContextWrapper {
-            val config: Configuration = context.resources.configuration
+            fun wrap(context: Context, applicationContext: Context, language: String): ContextWrapper {
+                val config: Configuration = context.resources.configuration
             val sysLocale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 getSystemLocale(config)
             } else {
@@ -28,6 +28,8 @@ class MyContextWrapper(base: Context) : ContextWrapper(base) {
                 }
                 context.resources
                     .updateConfiguration(config, context.resources.displayMetrics)
+                applicationContext.resources
+                    .updateConfiguration(config, applicationContext.resources.displayMetrics)
             }
             return MyContextWrapper(context)
         }
