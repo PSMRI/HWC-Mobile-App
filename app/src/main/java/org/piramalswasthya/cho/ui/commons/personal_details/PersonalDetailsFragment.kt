@@ -135,7 +135,7 @@ class PersonalDetailsFragment : Fragment() {
                         )
                     }
                     binding.patientListContainer.patientList.adapter = itemAdapter
-                    if(preferenceDao.isUserDoctor()) {
+                    if(preferenceDao.isUserNurseAndDoctorOrMo()) {
                         lifecycleScope.launch {
                             viewModel.patientList?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})

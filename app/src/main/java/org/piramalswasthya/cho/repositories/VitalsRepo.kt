@@ -30,6 +30,11 @@ class VitalsRepo @Inject constructor(
     suspend fun getVitalsDetailsByBenRegId(beneficiaryRegID: Long) : PatientVitalsModel?{
         return vitalsDao.getPatientVitalsByBenRegId(beneficiaryRegID,)
     }
+    suspend fun getVitalsDetailsByPatientID(patientID: String) : PatientVitalsModel {
+        return withContext(Dispatchers.IO) {
+            vitalsDao.getPatientVitalsByPatientID(patientID)
+        }
+    }
 
     suspend fun getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : PatientVitalsModel?{
         return vitalsDao.getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)

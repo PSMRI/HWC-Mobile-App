@@ -71,14 +71,47 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null)
     }
 
-    fun isUserDoctor(): Boolean {
+    fun isUserOnlyDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            return rolesArray.contains("Doctor")
+            if(rolesArray.contains("Nurse")){
+                return false
+            }
+            else {
+                if(rolesArray.contains("Doctor")||rolesArray.contains("MO"))
+                return true
+            }
+        }
+        return false;
+    }
+     fun isUserRegistrar():Boolean{
+         val rolesArray = getUserRoles()?.split(",")
+         if(rolesArray != null){
+             return rolesArray.contains("Registrar")
+         }
+         return false;
+     }
+    fun isUserOnlyNurse(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            if (rolesArray.contains("Doctor")||rolesArray.contains("MO")){
+                return false
+            }else {
+                return rolesArray.contains("Nurse")
+            }
         }
         return false;
     }
 
+    fun isUserNurseAndDoctorOrMo(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            if((rolesArray.contains("Doctor")||rolesArray.contains("MO"))&& rolesArray.contains("Nurse")) {
+                return true
+            }
+        }
+        return false
+    }
 
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
         val editor = pref.edit()

@@ -34,6 +34,19 @@
         app:navGraph="@navigation/nav_edit_patient"
         tools:layout_editor_absoluteX="0dp" />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/only_doctor"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@+id/header_text_edit_patient"
+        app:layout_constraintVertical_bias="0.0"
+        app:navGraph="@navigation/nav_doctor"
+        tools:layout_editor_absoluteX="0dp" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

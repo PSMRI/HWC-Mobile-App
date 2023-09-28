@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
@@ -39,6 +40,9 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var
             registrarMasterDataRepo: RegistrarMasterDataRepo
+
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
 
     @Inject
     lateinit var malMasterDataRepo: MaleMasterDataRepository
@@ -85,6 +89,9 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
+        if(!preferenceDao.isUserRegistrar()){
+            binding.registration.isEnabled = false
+        }
         binding.registration.setOnClickListener {
             searchPrompt.show()
 

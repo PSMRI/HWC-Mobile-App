@@ -7,6 +7,7 @@ import android.opengl.Visibility
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,7 @@ import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
@@ -49,6 +51,7 @@ import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
@@ -61,6 +64,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
 import java.util.Arrays
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
@@ -69,7 +73,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         get() = _binding!!
 
     private val viewModel: CaseRecordViewModel by viewModels()
-
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
     private val initialItemD = DiagnosisValue()
     private val itemListD = mutableListOf(initialItemD)
     private val initialItemP = PrescriptionValues()
@@ -91,6 +96,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val unitListVal = unitVal
     private val dosage = tabletDosageList
     private var masterDb: MasterDb? = null
+    private lateinit var patientId : String
+    private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
 
     override fun onCreateView(
@@ -105,39 +112,77 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
-
+        if(preferenceDao.isUserOnlyDoctorOrMo()) {
+            patientId = requireActivity().intent?.extras?.getString("patientId")!!
+            patId= patientId
+        }
+        else{
+            patId = masterDb!!.patientId
+        }
+        Log.d("arr","${patientId}")
+        viewModel.getVitalsDB(patientId)
+        viewModel.getChiefComplaintDB(patientId)
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
         lifecycleScope.launch {
             referNameMap = viewModel.getReferNameTypeMap()
         }
+        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
-        masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
-        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>() // Create an empty mutable list
+        if (preferenceDao.isUserOnlyDoctorOrMo()) {
+            viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
+                // Clear the existing data in chiefComplaintDB
+                chiefComplaintDB.clear()
 
-        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
-            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
-            val chiefC = ChiefComplaintDB(
-                id = "33+${i}",
-                chiefComplaintId = chiefComplaintItem.id,
-                chiefComplaint = chiefComplaintItem.chiefComplaint,
-                duration = chiefComplaintItem.duration,
-                durationUnit = chiefComplaintItem.durationUnit,
-                description = chiefComplaintItem.description,
-                patientID = "",
-                beneficiaryID = 0,
-                beneficiaryRegID = 0,
-                benFlowID = 0
-            )
-            chiefComplaintDB.add(chiefC) // Add the item to the list
-        }
+                // Loop through the chiefComplaintList and add data to chiefComplaintDB
+                for (chiefComplaintItem in chiefComplaintList) {
+                    val chiefC = ChiefComplaintDB(
+                        id = "33+${chiefComplaintItem.chiefComplaintId}",
+                        chiefComplaintId = chiefComplaintItem.chiefComplaintId,
+                        chiefComplaint = chiefComplaintItem.chiefComplaint,
+                        duration = chiefComplaintItem.duration,
+                        durationUnit = chiefComplaintItem.durationUnit,
+                        description = chiefComplaintItem.description,
+                        patientID = "",
+                        beneficiaryID = 0,
+                        beneficiaryRegID = 0,
+                        benFlowID = 0
+                    )
+                    chiefComplaintDB.add(chiefC) // Add the item to the list
+                }
+                chAdapter.notifyDataSetChanged()
+            }
+            if(chiefComplaintDB.size==0){
+                binding.chiefComplaintHeading.visibility = View.GONE
+            }
+            else{
+                binding.chiefComplaintHeading.visibility = View.VISIBLE
+            }
+        }else {
+           masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
 
+           for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+               val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+               val chiefC = ChiefComplaintDB(
+                   id = "33+${i}",
+                   chiefComplaintId = chiefComplaintItem.id,
+                   chiefComplaint = chiefComplaintItem.chiefComplaint,
+                   duration = chiefComplaintItem.duration,
+                   durationUnit = chiefComplaintItem.durationUnit,
+                   description = chiefComplaintItem.description,
+                   patientID = "",
+                   beneficiaryID = 0,
+                   beneficiaryRegID = 0,
+                   benFlowID = 0
+               )
+               chiefComplaintDB.add(chiefC) // Add the item to the list
+           }
+       }
       chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
-
 
 
         viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
@@ -224,7 +269,46 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        populateVitalsFields()
+        if(preferenceDao.isUserOnlyDoctorOrMo()){
+            var bool = true
+            viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
+                    var vitalDb2 = VitalsMasterDb(
+                        height = vitalsDB.height,
+                        weight = vitalsDB.weight,
+                        bmi = vitalsDB.bmi,
+                        waistCircumference = vitalsDB.waistCircumference,
+                        temperature = vitalsDB.temperature,
+                        pulseRate = vitalsDB.pulseRate,
+                        spo2 = vitalsDB.spo2,
+                        bpSystolic = vitalsDB.bpSystolic,
+                        bpDiastolic =vitalsDB.bpDiastolic,
+                        respiratoryRate = vitalsDB.respiratoryRate,
+                        rbs = vitalsDB.rbs
+                    )
+                    bool = false
+                    populateVitalsFieldsW(vitalDb2)
+            }
+            if(bool){
+                populateVitalsFields()
+            }
+        }
+        else{
+            populateVitalsFields()
+        }
+    }
+    private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
+        hideNullFieldsW(vitals)
+        binding.inputHeight.setText(vitals?.height.toString())
+        binding.inputWeight.setText(vitals?.weight.toString())
+        binding.inputBmi.setText(vitals.bmi.toString())
+        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
+        binding.inputTemperature.setText(vitals.temperature.toString())
+        binding.inputPulseRate.setText(vitals.pulseRate.toString())
+        binding.inputSpo2.setText(vitals.spo2.toString())
+        binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
+        binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
+        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
+        binding.inputRbs.setText(vitals.rbs.toString())
     }
     private fun populateVitalsFields() {
         hideNullFields()
@@ -244,6 +328,94 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.inputRbs.setText(vitals?.rbs.toString())
         }
     }
+    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
+        val itemH = vitalsDB.height
+        val itemW = vitalsDB.weight
+        val itemB = vitalsDB.bmi
+        val itemC = vitalsDB.waistCircumference
+        val itemT = vitalsDB.temperature
+        val itemP = vitalsDB.pulseRate
+        val itemS = vitalsDB.spo2
+        val itemBs = vitalsDB.bpSystolic
+        val itemBd = vitalsDB.bpDiastolic
+        val itemRs = vitalsDB.respiratoryRate
+        val itemRb = vitalsDB.rbs
+        if (itemH.isNullOrEmpty() || itemH.equals("null")) {
+            binding.heightEditTxt.visibility = View.GONE
+        } else {
+            binding.heightEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemW.isNullOrEmpty() || itemW.equals("null")) {
+            binding.weightEditTxt.visibility = View.GONE
+        } else {
+            binding.weightEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemB.isNullOrEmpty() || itemB.equals("null")) {
+            binding.bmill.visibility = View.GONE
+        } else {
+            binding.bmill.visibility = View.VISIBLE
+        }
+
+        if (itemC.isNullOrEmpty() || itemC.equals("null")) {
+            binding.waistCircumEditTxt.visibility = View.GONE
+        } else {
+            binding.waistCircumEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemT.isNullOrEmpty() || itemT.equals("null")) {
+            binding.temperatureEditTxt.visibility = View.GONE
+        } else {
+            binding.temperatureEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemP.isNullOrEmpty() || itemP.equals("null")) {
+            binding.pulseRateEditTxt.visibility = View.GONE
+        } else {
+            binding.pulseRateEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemS.isNullOrEmpty() || itemS.equals("null")) {
+            binding.spo2EditTxt.visibility = View.GONE
+        } else {
+            binding.spo2EditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
+            binding.bpSystolicEditTxt.visibility = View.GONE
+        } else {
+            binding.bpSystolicEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
+            binding.bpDiastolicEditTxt.visibility = View.GONE
+        } else {
+            binding.bpDiastolicEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
+            binding.respiratoryEditTxt.visibility = View.GONE
+        } else {
+            binding.respiratoryEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
+            binding.rbsEditTxt.visibility = View.GONE
+        } else {
+            binding.rbsEditTxt.visibility = View.VISIBLE
+        }
+
+        if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
+            binding.vitalsExtra.visibility = View.GONE
+            binding.vitalsLayout.visibility = View.GONE
+        } else {
+            binding.vitalsExtra.visibility = View.VISIBLE
+            binding.vitalsLayout.visibility = View.VISIBLE
+        }
+    }
+
     private fun hideNullFields(){
         var  itemH = masterDb?.vitalsMasterDb?.height.toString()
         var  itemW = masterDb?.vitalsMasterDb?.weight.toString()
@@ -359,7 +531,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
                     diagnosis= diagnosisData.diagnosis,
-                    patientID = masterDb!!.patientId
+                    patientID = patId
                 )
                 viewModel.saveDiagnosisToCache(diagnosis)
             }
@@ -379,7 +551,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             testIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
-            patientID = masterDb!!.patientId,
+            patientID = patId,
             institutionId = referId
         )
         viewModel.saveInvestigationToCache(investigation)
@@ -398,7 +570,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
-                    patientID = masterDb!!.patientId
+                    patientID =patId
                  )
                 viewModel.savePrescriptionToCache(pres)
             }
@@ -417,7 +589,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             bpSystolic = masterDb?.vitalsMasterDb?.bpSystolic.nullIfEmpty(),
             respiratoryRate = masterDb?.vitalsMasterDb?.respiratoryRate.nullIfEmpty(),
             rbs = masterDb?.vitalsMasterDb?.rbs.nullIfEmpty(),
-            patientID = masterDb!!.patientId,
+            patientID = patId,
             benVisitNo = lastVisitNo+1
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
@@ -442,7 +614,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 duration =  chiefComplaintItem.duration.nullIfEmpty(),
                 durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
                 description = chiefComplaintItem.description.nullIfEmpty(),
-                patientID = masterDb!!.patientId,
+                patientID = patId,
                 beneficiaryID = null,
                 beneficiaryRegID=null,
                 benFlowID=null,
@@ -454,7 +626,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
     private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = masterDb!!.patientId,
+            patientID = patId,
             benVisitNo = lastVisitNo + 1,
             createNewBenFlow = true,
         )
@@ -470,40 +642,67 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        if(preferenceDao.isUserOnlyDoctorOrMo()){
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+        else{
+            findNavController().navigateUp()
+        }
     }
-    fun navigateNext(){
-        CoroutineScope(Dispatchers.IO).launch {
-            val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
-            if(hasUnSyncedNurseData){
+    fun navigateNext() {
+        if (preferenceDao.isUserOnlyDoctorOrMo()) {
+            addCaseRecordDataToCatche()
+            val validate = dAdapter.setError()
+            if (validate == -1) {
                 Toast.makeText(
                     requireContext(),
-                    resources.getString(R.string.unsyncedNurseData),
+                    resources.getString(R.string.dataSavedCaseRecord),
+                    Toast.LENGTH_SHORT
+                ).show()
+                val intent = Intent(context, HomeActivity::class.java)
+                startActivity(intent)
+            } else {
+                binding.diagnosisExtra.scrollToPosition(validate)
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.diagnosisCannotBeEmpty),
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            else{
-                val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
-                addPatientVisitInfoSyncToCache(lastVisitNo)
-                addVisitRecordDataToCache(lastVisitNo)
-                addVitalsDataToCache(lastVisitNo)
-                addCaseRecordDataToCatche()
-                val validate = dAdapter.setError()
-                if(validate==-1) {
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
+                if (hasUnSyncedNurseData) {
                     Toast.makeText(
                         requireContext(),
-                        resources.getString(R.string.dataSavedCaseRecord),
+                        resources.getString(R.string.unsyncedNurseData),
                         Toast.LENGTH_SHORT
                     ).show()
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                }else{
-                    binding.diagnosisExtra.scrollToPosition(validate)
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.diagnosisCannotBeEmpty),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                } else {
+                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
+                    addPatientVisitInfoSyncToCache(lastVisitNo)
+                    addVisitRecordDataToCache(lastVisitNo)
+                    addVitalsDataToCache(lastVisitNo)
+                    addCaseRecordDataToCatche()
+                    val validate = dAdapter.setError()
+                    if (validate == -1) {
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.dataSavedCaseRecord),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        binding.diagnosisExtra.scrollToPosition(validate)
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.diagnosisCannotBeEmpty),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }

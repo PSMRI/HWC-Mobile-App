@@ -55,8 +55,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override var fragmentContainerId = 0
     private lateinit var patientId : String
-    @Inject
-    lateinit var preferenceDao: PreferenceDao
+
     override val fragment = this
     override val viewModel: VisitDetailViewModel by viewModels()
 
@@ -145,9 +144,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(preferenceDao.isUserDoctor()){
-            fillFieldsFromDb()
-        }
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
@@ -252,9 +248,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             adapter.notifyItemInserted(itemList.size - 1)
             binding.plusButton.isEnabled = false
         }
-    }
-    fun fillFieldsFromDb(){
-
     }
 
     fun isAnyItemEmpty(): Boolean {

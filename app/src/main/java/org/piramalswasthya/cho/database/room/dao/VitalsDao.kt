@@ -21,6 +21,8 @@ interface VitalsDao {
     @Query("SELECT * FROM PATIENT_VITALS WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getPatientVitalsByBenRegId(beneficiaryRegID: Long): PatientVitalsModel?
 
+    @Query("SELECT * FROM PATIENT_VITALS WHERE patientID = :patientID")
+    suspend fun getPatientVitalsByPatientID(patientID: String): PatientVitalsModel
     @Query("SELECT * FROM PATIENT_VITALS WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
     suspend fun getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int): PatientVitalsModel?
 
