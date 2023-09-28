@@ -31,6 +31,9 @@ import com.google.android.material.navigation.NavigationView
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
@@ -40,6 +43,7 @@ import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment
@@ -79,6 +83,9 @@ class HomeActivity : AppCompatActivity() {
     private val viewModel: HomeActivityViewModel by viewModels()
     @Inject
     lateinit var prefDao: PreferenceDao
+
+    @Inject
+    lateinit var userRepo: UserRepo
 
     private var myLocation: Location? = null
     private var myInitialLoc: Location? = null
@@ -188,16 +195,17 @@ class HomeActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
     private fun setUpNavHeader() {
-
-        val headerView = binding.navView.getHeaderView(0)
-        prefDao.getLoggedInUser()?.let {
-            headerView.findViewById<TextView>(R.id.tv_nav_name).text =
-                getString(R.string.nav_item_1_text, prefDao.getLoggedInUser()!!.name)
-            headerView.findViewById<TextView>(R.id.tv_nav_role).text =
-                getString(R.string.nav_item_2_text, prefDao.getLoggedInUser()!!.userName)
-            headerView.findViewById<TextView>(R.id.tv_nav_id).text =
-                getString(R.string.nav_item_3_text, prefDao.getLoggedInUser()!!.userId)
-
+        CoroutineScope(Dispatchers.IO).launch {
+            val user = userRepo.getLoggedInUser()
+            val headerView = binding.navView.getHeaderView(0)
+            prefDao.getLoggedInUser()?.let {
+                headerView.findViewById<TextView>(R.id.tv_nav_name).text =
+                    getString(R.string.nav_item_1_text, user?.name)
+                headerView.findViewById<TextView>(R.id.tv_nav_role).text =
+                    getString(R.string.nav_item_2_text, user?.userName)
+                headerView.findViewById<TextView>(R.id.tv_nav_id).text =
+                    getString(R.string.nav_item_3_text, user?.userId)
+            }
         }
 
     }

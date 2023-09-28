@@ -673,14 +673,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 if(masterDb!!.patientId.toString()!=null) {
                     patId = masterDb!!.patientId.toString()
                 }
-                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(patId)
-                if (hasUnSyncedNurseData) {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.unsyncedNurseData),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
+//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(patId)
+//                if (hasUnSyncedNurseData) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.unsyncedNurseData),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                } else {
                     val lastVisitNo = viewModel.getLastVisitNo(patId)
                     addPatientVisitInfoSyncToCache(lastVisitNo)
                     addVisitRecordDataToCache(lastVisitNo)
@@ -702,7 +702,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }
+//                }
             }
         }
     }

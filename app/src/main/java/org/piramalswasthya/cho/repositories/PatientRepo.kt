@@ -124,6 +124,7 @@ class PatientRepo  @Inject constructor(
 
         return networkResultInterceptor {
             val patNet = PatientNetwork(patient, user)
+            Log.d("patient register is ", patNet.toString())
             val response = apiService.saveBenificiaryDetails(patNet)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(

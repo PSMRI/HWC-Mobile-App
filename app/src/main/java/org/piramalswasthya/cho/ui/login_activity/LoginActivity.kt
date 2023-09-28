@@ -65,18 +65,9 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
-                if (isLoggedIn != null) {
-                    if (isLoggedIn == 1) {
-                        // User is logged in, navigate to the home screen
-                        val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        // User is not logged in, continue with the login process
-                        // Inside the else block when the user is not logged in
-                        val intent = Intent(this@LoginActivity, LoginActivity::class.java)
-                        startActivity(intent)
-
-                    }
+                if (isLoggedIn == 1) {
+                    val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                    startActivity(intent)
                 }
             }catch (e:Exception){
                 Log.d("Failed to get Login flag","${e}")

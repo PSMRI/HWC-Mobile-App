@@ -52,6 +52,9 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo
 
+    @Inject
+    lateinit var dataLoadFlagManager: DataLoadFlagManager
+
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding
         get() = _binding!!
@@ -82,8 +85,10 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        WorkerUtils.triggerAmritSyncWorker(requireContext())
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+
+        viewModel.init(requireContext())
+
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
 
@@ -102,9 +107,11 @@ class HomeFragment : Fragment() {
                 }
 
                 HomeViewModel.State.SAVING -> {
-                    binding.patientListFragment.visibility = View.GONE
-                    binding.rlSaving.visibility = View.VISIBLE
-                    binding.registration.isEnabled = false
+                    if (!dataLoadFlagManager.isDataLoaded()){
+                        binding.patientListFragment.visibility = View.GONE
+                        binding.rlSaving.visibility = View.VISIBLE
+                        binding.registration.isEnabled = false
+                    }
                 }
 
                 HomeViewModel.State.SAVE_SUCCESS -> {
@@ -114,10 +121,10 @@ class HomeFragment : Fragment() {
                 }
 
                 HomeViewModel.State.SAVE_FAILED -> {
-                    Toast.makeText(
-
-                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
-                    ).show()
+//                    Toast.makeText(
+//
+//                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
+//                    ).show()
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
                 }
