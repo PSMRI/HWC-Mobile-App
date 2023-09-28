@@ -33,7 +33,6 @@ import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
@@ -379,7 +378,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun navigateNext() {
-        if (preferenceDao.isUserOnlyDoctorOrMo()){
+        if (preferenceDao.isUserNurseAndDoctorOrMo()){
             extractFormValues()
             createObservationResource()
             if (!isNull) {

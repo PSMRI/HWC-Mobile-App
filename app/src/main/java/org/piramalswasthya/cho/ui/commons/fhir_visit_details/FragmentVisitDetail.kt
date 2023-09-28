@@ -55,8 +55,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override var fragmentContainerId = 0
     private lateinit var patientId : String
-    @Inject
-    lateinit var preferenceDao: PreferenceDao
+
     override val fragment = this
     override val viewModel: VisitDetailViewModel by viewModels()
 
@@ -249,9 +248,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             adapter.notifyItemInserted(itemList.size - 1)
             binding.plusButton.isEnabled = false
         }
-    }
-    fun fillFieldsFromDb(){
-
     }
 
     fun isAnyItemEmpty(): Boolean {
