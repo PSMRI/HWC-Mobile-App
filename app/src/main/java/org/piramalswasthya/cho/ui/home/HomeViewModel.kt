@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.home
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,6 +23,7 @@ import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
+import org.piramalswasthya.cho.work.WorkerUtils
 
 import java.lang.Exception
 import javax.inject.Inject
@@ -62,42 +64,43 @@ class HomeViewModel @Inject constructor(
     val state: LiveData<State>
         get() = _state
 
-    init {
+    fun init(context: Context){
         viewModelScope.launch {
-            if (!dataLoadFlagManager.isDataLoaded())
-            extracted()
+//            if (!dataLoadFlagManager.isDataLoaded())
+             extracted(context)
         }
     }
 
-    private suspend fun extracted() {
-        withContext(Dispatchers.IO) {
-            try {
-                    _state.postValue(State.SAVING)
-                    registrarMasterDataRepo.saveGenderMasterResponseToCache()
-                    registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-                    registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-                    registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-                    registrarMasterDataRepo.saveReligionMasterResponseToCache()
-                    languageRepo.saveResponseToCacheLang()
-                    visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-                    visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-                    registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-                    registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-                    registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                    registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                    registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-                    registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-                    registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-                    vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-                    vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-                    doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-                    malMasterDataRepo.getMasterDataForNurse()
-                    dataLoadFlagManager.setDataLoaded(true)
-                    _state.postValue(State.SAVE_SUCCESS)
-            } catch (_e: Exception) {
-
-                _state.postValue(State.SAVE_FAILED)
-            }
+    private suspend fun extracted(context: Context) {
+        try {
+            _state.postValue(State.SAVING)
+            if (dataLoadFlagManager.isDataLoaded())
+                WorkerUtils.triggerAmritSyncWorker(context)
+            registrarMasterDataRepo.saveGenderMasterResponseToCache()
+            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
+            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
+            registrarMasterDataRepo.saveReligionMasterResponseToCache()
+            languageRepo.saveResponseToCacheLang()
+            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
+            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
+            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
+            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
+            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
+            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+            malMasterDataRepo.getMasterDataForNurse()
+            if (!dataLoadFlagManager.isDataLoaded())
+                WorkerUtils.triggerAmritSyncWorker(context)
+            dataLoadFlagManager.setDataLoaded(true)
+            _state.postValue(State.SAVE_SUCCESS)
+        } catch (_e: Exception) {
+            _state.postValue(State.SAVE_FAILED)
         }
     }
 
