@@ -63,6 +63,8 @@ import org.piramalswasthya.cho.repositories.VillageMasterRepo
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewModel
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
+import java.lang.Math.sin
+import kotlin.math.*
 
 
 @AndroidEntryPoint
@@ -91,12 +93,14 @@ class LoginSettingsFragment : Fragment() {
     private var distBool = false
     private var talukBool = false
     private var pancBool = false
+    private var dialogClosed = false;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         getCurrentLocation()
+        dialogClosed = false
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -228,13 +232,15 @@ class LoginSettingsFragment : Fragment() {
 ////                getCurrentLocation()
 ////            }
 //        }
+
+        if(myInitialLoc != null){
+            Log.i("Current Location is","${myInitialLoc?.longitude}")
+            binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
+            binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
+        }
+
         binding.getGPSLoc.setOnClickListener {
             getCurrentLocation()
-            if(myInitialLoc != null){
-                Log.i("Current Location is","${myInitialLoc?.longitude}")
-                binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
-                binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
-            }
         }
 //        binding.enrollFpScreen.setOnClickListener {
 //            findNavController().navigate(
@@ -345,8 +351,11 @@ class LoginSettingsFragment : Fragment() {
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
+                    Log.i("Location","$myLocation")
                     if(myInitialLoc == null && myLocation != null) {
                         myInitialLoc = myLocation
+                        binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
+                        binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
                         Log.i("Initial Location","$myInitialLoc")
                     } else if(myInitialLoc != null) {
                         val distance = calculateDistance(
@@ -356,11 +365,11 @@ class LoginSettingsFragment : Fragment() {
                             location.longitude
                         )
 
+                        Log.i("Calculated Distance is ", "$distance")
                         // Check if the user has moved more than 500 meters
-                        if (distance > 500) {
-                            // Show the dialog to ask for an update
+                        if (distance > 500 && !dialogClosed) {
                             showDialog()
-                            Toast.makeText(activity,"Value of distance $distance and location is ${location.longitude} and ${location.latitude}",Toast.LENGTH_LONG).show()
+                            dialogClosed = true
                         }
                     }
                     // Stop listening for location updates once you have the current location
@@ -409,11 +418,14 @@ class LoginSettingsFragment : Fragment() {
     private fun showDialog() {
         var alertDialog: AlertDialog? = null
         val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You have moved more than 2 meters from the fixed point. Do you want to update your location?")
+        alertDialogBuilder.setMessage("You have moved more than 500 meters from the fixed point. Do you want to update your location?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
                 // Handle the user's choice to update location here
                 // You can perform any necessary actions when the user selects "Yes"
+                myInitialLoc = null
+                getCurrentLocation()
+                alertDialog!!.dismiss()
             }
             .setNegativeButton("No") { _, _ ->
                alertDialog!!.dismiss()
@@ -427,6 +439,6 @@ class LoginSettingsFragment : Fragment() {
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123
         private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
-        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 500f // 10 meters
     }
 }
