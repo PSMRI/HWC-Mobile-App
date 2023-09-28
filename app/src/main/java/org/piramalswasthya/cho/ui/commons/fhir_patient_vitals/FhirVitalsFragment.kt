@@ -392,15 +392,15 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             )
         }else{
             CoroutineScope(Dispatchers.IO).launch {
-                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
-                if(hasUnSyncedNurseData){
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.unsyncedNurseData),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                else{
+//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId)
+//                if(hasUnSyncedNurseData){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.unsyncedNurseData),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                else{
                     val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId)
                     extractFormValues()
                     setVitalsMasterData()
@@ -415,7 +415,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                     ).show()
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
-                }
+//                }
             }
 
         }
