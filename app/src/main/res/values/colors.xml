@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple">#6434BA</color>
+<!--    <color name="purple">#296292</color>-->
     <color name="primary">#50AF93</color>
     <color name="green_heading">#50AF93</color>
     <color name="red">#FF910000</color>
@@ -13,4 +14,6 @@
     <color name="colorAccent">#175adf</color>
     <color name="defaultInput">#636161</color>
     <color name="icon_color">#FF5722</color>
+    <color name="default_header">#24303C</color>
+    <color name="default_button">#296292</color>
 </resources>

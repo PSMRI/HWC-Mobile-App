@@ -50,8 +50,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_big"
-                android:text="@string/login"
                 android:background="@drawable/rounded_button"
+                android:backgroundTint="@color/default_button"
+                android:text="@string/login"
                 android:textSize="@dimen/text_big" />
 
         </LinearLayout>

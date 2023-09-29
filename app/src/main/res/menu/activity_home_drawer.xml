@@ -30,6 +30,12 @@
             android:icon="@drawable/ic_completed_tasks"
             android:title="Create ABHA Number" />
 
+<!--        <item-->
+<!--            android:id="@+id/dashboard_activity"-->
+<!--            android:checkable="false"-->
+<!--            android:icon="@drawable/dashboard"-->
+<!--            android:title="Dashboard" />-->
+
 
 <!--        <item-->
 <!--            android:id="@+id/getBenFragment"-->
