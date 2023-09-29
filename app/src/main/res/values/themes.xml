@@ -2,15 +2,23 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.CHO" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
+<!--         <item name="colorPrimary">@color/default_header</item>-->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
+
+<!--    <style name="Widget.App.Button" parent="Theme.Material3.DayNight.NoActionBar">-->
+<!--        <item name="backgroundTint">@color/default_button</item>-->
+<!--    </style>-->
 
     <style name="Theme.CHO.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
 
     <style name="Theme.CHO.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="Theme.CHO" parent="Base.Theme.CHO" />
+    <style name="Theme.CHO" parent="Base.Theme.CHO" >
+<!--        <item name="materialButtonStyle">@style/Widget.App.Button</item>-->
+        <item name="colorPrimary">@color/default_header</item>
+    </style>
 
     <style name="Theme.CHO.NoActionBar">
         <item name="windowActionBar">false</item>

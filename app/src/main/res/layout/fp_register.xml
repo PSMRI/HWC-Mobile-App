@@ -94,6 +94,7 @@
 
 
         <Button
+            android:backgroundTint="@color/default_button"
             android:id="@+id/enrollFp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -104,6 +105,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewFp" />
         <Button
+              android:backgroundTint="@color/default_button"
             android:id="@+id/submitFP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -116,6 +118,7 @@
             app:layout_constraintBottom_toTopOf="@+id/moveToLoginSc"/>
 
         <Button
+              android:backgroundTint="@color/default_button"
             android:id="@+id/moveToLoginSc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

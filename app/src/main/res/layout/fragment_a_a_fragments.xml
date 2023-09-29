@@ -163,6 +163,7 @@
             app:layout_constraintTop_toBottomOf="@+id/familyM" />
     
         <Button
+              android:backgroundTint="@color/default_button"
             android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -174,6 +175,7 @@
             app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
     
         <Button
+              android:backgroundTint="@color/default_button"
             android:id="@+id/resetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -185,6 +187,7 @@
             app:layout_constraintTop_toBottomOf="@+id/inactiveCheckbox" />
     
         <Button
+              android:backgroundTint="@color/default_button"
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

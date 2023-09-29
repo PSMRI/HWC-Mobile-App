@@ -56,6 +56,21 @@
         <item>Follow up</item>
     </string-array>
 
+    <string-array name="months">
+        <item>Monthly Report</item>
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
     <string name="duration">Duration <font color="#FF0000">*</font></string>

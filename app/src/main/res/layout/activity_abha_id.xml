@@ -18,9 +18,23 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:titleTextColor="@color/white"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/Theme.CHO.PopupOverlay"
             >
+
+<!--            <TextView-->
+<!--                android:id="@+id/header_text_register_patient"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="ABHA Number"-->
+<!--                android:gravity="start"-->
+<!--                android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="20sp"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                tools:layout_editor_absoluteX="0dp" />-->
+
             <TextView
                 android:id="@+id/sessionTimer"
                 android:layout_width="wrap_content"
@@ -29,6 +43,16 @@
                 android:layout_gravity="end"
                 android:paddingHorizontal="@dimen/padding_normal"
                 android:text= "@string/timer" />
+
+            <ImageButton
+                android:id="@+id/home_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginRight="10dp"
+                android:contentDescription="Home"
+                android:src="@drawable/home"
+                android:background="?attr/colorPrimary"/>
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>

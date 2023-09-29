@@ -62,6 +62,7 @@
                 app:layout_constraintDimensionRatio="1:1" />
 
             <Button
+              android:backgroundTint="@color/default_button"
                 android:id="@+id/scan_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -60,6 +60,10 @@
             android:name=".ui.home_activity.HomeActivity"
             android:exported="false" /> <!-- <activity -->
         <activity
+            android:name=".ui.home_activity.DashboardActivity"
+            android:label="Dashboard"
+            android:exported="false" />
+        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"

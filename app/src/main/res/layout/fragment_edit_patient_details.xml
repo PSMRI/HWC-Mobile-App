@@ -54,7 +54,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/esanjeevni" />
 
             <Button
@@ -62,7 +62,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/next" />
 
         </LinearLayout>

@@ -166,6 +166,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
+              android:backgroundTint="@color/default_button"
         android:id="@+id/plusButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -177,6 +178,7 @@
         app:layout_constraintTop_toBottomOf="@+id/geneticD" />
 
     <Button
+              android:backgroundTint="@color/default_button"
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -188,6 +190,7 @@
         app:layout_constraintTop_toBottomOf="@+id/geneticD" />
 
     <Button
+              android:backgroundTint="@color/default_button"
         android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
