@@ -20,9 +20,9 @@ class HistoryRepo @Inject constructor(
 
   suspend fun saveAssociateAilmentsHistoryToCatche(associateAilmentsHistory: AssociateAilmentsHistory) {
       try{
-              withContext(Dispatchers.IO){
-                  historyDao.insertAssociateAilmentsHistory(associateAilmentsHistory)
-              }
+          withContext(Dispatchers.IO){
+              historyDao.insertAssociateAilmentsHistory(associateAilmentsHistory)
+          }
       } catch (e: Exception){
           Timber.d("Error in saving Associate Ailments history $e")
       }

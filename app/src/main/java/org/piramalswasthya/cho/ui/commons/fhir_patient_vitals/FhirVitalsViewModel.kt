@@ -128,30 +128,21 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             }
         }
     }
-fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
-    viewModelScope.launch {
-        try {
-            withContext(Dispatchers.IO) {
-                val patient = patientRepo.getPatient(patientVitalsModel.patientID)
-                patientVitalsModel.beneficiaryID = patient.beneficiaryID
-                patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
+
+    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+        viewModelScope.launch {
+            try {
                 vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+            } catch (e: Exception) {
+                Timber.e("Error in saving vitals information : $e")
             }
-        } catch (e: Exception) {
-            Timber.e("Error in saving vitals information : $e")
         }
     }
-}
 
     fun saveVisitDbToCatche(visitDB: VisitDB){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO){
-                    val patient = patientRepo.getPatient(visitDB.patientID)
-                    visitDB.beneficiaryID = patient.beneficiaryID
-                    visitDB.beneficiaryRegID = patient.beneficiaryRegID
-                    visitRepo.saveVisitDbToCache(visitDB)
-                }
+                visitRepo.saveVisitDbToCache(visitDB)
             }catch (e:Exception){
                 Timber.e("Error in saving visit Db : $e")
             }
@@ -161,12 +152,7 @@ fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
     fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO){
-                    val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
-                    chiefComplaintDB.beneficiaryID = patient.beneficiaryID
-                    chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
-                    visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
-                }
+                visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }
@@ -176,10 +162,15 @@ fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
     fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
-                patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
-                patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
-                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+                if(existingPatientVisitInfoSync != null){
+                    existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
+                    existingPatientVisitInfoSync.nurseFlag = 9
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+                }
+                else{
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                }
 //                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
@@ -191,8 +182,8 @@ fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         return patientVisitInfoSyncRepo.hasUnSyncedNurseData(patientId);
     }
 
-    suspend fun getLastVisitNo(patientId : String) : Int{
-        return patientVisitInfoSyncRepo.getLastVisitNo(patientId);
+    suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
 
     suspend fun setNurseCompleted(patienId:String){

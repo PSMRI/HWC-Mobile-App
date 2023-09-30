@@ -146,9 +146,10 @@ class PatientRepo  @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
         val user = userRepo.getLoggedInUser()
+
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastSyncTime()
+            preferenceDao.getLastPatientSyncTime()
         )
 
         when(val response = downloadRegisterPatientFromServer(villageList)){
@@ -262,26 +263,26 @@ class PatientRepo  @Inject constructor(
                 is NetworkResult.Success -> {
                     val benificiarySaveResponse = response.data as BenificiarySaveResponse
                     updatePatientSyncSuccess(it.patient, benificiarySaveResponse)
-                    caseRecordeRepo.updateBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    visitReasonsAndCategoriesRepo.updateBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    vitalsRepo.updateBenIdBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    patientVisitInfoSyncRepo.updatePatientVisitInfoBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
+//                    caseRecordeRepo.updateBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    visitReasonsAndCategoriesRepo.updateBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    vitalsRepo.updateBenIdBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    patientVisitInfoSyncRepo.updatePatientVisitInfoBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
                 }
                 is NetworkResult.Error -> {
                     updatePatientSyncingFailed(it.patient)

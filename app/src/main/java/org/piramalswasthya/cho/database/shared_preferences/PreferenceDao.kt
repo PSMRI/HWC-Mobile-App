@@ -28,6 +28,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
 
+
 //    fun getD2DApiToken(): String? {
 //        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
 //        return pref.getString(prefKey, null)
@@ -127,19 +128,31 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return Gson().fromJson(json, LoginSettingsData::class.java)
     }
 
-    fun getLastSyncTime(): String {
-        val prefKey = context.getString(R.string.last_sync_time)
+    fun getLastBenflowSyncTime(): String {
+        val prefKey = context.getString(R.string.last_benflow_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastSyncTime(timestamp: Long){
-        val prefKey = context.getString(R.string.last_sync_time)
+    fun setLastBenflowSyncTime(timestamp: Long){
+        val prefKey = context.getString(R.string.last_benflow_sync_time)
         val editor = pref.edit()
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(timestamp))
         editor.apply()
     }
 
+    fun getLastPatientSyncTime(): String {
+        val prefKey = context.getString(R.string.last_patient_sync_time)
+        return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setLastPatientSyncTime(timestamp: Long){
+        val prefKey = context.getString(R.string.last_patient_sync_time)
+        val editor = pref.edit()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(timestamp))
+        editor.apply()
+    }
 
     fun registerLoginCred(userName: String,password: String) {
         val editor = pref.edit()

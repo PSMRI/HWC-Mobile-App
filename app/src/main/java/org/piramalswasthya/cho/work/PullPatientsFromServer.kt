@@ -13,6 +13,8 @@ import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.PatientRepo
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.util.Date
+import java.sql.Timestamp
 
 
 @HiltWorker
@@ -33,6 +35,8 @@ class PullPatientsFromServer @AssistedInject constructor(
         return try {
             val workerResult = patientRepo.downloadAndSyncPatientRecords()
             if (workerResult) {
+                val date = Date()
+                preferenceDao.setLastPatientSyncTime(date.time)
                 Timber.d("Patient Download Worker completed")
                 Result.success()
             } else {

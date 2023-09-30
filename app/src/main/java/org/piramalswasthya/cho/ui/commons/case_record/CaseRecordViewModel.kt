@@ -122,7 +122,6 @@ class CaseRecordViewModel @Inject constructor(
     private fun getCounsellingTypes(){
         try{
             _counsellingProvided = doctorMasterDataMaleRepo.getAllCounsellingList()
-
         } catch (e: java.lang.Exception){
             Timber.d("Error in getFormMaster $e")
         }
@@ -130,7 +129,6 @@ class CaseRecordViewModel @Inject constructor(
     private fun getFormMaster(){
         try{
             _formMedicineDosage  = doctorMasterDataMaleRepo.getAllItemMasterList()
-
         } catch (e: java.lang.Exception){
             Timber.d("Error in getFormMaster $e")
         }
@@ -138,7 +136,6 @@ class CaseRecordViewModel @Inject constructor(
     private fun getProcedureDropdown(){
         try{
             _procedureDropdown  = maleMasterDataRepository.getAllProcedureDropdown()
-
         } catch (e: java.lang.Exception){
             Timber.d("Error in Get Procedure $e")
         }
@@ -186,9 +183,6 @@ class CaseRecordViewModel @Inject constructor(
     fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(patientVitalsModel.patientID)
-                patientVitalsModel.beneficiaryID = patient.beneficiaryID
-                patientVitalsModel.beneficiaryRegID = patient.beneficiaryRegID
                 vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
             } catch (e: Exception) {
                 Timber.e("Error in saving vitals information : $e")
@@ -199,9 +193,6 @@ class CaseRecordViewModel @Inject constructor(
     fun saveVisitDbToCatche(visitDB: VisitDB){
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(visitDB.patientID)
-                visitDB.beneficiaryID = patient.beneficiaryID
-                visitDB.beneficiaryRegID = patient.beneficiaryRegID
                 visitRepo.saveVisitDbToCache(visitDB)
             }catch (e:Exception){
                 Timber.e("Error in saving visit Db : $e")
@@ -212,9 +203,6 @@ class CaseRecordViewModel @Inject constructor(
     fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(chiefComplaintDB.patientID)
-                chiefComplaintDB.beneficiaryID = patient.beneficiaryID
-                chiefComplaintDB.beneficiaryRegID = patient.beneficiaryRegID
                 visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
@@ -225,10 +213,15 @@ class CaseRecordViewModel @Inject constructor(
     fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(patientVisitInfoSync.patientID)
-                patientVisitInfoSync.beneficiaryID = patient.beneficiaryID
-                patientVisitInfoSync.beneficiaryRegID = patient.beneficiaryRegID
-                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+                if(existingPatientVisitInfoSync != null){
+                    existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
+                    existingPatientVisitInfoSync.nurseFlag = 9
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+                }
+                else{
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                }
 //                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
@@ -240,8 +233,8 @@ class CaseRecordViewModel @Inject constructor(
         return patientVisitInfoSyncRepo.hasUnSyncedNurseData(patientId);
     }
 
-    suspend fun getLastVisitNo(patientId : String) : Int{
-        return patientVisitInfoSyncRepo.getLastVisitNo(patientId);
+    suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
 
    suspend fun getTestNameTypeMap(): Map<Int, String> {

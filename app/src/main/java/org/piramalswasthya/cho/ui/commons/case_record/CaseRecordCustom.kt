@@ -142,8 +142,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         durationUnit = chiefComplaintItem.durationUnit,
                         description = chiefComplaintItem.description,
                         patientID = "",
-                        beneficiaryID = 0,
-                        beneficiaryRegID = 0,
                         benFlowID = 0
                     )
                     chiefComplaintDB.add(chiefC) // Add the item to the list
@@ -169,8 +167,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                    durationUnit = chiefComplaintItem.durationUnit,
                    description = chiefComplaintItem.description,
                    patientID = "",
-                   beneficiaryID = 0,
-                   beneficiaryRegID = 0,
                    benFlowID = 0
                )
                chiefComplaintDB.add(chiefC) // Add the item to the list
@@ -572,7 +568,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 viewModel.savePrescriptionToCache(pres)
             }
     }
-    private fun addVitalsDataToCache(lastVisitNo: Int){
+    private fun addVitalsDataToCache(benVisitNo: Int){
         val patientVitals = PatientVitalsModel(
             vitalsId = generateUuid(),
             height = masterDb?.vitalsMasterDb?.height.nullIfEmpty(),
@@ -587,18 +583,18 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             respiratoryRate = masterDb?.vitalsMasterDb?.respiratoryRate.nullIfEmpty(),
             rbs = masterDb?.vitalsMasterDb?.rbs.nullIfEmpty(),
             patientID = patId,
-            benVisitNo = lastVisitNo+1
+            benVisitNo = benVisitNo
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
     }
-    private fun addVisitRecordDataToCache(lastVisitNo: Int){
+    private fun addVisitRecordDataToCache(benVisitNo: Int){
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = patId,
-            benVisitNo = lastVisitNo+1
+            benVisitNo = benVisitNo
         )
 
         viewModel.saveVisitDbToCatche(visitDB)
@@ -612,20 +608,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
                 description = chiefComplaintItem.description.nullIfEmpty(),
                 patientID = patId,
-                beneficiaryID = null,
-                beneficiaryRegID=null,
-                benFlowID=null,
-                benVisitNo = lastVisitNo+1
+                benFlowID = null,
+                benVisitNo = benVisitNo
             )
             viewModel.saveChiefComplaintDbToCatche(chiefC)
         }
     }
 
-    private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
+    private fun addPatientVisitInfoSyncToCache(benVisitNo: Int, createNewBenflow: Boolean){
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = patId,
-            benVisitNo = lastVisitNo + 1,
-            createNewBenFlow = true,
+            benVisitNo = benVisitNo,
+            createNewBenFlow = createNewBenflow,
+            nurseFlag = 9
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }
@@ -681,10 +676,25 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //                        Toast.LENGTH_SHORT
 //                    ).show()
 //                } else {
-                    val lastVisitNo = viewModel.getLastVisitNo(patId)
-                    addPatientVisitInfoSyncToCache(lastVisitNo)
-                    addVisitRecordDataToCache(lastVisitNo)
-                    addVitalsDataToCache(lastVisitNo)
+
+                    var benVisitNo = 0;
+                    var createNewBenflow = false;
+                    viewModel.getLastVisitInfoSync(patId).let {
+                        if(it == null){
+                            benVisitNo = 1;
+                        }
+                        else if(it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        }
+                        else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
+                    }
+
+                    addVisitRecordDataToCache(benVisitNo)
+                    addVitalsDataToCache(benVisitNo)
+                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
                     addCaseRecordDataToCatche()
                     val validate = dAdapter.setError()
                     if (validate == -1) {

@@ -208,7 +208,7 @@ interface AmritApiService {
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
 
-    @POST("/hwc-facility-service/generalOPD/save/nurseData?apiKey=undefined")
+    @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
 
     @POST("hwc-facility-service/sync/beneficiaryGeneralOPDNurseFormDataToApp")

@@ -32,8 +32,6 @@ data class VisitDB(
     @ColumnInfo(name = "reasonForVisit") val reasonForVisit: String?,
     @ColumnInfo(name = "subCategory") val subCategory: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
-    @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
-    @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 ){
@@ -43,8 +41,6 @@ data class VisitDB(
         nurseData.GOPDNurseVisitDetail?.visitReason,
         nurseData.GOPDNurseVisitDetail?.subVisitCategory,
         patient.patientID,
-        benFlow.beneficiaryID,
-        benFlow.beneficiaryRegID,
         benFlow.benFlowID,
         benFlow.benVisitNo
     )

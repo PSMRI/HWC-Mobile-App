@@ -2,6 +2,8 @@ package org.piramalswasthya.sakhi.work
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import dagger.assisted.Assisted
@@ -16,6 +18,7 @@ import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.util.Date
 
 @HiltWorker
 class PullBenFlowFromAmritWorker @AssistedInject constructor(
@@ -31,6 +34,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
         const val name = "PullBenFlowFromAmritWorker"
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         init()
 //        try {
@@ -38,9 +42,11 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
 //        } catch (throwable: Throwable) {
 //            Timber.d("FgLW", "Something bad happened", throwable)
 //        }
-        try {
+        return try {
             val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
-            return if (workerResult) {
+            if (workerResult) {
+                val date = Date()
+                preferenceDao.setLastBenflowSyncTime(date.time)
                 Timber.d("Worker completed")
                 Result.success()
             } else {
@@ -49,7 +55,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
             }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
-            return Result.retry()
+            Result.retry()
         }
 
     }
