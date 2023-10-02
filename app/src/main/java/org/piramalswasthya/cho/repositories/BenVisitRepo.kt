@@ -272,6 +272,8 @@ class BenVisitRepo @Inject constructor(
                         }
 
                     val refer = Refer(
+                        user= user,
+                        benFlow = benFlow,
                         institutionID = higherHealthCenter.institutionID,
                         institutionName = higherHealthCenter.institutionName
                     )
