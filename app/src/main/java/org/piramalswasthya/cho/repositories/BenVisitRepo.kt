@@ -180,24 +180,28 @@ class BenVisitRepo @Inject constructor(
 //                            vitals = vitals,
 //                            benFlow = benFlow
 //                        )
-                        val diagnosisList = diagnosisCaseRecordVal?.map { diagnosisCaseRecord ->
-                            val provisionalDiagnosis =
-                                ProvisionalDiagnosis(term = diagnosisCaseRecord.diagnosis)
+                        val provisionalDiagnosisList = mutableListOf<ProvisionalDiagnosis>()
 
-                            // Create a Diagnosis object based on the diagnosisCaseRecord and other data
-                            Diagnosis(
-                                prescriptionID = null, // Fill this as needed
-                                vanID = user?.vanId,
-                                parkingPlaceID = user?.parkingPlaceId,
-                                provisionalDiagnosisList = listOf(provisionalDiagnosis), // Add the provisionalDiagnosis to the list
-                                beneficiaryRegID = benFlow?.beneficiaryID?.toString(),
-                                benVisitID = benFlow?.benVisitID?.toString(),
-                                visitCode = benFlow?.visitCode?.toString(),
-                                providerServiceMapID = user?.serviceMapId?.toString(),
-                                createdBy = user?.userName,
-                                isSpecialist = false // Update this value as needed
-                            )
+                        if (diagnosisCaseRecordVal != null) {
+                            for (diagnosisCaseRecord in diagnosisCaseRecordVal) {
+                                val provisionalDiagnosis = ProvisionalDiagnosis(term = diagnosisCaseRecord.diagnosis)
+
+                                provisionalDiagnosisList.add(provisionalDiagnosis)
+                            }
                         }
+                        val diagnosis = Diagnosis(
+                            prescriptionID = null, // Fill this as needed
+                            vanID = user?.vanId,
+                            parkingPlaceID = user?.parkingPlaceId,
+                            provisionalDiagnosisList = provisionalDiagnosisList, // Add the list of provisionalDiagnosis
+                            beneficiaryRegID = benFlow?.beneficiaryID?.toString(),
+                            benVisitID = benFlow?.benVisitID?.toString(),
+                            visitCode = benFlow?.visitCode?.toString(),
+                            providerServiceMapID = user?.serviceMapId?.toString(),
+                            createdBy = user?.userName,
+                            isSpecialist = false // Update this value as needed
+                        )
+
                         val investigationIDs = investigationCaseRecordVal?.testIds?.split(",")?.map { it.toInt() }
 
                         val laboratoryList = mutableListOf<Laboratory>()
@@ -280,7 +284,7 @@ class BenVisitRepo @Inject constructor(
                         val patientDoctorForm = PatientDoctorForm(
                             user = user,
                             benFlow = benFlow,
-                            diagnosis = diagnosisList,
+                            diagnosis = diagnosis,
                             investigation=investigationCaseRecord,
                             prescription = prescriptionList,
                             refer = refer

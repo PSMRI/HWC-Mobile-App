@@ -93,7 +93,7 @@ data class PatientDoctorForm(
     val createdBy: String?,
     val isSpecialist: Boolean?,
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosis: List<Diagnosis>?, investigation: Investigation?, prescription: List<Prescription>?, refer: Refer? ): this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosis: Diagnosis?, investigation: Investigation?, prescription: List<Prescription>?, refer: Refer? ): this(
         "Management of Communicable Diseases including National Health Programs",
         diagnosis,
         investigation,

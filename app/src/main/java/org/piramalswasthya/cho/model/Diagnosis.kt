@@ -19,7 +19,7 @@ data class Diagnosis(
         null,
         user?.vanId,
         user?.parkingPlaceId,
-        arrayListOf(ProvisionalDiagnosis(term = "Pain"), ProvisionalDiagnosis(term = "Vomit")),
+        arrayList,
         benFlow?.beneficiaryID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),
