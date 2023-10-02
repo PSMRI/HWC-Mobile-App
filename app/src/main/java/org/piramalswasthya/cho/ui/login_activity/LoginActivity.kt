@@ -11,6 +11,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +26,7 @@ import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.case_record.CaseRecordViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragment
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -35,6 +38,12 @@ class LoginActivity : AppCompatActivity() {
     private var _binding: ActivityLoginBinding? = null
     private val binding: ActivityLoginBinding
         get() = _binding!!
+
+    private val navController by lazy {
+        val navHostFragment: NavHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_login) as NavHostFragment
+        navHostFragment.navController
+    }
 
     @Inject
     lateinit var userRepo: UserRepo
@@ -61,6 +70,12 @@ class LoginActivity : AppCompatActivity() {
         _binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         print("app started")
+        setUpActionBar()
+
+        binding.homeButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
 
         lifecycleScope.launch {
             try {
@@ -73,6 +88,13 @@ class LoginActivity : AppCompatActivity() {
                 Log.d("Failed to get Login flag","${e}")
             }
         }
+    }
+
+    private fun setUpActionBar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        NavigationUI.setupWithNavController(binding.toolbar, navController)
+        NavigationUI.setupActionBarWithNavController(this, navController)
     }
 
 //    private fun createSyncServiceNotificationChannel() {

@@ -44,16 +44,25 @@
 
 
 
-        <item
-            android:id="@+id/aboutUsFragment"
-            android:icon="@drawable/ic_info"
-            android:title="About Us" />
+<!--        <item-->
+<!--            android:id="@+id/aboutUsFragment"-->
+<!--            android:icon="@drawable/ic_info"-->
+<!--            android:title="About Us" />-->
 
 <!--        <item-->
 <!--            android:id="@+id/helpFragment"-->
 <!--            android:icon="@drawable/ic_help"-->
 <!--            android:title="Help" />-->
 
+    </group>
+    <group
+        android:id="@+id/menu_group_middle"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_help"
+            android:icon="@drawable/help"
+            android:checkable="false"
+            android:title="Help" />
     </group>
     <group
         android:id="@+id/menu_group_bottom"

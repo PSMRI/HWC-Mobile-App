@@ -11,6 +11,7 @@
         android:id="@+id/first"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         tools:background="@color/white"
         android:orientation="horizontal">
 
