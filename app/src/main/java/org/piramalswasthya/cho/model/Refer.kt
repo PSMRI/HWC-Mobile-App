@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.model
 
+import com.google.gson.annotations.JsonAdapter
+
 data class Refer(
     val referredToInstituteID: Int?,
     val refrredToAdditionalServiceList: List<String>?,
@@ -36,10 +38,10 @@ data class Refer(
 //    "createdBy": "Sanjay",
 //    "isSpecialist": false
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
-        null,
+    constructor(user: UserDomain?, benFlow: BenFlow?,institutionID:Int, institutionName:String) : this(
+        institutionID,
         arrayListOf("HWC"),
-        null,
+        institutionName,
         null,
         "Check",
         null,

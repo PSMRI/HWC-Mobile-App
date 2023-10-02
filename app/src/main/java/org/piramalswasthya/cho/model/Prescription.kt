@@ -22,7 +22,7 @@ data class Prescription(
     val parkingPlaceID: Int?,
     val isEDL: Boolean?,
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?) : this(//item master list
         null,
         146,
         "Paracetamol",

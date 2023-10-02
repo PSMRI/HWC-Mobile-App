@@ -15,11 +15,11 @@ data class Diagnosis(
     val createdBy: String?,
     val isSpecialist: Boolean
 ) {
-    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?,arrayList: ArrayList<ProvisionalDiagnosis>) : this(
         null,
         user?.vanId,
         user?.parkingPlaceId,
-        arrayListOf(ProvisionalDiagnosis("Pain",""), ProvisionalDiagnosis("Vomit","")),
+        arrayList,
         benFlow?.beneficiaryID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),
@@ -32,7 +32,7 @@ data class Diagnosis(
 @JsonClass(generateAdapter = true)
 data class ProvisionalDiagnosis(
     val term: String,
-    val conceptID: String
+    val conceptID: String? = null
 ){
 
 }
