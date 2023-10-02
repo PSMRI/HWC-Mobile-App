@@ -16,14 +16,14 @@ import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 interface CaseRecordeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDiagnosisCaseRecord(diagnosisCaseRecord: DiagnosisCaseRecord)
-    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
-    suspend fun getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?
-
-    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
-    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?
-
-    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
-    suspend fun getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?
+//    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
+//    suspend fun getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?
+//
+//    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
+//    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?
+//
+//    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE beneficiaryRegID = :beneficiaryRegID AND patientID = :patientID")
+//    suspend fun getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertInvestigationCaseRecord(investigationCaseRecord: InvestigationCaseRecord)
 
