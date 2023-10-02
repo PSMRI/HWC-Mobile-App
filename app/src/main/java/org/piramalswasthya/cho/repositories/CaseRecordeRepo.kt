@@ -7,8 +7,10 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.InvestigationCaseRecordWithHigherHealthCenter
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionCaseRecordWithItemMaster
 import org.piramalswasthya.cho.model.VisitDB
 import timber.log.Timber
 import java.lang.Exception
@@ -35,15 +37,16 @@ class CaseRecordeRepo @Inject constructor(
             Timber.d("Error in saving Diagnosis $e")
         }
     }
-    suspend fun getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?{
-        return caseRecordDao.getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+    suspend fun getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<DiagnosisCaseRecord>?{
+        return caseRecordDao.getDiagnosisCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
-    suspend fun getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?{
-        return caseRecordDao.getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+    suspend fun getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : InvestigationCaseRecordWithHigherHealthCenter?{
+        return caseRecordDao.getInvestigationCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
-    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?{
-        return caseRecordDao.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+    suspend fun getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<PrescriptionCaseRecordWithItemMaster>?{
+        return caseRecordDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
+
     suspend fun savePrescriptionToCatche(prescriptionCaseRecord: PrescriptionCaseRecord) {
         try{
             withContext(Dispatchers.IO){
@@ -64,9 +67,9 @@ class CaseRecordeRepo @Inject constructor(
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
-        caseRecordDao.updateBenIdBenRegIdPrescription(beneficiaryID, beneficiaryRegID, patientID)
-        caseRecordDao.updateBenIdBenRegIdInvestigation(beneficiaryID, beneficiaryRegID, patientID)
-        caseRecordDao.updateBenIdBenRegIdDiagnosis(beneficiaryID, beneficiaryRegID, patientID)
+//        caseRecordDao.updateBenIdBenRegIdPrescription(beneficiaryID, beneficiaryRegID, patientID)
+//        caseRecordDao.updateBenIdBenRegIdInvestigation(beneficiaryID, beneficiaryRegID, patientID)
+//        caseRecordDao.updateBenIdBenRegIdDiagnosis(beneficiaryID, beneficiaryRegID, patientID)
     }
     
 }

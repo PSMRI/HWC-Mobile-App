@@ -18,8 +18,7 @@ interface HealthCenterDao {
 
     @Query("SELECT * FROM HEALTH_CENTER")
     fun getHealthCenter() : LiveData<List<HigherHealthCenter>>
-    @Query("SELECT * FROM HEALTH_CENTER where institutionID = institutionID")
-    fun getHealthCenterByID(institutionID:Int?) : HigherHealthCenter
+
     @Query("select * from HEALTH_CENTER")
     suspend fun getHigherHealthMap():List<HigherHealthCenter>
 
@@ -39,12 +38,12 @@ interface HealthCenterDao {
     suspend fun insertDrugFormMasterList(drugFormMaster: DrugFormMaster)
 
     @Query("select itemFormName from drug_form_master where itemFormID = :itemFormID")
-    suspend fun getItemFormNameByID(itemFormID: Int): String?
+    suspend fun getItemFormNameByID(itemFormID: Int): String
 
     @Query("SELECT * from Item_Master_List")
      fun getAllItemMasterList():LiveData<List<ItemMasterList>>
-    @Query("SELECT * from Item_Master_List where itemID = id")
-    fun getItemMasterListById(id:Int):ItemMasterList
+    @Query("SELECT * from Item_Master_List where itemID = :id")
+    fun getItemMasterListById(id:Int): ItemMasterList
 
     @Query("SELECT * from Counselling_Provided")
     fun getAllCounsellingProvided():LiveData<List<CounsellingProvided>>

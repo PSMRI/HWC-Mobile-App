@@ -10,20 +10,11 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.model.BenFlow
-import org.piramalswasthya.cho.model.Diagnosis
-import org.piramalswasthya.cho.model.DiagnosisCaseRecord
-import org.piramalswasthya.cho.model.Investigation
-import org.piramalswasthya.cho.model.InvestigationCaseRecord
-import org.piramalswasthya.cho.model.Laboratory
-import org.piramalswasthya.cho.model.PatientDisplay
-import org.piramalswasthya.cho.model.PatientDoctorForm
+
+import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInformation
-import org.piramalswasthya.cho.model.Prescription
-import org.piramalswasthya.cho.model.PrescriptionCaseRecord
-import org.piramalswasthya.cho.model.ProvisionalDiagnosis
-import org.piramalswasthya.cho.model.Refer
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
@@ -78,7 +69,7 @@ class BenVisitRepo @Inject constructor(
 
     }
 
-    suspend fun registerDoctorData(patientDoctorForm: PatientDoctorForm): NetworkResult<NetworkResponse> {
+    suspend fun registerDoctorData(patientDoctorForm: PatientDoctorFormUpsync): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
             val response = apiService.saveDoctorData(patientDoctorForm)
@@ -169,10 +160,11 @@ class BenVisitRepo @Inject constructor(
                     val benFlow = benFlowRepo.getBenFlowByBenRegId(it.beneficiaryRegID!!)
                     if(benFlow != null && benFlow.nurseFlag == 9 && benFlow.doctorFlag == 1){
 
-                        val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!, patientID = patient.id!!)
-                        val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!,patientID = patient.id!!)
-                        val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!,patientID = patient.id!!)
-                        val higherHealthCenter = doctorMasterDataMaleRepo.getHigherHealthCenterById(investigationCaseRecordVal?.institutionId)
+                        val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val procedureList = historyRepo.getProceduresList(investigationCaseRecordVal?.investigationCaseRecord?.testIds)
+
 //                        val patientVisitInfo = PatientVisitInformation(
 //                            user = user,
 //                            visit = visit,
@@ -180,114 +172,115 @@ class BenVisitRepo @Inject constructor(
 //                            vitals = vitals,
 //                            benFlow = benFlow
 //                        )
-                        val provisionalDiagnosisList = mutableListOf<ProvisionalDiagnosis>()
+//                        val provisionalDiagnosisList = mutableListOf<ProvisionalDiagnosis>()
+//
+//                        if (diagnosisCaseRecordVal != null) {
+//                            for (diagnosisCaseRecord in diagnosisCaseRecordVal) {
+//                                val provisionalDiagnosis = ProvisionalDiagnosis(term = diagnosisCaseRecord.diagnosis)
+//                                provisionalDiagnosisList.add(provisionalDiagnosis)
+//                            }
+//                        }
+//
+//                        val diagnosis = Diagnosis(
+//                            prescriptionID = null, // Fill this as needed
+//                            vanID = user?.vanId,
+//                            parkingPlaceID = user?.parkingPlaceId,
+//                            provisionalDiagnosisList = provisionalDiagnosisList, // Add the list of provisionalDiagnosis
+//                            beneficiaryRegID = benFlow?.beneficiaryID?.toString(),
+//                            benVisitID = benFlow?.benVisitID?.toString(),
+//                            visitCode = benFlow?.visitCode?.toString(),
+//                            providerServiceMapID = user?.serviceMapId?.toString(),
+//                            createdBy = user?.userName,
+//                            isSpecialist = false // Update this value as needed
+//                        )
+//
+//                        val investigationIDs = investigationCaseRecordVal?.testIds?.split(",")?.map { it.toInt() }
+//
+//                        val laboratoryList = mutableListOf<Laboratory>()
+//
+//                        if (investigationIDs != null) {
+//                            for (investigationID in investigationIDs) {
+//                                val laboratoryData = historyRepo.getProcedureByProcedureId(investigationID)
+//
+//                                val laboratory = Laboratory(
+//                                    procedureID = laboratoryData.procedureID,
+//                                    procedureName = laboratoryData.procedureName,
+//                                    procedureDesc = laboratoryData.procedureDesc,
+//                                    procedureType = laboratoryData.procedureType,
+//                                    gender = laboratoryData.gender,
+//                                    providerServiceMapID = laboratoryData.providerServiceMapID
+//                                )
+//                                laboratoryList.add(laboratory)
+//                            }
+//                        }
+//
+//                        val investigationCaseRecord = Investigation(
+//                            externalInvestigations = investigationCaseRecordVal?.externalInvestigation,
+//                            vanID = user?.vanId,
+//                            parkingPlaceID = user?.parkingPlaceId,
+//                            beneficiaryRegID = benFlow?.beneficiaryRegID.toString(),
+//                            benVisitID = benFlow?.benVisitID?.toString(),
+//                            visitCode = benFlow?.visitCode?.toString(),
+//                            providerServiceMapID = user?.serviceMapId?.toString(),
+//                            createdBy = user?.userName,
+//                            isSpecialist = false,
+//                            laboratoryList = laboratoryList
+//                        )
+//
+//                        val prescriptionList = mutableListOf<Prescription>()
+//
+//                        if (prescriptionCaseRecordVal != null) {
+//                            for (prescriptionRecord in prescriptionCaseRecordVal) {
+//
+//                                val itemMasterData = prescriptionRecord.itemId?.let { it1 ->
+//                                    doctorMasterDataMaleRepo.getItemMasterListById(
+//                                        it1
+//                                    )
+//                                }
+//                                val durationView = "${prescriptionRecord.duration} ${prescriptionRecord.unit}".nullIfEmpty()
+//
+//                                val prescription = Prescription(
+//                                    id = null,
+//                                    drugID = itemMasterData?.id,
+//                                    drugName = itemMasterData?.itemName,
+//                                    drugStrength = itemMasterData?.strength,
+//                                    formName = itemMasterData?.itemName,
+//                                    formID = itemMasterData?.itemFormID,
+//                                    dose = prescriptionRecord.instruciton,
+//                                    qtyPrescribed = 1,
+//                                    frequency = prescriptionRecord.frequency,
+//                                    duration = prescriptionRecord?.duration?.toInt(),
+//                                    route = null,
+//                                    durationView = durationView,
+//                                    unit = prescriptionRecord?.unit?.toString(),
+//                                    instructions = prescriptionRecord.instruciton,
+//                                    sctCode = null,
+//                                    sctTerm = null,
+//                                    createdBy = user?.userName,
+//                                    vanID = user?.vanId,
+//                                    parkingPlaceID = user?.parkingPlaceId,
+//                                    isEDL = itemMasterData?.isEDL
+//                                )
+//
+//                                // Add the Prescription object to the list
+//                                prescriptionList.add(prescription)
+//                            }
+//                        }
+//
+//                        val refer = Refer(
+//                            user= user,
+//                            benFlow = benFlow,
+//                            institutionID = higherHealthCenter.institutionID,
+//                            institutionName = higherHealthCenter.institutionName
+//                        )
 
-                        if (diagnosisCaseRecordVal != null) {
-                            for (diagnosisCaseRecord in diagnosisCaseRecordVal) {
-                                val provisionalDiagnosis = ProvisionalDiagnosis(term = diagnosisCaseRecord.diagnosis)
-
-                                provisionalDiagnosisList.add(provisionalDiagnosis)
-                            }
-                        }
-                        val diagnosis = Diagnosis(
-                            prescriptionID = null, // Fill this as needed
-                            vanID = user?.vanId,
-                            parkingPlaceID = user?.parkingPlaceId,
-                            provisionalDiagnosisList = provisionalDiagnosisList, // Add the list of provisionalDiagnosis
-                            beneficiaryRegID = benFlow?.beneficiaryID?.toString(),
-                            benVisitID = benFlow?.benVisitID?.toString(),
-                            visitCode = benFlow?.visitCode?.toString(),
-                            providerServiceMapID = user?.serviceMapId?.toString(),
-                            createdBy = user?.userName,
-                            isSpecialist = false // Update this value as needed
-                        )
-
-                        val investigationIDs = investigationCaseRecordVal?.testIds?.split(",")?.map { it.toInt() }
-
-                        val laboratoryList = mutableListOf<Laboratory>()
-
-                        if (investigationIDs != null) {
-                            for (investigationID in investigationIDs) {
-                                val laboratoryData = historyRepo.getProcedureByProcedureId(investigationID)
-
-                                val laboratory = Laboratory(
-                                    procedureID = laboratoryData.procedureID,
-                                    procedureName = laboratoryData.procedureName,
-                                    procedureDesc = laboratoryData.procedureDesc,
-                                    procedureType = laboratoryData.procedureType,
-                                    gender = laboratoryData.gender,
-                                    providerServiceMapID = laboratoryData.providerServiceMapID
-                                )
-                                laboratoryList.add(laboratory)
-                            }
-                        }
-
-                        val investigationCaseRecord = Investigation(
-                            externalInvestigations = investigationCaseRecordVal?.externalInvestigation,
-                            vanID = user?.vanId,
-                            parkingPlaceID = user?.parkingPlaceId,
-                            beneficiaryRegID = benFlow?.beneficiaryRegID.toString(),
-                            benVisitID = benFlow?.benVisitID?.toString(),
-                            visitCode = benFlow?.visitCode?.toString(),
-                            providerServiceMapID = user?.serviceMapId?.toString(),
-                            createdBy = user?.userName,
-                            isSpecialist = false,
-                            laboratoryList = laboratoryList
-                        )
-
-                        val prescriptionList = mutableListOf<Prescription>()
-
-                        if (prescriptionCaseRecordVal != null) {
-                            for (prescriptionRecord in prescriptionCaseRecordVal) {
-
-                                val itemMasterData = prescriptionRecord.itemId?.let { it1 ->
-                                    doctorMasterDataMaleRepo.getItemMasterListById(
-                                        it1
-                                    )
-                                }
-                                val durationView = "${prescriptionRecord.duration} ${prescriptionRecord.unit}".nullIfEmpty()
-
-                                val prescription = Prescription(
-                                    id = null,
-                                    drugID = itemMasterData?.id,
-                                    drugName = itemMasterData?.itemName,
-                                    drugStrength = itemMasterData?.strength,
-                                    formName = itemMasterData?.itemName,
-                                    formID = itemMasterData?.itemFormID,
-                                    dose = prescriptionRecord.instruciton,
-                                    qtyPrescribed = 1,
-                                    frequency = prescriptionRecord.frequency,
-                                    duration = prescriptionRecord?.duration?.toInt(),
-                                    route = null,
-                                    durationView = durationView,
-                                    unit = prescriptionRecord?.unit?.toString(),
-                                    instructions = prescriptionRecord.instruciton,
-                                    sctCode = null,
-                                    sctTerm = null,
-                                    createdBy = user?.userName,
-                                    vanID = user?.vanId,
-                                    parkingPlaceID = user?.parkingPlaceId,
-                                    isEDL = itemMasterData?.isEDL
-                                )
-
-                                // Add the Prescription object to the list
-                                prescriptionList.add(prescription)
-                            }
-                        }
-
-                    val refer = Refer(
-                        user= user,
-                        benFlow = benFlow,
-                        institutionID = higherHealthCenter.institutionID,
-                        institutionName = higherHealthCenter.institutionName
-                    )
-                        val patientDoctorForm = PatientDoctorForm(
+                        val patientDoctorForm = PatientDoctorFormUpsync(
                             user = user,
                             benFlow = benFlow,
-                            diagnosis = diagnosis,
-                            investigation=investigationCaseRecord,
-                            prescription = prescriptionList,
-                            refer = refer
+                            diagnosisList = diagnosisCaseRecordVal,
+                            investigation = investigationCaseRecordVal,
+                            prescriptionList = prescriptionCaseRecordVal,
+                            procedureList = procedureList
                         )
 
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patientID)

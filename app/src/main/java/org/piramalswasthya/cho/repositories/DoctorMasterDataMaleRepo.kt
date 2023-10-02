@@ -85,6 +85,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
         }
     }
 
+
     private suspend fun saveDrugFormMasterListToCache(drugFormMaster: List<DrugFormMaster>){
         try{
             drugFormMaster.forEach { drug:DrugFormMaster ->
@@ -155,12 +156,11 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {
                 return healthCenterDao.getHealthCenter()
     }
-    fun getHigherHealthCenterById(institutionID:Int?): HigherHealthCenter {
-        return healthCenterDao.getHealthCenterByID(institutionID)
-    }
+
     fun getItemMasterListById(id:Int): ItemMasterList {
         return healthCenterDao.getItemMasterListById(id)
     }
+
     suspend fun getHigherHealthTypeByNameMap():Map<Int,String>{
         return healthCenterDao.getHigherHealthMap().associate {
             it.institutionID to it.institutionName
