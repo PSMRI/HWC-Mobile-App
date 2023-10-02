@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/usernameFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.username.UsernameFragment"
-        android:label="fragment_sign_in"
+        android:label=""
         tools:layout="@layout/fragment_username" >
         <action
             android:id="@+id/action_signInFragment_to_ashaLogin"
@@ -30,7 +30,7 @@
     <fragment
         android:id="@+id/loginSettingsFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment"
-        android:label="fragment_login_settings"
+        android:label="Location"
         tools:layout="@layout/fragment_login_setting" >
         <argument
             android:name="userName"
@@ -62,7 +62,7 @@
     <fragment
         android:id="@+id/choLoginFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragment"
-        android:label="fragment_cho_login"
+        android:label="Facility"
         tools:layout="@layout/fragment_cho_login" >
         <argument
             android:name="userName"
@@ -102,7 +102,7 @@
     <fragment
         android:id="@+id/outreachLoginFragment"
         android:name="org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachFragment"
-        android:label="fragment_outreach"
+        android:label="OutReach"
         tools:layout="@layout/fragment_outreach" >
         <argument
             android:name="userName"

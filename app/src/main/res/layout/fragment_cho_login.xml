@@ -32,7 +32,7 @@
             <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/btn_hwc"
                 style="@style/radio_item_lang"
-                android:text="@string/hwc"
+                android:text="@string/facility"
                 android:value="@string/hwc" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton

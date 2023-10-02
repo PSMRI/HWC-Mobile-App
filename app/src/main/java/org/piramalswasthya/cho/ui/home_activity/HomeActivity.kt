@@ -185,7 +185,7 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-//                R.id.dashboard_activity -> {
+//                R.id.menu_help -> {
 //                    // Start the DestinationActivity
 //                    startActivity(Intent(this, DashboardActivity::class.java))
 //                    drawerLayout.closeDrawers()
