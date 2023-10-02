@@ -29,7 +29,6 @@ data class DiagnosisCaseRecord(
     var diagnosisCaseRecordId:String,
     @ColumnInfo(name = "diagnosis") val diagnosis: String,
     @ColumnInfo(name = "patientID") val patientID: String,
-    @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
-    @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 )

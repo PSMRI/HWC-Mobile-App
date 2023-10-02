@@ -43,7 +43,7 @@ import java.security.MessageDigest
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
     private val context: Context,
-    private val onItemClicked: (PatientDisplay) -> Unit,
+//    private val onItemClicked: (PatientDisplay) -> Unit,
     private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
 ) : ListAdapter<PatientDisplay,PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
@@ -112,7 +112,11 @@ class PatientItemAdapter(
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         patientId = getItem(position).patient.patientID
         holder.bind(getItem(position), clickListener, showAbha)
-        holder.itemView.setOnClickListener{ onItemClicked(getItem(position)) }
+//        holder.itemView.setOnClickListener{
+//            if (position != RecyclerView.NO_POSITION) {
+//                onItemClicked(getItem(position))
+//            }
+//        }
         holder.itemView.findViewById<MaterialButton>(R.id.btn_eSanjeevani).setOnClickListener {
             network = isInternetAvailable(context)
             callLoginDialog()
@@ -120,8 +124,12 @@ class PatientItemAdapter(
     }
 
     class BenClickListener(
+        private val clickedBen: (patientID: String) -> Unit,
         private val clickedABHA: (benId: Long?) -> Unit,
     ) {
+        fun onClickedBen(item: Patient) = clickedBen(
+            item.patientID,
+    )
         fun onClickABHA(item: Patient) {
             Log.d("ABHA Item Click", "ABHA item clicked")
             clickedABHA(item.beneficiaryID)

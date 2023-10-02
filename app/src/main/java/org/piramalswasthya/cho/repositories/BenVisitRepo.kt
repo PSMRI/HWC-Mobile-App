@@ -7,12 +7,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
+import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.model.BenFlow
-import org.piramalswasthya.cho.model.DiagnosisCaseRecord
-import org.piramalswasthya.cho.model.InvestigationCaseRecord
-import org.piramalswasthya.cho.model.PatientDisplay
-import org.piramalswasthya.cho.model.PatientDoctorForm
+
+import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInformation
@@ -26,6 +25,8 @@ import org.piramalswasthya.cho.network.NurseDataResponse
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.patient.patient
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 import java.lang.Exception
 import java.net.SocketTimeoutException
@@ -36,6 +37,9 @@ class BenVisitRepo @Inject constructor(
     private val caseRecordDao: CaseRecordeDao,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
+    private val historyRepo: HistoryRepo,
+    private val caseRecordeRepo: CaseRecordeRepo,
     private val userRepo: UserRepo,
     private val apiService: AmritApiService,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
@@ -66,7 +70,7 @@ class BenVisitRepo @Inject constructor(
 
     }
 
-    suspend fun registerDoctorData(patientDoctorForm: PatientDoctorForm): NetworkResult<NetworkResponse> {
+    suspend fun registerDoctorData(patientDoctorForm: PatientDoctorFormUpsync): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
             val response = apiService.saveDoctorData(patientDoctorForm)
@@ -153,55 +157,56 @@ class BenVisitRepo @Inject constructor(
 
     suspend fun processUnsyncedDoctorData() : Boolean{
 
-//        val patientDoctorDataUnSyncList = patientVisitInfoSyncRepo.getPatientDoctorDataUnsynced()
-//        val user = userRepo.getLoggedInUser()
-//
-//        patientDoctorDataUnSyncList.forEach {
-//
-//            if(it.beneficiaryRegID != null){
-//                withContext(Dispatchers.IO){
-//
-//                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.beneficiaryRegID!!)
-//                    if(benFlow != null && benFlow.nurseFlag == 9 && benFlow.doctorFlag == 1){
-//
-////                        val visit = visitReasonsAndCategoriesRepo.getVisitDB(beneficiaryRegID = benFlow.beneficiaryRegID!!)
-////                        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDB(beneficiaryRegID = benFlow.beneficiaryRegID!!)
-////                        val vitals = vitalsRepo.getVitalsDetailsByBenRegId(beneficiaryRegID = benFlow.beneficiaryRegID!!)
-////
-////                        val patientVisitInfo = PatientVisitInformation(
-////                            user = user,
-////                            visit = visit,
-////                            chiefComplaints = chiefComplaints,
-////                            vitals = vitals,
-////                            benFlow = benFlow
-////                        )
-//
-//                        val patientDoctorForm = PatientDoctorForm(
+        val patientDoctorDataUnSyncList = patientVisitInfoSyncRepo.getPatientDoctorDataUnsynced()
+        val user = userRepo.getLoggedInUser()
+
+        patientDoctorDataUnSyncList.forEach {
+
+            if(it.beneficiaryRegID != null){
+                withContext(Dispatchers.IO){
+
+                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.beneficiaryRegID!!)
+                    if(benFlow != null && benFlow.nurseFlag == 9 && benFlow.doctorFlag == 1){
+
+                        val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val procedureList = historyRepo.getProceduresList(investigationCaseRecordVal?.investigationCaseRecord?.testIds)
+
+//                        val patientVisitInfo = PatientVisitInformation(
 //                            user = user,
+//                            visit = visit,
+//                            chiefComplaints = chiefComplaints,
+//                            vitals = vitals,
 //                            benFlow = benFlow
 //                        )
-//
-//                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patientID)
-//
-//                        when(val response = registerDoctorData(patientDoctorForm)){
-//                            is NetworkResult.Success -> {
-//                                patientRepo.updateDoctorSubmitted(it.patientID)
-//                                benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
-//                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patientID)
-//                            }
-//                            is NetworkResult.Error -> {
-//                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patientID)
-//                                if(response.code == socketTimeoutException){
-//                                    throw SocketTimeoutException("This is an example exception message")
-//                                }
-//                                return@withContext false;
-//                            }
-//                            else -> {}
-//                        }
-//                    } else { }
-//                }
-//            }
-//        }
+
+                        val patientDoctorForm = PatientDoctorForm(
+                            user = user,
+                            benFlow = benFlow
+                        )
+
+                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patientID)
+
+                        when(val response = registerDoctorData(patientDoctorForm)){
+                            is NetworkResult.Success -> {
+                                patientRepo.updateDoctorSubmitted(it.patientID)
+                                benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patientID)
+                            }
+                            is NetworkResult.Error -> {
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patientID)
+                                if(response.code == socketTimeoutException){
+                                    throw SocketTimeoutException("This is an example exception message")
+                                }
+                                return@withContext false;
+                            }
+                            else -> {}
+                        }
+                    } else { }
+                }
+            }
+        }
 
         return true
 

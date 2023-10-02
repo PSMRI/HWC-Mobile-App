@@ -1,9 +1,12 @@
 package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
+import androidx.room.DatabaseView
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import com.squareup.moshi.JsonClass
 
 @Entity(
@@ -33,7 +36,20 @@ data class PrescriptionCaseRecord(
     @ColumnInfo(name = "instruction") val instruciton: String?,
     @ColumnInfo(name = "unit") val unit: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
-    @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
-    @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
+)
+
+data class PrescriptionCaseRecordWithItemMaster(
+    @Embedded val prescriptionCaseRecord: PrescriptionCaseRecord,
+    @Relation(
+        parentColumn = "itemId",
+        entityColumn = "itemID"
+    )
+    val itemMaster: ItemMasterList?,
+    @Relation(
+        parentColumn = "itemId",
+        entityColumn = "itemFormID"
+    )
+    val drugFormMaster: DrugFormMaster?,
 )

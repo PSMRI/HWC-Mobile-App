@@ -402,10 +402,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
             (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
             binding.vitalsExtra.visibility = View.GONE
-            binding.vitalsLayout.visibility = View.GONE
+//            binding.vitalsLayout.visibility = View.GONE
         } else {
             binding.vitalsExtra.visibility = View.VISIBLE
-            binding.vitalsLayout.visibility = View.VISIBLE
+//            binding.vitalsLayout.visibility = View.VISIBLE
         }
     }
 
@@ -698,19 +698,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     addCaseRecordDataToCatche()
                     val validate = dAdapter.setError()
                     if (validate == -1) {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.dataSavedCaseRecord),
-                            Toast.LENGTH_SHORT
-                        ).show()
+//                        Toast.makeText(
+//                           requireContext(),
+//                            resources.getString(R.string.dataSavedCaseRecord),
+//                            Toast.LENGTH_SHORT
+//                        ).show()
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.diagnosisCannotBeEmpty),
-                            Toast.LENGTH_SHORT
-                        ).show()
+//                        Toast.makeText(
+//                            requireContext(),
+//                            resources.getString(R.string.diagnosisCannotBeEmpty),
+//                            Toast.LENGTH_SHORT
+//                        ).show()
                     }
 //                }
             }

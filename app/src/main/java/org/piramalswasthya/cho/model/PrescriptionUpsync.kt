@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.model
 
-data class Prescription(
+data class PrescriptionUpsync(
     val id: Int?,
     val drugID: Int?,
     val drugName: String?,
@@ -22,20 +22,20 @@ data class Prescription(
     val parkingPlaceID: Int?,
     val isEDL: Boolean?,
 ){
-    constructor(user: UserDomain?) : this(
+    constructor(user: UserDomain?, prescription: PrescriptionCaseRecordWithItemMaster) : this(//item master list
         null,
-        146,
-        "Paracetamol",
-        "125ml",
-        "Syrup",
-        3,
+        prescription.prescriptionCaseRecord.itemId,
+        prescription.itemMaster?.itemName,
+        "${prescription.itemMaster?.strength}${prescription.itemMaster?.unitOfMeasurement}",
+        prescription.drugFormMaster?.itemFormName,
+        prescription.itemMaster?.itemFormID,
         "10 ml", // nullable
         1, // hard coded
-        "Once Daily(OD)",
-        3,
+        prescription.prescriptionCaseRecord.frequency,
+        prescription.prescriptionCaseRecord.duration?.toInt(),
         "Oral", // hard coded
-        "3 Day(s)",
-        "Day(s)",
+        "${prescription.prescriptionCaseRecord.duration?.toInt()} ${prescription.prescriptionCaseRecord.unit}",
+        prescription.prescriptionCaseRecord.unit,
         null,
         null,
         null,

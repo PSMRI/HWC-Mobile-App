@@ -117,20 +117,26 @@ class PersonalDetailsFragment : Fragment() {
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
-                     itemAdapter = context?.let {
-                        PatientItemAdapter(
+                     itemAdapter = context?.let { it ->
+                         PatientItemAdapter(
                             apiService,
                             it,
-                            onItemClicked = {
-
-                                val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                intent.putExtra("patientId", it.patient.patientID);
+//                            onItemClicked = {
+//                                val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//                                intent.putExtra("patientId", it.patient.patientID);
+//                                startActivity(intent)
+//                            },
+                            clickListener = PatientItemAdapter.BenClickListener(
+                                { patientID ->
+                                    val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                intent.putExtra("patientId", patientID);
                                 startActivity(intent)
                             },
-                            clickListener = PatientItemAdapter.BenClickListener { benId ->
+                                { benId ->
                                 Log.d("ben click listener", "ben click listener")
                                 checkAndGenerateABHA(benId!!)
-                            },
+                            }
+                         ),
                             showAbha = true
                         )
                     }

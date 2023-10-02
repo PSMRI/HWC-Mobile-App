@@ -1,6 +1,6 @@
 package org.piramalswasthya.cho.model
 
-data class Refer(
+data class ReferUpsync(
     val referredToInstituteID: Int?,
     val refrredToAdditionalServiceList: List<String>?,
     val referredToInstituteName: String?,
@@ -36,10 +36,10 @@ data class Refer(
 //    "createdBy": "Sanjay",
 //    "isSpecialist": false
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
-        null,
+    constructor(user: UserDomain?, benFlow: BenFlow?, higherHealthCenter: HigherHealthCenter?) : this(
+        higherHealthCenter?.institutionID,
         arrayListOf("HWC"),
-        null,
+        higherHealthCenter?.institutionName,
         null,
         "Check",
         null,

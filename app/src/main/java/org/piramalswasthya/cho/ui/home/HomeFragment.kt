@@ -94,9 +94,8 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        if(!preferenceDao.isUserRegistrar()){
-            binding.registration.isEnabled = false
-        }
+     binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+
         binding.registration.setOnClickListener {
             searchPrompt.show()
 
@@ -117,7 +116,7 @@ class HomeFragment : Fragment() {
                 HomeViewModel.State.SAVE_SUCCESS -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
-                    binding.registration.isEnabled = true
+                    binding.registration.isEnabled = preferenceDao.isUserRegistrar()
                 }
 
                 HomeViewModel.State.SAVE_FAILED -> {

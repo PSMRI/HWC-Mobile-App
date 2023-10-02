@@ -133,6 +133,7 @@ class CaseRecordViewModel @Inject constructor(
             Timber.d("Error in getFormMaster $e")
         }
     }
+
     private fun getProcedureDropdown(){
         try{
             _procedureDropdown  = maleMasterDataRepository.getAllProcedureDropdown()
@@ -144,9 +145,6 @@ class CaseRecordViewModel @Inject constructor(
     fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(investigationCaseRecord.patientID)
-                investigationCaseRecord.beneficiaryID = patient.beneficiaryID
-                investigationCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                 caseRecordeRepo.saveInvestigationToCatche(investigationCaseRecord)
             } catch (e: Exception) {
                 Timber.e("Error in saving Investigation: $e")
@@ -157,9 +155,6 @@ class CaseRecordViewModel @Inject constructor(
     fun saveDiagnosisToCache(diagnosisCaseRecord: DiagnosisCaseRecord) {
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(diagnosisCaseRecord.patientID)
-                diagnosisCaseRecord.beneficiaryID = patient.beneficiaryID
-                diagnosisCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                 caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
             } catch (e: Exception) {
                 Timber.e("Error in saving diagnosis: $e")
@@ -170,9 +165,6 @@ class CaseRecordViewModel @Inject constructor(
     fun savePrescriptionToCache(prescriptionCaseRecord: PrescriptionCaseRecord) {
         viewModelScope.launch {
             try {
-                val patient = patientRepo.getPatient(prescriptionCaseRecord.patientID)
-                prescriptionCaseRecord.beneficiaryID = patient.beneficiaryID
-                prescriptionCaseRecord.beneficiaryRegID = patient.beneficiaryRegID
                 caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
             } catch (e: Exception) {
                 Timber.e("Error in saving Prescription: $e")
