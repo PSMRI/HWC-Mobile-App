@@ -17,10 +17,8 @@ import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
-import org.piramalswasthya.cho.model.Diagnosis
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DoctorDataDownSync
-import org.piramalswasthya.cho.model.Investigation
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
@@ -254,54 +252,54 @@ class BenFlowRepo @Inject constructor(
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    val data = responseBody.let { JSONObject(it).getString("data") }
-                    Log.i("Your response data is","$data")
+//                    val data = responseBody.let { JSONObject(it).getString("data") }
+//                    Log.i("Your response data is","$data")
+//
+//                    val docData = Gson().fromJson(data, DoctorDataDownSync::class.java)
+//                    val prescriptionCaseRecords = docData.prescription?.map{
+//                        PrescriptionCaseRecord(
+//                            prescriptionCaseRecordId = it.prescriptionID.toString(),
+//                            itemId = it.drugID,
+//                            frequency = it.frequency,
+//                            duration = it.duration,
+//                            instruciton = null,
+//                            unit = it.unit,
+//                            patientID = patient.patientID,
+//                            beneficiaryID = patient.beneficiaryID,
+//                            beneficiaryRegID = patient.beneficiaryRegID,
+//                            benFlowID = benFlow.benFlowID
+//                        )
+//                    }
+//
+//                    val investigation = docData.investigation
+//                    val investigationVal = InvestigationCaseRecord(
+//                        investigationCaseRecordId = generateUuid(),
+//                        testIds = null,
+//                        externalInvestigation = null,
+//                        counsellingTypes = null,
+//                        institutionId = docData.Refer?.referredToInstituteID,
+//                        patientID = patient.patientID,
+//                        beneficiaryID = patient.beneficiaryID,
+//                        beneficiaryRegID = patient.beneficiaryRegID,
+//                        benFlowID = benFlow.benFlowID)
+//
+//                    val diagnosisDoc = docData.diagnosis
+//                    var diagnosisCaseRecords = mutableListOf<DiagnosisCaseRecord>()
+//                    if(diagnosisDoc != null){
+//                        diagnosisDoc.provisionalDiagnosisList?.map {
+//                            val  diagnosisCaseRecord = DiagnosisCaseRecord(
+//                                diagnosisCaseRecordId = generateUuid(),
+//                                diagnosis = it.term,
+//                                patientID = patient.patientID,
+//                                beneficiaryID = patient.beneficiaryID,
+//                                beneficiaryRegID = patient.beneficiaryRegID,
+//                                benFlowID = benFlow.benFlowID)
+//                            Log.i("diagnosisCaseRecord data is ","$diagnosisCaseRecord")
+//                            diagnosisCaseRecords.add(diagnosisCaseRecord)
+//                        }
+//                    }
 
-                    val docData = Gson().fromJson(data, DoctorDataDownSync::class.java)
-                    val prescriptionCaseRecords = docData.prescription?.map{
-                        PrescriptionCaseRecord(
-                            prescriptionCaseRecordId = it.prescriptionID.toString(),
-                            itemId = it.drugID,
-                            frequency = it.frequency,
-                            duration = it.duration,
-                            instruciton = null,
-                            unit = it.unit,
-                            patientID = patient.patientID,
-                            beneficiaryID = patient.beneficiaryID,
-                            beneficiaryRegID = patient.beneficiaryRegID,
-                            benFlowID = benFlow.benFlowID
-                        )
-                    }
-
-                    val investigation = docData.investigation
-                    val investigationVal = InvestigationCaseRecord(
-                        investigationCaseRecordId = generateUuid(),
-                        testIds = null,
-                        externalInvestigation = null,
-                        counsellingTypes = null,
-                        institutionId = docData.Refer?.referredToInstituteID,
-                        patientID = patient.patientID,
-                        beneficiaryID = patient.beneficiaryID,
-                        beneficiaryRegID = patient.beneficiaryRegID,
-                        benFlowID = benFlow.benFlowID)
-
-                    val diagnosisDoc = docData.diagnosis
-                    var diagnosisCaseRecords = mutableListOf<DiagnosisCaseRecord>()
-                    if(diagnosisDoc != null){
-                        diagnosisDoc.provisionalDiagnosisList?.map {
-                            val  diagnosisCaseRecord = DiagnosisCaseRecord(
-                                diagnosisCaseRecordId = generateUuid(),
-                                diagnosis = it.term,
-                                patientID = patient.patientID,
-                                beneficiaryID = patient.beneficiaryID,
-                                beneficiaryRegID = patient.beneficiaryRegID,
-                                benFlowID = benFlow.benFlowID)
-                            Log.i("diagnosisCaseRecord data is ","$diagnosisCaseRecord")
-                            diagnosisCaseRecords.add(diagnosisCaseRecord)
-                        }
-                    }
-
-                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal,diagnosisCaseRecords, patient = patient, benFlow = benFlow)
+//                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal,diagnosisCaseRecords, patient = patient, benFlow = benFlow)
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {

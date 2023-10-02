@@ -10,7 +10,6 @@ import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
 import org.piramalswasthya.cho.model.ProceduresMasterData
-import org.piramalswasthya.cho.model.ProvisionalDiagnosis
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
 import timber.log.Timber
 import java.lang.Exception
@@ -92,7 +91,7 @@ class HistoryRepo @Inject constructor(
     fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory {
         return historyDao.getTobAndAlcHistory(tobAndAlcId)
     }
-    fun getProcedureByProcedureId(id:Int): ProceduresMasterData {
+    suspend fun getProcedureByProcedureId(id:Int): ProceduresMasterData {
         return historyDao.getProcedureoryByProcedureId(id)
     }
     fun getAssociateAilmentsHistory(tobAndAlcId:String): TobaccoAlcoholHistory {

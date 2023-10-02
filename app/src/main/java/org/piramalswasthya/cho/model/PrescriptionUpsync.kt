@@ -25,10 +25,10 @@ data class PrescriptionUpsync(
     constructor(user: UserDomain?, prescription: PrescriptionCaseRecordWithItemMaster) : this(//item master list
         null,
         prescription.prescriptionCaseRecord.itemId,
-        prescription.itemMasterWithDrugMaster?.itemMaster?.itemName,
-        "${prescription.itemMasterWithDrugMaster?.itemMaster?.strength}${prescription.itemMasterWithDrugMaster?.itemMaster?.unitOfMeasurement}",
-        prescription.itemMasterWithDrugMaster?.drugFormMaster?.itemFormName,
-        prescription.itemMasterWithDrugMaster?.itemMaster?.itemFormID,
+        prescription.itemMaster?.itemName,
+        "${prescription.itemMaster?.strength}${prescription.itemMaster?.unitOfMeasurement}",
+        prescription.drugFormMaster?.itemFormName,
+        prescription.itemMaster?.itemFormID,
         "10 ml", // nullable
         1, // hard coded
         prescription.prescriptionCaseRecord.frequency,

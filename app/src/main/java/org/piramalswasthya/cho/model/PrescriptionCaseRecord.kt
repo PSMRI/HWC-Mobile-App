@@ -46,10 +46,10 @@ data class PrescriptionCaseRecordWithItemMaster(
         parentColumn = "itemId",
         entityColumn = "itemID"
     )
-    val itemMasterWithDrugMaster: ItemMasterWithDrugMaster?,
-//    @Relation(
-//        parentColumn = "itemFormID",
-//        entityColumn = "formID",
-//    )
-//    val drugFormMaster: DrugFormMaster?
+    val itemMaster: ItemMasterList?,
+    @Relation(
+        parentColumn = "itemId",
+        entityColumn = "itemFormID"
+    )
+    val drugFormMaster: DrugFormMaster?,
 )
