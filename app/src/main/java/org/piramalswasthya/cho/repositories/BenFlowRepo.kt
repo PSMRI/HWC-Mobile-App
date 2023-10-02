@@ -83,7 +83,7 @@ class BenFlowRepo @Inject constructor(
                 responseBody = responseBody,
                 onSuccess = {
                     val data = responseBody.let { JSONObject(it).getString("data") }
-                    Log.i("data response is", data)
+                    Log.i("create benflow response is", data)
                     patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientDisplay.patient.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
                     NetworkResult.Success(NetworkResponse())
                 },
@@ -131,7 +131,7 @@ class BenFlowRepo @Inject constructor(
         val user = userRepo.getLoggedInUser()
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastBenflowSyncTime()
+            preferenceDao.getLastSyncTime()
         )
 
         when(val response = syncFlowIds(villageList)){

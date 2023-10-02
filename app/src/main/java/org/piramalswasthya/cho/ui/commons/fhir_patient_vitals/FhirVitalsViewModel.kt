@@ -26,6 +26,7 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.QuestionnaireResponse
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -164,6 +165,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             try {
                 val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
                 if(existingPatientVisitInfoSync != null){
+                    existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
                     existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
                     existingPatientVisitInfoSync.nurseFlag = 9
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)

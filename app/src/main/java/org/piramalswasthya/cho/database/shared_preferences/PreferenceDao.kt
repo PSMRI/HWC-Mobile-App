@@ -146,6 +146,11 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
+    fun getLastSyncTime(): String {
+        val prefKey = context.getString(R.string.last_sync_time)
+        return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setLastPatientSyncTime(timestamp: Long){
         val prefKey = context.getString(R.string.last_patient_sync_time)

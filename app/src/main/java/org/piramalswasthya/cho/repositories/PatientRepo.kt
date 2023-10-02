@@ -149,7 +149,7 @@ class PatientRepo  @Inject constructor(
 
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastPatientSyncTime()
+            preferenceDao.getLastSyncTime()
         )
 
         when(val response = downloadRegisterPatientFromServer(villageList)){
@@ -207,22 +207,16 @@ class PatientRepo  @Inject constructor(
                                 firstName = beneficiary.beneficiaryDetails?.firstName,
                                 lastName = beneficiary.beneficiaryDetails?.lastName,
                                 dob = beneficiary.beneficiaryDetails?.dob,
-//                                age = beneficiary.beneficiaryDetails?.beneficiaryAge,
-//                                ageUnitID = 1,
                                 maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
                                 spouseName = beneficiary.beneficiaryDetails?.spouseName,
                                 ageAtMarriage = beneficiary.ageAtMarriage,
                                 phoneNo = beneficiary.preferredPhoneNum,
                                 genderID = beneficiary.beneficiaryDetails?.genderId,
                                 registrationDate = beneficiary.createdDate,
-                                stateID = null,
-                                districtID = null,
-                                blockID = null,
-                                districtBranchID = null,
-//                                stateID = beneficiary.currentAddress?.stateId,
-//                                districtID = beneficiary.currentAddress?.districtId,
-//                                blockID = beneficiary.currentAddress?.subDistrictId,
-//                                districtBranchID = beneficiary.currentAddress?.villageId,
+                                stateID = beneficiary.currentAddress?.stateId,
+                                districtID = beneficiary.currentAddress?.districtId,
+                                blockID = beneficiary.currentAddress?.subDistrictId,
+                                districtBranchID = beneficiary.currentAddress?.villageId,
                                 communityID = beneficiary.beneficiaryDetails?.communityId,
                                 religionID = beneficiary.beneficiaryDetails?.religionId,
                                 parentName = null,

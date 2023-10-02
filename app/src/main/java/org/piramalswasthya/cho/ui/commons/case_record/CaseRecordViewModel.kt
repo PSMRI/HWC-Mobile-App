@@ -215,6 +215,7 @@ class CaseRecordViewModel @Inject constructor(
             try {
                 val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
                 if(existingPatientVisitInfoSync != null){
+                    existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
                     existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
                     existingPatientVisitInfoSync.nurseFlag = 9
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)

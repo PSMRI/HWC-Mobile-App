@@ -27,10 +27,10 @@ interface PatientVisitInfoSyncDao {
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET benFlowId = :benFlowId WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(benFlowId: Long, patientID: String, benVisitNo: Int)
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1")
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1 ORDER BY benVisitNo ASC")
     suspend fun getUnsyncedRevisitRecords(createNewBenFlow: Boolean? = true): List<PatientVisitInfoSync>
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :unSynced")
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :unSynced ORDER BY benVisitNo ASC")
     suspend fun getPatientNurseDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
 
     @Transaction

@@ -74,14 +74,14 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:textSize="18sp"
-                android:text="New Chief Complaints"
+                android:text="New Chief Complaint"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
                 android:id="@+id/radioButton4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Followup"
+                android:text="Follow Up"
                 android:textSize="18sp"
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
