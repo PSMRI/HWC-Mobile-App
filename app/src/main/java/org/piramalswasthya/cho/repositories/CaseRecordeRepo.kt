@@ -35,15 +35,15 @@ class CaseRecordeRepo @Inject constructor(
             Timber.d("Error in saving Diagnosis $e")
         }
     }
-    suspend fun getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?{
-        return caseRecordDao.getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
-    }
-    suspend fun getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?{
-        return caseRecordDao.getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
-    }
-    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?{
-        return caseRecordDao.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
-    }
+//    suspend fun getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?{
+//        return caseRecordDao.getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+//    }
+//    suspend fun getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?{
+//        return caseRecordDao.getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+//    }
+//    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?{
+//        return caseRecordDao.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+//    }
     suspend fun savePrescriptionToCatche(prescriptionCaseRecord: PrescriptionCaseRecord) {
         try{
             withContext(Dispatchers.IO){
