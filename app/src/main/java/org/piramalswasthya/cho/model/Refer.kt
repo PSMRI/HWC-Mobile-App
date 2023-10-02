@@ -36,7 +36,7 @@ data class Refer(
 //    "createdBy": "Sanjay",
 //    "isSpecialist": false
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?,institutionID:Int, institutionName:String) : this(
         null,
         arrayListOf("HWC"),
         null,

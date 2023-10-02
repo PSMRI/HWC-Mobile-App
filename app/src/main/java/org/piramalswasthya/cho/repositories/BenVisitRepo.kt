@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.ProvisionalDiagnosis
+import org.piramalswasthya.cho.model.Refer
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
@@ -33,6 +34,7 @@ import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.patient.patient
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 import java.lang.Exception
 import java.net.SocketTimeoutException
@@ -170,6 +172,7 @@ class BenVisitRepo @Inject constructor(
                         val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!, patientID = patient.id!!)
                         val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!,patientID = patient.id!!)
                         val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID = benFlow.beneficiaryRegID!!,patientID = patient.id!!)
+                        val higherHealthCenter = doctorMasterDataMaleRepo.getHigherHealthCenterById(investigationCaseRecordVal?.institutionId)
 //                        val patientVisitInfo = PatientVisitInformation(
 //                            user = user,
 //                            visit = visit,
@@ -187,10 +190,10 @@ class BenVisitRepo @Inject constructor(
                                 vanID = user?.vanId,
                                 parkingPlaceID = user?.parkingPlaceId,
                                 provisionalDiagnosisList = listOf(provisionalDiagnosis), // Add the provisionalDiagnosis to the list
-                                beneficiaryRegID = benFlow?.beneficiaryID.toString(),
-                                benVisitID = benFlow?.benVisitID.toString(),
-                                visitCode = benFlow?.visitCode.toString(),
-                                providerServiceMapID = user?.serviceMapId.toString(),
+                                beneficiaryRegID = benFlow?.beneficiaryID?.toString(),
+                                benVisitID = benFlow?.benVisitID?.toString(),
+                                visitCode = benFlow?.visitCode?.toString(),
+                                providerServiceMapID = user?.serviceMapId?.toString(),
                                 createdBy = user?.userName,
                                 isSpecialist = false // Update this value as needed
                             )
@@ -220,9 +223,9 @@ class BenVisitRepo @Inject constructor(
                             vanID = user?.vanId,
                             parkingPlaceID = user?.parkingPlaceId,
                             beneficiaryRegID = benFlow?.beneficiaryRegID.toString(),
-                            benVisitID = benFlow?.benVisitID.toString(),
-                            visitCode = benFlow?.visitCode.toString(),
-                            providerServiceMapID = user?.serviceMapId.toString(),
+                            benVisitID = benFlow?.benVisitID?.toString(),
+                            visitCode = benFlow?.visitCode?.toString(),
+                            providerServiceMapID = user?.serviceMapId?.toString(),
                             createdBy = user?.userName,
                             isSpecialist = false,
                             laboratoryList = laboratoryList
@@ -238,6 +241,7 @@ class BenVisitRepo @Inject constructor(
                                         it1
                                     )
                                 }
+                                val durationView = "${prescriptionRecord.duration} ${prescriptionRecord.unit}".nullIfEmpty()
 
                                 val prescription = Prescription(
                                     id = null,
@@ -247,12 +251,12 @@ class BenVisitRepo @Inject constructor(
                                     formName = itemMasterData?.itemName,
                                     formID = itemMasterData?.itemFormID,
                                     dose = prescriptionRecord.instruciton,
-                                    qtyPrescribed = prescriptionRecord?.unit?.toInt(),
+                                    qtyPrescribed = 1,
                                     frequency = prescriptionRecord.frequency,
                                     duration = prescriptionRecord?.duration?.toInt(),
                                     route = null,
-                                    durationView = null,
-                                    unit = null,
+                                    durationView = durationView,
+                                    unit = prescriptionRecord?.unit?.toString(),
                                     instructions = prescriptionRecord.instruciton,
                                     sctCode = null,
                                     sctTerm = null,
@@ -267,16 +271,17 @@ class BenVisitRepo @Inject constructor(
                             }
                         }
 
-// Now you have a list of Prescription objects
-
-
+                    val refer = Refer(
+                        institutionID = higherHealthCenter.institutionID,
+                        institutionName = higherHealthCenter.institutionName
+                    )
                         val patientDoctorForm = PatientDoctorForm(
                             user = user,
                             benFlow = benFlow,
                             diagnosis = diagnosisList,
                             investigation=investigationCaseRecord,
                             prescription = prescriptionList,
-                            refer = investigationCaseRecord.insti
+                            refer = refer
                         )
 
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patientID)

@@ -18,6 +18,8 @@ interface HealthCenterDao {
 
     @Query("SELECT * FROM HEALTH_CENTER")
     fun getHealthCenter() : LiveData<List<HigherHealthCenter>>
+    @Query("SELECT * FROM HEALTH_CENTER where institutionID = institutionID")
+    fun getHealthCenterByID(institutionID:Int?) : HigherHealthCenter
     @Query("select * from HEALTH_CENTER")
     suspend fun getHigherHealthMap():List<HigherHealthCenter>
 

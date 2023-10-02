@@ -154,7 +154,10 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {
                 return healthCenterDao.getHealthCenter()
-            }
+    }
+    fun getHigherHealthCenterById(institutionID:Int?): HigherHealthCenter {
+        return healthCenterDao.getHealthCenterByID(institutionID)
+    }
     fun getItemMasterListById(id:Int): ItemMasterList {
         return healthCenterDao.getItemMasterListById(id)
     }
