@@ -9,6 +9,7 @@ import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.VisitDB
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -33,6 +34,15 @@ class CaseRecordeRepo @Inject constructor(
         } catch (e: Exception){
             Timber.d("Error in saving Diagnosis $e")
         }
+    }
+    suspend fun getDiagnosisCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<DiagnosisCaseRecord>?{
+        return caseRecordDao.getDiagnosisCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+    }
+    suspend fun getInvestigationCaseRecordByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : InvestigationCaseRecord?{
+        return caseRecordDao.getInvestigationCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
+    }
+    suspend fun getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID: Long, patientID: String) : List<PrescriptionCaseRecord>?{
+        return caseRecordDao.getPrescriptionCaseRecordeByBenRegIdAndPatientID(beneficiaryRegID, patientID)
     }
     suspend fun savePrescriptionToCatche(prescriptionCaseRecord: PrescriptionCaseRecord) {
         try{

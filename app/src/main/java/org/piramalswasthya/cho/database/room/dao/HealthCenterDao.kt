@@ -41,6 +41,8 @@ interface HealthCenterDao {
 
     @Query("SELECT * from Item_Master_List")
      fun getAllItemMasterList():LiveData<List<ItemMasterList>>
+    @Query("SELECT * from Item_Master_List where itemID = id")
+    fun getItemMasterListById(id:Int):ItemMasterList
 
     @Query("SELECT * from Counselling_Provided")
     fun getAllCounsellingProvided():LiveData<List<CounsellingProvided>>
