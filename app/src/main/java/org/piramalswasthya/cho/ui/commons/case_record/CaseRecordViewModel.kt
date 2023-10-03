@@ -208,18 +208,25 @@ class CaseRecordViewModel @Inject constructor(
                 val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
                 if(existingPatientVisitInfoSync != null){
                     existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
+                    existingPatientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
                     existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
                     existingPatientVisitInfoSync.nurseFlag = 9
+                    existingPatientVisitInfoSync.doctorFlag = 9
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
                 }
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
-//                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }
         }
+    }
+
+    suspend fun updateDoctorDataSubmitted(patientVisitInfoSync: PatientVisitInfoSync){
+        patientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
+        patientVisitInfoSync.doctorFlag = 9
+        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
     suspend fun hasUnSyncedNurseData(patientId : String) : Boolean{
@@ -228,6 +235,10 @@ class CaseRecordViewModel @Inject constructor(
 
     suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
         return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
+    }
+
+    suspend fun getSinglePatientDoctorDataNotSubmitted(patientId : String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncRepo.getSinglePatientDoctorDataNotSubmitted(patientId);
     }
 
    suspend fun getTestNameTypeMap(): Map<Int, String> {

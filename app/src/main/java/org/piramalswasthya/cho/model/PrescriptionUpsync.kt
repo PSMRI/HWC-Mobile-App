@@ -22,20 +22,33 @@ data class PrescriptionUpsync(
     val parkingPlaceID: Int?,
     val isEDL: Boolean?,
 ){
-    constructor(user: UserDomain?, prescription: PrescriptionCaseRecordWithItemMaster) : this(//item master list
+    constructor(user: UserDomain?, prescription: PrescriptionWithItemMasterAndDrugFormMaster) : this(//item master list
         null,
-        prescription.prescriptionCaseRecord.itemId,
-        prescription.itemMaster?.itemName,
-        "${prescription.itemMaster?.strength}${prescription.itemMaster?.unitOfMeasurement}",
-        prescription.drugFormMaster?.itemFormName,
-        prescription.itemMaster?.itemFormID,
+        prescription.itemId,
+        prescription.itemName,
+        "${prescription.strength}${prescription.unitOfMeasurement}",
+        prescription.itemFormName,
+        prescription.itemFormID,
         "10 ml", // nullable
         1, // hard coded
-        prescription.prescriptionCaseRecord.frequency,
-        prescription.prescriptionCaseRecord.duration?.toInt(),
+        prescription.frequency,
+        prescription.duration?.toInt(),
         "Oral", // hard coded
-        "${prescription.prescriptionCaseRecord.duration?.toInt()} ${prescription.prescriptionCaseRecord.unit}",
-        prescription.prescriptionCaseRecord.unit,
+        "${prescription.duration?.toInt()} ${prescription.unit}",
+        prescription.unit,
+
+//        prescription.prescription.itemId,
+//        prescription.itemMaster?.itemName,
+//        "${prescription.itemMaster?.strength}${prescription.itemMaster?.unitOfMeasurement}",
+//        prescription.drugMaster?.itemFormName,
+//        prescription.itemMaster?.itemFormID,
+//        "10 ml", // nullable
+//        1, // hard coded
+//        prescription.prescription.frequency,
+//        prescription.prescription.duration?.toInt(),
+//        "Oral", // hard coded
+//        "${prescription.prescription.duration?.toInt()} ${prescription.prescription.unit}",
+//        prescription.prescription.unit,
         null,
         null,
         null,

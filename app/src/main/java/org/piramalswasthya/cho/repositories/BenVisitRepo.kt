@@ -162,15 +162,15 @@ class BenVisitRepo @Inject constructor(
 
         patientDoctorDataUnSyncList.forEach {
 
-            if(it.beneficiaryRegID != null){
+            if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
-                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.beneficiaryRegID!!)
+                    val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.patient.beneficiaryRegID!!, it.patientVisitInfoSync.benVisitNo)
                     if(benFlow != null && benFlow.nurseFlag == 9 && benFlow.doctorFlag == 1){
 
-                        val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
-                        val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
-                        val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID = patient.id!!, benVisitNo = 0)
+                        val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
+                        val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
+                        val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
                         val procedureList = historyRepo.getProceduresList(investigationCaseRecordVal?.investigationCaseRecord?.testIds)
 
 //                        val patientVisitInfo = PatientVisitInformation(
@@ -181,21 +181,27 @@ class BenVisitRepo @Inject constructor(
 //                            benFlow = benFlow
 //                        )
 
-                        val patientDoctorForm = PatientDoctorForm(
+                        val patientDoctorForm = PatientDoctorFormUpsync(
                             user = user,
-                            benFlow = benFlow
+                            benFlow = benFlow,
+                            diagnosisList = diagnosisCaseRecordVal,
+                            investigation = investigationCaseRecordVal,
+                            prescriptionList = prescriptionCaseRecordVal,
+                            procedureList = procedureList
                         )
 
-                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patientID)
+                        val doc = patientDoctorForm
+
+                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID)
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
-                                patientRepo.updateDoctorSubmitted(it.patientID)
+                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
                                 benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID)
                             }
                             is NetworkResult.Error -> {
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patient.patientID)
                                 if(response.code == socketTimeoutException){
                                     throw SocketTimeoutException("This is an example exception message")
                                 }

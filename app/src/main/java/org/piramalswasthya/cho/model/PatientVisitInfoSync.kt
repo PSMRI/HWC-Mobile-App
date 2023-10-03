@@ -52,17 +52,19 @@ data class PatientVisitInfoSync(
     var nurseFlag: Int? = 1,
 
     @ColumnInfo(name = "doctorFlag")
-    var doctorFlag: Int? = 0,
+    var doctorFlag: Int? = 1,
 
     @ColumnInfo(name = "pharmacist_flag")
-    var pharmacist_flag: Int? = 0,
+    var pharmacist_flag: Int? = 1,
 
 ){
     constructor(benFlow: BenFlow, patient: Patient) : this(
         patientID = patient.patientID,
         benVisitNo = benFlow.benVisitNo!!,
         benFlowID = benFlow.benFlowID,
-        nurseDataSynced = SyncState.SYNCED
+        nurseDataSynced = SyncState.SYNCED,
+        doctorDataSynced = SyncState.SYNCED,
+
     )
 }
 

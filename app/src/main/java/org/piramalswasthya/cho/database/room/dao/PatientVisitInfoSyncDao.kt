@@ -34,11 +34,11 @@ interface PatientVisitInfoSyncDao {
     suspend fun getPatientNurseDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID")
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorFlag = 9 WHERE patientID = :patientID")
     suspend fun updateDoctorDataSubmitted(patientID: String)
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND nurseFlag = 9 AND doctorFlag = 1")
-    suspend fun getPatientDoctorDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED,) : List<PatientVisitInfoSync>
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced ORDER BY benVisitNo ASC")
+    suspend fun getPatientDoctorDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
 //    @Transaction
 //    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
@@ -73,5 +73,9 @@ interface PatientVisitInfoSyncDao {
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID ORDER BY benVisitNo DESC LIMIT 1")
     suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync?
+
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND nurseFlag = 9 AND doctorFlag = 1 ORDER BY benVisitNo ASC LIMIT 1")
+    suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?
+
 
 }

@@ -345,6 +345,7 @@
     <string name="Unit">ಘಟಕ</string>
     <string name="Frequency">ಆವರ್ತನ</string>
     <string name="Prescription">ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್</string>
+    <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>

@@ -93,7 +93,7 @@ data class PatientDoctorFormUpsync(
     val createdBy: String?,
     val isSpecialist: Boolean?,
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, prescriptionList: List<PrescriptionCaseRecordWithItemMaster>?, procedureList: List<ProceduresMasterData> ): this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, prescriptionList: List<PrescriptionWithItemMasterAndDrugFormMaster>?, procedureList: List<ProceduresMasterData> ): this(
         "Management of Communicable Diseases including National Health Programs",
         DiagnosisUpsync(user, benFlow, diagnosisList),
         InvestigationUpsync(user, benFlow, investigation, procedureList),

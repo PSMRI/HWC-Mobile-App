@@ -516,7 +516,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
-    private fun addCaseRecordDataToCatche() {
+    private fun addCaseRecordDataToCatche(benVisitNo: Int) {
         // save diagnosis
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
@@ -524,7 +524,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
                     diagnosis= diagnosisData.diagnosis,
-                    patientID = patId
+                    patientID = patId,
+                    benVisitNo = benVisitNo
                 )
                 viewModel.saveDiagnosisToCache(diagnosis)
             }
@@ -545,7 +546,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
-            institutionId = referId
+            institutionId = referId,
+            benVisitNo = benVisitNo
         )
         viewModel.saveInvestigationToCache(investigation)
         //save investigation
@@ -563,8 +565,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
-                    patientID =patId
-                 )
+                    patientID =patId,
+                    benVisitNo = benVisitNo
+                )
                 viewModel.savePrescriptionToCache(pres)
             }
     }
@@ -620,7 +623,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             patientID = patId,
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
-            nurseFlag = 9
+            nurseFlag = 9,
+            doctorFlag = 9,
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }
@@ -645,24 +649,42 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun navigateNext() {
         if (preferenceDao.isUserOnlyDoctorOrMo()) {
-            addCaseRecordDataToCatche()
-            val validate = dAdapter.setError()
-            if (validate == -1) {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.dataSavedCaseRecord),
-                    Toast.LENGTH_SHORT
-                ).show()
-                val intent = Intent(context, HomeActivity::class.java)
-                startActivity(intent)
-            } else {
-                binding.diagnosisExtra.scrollToPosition(validate)
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.diagnosisCannotBeEmpty),
-                    Toast.LENGTH_SHORT
-                ).show()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val patientVisitInfoSync = viewModel.getSinglePatientDoctorDataNotSubmitted(patientId)
+
+                if(patientVisitInfoSync == null){
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.nurseDataNotSaved),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch;
+                }
+
+                addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
+
+                viewModel.updateDoctorDataSubmitted(patientVisitInfoSync)
+
+                val validate = dAdapter.setError()
+                if (validate == -1) {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.dataSavedCaseRecord),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    binding.diagnosisExtra.scrollToPosition(validate)
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.diagnosisCannotBeEmpty),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 if(masterDb!!.patientId.toString()!=null) {
@@ -694,8 +716,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
                     addVisitRecordDataToCache(benVisitNo)
                     addVitalsDataToCache(benVisitNo)
+                    addCaseRecordDataToCatche(benVisitNo)
                     addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                    addCaseRecordDataToCatche()
+
                     val validate = dAdapter.setError()
                     if (validate == -1) {
 //                        Toast.makeText(

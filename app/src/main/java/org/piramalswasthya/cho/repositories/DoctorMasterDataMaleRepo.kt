@@ -33,15 +33,15 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
     init {
         // Observe the LiveData to get the VAN ID and Facility ID
-        userDao.getLoggedInUserVanID().observeForever{ vanId ->
-            vanID = vanId ?: -1
-        }
-        userDao.getLoggedInUserProviderServiceMapId().observeForever{ vanId ->
-            providerServiceMapID = vanId ?: -1
-        }
-        userDao.getLoggedInUserFacilityID().observeForever { facilityId ->
-            facilityID = facilityId ?: -1
-        }
+//        userDao.getLoggedInUserVanID().observeForever{ vanId ->
+//            vanID = vanId ?: -1
+//        }
+//        userDao.getLoggedInUserProviderServiceMapId().observeForever{ vanId ->
+//            providerServiceMapID = vanId ?: -1
+//        }
+//        userDao.getLoggedInUserFacilityID().observeForever { facilityId ->
+//            facilityID = facilityId ?: -1
+//        }
     }
     suspend fun getDoctorMasterMaleData() {
         try {

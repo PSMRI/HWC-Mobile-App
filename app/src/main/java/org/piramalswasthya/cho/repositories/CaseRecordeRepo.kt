@@ -10,7 +10,7 @@ import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecordWithHigherHealthCenter
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
-import org.piramalswasthya.cho.model.PrescriptionCaseRecordWithItemMaster
+import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.VisitDB
 import timber.log.Timber
 import java.lang.Exception
@@ -43,7 +43,7 @@ class CaseRecordeRepo @Inject constructor(
     suspend fun getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : InvestigationCaseRecordWithHigherHealthCenter?{
         return caseRecordDao.getInvestigationCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
-    suspend fun getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<PrescriptionCaseRecordWithItemMaster>?{
+    suspend fun getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<PrescriptionWithItemMasterAndDrugFormMaster>?{
         return caseRecordDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
 

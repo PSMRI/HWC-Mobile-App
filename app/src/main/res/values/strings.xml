@@ -343,6 +343,7 @@
     <string name="Unit">Unit</string>
     <string name="Frequency">Frequency</string>
     <string name="Prescription">Prescription</string>
+    <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>

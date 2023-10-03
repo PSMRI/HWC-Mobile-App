@@ -37,8 +37,12 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.updateDoctorDataSubmitted(patientID)
     }
 
-    suspend fun getPatientDoctorDataUnsynced() : List<PatientVisitInfoSync>{
+    suspend fun getPatientDoctorDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientDoctorDataUnsynced()
+    }
+
+    suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncDao.getSinglePatientDoctorDataNotSubmitted(patientID = patientID)
     }
 
 //    suspend fun updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
