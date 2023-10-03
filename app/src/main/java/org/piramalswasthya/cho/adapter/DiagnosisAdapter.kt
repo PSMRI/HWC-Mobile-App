@@ -90,7 +90,7 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         }
         booleanVal = itemData.diagnosis.isNotEmpty()
         if(!booleanVal){
-            holder.diagnosisInpuTextt.error = "fill"
+            holder.diagnosisInpuTextt.error
         }
         else{
             holder.diagnosisInpuTextt.error=null

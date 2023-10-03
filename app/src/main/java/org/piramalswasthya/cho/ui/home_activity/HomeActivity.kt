@@ -12,7 +12,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -26,8 +28,12 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.radiobutton.MaterialRadioButton
+import com.google.android.material.tabs.TabLayout
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,17 +43,20 @@ import kotlinx.coroutines.launch
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.ViewPagerAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
+import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.home.HomeFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
-import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -73,6 +82,15 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+
+    private lateinit var pager: ViewPager2 // creating object of ViewPager
+    private lateinit var tab: TabLayout  // creating object of TabLayout
+    private lateinit var homeAdapter: ViewPagerAdapter  // creating object of Adapter
+
+    private lateinit var selectedLanguage: String
+    private lateinit var currentLanguage: Languages
+    private var selectedLanguageIndex: Int = 0
+    private val languages = arrayOf("English", "ಕನ್ನಡ")
 
     private var _binding: ActivityHomeBinding? = null
 
@@ -100,11 +118,15 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
-        navController = navHostFragment.navController
+//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
+//        navController = navHostFragment.navController
         viewModel.updateLastSyncTimestamp()
         getCurrentLocation()
         setUpNavHeader()
+
+        binding.translateButton.setOnClickListener {
+            showLanguagePopUp()
+        }
 
         drawerLayout = binding.drawerLayout
         navigationView = binding.navView
@@ -112,6 +134,41 @@ class HomeActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_dehaze_24)
+
+        // Tab part
+        pager = binding.viewPager
+        tab = binding.tabs
+
+        // Initializing the ViewPagerAdapter
+        homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        tab.addTab(tab.newTab().setText("Dashboard"))
+        tab.addTab(tab.newTab().setText("Home"))
+
+        // Adding the Adapter to the ViewPager
+        pager.adapter = homeAdapter
+        tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                if (tab != null) {
+                    pager.currentItem = tab.position
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+            }
+        })
+
+        pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                tab.selectTab(tab.getTabAt(position))
+            }
+        })
+
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -135,6 +192,12 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
+//                R.id.dashboard_activity -> {
+//                    // Start the DestinationActivity
+//                    startActivity(Intent(this, DashboardActivity::class.java))
+//                    drawerLayout.closeDrawers()
+//                    true
+//                }
                 R.id.menu_logout -> {
                     logoutAlert.show()
                     true
@@ -175,7 +238,7 @@ class HomeActivity : AppCompatActivity() {
             myMethodToRunAtSpecificTime()
 
         }, delayMillis)
-
+        currentLanguage = prefDao.getCurrentLanguage()
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
@@ -184,9 +247,54 @@ class HomeActivity : AppCompatActivity() {
                 viewModel.logout(myLocation,"By User")
                 dialog.dismiss()
             }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+
                 dialog.dismiss()
             }.create()
     }
+
+    private fun showLanguagePopUp() {
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setTitle("Choose Application Language")
+
+            .setPositiveButton("Apply") { dialog, which ->
+                prefDao.saveSetLanguage(currentLanguage)
+                Locale.setDefault(Locale(currentLanguage.symbol))
+
+                val refresh = Intent(this, HomeActivity::class.java)
+                Log.d("refresh Called!", Locale.getDefault().language)
+                finish()
+                startActivity(refresh)
+                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_lang_select_dialog)
+        val englishRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_eng_dialog)
+        val kannadaRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_kannada_dialog)
+        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null) {
+
+            when (prefDao.getCurrentLanguage()) {
+                Languages.ENGLISH -> radioGroup.check(englishRadioButton.id)
+                Languages.KANNADA -> radioGroup.check(kannadaRadioButton.id)
+            }
+
+            radioGroup.setOnCheckedChangeListener { _, i ->
+                currentLanguage = when (i) {
+                    englishRadioButton.id -> Languages.ENGLISH
+                    kannadaRadioButton.id -> Languages.KANNADA
+                    else -> Languages.ENGLISH
+                }
+            }
+        }
+        dialog.show()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START)

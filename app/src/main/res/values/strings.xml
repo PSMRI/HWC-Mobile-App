@@ -22,6 +22,7 @@
     <string name="login">Login</string>
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">HWC</string>
+    <string name="facility">Facility</string>
     <string name="outreach">Outreach</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
@@ -57,7 +58,6 @@
         <item>New Chief Complaint(s)</item>
         <item>Follow up</item>
     </string-array>
-
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
     <string name="duration">Duration <font color="#FF0000">*</font></string>
@@ -282,7 +282,7 @@
     <string name="toast_file_uploaded">You have uploaded the file</string>
     <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
-    <string name="nav_item_2_text">Handle : <b>%s</b></string>
+    <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
     <string name="PREF_user_entry">logged-in-user</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
@@ -299,7 +299,7 @@
     <string name="community">Community</string>
     <string name="select_test_name">Test Name</string>
     <string name="diagnosis">Diagnosis</string>
-    <string name="provisional_diagnosis">Provisional Diagnosis <font color="#FF0000">*</font></string>
+    <string name="provisional_diagnosis">Provisional/Final Diagnosis <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
     <string name="frequency">Frequency</string>
     <string name="instructions">Instructions</string>

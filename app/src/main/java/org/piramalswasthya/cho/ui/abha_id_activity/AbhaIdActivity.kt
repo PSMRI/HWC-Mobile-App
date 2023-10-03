@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.abha_id_activity
 
+import android.content.Intent
 import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -20,6 +21,7 @@ import org.piramalswasthya.cho.databinding.ActivityAbhaIdBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdViewModel.State
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 import timber.log.Timber
 
@@ -94,6 +96,9 @@ class AbhaIdActivity : AppCompatActivity() {
         }
         binding.btnTryAgain.setOnClickListener {
             mainViewModel.generateAccessToken()
+        }
+        binding.homeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java))
         }
         countDownTimer = object : CountDownTimer(30*60*1000, 1000) {
 

@@ -32,7 +32,7 @@
             <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/btn_hwc"
                 style="@style/radio_item_lang"
-                android:text="@string/hwc"
+                android:text="@string/facility"
                 android:value="@string/hwc" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
@@ -62,6 +62,7 @@
                 app:layout_constraintDimensionRatio="1:1" />
 
             <Button
+              android:backgroundTint="@color/default_button"
                 android:id="@+id/scan_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

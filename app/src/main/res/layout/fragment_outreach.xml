@@ -5,8 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.login_activity.cho_login.outreach.OutreachFragment">
+    <RelativeLayout
+        android:id="@+id/rl_saving"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="120dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pb_saving"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pb_saving"
+            android:layout_centerHorizontal="true"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/loading"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+    </RelativeLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/patient_list_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -97,7 +120,7 @@
                 android:id="@+id/btn_outreach_login"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/login_btn_height"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/login"
                 android:textSize="@dimen/text_big" />
 

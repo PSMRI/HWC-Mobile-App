@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.ui.register_patient_activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.EntryPoint
@@ -17,7 +16,6 @@ import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
@@ -75,6 +73,10 @@ class RegisterPatientActivity : AppCompatActivity() {
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }
+        }
+
+        binding.homeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java))
         }
 
         binding.btnSubmit.setOnClickListener {

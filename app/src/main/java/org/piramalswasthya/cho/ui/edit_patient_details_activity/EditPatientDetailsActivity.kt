@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
+import android.content.Intent
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import javax.inject.Inject
 
 
@@ -77,7 +79,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
                    R.id.caseRecordCustom ->{
-                       binding.headerTextEditPatient.text = resources.getString(R.string.case_record_text)
+//                       binding.headerTextEditPatient.text = resources.getString(R.string.case_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
@@ -88,8 +90,8 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
                    R.id.fhirVisitDetailsFragment -> {
-                       binding.headerTextEditPatient.text =
-                           resources.getString(R.string.visit_details)
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.visit_details)
                        binding.btnSubmit.text = resources.getString(R.string.next)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
@@ -99,8 +101,8 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                    binding.btnCancel.text = resources.getString(R.string.cancel)
 //                }
                    R.id.customVitalsFragment -> {
-                       binding.headerTextEditPatient.text =
-                           resources.getString(R.string.vitals_text)
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.vitals_text)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()) {
                            binding.btnSubmit.text = resources.getString(R.string.next)
@@ -125,14 +127,18 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                    binding.btnCancel.text = resources.getString(R.string.cancel)
 //                }
                    R.id.caseRecordCustom -> {
-                       binding.headerTextEditPatient.text =
-                           resources.getString(R.string.case_record_text)
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.case_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
                }
            }
        }
+
+        binding.homeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
 
         binding.btnSubmit.setOnClickListener {
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter

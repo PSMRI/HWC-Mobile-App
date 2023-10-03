@@ -23,6 +23,7 @@
     <string name="login">ಲಾಗಿನ್ ಮಾಡಿ</string>
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">ಎಚ್.ಡಬ್ಲ್ಯೂ.ಸಿ</string>
+    <string name="facility">Facility</string>
     <string name="outreach">ಔಟ್ರೀಚ್</string>
     <string name="wellness_activity">ಸ್ವಾಸ್ಥ್ಯ ಚಟುವಟಿಕೆ</string>
     <string name="training">ತರಬೇತಿ</string>
@@ -284,7 +285,7 @@
     <string name="toast_file_uploaded">You have uploaded the file</string>
     <string name="toast_file_size_max">Please select file less than 5MB</string>
     <string name="nav_item_1_text">Name : <b>%s</b></string>
-    <string name="nav_item_2_text">Handle : <b>%s</b></string>
+    <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
     <string name="PREF_user_entry">logged-in-user</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>

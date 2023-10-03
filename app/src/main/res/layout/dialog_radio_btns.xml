@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RadioGroup
+        android:id="@+id/rg_lang_select_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/rb_eng"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/padding_wide"
+        android:paddingEnd="@dimen/padding_wide"
+        android:weightSum="3"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_eng_dialog"
+            style="@style/radio_item_lang"
+            android:text="@string/english_lang" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/rb_kannada_dialog"
+            style="@style/radio_item_lang"
+            android:text="@string/kannada_lang" />
+
+    </RadioGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>

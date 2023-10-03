@@ -6,32 +6,66 @@
     android:layout_height="match_parent"
     tools:context=".ui.register_patient_activity.RegisterPatientActivity">
 
-    <TextView
-        android:id="@+id/header_text_register_patient"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_view"
-        android:outlineProvider="none"
-        android:layout_marginHorizontal="@dimen/margin_big"
-        android:layout_marginVertical="@dimen/margin_big"
-        android:text="@string/personal_details"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/default_header"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/header_text_register_patient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/personal_details"
+            android:gravity="start"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <ImageButton
+            android:id="@+id/home_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="10dp"
+            android:contentDescription="Home"
+            android:src="@drawable/home"
+            android:background="?attr/colorPrimary"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+<!--    <TextView-->
+<!--        android:id="@+id/header_text_register_patient"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@drawable/rounded_corner_view"-->
+<!--        android:outlineProvider="none"-->
+<!--        android:layout_marginHorizontal="@dimen/margin_big"-->
+<!--        android:layout_marginVertical="@dimen/margin_big"-->
+<!--        android:text="@string/personal_details"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textSize="32sp"-->
+<!--        android:textStyle="bold"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        tools:layout_editor_absoluteX="0dp" />-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_registration"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/register_nav"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/header_text_register_patient" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="1.0"
+        app:navGraph="@navigation/register_nav"
+        tools:layout_editor_absoluteX="0dp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -54,7 +88,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/cancel" />
 
             <Button
@@ -62,7 +96,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="Next" />
 
         </LinearLayout>

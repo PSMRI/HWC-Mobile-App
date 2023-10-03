@@ -5,22 +5,54 @@
     android:layout_height="match_parent"
     tools:context=".ui.edit_patient_details_activity.EditPatientDetailsActivity">
 
-    <TextView
-        android:id="@+id/header_text_edit_patient"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_view"
-        android:outlineProvider="none"
-        android:layout_marginHorizontal="@dimen/margin_big"
-        android:layout_marginVertical="@dimen/margin_big"
-        android:text="@string/visit_details"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/default_header"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/header_text_register_patient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/visit_details"
+            android:gravity="start"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <ImageButton
+            android:id="@+id/home_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="10dp"
+            android:contentDescription="Home"
+            android:src="@drawable/home"
+            android:background="?attr/colorPrimary"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+<!--    <TextView-->
+<!--        android:id="@+id/header_text_edit_patient"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@drawable/rounded_corner_view"-->
+<!--        android:outlineProvider="none"-->
+<!--        android:layout_marginHorizontal="@dimen/margin_big"-->
+<!--        android:layout_marginVertical="@dimen/margin_big"-->
+<!--        android:text="@string/visit_details"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textSize="32sp"-->
+<!--        android:textStyle="bold"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        tools:layout_editor_absoluteX="0dp" />-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_detalis"
@@ -29,7 +61,7 @@
         android:layout_height="0dp"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/header_text_edit_patient"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_bias="0.0"
         app:navGraph="@navigation/nav_edit_patient"
         tools:layout_editor_absoluteX="0dp" />
@@ -68,7 +100,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_marginEnd="@dimen/padding_normal"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/esanjeevni" />
 
             <Button
@@ -76,7 +108,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
-                android:backgroundTint="@color/purple"
+                android:backgroundTint="@color/default_button"
                 android:text="@string/next" />
 
         </LinearLayout>
@@ -158,7 +190,7 @@
 <!--                android:layout_marginEnd="@dimen/padding_normal"-->
 <!--                android:layout_weight="1"-->
 <!--                android:visibility="gone"-->
-<!--                android:backgroundTint="@color/primary"-->
+<!--                android:backgroundTint="@color/default_button"-->
 <!--                android:text="@string/previous" />-->
 
 <!--            <Button-->
@@ -166,7 +198,7 @@
 <!--                android:layout_width="0dp"-->
 <!--                android:layout_height="@dimen/btn_height"-->
 <!--                android:layout_weight="1"-->
-<!--                android:backgroundTint="@color/primary"-->
+<!--                android:backgroundTint="@color/default_button"-->
 <!--                android:text="@string/next" />-->
 
 <!--        </LinearLayout>-->

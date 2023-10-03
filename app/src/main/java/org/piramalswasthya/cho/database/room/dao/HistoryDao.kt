@@ -70,7 +70,7 @@ interface HistoryDao {
     @Query("SELECT * FROM Medication_history WHERE medicationHistoryId = :medicationId")
     fun getMedicationHistoryByMedicationId(medicationId: String): LiveData<MedicationHistory>
     @Query("SELECT * FROM Procedures_Master_Data WHERE procedureID =:procedureId")
-    suspend fun getProcedureoryByProcedureId(procedureId: Int): ProceduresMasterData
+    fun getProcedureoryByProcedureId(procedureId: Int): ProceduresMasterData
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTobAndAlcHistory(tobaccoAlcoholHistory: TobaccoAlcoholHistory)

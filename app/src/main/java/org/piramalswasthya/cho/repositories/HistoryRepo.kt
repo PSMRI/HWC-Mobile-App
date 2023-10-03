@@ -91,7 +91,7 @@ class HistoryRepo @Inject constructor(
     fun getTobAndAlcHistory(tobAndAlcId:String): TobaccoAlcoholHistory {
         return historyDao.getTobAndAlcHistory(tobAndAlcId)
     }
-    suspend fun getProcedureByProcedureId(id:Int): ProceduresMasterData {
+    fun getProcedureByProcedureId(id:Int): ProceduresMasterData {
         return historyDao.getProcedureoryByProcedureId(id)
     }
     fun getAssociateAilmentsHistory(tobAndAlcId:String): TobaccoAlcoholHistory {

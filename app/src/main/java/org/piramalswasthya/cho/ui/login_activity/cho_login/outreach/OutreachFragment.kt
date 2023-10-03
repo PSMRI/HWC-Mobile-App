@@ -270,6 +270,8 @@ class OutreachFragment(
             viewModel.state.observe(viewLifecycleOwner) { state ->
                 when (state!!) {
                     OutreachViewModel.State.SUCCESS -> {
+                        binding.patientListFragment.visibility = View.VISIBLE
+                        binding.rlSaving.visibility = View.GONE
                         if (rememberUsername)
                             viewModel.rememberUser(userName,binding.etPassword.text.toString())
                         else {
@@ -281,9 +283,15 @@ class OutreachFragment(
                         viewModel.resetState()
                         activity?.finish()
                     }
+                    OutreachViewModel.State.SAVING -> {
+                        binding.patientListFragment.visibility = View.GONE
+                        binding.rlSaving.visibility = View.VISIBLE
+                    }
 
                     OutreachViewModel.State.ERROR_SERVER,
                     OutreachViewModel.State.ERROR_NETWORK -> {
+                        binding.patientListFragment.visibility = View.VISIBLE
+                        binding.rlSaving.visibility = View.GONE
                         Toast.makeText(
                             requireContext(),
                             getString(R.string.error_while_logging_in),

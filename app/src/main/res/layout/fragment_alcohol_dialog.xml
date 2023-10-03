@@ -78,6 +78,7 @@
     </TableRow>
 
     <Button
+              android:backgroundTint="@color/default_button"
         android:id="@+id/btnClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
