@@ -12,15 +12,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -29,6 +32,7 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -42,6 +46,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ViewPagerAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
+import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
@@ -51,6 +56,7 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.home.HomeFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -82,6 +88,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var homeAdapter: ViewPagerAdapter  // creating object of Adapter
 
     private lateinit var selectedLanguage: String
+    private lateinit var currentLanguage: Languages
     private var selectedLanguageIndex: Int = 0
     private val languages = arrayOf("English", "ಕನ್ನಡ")
 
@@ -185,7 +192,7 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-//                R.id.menu_help -> {
+//                R.id.dashboard_activity -> {
 //                    // Start the DestinationActivity
 //                    startActivity(Intent(this, DashboardActivity::class.java))
 //                    drawerLayout.closeDrawers()
@@ -231,7 +238,7 @@ class HomeActivity : AppCompatActivity() {
             myMethodToRunAtSpecificTime()
 
         }, delayMillis)
-
+        currentLanguage = prefDao.getCurrentLanguage()
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
@@ -240,27 +247,52 @@ class HomeActivity : AppCompatActivity() {
                 viewModel.logout(myLocation,"By User")
                 dialog.dismiss()
             }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+
                 dialog.dismiss()
             }.create()
     }
 
     private fun showLanguagePopUp() {
-        selectedLanguage = languages[selectedLanguageIndex]
-        MaterialAlertDialogBuilder(this)
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
             .setTitle("Choose Application Language")
-            .setSingleChoiceItems(languages, selectedLanguageIndex) { dialog_, which ->
-                selectedLanguageIndex = which
-                selectedLanguage = languages[which]
-            }
+
             .setPositiveButton("Apply") { dialog, which ->
-                Toast.makeText(this, "$selectedLanguage Selected", Toast.LENGTH_SHORT)
-                    .show()
+                prefDao.saveSetLanguage(currentLanguage)
+                Locale.setDefault(Locale(currentLanguage.symbol))
+
+                val refresh = Intent(this, HomeActivity::class.java)
+                Log.d("refresh Called!", Locale.getDefault().language)
+                finish()
+                startActivity(refresh)
+                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }
-            .show()
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_lang_select_dialog)
+        val englishRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_eng_dialog)
+        val kannadaRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_kannada_dialog)
+        if (radioGroup != null && englishRadioButton != null && kannadaRadioButton != null) {
+
+            when (prefDao.getCurrentLanguage()) {
+                Languages.ENGLISH -> radioGroup.check(englishRadioButton.id)
+                Languages.KANNADA -> radioGroup.check(kannadaRadioButton.id)
+            }
+
+            radioGroup.setOnCheckedChangeListener { _, i ->
+                currentLanguage = when (i) {
+                    englishRadioButton.id -> Languages.ENGLISH
+                    kannadaRadioButton.id -> Languages.KANNADA
+                    else -> Languages.ENGLISH
+                }
+            }
+        }
+        dialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

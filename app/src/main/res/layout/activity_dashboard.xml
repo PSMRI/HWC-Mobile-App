@@ -41,13 +41,12 @@
             tools:background="@color/white"
             android:orientation="horizontal">
 
-            <Button
-                android:backgroundTint="@color/default_button"
-                android:id="@+id/todayButton"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Today's Report" />
+<!--            <Button-->
+<!--                android:id="@+id/todayButton"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Today's Report" />-->
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -577,11 +576,11 @@
             android:layout_height="117dp"
             android:layout_gravity="center"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="horizontal"
             tools:background="@color/white">
 
             <Button
-                android:backgroundTint="@color/default_button"
                 android:id="@+id/button"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
