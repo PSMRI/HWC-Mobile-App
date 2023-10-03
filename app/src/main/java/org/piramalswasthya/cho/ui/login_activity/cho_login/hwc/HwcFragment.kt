@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentHwcBinding
+import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.login_activity.asha_login.AshaLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -70,9 +71,14 @@ class HwcFragment constructor(
                 null
             )
         }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
+
                 OutreachViewModel.State.SUCCESS -> {
+                    binding.patientListFragment.visibility = View.VISIBLE
+                    binding.rlSaving.visibility = View.GONE
+
                     if (rememberUsername)
                         viewModel.rememberUser(userName,binding.etPasswordHwc.text.toString())
                     else {
@@ -84,9 +90,15 @@ class HwcFragment constructor(
                     viewModel.resetState()
                     activity?.finish()
                 }
+                OutreachViewModel.State.SAVING -> {
+                        binding.patientListFragment.visibility = View.GONE
+                        binding.rlSaving.visibility = View.VISIBLE
+                    }
 
                 OutreachViewModel.State.ERROR_SERVER,
                 OutreachViewModel.State.ERROR_NETWORK -> {
+                    binding.patientListFragment.visibility = View.VISIBLE
+                    binding.rlSaving.visibility = View.GONE
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.error_while_logging_in),

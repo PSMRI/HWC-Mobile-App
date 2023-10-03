@@ -39,6 +39,7 @@ class OutreachViewModel @Inject constructor(
     enum class State {
         IDLE,
         LOADING,
+        SAVING,
         ERROR_INPUT,
         ERROR_SERVER,
         ERROR_NETWORK,
@@ -93,6 +94,7 @@ class OutreachViewModel @Inject constructor(
         long: Double?,
         logoutType: String?
     ) {
+        _state.value = State.SAVING
         viewModelScope.launch {
             _state.value = userRepo.authenticateUser(
                 username,
