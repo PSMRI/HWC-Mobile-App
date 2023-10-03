@@ -144,15 +144,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.ageInUnitVal.observe(viewLifecycleOwner) {
                 binding.ageInUnitText.setBoxColor(it, resources.getString(R.string.select_age_in_unit))
             }
-            viewModel.maritalStatusVal.observe(viewLifecycleOwner) {
-                binding.maritalStatusText.setBoxColor(it,resources.getString(R.string.select_mariital_status))
-            }
-            viewModel.spouseNameVal.observe(viewLifecycleOwner) {
-                binding.spouseNameText.setBoxColor(it, resources.getString(R.string.enter_spouse_name))
-            }
-            viewModel.ageAtMarraigeVal.observe(viewLifecycleOwner) {
-                binding.ageAtMarriageText.setBoxColor(it, resources.getString(R.string.enter_age_at_marriage))
-            }
+//            viewModel.maritalStatusVal.observe(viewLifecycleOwner) {
+//                binding.maritalStatusText.setBoxColor(it,resources.getString(R.string.select_mariital_status))
+//            }
+//            viewModel.spouseNameVal.observe(viewLifecycleOwner) {
+//                binding.spouseNameText.setBoxColor(it, resources.getString(R.string.enter_spouse_name))
+//            }
+//            viewModel.ageAtMarraigeVal.observe(viewLifecycleOwner) {
+//                binding.ageAtMarriageText.setBoxColor(it, resources.getString(R.string.enter_age_at_marriage))
+//            }
 //            binding.phoneNoText.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
 //            viewModel.phoneN.observe(viewLifecycleOwner) {
 //                Timber.d("phone nimber ${it?.reason}")
@@ -208,7 +208,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
-            setMarriedFieldsVisibility()
+//            setMarriedFieldsVisibility()
         }
 
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
@@ -232,7 +232,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                setMarriedFieldsVisibility()
+//                setMarriedFieldsVisibility()
                 val isAgeInUnitFilled = s?.isNotEmpty() == true
                 viewModel.setAgeUnit(isAgeInUnitFilled)
             }
@@ -409,7 +409,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        override fun afterTextChanged(s: Editable?) {setMarriedFieldsVisibility()}
+        override fun afterTextChanged(s: Editable?) {
+//            setMarriedFieldsVisibility()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -479,7 +481,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
             viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
             binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
-            setMarriedFieldsVisibility()
+//            setMarriedFieldsVisibility()
         }
         doAgeToDob = true;
     }
@@ -504,15 +506,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.dob = viewModel.selectedDateOfBirth;
         patient.age = viewModel.enteredAge;
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
-        patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
-        patient.spouseName = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
-            "married" -> binding.spouseName.text.toString();
-            else -> null
-        }
-        patient.ageAtMarriage = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
-            "married" -> binding.ageAtMarriage.text.toString().toIntOrNull();
-            else -> null
-        }
+//        patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
+//        patient.spouseName = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
+//            "married" -> binding.spouseName.text.toString();
+//            else -> null
+//        }
+//        patient.ageAtMarriage = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
+//            "married" -> binding.ageAtMarriage.text.toString().toIntOrNull();
+//            else -> null
+//        }
 //        patient.phoneNo = binding.phoneNo.text.toString()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null
@@ -537,18 +539,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
-        if(viewModel.ageGreaterThan11.value!!){
-            if (!viewModel.maritalStatusVal.value!! ){
-                return false
-            }
-            else{
-                if(viewModel.selectedMaritalStatus!!.status.lowercase() == "married"){
-                    if(!viewModel.ageAtMarraigeVal.value!! || !viewModel.spouseNameVal.value!!){
-                        return false
-                    }
-                }
-            }
-        }
+//        if(viewModel.ageGreaterThan11.value!!){
+//            if (!viewModel.maritalStatusVal.value!! ){
+//                return false
+//            }
+//            else{
+//                if(viewModel.selectedMaritalStatus!!.status.lowercase() == "married"){
+//                    if(!viewModel.ageAtMarraigeVal.value!! || !viewModel.spouseNameVal.value!!){
+//                        return false
+//                    }
+//                }
+//            }
+//        }
         return true
     }
     override fun onSubmitAction() {
