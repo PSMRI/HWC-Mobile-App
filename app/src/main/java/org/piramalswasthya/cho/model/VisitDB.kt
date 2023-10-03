@@ -1,11 +1,15 @@
 package org.piramalswasthya.cho.model
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.utils.generateUuid
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Entity(
     tableName = "Visit_DB",
@@ -36,7 +40,9 @@ data class VisitDB(
     @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
+    @ColumnInfo(name = "benVisitDate") var benVisitDate: String? = null
 ){
+    @RequiresApi(Build.VERSION_CODES.O)
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
         nurseData.GOPDNurseVisitDetail?.visitCategory,

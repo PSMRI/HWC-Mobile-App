@@ -33,26 +33,6 @@ class DashboardActivity : AppCompatActivity() {
         _binding = ActivityDashboardBinding.inflate(layoutInflater)
         title = "Dashboard";
         setContentView(binding.root)
-
-        val months = resources.getStringArray(R.array.months)
-        // create an array adapter and pass the required parameter
-        // in our case pass the context, drop down layout , and array.
-        val arrayAdapter = ArrayAdapter(this, R.layout.drop_down, months)
-        // get reference to the autocomplete text view
-        val autocompleteTV = findViewById<AutoCompleteTextView>(R.id.month_report)
-        // set adapter to the autocomplete tv to the arrayAdapter
-        autocompleteTV.setAdapter(arrayAdapter)
-
-//        binding.button.setOnClickListener {
-//            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-//            currFragment.onSubmitAction()
-//        }
-//
-//        binding.todayButton.setOnClickListener {
-//            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-//            currFragment.onCancelAction()
-//        }
-
     }
 
     override fun onBackPressed() {

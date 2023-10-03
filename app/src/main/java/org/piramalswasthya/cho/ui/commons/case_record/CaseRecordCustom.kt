@@ -63,7 +63,9 @@ import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
+import java.text.SimpleDateFormat
 import java.util.Arrays
+import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -598,7 +600,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = patId,
-            benVisitNo = lastVisitNo+1
+            benVisitNo = lastVisitNo+1,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+
         )
 
         viewModel.saveVisitDbToCatche(visitDB)
