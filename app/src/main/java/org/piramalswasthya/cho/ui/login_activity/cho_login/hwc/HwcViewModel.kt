@@ -19,14 +19,15 @@ class HwcViewModel @Inject constructor(
 
 
     ) : ViewModel() {
-//    enum class State {
-//        IDLE,
-//        LOADING,
-//        ERROR_INPUT,
-//        ERROR_SERVER,
-//        ERROR_NETWORK,
-//        SUCCESS
-//    }
+    enum class State {
+        IDLE,
+        LOADING,
+        SAVING,
+        ERROR_INPUT,
+        ERROR_SERVER,
+        ERROR_NETWORK,
+        SUCCESS
+    }
 
     val _state = MutableLiveData(OutreachViewModel.State.IDLE)
     val state: LiveData<OutreachViewModel.State>
@@ -51,6 +52,7 @@ class HwcViewModel @Inject constructor(
         long: Double?,
         logoutType: String?
     ) {
+        _state.value  = OutreachViewModel.State.SAVING
         viewModelScope.launch {
             _state.value = userRepo.authenticateUser(
                 username,

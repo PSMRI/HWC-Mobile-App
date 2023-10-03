@@ -64,6 +64,7 @@ class MaleMasterDataRepository @Inject constructor(
             val response = amritApiService.getNurseMasterData(
                 visitCategoryID, providerServiceMapID,
                 gender, apiKey)
+
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,
