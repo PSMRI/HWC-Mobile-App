@@ -35,8 +35,8 @@ class PullPatientsFromServer @AssistedInject constructor(
         return try {
             val workerResult = patientRepo.downloadAndSyncPatientRecords()
             if (workerResult) {
-                val date = Date()
-                preferenceDao.setLastPatientSyncTime(date.time)
+//                val date = Date()
+//                preferenceDao.setLastPatientSyncTime(date.time)
                 Timber.d("Patient Download Worker completed")
                 Result.success()
             } else {

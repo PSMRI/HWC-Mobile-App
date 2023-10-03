@@ -190,8 +190,6 @@ class BenVisitRepo @Inject constructor(
                             procedureList = procedureList
                         )
 
-                        val doc = patientDoctorForm
-
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID)
 
                         when(val response = registerDoctorData(patientDoctorForm)){

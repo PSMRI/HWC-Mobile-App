@@ -94,7 +94,7 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-     binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+        binding.registration.isEnabled = preferenceDao.isUserRegistrar()
 
         binding.registration.setOnClickListener {
             searchPrompt.show()

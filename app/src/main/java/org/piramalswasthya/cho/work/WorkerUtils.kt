@@ -44,7 +44,7 @@ object WorkerUtils {
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)
-//            .then(pushBenDoctorInfoToAmrit)
+            .then(pushBenDoctorInfoToAmrit)
             .enqueue()
     }
 

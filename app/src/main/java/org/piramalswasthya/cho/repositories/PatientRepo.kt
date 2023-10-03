@@ -160,7 +160,7 @@ class PatientRepo  @Inject constructor(
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
-                return false
+                return true
             }
             else -> {}
         }
@@ -247,6 +247,9 @@ class PatientRepo  @Inject constructor(
     }
 
     suspend fun processUnsyncedData() : Boolean{
+
+
+        Log.d("hey", "ya")
 
         val patientList = patientDao.getPatientListUnsynced();
         val user = userRepo.getLoggedInUser()
