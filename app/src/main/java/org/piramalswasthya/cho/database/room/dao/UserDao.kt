@@ -43,13 +43,13 @@ interface UserDao {
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     fun getLoggedInUserLiveData(): LiveData<UserCache>
     @Query("SELECT facilityID FROM USER WHERE logged_in = 1 LIMIT 1")
-    fun getLoggedInUserFacilityID(): LiveData<Int>
+    suspend fun getLoggedInUserFacilityID(): Int
 
     @Query("SELECT van_id FROM USER WHERE logged_in = 1 LIMIT 1")
-    fun getLoggedInUserVanID(): LiveData<Int>
+    suspend fun getLoggedInUserVanID(): Int
 
     @Query("SELECT service_map_id FROM USER WHERE logged_in = 1 LIMIT 1")
-    fun getLoggedInUserProviderServiceMapId(): LiveData<Int>
+    suspend fun getLoggedInUserProviderServiceMapId(): Int
 //    @Delete
 //    suspend fun logout(loggedInUser: UserCache)
 
