@@ -41,6 +41,12 @@
                     android:src="@drawable/translate"
                     android:background="?attr/colorPrimary"/>
 
+<!--                <Button-->
+<!--                    android:id="@+id/todayButton"-->
+<!--                    android:layout_width="150dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="Today's Report" />-->
 
             </androidx.appcompat.widget.Toolbar>
 
@@ -54,9 +60,9 @@
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabs"
+                    app:tabGravity="fill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:tabMode="scrollable"
                     />
             </LinearLayout>
 

@@ -45,6 +45,8 @@ import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -159,6 +161,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = lastVisitNo + 1,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
         )
 
         viewModel.saveVisitDbToCatche(visitDB)
