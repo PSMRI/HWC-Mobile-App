@@ -109,7 +109,7 @@ import timber.log.Timber
         VisitDB::class,
         PatientVisitInfoSync::class
     ],
-//    views = [BenBasicCache::class],
+    views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
     version = 69, exportSchema = false
 )
 

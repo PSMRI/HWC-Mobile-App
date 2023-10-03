@@ -703,28 +703,29 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //                    ).show()
 //                } else {
 
-                    var benVisitNo = 0;
-                    var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(patId).let {
-                        if(it == null){
-                            benVisitNo = 1;
-                        }
-                        else if(it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        }
-                        else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
-                        }
-                    }
 
-                    addVisitRecordDataToCache(benVisitNo)
-                    addVitalsDataToCache(benVisitNo)
-                    addCaseRecordDataToCatche(benVisitNo)
-                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 
                     val validate = dAdapter.setError()
                     if (validate == -1) {
+                        var benVisitNo = 0;
+                        var createNewBenflow = false;
+                        viewModel.getLastVisitInfoSync(patId).let {
+                            if(it == null){
+                                benVisitNo = 1;
+                            }
+                            else if(it.nurseFlag == 1) {
+                                benVisitNo = it.benVisitNo
+                            }
+                            else {
+                                benVisitNo = it.benVisitNo + 1
+                                createNewBenflow = true;
+                            }
+                        }
+
+                        addVisitRecordDataToCache(benVisitNo)
+                        addVitalsDataToCache(benVisitNo)
+                        addCaseRecordDataToCatche(benVisitNo)
+                        addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 //                        Toast.makeText(
 //                           requireContext(),
 //                            resources.getString(R.string.dataSavedCaseRecord),

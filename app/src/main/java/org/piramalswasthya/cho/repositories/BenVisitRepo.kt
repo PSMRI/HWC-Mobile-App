@@ -203,7 +203,7 @@ class BenVisitRepo @Inject constructor(
                                 if(response.code == socketTimeoutException){
                                     throw SocketTimeoutException("This is an example exception message")
                                 }
-                                return@withContext false;
+//                                return@withContext false;
                             }
                             else -> {}
                         }
