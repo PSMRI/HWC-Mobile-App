@@ -25,11 +25,12 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     private val healthCenterDao: HealthCenterDao,
     private val amritApiService: AmritApiService
 
-){  private var visitCategoryID: Int = 6
-    private var providerServiceMapID: Int = -1
-    var gender : String = "Male"
-    private var vanID : Int =-1
-    private var facilityID : Int =-1
+){
+//    private var visitCategoryID: Int = 6
+//    private var providerServiceMapID: Int = -1
+//    var gender : String = "Male"
+//    private var vanID : Int =-1
+//    private var facilityID : Int =-1
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
     init {
         // Observe the LiveData to get the VAN ID and Facility ID
@@ -43,7 +44,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 //            facilityID = facilityId ?: -1
 //        }
     }
-    suspend fun getDoctorMasterMaleData() {
+    suspend fun getDoctorMasterMaleData(visitCategoryID : Int,providerServiceMapID: Int,gender: String,facilityID: Int, vanID: Int) {
         try {
             val response = amritApiService.getDoctorMasterData(
                 visitCategoryID, providerServiceMapID,
