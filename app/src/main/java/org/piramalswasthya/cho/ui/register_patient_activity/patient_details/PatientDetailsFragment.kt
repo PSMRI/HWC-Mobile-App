@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -152,11 +153,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.ageAtMarraigeVal.observe(viewLifecycleOwner) {
                 binding.ageAtMarriageText.setBoxColor(it, resources.getString(R.string.enter_age_at_marriage))
             }
-            binding.phoneNoText.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
-            viewModel.phoneN.observe(viewLifecycleOwner) {
-                Timber.d("phone nimber ${it?.reason}")
-                    binding.phoneNoText.setBoxColor(it.boolean,it.reason)
-            }
+//            binding.phoneNoText.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
+//            viewModel.phoneN.observe(viewLifecycleOwner) {
+//                Timber.d("phone nimber ${it?.reason}")
+//                    binding.phoneNoText.setBoxColor(it.boolean,it.reason)
+//            }
             viewModel.genderVal.observe(viewLifecycleOwner) {
                 binding.genderText.setBoxColor(it, resources.getString(R.string.select_gender))
             }
@@ -320,7 +321,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     isValidPhoneNumber(s.toString().trim())
                 }
                 else{
-                    viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
+                    viewModel.setPhoneN(true, "null")
+                }
+                binding.phoneNoText.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
+                viewModel.phoneN.observe(viewLifecycleOwner) {
+                    Timber.d("phone nimber ${it?.reason}")
+                    binding.phoneNoText.setBoxColor(it.boolean,it.reason)
                 }
             }
             override fun afterTextChanged(s: Editable?) {}
@@ -507,7 +513,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             "married" -> binding.ageAtMarriage.text.toString().toIntOrNull();
             else -> null
         }
-        patient.phoneNo = binding.phoneNo.text.toString()
+//        patient.phoneNo = binding.phoneNo.text.toString()
+        if (binding.phoneNo.text.toString().isNullOrEmpty()) {
+            patient.phoneNo = null
+        } else {
+            patient.phoneNo = binding.phoneNo.text.toString()
+        }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
     }
@@ -523,7 +534,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return R.id.fragment_add_patient_location;
     }
     fun checkVisibleFieldIsEmpty():Boolean{
-        if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.phoneN.value?.boolean!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
+        if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
         if(viewModel.ageGreaterThan11.value!!){
@@ -550,11 +561,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             val intent = Intent(context, HomeActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-//            val bundle = Bundle()
-//            bundle.putSerializable("patient", patient)
-//            findNavController().navigate(
-//                R.id.action_patientDetailsFragment_to_fragmentLocation, bundle
-//            )
+            Toast.makeText(context, getString(R.string.patient_successfully_registered),Toast.LENGTH_SHORT).show()
         }
     }
 
