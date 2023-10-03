@@ -58,6 +58,11 @@ class HomeViewModel @Inject constructor(
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
+    private var providerServiceMapID: Int = -1
+    private var vanID : Int =-1
+    private var facilityID : Int =-1
+    private var visitCategoryID: Int = 6
+    var gender : String = "Male"
 
     private val _state = MutableLiveData(State.IDLE)
 
@@ -67,7 +72,10 @@ class HomeViewModel @Inject constructor(
     fun init(context: Context){
         viewModelScope.launch {
 //            if (!dataLoadFlagManager.isDataLoaded())
-             extracted(context)
+            vanID = userDao.getLoggedInUserVanID()
+            facilityID = userDao.getLoggedInUserFacilityID()
+            providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
+            extracted(context)
         }
     }
 
@@ -93,8 +101,8 @@ class HomeViewModel @Inject constructor(
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
-            malMasterDataRepo.getMasterDataForNurse()
+            doctorMaleMasterDataRepo.getDoctorMasterMaleData(visitCategoryID,providerServiceMapID,gender,facilityID,vanID)
+            malMasterDataRepo.getMasterDataForNurse(visitCategoryID, providerServiceMapID,gender)
             if (!dataLoadFlagManager.isDataLoaded())
                 WorkerUtils.triggerAmritSyncWorker(context)
             dataLoadFlagManager.setDataLoaded(true)

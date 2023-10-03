@@ -46,20 +46,9 @@ class MaleMasterDataRepository @Inject constructor(
     private val historyDao: HistoryDao,
     private val userRepo: UserRepo,
 ) {
-    private var visitCategoryID: Int = 6
-    private var providerServiceMapID: Int = -1
-    var gender : String = "Male"
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
-    init {
-        suspend {   this.getAll() }
-    }
-    suspend fun getAll(){
-        withContext(Dispatchers.IO){
-            providerServiceMapID= userDao.getLoggedInUserProviderServiceMapId()
-        }
-    }
 
-    suspend fun getMasterDataForNurse() : NetworkResult<NetworkResponse> {
+    suspend fun getMasterDataForNurse(visitCategoryID:Int,providerServiceMapID:Int,gender:String) : NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
             val response = amritApiService.getNurseMasterData(
                 visitCategoryID, providerServiceMapID,
@@ -123,7 +112,7 @@ class MaleMasterDataRepository @Inject constructor(
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    getMasterDataForNurse()
+                    getMasterDataForNurse(visitCategoryID, providerServiceMapID,gender)
                 },
             )
         }
