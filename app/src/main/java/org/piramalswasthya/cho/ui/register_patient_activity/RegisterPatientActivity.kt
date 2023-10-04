@@ -59,7 +59,7 @@ class RegisterPatientActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.patientDetailsFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_information)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
+                    binding.btnSubmit.text = resources.getString(R.string.submit_btn_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragmentLocation -> {
