@@ -206,7 +206,7 @@
     <string name="street_panchayat_village">Street/Panchayat/Village</string>
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">Sub Category</string>
-    <string name="select_chief_complaint">Chief Complaint  <font color="#FF0000">*</font></string>
+    <string name="select_chief_complaint">Chief Complaints  <font color="#FF0000">*</font></string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">Select File</string>
     <string name="upload_file">Upload File</string>
