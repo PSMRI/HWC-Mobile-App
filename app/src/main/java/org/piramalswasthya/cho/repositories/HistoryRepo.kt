@@ -21,9 +21,9 @@ class HistoryRepo @Inject constructor(
 
   suspend fun saveAssociateAilmentsHistoryToCatche(associateAilmentsHistory: AssociateAilmentsHistory) {
       try{
-              withContext(Dispatchers.IO){
-                  historyDao.insertAssociateAilmentsHistory(associateAilmentsHistory)
-              }
+          withContext(Dispatchers.IO){
+              historyDao.insertAssociateAilmentsHistory(associateAilmentsHistory)
+          }
       } catch (e: Exception){
           Timber.d("Error in saving Associate Ailments history $e")
       }
@@ -97,5 +97,17 @@ class HistoryRepo @Inject constructor(
     fun getAssociateAilmentsHistory(tobAndAlcId:String): TobaccoAlcoholHistory {
         return historyDao.getTobAndAlcHistory(tobAndAlcId)
     }
+
+     suspend fun getProceduresList(commaSeperatedIds : String?) : List<ProceduresMasterData>{
+        val proceduresList = mutableListOf<ProceduresMasterData>()
+        if(commaSeperatedIds != null){
+            val investigationIDs = commaSeperatedIds.split(",").map { it.toInt() }
+            for (investigationID in investigationIDs) {
+                val procedure = getProcedureByProcedureId(investigationID)
+                proceduresList.add(procedure)
+            }
+        }
+        return proceduresList
+     }
 
 }

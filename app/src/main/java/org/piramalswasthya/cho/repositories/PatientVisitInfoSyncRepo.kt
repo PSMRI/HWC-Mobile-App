@@ -9,6 +9,7 @@ import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.network.AmritApiService
 import javax.inject.Inject
 
@@ -20,15 +21,15 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
-    suspend fun updateCreateBenflowFlag(patientID: String,){
-        patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientID)
+    suspend fun updateCreateBenflowFlag(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updateCreateBenflowFlag(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun getPatientVisitInfoSync(patientID: String): PatientVisitInfoSync?{
-        return patientVisitInfoSyncDao.getPatientVisitInfoSync(patientID)
+    suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun getPatientNurseDataUnsynced() : List<PatientVisitInfoSync>{
+    suspend fun getPatientNurseDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientNurseDataUnsynced()
     }
 
@@ -36,24 +37,36 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.updateDoctorDataSubmitted(patientID)
     }
 
-    suspend fun getPatientDoctorDataUnsynced() : List<PatientVisitInfoSync>{
+    suspend fun getPatientDoctorDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientDoctorDataUnsynced()
     }
 
-    suspend fun updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
-        patientVisitInfoSyncDao.updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID, beneficiaryRegID, patientID)
+    suspend fun getPatientDoctorDataUnsyncedWithTest() : List<PatientVisitInfoSyncWithPatient>{
+        return patientVisitInfoSyncDao.getPatientDoctorDataUnsyncedWithTest()
     }
 
-    suspend fun updatePatientNurseDataSyncSuccess(patientID: String){
-        patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = patientID)
+    suspend fun getPatientDoctorDataUnsyncedWithoutTest() : List<PatientVisitInfoSyncWithPatient>{
+        return patientVisitInfoSyncDao.getPatientDoctorDataUnsyncedWithoutTest()
     }
 
-    suspend fun updatePatientNurseDataSyncFailed(patientID: String){
-        patientVisitInfoSyncDao.updatePatientNurseDataSyncFailed(patientID = patientID)
+    suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncDao.getSinglePatientDoctorDataNotSubmitted(patientID = patientID)
     }
 
-    suspend fun updatePatientNurseDataSyncSyncing(patientID: String){
-        patientVisitInfoSyncDao.updatePatientNurseDataSyncSyncing(patientID = patientID)
+//    suspend fun updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
+//        patientVisitInfoSyncDao.updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID, beneficiaryRegID, patientID)
+//    }
+
+    suspend fun updatePatientNurseDataSyncSuccess(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = patientID, benVisitNo = benVisitNo)
+    }
+
+    suspend fun updatePatientNurseDataSyncFailed(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientNurseDataSyncFailed(patientID = patientID, benVisitNo = benVisitNo)
+    }
+
+    suspend fun updatePatientNurseDataSyncSyncing(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientNurseDataSyncSyncing(patientID = patientID, benVisitNo = benVisitNo)
     }
 
     suspend fun updatePatientDoctorDataSyncSuccess(patientID: String){
@@ -73,8 +86,8 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return (syncState != null && syncState == SyncState.UNSYNCED);
     }
 
-    suspend fun getLastVisitNo(patientID: String) : Int {
-        return patientVisitInfoSyncDao.getLastVisitNo(patientID) ?: 0
+    suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync? {
+        return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
     }
 
 }

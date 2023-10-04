@@ -3,7 +3,7 @@ package org.piramalswasthya.cho.model
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Investigation(
+data class InvestigationUpsync(
     val externalInvestigations: String?,
     val vanID: Int?,
     val parkingPlaceID: Int?,
@@ -13,7 +13,7 @@ data class Investigation(
     val providerServiceMapID: String?,
     val createdBy: String?,
     val isSpecialist: Boolean?,
-    val laboratoryList: List<Laboratory>,
+    val laboratoryList: List<LaboratoryUpsync>,
 //    "externalInvestigations": "",
 //    "vanID": 168,
 //    "parkingPlaceID": 83,
@@ -24,8 +24,8 @@ data class Investigation(
 //    "createdBy": "Sanjay",
 //    "isSpecialist": false,
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?) : this(
-        "ext",
+    constructor(user: UserDomain?, benFlow: BenFlow?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, procedureList: List<ProceduresMasterData>) : this(
+        investigation?.investigationCaseRecord?.externalInvestigation,
         user?.vanId,
         user?.parkingPlaceId,
         benFlow?.beneficiaryRegID.toString(),
@@ -34,12 +34,14 @@ data class Investigation(
         user?.serviceMapId.toString(),
         user?.userName,
         false,
-        arrayListOf(Laboratory(user))
+        procedureList.map {
+            LaboratoryUpsync(user, it)
+        }
     )
 }
 
 @JsonClass(generateAdapter = true)
-data class Laboratory(
+data class LaboratoryUpsync(
     val procedureID: Int?,
     val procedureName: String?,
     val procedureDesc: String?,
@@ -47,12 +49,12 @@ data class Laboratory(
     val gender: String?,
     val providerServiceMapID: Int?
 ){
-    constructor(user: UserDomain?) : this(
-        159,
-        "Haemoglobin (Hb)",
-        "Haemoglobin (Hb)",
-        "Laboratory",
-        "unisex",
+    constructor(user: UserDomain?, proceduresMasterData: ProceduresMasterData) : this(
+        proceduresMasterData.procedureID,
+        proceduresMasterData.procedureName,
+        proceduresMasterData.procedureDesc,
+        proceduresMasterData.procedureType,
+        proceduresMasterData.gender,
         user?.serviceMapId
     )
 }

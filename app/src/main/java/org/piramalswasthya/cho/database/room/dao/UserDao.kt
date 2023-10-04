@@ -42,6 +42,7 @@ interface UserDao {
 
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     fun getLoggedInUserLiveData(): LiveData<UserCache>
+
     @Query("SELECT facilityID FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUserFacilityID(): Int
 

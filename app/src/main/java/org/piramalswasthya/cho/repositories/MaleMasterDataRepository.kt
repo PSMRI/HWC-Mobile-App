@@ -14,7 +14,6 @@ import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
-import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
@@ -39,21 +38,23 @@ import java.security.PrivateKey
 import javax.inject.Inject
 
 class MaleMasterDataRepository @Inject constructor(
-    private val userDao: UserDao,
     private val amritApiService: AmritApiService,
     private val chiefComplaintMasterDao: ChiefComplaintMasterDao,
     private val subCatVisitDao: SubCatVisitDao,
     private val historyDao: HistoryDao,
     private val userRepo: UserRepo,
 ) {
+//    private var visitCategoryID: Int = 6
+//    private var providerServiceMapID: Int = 13
+//    var gender : String = "Male"
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
 
-    suspend fun getMasterDataForNurse(visitCategoryID:Int,providerServiceMapID:Int,gender:String) : NetworkResult<NetworkResponse> {
+
+    suspend fun getMasterDataForNurse(visitCategoryID: Int, providerServiceMapID: Int, gender: String) : NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
             val response = amritApiService.getNurseMasterData(
                 visitCategoryID, providerServiceMapID,
                 gender, apiKey)
-
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,

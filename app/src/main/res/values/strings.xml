@@ -33,6 +33,8 @@
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>
     <string name="last_sync_time">last_sync_time</string>
+    <string name="last_patient_sync_time">last_patient_sync_time</string>
+    <string name="last_benflow_sync_time">last_benflow_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
@@ -341,6 +343,7 @@
     <string name="Unit">Unit</string>
     <string name="Frequency">Frequency</string>
     <string name="Prescription">Prescription</string>
+    <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>

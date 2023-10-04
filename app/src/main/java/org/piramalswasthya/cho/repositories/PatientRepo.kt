@@ -146,6 +146,7 @@ class PatientRepo  @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
         val user = userRepo.getLoggedInUser()
+
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
             preferenceDao.getLastSyncTime()
@@ -159,7 +160,7 @@ class PatientRepo  @Inject constructor(
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
-                return false
+                return true
             }
             else -> {}
         }
@@ -206,22 +207,16 @@ class PatientRepo  @Inject constructor(
                                 firstName = beneficiary.beneficiaryDetails?.firstName,
                                 lastName = beneficiary.beneficiaryDetails?.lastName,
                                 dob = beneficiary.beneficiaryDetails?.dob,
-//                                age = beneficiary.beneficiaryDetails?.beneficiaryAge,
-//                                ageUnitID = 1,
                                 maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
                                 spouseName = beneficiary.beneficiaryDetails?.spouseName,
                                 ageAtMarriage = beneficiary.ageAtMarriage,
                                 phoneNo = beneficiary.preferredPhoneNum,
                                 genderID = beneficiary.beneficiaryDetails?.genderId,
                                 registrationDate = beneficiary.createdDate,
-                                stateID = null,
-                                districtID = null,
-                                blockID = null,
-                                districtBranchID = null,
-//                                stateID = beneficiary.currentAddress?.stateId,
-//                                districtID = beneficiary.currentAddress?.districtId,
-//                                blockID = beneficiary.currentAddress?.subDistrictId,
-//                                districtBranchID = beneficiary.currentAddress?.villageId,
+                                stateID = beneficiary.currentAddress?.stateId,
+                                districtID = beneficiary.currentAddress?.districtId,
+                                blockID = beneficiary.currentAddress?.subDistrictId,
+                                districtBranchID = beneficiary.currentAddress?.villageId,
                                 communityID = beneficiary.beneficiaryDetails?.communityId,
                                 religionID = beneficiary.beneficiaryDetails?.religionId,
                                 parentName = null,
@@ -253,6 +248,9 @@ class PatientRepo  @Inject constructor(
 
     suspend fun processUnsyncedData() : Boolean{
 
+
+        Log.d("hey", "ya")
+
         val patientList = patientDao.getPatientListUnsynced();
         val user = userRepo.getLoggedInUser()
 
@@ -262,26 +260,26 @@ class PatientRepo  @Inject constructor(
                 is NetworkResult.Success -> {
                     val benificiarySaveResponse = response.data as BenificiarySaveResponse
                     updatePatientSyncSuccess(it.patient, benificiarySaveResponse)
-                    caseRecordeRepo.updateBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    visitReasonsAndCategoriesRepo.updateBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    vitalsRepo.updateBenIdBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
-                    patientVisitInfoSyncRepo.updatePatientVisitInfoBenIdAndBenRegId(
-                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
-                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
-                        patientID = it.patient.patientID
-                    )
+//                    caseRecordeRepo.updateBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    visitReasonsAndCategoriesRepo.updateBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    vitalsRepo.updateBenIdBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
+//                    patientVisitInfoSyncRepo.updatePatientVisitInfoBenIdAndBenRegId(
+//                        beneficiaryID = benificiarySaveResponse.beneficiaryID,
+//                        beneficiaryRegID = benificiarySaveResponse.beneficiaryRegID,
+//                        patientID = it.patient.patientID
+//                    )
                 }
                 is NetworkResult.Error -> {
                     updatePatientSyncingFailed(it.patient)

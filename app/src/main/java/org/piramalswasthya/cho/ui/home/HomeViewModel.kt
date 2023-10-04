@@ -71,11 +71,7 @@ class HomeViewModel @Inject constructor(
 
     fun init(context: Context){
         viewModelScope.launch {
-//            if (!dataLoadFlagManager.isDataLoaded())
-            vanID = userDao.getLoggedInUserVanID()
-            facilityID = userDao.getLoggedInUserFacilityID()
-            providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
-            extracted(context)
+             extracted(context)
         }
     }
 
@@ -101,6 +97,9 @@ class HomeViewModel @Inject constructor(
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+            vanID = userDao.getLoggedInUserVanID()
+            facilityID = userDao.getLoggedInUserFacilityID()
+            providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
             doctorMaleMasterDataRepo.getDoctorMasterMaleData(visitCategoryID,providerServiceMapID,gender,facilityID,vanID)
             malMasterDataRepo.getMasterDataForNurse(visitCategoryID, providerServiceMapID,gender)
             if (!dataLoadFlagManager.isDataLoaded())

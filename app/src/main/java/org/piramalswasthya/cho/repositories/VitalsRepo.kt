@@ -27,25 +27,26 @@ class VitalsRepo @Inject constructor(
         return vitalsDao.getPatientVitalsById(vitalsId)
     }
 
-    suspend fun getVitalsDetailsByBenRegId(beneficiaryRegID: Long) : PatientVitalsModel?{
-        return vitalsDao.getPatientVitalsByBenRegId(beneficiaryRegID,)
-    }
+//    suspend fun getVitalsDetailsByBenRegId(beneficiaryRegID: Long) : PatientVitalsModel?{
+//        return vitalsDao.getPatientVitalsByBenRegId(beneficiaryRegID,)
+//    }
+
     suspend fun getVitalsDetailsByPatientID(patientID: String) : PatientVitalsModel {
         return withContext(Dispatchers.IO) {
             vitalsDao.getPatientVitalsByPatientID(patientID)
         }
     }
 
-    suspend fun getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : PatientVitalsModel?{
-        return vitalsDao.getPatientVitalsByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
+    suspend fun getPatientVitalsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : PatientVitalsModel?{
+        return vitalsDao.getPatientVitalsByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
 
-    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int) {
-        vitalsDao.updateBenFlowId(benFlowId, beneficiaryRegID, benVisitNo)
-    }
+//    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int) {
+//        vitalsDao.updateBenFlowId(benFlowId, beneficiaryRegID, benVisitNo)
+//    }
 
-    suspend fun updateBenIdBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String) {
-        vitalsDao.updateBenIdBenRegId(beneficiaryID, beneficiaryRegID, patientID)
-    }
+//    suspend fun updateBenIdBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String) {
+//        vitalsDao.updateBenIdBenRegId(beneficiaryID, beneficiaryRegID, patientID)
+//    }
 
 }

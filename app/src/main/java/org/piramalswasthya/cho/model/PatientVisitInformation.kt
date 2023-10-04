@@ -35,8 +35,8 @@ data class PatientVisitInformation(
 ){
     constructor(user: UserDomain?, visit: VisitDB?, chiefComplaints: List<ChiefComplaintDB>?, vitals: PatientVitalsModel?, benFlow: BenFlow): this(
         benFlow.benFlowID.toString(),
-        benFlow.beneficiaryID.toString(),
-        benFlow.beneficiaryRegID.toString(),
+        benFlow.beneficiaryID?.toString(),
+        benFlow.beneficiaryRegID?.toString(),
         user?.userName,
         ExaminationDetails(
             user = user,
@@ -47,8 +47,8 @@ data class PatientVisitInformation(
             benFlow = benFlow
         ),
         user?.parkingPlaceId,
-        user?.serviceMapId.toString(),
-        user?.serviceId.toString(),
+        user?.serviceMapId?.toString(),
+        user?.serviceId?.toString(),
         "3",
         null,
         user?.vanId,
@@ -70,13 +70,13 @@ data class PatientVisitInformation(
 
 
 @JsonClass(generateAdapter = true)
-data class PatientDoctorForm(
+data class PatientDoctorFormUpsync(
     val subVisitCategory: String?,
-    val diagnosis: Diagnosis?,
-    val investigation: Investigation?,
-    val prescription: List<Prescription>?,
+    val diagnosis: DiagnosisUpsync?,
+    val investigation: InvestigationUpsync?,
+    val prescription: List<PrescriptionUpsync>?,
     val counsellingProvidedList: List<String>?,
-    val refer: Refer?,
+    val refer: ReferUpsync?,
     val benFlowID: String?,
     val beneficiaryID: String?,
     val doctorFlag: String?,
@@ -93,13 +93,15 @@ data class PatientDoctorForm(
     val createdBy: String?,
     val isSpecialist: Boolean?,
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosis: Diagnosis?, investigation: Investigation?, prescription: List<Prescription>?, refer: Refer? ): this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, prescriptionList: List<PrescriptionWithItemMasterAndDrugFormMaster>?, procedureList: List<ProceduresMasterData> ): this(
         "Management of Communicable Diseases including National Health Programs",
-        diagnosis,
-        investigation,
-        prescription,
+        DiagnosisUpsync(user, benFlow, diagnosisList),
+        InvestigationUpsync(user, benFlow, investigation, procedureList),
+        prescription = prescriptionList?.map {
+            PrescriptionUpsync(user, it)
+        } ?: emptyList(),
         null,
-        refer,
+        ReferUpsync(user, benFlow, investigation?.higherHealthCenter),
         benFlow?.benFlowID.toString(),
         benFlow?.beneficiaryID.toString(),
         benFlow?.doctorFlag.toString(),
