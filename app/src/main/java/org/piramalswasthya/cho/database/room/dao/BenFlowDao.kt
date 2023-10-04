@@ -14,7 +14,7 @@ interface BenFlowDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBenFlow(benFlow: BenFlow)
 
-    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD' OR Visit_DB.category LIKE 'OutPatient Care') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'ಔಟ್ ಪೇಷಂಟ್ ಕಾಳಜಿ' OR Visit_DB.category LIKE 'OutPatient Care') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getOpdCount(genderID: Int, periodParam: String) : Int?
 
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")
