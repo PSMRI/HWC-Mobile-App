@@ -450,7 +450,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:inputType="text"
+                        android:inputType="none"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -484,7 +484,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:inputType="text"
+                        android:inputType="none"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 

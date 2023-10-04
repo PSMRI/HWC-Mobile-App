@@ -55,13 +55,13 @@ class EditPatientDetailsFragment : Fragment() {
             when (currFragment.getFragmentId()) {
                 R.id.fragment_fhir_visit_details -> {
                     binding.headerTextEditPatient.text =
-                        resources.getString(R.string.vitals_text)
+                        resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.submit_to_doctor_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.fragment_fhir_vitals -> {
                     binding.headerTextEditPatient.text =
-                        resources.getString(R.string.prescription_text)
+                        resources.getString(R.string.vitals_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
