@@ -91,8 +91,8 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
                    R.id.fhirVisitDetailsFragment -> {
-//                       binding.headerTextEditPatient.text =
-//                           resources.getString(R.string.visit_details)
+                       binding.headerTextRegisterPatient.text =
+                           resources.getString(R.string.visit_details)
                        binding.btnSubmit.text = resources.getString(R.string.next)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
