@@ -562,6 +562,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
+
+            if (formVal != null && freqVal != null && unitVal != null && durVal != null && instruction != null) {
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
                     itemId = formVal,
@@ -569,10 +571,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
-                    patientID =patId
-                 )
+                    patientID = patId
+                )
                 viewModel.savePrescriptionToCache(pres)
             }
+        }
     }
     private fun addVitalsDataToCache(lastVisitNo: Int){
         val patientVitals = PatientVitalsModel(

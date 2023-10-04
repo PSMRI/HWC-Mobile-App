@@ -80,6 +80,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                when (destination.id) {
                    R.id.caseRecordCustom ->{
 //                       binding.headerTextEditPatient.text = resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.case_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
@@ -103,6 +104,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    R.id.customVitalsFragment -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.vitals_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()) {
                            binding.btnSubmit.text = resources.getString(R.string.next)
@@ -129,6 +131,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    R.id.caseRecordCustom -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.case_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
