@@ -327,6 +327,10 @@ class UserRepo @Inject constructor(
                     }
                 }
 
+                user!!.stateId = stateId.toInt()
+                user!!.districtID = districtId.toInt()
+                user!!.blockID = blockId.toInt()
+
                 if(villageIds.isNotEmpty()){
                     user!!.assignVillageIds = villageIds.substring(0, villageIds.length-1)
                 }

@@ -155,7 +155,10 @@ data class UserCache(
             districts = districts,
             blocks = blocks,
             villages = villages,
-
+            stateID = stateID,
+            districtID = districtID,
+            blockID = blockID,
+            assignVillageIds = assignVillageIds,
 //            countryId = countryId,
 //            stateIds = stateIds,
 //            districtIds = districtIds,
@@ -178,7 +181,6 @@ data class UserCache(
             userType = userType,
             roles = roles,
             loggedIn = loggedIn,
-            assignVillageIds = assignVillageIds ?: ""
         )
     }
 }
@@ -205,6 +207,9 @@ data class UserDomain(
     val districts : List<LocationEntity>,
     val blocks : List<LocationEntity>,
     val villages : List<LocationEntity>,
+    val stateID : Int?,
+    val districtID : Int?,
+    val blockID : Int?,
 //    val stateIds: List<Int>,
 //    val districtIds: List<Int>,
 //    val blockIds: List<Int>,
@@ -246,6 +251,10 @@ data class UserNetwork(
     var parkingPlaceName: String?=null,
     var servicePointName: String?=null,
     var zoneName : String?=null,
+    var stateId : Int? = null,
+    var districtID : Int? = null,
+    var blockID : Int? = null,
+    var districtBranchID : Int? = null,
 
     var assignVillageIds: String? = null,
     var assignVillageNames: String? = null,
@@ -328,10 +337,10 @@ data class UserNetwork(
             userType = userType?:"",
             loggedIn = loggedIn?:false,
             roles = roles,
-            stateID = null,
-            districtID = null,
-            blockID = null,
-            districtBranchID = null,
+            stateID = stateId,
+            districtID = districtID,
+            blockID = blockID,
+            districtBranchID = districtBranchID,
             assignVillageIds = assignVillageIds ?: "",
             assignVillageNames = assignVillageNames ?: ""
         )
