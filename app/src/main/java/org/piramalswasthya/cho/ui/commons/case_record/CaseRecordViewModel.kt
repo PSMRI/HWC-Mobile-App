@@ -211,7 +211,7 @@ class CaseRecordViewModel @Inject constructor(
                     existingPatientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
                     existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
                     existingPatientVisitInfoSync.nurseFlag = 9
-                    existingPatientVisitInfoSync.doctorFlag = 9
+                    existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
                 }
                 else{

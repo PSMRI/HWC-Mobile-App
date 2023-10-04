@@ -28,7 +28,11 @@ interface BenFlowDao {
     suspend fun updateNurseCompleted(visitCode: Long, benVisitID: Long, benFlowID: Long)
 
     @Transaction
+    @Query("UPDATE BENFLOW SET nurseFlag = 9, doctorFlag = 2 WHERE benFlowID = :benFlowID")
+    suspend fun updateDoctorCompletedWithTest(benFlowID: Long)
+
+    @Transaction
     @Query("UPDATE BENFLOW SET nurseFlag = 9, doctorFlag = 9 WHERE benFlowID = :benFlowID")
-    suspend fun updateDoctorCompleted(benFlowID: Long)
+    suspend fun updateDoctorCompletedWithoutTest(benFlowID: Long)
 
 }

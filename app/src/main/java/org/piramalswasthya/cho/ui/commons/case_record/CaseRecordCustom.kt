@@ -101,6 +101,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var patientId : String
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
+    private var doctorFlag = 2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -538,6 +539,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val id = findKeyByValue(testNameMap,testNameS) // Replace with your function to get the ID
             id?.toString() ?: ""
         }
+
+        if(idString.nullIfEmpty() == null){
+            doctorFlag = 9
+        }
+
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
@@ -593,6 +599,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         viewModel.savePatientVitalInfoToCache(patientVitals)
     }
     private fun addVisitRecordDataToCache(benVisitNo: Int){
+
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
@@ -628,7 +635,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
             nurseFlag = 9,
-            doctorFlag = 9,
+            doctorFlag = doctorFlag,
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }

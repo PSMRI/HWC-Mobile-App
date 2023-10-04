@@ -392,8 +392,13 @@ class BenFlowRepo @Inject constructor(
         benFlowDao.updateNurseCompleted(visitCode, benVisitID, benFlowID)
     }
 
-    suspend fun updateDoctorCompleted(benFlowID: Long){
-        benFlowDao.updateDoctorCompleted(benFlowID)
+    suspend fun updateDoctorCompletedWithTest(benFlowID: Long){
+        benFlowDao.updateDoctorCompletedWithTest(benFlowID)
     }
+
+    suspend fun updateDoctorCompletedWithoutTest(benFlowID: Long){
+        benFlowDao.updateDoctorCompletedWithoutTest(benFlowID)
+    }
+
 
 }
