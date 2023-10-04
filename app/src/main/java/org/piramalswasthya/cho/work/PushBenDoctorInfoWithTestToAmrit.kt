@@ -14,7 +14,7 @@ import java.net.SocketTimeoutException
 
 
 @HiltWorker
-class PushBenDoctorInfoToAmrit @AssistedInject constructor(
+class PushBenDoctorInfoWithTestToAmrit @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val benVisitRepo: BenVisitRepo,
@@ -22,13 +22,13 @@ class PushBenDoctorInfoToAmrit @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PushBenDoctorInfoToAmrit"
+        const val name = "PushBenDoctorInfoWithTestToAmrit"
     }
 
     override suspend fun doWork(): Result {
         init()
         try {
-            val workerResult = benVisitRepo.processUnsyncedDoctorData()
+            val workerResult = benVisitRepo.processUnsyncedDoctorDataWithTest()
             return if (workerResult) {
                 Timber.d("Worker completed")
                 Result.success()

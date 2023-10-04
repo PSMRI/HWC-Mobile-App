@@ -3,7 +3,7 @@ package org.piramalswasthya.cho.model
 import java.io.Serializable
 
 data class PrescriptionValues(
-    var id:Int?=-1,
+    var id:Int?=null,
     var form: String = "",
     var frequency: String = "",
     var dosage:String = "",

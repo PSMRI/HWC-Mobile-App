@@ -121,31 +121,24 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
              visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patientID)
          }
      }
-    suspend fun getVisitDB(beneficiaryRegID: Long) : VisitDB?{
-        return visitReasonsAndCategoriesDao.getVisitDb(beneficiaryRegID)
+
+    suspend fun getVisitDbByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : VisitDB?{
+        return visitReasonsAndCategoriesDao.getVisitDbByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
 
-    suspend fun getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : VisitDB?{
-        return visitReasonsAndCategoriesDao.getVisitDbByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
+    suspend fun getChiefComplaintsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?{
+        return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
 
-    suspend fun getChiefComplaintDB(beneficiaryRegID: Long) : List<ChiefComplaintDB>?{
-        return visitReasonsAndCategoriesDao.getChiefComplaints(beneficiaryRegID)
-    }
+//    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int){
+//        visitReasonsAndCategoriesDao.updateVisitDbBenflow(benFlowId, beneficiaryRegID, benVisitNo)
+//        visitReasonsAndCategoriesDao.updateChiefComplaintsBenflow(benFlowId, beneficiaryRegID, benVisitNo)
+//    }
 
-    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : List<ChiefComplaintDB>?{
-        return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
-    }
-
-    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int){
-        visitReasonsAndCategoriesDao.updateVisitDbBenflow(benFlowId, beneficiaryRegID, benVisitNo)
-        visitReasonsAndCategoriesDao.updateChiefComplaintsBenflow(benFlowId, beneficiaryRegID, benVisitNo)
-    }
-
-    suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
-        visitReasonsAndCategoriesDao.updateBenIdBenRegIdVisitDb(beneficiaryID, beneficiaryRegID, patientID)
-        visitReasonsAndCategoriesDao.updateBenIdBenRegIdChiefComplaint(beneficiaryID, beneficiaryRegID, patientID)
-    }
+//    suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
+//        visitReasonsAndCategoriesDao.updateBenIdBenRegIdVisitDb(beneficiaryID, beneficiaryRegID, patientID)
+//        visitReasonsAndCategoriesDao.updateBenIdBenRegIdChiefComplaint(beneficiaryID, beneficiaryRegID, patientID)
+//    }
 
 
 

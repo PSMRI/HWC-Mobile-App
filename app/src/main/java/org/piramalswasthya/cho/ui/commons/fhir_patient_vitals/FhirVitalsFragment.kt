@@ -134,7 +134,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
-    private fun addVitalsDataToCache(lastVisitNo: Int){
+    private fun addVitalsDataToCache(benVisitNo: Int){
         val patientVitals = PatientVitalsModel(
             vitalsId = generateUuid(),
             height = heightValue.nullIfEmpty(),
@@ -149,18 +149,18 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             respiratoryRate = respiratoryValue.nullIfEmpty(),
             rbs = rbsValue.nullIfEmpty(),
             patientID = masterDb!!.patientId.toString(),
-            benVisitNo = lastVisitNo + 1,
+            benVisitNo = benVisitNo,
         )
         viewModel.savePatientVitalInfoToCache(patientVitals)
     }
-    private fun addVisitRecordDataToCache(lastVisitNo: Int){
+    private fun addVisitRecordDataToCache(benVisitNo: Int, ){
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
             reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = masterDb!!.patientId.toString(),
-            benVisitNo = lastVisitNo + 1,
+            benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
         )
 
@@ -175,20 +175,20 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
                 description = chiefComplaintItem.description.nullIfEmpty(),
                 patientID = masterDb!!.patientId.toString(),
-                beneficiaryID = null,
-                beneficiaryRegID=null,
-                benVisitNo = lastVisitNo + 1,
+                benVisitNo = benVisitNo,
                 benFlowID=null
             )
             viewModel.saveChiefComplaintDbToCatche(chiefC)
         }
     }
 
-    private fun addPatientVisitInfoSyncToCache(lastVisitNo: Int){
+    private fun addPatientVisitInfoSyncToCache(benVisitNo: Int, createNewBenflow: Boolean){
+
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = masterDb!!.patientId.toString(),
-            benVisitNo = lastVisitNo + 1,
-            createNewBenFlow = true,
+            benVisitNo = benVisitNo,
+            createNewBenFlow = createNewBenflow,
+            nurseFlag = 9
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }
@@ -404,18 +404,32 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 //                    ).show()
 //                }
 //                else{
-                    val lastVisitNo = viewModel.getLastVisitNo(masterDb!!.patientId.toString())
+
+                    var benVisitNo = 0;
+                    var createNewBenflow = false;
+                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                        if(it == null){
+                            benVisitNo = 1;
+                        }
+                        else if(it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        }
+                        else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
+                    }
                     extractFormValues()
                     setVitalsMasterData()
-                    addVisitRecordDataToCache(lastVisitNo)
-                    addVitalsDataToCache(lastVisitNo)
-                    addPatientVisitInfoSyncToCache(lastVisitNo)
+                    addVisitRecordDataToCache(benVisitNo)
+                    addVitalsDataToCache(benVisitNo)
+                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
                     setNurseComplete()
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.vitals_information_is_saved),
-                        Toast.LENGTH_SHORT
-                    ).show()
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.vitals_information_is_saved),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
 //                }

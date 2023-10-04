@@ -3,11 +3,11 @@ package org.piramalswasthya.cho.model
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Diagnosis(
+data class DiagnosisUpsync(
     val prescriptionID: Int?,
     val vanID: Int?,
     val parkingPlaceID: Int?,
-    val provisionalDiagnosisList: List<ProvisionalDiagnosis>,
+    val provisionalDiagnosisList: List<ProvisionalDiagnosisUpsync>,
     val beneficiaryRegID: String?,
     val benVisitID: String?,
     val visitCode: String?,
@@ -15,11 +15,13 @@ data class Diagnosis(
     val createdBy: String?,
     val isSpecialist: Boolean
 ) {
-    constructor(user: UserDomain?, benFlow: BenFlow?,arrayList: ArrayList<ProvisionalDiagnosis>) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?) : this(
         null,
         user?.vanId,
         user?.parkingPlaceId,
-        arrayList,
+        provisionalDiagnosisList = diagnosisList?.map {
+            ProvisionalDiagnosisUpsync(term = it.diagnosis)
+        } ?: emptyList(),
         benFlow?.beneficiaryID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),
@@ -30,7 +32,7 @@ data class Diagnosis(
 }
 
 @JsonClass(generateAdapter = true)
-data class ProvisionalDiagnosis(
+data class ProvisionalDiagnosisUpsync(
     val term: String,
     val conceptID: String? = null
 ){

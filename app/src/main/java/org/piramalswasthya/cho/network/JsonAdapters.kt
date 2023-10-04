@@ -388,9 +388,9 @@ data class BenificiarySaveResponse(
 
 @JsonClass(generateAdapter = true)
 data class NurseDataResponse(
-    val response: String,
-    val visitCode: String,
-    val visitID: Long,
+    val response: String?,
+    val visitCode: String?,
+    val visitID: Long?,
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)

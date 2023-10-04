@@ -27,7 +27,7 @@ object WorkerUtils {
         val pushBenVisitInfoRequest = OneTimeWorkRequestBuilder<PushBenVisitInfoToAmrit>()
             .setConstraints(networkOnlyConstraint)
             .build()
-        val pushBenDoctorInfoToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoToAmrit>()
+        val pushBenDoctorInfoWithTestToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithTestToAmrit>()
             .setConstraints(networkOnlyConstraint)
             .build()
         val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
@@ -44,7 +44,7 @@ object WorkerUtils {
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)
-//            .then(pushBenDoctorInfoToAmrit)
+            .then(pushBenDoctorInfoWithTestToAmrit)
             .enqueue()
     }
 

@@ -8,7 +8,7 @@ import org.piramalswasthya.cho.model.DownloadPatRequest
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
-import org.piramalswasthya.cho.model.PatientDoctorForm
+import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.utils.Constants
@@ -208,14 +208,14 @@ interface AmritApiService {
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
 
-    @POST("/hwc-facility-service/generalOPD/save/nurseData?apiKey=undefined")
+    @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
 
     @POST("hwc-facility-service/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
-    suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorForm) : Response<ResponseBody>
+    suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
 
     @GET("/flw-0.0.1/user/getUserDetail")
     suspend fun getUserDetail(@Query("userId") userId: Int) : Response<ResponseBody>

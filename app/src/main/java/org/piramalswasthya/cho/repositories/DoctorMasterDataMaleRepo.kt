@@ -26,10 +26,25 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     private val amritApiService: AmritApiService
 
 ){
+//    private var visitCategoryID: Int = 6
+//    private var providerServiceMapID: Int = -1
+//    var gender : String = "Male"
+//    private var vanID : Int =-1
+//    private var facilityID : Int =-1
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
-
-    suspend fun getDoctorMasterMaleData(visitCategoryID:Int, providerServiceMapID:Int, gender:String, facilityID:Int, vanID:Int) {
-
+    init {
+        // Observe the LiveData to get the VAN ID and Facility ID
+//        userDao.getLoggedInUserVanID().observeForever{ vanId ->
+//            vanID = vanId ?: -1
+//        }
+//        userDao.getLoggedInUserProviderServiceMapId().observeForever{ vanId ->
+//            providerServiceMapID = vanId ?: -1
+//        }
+//        userDao.getLoggedInUserFacilityID().observeForever { facilityId ->
+//            facilityID = facilityId ?: -1
+//        }
+    }
+    suspend fun getDoctorMasterMaleData(visitCategoryID : Int,providerServiceMapID: Int,gender: String,facilityID: Int, vanID: Int) {
         try {
             val response = amritApiService.getDoctorMasterData(
                 visitCategoryID, providerServiceMapID,
@@ -71,12 +86,11 @@ class DoctorMasterDataMaleRepo @Inject constructor(
         }
     }
 
+
     private suspend fun saveDrugFormMasterListToCache(drugFormMaster: List<DrugFormMaster>){
         try{
             drugFormMaster.forEach { drug:DrugFormMaster ->
-                withContext(Dispatchers.IO){
-                    healthCenterDao.insertDrugFormMasterList(drug)
-                }
+                healthCenterDao.insertDrugFormMasterList(drug)
             }
         } catch (e: Exception){
             Timber.d("Error in saving Drug Form Master List data $e")
@@ -86,9 +100,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     private suspend fun saveCounsellingTypesMasterListToCache(counsellingTypes: List<CounsellingProvided>){
         try{
             counsellingTypes.forEach { counselling:CounsellingProvided ->
-                withContext(Dispatchers.IO){
-                    healthCenterDao.insertCounsellingTypeMasterList(counselling)
-                }
+                healthCenterDao.insertCounsellingTypeMasterList(counselling)
             }
         } catch (e: Exception){
             Timber.d("Error in saving Counselling Types Master List data $e")
@@ -98,9 +110,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     private suspend fun saveDrugFrequencyMasterListToCache(drugFrequencyMaster: List<DrugFrequencyMaster>){
         try{
             drugFrequencyMaster.forEach { drugItem:DrugFrequencyMaster ->
-                withContext(Dispatchers.IO){
-                    healthCenterDao.insertDrugFrequencyMasterList(drugItem)
-                }
+                healthCenterDao.insertDrugFrequencyMasterList(drugItem)
             }
         } catch (e: Exception){
             Timber.d("Error in saving Drug Frequency Master List data $e")
@@ -110,9 +120,7 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     private suspend fun saveItemMasterListToCache(itemMasterList: List<ItemMasterList>){
         try{
             itemMasterList.forEach { itemM:ItemMasterList ->
-                withContext(Dispatchers.IO){
-                    healthCenterDao.insertItemMasterList(itemM)
-                }
+                healthCenterDao.insertItemMasterList(itemM)
             }
         } catch (e: Exception){
             Timber.d("Error in saving Item Master List data $e")
@@ -120,16 +128,15 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     }
 
     private suspend fun saveHigherHealthCenterToCache(higherHealthCenter:List<HigherHealthCenter>){
-            try{
-                higherHealthCenter.forEach { healthCenter:HigherHealthCenter ->
-                    withContext(Dispatchers.IO){
-                        healthCenterDao.insertHealthCenter(healthCenter)
-                    }
-                }
-            } catch (e: Exception){
-                Timber.d("Error in saving Higher health center data $e")
+        try{
+            higherHealthCenter.forEach { healthCenter:HigherHealthCenter ->
+                healthCenterDao.insertHealthCenter(healthCenter)
             }
+        } catch (e: Exception){
+            Timber.d("Error in saving Higher health center data $e")
         }
+    }
+
      fun getAllItemMasterList(): LiveData<List<ItemMasterList>> {
         return healthCenterDao.getAllItemMasterList()
     }
@@ -141,12 +148,11 @@ class DoctorMasterDataMaleRepo @Inject constructor(
     fun getHigherHealthCenter(): LiveData<List<HigherHealthCenter>> {
                 return healthCenterDao.getHealthCenter()
     }
-//    fun getHigherHealthCenterById(institutionID:Int?): HigherHealthCenter {
-//        return healthCenterDao.getHealthCenterByID(institutionID)
-//    }
+
     fun getItemMasterListById(id:Int): ItemMasterList {
         return healthCenterDao.getItemMasterListById(id)
     }
+
     suspend fun getHigherHealthTypeByNameMap():Map<Int,String>{
         return healthCenterDao.getHigherHealthMap().associate {
             it.institutionID to it.institutionName

@@ -34,8 +34,6 @@ data class ChiefComplaintDB(
     @ColumnInfo(name = "durationUnit") val durationUnit: String?,
     @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
-    @ColumnInfo(name = "beneficiaryID") var beneficiaryID: Long? = null,
-    @ColumnInfo(name = "beneficiaryRegID") var beneficiaryRegID: Long? = null,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 ){
@@ -47,8 +45,6 @@ data class ChiefComplaintDB(
         benChiefComplaints.unitOfDuration,
         benChiefComplaints.description,
         patient.patientID,
-        benFlow.beneficiaryID,
-        benFlow.beneficiaryRegID,
         benFlow.benFlowID,
         benFlow.benVisitNo
     )
