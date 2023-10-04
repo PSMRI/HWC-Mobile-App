@@ -698,7 +698,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     ).show()
                 }
             }
-
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 if(masterDb!!.patientId.toString()!=null) {
