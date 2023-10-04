@@ -185,6 +185,7 @@
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
+            android:visibility="gone"
             android:textColorHint="#888888"
             android:hint="@string/marital_status"
             android:layout_height="wrap_content">
@@ -205,6 +206,7 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
+            android:visibility="gone"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/spouse_name">
@@ -226,6 +228,7 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
+            android:visibility="gone"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/age_at_marriage">

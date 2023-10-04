@@ -97,7 +97,7 @@
                 android:layout_height="@dimen/btn_height"
                 android:layout_weight="1"
                 android:backgroundTint="@color/default_button"
-                android:text="Next" />
+                android:text="@string/submit_btn_text" />
 
         </LinearLayout>
 
