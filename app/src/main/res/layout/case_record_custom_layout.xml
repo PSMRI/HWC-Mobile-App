@@ -449,6 +449,7 @@
                         android:id="@+id/routeDropDownVal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:editable="false"
                         android:layout_weight="1"
                         android:inputType="text"
                         android:textSize="18sp" />
@@ -483,6 +484,7 @@
                         android:id="@+id/referDropdownText"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:editable="false"
                         android:layout_weight="1"
                         android:inputType="text"
                         android:textSize="18sp" />
