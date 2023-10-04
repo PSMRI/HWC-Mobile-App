@@ -75,6 +75,7 @@
                 android:checked="true"
                 android:textSize="18sp"
                 android:text="New Chief Complaint"
+                android:value="New Chief Complaint"
                 android:textColor="@drawable/radio_btn_select" />
 
             <RadioButton
@@ -82,6 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Follow Up"
+                android:value="Follow Up"
                 android:textSize="18sp"
                 android:textColor="@drawable/radio_btn_select" />
         </RadioGroup>
