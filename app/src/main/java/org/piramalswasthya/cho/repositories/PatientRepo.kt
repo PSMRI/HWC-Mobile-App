@@ -11,19 +11,28 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
+import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
+import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.BeneficiariesDTO
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
+import org.piramalswasthya.cho.model.Address
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.BlockMaster
+import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientNetwork
+import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserDomain
+import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
@@ -50,6 +59,10 @@ class PatientRepo  @Inject constructor(
     private val vitalsRepo: VitalsRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val preferenceDao: PreferenceDao,
+    private val stateMasterDao: StateMasterDao,
+    private val districtMasterDao: DistrictMasterDao,
+    private val blockMasterDao: BlockMasterDao,
+    private val villageMasterDao: VillageMasterDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao
 ) {
 
@@ -152,19 +165,22 @@ class PatientRepo  @Inject constructor(
             preferenceDao.getLastSyncTime()
         )
 
-        when(val response = downloadRegisterPatientFromServer(villageList)){
+        return when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
-                return true
+                true
             }
+
             is NetworkResult.Error -> {
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
-                return true
+                true
             }
-            else -> {}
+
+            else -> {
+                true
+            }
         }
-        return true
     }
     private fun convertStringToIntList(villageIds : String) : List<Int>{
         return villageIds.split(",").map {
@@ -179,6 +195,64 @@ class PatientRepo  @Inject constructor(
         val ageUnit = registrarMasterDataDao.getAgeUnit(start!!)
         patient.age = age.value
         patient.ageUnitID = ageUnit.id
+    }
+
+    private suspend fun downloadLocationMasterData(currentAddress: Address?){
+
+        if(currentAddress?.stateId != null){
+            if(stateMasterDao.getStateById(currentAddress.stateId.toInt()) == null ){
+                stateMasterDao.insertStates(
+                    StateMaster(
+                        stateID = currentAddress.stateId.toInt(),
+                        stateName = currentAddress.state ?: "",
+                        null
+                    )
+                )
+            }
+        }
+
+        if(currentAddress?.districtId != null && currentAddress.stateId != null){
+            if(districtMasterDao.getDistrictById(currentAddress.districtId.toInt()) == null ){
+                districtMasterDao.insertDistrict(
+                    DistrictMaster(
+                        districtID = currentAddress.districtId.toInt(),
+                        stateID = currentAddress.stateId.toInt(),
+                        null,
+                        null,
+                        districtName = currentAddress.district ?: "",
+                    )
+                )
+            }
+        }
+
+        if(currentAddress?.subDistrictId != null && currentAddress.districtId != null){
+            if(blockMasterDao.getBlockById(currentAddress.subDistrictId.toInt()) == null ){
+                blockMasterDao.insertBlock(
+                    BlockMaster(
+                        blockID = currentAddress.subDistrictId.toInt(),
+                        districtID = currentAddress.districtId.toInt(),
+                        null,
+                        null,
+                        blockName = currentAddress.subDistrict ?: "",
+                    )
+                )
+            }
+        }
+
+        if(currentAddress?.villageId != null && currentAddress.subDistrictId != null){
+            if(villageMasterDao.getVillageById(currentAddress.villageId.toInt()) == null ){
+                villageMasterDao.insertVillage(
+                    VillageMaster(
+                        districtBranchID = currentAddress.villageId.toInt(),
+                        blockID = currentAddress.subDistrictId.toInt(),
+                        null,
+                        null,
+                        villageName = currentAddress.village ?: "",
+                    )
+                )
+            }
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -202,6 +276,9 @@ class PatientRepo  @Inject constructor(
                                     healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
                                 )
                             }
+
+                            downloadLocationMasterData(beneficiary.currentAddress)
+
                             val patient = Patient(
                                 patientID = generateUuid(),
                                 firstName = beneficiary.beneficiaryDetails?.firstName,
@@ -248,7 +325,6 @@ class PatientRepo  @Inject constructor(
 
     suspend fun processUnsyncedData() : Boolean{
 
-
         Log.d("hey", "ya")
 
         val patientList = patientDao.getPatientListUnsynced();
@@ -288,7 +364,9 @@ class PatientRepo  @Inject constructor(
                     }
                     return false;
                 }
-                else -> {}
+                else -> {
+
+                }
             }
         }
 
