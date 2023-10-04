@@ -422,6 +422,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
                     binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
+                    binding.ageInUnitDropdown.setText("Years",false)
                 }
                 else -> {
 

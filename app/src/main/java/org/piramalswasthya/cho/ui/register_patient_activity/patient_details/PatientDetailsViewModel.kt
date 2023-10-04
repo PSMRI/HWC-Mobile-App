@@ -120,10 +120,10 @@ class PatientDetailsViewModel @Inject constructor(
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
-    var selectedAgeUnitEnum: AgeUnitEnum?  = null
+    var selectedAgeUnitEnum: AgeUnitEnum? = AgeUnitEnum.YEARS
     var enteredAge: Int?  = null
     var selectedDateOfBirth: Date?  = null
-    var selectedAgeUnit : AgeUnit? = null;
+    var selectedAgeUnit : AgeUnit? = AgeUnit(3,"Years");
     var selectedMaritalStatus : MaritalStatusMaster? = null;
     var selectedGenderMaster : GenderMaster? = null;
     var selectedVillage : VillageLocationData? = null;
