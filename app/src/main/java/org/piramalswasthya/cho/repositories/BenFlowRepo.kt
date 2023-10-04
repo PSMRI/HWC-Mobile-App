@@ -366,7 +366,7 @@ class BenFlowRepo @Inject constructor(
                         if(patient != null){
                             checkAndAddNewVisitInfo(benFlow, patient)
                             updateBenFlowId(benFlow, patient)
-                            checkAndDownsyncNurseData(benFlow, patient)
+//                            checkAndDownsyncNurseData(benFlow, patient)
 //                            if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null){
 //                                getAndSaveNurseDataToDb(benFlow, patient)
 //                            }
