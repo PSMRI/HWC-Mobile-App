@@ -8,7 +8,8 @@
 
     <item>
         <shape android:shape="oval">
-            <solid android:color="?attr/colorSecondary" />
+            <solid android:color="?attr/colorOnPrimary" />
+            <stroke android:color="@color/seed" android:width="4dp"/>
         </shape>
     </item>
 </selector>

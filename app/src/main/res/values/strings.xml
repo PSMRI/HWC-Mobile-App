@@ -375,4 +375,7 @@
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
+    <string name="tap_to_take_photo">Tap to take photo</string>
+    <string name="photo">Photo</string>
+    <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
 </resources>
