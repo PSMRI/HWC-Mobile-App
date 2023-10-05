@@ -520,13 +520,20 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         return map.entries.find { it.value == value }?.key
     }
     private fun addCaseRecordDataToCatche(benVisitNo: Int) {
+        var bool = true
         // save diagnosis
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
-            if (diagnosisData.diagnosis.isNotEmpty()) {
+            if(diagnosisData.diagnosis.isNullOrEmpty()){
+                requireActivity().runOnUiThread {
+                    Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
+                }
+                bool = false
+            }
+            else {
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
-                    diagnosis= diagnosisData.diagnosis,
+                    diagnosis = diagnosisData.diagnosis,
                     patientID = patId,
                     benVisitNo = benVisitNo
                 )
@@ -579,6 +586,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     benVisitNo = benVisitNo
                 )
                 viewModel.savePrescriptionToCache(pres)
+            }
+        }
+        if (bool){
+            requireActivity().runOnUiThread {
+                Toast.makeText(requireContext(), resources.getString(R.string.dataSavedCaseRecord), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -668,34 +680,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 val patientVisitInfoSync = viewModel.getSinglePatientDoctorDataNotSubmitted(patientId)
 
                 if(patientVisitInfoSync == null){
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.nurseDataNotSaved),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@launch;
-                }
-
-                addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
-
-                viewModel.updateDoctorDataSubmitted(patientVisitInfoSync)
-
-                val validate = dAdapter.setError()
-                if (validate == -1) {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.dataSavedCaseRecord),
-                        Toast.LENGTH_SHORT
-                    ).show()
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
-                } else {
-                    binding.diagnosisExtra.scrollToPosition(validate)
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.diagnosisCannotBeEmpty),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                }
+                else{
+                    viewModel.updateDoctorDataSubmitted(patientVisitInfoSync)
+                    val validate = dAdapter.setError()
+                    if (validate == -1) {
+                        addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
+                    }
                 }
             }
         } else {
@@ -711,8 +708,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //                        Toast.LENGTH_SHORT
 //                    ).show()
 //                } else {
-
-
 
                     val validate = dAdapter.setError()
                     if (validate == -1) {
@@ -735,22 +730,18 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         addVitalsDataToCache(benVisitNo)
                         addCaseRecordDataToCatche(benVisitNo)
                         addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-//                        Toast.makeText(
-//                           requireContext(),
-//                            resources.getString(R.string.dataSavedCaseRecord),
-//                            Toast.LENGTH_SHORT
-//                        ).show()
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            resources.getString(R.string.diagnosisCannotBeEmpty),
-//                            Toast.LENGTH_SHORT
-//                        ).show()
+                        showToast()
                     }
 //                }
             }
+        }
+    }
+    fun showToast(){
+        requireActivity().runOnUiThread {
+            Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
         }
     }
 }

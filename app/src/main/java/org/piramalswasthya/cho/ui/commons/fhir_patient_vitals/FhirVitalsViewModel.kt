@@ -173,6 +173,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
+                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
 //                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
