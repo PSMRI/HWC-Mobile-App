@@ -1,11 +1,11 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -14,11 +14,13 @@ import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.model.ComponentResultDTO
+import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.PatientVisitInformation
-import org.piramalswasthya.cho.model.PrescriptionCaseRecord
-import org.piramalswasthya.cho.model.UserDomain
+import org.piramalswasthya.cho.model.ProcedureResultDTO
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataResponse
@@ -28,7 +30,6 @@ import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.patient.patient
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
-import java.lang.Exception
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -45,6 +46,8 @@ class BenVisitRepo @Inject constructor(
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
+    private val patientDao: PatientDao,
+    private val procedureDao: ProcedureDao
 
 ) {
 
@@ -87,6 +90,27 @@ class BenVisitRepo @Inject constructor(
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
                     registerDoctorData(patientDoctorForm)
+                },
+            )
+        }
+
+    }
+
+    private suspend fun registerLabData(labResultDTO: LabResultDTO): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService.saveLabData(labResultDTO)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    Timber.i("lab data submitted",  response.body()?.string() ?: "")
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    registerLabData(labResultDTO)
                 },
             )
         }
@@ -257,6 +281,96 @@ class BenVisitRepo @Inject constructor(
                             }
                             else -> {}
                         }
+                    } else { }
+                }
+            }
+        }
+
+        return true
+
+    }
+
+    suspend fun processUnsyncedLabData(): Boolean{
+
+        val labDataUnsyncedList = patientVisitInfoSyncRepo.getPatientLabDataUnsynced()
+        val user = userRepo.getLoggedInUser()
+
+        labDataUnsyncedList.forEach {
+
+            if(it.patient.beneficiaryRegID != null){
+                withContext(Dispatchers.IO){
+
+                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.patient.beneficiaryRegID!!)
+                    if(benFlow != null){
+
+                        val procedureResultDTOs : MutableList<ProcedureResultDTO> = mutableListOf()
+                        it.patient.beneficiaryRegID?.let {
+                            beneficiaryRegID ->
+                            val procedures = procedureDao.getProcedures(beneficiaryRegID)
+                            procedures?.forEach { procedure ->
+                                val compListDetails: MutableList<ComponentResultDTO> = mutableListOf()
+                                val procedureDTO = ProcedureResultDTO(
+                                    prescriptionID = procedure.prescriptionID,
+                                    procedureID = procedure.procedureID,
+                                    compList = compListDetails
+                                )
+
+                                val components = procedureDao.getComponentDetails(procedure.id)
+                                components?.forEach { componentDetails ->
+                                    val componentResultDTO = ComponentResultDTO(
+                                        testComponentID = componentDetails.testComponentID,
+                                        testResultValue = componentDetails.testResultValue,
+                                        testResultUnit = componentDetails.measurementUnit,
+                                        remarks = componentDetails.remarks
+                                    )
+
+                                    compListDetails += componentResultDTO
+                                }
+                                procedureDTO.compList = compListDetails
+                                procedureResultDTOs += procedureDTO
+                            }
+                        }
+
+                        val labResultDTO = LabResultDTO(
+                            labTestResults = procedureResultDTOs,
+                         radiologyTestResults = mutableListOf(),
+                         labCompleted =  true,
+                         createdBy = user?.userName!!,
+                         doctorFlag = "2",
+                         nurseFlag = "9",
+                         beneficiaryRegID = benFlow.beneficiaryRegID,
+                         beneficiaryID = benFlow.beneficiaryID,
+                         benFlowID = benFlow.benFlowID,
+                         visitID = benFlow.benVisitID,
+                         visitCode = benFlow.visitCode,
+                         providerServiceMapID = benFlow.providerServiceMapId,
+                         specialist_flag = null,
+                         vanID = benFlow.vanID,
+                         parkingPlaceID = benFlow.parkingPlaceID
+                        )
+
+                        if (labResultDTO.labTestResults.isNotEmpty()) {
+                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCING)
+
+                            when(val response = registerLabData(labResultDTO)){
+                                is NetworkResult.Success -> {
+//                                patientRepo.updateDoctorSubmitted(it.patientID)
+//                                benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
+                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCED)
+                                }
+                                is NetworkResult.Error -> {
+                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.UNSYNCED)
+                                    if(response.code == socketTimeoutException){
+                                        throw SocketTimeoutException("caught exception")
+                                    }
+                                    return@withContext false;
+                                }
+                                else -> {}
+                            }
+                        } else {
+                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCED)
+                        }
+
                     } else { }
                 }
             }

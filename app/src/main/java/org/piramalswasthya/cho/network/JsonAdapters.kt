@@ -479,6 +479,12 @@ data class NurseDataRequest(
     val visitCode: Long,
 )
 
+@JsonClass(generateAdapter = true)
+data class LabProceduresDataRequest(
+    val beneficiaryRegID: Long,
+    val benVisitID: Long,
+    val visitCode: Long,
+)
 
 
 

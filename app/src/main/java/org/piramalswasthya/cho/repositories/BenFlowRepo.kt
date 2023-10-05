@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -17,26 +18,28 @@ import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ComponentDetails
+import org.piramalswasthya.cho.model.ComponentOption
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
-import org.piramalswasthya.cho.model.DoctorDataDownSync
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.Procedure
+import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataRequest
-import org.piramalswasthya.cho.network.NurseDataResponse
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
-import org.piramalswasthya.cho.utils.generateUuid
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -53,6 +56,7 @@ class BenFlowRepo @Inject constructor(
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
+    private val procedureDao: ProcedureDao,
     private val caseRecordeDao: CaseRecordeDao
 ) {
 
@@ -339,6 +343,10 @@ class BenFlowRepo @Inject constructor(
         )
     }
 
+    suspend fun insertBenFlow(benFlow: BenFlow) {
+        benFlowDao.insertBenFlow(benFlow = benFlow)
+    }
+
     suspend fun syncFlowIds(villageList: VillageIdList): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -391,6 +399,93 @@ class BenFlowRepo @Inject constructor(
 
     }
 
+    private suspend fun getAndSaveLabTechnicianDataToDb(benFlow: BenFlow, patient: Patient): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val labProceduresDataRequest = LabProceduresDataRequest(
+                beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                visitCode = benFlow.visitCode!!,
+                benVisitID = benFlow.benVisitID!!,
+            )
+
+            val response = apiService.getLabTestPrescribedProceduresList(labProceduresDataRequest)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").getJSONArray("laboratoryList")
+                        .toString()
+                    val procedureDTO = Gson().fromJson(data, Array<ProcedureDTO>::class.java)
+                    var patientVisitInfoSync =
+                        benFlow.benVisitNo?.let {
+                            patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patient.patientID,
+                                it
+                            )
+                        }
+                    if (patientVisitInfoSync == null) {
+                        patientVisitInfoSync = PatientVisitInfoSync(
+                            patientID = patient.patientID,
+                            doctorDataSynced = SyncState.SYNCED,
+                            labDataSynced = SyncState.NOT_ADDED,
+                            nurseFlag = benFlow.nurseFlag,
+                            doctorFlag = benFlow.doctorFlag,
+                            pharmacist_flag = benFlow.pharmacist_flag
+                        )
+                    }
+
+                    procedureDao.deleteProcedure(labProceduresDataRequest.beneficiaryRegID)
+                    procedureDTO.forEach { dto ->
+                        val procedure = Procedure(
+                            benRegId = labProceduresDataRequest.beneficiaryRegID,
+                            procedureID = dto.procedureID,
+                            procedureDesc = dto.procedureDesc,
+                            procedureType = dto.procedureType,
+                            procedureName = dto.procedureName,
+                            prescriptionID = dto.prescriptionID,
+                            isMandatory = dto.isMandatory
+                        )
+                        val procedureId = procedureDao.insert(procedure = procedure)
+                        dto.compListDetails.forEach { componentDetailDTO ->
+                            val componentDetails = ComponentDetails(
+                                testComponentID = componentDetailDTO.testComponentID,
+                                procedureID = procedureId,
+                                rangeNormalMin = componentDetailDTO.range_normal_min,
+                                rangeNormalMax = componentDetailDTO.range_normal_max,
+                                rangeMax = componentDetailDTO.range_max,
+                                rangeMin = componentDetailDTO.range_min,
+                                isDecimal = componentDetailDTO.isDecimal,
+                                inputType = componentDetailDTO.inputType,
+                                measurementUnit = componentDetailDTO.measurementUnit,
+                                testComponentDesc = componentDetailDTO.testComponentDesc,
+                                testComponentName = componentDetailDTO.testComponentName
+                            )
+                            var componentId = procedureDao.insert(componentDetails)
+                            componentDetailDTO.compOpt.forEach { option ->
+                                option.name?.let {
+                                    val compOption = ComponentOption(
+                                        componentDetailsId = componentId,
+                                        name = it
+                                    )
+                                    procedureDao.insert(compOption)
+                                }
+                            }
+                        }
+
+                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+                    }
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getAndSaveLabTechnicianDataToDb(benFlow, patient)
+                },
+            )
+        }
+    }
+
     suspend fun updateNurseCompletedAndVisitCode(visitCode: Long, benVisitID: Long, benFlowID: Long){
         benFlowDao.updateNurseCompleted(visitCode, benVisitID, benFlowID)
     }
@@ -403,5 +498,22 @@ class BenFlowRepo @Inject constructor(
         benFlowDao.updateDoctorCompletedWithoutTest(benFlowID)
     }
 
+
+    suspend fun pullLabProcedureData(patientId: String?): Boolean {
+
+        return try {
+            patientId?.let { patientID ->
+
+                val patient = patientRepo.getPatient(patientId)
+                val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
+                if (benFlow != null) {
+                    getAndSaveLabTechnicianDataToDb(benFlow = benFlow, patient = patient)
+                }
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 
 }
