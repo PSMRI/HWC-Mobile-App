@@ -9,6 +9,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.network.AmritApiService
@@ -93,6 +94,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync? {
         return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
+    }
+
+    suspend fun getPatientDisplayListForDoctor() : List<PatientDisplayWithVisitInfo> {
+        return patientVisitInfoSyncDao.getPatientDisplayListForDoctor()
     }
 
 }

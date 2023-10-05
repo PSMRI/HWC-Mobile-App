@@ -217,7 +217,7 @@ class CaseRecordViewModel @Inject constructor(
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
-                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
+//                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }

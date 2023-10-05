@@ -375,7 +375,7 @@ class BenFlowRepo @Inject constructor(
 //                            }
                         }
                         if(patient != null && benFlow.nurseFlag == 9){
-                            patientRepo.updateNurseSubmitted(patient.patientID)
+//                            patientRepo.updateNurseSubmitted(patient.patientID)
                         }
 
                     }

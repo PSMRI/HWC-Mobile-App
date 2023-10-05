@@ -110,7 +110,7 @@ import timber.log.Timber
         PatientVisitInfoSync::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 69, exportSchema = false
+    version = 70, exportSchema = false
 )
 
 

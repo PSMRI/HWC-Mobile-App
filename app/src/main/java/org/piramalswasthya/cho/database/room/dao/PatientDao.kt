@@ -26,17 +26,17 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatientDisplay(patientID : String) : PatientDisplay
 
-    @Transaction
-    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID")
-    suspend fun updateNurseSubmitted(patientID : String)
+//    @Transaction
+//    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID")
+//    suspend fun updateNurseSubmitted(patientID : String)
 
-    @Transaction
-    @Query("UPDATE PATIENT SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag WHERE beneficiaryRegID = :beneficiaryRegID")
-    suspend fun updateFlagsByBenRegId(nurseFlag: Int, doctorFlag: Int, beneficiaryRegID: Long)
+//    @Transaction
+//    @Query("UPDATE PATIENT SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag WHERE beneficiaryRegID = :beneficiaryRegID")
+//    suspend fun updateFlagsByBenRegId(nurseFlag: Int, doctorFlag: Int, beneficiaryRegID: Long)
 
-    @Transaction
-    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
-    suspend fun updateDoctorSubmitted(patientID : String)
+//    @Transaction
+//    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
+//    suspend fun updateDoctorSubmitted(patientID : String)
 
     @Query("SELECT * FROM PATIENT WHERE beneficiaryRegID = :beneficiaryRegID")
     suspend fun getPatientByBenRegId(beneficiaryRegID: Long) : Patient?
@@ -55,22 +55,22 @@ interface PatientDao {
     fun getPatientListFlow() : Flow<List<PatientDisplay>>
 
     @Transaction
-    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 1")
+    @Query("SELECT * FROM PATIENT pat")
     fun getPatientListFlowForNurse(): Flow<List<PatientDisplay>>
 
     @Transaction
-    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 9")
+    @Query("SELECT * FROM PATIENT pat")
     fun getPatientListFlowForDoctor(): Flow<List<PatientDisplay>>
 
     @Transaction
     @Query("SELECT pat.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus, " +
             "null as nurseDataSynced, null as doctorDataSynced, null as createNewBenFlow, null as benVisitNo, " +
-            "null as benFlowID, null as nurseFlags, null as doctorFlags, null as pharmacist_flags " +
+            "null as benFlowID, null as nurseFlag, null as doctorFlag, null as pharmacist_flag " +
             "FROM PATIENT pat " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID")
-    fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
+    suspend fun getPatientDisplayListForNurse(): List<PatientDisplayWithVisitInfo>
 
     @Transaction
     @Query("SELECT * FROM PATIENT WHERE syncState =:unsynced ")
@@ -92,13 +92,13 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
 
-    @Transaction
-    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE beneficiaryRegID = :beneficiaryRegID")
-    suspend fun updateNurseCompleted(beneficiaryRegID: Long)
-
-    @Transaction
-    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE beneficiaryRegID = :beneficiaryRegID")
-    suspend fun updateDoctorCompleted(beneficiaryRegID: Long)
+//    @Transaction
+//    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE beneficiaryRegID = :beneficiaryRegID")
+//    suspend fun updateNurseCompleted(beneficiaryRegID: Long)
+//
+//    @Transaction
+//    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 9 WHERE beneficiaryRegID = :beneficiaryRegID")
+//    suspend fun updateDoctorCompleted(beneficiaryRegID: Long)
 
     @Query("select count(*) from patient where beneficiaryID = :benId")
     suspend fun getCountByBenId(benId:Long): Int

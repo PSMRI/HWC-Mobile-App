@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 
 @Dao
@@ -89,5 +90,14 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND nurseFlag = 9 AND doctorFlag = 1 ORDER BY benVisitNo ASC LIMIT 1")
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?
 
+    @Transaction
+    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus " +
+            "FROM PATIENT_VISIT_INFO_SYNC vis " +
+            "LEFT JOIN PATIENT pat ON pat.patientID = vis.patientID " +
+            "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
+            "WHERE vis.nurseFlag = 9")
+    fun getPatientDisplayListForDoctor(): List<PatientDisplayWithVisitInfo>
 
 }

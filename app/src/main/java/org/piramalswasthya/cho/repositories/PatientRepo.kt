@@ -29,6 +29,7 @@ import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserDomain
@@ -106,12 +107,12 @@ class PatientRepo  @Inject constructor(
         return patientDao.getPatientListFlowForDoctor()
     }
 
-    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
-        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
-        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
-            patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
-        }
-    }
+//    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
+//        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
+//        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
+//            patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
+//        }
+//    }
 
     suspend fun getPatient(patientId : String) : Patient{
         return patientDao.getPatient(patientId)
@@ -121,13 +122,13 @@ class PatientRepo  @Inject constructor(
         return patientDao.getPatientDisplay(patientId)
     }
 
-    suspend fun updateNurseSubmitted(patientId : String) {
-        patientDao.updateNurseSubmitted(patientId)
-    }
+//    suspend fun updateNurseSubmitted(patientId : String) {
+//        patientDao.updateNurseSubmitted(patientId)
+//    }
 
-    suspend fun updateDoctorSubmitted(patientId : String) {
-        patientDao.updateDoctorSubmitted(patientId)
-    }
+//    suspend fun updateDoctorSubmitted(patientId : String) {
+//        patientDao.updateDoctorSubmitted(patientId)
+//    }
 
     suspend fun getPatientByBenRegId(beneficiaryRegID : Long) : Patient?{
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
@@ -430,7 +431,8 @@ class PatientRepo  @Inject constructor(
         return null
     }
 
-
-
+    suspend fun getPatientDisplayListForNurse() : List<PatientDisplayWithVisitInfo> {
+        return patientDao.getPatientDisplayListForNurse()
+    }
 
 }

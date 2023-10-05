@@ -128,7 +128,7 @@ class BenVisitRepo @Inject constructor(
                                 if(nurseDataResponse.visitCode != null && nurseDataResponse.visitID != null){
                                     val visitCode = nurseDataResponse.visitCode.toLong()
                                     val benVisitID = nurseDataResponse.visitID
-                                    patientRepo.updateNurseSubmitted(it.patientVisitInfoSync.patientID)
+//                                    patientRepo.updateNurseSubmitted(it.patientVisitInfoSync.patientID)
                                     benFlowRepo.updateNurseCompletedAndVisitCode(visitCode = visitCode, benVisitID = benVisitID, benFlowID = benFlow.benFlowID)
                                     patientVisitInfoSyncRepo.updatePatientNurseDataSyncSuccess(it.patientVisitInfoSync.patientID, it.patientVisitInfoSync.benVisitNo)
                                 } else {
@@ -186,7 +186,7 @@ class BenVisitRepo @Inject constructor(
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
-                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
+//                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
                                 if(it.patientVisitInfoSync.doctorFlag == 2){
                                     benFlowRepo.updateDoctorCompletedWithTest(benFlowID = benFlow.benFlowID)
                                 }
@@ -245,7 +245,7 @@ class BenVisitRepo @Inject constructor(
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
-                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
+//                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
                                 benFlowRepo.updateDoctorCompletedWithTest(benFlowID = benFlow.benFlowID)
                                 patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID)
                             }

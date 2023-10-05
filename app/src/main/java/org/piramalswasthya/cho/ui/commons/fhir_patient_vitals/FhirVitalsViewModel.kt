@@ -173,7 +173,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
-                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
+//                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
 //                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
@@ -193,7 +193,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO){
-                    patientRepo.updateNurseSubmitted(patienId)
+//                    patientRepo.updateNurseSubmitted(patienId)
                 }
             }catch (e:Exception){
                 Timber.e("Error in Updating nurse complete in patient Db : $e")

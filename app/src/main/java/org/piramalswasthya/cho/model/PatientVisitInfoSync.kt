@@ -62,6 +62,9 @@ data class PatientVisitInfoSync(
         patientID = patient.patientID,
         benVisitNo = benFlow.benVisitNo!!,
         benFlowID = benFlow.benFlowID,
+        nurseFlag = benFlow.nurseFlag,
+        doctorFlag = benFlow.doctorFlag,
+        pharmacist_flag = benFlow.pharmacist_flag,
         nurseDataSynced = SyncState.SYNCED,
         doctorDataSynced = SyncState.SYNCED,
     )
