@@ -30,6 +30,7 @@ import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -107,10 +108,12 @@ import timber.log.Timber
         PatientVitalsModel::class,
         DiagnosisCaseRecord::class,
         VisitDB::class,
+        OutreachDropdownList::class,
         PatientVisitInfoSync::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 70, exportSchema = false
+    version = 71, exportSchema = false
+//    views = [BenBasicCache::class],
 )
 
 
@@ -160,6 +163,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val patientVisitInfoSyncDao: PatientVisitInfoSyncDao
     abstract val investigationDao: InvestigationDao
     abstract val prescriptionDao: PrescriptionDao
+    abstract val outreachDao: OutreachDao
 
 
 

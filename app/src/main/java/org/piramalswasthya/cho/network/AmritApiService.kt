@@ -188,6 +188,9 @@ interface AmritApiService {
     @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
     suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 
+    @GET("hwc-facility-service/wo/location/outreachMaster/{stateID}/wo")
+    suspend fun getOutreachDropdownList(@Path("stateID") stateID: Int): Response<ResponseBody>
+
     @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
     suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 

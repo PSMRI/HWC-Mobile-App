@@ -28,6 +28,7 @@ import org.piramalswasthya.cho.model.Language
 import org.piramalswasthya.cho.model.LiteracyStatus
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
+import org.piramalswasthya.cho.model.OutreachDropdownList
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.QualificationMaster
 import org.piramalswasthya.cho.model.RelationshipMaster
@@ -208,6 +209,11 @@ object MasterDataListConverter {
     @TypeConverter
     fun toHealthCenterList(value: String?):List<HigherHealthCenter>{
         val listType = object :TypeToken<List<HigherHealthCenter?>?>(){}.type
+        return Gson().fromJson(value,listType)
+    }
+    @TypeConverter
+    fun toOutreachList(value: String?):List<OutreachDropdownList>{
+        val listType = object :TypeToken<List<OutreachDropdownList?>?>(){}.type
         return Gson().fromJson(value,listType)
     }
     @TypeConverter

@@ -11,8 +11,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.CounsellingProvided
+import org.piramalswasthya.cho.model.OutreachDropdownList
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.LanguageRepo
+import org.piramalswasthya.cho.repositories.OutreachRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.UserAuthRepo
@@ -25,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OutreachViewModel @Inject constructor(
     private val userRepo: UserRepo,
+    private val outreachRepo: OutreachRepo,
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
@@ -45,6 +49,9 @@ class OutreachViewModel @Inject constructor(
         ERROR_NETWORK,
         SUCCESS
     }
+    private var _outreachList: LiveData<List<OutreachDropdownList>>
+    val outreachList: LiveData<List<OutreachDropdownList>>
+        get() = _outreachList
 
      val _state = MutableLiveData(State.IDLE)
     val state: LiveData<State>
@@ -57,6 +64,8 @@ class OutreachViewModel @Inject constructor(
 
     //TODO: JUST FOR TESTING, NEEDS TO BE MOVED WHEN APPROPRIATE VIEW MODELS ARE READY
     init {
+        _outreachList= MutableLiveData()
+        getOutreach()
 //        Timber.tag("initMethod").d("initMethod inside")
 //        viewModelScope.launch {
 //            languageRepo.saveResponseToCacheLang()
@@ -81,8 +90,24 @@ class OutreachViewModel @Inject constructor(
 //        }
     }
 
+fun getOutreach(){
+    viewModelScope.launch {
+        try {
+            _outreachList = outreachRepo.getAllOutreachDropdownList()
 
-
+        } catch (e: java.lang.Exception) {
+            Timber.d("Error in getFormMaster $e")
+        }
+    }
+}
+    suspend fun getReferNameTypeMap(): Map<Int, String> {
+        return try {
+            outreachRepo.getONameMap()
+        } catch (e: Exception) {
+            Timber.d("Error in Fetching Map $e")
+            emptyMap()
+        }
+    }
     fun authUser(
         username: String,
         password: String,
