@@ -48,6 +48,7 @@ import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -413,15 +414,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             val chiefComplaintData = itemList[i]
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
-                chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty()
+                chiefComplaintData.duration.isNotEmpty()
             ) {
                 var cc = ChiefComplaintValues(
                     id = chiefComplaintData.id,
                     chiefComplaint = chiefComplaintData.chiefComplaint,
                     duration = chiefComplaintData.duration,
                     durationUnit = chiefComplaintData.durationUnit,
-                    description = chiefComplaintData.description
+                    description = chiefComplaintData.description.nullIfEmpty()
                 )
                 chiefComplaintList.add(cc)
             }
@@ -495,14 +495,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration), Toast.LENGTH_SHORT).show()
                 return false
             }
-            if(chiefComplaintData.durationUnit.isEmpty()){
-                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration_unit), Toast.LENGTH_SHORT).show()
-                return false
-            }
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
-                chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty()
+                chiefComplaintData.duration.isNotEmpty()
             ) {
 
                 // Creating the "Condition" resource

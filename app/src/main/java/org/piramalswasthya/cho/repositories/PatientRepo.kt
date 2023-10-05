@@ -197,8 +197,7 @@ class PatientRepo  @Inject constructor(
         patient.ageUnitID = ageUnit.id
     }
 
-    private suspend fun downloadLocationMasterData(currentAddress: Address?){
-
+    private suspend fun downloadStateMasterData(currentAddress: Address?){
         if(currentAddress?.stateId != null){
             if(stateMasterDao.getStateById(currentAddress.stateId.toInt()) == null ){
                 stateMasterDao.insertStates(
@@ -210,7 +209,9 @@ class PatientRepo  @Inject constructor(
                 )
             }
         }
+    }
 
+    private suspend fun downloadDistrictMasterData(currentAddress: Address?){
         if(currentAddress?.districtId != null && currentAddress.stateId != null){
             if(districtMasterDao.getDistrictById(currentAddress.districtId.toInt()) == null ){
                 districtMasterDao.insertDistrict(
@@ -224,7 +225,9 @@ class PatientRepo  @Inject constructor(
                 )
             }
         }
+    }
 
+    private suspend fun downloadBlockMasterData(currentAddress: Address?){
         if(currentAddress?.subDistrictId != null && currentAddress.districtId != null){
             if(blockMasterDao.getBlockById(currentAddress.subDistrictId.toInt()) == null ){
                 blockMasterDao.insertBlock(
@@ -238,7 +241,9 @@ class PatientRepo  @Inject constructor(
                 )
             }
         }
+    }
 
+    private suspend fun downloadVillageMasterData(currentAddress: Address?){
         if(currentAddress?.villageId != null && currentAddress.subDistrictId != null){
             if(villageMasterDao.getVillageById(currentAddress.villageId.toInt()) == null ){
                 villageMasterDao.insertVillage(
@@ -252,7 +257,13 @@ class PatientRepo  @Inject constructor(
                 )
             }
         }
+    }
 
+    private suspend fun downloadLocationMasterData(currentAddress: Address?){
+        downloadStateMasterData(currentAddress)
+        downloadDistrictMasterData(currentAddress)
+        downloadBlockMasterData(currentAddress)
+        downloadVillageMasterData(currentAddress)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

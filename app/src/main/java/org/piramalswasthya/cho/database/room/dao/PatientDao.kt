@@ -58,7 +58,7 @@ interface PatientDao {
     fun getPatientListFlowForNurse(): Flow<List<PatientDisplay>>
 
     @Transaction
-    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 9")
+    @Query("SELECT * FROM PATIENT pat WHERE pat.nurseFlag = 9 AND pat.doctorFlag = 1")
     fun getPatientListFlowForDoctor(): Flow<List<PatientDisplay>>
 
     @Transaction

@@ -374,6 +374,9 @@ class BenFlowRepo @Inject constructor(
 //                                getAndSaveDoctorDataToDb(benFlow, patient)
 //                            }
                         }
+                        if(patient != null && benFlow.nurseFlag == 9){
+                            patientRepo.updateNurseSubmitted(patient.patientID)
+                        }
 
                     }
                     NetworkResult.Success(NetworkResponse())
