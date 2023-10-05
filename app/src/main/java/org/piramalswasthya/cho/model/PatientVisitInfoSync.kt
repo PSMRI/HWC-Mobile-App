@@ -64,8 +64,8 @@ data class PatientVisitInfoSync(
         benFlowID = benFlow.benFlowID,
         nurseDataSynced = SyncState.SYNCED,
         doctorDataSynced = SyncState.SYNCED,
-
     )
+
 }
 
 data class PatientVisitInfoSyncWithPatient(

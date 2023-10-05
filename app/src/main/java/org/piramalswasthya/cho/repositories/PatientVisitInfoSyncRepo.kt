@@ -4,6 +4,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
@@ -31,6 +32,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun getPatientNurseDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientNurseDataUnsynced()
+    }
+
+    fun getPatientListFlowForDoctorMultiVisit() : Flow<List<PatientVisitInfoSyncWithPatient>> {
+        return patientVisitInfoSyncDao.getPatientListFlowForDoctorMultiVisit()
     }
 
     suspend fun updateDoctorDataSubmitted(patientID: String) {

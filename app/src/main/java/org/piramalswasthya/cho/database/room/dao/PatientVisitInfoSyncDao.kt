@@ -5,9 +5,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 
 @Dao
@@ -32,6 +34,10 @@ interface PatientVisitInfoSyncDao {
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :unSynced ORDER BY benVisitNo ASC")
     suspend fun getPatientNurseDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
+
+    @Transaction
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC pat WHERE pat.nurseFlag = 9 ORDER BY benVisitNo DESC")
+    fun getPatientListFlowForDoctorMultiVisit(): Flow<List<PatientVisitInfoSyncWithPatient>>
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorFlag = 9 WHERE patientID = :patientID")

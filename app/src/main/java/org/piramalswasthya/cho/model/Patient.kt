@@ -209,6 +209,25 @@ data class PatientDisplay(
     )
     val religion: ReligionMaster?,
 )
+
+data class PatientDisplayWithVisitInfo(
+    @Embedded val patient: Patient,
+
+    val genderName: String?,
+    val ageUnit: String?,
+    val maritalStatus: String?,
+
+    val nurseDataSynced: SyncState?,
+    val doctorDataSynced: SyncState?,
+    val createNewBenFlow: Boolean?,
+    val benVisitNo: Int,
+    val benFlowID: Long?,
+    val nurseFlags: Int?,
+    val doctorFlags: Int?,
+    val pharmacist_flags: Int?,
+)
+
+
 @JsonClass(generateAdapter = true)
 data class BenHealthIdDetails(
     var healthId: String? = null,

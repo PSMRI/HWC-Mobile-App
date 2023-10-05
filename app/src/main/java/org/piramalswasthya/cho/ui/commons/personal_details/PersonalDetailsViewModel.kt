@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.utils.filterBenList
 import javax.inject.Inject
 
@@ -25,14 +27,20 @@ import javax.inject.Inject
 @HiltViewModel
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
     var patientListForDoctor : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForDoctor().combine(filter){
         list, filter -> filterBenList(list, filter)
-}
+    }
+
+//    var patientListForDoctor : Flow<List<PatientVisitInfoSyncWithPatient>>? = patientVisitInfoSyncRepo.getPatientListFlowForDoctorMultiVisit().combine(filter){
+//            list, filter -> filterBenList(list, filter)
+//    }
+
     var patientListForNurse : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlow().combine(filter){
-            list, filter -> filterBenList(list, filter)
+        list, filter -> filterBenList(list, filter)
     }
 
     var count : Int = 0
