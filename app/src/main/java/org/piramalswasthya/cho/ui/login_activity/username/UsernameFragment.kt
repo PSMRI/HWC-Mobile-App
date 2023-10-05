@@ -59,7 +59,9 @@ class UsernameFragment : Fragment() {
         if(binding.etUsername.text.isNullOrBlank()) {
             binding.btnNxt.isEnabled = false
             binding.cbRemember.isChecked = false
+            binding.loginSettings.isEnabled = false
         }
+
         return binding.root
     }
 
@@ -74,6 +76,7 @@ class UsernameFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
+                binding.loginSettings.isEnabled = !s.isNullOrBlank()
 //                val userName = (s.toString())!!;
 //                if(!s.isNullOrBlank()){
 //                    lifecycleScope.launch {

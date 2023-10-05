@@ -60,6 +60,7 @@
             android:id="@+id/first_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             tools:background="@color/white"
             android:orientation="horizontal">
 
@@ -267,6 +268,7 @@
             android:id="@+id/second_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             tools:background="@color/white"
             android:orientation="horizontal">
 
@@ -420,6 +422,7 @@
             android:id="@+id/third_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             tools:background="@color/white"
             android:orientation="horizontal">
 

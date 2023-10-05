@@ -10,15 +10,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-              android:backgroundTint="@color/default_button"
+        <TextView
             android:id="@+id/getLoc"
-            android:layout_width="0dp"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/get_location"
+            android:layout_margin="@dimen/padding_normal"
+            android:text="Get Location"
+            android:textSize="20dp"
+            android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"/>
+
+<!--        <Button-->
+<!--              android:backgroundTint="@color/default_button"-->
+<!--            android:id="@+id/getLoc"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="8dp"-->
+<!--            android:text="@string/get_location"-->
+<!--            app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"-->
+<!--            app:layout_constraintStart_toStartOf="parent" />-->
 
 <!--        <Button-->
 <!--            android:id="@+id/enrollFpScreen"-->
@@ -146,72 +157,84 @@
                 android:text="@string/choose_panchayat" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-              android:backgroundTint="@color/default_button"
+<!--        <Button-->
+<!--              android:backgroundTint="@color/default_button"-->
+<!--            android:id="@+id/getGPSLoc"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="@string/get_gps_location"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/panchayat" />-->
+
+        <TextView
             android:id="@+id/getGPSLoc"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_margin="@dimen/padding_normal"
             android:text="@string/get_gps_location"
+            android:textSize="20dp"
+            android:textStyle="normal|bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/panchayat" />
+            app:layout_constraintTop_toBottomOf="@+id/panchayat"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/masterLat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/padding_normal"
-            android:hint="@string/master_latitude"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/getGPSLoc">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/masterLat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/padding_normal"
+                    android:hint="@string/master_latitude"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/getGPSLoc">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/inputMasterLat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputMasterLat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/masterLong"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/padding_normal"
-            android:hint="@string/master_longitude"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/masterLat">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/masterLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/padding_normal"
+                    android:hint="@string/master_longitude"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/masterLat">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/inputMasterLong"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputMasterLong"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-              android:backgroundTint="@color/default_button"
-            android:id="@+id/retry"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/retry"
-            app:layout_constraintEnd_toStartOf="@id/submit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/masterLong" />
+                <Button
+                      android:backgroundTint="@color/default_button"
+                    android:id="@+id/retry"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/retry"
+                    app:layout_constraintEnd_toStartOf="@id/submit"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/masterLong" />
 
-        <Button
-              android:backgroundTint="@color/default_button"
-            android:id="@+id/submit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/submit"
-            app:layout_constraintBaseline_toBaselineOf="@+id/retry"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/retry" />
+                <Button
+                      android:backgroundTint="@color/default_button"
+                    android:id="@+id/submit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/submit"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/retry"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/retry" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>

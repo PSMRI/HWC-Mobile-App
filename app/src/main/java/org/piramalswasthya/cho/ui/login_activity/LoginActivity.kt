@@ -72,10 +72,10 @@ class LoginActivity : AppCompatActivity() {
         print("app started")
         setUpActionBar()
 
-        binding.homeButton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        }
+//        binding.homeButton.setOnClickListener {
+//            val intent = Intent(this, LoginActivity::class.java)
+//            startActivity(intent)
+//        }
 
         lifecycleScope.launch {
             try {
