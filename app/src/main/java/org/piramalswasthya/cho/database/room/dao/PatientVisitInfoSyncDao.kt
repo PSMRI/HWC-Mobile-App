@@ -98,6 +98,6 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
             "WHERE vis.nurseFlag = 9")
-    fun getPatientDisplayListForDoctor(): List<PatientDisplayWithVisitInfo>
+    fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
 }

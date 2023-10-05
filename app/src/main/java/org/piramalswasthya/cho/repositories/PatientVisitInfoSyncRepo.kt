@@ -96,7 +96,7 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
     }
 
-    suspend fun getPatientDisplayListForDoctor() : List<PatientDisplayWithVisitInfo> {
+    fun getPatientDisplayListForDoctor() : Flow<List<PatientDisplayWithVisitInfo>> {
         return patientVisitInfoSyncDao.getPatientDisplayListForDoctor()
     }
 

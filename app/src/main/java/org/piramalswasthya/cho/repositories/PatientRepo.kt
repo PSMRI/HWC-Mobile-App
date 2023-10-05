@@ -431,7 +431,7 @@ class PatientRepo  @Inject constructor(
         return null
     }
 
-    suspend fun getPatientDisplayListForNurse() : List<PatientDisplayWithVisitInfo> {
+    fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {
         return patientDao.getPatientDisplayListForNurse()
     }
 

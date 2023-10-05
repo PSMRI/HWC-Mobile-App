@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.utils
 import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 
 fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
@@ -26,7 +27,7 @@ fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
 //    }
 //}
 
-fun filterBenList(list: List<PatientDisplay>, text: String): List<PatientDisplay> {
+fun filterBenList(list: List<PatientDisplayWithVisitInfo>, text: String): List<PatientDisplayWithVisitInfo> {
     if (text == "")
         return list
     else {

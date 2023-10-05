@@ -70,7 +70,7 @@ interface PatientDao {
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID")
-    suspend fun getPatientDisplayListForNurse(): List<PatientDisplayWithVisitInfo>
+    fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
     @Query("SELECT * FROM PATIENT WHERE syncState =:unsynced ")

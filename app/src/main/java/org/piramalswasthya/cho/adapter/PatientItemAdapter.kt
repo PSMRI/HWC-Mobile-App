@@ -31,7 +31,7 @@ import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.databinding.PatientListViewBinding
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
@@ -46,15 +46,15 @@ class PatientItemAdapter(
 //    private val onItemClicked: (PatientDisplay) -> Unit,
     private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
-) : ListAdapter<PatientDisplay,PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
+) : ListAdapter<PatientDisplayWithVisitInfo,PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
-    private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplay>() {
+    private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
-            oldItem: PatientDisplay, newItem: PatientDisplay
+            oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
         ) = oldItem.patient.beneficiaryID == newItem.patient.beneficiaryID
 
         override fun areContentsTheSame(
-            oldItem: PatientDisplay, newItem: PatientDisplay
+            oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
         ) = oldItem == newItem
 
     }
@@ -75,7 +75,7 @@ class PatientItemAdapter(
         }
 
         fun bind(
-            item:PatientDisplay,
+            item:PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
             showAbha: Boolean,
         ) {
@@ -86,9 +86,9 @@ class PatientItemAdapter(
 
             binding.patientName.text = (item.patient.firstName ?: "") + " " + (item.patient.lastName ?: "")
             binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit.name
+            binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
             binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
-            binding.patientGender.text = item.gender.genderName
+            binding.patientGender.text = item.genderName
             if(item.patient.syncState == SyncState.SYNCED){
                 binding.ivSyncState.visibility = View.VISIBLE
                 binding.patientBenId.text = item.patient.beneficiaryID.toString()
