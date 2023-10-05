@@ -1,19 +1,25 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.navigation.fragment.findNavController
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
@@ -26,10 +32,15 @@ import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
 import timber.log.Timber
+import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
+import java.util.Locale
+
 
 @AndroidEntryPoint
 class PatientDetailsFragment : Fragment() , NavigationAdapter {
@@ -48,15 +59,106 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var patient = Patient();
 
     private val dobUtil : DateTimeUtil = DateTimeUtil()
-
     var bool: Boolean = false
 
+    private var currentFileName: String? = null
+    private var currentPhotoPath: String? = null
+    private lateinit var  photoURI: Uri
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        binding.ivImgCapture.setOnClickListener {
+            checkAndRequestCameraPermission()
+        }
         return binding.root
+    }
+    @RequiresApi(Build.VERSION_CODES.P)
+    private fun checkAndRequestCameraPermission() {
+        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )  == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Camera permission is granted, proceed to take a picture
+            takePicture()
+        } else {
+            // Camera permission is not granted, request it
+            requestCameraPermission()
+        }
+    }
+    private fun requestCameraPermission() {
+            val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
+            requestPermissions(permission, 112)
+    }
+
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+            if (result) {
+                // Picture was taken successfully, update the ImageView with the captured image
+                if (photoURI == null)
+                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                else {
+                    Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
+                        .into(binding.ivImgCapture)
+                }
+            }
+        }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private fun takePicture() {
+        val photoFile: File? = try {
+            createImageFile()
+        } catch (ex: Exception) {
+            null
+        }
+
+        photoFile?.also {
+             photoURI = FileProvider.getUriForFile(
+                requireContext(),
+                "org.piramalswasthya.cho.provider",
+                it
+            )
+            takePictureLauncher.launch(photoURI)
+
+        }
+    }
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault()).format(Date())
+        val storageDir = requireContext().getExternalFilesDir("images")
+        currentFileName = "JPEG_${timeStamp}_.jpeg"
+        var file = File(storageDir, currentFileName)
+
+        // Ensure the file doesn't already exist
+        var counter = 1
+        while (file.exists()) {
+            currentFileName = "JPEG_${timeStamp}_$counter.jpeg"
+            file = File(storageDir, currentFileName)
+            counter++
+        }
+
+        return file.apply {
+            // Save a file path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == 112) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can proceed to open the camera
+                takePicture()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -501,6 +603,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setPatientDetails(){
         patient.firstName = binding.firstName.text.toString().trim()
         patient.lastName = binding.lastName.text.toString().trim()
@@ -524,6 +627,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
+        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
     }
 
     private fun setLocationDetails(){
@@ -554,6 +658,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //        }
         return true
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onSubmitAction() {
         watchAllFields()
         if (checkVisibleFieldIsEmpty()) {
@@ -564,7 +669,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             val intent = Intent(context, HomeActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-            Toast.makeText(context, getString(R.string.patient_successfully_registered),Toast.LENGTH_SHORT).show()
         }
     }
 
