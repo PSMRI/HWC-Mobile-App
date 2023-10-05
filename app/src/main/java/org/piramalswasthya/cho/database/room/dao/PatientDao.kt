@@ -62,6 +62,10 @@ interface PatientDao {
     fun getPatientListFlowForDoctor(): Flow<List<PatientDisplay>>
 
     @Transaction
+    @Query("select * from patient p inner join benflow bf on p.beneficiaryRegID = bf.beneficiaryRegID inner join patient_visit_info_sync pvs on bf.benFlowID = pvs.benFlowID where bf.doctorFlag = 2 and pvs.labDataSynced != 2")
+    fun getPatientListFlowForLab(): Flow<List<PatientDisplay>>
+
+    @Transaction
     @Query("SELECT * FROM PATIENT WHERE syncState =:unsynced ")
     suspend fun getPatientListUnsynced(unsynced: SyncState = SyncState.UNSYNCED) : List<PatientDisplay>
 

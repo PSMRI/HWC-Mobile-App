@@ -158,6 +158,9 @@ data class Patient (
     @ColumnInfo(name = "doctorFlag")
     val doctorFlag: Int? = 0,
 
+    @ColumnInfo(name = "lab_technician_flag")
+    val labTechnicianFlag: Int? = 0,
+
     @ColumnInfo(name = "pharmacist_flag")
     val pharmacist_flag: Int? = 0,
 

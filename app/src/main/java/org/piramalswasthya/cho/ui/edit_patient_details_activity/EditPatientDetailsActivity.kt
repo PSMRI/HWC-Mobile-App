@@ -3,8 +3,8 @@ package org.piramalswasthya.cho.ui.edit_patient_details_activity
 import android.content.Intent
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragmentDirections
 import javax.inject.Inject
 
 
@@ -62,6 +63,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //        val patientId = intent.getStringExtra("patientId")
 //        val args = Bundle()
 //        args.putString("patientId", patientId)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
@@ -88,6 +90,17 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            }
        }else {
            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+           if (preferenceDao.isStartingLabTechnician()) {
+               navHostFragment.navController
+                   .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
+                       (intent?.extras?.getString("patientId")!!)
+                   ))
+           } else {
+               navHostFragment.navController
+                   .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
+                       (intent?.extras?.getString("patientId")!!)
+                   ))
+           }
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
                    R.id.fhirVisitDetailsFragment -> {
@@ -132,6 +145,12 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.case_record_text)
+                       binding.btnSubmit.text = if (preferenceDao.isLabTechnician()) resources.getString(R.string.next) else resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.labTechnicianFormFragment -> {
+                       binding.headerTextRegisterPatient.text =
+                           resources.getString(R.string.lab_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }

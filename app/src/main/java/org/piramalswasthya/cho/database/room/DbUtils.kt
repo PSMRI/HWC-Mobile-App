@@ -8,4 +8,5 @@ enum class SyncState{
     UNSYNCED,
     SYNCING,
     SYNCED,
+    NOT_ADDED
 }
