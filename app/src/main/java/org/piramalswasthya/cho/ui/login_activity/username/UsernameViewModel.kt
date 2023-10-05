@@ -8,12 +8,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.repositories.OutreachRepo
 import javax.inject.Inject
 
 @HiltViewModel
 class UsernameViewModel@Inject constructor(
-    private val pref: PreferenceDao
-
+    private val pref: PreferenceDao,
+     private val outreachRepo: OutreachRepo
 
 ) : ViewModel(){
 
@@ -23,8 +24,11 @@ class UsernameViewModel@Inject constructor(
     init{
 
     }
-
-
+  fun getOutreach(){
+      viewModelScope.launch {
+          outreachRepo.getOutreachDropdownListData()
+      }
+  }
     fun fetchRememberedUserName(): String? =
         pref.getRememberedUserName()
 }
