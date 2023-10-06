@@ -40,7 +40,7 @@ data class PatientVisitInfoSync(
     var doctorDataSynced: SyncState? = SyncState.UNSYNCED,
 
     @ColumnInfo(name="createNewBenFlow")
-    var createNewBenFlow: Boolean = false,
+    var createNewBenFlow: Boolean? = false,
 
     @ColumnInfo(name = "benVisitNo")
     var benVisitNo: Int = 0,
@@ -52,10 +52,10 @@ data class PatientVisitInfoSync(
     var nurseFlag: Int? = 1,
 
     @ColumnInfo(name = "doctorFlag")
-    var doctorFlag: Int? = 1,
+    var doctorFlag: Int? = 0,
 
     @ColumnInfo(name = "pharmacist_flag")
-    var pharmacist_flag: Int? = 1,
+    var pharmacist_flag: Int? = 0,
 
 ){
     constructor(benFlow: BenFlow, patient: Patient) : this(

@@ -22,6 +22,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentVitalsCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
@@ -183,12 +184,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     private fun addPatientVisitInfoSyncToCache(benVisitNo: Int, createNewBenflow: Boolean){
-
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
-            nurseFlag = 9
+            nurseDataSynced = SyncState.UNSYNCED,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = 9,
+            doctorFlag = 1
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }
@@ -395,44 +398,30 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             )
         }else{
             CoroutineScope(Dispatchers.IO).launch {
-//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId.toString())
-//                if(hasUnSyncedNurseData){
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.unsyncedNurseData),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//                else{
 
-                    var benVisitNo = 0;
-                    var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                        if(it == null){
-                            benVisitNo = 1;
-                        }
-                        else if(it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        }
-                        else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
-                        }
+                var benVisitNo = 0;
+                var createNewBenflow = false;
+                viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                    if(it == null){
+                        benVisitNo = 1;
                     }
-                    extractFormValues()
-                    setVitalsMasterData()
-                    addVisitRecordDataToCache(benVisitNo)
-                    addVitalsDataToCache(benVisitNo)
-                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                    setNurseComplete()
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.vitals_information_is_saved),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-//                }
+                    else if(it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    }
+                    else {
+                        benVisitNo = it.benVisitNo + 1
+                        createNewBenflow = true;
+                    }
+                }
+                extractFormValues()
+                setVitalsMasterData()
+                addVisitRecordDataToCache(benVisitNo)
+                addVitalsDataToCache(benVisitNo)
+                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+                setNurseComplete()
+                val intent = Intent(context, HomeActivity::class.java)
+                startActivity(intent)
+
             }
 
         }

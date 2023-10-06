@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
@@ -95,7 +96,6 @@ class CaseRecordViewModel @Inject constructor(
             try {
                 _vitalsDB.value =
                     vitalsRepo.getVitalsDetailsByPatientID(patientID)
-
             } catch (e: java.lang.Exception) {
                 Timber.d("Error in Getting Higher Health Care $e")
             }
@@ -224,9 +224,18 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateDoctorDataSubmitted(patientVisitInfoSync: PatientVisitInfoSync){
-        patientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
-        patientVisitInfoSync.doctorFlag = 9
+    suspend fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = benVisitInfo.patient.patientID,
+            nurseDataSynced = benVisitInfo.nurseDataSynced,
+            doctorDataSynced = SyncState.UNSYNCED,
+            createNewBenFlow = benVisitInfo.createNewBenFlow,
+            benVisitNo = benVisitInfo.benVisitNo!!,
+            benFlowID = benVisitInfo.benFlowID,
+            nurseFlag = 9,
+            doctorFlag = doctorFlag,
+            pharmacist_flag = benVisitInfo.pharmacist_flag,
+        )
         patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 

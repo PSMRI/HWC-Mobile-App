@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat.getSystemService
@@ -127,14 +128,45 @@ class PersonalDetailsFragment : Fragment() {
 //                                startActivity(intent)
 //                            },
                             clickListener = PatientItemAdapter.BenClickListener(
-                                { patientID ->
-                                    val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                intent.putExtra("patientId", patientID);
-                                startActivity(intent)
+                            {
+                                benVisitInfo ->
+                                    if(benVisitInfo.nurseFlag == null){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2){
+                                         Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.pendingForLabtech),
+                                            Toast.LENGTH_SHORT
+                                         ).show()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3){
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "Lab test pending",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
+                                        Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.flowCompleted),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
                             },
-                                { benId ->
-                                Log.d("ben click listener", "ben click listener")
-                                checkAndGenerateABHA(benId!!)
+                            {
+                                benId ->
+                                    Log.d("ben click listener", "ben click listener")
+                                    checkAndGenerateABHA(benId!!)
                             }
                          ),
                             showAbha = true

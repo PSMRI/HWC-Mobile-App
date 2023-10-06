@@ -35,14 +35,6 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.getPatientNurseDataUnsynced()
     }
 
-    fun getPatientListFlowForDoctorMultiVisit() : Flow<List<PatientVisitInfoSyncWithPatient>> {
-        return patientVisitInfoSyncDao.getPatientListFlowForDoctorMultiVisit()
-    }
-
-    suspend fun updateDoctorDataSubmitted(patientID: String) {
-        return patientVisitInfoSyncDao.updateDoctorDataSubmitted(patientID)
-    }
-
     suspend fun getPatientDoctorDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientDoctorDataUnsynced()
     }

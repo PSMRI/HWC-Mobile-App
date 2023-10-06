@@ -12,8 +12,8 @@
         android:label="fragment_fhir_visit_details"
         tools:layout="@layout/visit_details_info" >
         <argument
-            android:name="patientId"
-            app:argType="string"/>
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_customVitalsFragment"
             app:destination="@id/customVitalsFragment" />

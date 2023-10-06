@@ -45,6 +45,7 @@ import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
@@ -99,6 +100,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val dosage = tabletDosageList
     private var masterDb: MasterDb? = null
     private lateinit var patientId : String
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
@@ -116,7 +118,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
-            patientId = requireActivity().intent?.extras?.getString("patientId")!!
+            benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+            patientId = benVisitInfo.patient.patientID
             patId= patientId
             viewModel.getVitalsDB(patId)
             viewModel.getChiefComplaintDB(patId)
@@ -557,8 +560,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             institutionId = referId,
             benVisitNo = benVisitNo
         )
+
         viewModel.saveInvestigationToCache(investigation)
+
         //save investigation
+
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
             var formVal = prescriptionData.id
@@ -665,91 +671,65 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if (preferenceDao.isUserOnlyDoctorOrMo()) {
 
             CoroutineScope(Dispatchers.IO).launch {
-                val patientVisitInfoSync = viewModel.getSinglePatientDoctorDataNotSubmitted(patientId)
 
-                if(patientVisitInfoSync == null){
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.nurseDataNotSaved),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@launch;
-                }
-
-                addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
-
-                viewModel.updateDoctorDataSubmitted(patientVisitInfoSync)
-
-                val validate = dAdapter.setError()
-                if (validate == -1) {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.dataSavedCaseRecord),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                if(benVisitInfo.benVisitNo == null){
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
-                } else {
-                    binding.diagnosisExtra.scrollToPosition(validate)
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.diagnosisCannotBeEmpty),
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
+                else{
+                    val validate = dAdapter.setError()
+                    if (validate == -1) {
+                        addCaseRecordDataToCatche(benVisitInfo.benVisitNo!!)
+                        viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        binding.diagnosisExtra.scrollToPosition(validate)
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.diagnosisCannotBeEmpty),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
             }
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 if(masterDb!!.patientId.toString()!=null) {
                     patId = masterDb!!.patientId.toString()
                 }
-//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(patId)
-//                if (hasUnSyncedNurseData) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.unsyncedNurseData),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                } else {
 
-
-
-                    val validate = dAdapter.setError()
-                    if (validate == -1) {
-                        var benVisitNo = 0;
-                        var createNewBenflow = false;
-                        viewModel.getLastVisitInfoSync(patId).let {
-                            if(it == null){
-                                benVisitNo = 1;
-                            }
-                            else if(it.nurseFlag == 1) {
-                                benVisitNo = it.benVisitNo
-                            }
-                            else {
-                                benVisitNo = it.benVisitNo + 1
-                                createNewBenflow = true;
-                            }
+                val validate = dAdapter.setError()
+                if (validate == -1) {
+                    var benVisitNo = 0;
+                    var createNewBenflow = false;
+                    viewModel.getLastVisitInfoSync(patId).let {
+                        if(it == null){
+                            benVisitNo = 1;
                         }
-
-                        addVisitRecordDataToCache(benVisitNo)
-                        addVitalsDataToCache(benVisitNo)
-                        addCaseRecordDataToCatche(benVisitNo)
-                        addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-//                        Toast.makeText(
-//                           requireContext(),
-//                            resources.getString(R.string.dataSavedCaseRecord),
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
-                    } else {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            resources.getString(R.string.diagnosisCannotBeEmpty),
-//                            Toast.LENGTH_SHORT
-//                        ).show()
+                        else if(it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        }
+                        else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
                     }
-//                }
+
+                    addVisitRecordDataToCache(benVisitNo)
+                    addVitalsDataToCache(benVisitNo)
+                    addCaseRecordDataToCatche(benVisitNo)
+                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.diagnosisCannotBeEmpty),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

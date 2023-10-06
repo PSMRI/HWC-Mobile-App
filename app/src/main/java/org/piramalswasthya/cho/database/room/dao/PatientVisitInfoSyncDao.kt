@@ -36,14 +36,6 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :unSynced ORDER BY benVisitNo ASC")
     suspend fun getPatientNurseDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
 
-    @Transaction
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC pat WHERE pat.nurseFlag = 9 ORDER BY benVisitNo DESC")
-    fun getPatientListFlowForDoctorMultiVisit(): Flow<List<PatientVisitInfoSyncWithPatient>>
-
-    @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorFlag = 9 WHERE patientID = :patientID")
-    suspend fun updateDoctorDataSubmitted(patientID: String)
-
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced ORDER BY benVisitNo ASC")
     suspend fun getPatientDoctorDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
@@ -58,7 +50,7 @@ interface PatientVisitInfoSyncDao {
 //    suspend fun updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :synced, nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientNurseDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String, benVisitNo: Int)
 
     @Transaction
@@ -70,7 +62,7 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePatientNurseDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :synced, nurseFlag = 9, doctorFlag = 9 WHERE patientID = :patientID")
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :synced WHERE patientID = :patientID")
     suspend fun updatePatientDoctorDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String)
 
     @Transaction

@@ -40,6 +40,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitMasterDb
@@ -54,6 +55,7 @@ import javax.inject.Inject
 class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
 
     override var fragmentContainerId = 0
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private lateinit var patientId : String
 
     override val fragment = this
@@ -170,9 +172,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
-
-        patientId = requireActivity().intent?.extras?.getString("patientId")!!
-
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        patientId = benVisitInfo.patient.patientID
 
         binding.subCatInput.threshold = 1
 

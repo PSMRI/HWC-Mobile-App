@@ -79,7 +79,7 @@ class PatientItemAdapter(
             clickListener: BenClickListener?,
             showAbha: Boolean,
         ) {
-            binding.ben = item.patient
+            binding.benVisitInfo = item
             binding.clickListener = clickListener
             binding.showAbha = showAbha
             binding.hasAbha = !item.patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
@@ -124,15 +124,15 @@ class PatientItemAdapter(
     }
 
     class BenClickListener(
-        private val clickedBen: (patientID: String) -> Unit,
+        private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedABHA: (benId: Long?) -> Unit,
     ) {
-        fun onClickedBen(item: Patient) = clickedBen(
-            item.patientID,
-    )
-        fun onClickABHA(item: Patient) {
+        fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
+            item,
+        )
+        fun onClickABHA(item: PatientDisplayWithVisitInfo) {
             Log.d("ABHA Item Click", "ABHA item clicked")
-            clickedABHA(item.beneficiaryID)
+            clickedABHA(item.patient.beneficiaryRegID)
         }
     }
 

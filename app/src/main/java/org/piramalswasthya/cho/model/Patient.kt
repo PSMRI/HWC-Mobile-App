@@ -220,12 +220,12 @@ data class PatientDisplayWithVisitInfo(
     val nurseDataSynced: SyncState?,
     val doctorDataSynced: SyncState?,
     val createNewBenFlow: Boolean?,
-    val benVisitNo: Int,
+    val benVisitNo: Int?,
     val benFlowID: Long?,
     val nurseFlag: Int?,
     val doctorFlag: Int?,
     val pharmacist_flag: Int?,
-)
+) : Serializable
 
 
 @JsonClass(generateAdapter = true)
