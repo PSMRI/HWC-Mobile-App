@@ -198,7 +198,7 @@
                         android:layout_centerHorizontal="true"
 
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
-                        android:text="45" />
+                        android:text="0" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
 
@@ -234,7 +234,7 @@
                         android:layout_alignParentEnd="false"
 
                         android:layout_centerHorizontal="true"
-                        android:text="10"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -280,7 +280,7 @@
                         android:layout_alignParentEnd="false"
                         android:layout_centerHorizontal="true"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
-                        android:text="7" />
+                        android:text="0" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
 
@@ -318,7 +318,7 @@
                         android:layout_alignParentEnd="false"
                         android:layout_centerHorizontal="true"
 
-                        android:text="20"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -355,7 +355,7 @@
                         android:layout_alignParentEnd="false"
 
                         android:layout_centerHorizontal="true"
-                        android:text="11"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -414,7 +414,7 @@
                         android:layout_centerHorizontal="true"
 
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium"
-                        android:text="45" />
+                        android:text="0" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
 
@@ -451,8 +451,7 @@
                         android:layout_below="@id/tv_hbnc"
                         android:layout_alignParentEnd="false"
                         android:layout_centerHorizontal="true"
-
-                        android:text="20"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -487,7 +486,7 @@
                         android:layout_below="@id/tv_hbyc"
                         android:layout_alignParentEnd="false"
                         android:layout_centerHorizontal="true"
-                        android:text="8"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.DisplayMedium" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
