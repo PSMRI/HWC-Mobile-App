@@ -23,7 +23,7 @@
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">HWC</string>
     <string name="facility">Facility</string>
-    <string name="outreach">Select Outreach Program</string>
+    <string name="outreach">Outreach</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -381,4 +381,6 @@
     <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
     <string name="User_Login_Type">User_Login_Type</string>
     <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
+    <string name="exit_application">Exit Application</string>
+    <string name="do_you_want_to_exit_application">Do you want to exit application</string>
 </resources>
