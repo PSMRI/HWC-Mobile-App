@@ -234,8 +234,8 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
-    fun getResultStr(oio:Int?):String{
-        if(oio==1||oio==0){
+    fun getResultStr(count:Int?):String{
+        if(count==1||count==0){
             return getString(R.string.patient_cnt_display)
         }
         return getString(R.string.patients_cnt_display)
