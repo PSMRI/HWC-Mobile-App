@@ -42,7 +42,8 @@ class VisitDetailAdapter(
         val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
         val descInputLayout: TextInputLayout = itemView.findViewById(R.id.descriptionText)
         val chiefComplaintOptionInput : TextInputLayout = itemView.findViewById(R.id.chiefComplaintOptions)
-
+        val addButton : FloatingActionButton = itemView.findViewById(R.id.addButtonCC)
+        val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButtonCC)
         init {
             // Set up click listener for the "Cancel" button
             cancelButton.setOnClickListener {
@@ -98,6 +99,7 @@ class VisitDetailAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        var durationCount = 0
         val itemData = itemList[position]
         // Bind data and set listeners for user interactions
         holder.chiefComplaintOptions.setText(itemData.chiefComplaint)
@@ -119,6 +121,27 @@ class VisitDetailAdapter(
         )
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
+
+        holder.subtractButton.isEnabled = false
+        holder.addButton.setOnClickListener {
+                durationCount++
+                holder.durationInput.setText(durationCount.toString())
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+
+            // Enable the "Subtract" button
+            holder.subtractButton.isEnabled = true
+        }
+        holder.subtractButton.setOnClickListener {
+            if (durationCount > 1) {
+                durationCount--
+                holder.durationInput.setText(durationCount.toString())
+                holder.updateResetButtonState()
+                itemChangeListener.onItemChanged()
+            }
+
+        }
+
 
         holder.chiefComplaintOptions.setOnItemClickListener { parent, _, position, _ ->
             var chiefComplaint = parent.getItemAtPosition(position) as ChiefComplaintMaster
@@ -186,15 +209,13 @@ class VisitDetailAdapter(
         holder.updateResetButtonState()
 
         // Voice to text converter click listeners
-        holder.durationInputLayout.setEndIconOnClickListener {
-            endIconClickListener.onEndIconDurationClick(position)
-        }
+
         holder.descInputLayout.setEndIconOnClickListener {
             endIconClickListener.onEndIconDescClick(position)
         }
-        holder.chiefComplaintOptionInput.setEndIconOnClickListener {
-            endIconClickListener.onEndIconChiefClick(position)
-        }
+//        holder.chiefComplaintOptionInput.setEndIconOnClickListener {
+//            endIconClickListener.onEndIconChiefClick(position)
+//        }
     }
 
 

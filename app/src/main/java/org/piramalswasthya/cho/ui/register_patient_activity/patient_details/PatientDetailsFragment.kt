@@ -234,9 +234,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.firstNameVal.observe(viewLifecycleOwner) {
                 binding.firstNameText.setBoxColor(it, resources.getString(R.string.enter_your_first_name))
             }
-            viewModel.lastNameVal.observe(viewLifecycleOwner) {
-                binding.lastNameText.setBoxColor(it, resources.getString(R.string.enter_last_name))
-            }
+//            viewModel.lastNameVal.observe(viewLifecycleOwner) {
+//                binding.lastNameText.setBoxColor(it, resources.getString(R.string.enter_last_name))
+//            }
             viewModel.dobVal.observe(viewLifecycleOwner) {
                 binding.dateOfBirthText.setBoxColor(it, resources.getString(R.string.fill_dob))
             }
@@ -610,6 +610,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.dob = viewModel.selectedDateOfBirth;
         patient.age = viewModel.enteredAge;
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
+        patient.parentName = binding.fatherNameEditText.text.toString().trim()
 //        patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
 //        patient.spouseName = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
 //            "married" -> binding.spouseName.text.toString();
@@ -641,7 +642,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return R.id.fragment_add_patient_location;
     }
     fun checkVisibleFieldIsEmpty():Boolean{
-        if(!viewModel.firstNameVal.value!! ||!viewModel.lastNameVal.value!! ||!viewModel.dobVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
+        if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
 //        if(viewModel.ageGreaterThan11.value!!){
@@ -669,6 +670,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             val intent = Intent(context, HomeActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
+            Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
         }
     }
 
