@@ -106,7 +106,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    R.id.fhirVisitDetailsFragment -> {
                        binding.headerTextRegisterPatient.text =
                            resources.getString(R.string.visit_details)
-                       binding.btnSubmit.text = resources.getString(R.string.next)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
 //                R.id.historyCustomFragment -> {
