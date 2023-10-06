@@ -38,7 +38,7 @@
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
-    <string name="last_name_surname">Last Name/Surname <font color="#FF0000">*</font></string>
+    <string name="last_name_surname">Last Name/Surname </string>
     <string name="contact_no">Contact No</string>
     <string name="gender">Gender <font color="#FF0000">*</font></string>
     <string name="age">Age <font color="#FF0000">*</font></string>
@@ -381,4 +381,19 @@
     <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
     <string name="User_Login_Type">User_Login_Type</string>
     <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
+    <string name="opd_count">OPD Count :</string>
+    <string name="female_opd">Female:</string>
+    <string name="others_opd">Others:</string>
+    <string name="ncd_count">NCD Count:</string>
+    <string name="anc_count">ANC Count:</string>
+    <string name="pnc_count">PNC Count :</string>
+    <string name="family_count">Family Count:</string>
+    <string name="immunization_tv">Immunization</string>
+    <string name="count_imm">Count:</string>
+    <string name="hbnc_count">HBNC Count</string>
+    <string name="hbyc_count">HBYC Count:</string>
+    <string name="select_menu">Select</string>
+    <string name="male_opd">Male:</string>
+    <string name="patient_registered_successfully">Patient Registered Successfully.</string>
+    <string name="father_s_name">Father\'s Name</string>
 </resources>

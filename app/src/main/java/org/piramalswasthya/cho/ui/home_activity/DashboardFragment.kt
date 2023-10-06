@@ -2,31 +2,20 @@ package org.piramalswasthya.cho.ui.home_activity
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Spinner
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
-import org.piramalswasthya.cho.databinding.ActivityDashboardBinding
 import org.piramalswasthya.cho.databinding.FragmentDashboardBinding
-import org.piramalswasthya.cho.databinding.FragmentHomeBinding
-import org.piramalswasthya.cho.model.BenFlow
-import org.piramalswasthya.cho.model.PatientDetails
-import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -39,9 +28,12 @@ class DashboardFragment : Fragment() {
     lateinit var benFlowDao: BenFlowDao
     private var maleOpdCount : Int? = 0
     private var femaleOpdCount : Int? = 0
+    private var othersOpdCount : Int? = 0
     private var totalOpdCount : Int? = 0
     private val binding: FragmentDashboardBinding
         get() = _binding!!
+    lateinit var viewModel: DashboardViewModel
+
     val months = listOf(
         "Today",
         "January",
@@ -72,45 +64,43 @@ class DashboardFragment : Fragment() {
         // get reference to the autocomplete text view
         // set adapter to the autocomplete tv to the arrayAdapter
         _binding!!.selectPeriod.setAdapter(arrayAdapter)
-//        _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false);
+        _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false);
+        periodParam = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        lifecycleScope.launch {
+            fetchAndDisplayCount()
+        }
         return binding.root
     }
-
+    private suspend fun fetchAndDisplayCount(){
+        maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!) ?: 0
+        femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!) ?: 0
+        othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!) ?: 0
+        totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
+        binding.opdMaleValue.text = maleOpdCount.toString()
+        binding.opdFemaleValue.text = femaleOpdCount.toString()
+        binding.opdOtherValue.text = othersOpdCount.toString()
+        binding.opdTotalValue.text = totalOpdCount.toString()
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val autocompleteTV = binding.selectPeriod
-
+        viewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
         autocompleteTV.setOnItemClickListener { _, _, position, _ ->
             autocompleteTV.setText(months[position], false)
             selectedPeriod = autocompleteTV.text.toString()
             periodParam = if (position == 0) {
                 SimpleDateFormat("yyyy-MM-dd").format(Date())
-            } else (if(position<10) {
+            } else (if (position < 10) {
                 "-0$position-"
-            }else{
+            } else {
                 "-$position-"
             }).toString()
 
             lifecycleScope.launch {
-                maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!) ?: 0
-                femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!) ?: 0
-                totalOpdCount = maleOpdCount!! + femaleOpdCount!!
-
-                binding.opdValue.text = totalOpdCount.toString()
-                binding.opdMaleValue.text = maleOpdCount.toString()
-                binding.opdFemaleValue.text = femaleOpdCount.toString()
+                fetchAndDisplayCount()
             }
-        }
-//        binding.button.setOnClickListener {
-//            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-//            currFragment.onSubmitAction()
-//        }
-//
-//        binding.todayButton.setOnClickListener {
-//            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
-//            currFragment.onCancelAction()
-//        }
-    }
 
+        }
+    }
 }

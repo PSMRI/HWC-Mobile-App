@@ -116,8 +116,7 @@ import timber.log.Timber
         ComponentOption::class,
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 71, exportSchema = false
-//    views = [BenBasicCache::class],
+    version = 73, exportSchema = false
 )
 
 
