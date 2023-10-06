@@ -140,6 +140,11 @@ class PersonalDetailsFragment : Fragment() {
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
                                     }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isLabTechnician()){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2){
                                          Toast.makeText(
                                             requireContext(),
@@ -186,16 +191,16 @@ class PersonalDetailsFragment : Fragment() {
                         }
                     }
                     else if (preferenceDao.isStartingLabTechnician()) {
-//                        lifecycleScope.launch {
-//                            viewModel.patientListForLab?.collect { it ->
-//                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-//                                binding.patientListContainer.patientCount.text =
-//                                    itemAdapter?.itemCount.toString() + getString(
-//                                        R.string.patients_cnt_display
-//                                    )
-//                                patientCount = it.size
-//                            }
-//                        }
+                        lifecycleScope.launch {
+                            viewModel.patientListForLab?.collect { it ->
+                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
+                                binding.patientListContainer.patientCount.text =
+                                    itemAdapter?.itemCount.toString() + getString(
+                                        R.string.patients_cnt_display
+                                    )
+                                patientCount = it.size
+                            }
+                        }
                     } else {
                         lifecycleScope.launch {
                             viewModel.patientListForNurse?.collect { it ->

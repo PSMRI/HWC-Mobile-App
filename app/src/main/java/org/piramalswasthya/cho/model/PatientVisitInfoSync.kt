@@ -58,9 +58,6 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name = "doctorFlag")
     var doctorFlag: Int? = 0,
 
-    @ColumnInfo(name = "lab_technician_flag")
-    var labTechnicianFlag: Int? = 0,
-
     @ColumnInfo(name = "pharmacist_flag")
     var pharmacist_flag: Int? = 0,
 

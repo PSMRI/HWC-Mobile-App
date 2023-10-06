@@ -94,7 +94,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            if (preferenceDao.isStartingLabTechnician()) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
-                       (intent?.extras?.getString("patientId")!!)
+                       (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            } else {
                navHostFragment.navController

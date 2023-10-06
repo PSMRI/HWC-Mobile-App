@@ -50,8 +50,8 @@
         android:name="org.piramalswasthya.cho.ui.commons.lab_technician.LabTechnicianFormFragment"
         android:label="LabTechnicianFormFragment" >
         <argument
-            android:name="patientId"
-            app:argType="string"/>
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
         <action
             android:id="@+id/action_labTechnicianFormFragment_to_patientHomeFragment"
             app:destination="@id/patientHomeFragment" />
