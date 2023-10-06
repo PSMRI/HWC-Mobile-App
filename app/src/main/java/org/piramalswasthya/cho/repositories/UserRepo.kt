@@ -103,6 +103,7 @@ class UserRepo @Inject constructor(
             loggedInUser?.let {
                 if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
                     preferenceDao.setUserRoles(loggedInUser.roles);
+                    preferenceDao.setUserLoginType(loginType);
                     val tokenB = preferenceDao.getPrimaryApiToken()
                     TokenInsertTmcInterceptor.setToken(
                         tokenB

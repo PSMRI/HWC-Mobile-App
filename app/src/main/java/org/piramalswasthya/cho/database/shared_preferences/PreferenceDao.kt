@@ -71,6 +71,10 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.USER_ROLES)
         return pref.getString(prefKey, null)
     }
+    fun getLoginType(): String? {
+        val prefKey = context.getString(R.string.User_Login_Type)
+        return pref.getString(prefKey, null)
+    }
 
     fun isUserOnlyDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
@@ -92,6 +96,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
          }
          return false;
      }
+        fun setUserLoginType(str:String?){
+            val editor = pref.edit()
+            val prefKey = context.getString(R.string.User_Login_Type)
+            editor.putString(prefKey, str)
+            editor.apply()
+        }
+    fun isLoginTypeOutReach():Boolean{
+        val type = getLoginType()
+        if(type != null)
+            return type.contains("OUTREACH")
+      return false
+    }
     fun isUserOnlyNurseOrCHO(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){

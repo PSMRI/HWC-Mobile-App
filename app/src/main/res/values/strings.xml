@@ -379,4 +379,6 @@
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>
     <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
+    <string name="User_Login_Type">User_Login_Type</string>
+    <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
 </resources>

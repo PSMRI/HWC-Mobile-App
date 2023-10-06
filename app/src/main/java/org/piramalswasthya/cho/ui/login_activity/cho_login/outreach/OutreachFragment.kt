@@ -34,9 +34,13 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.OutreachDropdownAdapter
+import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
@@ -71,13 +75,13 @@ class OutreachFragment(
     var validImage: Boolean? = false
 
     var image: Bitmap? = null
-
+    private var outreachList = ArrayList<OutreachDropdownList>()
     private lateinit var faceDetector: FirebaseVisionFaceDetector
     private var outreachNameMap = emptyMap<Int,String>()
     private var myLocation: Location? = null
     private var myInitialLoc: Location? = null
     private var locationManager: LocationManager? = null
-
+    private lateinit var outreachAdapter: OutreachDropdownAdapter
     private var locationListener: LocationListener? = null
     private var latitude: Double? = null
     private var longitude: Double? = null
@@ -240,11 +244,12 @@ class OutreachFragment(
         lifecycleScope.launch {
             outreachNameMap = viewModel.getReferNameTypeMap()
         }
-        val outreachAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        outreachAdapter = OutreachDropdownAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, outreachList.map { it.outreachType })
         binding.outreachText.setAdapter(outreachAdapter)
-
+        binding.outreachText.setText("Home Visit",false)
         viewModel.outreachList.observe(viewLifecycleOwner){ c->
-            outreachAdapter.clear()
+            outreachList.clear()
+            outreachList.addAll(c)
             outreachAdapter.addAll(c.map{it.outreachType})
             outreachAdapter.notifyDataSetChanged()
         }
@@ -274,7 +279,7 @@ class OutreachFragment(
             viewModel.authUser(
                 userName,
                 binding.etPassword.text.toString(),
-                "Out Reach",
+                "OUTREACH",
                 outreachVal,
                 timestamp,
                 null,

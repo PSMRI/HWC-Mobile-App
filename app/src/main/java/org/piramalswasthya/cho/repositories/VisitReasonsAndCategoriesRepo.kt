@@ -125,7 +125,9 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
     suspend fun getVisitDbByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : VisitDB?{
         return visitReasonsAndCategoriesDao.getVisitDbByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
-
+     fun getVisitDbByPatientIDAndBenVisitNo(patientID: String) : LiveData<String>?{
+        return visitReasonsAndCategoriesDao.getLatestVisitIdByPatientId(patientID)
+    }
     suspend fun getChiefComplaintsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?{
         return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
