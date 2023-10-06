@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
-import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
 
@@ -30,6 +29,9 @@ object WorkerUtils {
         val pushBenDoctorInfoWithTestToAmrit = OneTimeWorkRequestBuilder<PushBenDoctorInfoWithTestToAmrit>()
             .setConstraints(networkOnlyConstraint)
             .build()
+        val pushLabDataToAmrit = OneTimeWorkRequestBuilder<PushLabDataToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
         val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -45,6 +47,34 @@ object WorkerUtils {
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)
             .then(pushBenDoctorInfoWithTestToAmrit)
+//            .then(pushLabDataToAmrit)
+            .enqueue()
+    }
+
+    fun labPushWorker(context : Context){
+
+        val pushLabDataToAmrit = OneTimeWorkRequestBuilder<PushLabDataToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("lab-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushLabDataToAmrit)
+            .enqueue()
+    }
+
+    fun labPullWorker(context : Context, patientId: String){
+
+        val data = Data.Builder()
+        data.putString("patientId", patientId)
+        val pullLabDataToAmrit = OneTimeWorkRequestBuilder<PullLabDataToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .setInputData(data.build())
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("lab-sync-pull", ExistingWorkPolicy.APPEND_OR_REPLACE, pullLabDataToAmrit)
             .enqueue()
     }
 

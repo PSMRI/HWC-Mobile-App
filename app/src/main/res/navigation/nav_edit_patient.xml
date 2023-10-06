@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_edit_patient"
-    app:startDestination="@id/fhirVisitDetailsFragment">
+    app:startDestination="@id/patientHomeFragment">
 
 
     <fragment
@@ -40,7 +40,33 @@
     <fragment
         android:id="@+id/caseRecordCustom"
         android:name="org.piramalswasthya.cho.ui.commons.case_record.CaseRecordCustom"
-        android:label="CaseRecordCustom" />
+        android:label="CaseRecordCustom" >
+        <action
+            android:id="@+id/action_caseRecordCustom_to_labTechnicianFormFragment"
+            app:destination="@id/labTechnicianFormFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/labTechnicianFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.lab_technician.LabTechnicianFormFragment"
+        android:label="LabTechnicianFormFragment" >
+        <argument
+            android:name="patientId"
+            app:argType="string"/>
+        <action
+            android:id="@+id/action_labTechnicianFormFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientHomeFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragment"
+        android:label="PatientHomeFragment" >
+        <action
+            android:id="@+id/action_patientHomeFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment" />
+        <action
+            android:id="@+id/action_patientHomeFragment_to_labTechnicianFormFragment"
+            app:destination="@id/labTechnicianFormFragment" />
+    </fragment>
 
 
 </navigation>

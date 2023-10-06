@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
-import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
@@ -39,6 +38,9 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.getPatientDoctorDataUnsynced()
     }
 
+    suspend fun getPatientLabDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
+        return patientVisitInfoSyncDao.getPatientLabDataUnsynced()
+    }
     suspend fun getPatientDoctorDataUnsyncedWithTest() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientDoctorDataUnsyncedWithTest()
     }
@@ -77,6 +79,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun updatePatientDoctorDataSyncSyncing(patientID: String){
         patientVisitInfoSyncDao.updatePatientDoctorDataSyncSyncing(patientID = patientID)
+    }
+
+    suspend fun updateLabDataSyncState(patientID: String, syncState: SyncState){
+        patientVisitInfoSyncDao.updateLabDataSyncState(patientID = patientID, syncState = syncState)
     }
 
     suspend fun hasUnSyncedNurseData(patientID: String) : Boolean {

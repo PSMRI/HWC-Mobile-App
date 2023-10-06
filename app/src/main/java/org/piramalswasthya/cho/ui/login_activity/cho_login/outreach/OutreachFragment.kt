@@ -19,9 +19,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.firebase.ml.vision.FirebaseVision
@@ -30,11 +32,17 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.OutreachDropdownAdapter
+import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
+import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,13 +75,13 @@ class OutreachFragment(
     var validImage: Boolean? = false
 
     var image: Bitmap? = null
-
+    private var outreachList = ArrayList<OutreachDropdownList>()
     private lateinit var faceDetector: FirebaseVisionFaceDetector
-
+    private var outreachNameMap = emptyMap<Int,String>()
     private var myLocation: Location? = null
     private var myInitialLoc: Location? = null
     private var locationManager: LocationManager? = null
-
+    private lateinit var outreachAdapter: OutreachDropdownAdapter
     private var locationListener: LocationListener? = null
     private var latitude: Double? = null
     private var longitude: Double? = null
@@ -228,9 +236,24 @@ class OutreachFragment(
             }
         }
     }
-
+    private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
+        return map.entries.find { it.value == value }?.key
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            outreachNameMap = viewModel.getReferNameTypeMap()
+        }
+        outreachAdapter = OutreachDropdownAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, outreachList.map { it.outreachType })
+        binding.outreachText.setAdapter(outreachAdapter)
+        binding.outreachText.setText("Home Visit",false)
+        viewModel.outreachList.observe(viewLifecycleOwner){ c->
+            outreachList.clear()
+            outreachList.addAll(c)
+            outreachAdapter.addAll(c.map{it.outreachType})
+            outreachAdapter.notifyDataSetChanged()
+        }
+
         Timber.tag("Outreach username").i(userName);
         getCurrentLocation()
         binding.imageView.setOnClickListener {
@@ -240,10 +263,8 @@ class OutreachFragment(
             // call for lat long
             getCurrentLocation()
 
-            val radioGroup = binding.selectProgram
-            val selectedOptionId = radioGroup.checkedRadioButtonId
-            val selectedOption =
-                view.findViewById<MaterialRadioButton>(selectedOptionId).text.toString()
+            val outreachVal = binding.outreachText.text.toString()
+            val selectedOption = findKeyByValue(outreachNameMap,outreachVal)
             val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
             val timeZone = TimeZone.getTimeZone("GMT+0530")
             val formatter = SimpleDateFormat(pattern, Locale.getDefault())
@@ -258,8 +279,8 @@ class OutreachFragment(
             viewModel.authUser(
                 userName,
                 binding.etPassword.text.toString(),
-                "Out Reach",
-                selectedOption,
+                "OUTREACH",
+                outreachVal,
                 timestamp,
                 null,
                 latitude,

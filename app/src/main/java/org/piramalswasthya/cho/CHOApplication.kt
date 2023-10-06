@@ -46,9 +46,9 @@ class CHOApplication : Application(), Configuration.Provider,DataCaptureConfig.P
 
 //        HttpLogger
         super.onCreate()
-        if (BuildConfig.DEBUG) {
+//        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
-        }
+//        }
         FhirEngineProvider.init(
             FhirEngineConfiguration(
                 enableEncryptionIfSupported = true,

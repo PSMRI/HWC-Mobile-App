@@ -96,6 +96,7 @@ class CaseRecordViewModel @Inject constructor(
             try {
                 _vitalsDB.value =
                     vitalsRepo.getVitalsDetailsByPatientID(patientID)
+
             } catch (e: java.lang.Exception) {
                 Timber.d("Error in Getting Higher Health Care $e")
             }
@@ -217,7 +218,6 @@ class CaseRecordViewModel @Inject constructor(
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
-//                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }

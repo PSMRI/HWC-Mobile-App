@@ -21,10 +21,10 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_new_logo"
+        android:icon="@drawable/ic_icon_2"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:roundIcon="@drawable/ic_new_logo"
+        android:roundIcon="@drawable/ic_icon_2"
         android:supportsRtl="true"
         android:theme="@style/Theme.CHO"
         android:usesCleartextTraffic="true"
@@ -58,6 +58,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.home_activity.HomeActivity"
+            android:label="CPHC"
             android:exported="false" /> <!-- <activity -->
         <activity
             android:name=".ui.home_activity.DashboardActivity"
@@ -85,11 +86,21 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove" />
+            tools:node="remove" >
+        </provider>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+
     </application>
 
 </manifest>

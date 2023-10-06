@@ -42,6 +42,9 @@ interface VisitReasonsAndCategoriesDao {
     @Query("SELECT * FROM Visit_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getVisitDbByBenRegIdAndBenVisitNo(patientID: String, benVisitNo: Int) : VisitDB?
 
+    @Query("SELECT benVisitDate FROM Visit_DB WHERE patientID = :patientId ORDER BY benVisitNo DESC LIMIT 1")
+     fun getLatestVisitIdByPatientId(patientId: String): LiveData<String>?
+
     @Query("SELECT * FROM Visit_DB WHERE patientID = :patientID")
     suspend fun getVisitDbByPatientId(patientID: String) : VisitDB
 

@@ -17,9 +17,11 @@ import android.util.Log
 import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Annotation
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
@@ -49,6 +51,9 @@ import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.nullIfEmpty
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -76,7 +81,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
-
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
     private var addCount: Int = 0
     private var deleteCount: Int = 0
     private var category: String = ""
@@ -122,7 +128,26 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             false
         }
     }
+    fun isWithinThreeDays(dateString: String?): Boolean {
+        if (dateString.isNullOrEmpty()) {
+            return false
+        }
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        try {
+            val visitDate = dateFormat.parse(dateString)
 
+            val currentDate = Calendar.getInstance().time
+
+            val difference = visitDate.time - currentDate.time
+
+            val differenceInDays = difference / (1000 * 60 * 60 * 24)
+
+            return differenceInDays <= 3
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
     private val speechToTextLauncherForDesc = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank()) {
            updateDescText(result)
@@ -145,6 +170,24 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        if(preferenceDao.isLoginTypeOutReach()){
+            binding.radioButton1.isChecked = false
+            binding.radioButton2.isChecked = true
+            category = binding.radioButton2.text.toString()
+            binding.radioButton3.text.toString()
+            binding.subCatDropDown.visibility = View.VISIBLE
+        }
+        else{
+            binding.radioButton2.isChecked = false
+            binding.radioButton1.isChecked = true
+            category = binding.radioButton1.text.toString()
+            binding.radioGroup2.visibility = View.VISIBLE
+            binding.reasonText.visibility = View.VISIBLE
+            binding.subCatDropDown.visibility = View.GONE
+            category = binding.radioButton1.text.toString()
+
+        }
         super.onViewCreated(view, savedInstanceState)
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
@@ -174,7 +217,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         patientId = benVisitInfo.patient.patientID
-
+        lifecycleScope.launch {
+            viewModel.getLastDate(patientId)
+        }
+        viewModel.lastVisitDate?.observe(viewLifecycleOwner){
+            viewModel.setIsFollowUp(isWithinThreeDays(it))
+            makeFollowUpDefault()
+        }
         binding.subCatInput.threshold = 1
 
         viewModel.chiefComplaintMaster.observe(viewLifecycleOwner) { chiefComplaintsList ->
@@ -190,12 +239,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 R.id.radioButton1 -> {
                     binding.radioGroup2.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
+                    binding.subCatDropDown.visibility = View.GONE
                     category = binding.radioButton1.text.toString()
                 }
 
                 else -> {
                     binding.radioGroup2.visibility = View.GONE
                     binding.reasonText.visibility = View.GONE
+                    binding.subCatDropDown.visibility = View.VISIBLE
                     category = binding.radioButton2.text.toString()
                 }
             }
@@ -250,7 +301,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             binding.plusButton.isEnabled = false
         }
     }
-
+    fun makeFollowUpDefault(){
+        if(viewModel.getIsFollowUp()){
+            binding.radioButton3.isChecked = false
+            binding.radioButton4.isChecked = true
+            reason = binding.radioButton4.text.toString()
+        }
+        else{
+            binding.radioButton3.isChecked = true
+            binding.radioButton4.isChecked = false
+            reason = binding.radioButton4.text.toString()
+        }
+    }
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
             if (item.chiefComplaint.isEmpty() || item.duration.isEmpty()) {
@@ -414,15 +476,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             val chiefComplaintData = itemList[i]
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
-                chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty()
+                chiefComplaintData.duration.isNotEmpty()
             ) {
                 var cc = ChiefComplaintValues(
                     id = chiefComplaintData.id,
                     chiefComplaint = chiefComplaintData.chiefComplaint,
                     duration = chiefComplaintData.duration,
                     durationUnit = chiefComplaintData.durationUnit,
-                    description = chiefComplaintData.description
+                    description = chiefComplaintData.description.nullIfEmpty()
                 )
                 chiefComplaintList.add(cc)
             }
@@ -496,14 +557,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration), Toast.LENGTH_SHORT).show()
                 return false
             }
-            if(chiefComplaintData.durationUnit.isEmpty()){
-                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration_unit), Toast.LENGTH_SHORT).show()
-                return false
-            }
 
             if (chiefComplaintData.chiefComplaint.isNotEmpty() &&
-                chiefComplaintData.duration.isNotEmpty() &&
-                chiefComplaintData.durationUnit.isNotEmpty()
+                chiefComplaintData.duration.isNotEmpty()
             ) {
 
                 // Creating the "Condition" resource

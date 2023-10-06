@@ -21,13 +21,14 @@ import org.piramalswasthya.cho.databinding.FragmentUsernameBinding
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
+import org.piramalswasthya.cho.repositories.OutreachRepo
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UsernameFragment : Fragment() {
+class UsernameFragment() : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -36,7 +37,6 @@ class UsernameFragment : Fragment() {
     private var loginSettingsData: LoginSettingsData? = null
 
     private lateinit var viewModel: UsernameViewModel
-
     private var _binding: FragmentUsernameBinding? = null
     private val binding: FragmentUsernameBinding
         get() = _binding!!
@@ -59,12 +59,15 @@ class UsernameFragment : Fragment() {
         if(binding.etUsername.text.isNullOrBlank()) {
             binding.btnNxt.isEnabled = false
             binding.cbRemember.isChecked = false
+            binding.loginSettings.isEnabled = false
         }
+
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewModel.getOutreach()
         binding.etUsername .addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
@@ -74,6 +77,7 @@ class UsernameFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
+                binding.loginSettings.isEnabled = !s.isNullOrBlank()
 //                val userName = (s.toString())!!;
 //                if(!s.isNullOrBlank()){
 //                    lifecycleScope.launch {

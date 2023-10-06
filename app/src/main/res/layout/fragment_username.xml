@@ -6,142 +6,164 @@
     android:layout_height="match_parent"
     tools:context=".ui.login_activity.username.UsernameFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" >
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/username_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-            <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_height="match_parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="100dp"
-                >
-
-                <ImageView
-                    android:id="@+id/iv_nhm_logo"
-                    android:layout_width="119dp"
-                    android:layout_height="115dp"
-                    android:contentDescription="GOK Logo"
-                    android:src="@drawable/ic_logo"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_chainStyle="spread_inside" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-<!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
-<!--                android:id="@+id/fdgfd"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:hint="hggh"-->
-<!--                app:inputType="text"/>-->
-
-<!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
-<!--                android:id="@+id/dsfsdf"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:hint="asdas"-->
-<!--                app:inputType="number"-->
-<!--                />-->
-            <TextView
-                android:id="@+id/tv_lang"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/please_select_your_language"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                 />
-            <TextView
-                android:id="@+id/tv_lang_kannada"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="@dimen/padding_normal"
-                android:text="@string/please_select_your_language_kannada"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                />
-            <RadioGroup
-                android:id="@+id/rg_lang_select"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checkedButton="@id/rb_eng"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/padding_wide"
-                android:paddingEnd="@dimen/padding_wide"
-                android:weightSum="3"
-                >
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/rb_eng"
-                    style="@style/radio_item_lang"
-                    android:text="@string/english_lang" />
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/rb_kannada"
-                    style="@style/radio_item_lang"
-                    android:text="@string/kannada_lang" />
-
-            </RadioGroup>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_username"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/til_username_hint_text"
-                android:paddingTop="@dimen/padding_normal"
-                android:paddingBottom="@dimen/padding_normal"
-                tools:layout_editor_absoluteX="16dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_username"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:drawableEnd="@drawable/ic_person"
-                    android:drawablePadding="@dimen/padding_normal"
-                    android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+                    android:layout_height="wrap_content"
+                    >
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <ImageView
+                        android:id="@+id/iv_nhm_logo"
+                        android:layout_width="119dp"
+                        android:layout_height="115dp"
+                        android:contentDescription="GOK Logo"
+                        android:src="@drawable/ic_logo"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_chainStyle="spread_inside" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
+                <!--                android:id="@+id/fdgfd"-->
+                <!--                android:layout_width="match_parent"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                app:hint="hggh"-->
+                <!--                app:inputType="text"/>-->
 
-            <CheckBox
-                android:id="@+id/cb_remember"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/remember_me"
-                app:layout_constraintTop_toBottomOf="@id/et_username" />
+                <!--            <org.piramalswasthya.cho.ui.widgets.CHOTextInputLayout-->
+                <!--                android:id="@+id/dsfsdf"-->
+                <!--                android:layout_width="match_parent"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                app:hint="asdas"-->
+                <!--                app:inputType="number"-->
+                <!--                />-->
+                <TextView
+                    android:id="@+id/tv_lang"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/please_select_your_language"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    />
+                <TextView
+                    android:id="@+id/tv_lang_kannada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/padding_normal"
+                    android:text="@string/please_select_your_language_kannada"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    />
+                <RadioGroup
+                    android:id="@+id/rg_lang_select"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@id/rb_eng"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/padding_wide"
+                    android:paddingEnd="@dimen/padding_wide"
+                    android:weightSum="3"
+                    >
 
-            <ImageButton
-                android:id="@+id/login_settings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16dp"
-                android:src="@drawable/baseline_settings_24" />
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_eng"
+                        style="@style/radio_item_lang"
+                        android:text="@string/english_lang" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_nxt"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/login_btn_height"
-                android:layout_marginTop="@dimen/margin_big"
-                android:backgroundTint="@color/default_button"
-                android:text="@string/next"
-                android:textSize="@dimen/text_big" />
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_kannada"
+                        style="@style/radio_item_lang"
+                        android:text="@string/kannada_lang" />
 
-        </LinearLayout>
+                </RadioGroup>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_username"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/til_username_hint_text"
+                    android:paddingTop="@dimen/padding_normal"
+                    android:paddingBottom="@dimen/padding_normal"
+                    tools:layout_editor_absoluteX="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_username"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:drawableEnd="@drawable/ic_person"
+                        android:drawablePadding="@dimen/padding_normal"
+                        android:singleLine="true"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/cb_remember"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remember_me"
+                    app:layout_constraintTop_toBottomOf="@id/et_username" />
+
+                <ImageButton
+                    android:id="@+id/login_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/rounded_image_view"
+                    android:backgroundTint="@color/default_button"
+                    android:layout_margin="16dp"
+                    android:src="@drawable/baseline_settings_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_nxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/login_btn_height"
+                    android:layout_marginTop="@dimen/margin_big"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/default_button"
+                    android:text="@string/next"
+                    android:textSize="@dimen/text_big" />
+
+                <TextView
+                    android:id="@+id/textView12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_wide"
+                    android:text="@string/pwr_by_text"
+                    android:layout_marginTop="20dp"
+                    android:lineSpacingMultiplier="1.5"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                    android:textColor="@color/black"
+                    android:layout_gravity="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_next" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
 </FrameLayout>
 

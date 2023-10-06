@@ -523,13 +523,20 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         return map.entries.find { it.value == value }?.key
     }
     private fun addCaseRecordDataToCatche(benVisitNo: Int) {
+        var bool = true
         // save diagnosis
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
-            if (diagnosisData.diagnosis.isNotEmpty()) {
+            if(diagnosisData.diagnosis.isNullOrEmpty()){
+                requireActivity().runOnUiThread {
+                    Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
+                }
+                bool = false
+            }
+            else {
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
-                    diagnosis= diagnosisData.diagnosis,
+                    diagnosis = diagnosisData.diagnosis,
                     patientID = patId,
                     benVisitNo = benVisitNo
                 )
@@ -560,11 +567,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             institutionId = referId,
             benVisitNo = benVisitNo
         )
-
         viewModel.saveInvestigationToCache(investigation)
-
         //save investigation
-
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
             var formVal = prescriptionData.id
@@ -585,6 +589,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     benVisitNo = benVisitNo
                 )
                 viewModel.savePrescriptionToCache(pres)
+            }
+        }
+        if (bool){
+            requireActivity().runOnUiThread {
+                Toast.makeText(requireContext(), resources.getString(R.string.dataSavedCaseRecord), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -724,13 +733,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.diagnosisCannotBeEmpty),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showToast()
                 }
             }
+        }
+    }
+    fun showToast(){
+        requireActivity().runOnUiThread {
+            Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -23,7 +23,7 @@
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">HWC</string>
     <string name="facility">Facility</string>
-    <string name="outreach">Outreach</string>
+    <string name="outreach">Select Outreach Program</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -81,6 +81,7 @@
     <string name="personal_info">Personal Info</string>
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">Case Record</string>
+    <string name="lab_record_text">Lab Record</string>
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
@@ -348,7 +349,7 @@
     <string name="pendingForLabtech">Pending For Lab Result</string>
     <string name="flowCompleted">Flow Completed</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
-    <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
+    <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="pref_location_data">pref_location_data</string>
@@ -377,4 +378,9 @@
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
+    <string name="tap_to_take_photo">Tap to take photo</string>
+    <string name="photo">Photo</string>
+    <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
+    <string name="User_Login_Type">User_Login_Type</string>
+    <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
 </resources>

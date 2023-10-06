@@ -89,7 +89,7 @@ class VisitDetailAdapter(
                 val itemData = itemList[position]
                 itemData.chiefComplaint = ""
                 itemData.duration = ""
-                itemData.durationUnit = ""
+                itemData.durationUnit = "Days"
                 itemData.description = ""
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()

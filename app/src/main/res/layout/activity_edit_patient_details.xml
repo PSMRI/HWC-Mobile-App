@@ -74,7 +74,7 @@
         android:visibility="gone"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/header_text_edit_patient"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_bias="0.0"
         app:navGraph="@navigation/nav_doctor"
         tools:layout_editor_absoluteX="0dp" />

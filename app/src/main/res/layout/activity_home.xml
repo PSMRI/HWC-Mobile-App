@@ -33,10 +33,10 @@
 
                 <ImageButton
                     android:id="@+id/translate_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="end"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="15dp"
                     android:contentDescription="Translate"
                     android:src="@drawable/translate"
                     android:background="?attr/colorPrimary"/>

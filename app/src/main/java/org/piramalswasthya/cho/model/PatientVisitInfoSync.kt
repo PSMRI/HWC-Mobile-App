@@ -39,6 +39,10 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name="doctorDataSynced")
     var doctorDataSynced: SyncState? = SyncState.UNSYNCED,
 
+
+    @ColumnInfo(name="labDataSynced")
+    var labDataSynced: SyncState? = SyncState.NOT_ADDED,
+
     @ColumnInfo(name="createNewBenFlow")
     var createNewBenFlow: Boolean? = false,
 
@@ -53,6 +57,9 @@ data class PatientVisitInfoSync(
 
     @ColumnInfo(name = "doctorFlag")
     var doctorFlag: Int? = 0,
+
+    @ColumnInfo(name = "lab_technician_flag")
+    var labTechnicianFlag: Int? = 0,
 
     @ColumnInfo(name = "pharmacist_flag")
     var pharmacist_flag: Int? = 0,

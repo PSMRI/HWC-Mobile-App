@@ -146,8 +146,14 @@ data class Patient (
     @ColumnInfo(name="beneficiaryRegID")
     var beneficiaryRegID: Long? = null,
 
+    @ColumnInfo(name="benImageString")
+    var benImage: String? = null,
+
     @Embedded(prefix = "abha_")
     var healthIdDetails: BenHealthIdDetails? = null,
+
+    @ColumnInfo(name = "lab_technician_flag")
+    val labTechnicianFlag: Int? = 0,
 
 //    @ColumnInfo(name = "nurseFlag")
 //    val nurseFlag: Int? = 1,
@@ -309,7 +315,7 @@ data class PatientNetwork(
         null,
         patientDisplay.patient.ageAtMarriage,
         null,
-        null,
+        patientDisplay.patient.benImage,
         arrayListOf(BenPhone(patientDisplay.patient, user)),
         true,
         emptyList(),

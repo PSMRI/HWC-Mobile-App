@@ -26,9 +26,11 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
+import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -304,6 +306,10 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideProcedureDao(database: InAppDb): ProcedureDao = database.procedureDao
+
+    @Singleton
+    @Provides
     fun provideReferRevisitDao(database: InAppDb): ReferRevisitDao = database.referRevisitDao
 
     @Singleton
@@ -368,6 +374,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideInvestigationDao(database: InAppDb): InvestigationDao = database.investigationDao
+
+    @Singleton
+    @Provides
+    fun provideOutreachDao(database: InAppDb): OutreachDao = database.outreachDao
 
     @Singleton
     @Provides

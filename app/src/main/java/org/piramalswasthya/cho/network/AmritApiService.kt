@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.DownloadPatRequest
+import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -188,6 +189,9 @@ interface AmritApiService {
     @GET("hwc-facility-service/location/get/districtBlockMaster/{districtId}")
     suspend fun getDistrictBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
 
+    @GET("hwc-facility-service/wo/location/outreachMaster/{stateID}/wo")
+    suspend fun getOutreachDropdownList(@Path("stateID") stateID: Int): Response<ResponseBody>
+
     @GET("hwc-facility-service/location/get/villageMasterFromBlockID/{blockId}")
     suspend fun getVillages(@Path("blockId") blockId: Int, ): Response<ResponseBody>
 
@@ -214,8 +218,14 @@ interface AmritApiService {
     @POST("hwc-facility-service/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
+    @POST("/hwc-facility-service/labTechnician/get/prescribedProceduresList?apiKey=undefined")
+    suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
+
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
+
+    @POST("/hwc-facility-service/labTechnician/save/LabTestResult?apiKey=undefined")
+    suspend fun saveLabData(@Body labResultDTO: LabResultDTO) : Response<ResponseBody>
 
     @GET("/flw-0.0.1/user/getUserDetail")
     suspend fun getUserDetail(@Query("userId") userId: Int) : Response<ResponseBody>

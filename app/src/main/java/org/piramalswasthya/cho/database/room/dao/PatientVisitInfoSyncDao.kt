@@ -49,6 +49,9 @@ interface PatientVisitInfoSyncDao {
 //    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID = :patientID")
 //    suspend fun updatePatientVisitInfoBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String)
 
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE labDataSynced = :unSynced")
+    suspend fun getPatientLabDataUnsynced(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
+
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientNurseDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String, benVisitNo: Int)
@@ -72,6 +75,10 @@ interface PatientVisitInfoSyncDao {
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID")
     suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET labDataSynced = :syncState WHERE patientID = :patientID")
+    suspend fun updateLabDataSyncState(syncState: SyncState?, patientID: String)
 
     @Query("SELECT nurseDataSynced FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
     suspend fun getNurseDataSyncStatus(patientID: String) : SyncState?
