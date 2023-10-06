@@ -117,6 +117,13 @@ class PersonalDetailsFragment : Fragment() {
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
+                    var result = ""
+                    if(itemAdapter?.itemCount==0||itemAdapter?.itemCount==1) {
+                        result = getString(R.string.patient_cnt_display)
+                    }
+                    else {
+                        result = getString(R.string.patients_cnt_display)
+                    }
                      itemAdapter = context?.let { it ->
                          PatientItemAdapter(
                             apiService,
@@ -146,9 +153,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForDoctor?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getString(
-                                        R.string.patients_cnt_display
-                                    )
+                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                                 patientCount = it.size
                             }
                         }
@@ -158,9 +163,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForLab?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getString(
-                                        R.string.patients_cnt_display
-                                    )
+                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                                 patientCount = it.size
                             }
                         }
@@ -169,9 +172,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForNurse?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getString(
-                                        R.string.patients_cnt_display
-                                    )
+                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                                 patientCount = it.size
                             }
                         }
@@ -219,9 +220,8 @@ class PersonalDetailsFragment : Fragment() {
                 override fun afterTextChanged(p0: Editable?) {
                     viewModel.filterText(p0?.toString() ?: "")
                     binding.patientListContainer.patientCount.text =
-                        patientCount.toString()+ getString(
-                            R.string.patients_cnt_display)
-
+                        patientCount.toString() + getResultStr(patientCount)
+                    Log.d("arr","${patientCount}")
                 }
 
             }
@@ -233,6 +233,12 @@ class PersonalDetailsFragment : Fragment() {
 
             }
         }
+    }
+    fun getResultStr(oio:Int?):String{
+        if(oio==1||oio==0){
+            return getString(R.string.patient_cnt_display)
+        }
+        return getString(R.string.patients_cnt_display)
     }
     private fun checkAndGenerateABHA(benId: Long) {
         Log.d("checkAndGenerateABHA click listener","checkAndGenerateABHA click listener")

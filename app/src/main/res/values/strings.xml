@@ -383,4 +383,5 @@
     <string name="pwr_by_text" translatable="false">Powered by\n <b>Piramal Foundation</b></string>
     <string name="exit_application">Exit Application</string>
     <string name="do_you_want_to_exit_application">Do you want to exit application</string>
+    <string name="patient_cnt_display">" Patient"</string>
 </resources>
