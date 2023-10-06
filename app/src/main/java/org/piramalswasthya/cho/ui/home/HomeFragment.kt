@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -59,7 +60,30 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding
         get() = _binding!!
 
+    private val exitAlert by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.exit_application))
+            .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                activity?.finish()
+            }
+            .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
+                d.dismiss()
+            }
+            .create()
+    }
+
     private lateinit var viewModel: HomeViewModel
+
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!exitAlert.isShowing)
+                    exitAlert.show()
+
+            }
+        }
+    }
     private val searchPrompt by lazy {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.note_ben_reg))
@@ -88,7 +112,7 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         viewModel.init(requireContext())
-
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
 

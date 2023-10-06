@@ -145,7 +145,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.case_record_text)
-                       binding.btnSubmit.text = if (preferenceDao.isLabTechnician()) resources.getString(R.string.next) else resources.getString(R.string.submit)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
                    R.id.labTechnicianFormFragment -> {
