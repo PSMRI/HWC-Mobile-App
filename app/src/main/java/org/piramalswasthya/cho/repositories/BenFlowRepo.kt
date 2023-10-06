@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -50,9 +51,7 @@ class BenFlowRepo @Inject constructor(
     private val apiService: AmritApiService,
     private val preferenceDao: PreferenceDao,
     private val benFlowDao: BenFlowDao,
-    private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val visitReasonsAndCategoriesDao: VisitReasonsAndCategoriesDao,
-    private val vitalsRepo: VitalsRepo,
     private val vitalsDao: VitalsDao,
     private val patientRepo: PatientRepo,
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
@@ -505,7 +504,7 @@ class BenFlowRepo @Inject constructor(
 
                 val patient = patientRepo.getPatient(patientId)
                 val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
-                if (benFlow != null) {
+                if (benFlow?.visitCode != null && benFlow.benVisitID != null) {
                     getAndSaveLabTechnicianDataToDb(benFlow = benFlow, patient = patient)
                 }
             }

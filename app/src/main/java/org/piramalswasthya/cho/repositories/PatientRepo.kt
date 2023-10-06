@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
@@ -442,6 +443,10 @@ class PatientRepo @Inject constructor(
         } catch (_: java.lang.Exception) {
         }
         return null
+    }
+
+    fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientDao.getPatientDisplayListForNurse()
     }
 
     suspend fun getProcedures(patientId: String): List<ProcedureDTO>? {
