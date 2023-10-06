@@ -317,18 +317,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
     }
-    override fun onBackPressed() {
-        AlertDialog.Builder(this)
-            .setTitle("Exit App")
-            .setMessage("Are you sure you want to exit the app?")
-            .setPositiveButton("Yes") { _, _ ->
-                // Close the app
-                finish()
-            }
-            .setNegativeButton("No", null)
-            .show()
-    }
-
 
     private fun getCurrentLocation() {
         // Check if location permissions are granted

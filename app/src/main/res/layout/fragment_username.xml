@@ -128,6 +128,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:padding = "2dp"
                     android:background="@drawable/rounded_image_view"
                     android:backgroundTint="@color/default_button"
                     android:layout_margin="16dp"

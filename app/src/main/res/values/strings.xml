@@ -23,7 +23,7 @@
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">HWC</string>
     <string name="facility">Facility</string>
-    <string name="outreach">Select Outreach Program</string>
+    <string name="outreach">Outreach</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -396,4 +396,7 @@
     <string name="male_opd">Male:</string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
+    <string name="exit_application">Exit Application</string>
+    <string name="do_you_want_to_exit_application">Do you want to exit application</string>
+    <string name="patient_cnt_display">" Patient"</string>
 </resources>
