@@ -34,6 +34,9 @@ class VisitDetailViewModel @Inject constructor(
     val subCatVisitList: LiveData<List<SubVisitCategory>>
         get() = _subCatVisitList
 
+    private var _lastVisitDate: LiveData<String>?
+    val lastVisitDate: LiveData<String>?
+        get() = _lastVisitDate
 
     var base64String = ""
     var fileName = ""
@@ -44,7 +47,7 @@ class VisitDetailViewModel @Inject constructor(
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
-
+     private var isFollowUpChecked :Boolean = false
     val fhirEngine: FhirEngine
         get() = CHOApplication.fhirEngine(application.applicationContext)
 
@@ -57,8 +60,21 @@ class VisitDetailViewModel @Inject constructor(
         _chiefComplaintMaster = MutableLiveData()
         getSubCatVisitList()
         getChiefMasterComplaintList()
+        _lastVisitDate = MutableLiveData()
     }
-
+     suspend fun getLastDate(patientID:String) {
+        try {
+            _lastVisitDate = visitReasonsAndCategoriesRepo.getVisitDbByPatientIDAndBenVisitNo(patientID)
+        } catch (e: Exception) {
+            Timber.d("Error in Last Visit Date() $e")
+        }
+    }
+    fun setIsFollowUp(boolean: Boolean){
+        isFollowUpChecked = boolean
+    }
+    fun getIsFollowUp():Boolean{
+        return isFollowUpChecked
+    }
     private fun getSubCatVisitList() {
         try {
             _subCatVisitList = maleMasterDataRepository.getAllSubCatVisit()

@@ -66,20 +66,18 @@
                 android:layout_marginLeft="60dp"
                 android:layout_marginRight="60dp"
                 android:layout_marginBottom="8dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
                 android:hint="@string/outreach"
                 android:textColorHint="#808080"
                 android:textSize="14sp"
                 app:layout_constraintTop_toBottomOf="@+id/imageOutreach">
-
                 <AutoCompleteTextView
                     android:id="@+id/outreachText"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="none"
                     android:textSize="14sp" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
 
