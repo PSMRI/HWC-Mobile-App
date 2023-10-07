@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,8 @@ import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
+import org.piramalswasthya.cho.adapter.ReportAdapter
+//import org.piramalswasthya.cho.adapter.ReportAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -44,6 +47,7 @@ import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.LabReportValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -84,6 +88,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var dAdapter : DiagnosisAdapter
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
+    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int,String>()
     private var referNameMap = emptyMap<Int,String>()
     private val selectedTestName = mutableListOf<Int>()
@@ -125,6 +130,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
+
         lifecycleScope.launch {
             referNameMap = viewModel.getReferNameTypeMap()
         }
@@ -179,13 +185,42 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
+        var labK = mutableListOf<LabReportValues>()
+        val myList = listOf("HBs", "CBS", "POP")
+        val formattedString = myList.joinToString("\n")
+        val myList1 = listOf("28mg", "45mg", "98mg")
+        val formattedString1 = myList1.joinToString("\n")
+        val lab  = LabReportValues(
+            id = 1,
+            testName = "Hbs",
+            componentListString =formattedString,
+            result = formattedString1
+        )
+        labK.add(lab)
+        val lab2  = LabReportValues(
+            id = 1,
+            testName = "Hbs",
+            componentListString =formattedString,
+            result = formattedString1
+        )
+        labK.add(lab2)
+        rAdapter = ReportAdapter(labK)
+        binding.reportExtra.adapter = rAdapter
+        val layoutManagerR = LinearLayoutManager(requireContext())
+        binding.reportExtra.layoutManager = layoutManagerR
 
 
+//        viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
+//            formMListVal.clear()
+//            formMListVal.addAll(f)
+//            pAdapter.notifyDataSetChanged()
+//        }
         viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
             formMListVal.clear()
             formMListVal.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
+
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
             counsellingTypes.addAll(f)
@@ -675,7 +710,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun navigateNext() {
         if (preferenceDao.isUserOnlyDoctorOrMo()) {
-
             CoroutineScope(Dispatchers.IO).launch {
                 val patientVisitInfoSync = viewModel.getSinglePatientDoctorDataNotSubmitted(patientId)
 
@@ -691,7 +725,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
-                        addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
+                        showToast()
                     }
                 }
             }

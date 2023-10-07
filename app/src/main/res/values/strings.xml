@@ -399,4 +399,11 @@
     <string name="exit_application">Exit Application</string>
     <string name="do_you_want_to_exit_application">Do you want to exit application</string>
     <string name="patient_cnt_display">" Patient"</string>
+    <string name="report">Report</string>
+    <string name="component_name">Component Name</string>
+    <string name="result">Result</string>
+    <string name="meas_unit">Measurement Unit</string>
+    <string name="remarks">Remarks</string>
+    <string name="select_test_name_date">Test Name - (Date)</string>
+    <string name="result_meas_unit">Result -Measurement Unit</string>
 </resources>

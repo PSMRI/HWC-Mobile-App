@@ -443,7 +443,7 @@
                     android:hint="@string/councilling_advice"
                     android:textColorHint="#808080"
                     android:textSize="18sp"
-                    app:layout_constraintTop_toBottomOf="@+id/diaF"> <!-- Set text color hint to black -->
+                    app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra"> <!-- Set text color hint to black -->
 
                     <AutoCompleteTextView
                         android:id="@+id/routeDropDownVal"
@@ -456,6 +456,48 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
+                    android:id="@+id/resultHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="4dp"
+                    android:text="@string/report"
+                    android:textSize="18sp"
+                    android:textStyle="normal|bold"
+                    app:layout_constraintTop_toBottomOf="@+id/routeDropDown" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/dateOption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="@string/date"
+                    android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/reportExtra"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dateOption" />
+
+                <TextView
                     android:id="@+id/textPrescriptionHeading"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -465,7 +507,7 @@
                     android:text="@string/refer"
                     android:textSize="18sp"
                     android:textStyle="normal|bold"
-                    app:layout_constraintTop_toBottomOf="@+id/plusButtonP" />
+                    app:layout_constraintTop_toBottomOf="@+id/dateOption" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/referDropdown"
@@ -478,7 +520,7 @@
                     android:hint="@string/refer"
                     android:textColorHint="#808080"
                     android:textSize="18sp"
-                    app:layout_constraintTop_toBottomOf="@+id/plusButtonP"> <!-- Set text color hint to black -->
+                    app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"> <!-- Set text color hint to black -->
 
                     <AutoCompleteTextView
                         android:id="@+id/referDropdownText"

@@ -1,0 +1,81 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:paddingBottom="20dp"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/testNameOption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/select_test_name"
+        android:textColorHint="#888888"
+        android:paddingStart="4dp"
+        android:textSize="18sp"
+        android:paddingEnd="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/testNameDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="61dp"
+            android:inputType="text"
+            android:editable="false"
+            android:focusable="false"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/compOption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/component_name"
+        android:textColorHint="#888888"
+        android:paddingEnd="4dp"
+        android:paddingStart="4dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/measUnitOption"
+        app:layout_constraintTop_toBottomOf="@+id/testNameOption">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputComp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxEms="2"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:gravity="center"
+            android:focusable="false"
+            android:text="HBs\nCBS\nPOP"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/measUnitOption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/result_meas_unit"
+        android:textColorHint="#888888"
+        android:paddingEnd="4dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/compOption"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/testNameOption">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputMeasUnit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="HBs\nCBS\nPOP"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
