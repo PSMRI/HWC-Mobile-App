@@ -20,7 +20,9 @@
     <string name="next">ಮುಂದೆ</string>
     <string name="cancel">ರದ್ದುಮಾಡು</string>
     <string name="til_password_hint_text">ಪಾಸ್ವರ್ಡ್</string>
+    <string name="User_Login_Type">User_Login_Type</string>
     <string name="login">ಲಾಗಿನ್ ಮಾಡಿ</string>
+    <string name="lab_record_text">Lab Record</string>
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">ಎಚ್.ಡಬ್ಲ್ಯೂ.ಸಿ</string>
     <string name="facility">Facility</string>
@@ -39,7 +41,7 @@
     <string name="personal_details">ವಯಕ್ತಿಕ ಮಾಹಿತಿ</string>
     <string name="first_name">ಮೊದಲ ಹೆಸರು <font color="#FF0000">*</font></string>
     <string name="village_hint">ಗ್ರಾಮ <font color="#FF0000">*</font></string>
-    <string name="last_name_surname">ಕೊನೆಯ ಹೆಸರು/ಉಪನಾಮ <font color="#FF0000">*</font></string>
+    <string name="last_name_surname">ಕೊನೆಯ ಹೆಸರು/ಉಪನಾಮ </string>
     <string name="contact_no">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
     <string name="gender">ಲಿಂಗ <font color="#FF0000">*</font></string>
     <string name="age">ವಯಸ್ಸು <font color="#FF0000">*</font></string>
@@ -380,4 +382,19 @@
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>
     <string name="permission_to_access_the_camera_denied">Permission to access the Camera denied!</string>
+    <string name="opd_count">OPD Count :</string>
+    <string name="female_opd">Female:</string>
+    <string name="others_opd">Others:</string>
+    <string name="ncd_count">NCD Count:</string>
+    <string name="anc_count">ANC Count:</string>
+    <string name="pnc_count">PNC Count :</string>
+    <string name="family_count">Family Count:</string>
+    <string name="immunization_tv">Immunization</string>
+    <string name="count_imm">Count:</string>
+    <string name="hbnc_count">HBNC Count</string>
+    <string name="hbyc_count">HBYC Count:</string>
+    <string name="select_menu">Select</string>
+    <string name="male_opd">Male:</string>
+    <string name="patient_registered_successfully">Patient Registered Successfully.</string>
+    <string name="father_s_name">Father\'s Name</string>
 </resources>

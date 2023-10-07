@@ -182,8 +182,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             binding.radioButton2.isChecked = false
             binding.radioButton1.isChecked = true
             category = binding.radioButton1.text.toString()
-            binding.radioGroup2.visibility = View.VISIBLE
-            binding.reasonText.visibility = View.VISIBLE
+//            binding.radioGroup2.visibility = View.VISIBLE
+//            binding.reasonText.visibility = View.VISIBLE
             binding.subCatDropDown.visibility = View.GONE
             category = binding.radioButton1.text.toString()
 
@@ -237,15 +237,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioButton1 -> {
-                    binding.radioGroup2.visibility = View.VISIBLE
-                    binding.reasonText.visibility = View.VISIBLE
+//                    binding.radioGroup2.visibility = View.VISIBLE
+//                    binding.reasonText.visibility = View.VISIBLE
                     binding.subCatDropDown.visibility = View.GONE
                     category = binding.radioButton1.text.toString()
                 }
 
                 else -> {
-                    binding.radioGroup2.visibility = View.GONE
-                    binding.reasonText.visibility = View.GONE
+//                    binding.radioGroup2.visibility = View.GONE
+//                    binding.reasonText.visibility = View.GONE
                     binding.subCatDropDown.visibility = View.VISIBLE
                     category = binding.radioButton2.text.toString()
                 }

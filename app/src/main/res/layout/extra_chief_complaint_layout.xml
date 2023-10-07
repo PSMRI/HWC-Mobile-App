@@ -24,8 +24,6 @@
         android:hint="@string/select_chief_complaint"
         android:textColorHint="#888888"
         android:textSize="18sp"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_mic"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -40,51 +38,51 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-<!--    <TextView-->
-<!--        android:id="@+id/durationTxt"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="@dimen/custom_ui_margin"-->
-<!--        android:text="@string/duration"-->
-<!--        android:textSize="16sp"-->
-<!--        android:textStyle="normal|bold"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />-->
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/duration"
-        android:layout_width="match_parent"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/custom_ui_margin"
-        app:layout_constraintStart_toStartOf="parent"
-        android:hint="@string/duration"
-        android:textColorHint="#888888"
         android:textSize="18sp"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_mic"
-        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">
+        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:hint="@string/duration"
+        android:textColorHint="#808080">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputDuration"
             android:layout_width="match_parent"
-            android:inputType="number"
-            android:textSize="18sp"
-            android:maxEms="2"
-            android:maxLength="2"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:editable="false"
+            android:textSize="18sp" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
-<!--    <TextView-->
-<!--        android:id="@+id/durationUnit"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="@dimen/custom_ui_margin"-->
-<!--        android:text="@string/unit_of_duration"-->
-<!--        android:textSize="16sp"-->
-<!--        android:textStyle="normal|bold"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/duration" />-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/subtractButtonCC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
+        android:layout_gravity="center"
+        android:src="@drawable/baseline_remove_icon"
+        android:layout_margin="@dimen/custom_ui_margin"
+        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
 
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addButtonCC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button"
+        android:layout_gravity="center"
+        android:src="@drawable/baseline_add_icon"
+        android:layout_margin="@dimen/custom_ui_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/duration"
+        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dropdownDuration"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
