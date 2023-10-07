@@ -13,7 +13,7 @@ import timber.log.Timber
 import java.net.SocketTimeoutException
 
 @HiltWorker
-class PushLabDataToAmrit @AssistedInject constructor(
+class PushBenDoctorInfoWithoutTestToAmrit   @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val benVisitRepo: BenVisitRepo,
@@ -21,14 +21,14 @@ class PushLabDataToAmrit @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PushLabDataToAmrit"
+        const val name = "PushBenDoctorInfoWithoutTestToAmrit"
     }
 
     override suspend fun doWork(): Result {
         init()
-        return try {
-            val workerResult = benVisitRepo.processUnsyncedLabData()
-            if (workerResult) {
+        try {
+            val workerResult = benVisitRepo.processUnsyncedDoctorDataWithoutTest()
+            return if (workerResult) {
                 Timber.d("Worker completed")
                 Result.success()
             } else {
@@ -37,7 +37,7 @@ class PushLabDataToAmrit @AssistedInject constructor(
             }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
-            Result.retry()
+            return Result.retry()
         }
     }
 

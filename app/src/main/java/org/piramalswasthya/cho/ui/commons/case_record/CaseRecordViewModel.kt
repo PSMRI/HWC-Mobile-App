@@ -233,7 +233,8 @@ class CaseRecordViewModel @Inject constructor(
             benVisitNo = benVisitInfo.benVisitNo!!,
             benFlowID = benVisitInfo.benFlowID,
             nurseFlag = 9,
-            doctorFlag = doctorFlag,
+            doctorFlag = when(benVisitInfo.doctorFlag){ 3 -> {9} else -> {doctorFlag}},
+            labtechFlag = when(benVisitInfo.doctorFlag){ 3 -> {1} else -> {0}},
             pharmacist_flag = benVisitInfo.pharmacist_flag,
         )
         patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)

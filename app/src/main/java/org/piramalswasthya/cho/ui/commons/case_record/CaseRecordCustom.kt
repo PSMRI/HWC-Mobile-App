@@ -117,8 +117,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
-            benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
             patientId = benVisitInfo.patient.patientID
             patId= patientId
             viewModel.getVitalsDB(patId)
@@ -550,7 +552,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             id?.toString() ?: ""
         }
 
-        if(idString.nullIfEmpty() == null){
+        if(idString.nullIfEmpty() == null || benVisitInfo.doctorFlag == 3){
             doctorFlag = 9
         }
 
@@ -681,25 +683,24 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
             CoroutineScope(Dispatchers.IO).launch {
 
-                if(benVisitInfo.benVisitNo == null){
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-                else{
-                    val validate = dAdapter.setError()
-                    if (validate == -1) {
+                val validate = dAdapter.setError()
+                if (validate == -1) {
+                    if(benVisitInfo.doctorFlag == 3){
+                        viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                    }
+                    else{
                         addCaseRecordDataToCatche(benVisitInfo.benVisitNo!!)
                         viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        binding.diagnosisExtra.scrollToPosition(validate)
-                        Toast.makeText(
-                            requireContext(),
-                            resources.getString(R.string.diagnosisCannotBeEmpty),
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    binding.diagnosisExtra.scrollToPosition(validate)
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.diagnosisCannotBeEmpty),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
 
             }

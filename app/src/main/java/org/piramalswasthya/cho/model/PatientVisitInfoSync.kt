@@ -58,6 +58,9 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name = "doctorFlag")
     var doctorFlag: Int? = 0,
 
+    @ColumnInfo(name = "labtechFlag")
+    var labtechFlag: Int? = 0,
+
     @ColumnInfo(name = "pharmacist_flag")
     var pharmacist_flag: Int? = 0,
 
@@ -66,9 +69,9 @@ data class PatientVisitInfoSync(
         patientID = patient.patientID,
         benVisitNo = benFlow.benVisitNo!!,
         benFlowID = benFlow.benFlowID,
-        nurseFlag = benFlow.nurseFlag,
-        doctorFlag = benFlow.doctorFlag,
-        pharmacist_flag = benFlow.pharmacist_flag,
+//        nurseFlag = benFlow.nurseFlag,
+//        doctorFlag = benFlow.doctorFlag,
+//        pharmacist_flag = benFlow.pharmacist_flag,
         nurseDataSynced = SyncState.SYNCED,
         doctorDataSynced = SyncState.SYNCED,
     )

@@ -13,6 +13,7 @@ interface PrescriptionDao {
     suspend fun insertAll(prescriptionCaseRecord: List<PrescriptionCaseRecord>)
 
     @Transaction
-    @Query("delete from Prescription_Cases_Recorde where patientID =:patientID")
-    suspend fun deletePrescriptionByPatientId(patientID: String): Int
+    @Query("delete from Prescription_Cases_Recorde where patientID =:patientID and benVisitNo = :benVisitNo")
+    suspend fun deletePrescriptionByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): Int
+
 }

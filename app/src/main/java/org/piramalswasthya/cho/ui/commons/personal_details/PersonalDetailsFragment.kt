@@ -161,11 +161,9 @@ class PersonalDetailsFragment : Fragment() {
                                          ).show()
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3){
-                                        Toast.makeText(
-                                            requireContext(),
-                                            "Lab test pending",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
                                         Toast.makeText(

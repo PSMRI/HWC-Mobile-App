@@ -153,32 +153,27 @@ class BenFlowRepo @Inject constructor(
     }
 
     @Transaction
-    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : MutableList<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow){
+    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync){
 
-        prescriptionDao.deletePrescriptionByPatientId(patient.patientID)
+        prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
         prescriptionCaseRecord?.let {
             prescriptionDao.insertAll(it)
         }
 
-        investigationDao.deleteInvestigationCaseRecordByPatientId(patient.patientID)
+        investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
         investigationDao.insertInvestigation(investigationCaseRecord)
 
-        caseRecordeDao.deleteDiagnosisByPatientId(patient.patientID)
-        diagnosisCaseRecords?.let {
+        caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
+        diagnosisCaseRecords.let {
             caseRecordeDao.insertAll(it)
         }
 
-        val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = patient.patientID,
-            doctorDataSynced = SyncState.SYNCED,
-            nurseFlag = benFlow.nurseFlag,
-            doctorFlag = benFlow.doctorFlag,
-            pharmacist_flag = benFlow.pharmacist_flag
-        )
+        patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+
     }
 
-    private suspend fun getAndSaveDoctorDataToDb(benFlow: BenFlow, patient: Patient): NetworkResult<NetworkResponse> {
+    private suspend fun getAndSaveDoctorDataToDb(benFlow: BenFlow, patient: Patient, patientVisitInfoSync: PatientVisitInfoSync): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
             val doctorDataRequest = NurseDataRequest(benRegID = benFlow.beneficiaryRegID!!, visitCode = benFlow.visitCode!!)
@@ -189,60 +184,24 @@ class BenFlowRepo @Inject constructor(
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-//                    val data = responseBody.let { JSONObject(it).getString("data") }
-//                    Log.i("Your response data is","$data")
-//
-//                    val docData = Gson().fromJson(data, DoctorDataDownSync::class.java)
-//                    val prescriptionCaseRecords = docData.prescription?.map{
-//                        PrescriptionCaseRecord(
-//                            prescriptionCaseRecordId = it.prescriptionID.toString(),
-//                            itemId = it.drugID,
-//                            frequency = it.frequency,
-//                            duration = it.duration,
-//                            instruciton = null,
-//                            unit = it.unit,
-//                            patientID = patient.patientID,
-//                            beneficiaryID = patient.beneficiaryID,
-//                            beneficiaryRegID = patient.beneficiaryRegID,
-//                            benFlowID = benFlow.benFlowID
-//                        )
-//                    }
-//
-//                    val investigation = docData.investigation
-//                    val investigationVal = InvestigationCaseRecord(
-//                        investigationCaseRecordId = generateUuid(),
-//                        testIds = null,
-//                        externalInvestigation = null,
-//                        counsellingTypes = null,
-//                        institutionId = docData.Refer?.referredToInstituteID,
-//                        patientID = patient.patientID,
-//                        beneficiaryID = patient.beneficiaryID,
-//                        beneficiaryRegID = patient.beneficiaryRegID,
-//                        benFlowID = benFlow.benFlowID)
-//
-//                    val diagnosisDoc = docData.diagnosis
-//                    var diagnosisCaseRecords = mutableListOf<DiagnosisCaseRecord>()
-//                    if(diagnosisDoc != null){
-//                        diagnosisDoc.provisionalDiagnosisList?.map {
-//                            val  diagnosisCaseRecord = DiagnosisCaseRecord(
-//                                diagnosisCaseRecordId = generateUuid(),
-//                                diagnosis = it.term,
-//                                patientID = patient.patientID,
-//                                beneficiaryID = patient.beneficiaryID,
-//                                beneficiaryRegID = patient.beneficiaryRegID,
-//                                benFlowID = benFlow.benFlowID)
-//                            Log.i("diagnosisCaseRecord data is ","$diagnosisCaseRecord")
-//                            diagnosisCaseRecords.add(diagnosisCaseRecord)
-//                        }
-//                    }
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    val docData = Gson().fromJson(data, DoctorDataDownSync::class.java)
+                    val prescriptionCaseRecords = docData.prescription?.map{
+                        PrescriptionCaseRecord(patient = patient, benFlow = benFlow, prescriptionData = it)
+                    }
+                    val investigationCaseRecord  =  InvestigationCaseRecord(docData = docData, patient = patient, benFlow = benFlow)
 
-//                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationVal,diagnosisCaseRecords, patient = patient, benFlow = benFlow)
+                    val diagnosisCaseRecords = docData.diagnosis?.provisionalDiagnosisList?.map {
+                        DiagnosisCaseRecord(patient = patient, benFlow = benFlow, provisionalDiagnosisUpsync = it)
+                    } ?: emptyList()
+
+                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync)
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    getAndSaveDoctorDataToDb(benFlow, patient)
+                    getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
                 },
             )
         }
@@ -263,30 +222,6 @@ class BenFlowRepo @Inject constructor(
 
         patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
-
-//        val existingPatientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSync(patient.patientID)
-//
-//        if(existingPatientVisitInfoSync != null && benFlow.benVisitNo > existingPatientVisitInfoSync.benVisitNo!!){
-//            existingPatientVisitInfoSync.benVisitNo = benFlow.benVisitNo
-//            existingPatientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
-//            existingPatientVisitInfoSync.nurseFlag = benFlow.nurseFlag
-//            existingPatientVisitInfoSync.doctorFlag = benFlow.doctorFlag
-//            existingPatientVisitInfoSync.pharmacist_flag = benFlow.pharmacist_flag
-//            patientVisitInfoSyncDao.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
-//        }
-//        else if(existingPatientVisitInfoSync == null){
-//            val patientVisitInfoSync = PatientVisitInfoSync(
-//                patientID = patient.patientID,
-//                beneficiaryID = benFlow.beneficiaryID,
-//                beneficiaryRegID = benFlow.beneficiaryRegID,
-//                nurseDataSynced = SyncState.SYNCED,
-//                nurseFlag = benFlow.nurseFlag,
-//                doctorFlag = benFlow.doctorFlag,
-//                pharmacist_flag = benFlow.pharmacist_flag,
-//                benVisitNo = benFlow.benVisitNo
-//            )
-//            patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
-//        }
 
     }
 
@@ -322,9 +257,17 @@ class BenFlowRepo @Inject constructor(
 
     suspend fun checkAndDownsyncNurseData(benFlow: BenFlow, patient: Patient){
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.nurseFlag!! == 9 && benFlow.nurseFlag >= patientVisitInfoSync.nurseFlag!!){
+        if(patientVisitInfoSync != null && benFlow.nurseFlag!! == 9 && patientVisitInfoSync.nurseFlag!! == 1){
             patientVisitInfoSync.nurseFlag = benFlow.nurseFlag
             getAndSaveNurseDataToDb(benFlow, patient, patientVisitInfoSync)
+        }
+    }
+
+    suspend fun checkAndDownsyncDoctorData(benFlow: BenFlow, patient: Patient){
+        val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
+        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 && (benFlow.doctorFlag!! > patientVisitInfoSync.doctorFlag!!)){
+            patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
+            getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
         }
     }
 
@@ -375,7 +318,8 @@ class BenFlowRepo @Inject constructor(
                         if(patient != null){
                             checkAndAddNewVisitInfo(benFlow, patient)
                             updateBenFlowId(benFlow, patient)
-//                            checkAndDownsyncNurseData(benFlow, patient)
+                            checkAndDownsyncNurseData(benFlow, patient)
+                            checkAndDownsyncDoctorData(benFlow, patient)
 //                            if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null){
 //                                getAndSaveNurseDataToDb(benFlow, patient)
 //                            }
@@ -488,14 +432,9 @@ class BenFlowRepo @Inject constructor(
         benFlowDao.updateNurseCompleted(visitCode, benVisitID, benFlowID)
     }
 
-    suspend fun updateDoctorCompletedWithTest(benFlowID: Long){
-        benFlowDao.updateDoctorCompletedWithTest(benFlowID)
+    suspend fun updateDoctorFlag(benFlowID: Long, doctorFlag: Int){
+        benFlowDao.updateDoctorFlag(benFlowID, doctorFlag)
     }
-
-    suspend fun updateDoctorCompletedWithoutTest(benFlowID: Long){
-        benFlowDao.updateDoctorCompletedWithoutTest(benFlowID)
-    }
-
 
     suspend fun pullLabProcedureData(patientId: String?): Boolean {
 
