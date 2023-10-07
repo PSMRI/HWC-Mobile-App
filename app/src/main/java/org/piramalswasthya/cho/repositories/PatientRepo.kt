@@ -388,7 +388,6 @@ class PatientRepo @Inject constructor(
                     if(response.code == socketTimeoutException){
                         throw SocketTimeoutException("This is an example exception message")
                     }
-                    return false;
                 }
                 else -> {
 

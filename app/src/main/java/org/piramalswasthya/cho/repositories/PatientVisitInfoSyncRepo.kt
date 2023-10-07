@@ -69,16 +69,16 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePatientNurseDataSyncSyncing(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun updatePatientDoctorDataSyncSuccess(patientID: String){
-        patientVisitInfoSyncDao.updatePatientDoctorDataSyncSuccess(patientID = patientID)
+    suspend fun updatePatientDoctorDataSyncSuccess(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientDoctorDataSyncSuccess(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun updatePatientDoctorDataSyncFailed(patientID: String){
-        patientVisitInfoSyncDao.updatePatientDoctorDataSyncFailed(patientID = patientID)
+    suspend fun updatePatientDoctorDataSyncFailed(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientDoctorDataSyncFailed(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun updatePatientDoctorDataSyncSyncing(patientID: String){
-        patientVisitInfoSyncDao.updatePatientDoctorDataSyncSyncing(patientID = patientID)
+    suspend fun updatePatientDoctorDataSyncSyncing(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientDoctorDataSyncSyncing(patientID = patientID, benVisitNo = benVisitNo)
     }
 
     suspend fun updateLabDataSyncState(patientID: String, syncState: SyncState){

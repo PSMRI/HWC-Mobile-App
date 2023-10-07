@@ -206,7 +206,7 @@ class BenVisitRepo @Inject constructor(
                             procedureList = procedureList
                         )
 
-                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID)
+                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
@@ -217,10 +217,10 @@ class BenVisitRepo @Inject constructor(
                                 else if(it.patientVisitInfoSync.doctorFlag == 9){
                                     benFlowRepo.updateDoctorCompletedWithoutTest(benFlowID = benFlow.benFlowID)
                                 }
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
                             }
                             is NetworkResult.Error -> {
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patient.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
                                 if(response.code == socketTimeoutException){
                                     throw SocketTimeoutException("This is an example exception message")
                                 }
@@ -265,16 +265,16 @@ class BenVisitRepo @Inject constructor(
                             procedureList = procedureList
                         )
 
-                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID)
+                        patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
 
                         when(val response = registerDoctorData(patientDoctorForm)){
                             is NetworkResult.Success -> {
 //                                patientRepo.updateDoctorSubmitted(it.patient.patientID)
                                 benFlowRepo.updateDoctorCompletedWithTest(benFlowID = benFlow.benFlowID)
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSuccess(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
                             }
                             is NetworkResult.Error -> {
-                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patient.patientID)
+                                patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
                                 if(response.code == socketTimeoutException){
                                     throw SocketTimeoutException("This is an example exception message")
                                 }

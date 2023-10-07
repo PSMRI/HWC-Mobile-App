@@ -65,16 +65,16 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePatientNurseDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :synced WHERE patientID = :patientID")
-    suspend fun updatePatientDoctorDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientDoctorDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncFailed WHERE patientID = :patientID")
-    suspend fun updatePatientDoctorDataSyncFailed(syncFailed: SyncState? = SyncState.UNSYNCED, patientID: String)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncFailed WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientDoctorDataSyncFailed(syncFailed: SyncState? = SyncState.UNSYNCED, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID")
-    suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET labDataSynced = :syncState WHERE patientID = :patientID")
