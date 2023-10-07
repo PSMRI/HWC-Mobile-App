@@ -35,6 +35,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -169,9 +170,9 @@ class PersonalDetailsFragment : Fragment() {
 
                             },
                             {
-                                benId ->
+                                benVisitInfo ->
                                     Log.d("ben click listener", "ben click listener")
-                                    checkAndGenerateABHA(benId!!)
+                                    checkAndGenerateABHA(benVisitInfo)
                             }
                          ),
                             showAbha = true
@@ -271,9 +272,9 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
-    private fun checkAndGenerateABHA(benId: Long) {
+    private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {
         Log.d("checkAndGenerateABHA click listener","checkAndGenerateABHA click listener")
-        viewModel.fetchAbha(benId)
+        viewModel.fetchAbha(benVisitInfo.patient.beneficiaryID!!)
     }
     override fun onDestroyView() {
         super.onDestroyView()
