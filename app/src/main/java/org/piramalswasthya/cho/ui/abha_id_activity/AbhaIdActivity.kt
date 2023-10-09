@@ -98,7 +98,7 @@ class AbhaIdActivity : AppCompatActivity() {
             mainViewModel.generateAccessToken()
         }
         binding.homeButton.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
+            this.finish()
         }
         countDownTimer = object : CountDownTimer(30*60*1000, 1000) {
 
