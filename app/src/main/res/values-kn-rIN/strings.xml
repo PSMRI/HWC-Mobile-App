@@ -395,4 +395,7 @@
     <string name="male_opd">Male:</string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
+    <string name="exit_application">Exit Application</string>
+    <string name="do_you_want_to_exit_application">Do you want to exit application</string>
+    <string name="patient_cnt_display">" Patient"</string>
 </resources>
