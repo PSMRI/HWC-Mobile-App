@@ -85,7 +85,7 @@ class HwcFragment constructor(
                         viewModel.forgetUser()
                     }
                     findNavController().navigate(
-                        ChoLoginFragmentDirections.actionSignInToHomeFromCho()
+                        ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
                     )
                     viewModel.resetState()
                     activity?.finish()

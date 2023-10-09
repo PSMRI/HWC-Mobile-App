@@ -76,7 +76,7 @@ class RegisterPatientActivity : AppCompatActivity() {
         }
 
         binding.homeButton.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
+            this.finish()
         }
 
         binding.btnSubmit.setOnClickListener {

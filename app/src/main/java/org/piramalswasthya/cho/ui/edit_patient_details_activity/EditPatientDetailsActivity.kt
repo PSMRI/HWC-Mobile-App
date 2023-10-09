@@ -159,7 +159,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
        }
 
         binding.homeButton.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            this.finish()
         }
 
         binding.btnSubmit.setOnClickListener {
@@ -174,9 +176,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     }
 
-    override fun onBackPressed() {
-        finish()
-    }
+//    override fun onBackPressed() {
+//        finish()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()

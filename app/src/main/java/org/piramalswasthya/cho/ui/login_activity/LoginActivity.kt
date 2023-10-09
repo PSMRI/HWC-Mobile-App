@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
@@ -44,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_login) as NavHostFragment
         navHostFragment.navController
     }
-
+    private var showDashboard : Boolean? = null
     @Inject
     lateinit var userRepo: UserRepo
 
@@ -79,10 +80,13 @@ class LoginActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
-                if (isLoggedIn == 1) {
+//                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
+                if (userRepo.getLoggedInUser()!=null) {
+                    showDashboard = true
                     val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                    intent.putExtra("showDashboard", showDashboard)
                     startActivity(intent)
+                    finish()
                 }
             }catch (e:Exception){
                 Log.d("Failed to get Login flag","${e}")
@@ -96,7 +100,16 @@ class LoginActivity : AppCompatActivity() {
 //        NavigationUI.setupWithNavController(binding.toolbar, navController)
         NavigationUI.setupActionBarWithNavController(this, navController)
     }
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                // This is the ID for the Up button (left arrow in the ActionBar).
+                onBackPressed() // This will simulate the back button press.
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 //    private fun createSyncServiceNotificationChannel() {
 //        // Create the NotificationChannel, but only on API 26+ because
 //        // the NotificationChannel class is new and not in the support library

@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -30,14 +30,11 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryID
 import org.piramalswasthya.cho.fhir_utils.extension_names.beneficiaryRegID
 import org.piramalswasthya.cho.fhir_utils.extension_names.modifiedBy
 import org.piramalswasthya.cho.model.ChiefComplaintDB
-import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
-import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
-import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -96,8 +93,15 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         binding.inputHeight.addTextChangedListener(textWatcher)
         return binding.root
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
@@ -375,9 +379,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun onCancelAction() {
-    //        findNavController().navigate(
-    //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-    //        )
         findNavController().navigateUp()
     }
 
@@ -432,6 +433,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 //                    ).show()
                     val intent = Intent(context, HomeActivity::class.java)
                     startActivity(intent)
+                    requireActivity().finish()
 //                }
             }
 

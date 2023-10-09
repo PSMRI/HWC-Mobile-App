@@ -112,7 +112,7 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         viewModel.init(requireContext())
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
+//        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
 

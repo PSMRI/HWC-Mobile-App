@@ -86,6 +86,8 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val autocompleteTV = binding.selectPeriod
         viewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+
+
         autocompleteTV.setOnItemClickListener { _, _, position, _ ->
             autocompleteTV.setText(months[position], false)
             selectedPeriod = autocompleteTV.text.toString()
