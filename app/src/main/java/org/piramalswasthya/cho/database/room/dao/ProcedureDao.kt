@@ -22,15 +22,11 @@ interface ProcedureDao {
     suspend fun insert(componentOption: ComponentOption): Long
 
     @Transaction
-    @Query("delete from procedure where ben_reg_id = :benRegID")
-    suspend fun deleteProcedure(benRegID: Long): Int
+    @Query("delete from procedure where patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun deleteProcedureByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): Int
 
-    @Transaction
-    @Query("delete from procedure where procedure_id = :procedureID and ben_reg_id = :benRegID")
-    suspend fun deleteProcedure(benRegID: Long, procedureID: Long): Int
-
-    @Query("select * from procedure where ben_reg_id = :benRegID")
-    suspend fun getProcedures(benRegID: Long): List<Procedure>?
+    @Query("select * from procedure where patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun getProceduresByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): List<Procedure>?
 
     @Query("select * from component_details where procedure_id = :procedureId")
     suspend fun getComponentDetails(procedureId: Long): List<ComponentDetails>?
@@ -41,8 +37,8 @@ interface ProcedureDao {
     @Query("update component_details set test_result_value = :testResultValue and remarks = :remarks where id = :id")
     fun addComponentResult(id: Long, testResultValue: String?, remarks: String?)
 
-    @Query("select * from procedure where ben_reg_id = :benRegId and procedure_id = :procedureID limit 1")
-    fun getProcedure(benRegId: Long, procedureID: Long): Procedure
+    @Query("select * from procedure where patientID = :patientID and benVisitNo = :benVisitNo and procedure_id = :procedureID limit 1")
+    fun getProcedure(patientID: String, benVisitNo: Int, procedureID: Long): Procedure
 
     @Query("select * from component_details where procedure_id = :procedureId and test_component_id = :testComponentID")
     fun getComponentDetails(procedureId: Long, testComponentID: Long): ComponentDetails

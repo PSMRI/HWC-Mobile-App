@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
@@ -28,19 +29,21 @@ class PullLabDataToAmrit @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
 
-        return try {
-            val workerResult = benFlowRepo.pullLabProcedureData(inputData.getString("patientId"))
-            if (workerResult) {
-                Timber.d("Worker completed")
-                Result.success()
-            } else {
-                Timber.d("Worker Failed as usual!")
-                Result.failure()
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Caught Exception for push amrit worker $e")
-            Result.retry()
-        }
+//        return try {
+//            val workerResult = benFlowRepo.pullLabProcedureData(inputData.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
+//            if (workerResult) {
+//                Timber.d("Worker completed")
+//                Result.success()
+//            } else {
+//                Timber.d("Worker Failed as usual!")
+//                Result.failure()
+//            }
+//        } catch (e: SocketTimeoutException) {
+//            Timber.e("Caught Exception for push amrit worker $e")
+//            Result.retry()
+//        }
+
+        return Result.success()
     }
 
     private fun init() {

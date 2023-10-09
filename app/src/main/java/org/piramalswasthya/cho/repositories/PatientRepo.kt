@@ -79,9 +79,7 @@ class PatientRepo @Inject constructor(
     }
 
     suspend fun getBenFromId(benId: Long): Patient? {
-        return withContext(Dispatchers.IO) {
-            patientDao.getBen(benId)
-        }
+        return patientDao.getBen(benId)
     }
 
     suspend fun updateRecord(it: Patient) {
@@ -448,59 +446,59 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientDisplayListForNurse()
     }
 
-    suspend fun getProcedures(patientId: String): List<ProcedureDTO>? {
+    suspend fun getProcedures(benVisitInfo: PatientDisplayWithVisitInfo): List<ProcedureDTO>? {
         val dtos: MutableList<ProcedureDTO> = mutableListOf()
         return withContext(Dispatchers.IO) {
             try {
-                patientDao.getPatient(patientId).beneficiaryRegID?.let {
-                    val procedures = procedureDao.getProcedures(it)
-                    procedures?.forEach { procedure ->
-                        val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
-                        val procedureDTO = ProcedureDTO(
-                            benRegId = it,
-                            procedureDesc = procedure.procedureDesc,
-                            procedureType = procedure.procedureType,
-                            prescriptionID = procedure.prescriptionID,
-                            procedureID = procedure.procedureID,
-                            procedureName = procedure.procedureName,
-                            compListDetails = compListDetails,
-                            isMandatory = procedure.isMandatory
+
+                val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                procedures?.forEach { procedure ->
+                    val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
+                    val procedureDTO = ProcedureDTO(
+                        benRegId = benVisitInfo.patient.beneficiaryRegID!!,
+                        procedureDesc = procedure.procedureDesc,
+                        procedureType = procedure.procedureType,
+                        prescriptionID = procedure.prescriptionID,
+                        procedureID = procedure.procedureID,
+                        procedureName = procedure.procedureName,
+                        compListDetails = compListDetails,
+                        isMandatory = procedure.isMandatory
+                    )
+
+                    val components = procedureDao.getComponentDetails(procedure.id)
+                    components?.forEach { componentDetails ->
+                        val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
+                        val componentDetailDTO = ComponentDetailDTO(
+                            id = componentDetails.id,
+                            range_normal_min = componentDetails.rangeNormalMin,
+                            range_normal_max = componentDetails.rangeNormalMax,
+                            range_min = componentDetails.rangeMin,
+                            range_max = componentDetails.rangeMax,
+                            isDecimal = componentDetails.isDecimal,
+                            inputType = componentDetails.inputType,
+                            testComponentID = componentDetails.testComponentID,
+                            measurementUnit = componentDetails.measurementUnit,
+                            testComponentName = componentDetails.testComponentName,
+                            testComponentDesc = componentDetails.testComponentDesc,
+                            testResultValue = componentDetails.testResultValue,
+                            remarks = componentDetails.remarks,
+                            compOpt = componentOptionDTOs
                         )
 
-                        val components = procedureDao.getComponentDetails(procedure.id)
-                        components?.forEach { componentDetails ->
-                            val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
-                            val componentDetailDTO = ComponentDetailDTO(
-                                id = componentDetails.id,
-                                range_normal_min = componentDetails.rangeNormalMin,
-                                range_normal_max = componentDetails.rangeNormalMax,
-                                range_min = componentDetails.rangeMin,
-                                range_max = componentDetails.rangeMax,
-                                isDecimal = componentDetails.isDecimal,
-                                inputType = componentDetails.inputType,
-                                testComponentID = componentDetails.testComponentID,
-                                measurementUnit = componentDetails.measurementUnit,
-                                testComponentName = componentDetails.testComponentName,
-                                testComponentDesc = componentDetails.testComponentDesc,
-                                testResultValue = componentDetails.testResultValue,
-                                remarks = componentDetails.remarks,
-                                compOpt = componentOptionDTOs
+                        val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
+                        componentOptions?.forEach { option ->
+                            val componentOptionDTO = ComponentOptionDTO(
+                                name = option.name
                             )
-
-                            val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
-                            componentOptions?.forEach { option ->
-                                val componentOptionDTO = ComponentOptionDTO(
-                                    name = option.name
-                                )
-                                componentOptionDTOs += componentOptionDTO
-                            }
-                            componentDetailDTO.compOpt = componentOptionDTOs
-                            compListDetails += componentDetailDTO
+                            componentOptionDTOs += componentOptionDTO
                         }
-                        procedureDTO.compListDetails = compListDetails
-                        dtos += procedureDTO
+                        componentDetailDTO.compOpt = componentOptionDTOs
+                        compListDetails += componentDetailDTO
                     }
+                    procedureDTO.compListDetails = compListDetails
+                    dtos += procedureDTO
                 }
+
                 dtos
             } catch (e: Exception) {
                 Timber.d("get failed due to $e")
@@ -510,9 +508,9 @@ class PatientRepo @Inject constructor(
 
     }
 
-    suspend fun getProcedure(benRegId: Long, procedureID: Long): Procedure {
+    suspend fun getProcedure(patientID: String, benVisitNo: Int, procedureID: Long): Procedure {
         return withContext(Dispatchers.IO) {
-            procedureDao.getProcedure(benRegId, procedureID)
+            procedureDao.getProcedure(patientID, benVisitNo, procedureID)
         }
     }
 

@@ -77,8 +77,8 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET labDataSynced = :syncState WHERE patientID = :patientID")
-    suspend fun updateLabDataSyncState(syncState: SyncState?, patientID: String)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET labDataSynced = :syncState WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateLabDataSyncState(syncState: SyncState?, benVisitNo: Int, patientID: String)
 
     @Query("SELECT nurseDataSynced FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
     suspend fun getNurseDataSyncStatus(patientID: String) : SyncState?

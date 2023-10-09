@@ -82,8 +82,8 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePatientDoctorDataSyncSyncing(patientID = patientID, benVisitNo = benVisitNo)
     }
 
-    suspend fun updateLabDataSyncState(patientID: String, syncState: SyncState){
-        patientVisitInfoSyncDao.updateLabDataSyncState(patientID = patientID, syncState = syncState)
+    suspend fun updateLabDataSyncState(patientID: String, benVisitNo: Int, syncState: SyncState){
+        patientVisitInfoSyncDao.updateLabDataSyncState(patientID = patientID, syncState = syncState, benVisitNo = benVisitNo )
     }
 
     suspend fun hasUnSyncedNurseData(patientID: String) : Boolean {

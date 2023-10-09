@@ -116,7 +116,7 @@ import timber.log.Timber
         ComponentOption::class,
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 74, exportSchema = false
+    version = 75, exportSchema = false
 )
 
 
@@ -189,7 +189,7 @@ abstract class InAppDb : RoomDatabase() {
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                                    Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
+//                                    Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
                                 }
                             },
                             Dispatchers.IO.asExecutor()

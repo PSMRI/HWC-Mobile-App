@@ -362,7 +362,7 @@ class BenVisitRepo @Inject constructor(
 
     suspend fun processUnsyncedLabData(): Boolean{
 
-        val labDataUnsyncedList = patientVisitInfoSyncRepo. getPatientLabDataUnsynced()
+        val labDataUnsyncedList = patientVisitInfoSyncRepo.getPatientLabDataUnsynced()
         val user = userRepo.getLoggedInUser()
 
         labDataUnsyncedList.forEach {
@@ -370,35 +370,34 @@ class BenVisitRepo @Inject constructor(
             if(it.patient.beneficiaryRegID != null){
                 withContext(Dispatchers.IO){
 
-                    val benFlow = benFlowRepo.getBenFlowByBenRegId(it.patient.beneficiaryRegID!!)
+                    val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.patient.beneficiaryRegID!!, it.patientVisitInfoSync.benVisitNo)
                     if(benFlow != null){
 
                         val procedureResultDTOs : MutableList<ProcedureResultDTO> = mutableListOf()
-                        it.patient.beneficiaryRegID?.let {
-                            beneficiaryRegID ->
-                            val procedures = procedureDao.getProcedures(beneficiaryRegID)
-                            procedures?.forEach { procedure ->
-                                val compListDetails: MutableList<ComponentResultDTO> = mutableListOf()
-                                val procedureDTO = ProcedureResultDTO(
-                                    prescriptionID = procedure.prescriptionID,
-                                    procedureID = procedure.procedureID,
-                                    compList = compListDetails
-                                )
 
-                                val components = procedureDao.getComponentDetails(procedure.id)
-                                components?.forEach { componentDetails ->
-                                    val componentResultDTO = ComponentResultDTO(
-                                        testComponentID = componentDetails.testComponentID,
-                                        testResultValue = componentDetails.testResultValue,
-                                        testResultUnit = componentDetails.measurementUnit,
-                                        remarks = componentDetails.remarks
-                                    )
-                                    compListDetails += componentResultDTO
-                                }
-                                procedureDTO.compList = compListDetails
-                                procedureResultDTOs += procedureDTO
+                        val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
+                        procedures?.forEach { procedure ->
+                            val compListDetails: MutableList<ComponentResultDTO> = mutableListOf()
+                            val procedureDTO = ProcedureResultDTO(
+                                prescriptionID = procedure.prescriptionID,
+                                procedureID = procedure.procedureID,
+                                compList = compListDetails
+                            )
+
+                            val components = procedureDao.getComponentDetails(procedure.id)
+                            components?.forEach { componentDetails ->
+                                val componentResultDTO = ComponentResultDTO(
+                                    testComponentID = componentDetails.testComponentID,
+                                    testResultValue = componentDetails.testResultValue,
+                                    testResultUnit = componentDetails.measurementUnit,
+                                    remarks = componentDetails.remarks
+                                )
+                                compListDetails += componentResultDTO
                             }
+                            procedureDTO.compList = compListDetails
+                            procedureResultDTOs += procedureDTO
                         }
+
 
                         val labResultDTO = LabResultDTO(
                             labTestResults = procedureResultDTOs,
@@ -419,16 +418,16 @@ class BenVisitRepo @Inject constructor(
                         )
 
                         if (labResultDTO.labTestResults.isNotEmpty()) {
-                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCING)
+                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCING)
 
                             when(val response = registerLabData(labResultDTO)){
                                 is NetworkResult.Success -> {
 //                                patientRepo.updateDoctorSubmitted(it.patientID)
 //                                benFlowRepo.updateDoctorCompleted(benFlowID = benFlow.benFlowID)
-                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCED)
+                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
                                 }
                                 is NetworkResult.Error -> {
-                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.UNSYNCED)
+                                    patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.UNSYNCED)
                                     if(response.code == socketTimeoutException){
                                         throw SocketTimeoutException("caught exception")
                                     }
@@ -437,7 +436,7 @@ class BenVisitRepo @Inject constructor(
                                 else -> {}
                             }
                         } else {
-                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, SyncState.SYNCED)
+                            patientVisitInfoSyncRepo.updateLabDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
                         }
 
                     } else { }

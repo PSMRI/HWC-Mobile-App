@@ -17,9 +17,6 @@ interface BenFlowDao {
     @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'ಔಟ್ ಪೇಷಂಟ್ ಕಾಳಜಿ' OR Visit_DB.category LIKE 'OutPatient Care') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getOpdCount(genderID: Int, periodParam: String) : Int?
 
-    @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")
-    suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?
-
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
     suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?
 

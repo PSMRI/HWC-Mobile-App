@@ -123,8 +123,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         }
 
         lifecycleScope.launch {
-            viewModel.downloadProcedure(patientId = patientId)
-            viewModel.getPrescribedProcedures(patientId = patientId)
+            viewModel.downloadProcedure(benVisitInfo = benVisitInfo)
+            viewModel.getPrescribedProcedures(benVisitInfo = benVisitInfo)
         }
 
         viewModel.procedures.observe(viewLifecycleOwner) {
@@ -612,7 +612,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
-            viewModel.saveLabData(dtos, patientId)
+            viewModel.saveLabData(dtos, benVisitInfo)
             navigateNext()
         } else {
             Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
