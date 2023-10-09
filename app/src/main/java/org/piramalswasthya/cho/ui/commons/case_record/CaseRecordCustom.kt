@@ -14,6 +14,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -37,7 +39,7 @@ import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
-import org.piramalswasthya.cho.adapter.ReportAdapter
+//import org.piramalswasthya.cho.adapter.ReportAdapter
 //import org.piramalswasthya.cho.adapter.ReportAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
@@ -88,7 +90,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var dAdapter : DiagnosisAdapter
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
-    private lateinit var rAdapter : ReportAdapter
+//    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int,String>()
     private var referNameMap = emptyMap<Int,String>()
     private val selectedTestName = mutableListOf<Int>()
@@ -185,31 +187,42 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
-        var labK = mutableListOf<LabReportValues>()
-        val myList = listOf("HBs", "CBS", "POP")
-        val formattedString = myList.joinToString("\n")
-        val myList1 = listOf("28mg", "45mg", "98mg")
-        val formattedString1 = myList1.joinToString("\n")
-        val lab  = LabReportValues(
-            id = 1,
-            testName = "Hbs",
-            componentListString =formattedString,
-            result = formattedString1
-        )
-        labK.add(lab)
-        val lab2  = LabReportValues(
-            id = 1,
-            testName = "Hbs",
-            componentListString =formattedString,
-            result = formattedString1
-        )
-        labK.add(lab2)
-        rAdapter = ReportAdapter(labK)
-        binding.reportExtra.adapter = rAdapter
-        val layoutManagerR = LinearLayoutManager(requireContext())
-        binding.reportExtra.layoutManager = layoutManagerR
+//        var labK = mutableListOf<LabReportValues>()
+//        val myList = listOf("HBs", "CBS", "POP")
+//        val formattedString = myList.joinToString("\n")
+//        val myList1 = listOf("28mg", "45mg", "98mg")
+//        val formattedString1 = myList1.joinToString("\n")
+//        val lab  = LabReportValues(
+//            id = 1,
+//            testName = "Hbs",
+//            componentListString =formattedString,
+//            result = formattedString1
+//        )
+//        labK.add(lab)
+//        val lab2  = LabReportValues(
+//            id = 1,
+//            testName = "Hbs",
+//            componentListString =formattedString,
+//            result = formattedString1
+//        )
+//        labK.add(lab2)
+//        rAdapter = ReportAdapter(labK)
+//        binding.reportExtra.adapter = rAdapter
+//        val layoutManagerR = LinearLayoutManager(requireContext())
+//        binding.reportExtra.layoutManager = layoutManagerR
 
+        val name = "DENGUE"
+        val number = "RBS"
+        val tableLayout = binding.tableLayout
 
+        val tableRow = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
+        tableRow.findViewById<TextView>(R.id.nameTextView).setText(number)
+        tableRow.findViewById<TextView>(R.id.numberTextView).setText(name)
+        val tableRow2 = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
+        tableRow2.findViewById<TextView>(R.id.nameTextView).setText(number)
+        tableRow2.findViewById<TextView>(R.id.numberTextView).setText(name)
+        tableLayout.addView(tableRow)
+        tableLayout.addView(tableRow2)
 //        viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
 //            formMListVal.clear()
 //            formMListVal.addAll(f)
