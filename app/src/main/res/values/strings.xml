@@ -399,4 +399,6 @@
     <string name="exit_application">Exit Application</string>
     <string name="do_you_want_to_exit_application">Do you want to exit application</string>
     <string name="patient_cnt_display">" Patient"</string>
+    <string name="alert_popup">Alert</string>
+    <string name="phone_no_not_found">Phone No. not found.</string>
 </resources>

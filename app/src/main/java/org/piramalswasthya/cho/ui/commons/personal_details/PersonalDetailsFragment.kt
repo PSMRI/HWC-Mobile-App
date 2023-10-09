@@ -43,6 +43,7 @@ import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
@@ -157,10 +158,9 @@ class PersonalDetailsFragment : Fragment() {
                                 startActivity(intent)
                             },
                                 { benId ->
-                                Log.d("ben click listener", "ben click listener")
                                 checkAndGenerateABHA(benId!!)
                             },{
-                                patientID -> callLoginDialog(patientID)
+                                patient -> callLoginDialog(patient)
                                 }
                          ),
                             showAbha = true
@@ -264,9 +264,21 @@ class PersonalDetailsFragment : Fragment() {
         val hashBytes = digest.digest(input.toByteArray())
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
-    private fun callLoginDialog(patientId:String) {
+    private fun callLoginDialog(patient:Patient) {
+        val patientId = patient.patientID
+        if (patient.phoneNo.isNullOrEmpty()) {
+            context?.let {
+                MaterialAlertDialogBuilder(it).setTitle(getString(R.string.alert_popup))
+                    .setMessage(getString(R.string.phone_no_not_found))
+                    .setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+                        dialog.dismiss()
+                    }.create()
+                    .show()
+            }
+        } else{
         network = isInternetAvailable(requireContext())
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
+        val dialogView =
+            LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
         val dialog = context?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle("eSanjeevani Login")
@@ -282,16 +294,19 @@ class PersonalDetailsFragment : Fragment() {
             // Internet is available
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
-        }
-        else {
+        } else {
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.GONE
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.VISIBLE
         }
 
         val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
         loginBtn.setOnClickListener {
-            usernameEs = dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text.toString().trim()
-            passwordEs = dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString().trim()
+            usernameEs =
+                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text.toString()
+                    .trim()
+            passwordEs =
+                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString()
+                    .trim()
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     var passWord = encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
@@ -307,8 +322,7 @@ class PersonalDetailsFragment : Fragment() {
                     if (!network) {
                         errorTv.text = requireContext().getString(R.string.network_error)
                         errorTv.visibility = View.VISIBLE
-                    }
-                    else{
+                    } else {
                         errorTv.text = ""
                         errorTv.visibility = View.GONE
                         val responseToken = apiService.getJwtToken(networkBody)
@@ -331,11 +345,12 @@ class PersonalDetailsFragment : Fragment() {
                             errorTv.visibility = View.VISIBLE
                         }
                     }
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     Timber.d("GHere is error $e")
                 }
             }
         }
+    }
     }
 
     fun isInternetAvailable(context: Context): Boolean {

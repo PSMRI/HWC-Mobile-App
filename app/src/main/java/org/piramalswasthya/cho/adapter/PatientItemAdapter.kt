@@ -93,19 +93,18 @@ class PatientItemAdapter(
     class BenClickListener(
         private val clickedBen: (patientID: String) -> Unit,
         private val clickedABHA: (benId: Long?) -> Unit,
-        private val clickedEsanjeevani: (patientID: String) -> Unit,
+        private val clickedEsanjeevani: (patient: Patient) -> Unit,
     ) {
         fun onClickedBen(item: Patient) = clickedBen(
             item.patientID,
         )
 
         fun onClickABHA(item: Patient) {
-            Log.d("ABHA Item Click", "ABHA item clicked")
             clickedABHA(item.beneficiaryID)
         }
 
         fun onClickEsanjeevani(item: Patient) {
-            clickedEsanjeevani(item.patientID)
+            clickedEsanjeevani(item)
         }
     }
 
