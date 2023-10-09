@@ -211,6 +211,22 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        pref.edit().clear().apply()
 //    }
 //
+fun registerEsanjeevaniCred(userName: String,password: String) {
+    val editor = pref.edit()
+    val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
+    val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
+    editor.putString(prefUserKey, userName)
+    editor.putString(prefPasswordKey, password)
+    editor.apply()
+}
+    fun getEsanjeevaniUserName(): String? {
+        val key = context.getString(R.string.esanjeevaniusername_local_saved)
+        return pref.getString(key, null)
+    }
+    fun getEsanjeevaniPassword(): String? {
+        val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
+        return pref.getString(prefPasswordKey, null)
+    }
     fun deleteLoginCred() {
         val editor = pref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)

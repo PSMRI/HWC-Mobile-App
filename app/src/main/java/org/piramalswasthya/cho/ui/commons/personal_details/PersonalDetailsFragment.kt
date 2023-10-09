@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
@@ -66,6 +67,7 @@ class PersonalDetailsFragment : Fragment() {
     private var passwordEs : String = ""
     private var errorEs : String = ""
     private var network : Boolean = false
+    private var savedEsanjeevaniCreds : Boolean = false
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
@@ -290,23 +292,35 @@ class PersonalDetailsFragment : Fragment() {
                 .create()
         }
         dialog?.show()
+            val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
+            val rememberMeEsanjeevani = dialogView.findViewById<CheckBox>(R.id.cb_remember_es)
         if (network) {
             // Internet is available
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
+            if(savedEsanjeevaniCreds){
+                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text = Editable.Factory.getInstance().newEditable(viewModel.fetchRememberedUsername())
+                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text = Editable.Factory.getInstance().newEditable(viewModel.fetchRememberedPassword())
+                rememberMeEsanjeevani.isChecked = true
+            }
         } else {
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.GONE
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.VISIBLE
         }
 
-        val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
+
         loginBtn.setOnClickListener {
+
             usernameEs =
                 dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text.toString()
                     .trim()
             passwordEs =
                 dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString()
                     .trim()
+            if(rememberMeEsanjeevani.isChecked){
+                viewModel.rememberUserEsanjeevani(usernameEs,passwordEs)
+                savedEsanjeevaniCreds = true
+            }
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     var passWord = encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))

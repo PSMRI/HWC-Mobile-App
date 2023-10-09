@@ -401,4 +401,6 @@
     <string name="patient_cnt_display">" Patient"</string>
     <string name="alert_popup">Alert</string>
     <string name="phone_no_not_found">Phone No. not found.</string>
+    <string name="esanjeevaniusername_local_saved">esanjeevaniUsername-local-saved</string>
+    <string name="esanjeevanipassword_local_saved">esanjeevaniPassword-local-saved</string>
 </resources>

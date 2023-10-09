@@ -5,11 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.PatientDisplay
@@ -25,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
+    private val pref: PreferenceDao,
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
@@ -102,6 +106,15 @@ class PersonalDetailsViewModel @Inject constructor(
     fun resetBenRegId() {
         _benRegId.value = null
     }
-
-
+    fun rememberUserEsanjeevani(username: String,password: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.registerEsanjeevaniCred(username,password)
+            }
+        }
+    }
+    fun fetchRememberedPassword(): String? =
+        pref.getEsanjeevaniPassword()
+    fun fetchRememberedUsername(): String? =
+        pref.getEsanjeevaniUserName()
 }
