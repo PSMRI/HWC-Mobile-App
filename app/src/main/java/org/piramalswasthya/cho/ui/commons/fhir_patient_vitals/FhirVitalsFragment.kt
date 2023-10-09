@@ -124,14 +124,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         heightValue = binding.inputHeight.text?.toString()?.trim()
         weightValue = binding.inputWeight.text?.toString()?.trim()
         bmiValue = binding.inputBmi.text?.toString()?.trim()
-        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
+//        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
         temperatureValue = binding.inputTemperature.text?.toString()?.trim()
         pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
         spo2Value = binding.inputSpo2.text?.toString()?.trim()
         bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
         bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-        rbsValue = binding.inputRbs.text?.toString()?.trim()
+//        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
     private fun addVitalsDataToCache(benVisitNo: Int){
