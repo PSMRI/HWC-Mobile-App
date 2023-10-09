@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
+import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -60,6 +61,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageLi
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -552,8 +554,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             id?.toString() ?: ""
         }
 
-        if(idString.nullIfEmpty() == null || benVisitInfo.doctorFlag == 3){
+        if(idString.nullIfEmpty() == null){
             doctorFlag = 9
+        }
+        else{
+            doctorFlag = 2
         }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
@@ -681,29 +686,31 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     fun navigateNext() {
         if (preferenceDao.isUserOnlyDoctorOrMo()) {
 
-            CoroutineScope(Dispatchers.IO).launch {
+            val validate = dAdapter.setError()
+            if (validate == -1) {
+                viewModel.deleteOldDoctorData(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                viewModel.isDataDeleted.observe(viewLifecycleOwner) { state ->
+                    when (state!!) {
+                        true-> {
+                            addCaseRecordDataToCatche(benVisitInfo.benVisitNo!!)
+                            viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                            val intent = Intent(context, HomeActivity::class.java)
+                            startActivity(intent)
+                        }
+                        else -> {
 
-                val validate = dAdapter.setError()
-                if (validate == -1) {
-                    if(benVisitInfo.doctorFlag == 3){
-                        viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                        }
                     }
-                    else{
-                        addCaseRecordDataToCatche(benVisitInfo.benVisitNo!!)
-                        viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
-                    }
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    binding.diagnosisExtra.scrollToPosition(validate)
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.diagnosisCannotBeEmpty),
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
-
+            } else {
+                binding.diagnosisExtra.scrollToPosition(validate)
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.diagnosisCannotBeEmpty),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 if(masterDb!!.patientId.toString()!=null) {

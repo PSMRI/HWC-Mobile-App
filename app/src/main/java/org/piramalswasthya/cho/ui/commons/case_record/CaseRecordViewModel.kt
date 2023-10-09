@@ -10,6 +10,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
+import org.piramalswasthya.cho.database.room.dao.InvestigationDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -43,9 +47,15 @@ class CaseRecordViewModel @Inject constructor(
     private val vitalsRepo: VitalsRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
     private val patientRepo: PatientRepo,
-    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+    private val prescriptionDao: PrescriptionDao,
+    private val caseRecordeDao: CaseRecordeDao,
+    private val investigationDao: InvestigationDao,
+): ViewModel() {
 
-    ): ViewModel() {
+    private val _isDataDeleted = MutableLiveData<Boolean>(false)
+    val isDataDeleted: MutableLiveData<Boolean>
+        get() = _isDataDeleted
 
     private val _isClickedSS=MutableLiveData<Boolean>(false)
 
@@ -203,6 +213,20 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
+    fun deleteOldDoctorData(patientID: String, benVisitNo: Int){
+        viewModelScope.launch {
+            try {
+                _isDataDeleted.value = false
+                prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patientID, benVisitNo)
+                investigationDao.deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patientID, benVisitNo)
+                caseRecordeDao.deleteDiagnosisByPatientIdAndBenVisitNo(patientID, benVisitNo)
+                _isDataDeleted.value = true
+            }catch (e:Exception){
+                Timber.e("Error in saving chieft complaint Db : $e")
+            }
+        }
+    }
+
     fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
@@ -224,20 +248,26 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
-        val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
-            nurseDataSynced = benVisitInfo.nurseDataSynced,
-            doctorDataSynced = SyncState.UNSYNCED,
-            createNewBenFlow = benVisitInfo.createNewBenFlow,
-            benVisitNo = benVisitInfo.benVisitNo!!,
-            benFlowID = benVisitInfo.benFlowID,
-            nurseFlag = 9,
-            doctorFlag = when(benVisitInfo.doctorFlag){ 3 -> {9} else -> {doctorFlag}},
-            labtechFlag = when(benVisitInfo.doctorFlag){ 3 -> {1} else -> {0}},
-            pharmacist_flag = benVisitInfo.pharmacist_flag,
-        )
-        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+    fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
+        viewModelScope.launch {
+            val patientVisitInfoSync = PatientVisitInfoSync(
+                patientID = benVisitInfo.patient.patientID,
+                nurseDataSynced = benVisitInfo.nurseDataSynced,
+                doctorDataSynced = SyncState.UNSYNCED,
+                createNewBenFlow = benVisitInfo.createNewBenFlow,
+                benVisitNo = benVisitInfo.benVisitNo!!,
+                benFlowID = benVisitInfo.benFlowID,
+                nurseFlag = 9,
+                doctorFlag = doctorFlag,
+                labtechFlag = benVisitInfo.labtechFlag,
+                pharmacist_flag = benVisitInfo.pharmacist_flag,
+            )
+            if(benVisitInfo.doctorFlag == 3){
+                patientVisitInfoSync.labtechFlag = 1
+            }
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+
+        }
     }
 
     suspend fun hasUnSyncedNurseData(patientId : String) : Boolean{

@@ -230,6 +230,7 @@ data class PatientDisplayWithVisitInfo(
     val benFlowID: Long?,
     val nurseFlag: Int?,
     val doctorFlag: Int?,
+    val labtechFlag: Int?,
     val pharmacist_flag: Int?,
 ) : Serializable
 

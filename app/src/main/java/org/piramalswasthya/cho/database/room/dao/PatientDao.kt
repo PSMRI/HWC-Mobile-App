@@ -69,7 +69,7 @@ interface PatientDao {
     @Transaction
     @Query("SELECT pat.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus, " +
             "null as nurseDataSynced, null as doctorDataSynced, null as createNewBenFlow, null as benVisitNo, " +
-            "null as benFlowID, null as nurseFlag, null as doctorFlag, null as pharmacist_flag " +
+            "null as benFlowID, null as nurseFlag, null as doctorFlag, null as labtechFlag, null as pharmacist_flag " +
             "FROM PATIENT pat " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +

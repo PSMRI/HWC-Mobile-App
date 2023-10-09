@@ -132,9 +132,10 @@ class BenFlowRepo @Inject constructor(
     suspend fun downloadAndSyncFlowRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
+
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastSyncTime()
+            preferenceDao.getLastBenflowSyncTime()
         )
 
         when(val response = syncFlowIds(villageList)){
@@ -265,10 +266,16 @@ class BenFlowRepo @Inject constructor(
 
     suspend fun checkAndDownsyncDoctorData(benFlow: BenFlow, patient: Patient){
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
-        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 && (benFlow.doctorFlag!! > patientVisitInfoSync.doctorFlag!!)){
+        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 && patientVisitInfoSync.doctorDataSynced != SyncState.UNSYNCED && patientVisitInfoSync.labDataSynced != SyncState.UNSYNCED){
             patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
             getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
         }
+//        if(patientVisitInfoSync != null && benFlow.doctorFlag!! > 1 &&
+//            ((benFlow.doctorFlag > patientVisitInfoSync.doctorFlag!!) ||
+//             (benFlow.doctorFlag == 2 && patientVisitInfoSync.doctorFlag == 3 && patientVisitInfoSync.labDataSynced == SyncState.UNSYNCED))){
+//            patientVisitInfoSync.doctorFlag = benFlow.doctorFlag
+//            getAndSaveDoctorDataToDb(benFlow, patient, patientVisitInfoSync)
+//        }
     }
 
     suspend fun checkAndAddNewVisitInfo(benFlow: BenFlow, patient: Patient){

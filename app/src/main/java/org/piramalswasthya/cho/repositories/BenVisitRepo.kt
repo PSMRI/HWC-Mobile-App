@@ -319,8 +319,7 @@ class BenVisitRepo @Inject constructor(
                 withContext(Dispatchers.IO){
 
                     val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.patient.beneficiaryRegID!!, it.patientVisitInfoSync.benVisitNo)
-                    if(benFlow != null && benFlow.nurseFlag == 9 && benFlow.doctorFlag == 1){
-
+                    if(benFlow != null){
                         val diagnosisCaseRecordVal = caseRecordeRepo.getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
                         val investigationCaseRecordVal = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
                         val prescriptionCaseRecordVal = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID = it.patientVisitInfoSync.patientID, benVisitNo = it.patientVisitInfoSync.benVisitNo)
@@ -363,7 +362,7 @@ class BenVisitRepo @Inject constructor(
 
     suspend fun processUnsyncedLabData(): Boolean{
 
-        val labDataUnsyncedList = patientVisitInfoSyncRepo.getPatientLabDataUnsynced()
+        val labDataUnsyncedList = patientVisitInfoSyncRepo. getPatientLabDataUnsynced()
         val user = userRepo.getLoggedInUser()
 
         labDataUnsyncedList.forEach {
@@ -394,7 +393,6 @@ class BenVisitRepo @Inject constructor(
                                         testResultUnit = componentDetails.measurementUnit,
                                         remarks = componentDetails.remarks
                                     )
-
                                     compListDetails += componentResultDTO
                                 }
                                 procedureDTO.compList = compListDetails
@@ -404,20 +402,20 @@ class BenVisitRepo @Inject constructor(
 
                         val labResultDTO = LabResultDTO(
                             labTestResults = procedureResultDTOs,
-                         radiologyTestResults = mutableListOf(),
-                         labCompleted =  true,
-                         createdBy = user?.userName!!,
-                         doctorFlag = "2",
-                         nurseFlag = "9",
-                         beneficiaryRegID = benFlow.beneficiaryRegID,
-                         beneficiaryID = benFlow.beneficiaryID,
-                         benFlowID = benFlow.benFlowID,
-                         visitID = benFlow.benVisitID,
-                         visitCode = benFlow.visitCode,
-                         providerServiceMapID = benFlow.providerServiceMapId,
-                         specialist_flag = null,
-                         vanID = benFlow.vanID,
-                         parkingPlaceID = benFlow.parkingPlaceID
+                            radiologyTestResults = mutableListOf(),
+                            labCompleted =  true,
+                            createdBy = user?.userName!!,
+                             doctorFlag = "2",
+                             nurseFlag = "9",
+                             beneficiaryRegID = benFlow.beneficiaryRegID,
+                             beneficiaryID = benFlow.beneficiaryID,
+                             benFlowID = benFlow.benFlowID,
+                             visitID = benFlow.benVisitID,
+                             visitCode = benFlow.visitCode,
+                             providerServiceMapID = benFlow.providerServiceMapId,
+                             specialist_flag = null,
+                             vanID = benFlow.vanID,
+                             parkingPlaceID = benFlow.parkingPlaceID
                         )
 
                         if (labResultDTO.labTestResults.isNotEmpty()) {

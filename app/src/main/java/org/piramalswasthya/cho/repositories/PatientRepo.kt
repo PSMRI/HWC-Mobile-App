@@ -171,13 +171,13 @@ class PatientRepo @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
+
         val user = userRepo.getLoggedInUser()
 
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastSyncTime()
+            preferenceDao.getLastPatientSyncTime()
         )
 
         return when(val response = downloadRegisterPatientFromServer(villageList)){
