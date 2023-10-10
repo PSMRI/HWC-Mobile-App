@@ -48,6 +48,7 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
@@ -132,7 +133,9 @@ class PersonalDetailsFragment : Fragment() {
             }
 
         }
-
+        binding.searchTil.setEndIconOnClickListener {
+            speechToTextLauncherForSearchByName.launch(Unit)
+        }
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -230,23 +233,23 @@ class PersonalDetailsFragment : Fragment() {
 
 //        }
 
-            val searchTextWatcher = object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    viewModel.filterText(p0?.toString() ?: "")
-                    binding.patientListContainer.patientCount.text =
-                        patientCount.toString() + getResultStr(patientCount)
-                    Log.d("arr","${patientCount}")
-                }
-
-            }
+//            val searchTextWatcher = object : TextWatcher {
+//                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//
+//                }
+//
+//                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//
+//                }
+//
+//                override fun afterTextChanged(p0: Editable?) {
+//                    viewModel.filterText(p0?.toString() ?: "")
+//                    binding.patientListContainer.patientCount.text =
+//                        patientCount.toString() + getResultStr(patientCount)
+//                    Log.d("arr","${patientCount}")
+//                }
+//
+//            }
             binding.search.setOnFocusChangeListener { searchView, b ->
                 if (b)
                     (searchView as EditText).addTextChangedListener(searchTextWatcher)
@@ -256,11 +259,34 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
+    private val searchTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+            viewModel.filterText(p0?.toString() ?: "")
+            binding.patientListContainer.patientCount.text =
+                patientCount.toString() + getResultStr(patientCount)
+            Log.d("arr","${patientCount}")
+        }
+
+    }
     fun getResultStr(count:Int?):String{
         if(count==1||count==0){
             return getString(R.string.patient_cnt_display)
         }
         return getString(R.string.patients_cnt_display)
+    }
+    private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.search.setText(result)
+            binding.search.addTextChangedListener(searchTextWatcher)
+        }
     }
     private fun encryptSHA512(input: String): String {
         val digest = MessageDigest.getInstance("SHA-512")
@@ -322,10 +348,8 @@ class PersonalDetailsFragment : Fragment() {
                     .trim()
             if(rememberMeEsanjeevani.isChecked){
                 viewModel.rememberUserEsanjeevani(usernameEs,passwordEs)
-//                savedEsanjeevaniCreds = true
             }else{
                 viewModel.forgetUserEsanjeevani()
-//                savedEsanjeevaniCreds = false
             }
             CoroutineScope(Dispatchers.Main).launch {
                 try {
@@ -356,9 +380,7 @@ class PersonalDetailsFragment : Fragment() {
                             intent.putExtra("usernameEs", usernameEs);
                             intent.putExtra("passwordEs", passwordEs);
                             context?.startActivity(intent)
-                            if (dialog != null) {
-                                dialog.dismiss()
-                            }
+                            dialog?.dismiss()
                         } else {
                             errorEs = responseToken.message
                             errorTv.text = errorEs
