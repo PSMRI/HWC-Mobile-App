@@ -1,16 +1,13 @@
 package org.piramalswasthya.cho.ui.home
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -20,7 +17,6 @@ import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
-import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -80,6 +76,7 @@ class HomeViewModel @Inject constructor(
             _state.postValue(State.SAVING)
             if (dataLoadFlagManager.isDataLoaded())
                 WorkerUtils.triggerAmritSyncWorker(context)
+            WorkerUtils.pushAuditDetailsWorker(context)
             registrarMasterDataRepo.saveGenderMasterResponseToCache()
             registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
             registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()

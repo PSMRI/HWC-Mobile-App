@@ -63,6 +63,17 @@ object WorkerUtils {
             .enqueue()
     }
 
+    fun pushAuditDetailsWorker(context : Context){
+        val pushLoginAuditDataToAmrit = OneTimeWorkRequestBuilder<PushLoginAuditDataWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("audit-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushLoginAuditDataToAmrit)
+            .enqueue()
+    }
+
     fun labPullWorker(context : Context, patientId: String){
 
         val data = Data.Builder()

@@ -47,5 +47,8 @@ data class SelectedOutreachProgram(
     val longitude: Double?,
 
     @ColumnInfo(name = "logout_type")
-    val logoutType: String?
+    val logoutType: String? ,
+
+    @ColumnInfo(name = "is_synced")
+    val isSynced: Boolean? = false
 )
