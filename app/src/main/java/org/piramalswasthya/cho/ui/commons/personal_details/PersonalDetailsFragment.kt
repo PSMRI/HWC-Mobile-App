@@ -299,9 +299,11 @@ class PersonalDetailsFragment : Fragment() {
             // Internet is available
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
-            if(savedEsanjeevaniCreds){
-                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text = Editable.Factory.getInstance().newEditable(viewModel.fetchRememberedUsername())
-                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text = Editable.Factory.getInstance().newEditable(viewModel.fetchRememberedPassword())
+            val rememberedUsername : String? = viewModel.fetchRememberedUsername()
+            val rememberedPassword : String? = viewModel.fetchRememberedPassword()
+            if(!rememberedUsername.isNullOrBlank() && !rememberedPassword.isNullOrBlank()){
+                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text = Editable.Factory.getInstance().newEditable(rememberedUsername)
+                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text = Editable.Factory.getInstance().newEditable(rememberedPassword)
                 rememberMeEsanjeevani.isChecked = true
             }
         } else {
@@ -320,7 +322,10 @@ class PersonalDetailsFragment : Fragment() {
                     .trim()
             if(rememberMeEsanjeevani.isChecked){
                 viewModel.rememberUserEsanjeevani(usernameEs,passwordEs)
-                savedEsanjeevaniCreds = true
+//                savedEsanjeevaniCreds = true
+            }else{
+                viewModel.forgetUserEsanjeevani()
+//                savedEsanjeevaniCreds = false
             }
             CoroutineScope(Dispatchers.Main).launch {
                 try {

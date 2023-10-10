@@ -227,6 +227,14 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         val prefPasswordKey = context.getString(R.string.esanjeevanipassword_local_saved)
         return pref.getString(prefPasswordKey, null)
     }
+    fun deleteEsanjeevaniCreds() {
+        val editor = pref.edit()
+        val prefUserKeyEs = context.getString(R.string.esanjeevaniusername_local_saved)
+        val prefPasswordKeyEs = context.getString(R.string.esanjeevanipassword_local_saved)
+        editor.remove(prefUserKeyEs)
+        editor.remove(prefPasswordKeyEs)
+        editor.apply()
+    }
     fun deleteLoginCred() {
         val editor = pref.edit()
         val prefUserKey = context.getString(R.string.PREF_rem_me_uname)

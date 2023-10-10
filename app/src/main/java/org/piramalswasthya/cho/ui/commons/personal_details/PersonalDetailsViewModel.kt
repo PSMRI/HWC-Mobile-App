@@ -113,6 +113,13 @@ class PersonalDetailsViewModel @Inject constructor(
             }
         }
     }
+    fun forgetUserEsanjeevani() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.deleteEsanjeevaniCreds()
+            }
+        }
+    }
     fun fetchRememberedPassword(): String? =
         pref.getEsanjeevaniPassword()
     fun fetchRememberedUsername(): String? =

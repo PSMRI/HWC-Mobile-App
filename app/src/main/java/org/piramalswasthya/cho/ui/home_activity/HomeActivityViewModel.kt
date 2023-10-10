@@ -131,6 +131,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 logoutType)
             userDao.insertOutreachProgram(selectedOutreachProgram)
             userDao.resetAllUsersLoggedInState()
+            pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
         }
     }
