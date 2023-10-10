@@ -217,6 +217,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         patientId = benVisitInfo.patient.patientID
+
+        if(benVisitInfo.benVisitNo != null){
+            viewModel.getTheProcedure(patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+        }
+
         lifecycleScope.launch {
             viewModel.getLastDate(patientId)
         }

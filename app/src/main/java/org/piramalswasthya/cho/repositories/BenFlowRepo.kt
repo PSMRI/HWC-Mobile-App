@@ -18,11 +18,13 @@ import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ComponentDataDownsync
 import org.piramalswasthya.cho.model.ComponentDetails
 import org.piramalswasthya.cho.model.ComponentOption
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DoctorDataDownSync
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.LabReportData
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
@@ -31,6 +33,7 @@ import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
+import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
@@ -172,6 +175,27 @@ class BenFlowRepo @Inject constructor(
 
     }
 
+    @Transaction
+    suspend fun refreshLabData(labReportData: List<LabReportData>, patientVisitInfoSync: PatientVisitInfoSync){
+
+        labReportData.forEach {
+
+            procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+            val procedure = ProcedureDataDownsync( labReportData = it, patientVisitInfoSync = patientVisitInfoSync)
+
+            val procedureDataID = procedureDao.insert(procedure)
+            it.componentList?.let { it1 ->
+                it1.forEach { it2 ->
+                    val component = ComponentDataDownsync(componentData = it2, procedureDataID = procedureDataID)
+                    procedureDao.insert(component)
+                }
+            }
+
+        }
+        
+    }
+
+
     private suspend fun getAndSaveDoctorDataToDb(benFlow: BenFlow, patient: Patient, patientVisitInfoSync: PatientVisitInfoSync): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
@@ -195,6 +219,9 @@ class BenFlowRepo @Inject constructor(
                     } ?: emptyList()
 
                     refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync)
+                    if(benFlow.doctorFlag == 3 && !docData.LabReport.isNullOrEmpty()){
+                        refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
+                    }
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.model
 
+import androidx.room.Entity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -55,22 +56,22 @@ data class PrescriptionData(
 
 @JsonClass(generateAdapter = true)
 data class LabReportData(
-    val prescriptionID: Int,
-    val procedureID: Int,
-    val createdDate: String,
-    val procedureName: String,
-    val procedureType: String,
-    val componentList: List<ComponentData>
+    val prescriptionID: Int?,
+    val procedureID: Int?,
+    val createdDate: String?,
+    val procedureName: String?,
+    val procedureType: String?,
+    val componentList: List<ComponentData>?
 )
 
 @JsonClass(generateAdapter = true)
 data class ComponentData(
-    val testResultValue: String,
-    val fileIDs: List<Any>,
-    val testResultUnit: String,
-    val testComponentID: Int,
-    val componentName: String,
-    val remarks: String
+    val testResultValue: String?,
+    val fileIDs: List<Any>?,
+    val testResultUnit: String?,
+    val testComponentID: Int?,
+    val componentName: String?,
+    val remarks: String?
 )
 
 

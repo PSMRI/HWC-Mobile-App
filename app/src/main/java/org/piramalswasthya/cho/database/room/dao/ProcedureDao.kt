@@ -5,9 +5,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import org.piramalswasthya.cho.model.ComponentDataDownsync
 import org.piramalswasthya.cho.model.ComponentDetails
 import org.piramalswasthya.cho.model.ComponentOption
 import org.piramalswasthya.cho.model.Procedure
+import org.piramalswasthya.cho.model.ProcedureDataDownsync
+import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 
 @Dao
 interface ProcedureDao {
@@ -42,4 +45,17 @@ interface ProcedureDao {
 
     @Query("select * from component_details where procedure_id = :procedureId and test_component_id = :testComponentID")
     fun getComponentDetails(procedureId: Long, testComponentID: Long): ComponentDetails
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(procedureDataDownsync: ProcedureDataDownsync): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(componentDataDownsync: ComponentDataDownsync): Long
+
+    @Query("delete from PROCEDURE_DATA_DOWNSYNC where patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun deleteProcedureDownsyncByPatientIdAndVisitNo(patientID: String, benVisitNo: Int)
+
+    @Query("select * from PROCEDURE_DATA_DOWNSYNC where patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun getProceduresWithComponent(patientID: String, benVisitNo: Int): List<ProcedureDataWithComponent>
+
 }
