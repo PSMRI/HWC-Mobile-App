@@ -667,17 +667,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setLocationDetails()
             patient.patientID = generateUuid()
             viewModel.insertPatient(patient)
-            val intent = Intent(context, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+            requireActivity().finish()
             Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        requireActivity().finish()
     }
 
 }

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -13,10 +14,10 @@ interface BenFlowDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBenFlow(benFlow: BenFlow)
-
-    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'ಔಟ್ ಪೇಷಂಟ್ ಕಾಳಜಿ' OR Visit_DB.category LIKE 'OutPatient Care') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getOpdCount(genderID: Int, periodParam: String) : Int?
-
+    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+     fun getOpdCountLive(genderID: Int, periodParam: String) : LiveData<Int?>?
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")
     suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?
 

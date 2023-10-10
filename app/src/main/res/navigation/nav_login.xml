@@ -69,7 +69,12 @@
             app:argType="string" />
         <action
             android:id="@+id/actionSignInToHomeFromCho"
-            app:destination="@id/homeActivity" />
+            app:destination="@id/homeActivity">
+            <argument
+                android:name="dashboardBool"
+                app:argType="boolean"
+                android:defaultValue="true"/>
+        </action>
         <action
             android:id="@+id/actionChoToOutreach"
             app:destination="@id/outreachLoginFragment" >

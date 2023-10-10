@@ -158,6 +158,7 @@ class PersonalDetailsFragment : Fragment() {
                                     val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                 intent.putExtra("patientId", patientID);
                                 startActivity(intent)
+                                    requireActivity().finish()
                             },
                                 { benId ->
                                 checkAndGenerateABHA(benId!!)
