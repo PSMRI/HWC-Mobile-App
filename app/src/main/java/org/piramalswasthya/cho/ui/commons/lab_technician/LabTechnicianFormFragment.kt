@@ -55,6 +55,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
 import org.piramalswasthya.cho.model.ComponentDetailDTO
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
@@ -87,6 +88,11 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
     private var dtos: List<ProcedureDTO>? = null
 
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
+    private lateinit var patientId : String
+
+
+
     private val args: LabTechnicianFormFragmentArgs by lazy {
         LabTechnicianFormFragmentArgs.fromBundle(requireArguments())
     }
@@ -114,6 +120,9 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         super.onViewCreated(view, savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        patientId = benVisitInfo.patient.patientID
+
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
             if(it){
@@ -126,8 +135,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         }
 
         lifecycleScope.launch {
-            viewModel.downloadProcedure(patientId = args.patientId)
-            viewModel.getPrescribedProcedures(patientId = args.patientId)
+            viewModel.downloadProcedure(benVisitInfo = benVisitInfo)
+            viewModel.getPrescribedProcedures(benVisitInfo = benVisitInfo)
         }
 
         viewModel.procedures.observe(viewLifecycleOwner) {
@@ -615,7 +624,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
-            viewModel.saveLabData(dtos, args.patientId)
+            viewModel.saveLabData(dtos, benVisitInfo)
             navigateNext()
         } else {
             Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()

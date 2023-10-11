@@ -152,17 +152,17 @@ data class Patient (
     @Embedded(prefix = "abha_")
     var healthIdDetails: BenHealthIdDetails? = null,
 
-    @ColumnInfo(name = "nurseFlag")
-    val nurseFlag: Int? = 1,
-
-    @ColumnInfo(name = "doctorFlag")
-    val doctorFlag: Int? = 0,
-
     @ColumnInfo(name = "lab_technician_flag")
     val labTechnicianFlag: Int? = 0,
 
-    @ColumnInfo(name = "pharmacist_flag")
-    val pharmacist_flag: Int? = 0,
+//    @ColumnInfo(name = "nurseFlag")
+//    val nurseFlag: Int? = 1,
+//
+//    @ColumnInfo(name = "doctorFlag")
+//    val doctorFlag: Int? = 0,
+//
+//    @ColumnInfo(name = "pharmacist_flag")
+//    val pharmacist_flag: Int? = 0,
 
 ) : Serializable
 
@@ -215,6 +215,26 @@ data class PatientDisplay(
     )
     val religion: ReligionMaster?,
 )
+
+data class PatientDisplayWithVisitInfo(
+    @Embedded val patient: Patient,
+
+    val genderName: String?,
+    val ageUnit: String?,
+    val maritalStatus: String?,
+
+    val nurseDataSynced: SyncState?,
+    val doctorDataSynced: SyncState?,
+    val createNewBenFlow: Boolean?,
+    val benVisitNo: Int?,
+    val benFlowID: Long?,
+    val nurseFlag: Int?,
+    val doctorFlag: Int?,
+    val labtechFlag: Int?,
+    val pharmacist_flag: Int?,
+) : Serializable
+
+
 @JsonClass(generateAdapter = true)
 data class BenHealthIdDetails(
     var healthId: String? = null,

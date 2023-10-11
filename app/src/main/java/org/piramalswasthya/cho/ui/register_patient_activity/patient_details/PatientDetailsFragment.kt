@@ -628,7 +628,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
-        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
+//        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
+        patient.benImage = null
     }
 
     private fun setLocationDetails(){

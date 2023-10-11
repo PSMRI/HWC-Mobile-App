@@ -272,6 +272,9 @@ class UserRepo @Inject constructor(
                 response.body()?.string()
                     ?: throw IllegalStateException("Response success but data missing @ $response")
             )
+
+//            user!!.assignVillageIds = "24286,24326,24250,24334,24351,24294"
+
             val responseStatusCode = responseBody.getInt("statusCode")
             if (responseStatusCode == 200) {
                 val data = responseBody.getJSONObject("data")

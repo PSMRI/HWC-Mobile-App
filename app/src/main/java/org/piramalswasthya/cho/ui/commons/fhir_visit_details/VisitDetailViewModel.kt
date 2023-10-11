@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import timber.log.Timber
@@ -28,6 +29,7 @@ class VisitDetailViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
+    private val procedureRepo: ProcedureRepo,
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -80,6 +82,13 @@ class VisitDetailViewModel @Inject constructor(
             _subCatVisitList = maleMasterDataRepository.getAllSubCatVisit()
         } catch (e: Exception) {
             Timber.d("Error in getSubCatVisitList() $e")
+        }
+    }
+
+    fun getTheProcedure(patientID: String, benVisitNo: Int){
+        viewModelScope.launch {
+            val procedureList = procedureRepo.getProceduresWithComponent(patientID, benVisitNo)
+            val list = procedureList
         }
     }
 
