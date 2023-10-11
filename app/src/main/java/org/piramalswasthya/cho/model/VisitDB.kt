@@ -40,7 +40,6 @@ data class VisitDB(
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
     @ColumnInfo(name = "benVisitDate") var benVisitDate: String? = null
 ){
-    @RequiresApi(Build.VERSION_CODES.O)
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
         nurseData.GOPDNurseVisitDetail?.visitCategory,

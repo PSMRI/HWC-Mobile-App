@@ -20,6 +20,7 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -42,6 +43,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
@@ -151,17 +153,52 @@ class PersonalDetailsFragment : Fragment() {
 //                                startActivity(intent)
 //                            },
                             clickListener = PatientItemAdapter.BenClickListener(
-                                { patientID ->
-                                    val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                intent.putExtra("patientId", patientID);
-                                startActivity(intent)
+                            {
+                                benVisitInfo ->
+                                    if(benVisitInfo.nurseFlag == null){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isLabTechnician()){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2){
+                                         Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.pendingForLabtech),
+                                            Toast.LENGTH_SHORT
+                                         ).show()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
+                                        Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.flowCompleted),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
                             },
-                                { benId ->
-                                Log.d("ben click listener", "ben click listener")
-                                checkAndGenerateABHA(benId!!)
-                            },{
+                            {
+                                benVisitInfo ->
+                                    Log.d("ben click listener", "ben click listener")
+                                    checkAndGenerateABHA(benVisitInfo)
+                            },
+                            {
                                 patientID -> callLoginDialog(patientID)
-                                }
+                            }
                          ),
                             showAbha = true
                         )
@@ -352,9 +389,9 @@ class PersonalDetailsFragment : Fragment() {
             return networkInfo != null && networkInfo.isConnected
         }
     }
-    private fun checkAndGenerateABHA(benId: Long) {
+    private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {
         Log.d("checkAndGenerateABHA click listener","checkAndGenerateABHA click listener")
-        viewModel.fetchAbha(benId)
+        viewModel.fetchAbha(benVisitInfo.patient.beneficiaryID!!)
     }
     override fun onDestroyView() {
         super.onDestroyView()

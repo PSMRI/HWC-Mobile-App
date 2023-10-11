@@ -11,8 +11,8 @@
         android:label="CaseRecordCustom"
         tools:layout="@layout/case_record_custom_layout" >
         <argument
-            android:name="patientId"
-            app:argType="string"/>
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
     </fragment>
 
 

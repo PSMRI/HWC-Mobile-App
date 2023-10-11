@@ -18,6 +18,7 @@ import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
@@ -41,6 +42,7 @@ import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 //import org.piramalswasthya.cho.adapter.ReportAdapter
 //import org.piramalswasthya.cho.adapter.ReportAdapter
+import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -51,6 +53,7 @@ import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.LabReportValues
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
@@ -65,6 +68,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageLi
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -106,6 +110,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val dosage = tabletDosageList
     private var masterDb: MasterDb? = null
     private lateinit var patientId : String
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
@@ -117,13 +122,24 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         _binding = CaseRecordCustomLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
-            patientId = requireActivity().intent?.extras?.getString("patientId")!!
+            patientId = benVisitInfo.patient.patientID
             patId= patientId
             viewModel.getVitalsDB(patId)
             viewModel.getChiefComplaintDB(patId)
@@ -598,6 +614,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
+        else{
+            doctorFlag = 2
+        }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
@@ -714,8 +733,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     override fun onCancelAction() {
         if(preferenceDao.isUserOnlyDoctorOrMo()){
             val intent = Intent(context, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
+            requireActivity().finish()
         }
         else{
             findNavController().navigateUp()
@@ -723,55 +742,55 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun navigateNext() {
         if (preferenceDao.isUserOnlyDoctorOrMo()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val patientVisitInfoSync = viewModel.getSinglePatientDoctorDataNotSubmitted(patientId)
 
-                if(patientVisitInfoSync == null){
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-                else{
-                    viewModel.updateDoctorDataSubmitted(patientVisitInfoSync)
-                    val validate = dAdapter.setError()
-                    if (validate == -1) {
-                        addCaseRecordDataToCatche(patientVisitInfoSync.benVisitNo)
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        showToast()
+            val validate = dAdapter.setError()
+            if (validate == -1) {
+                viewModel.deleteOldDoctorData(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                viewModel.isDataDeleted.observe(viewLifecycleOwner) { state ->
+                    when (state!!) {
+                        true-> {
+                            addCaseRecordDataToCatche(benVisitInfo.benVisitNo!!)
+                            viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                            val intent = Intent(context, HomeActivity::class.java)
+                            startActivity(intent)
+                            requireActivity().finish()
+                        }
+                        else -> {
+
+                        }
                     }
                 }
+            } else {
+                binding.diagnosisExtra.scrollToPosition(validate)
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.diagnosisCannotBeEmpty),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
         } else {
             CoroutineScope(Dispatchers.IO).launch {
                 if(masterDb!!.patientId.toString()!=null) {
                     patId = masterDb!!.patientId.toString()
                 }
-//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(patId)
-//                if (hasUnSyncedNurseData) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.unsyncedNurseData),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                } else {
 
-                    val validate = dAdapter.setError()
-                    if (validate == -1) {
-                        var benVisitNo = 0;
-                        var createNewBenflow = false;
-                        viewModel.getLastVisitInfoSync(patId).let {
-                            if(it == null){
-                                benVisitNo = 1;
-                            }
-                            else if(it.nurseFlag == 1) {
-                                benVisitNo = it.benVisitNo
-                            }
-                            else {
-                                benVisitNo = it.benVisitNo + 1
-                                createNewBenflow = true;
-                            }
+                val validate = dAdapter.setError()
+                if (validate == -1) {
+                    var benVisitNo = 0;
+                    var createNewBenflow = false;
+                    viewModel.getLastVisitInfoSync(patId).let {
+                        if(it == null){
+                            benVisitNo = 1;
                         }
+                        else if(it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        }
+                        else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
+                    }
 
                         addVisitRecordDataToCache(benVisitNo)
                         addVitalsDataToCache(benVisitNo)
@@ -779,6 +798,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
                         val intent = Intent(context, HomeActivity::class.java)
                         startActivity(intent)
+                        requireActivity().finish()
                     } else {
                         showToast()
                     }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.BenFlowRepo
@@ -51,14 +52,14 @@ class LabTechnicianFormViewModel @Inject constructor(
 
     val isEntitySaved = MutableLiveData<Boolean>()
 
-    suspend fun downloadProcedure(patientId: String) {
+    suspend fun downloadProcedure(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            benFlowRepo.pullLabProcedureData(patientId)
+            benFlowRepo.pullLabProcedureData(benVisitInfo)
         }
     }
-    suspend fun getPrescribedProcedures(patientId: String) {
+    suspend fun getPrescribedProcedures(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            _procedures.postValue(patientRepo.getProcedures(patientId))
+            _procedures.postValue(patientRepo.getProcedures(benVisitInfo))
             Timber.d("fetched procedures")
         }
     }
@@ -86,38 +87,38 @@ class LabTechnicianFormViewModel @Inject constructor(
         _boolCall.value = false
     }
 
-    fun saveLabData(dtos: List<ProcedureDTO>?, patientId: String) {
+    fun saveLabData(dtos: List<ProcedureDTO>?, benVisitInfo: PatientDisplayWithVisitInfo) {
         try {
-            dtos?.forEach { procedureDTO ->
 
-                viewModelScope.launch {
-                    var procedure =
-                        patientRepo.getProcedure(procedureDTO.benRegId, procedureDTO.procedureID)
+            viewModelScope.launch {
+
+                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )!!
+                patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
+                patientVisitInfoSync.doctorFlag = 3
+
+                dtos?.forEach { procedureDTO ->
+
+                    val procedure =
+                        patientRepo.getProcedure(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, procedureDTO.procedureID)
                     procedureDTO.compListDetails.forEach { componentDetailDTO ->
                         Timber.d("mjf" + componentDetailDTO.testComponentName + ":" + componentDetailDTO.testResultValue)
-                        var componentDetails =
-                            patientRepo.getComponent(procedure.id, componentDetailDTO.testComponentID)
+                        var componentDetails = patientRepo.getComponent(procedure.id, componentDetailDTO.testComponentID)
                         componentDetails.testResultValue = componentDetailDTO.testResultValue
                         componentDetails.remarks = componentDetailDTO.remarks
                         patientRepo.updateComponentDetails(componentDetails)
                     }
 
-                    // update sync state for lab data
-                    val patient = patientRepo.getPatient(patientId = patientId)
-                    val benFlow = benFlowRepo.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
-
-                    val patientVisitInfoSync = benFlow?.benVisitNo?.let {
-                        patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientId,
-                            it
-                        )
-                    }
-                    patientVisitInfoSync?.labDataSynced = SyncState.UNSYNCED
-
-                    patientVisitInfoSync?.let {
-                        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(it)
-                        WorkerUtils.labPushWorker(context)
-                    }
                 }
+
+                // update sync state for lab data
+
+
+                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                WorkerUtils.labPushWorker(context)
+
             }
 
         } catch (e: Exception) {

@@ -17,18 +17,15 @@ import android.view.MenuItem
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -37,11 +34,11 @@ import com.google.android.material.tabs.TabLayout
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ViewPagerAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -53,7 +50,6 @@ import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
-import org.piramalswasthya.cho.ui.home.HomeFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import java.util.Calendar
 import java.util.Locale
@@ -138,11 +134,21 @@ class HomeActivity : AppCompatActivity() {
         // Tab part
         pager = binding.viewPager
         tab = binding.tabs
+        val showDashboard = intent.getBooleanExtra("showDashboard", false)
 
+        val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
-        homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-        tab.addTab(tab.newTab().setText("Dashboard"))
-        tab.addTab(tab.newTab().setText("Home"))
+            homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+            tab.addTab(tab.newTab().setText("Dashboard")) // Add "Dashboard" tab second
+            tab.addTab(tab.newTab().setText("Home"))      // Add "Home" tab first
+
+// Adding the Adapter to the ViewPager
+        pager.adapter = homeAdapter
+        if(!showDashboard && (dashboardBool == null || !dashboardBool)) {
+            pager.post {
+                pager.setCurrentItem(1, false)
+            }
+        }
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
@@ -252,6 +258,23 @@ class HomeActivity : AppCompatActivity() {
             }.create()
     }
 
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        if (!exitAlert.isShowing)
+            exitAlert.show()
+    }
+    private val exitAlert by lazy {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(resources.getString(R.string.exit_application))
+            .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                this.finish()
+            }
+            .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
+                d.dismiss()
+            }
+            .create()
+    }
     private fun showLanguagePopUp() {
 
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)

@@ -2,11 +2,14 @@ package org.piramalswasthya.cho.ui.commons.lab_technician
 
 
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -45,16 +48,19 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
 import org.piramalswasthya.cho.model.ComponentDetailDTO
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -82,6 +88,11 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
     private var dtos: List<ProcedureDTO>? = null
 
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
+    private lateinit var patientId : String
+
+
+
     private val args: LabTechnicianFormFragmentArgs by lazy {
         LabTechnicianFormFragmentArgs.fromBundle(requireArguments())
     }
@@ -98,9 +109,19 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
         return composeView
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        patientId = benVisitInfo.patient.patientID
 
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner){
@@ -114,8 +135,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         }
 
         lifecycleScope.launch {
-            viewModel.downloadProcedure(patientId = args.patientId)
-            viewModel.getPrescribedProcedures(patientId = args.patientId)
+            viewModel.downloadProcedure(benVisitInfo = benVisitInfo)
+            viewModel.getPrescribedProcedures(benVisitInfo = benVisitInfo)
         }
 
         viewModel.procedures.observe(viewLifecycleOwner) {
@@ -603,7 +624,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
-            viewModel.saveLabData(dtos, args.patientId)
+            viewModel.saveLabData(dtos, benVisitInfo)
             navigateNext()
         } else {
             Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
@@ -611,6 +632,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     override fun onCancelAction() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
         requireActivity().finish()
     }
 
@@ -618,6 +641,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
         requireActivity().finish()
     }
 
