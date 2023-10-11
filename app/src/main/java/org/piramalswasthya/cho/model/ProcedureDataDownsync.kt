@@ -106,6 +106,6 @@ data class ProcedureDataWithComponent(
         parentColumn = "id",
         entityColumn = "procedureDataID"
     )
-    val entityCList: List<ComponentDataDownsync>
+    val components: List<ComponentDataDownsync>
 )
 
