@@ -165,16 +165,16 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             try {
                 val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
                 if(existingPatientVisitInfoSync != null){
-                    existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
+                    existingPatientVisitInfoSync.nurseDataSynced = patientVisitInfoSync.nurseDataSynced
+                    existingPatientVisitInfoSync.doctorDataSynced = patientVisitInfoSync.doctorDataSynced
                     existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
-                    existingPatientVisitInfoSync.nurseFlag = 9
+                    existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
+                    existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
                 }
                 else{
                     patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 }
-                patientRepo.updateNurseSubmitted(patientVisitInfoSync.patientID)
-//                patientVisitInfoSyncRepo.updateDoctorDataSubmitted(patientVisitInfoSync.patientID)
             }catch (e:Exception){
                 Timber.e("Error in saving chieft complaint Db : $e")
             }
@@ -193,7 +193,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO){
-                    patientRepo.updateNurseSubmitted(patienId)
+//                    patientRepo.updateNurseSubmitted(patienId)
                 }
             }catch (e:Exception){
                 Timber.e("Error in Updating nurse complete in patient Db : $e")

@@ -21,7 +21,7 @@ class PushLabDataToAmrit @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PushBenVisitInfoToAmrit"
+        const val name = "PushLabDataToAmrit"
     }
 
     override suspend fun doWork(): Result {

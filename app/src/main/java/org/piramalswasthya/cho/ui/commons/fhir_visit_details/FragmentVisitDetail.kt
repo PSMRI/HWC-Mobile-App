@@ -43,6 +43,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitMasterDb
@@ -60,6 +61,7 @@ import javax.inject.Inject
 class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
 
     override var fragmentContainerId = 0
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private lateinit var patientId : String
 
     override val fragment = this
@@ -222,13 +224,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        patientId = benVisitInfo.patient.patientID
 
-        patientId = requireActivity().intent?.extras?.getString("patientId")!!
+        if(benVisitInfo.benVisitNo != null){
+            viewModel.getTheProcedure(patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+        }
+
         lifecycleScope.launch {
             viewModel.getLastDate(patientId)
         }
         viewModel.lastVisitDate?.observe(viewLifecycleOwner){
-                  viewModel.setIsFollowUp(isWithinThreeDays(it))
+            viewModel.setIsFollowUp(isWithinThreeDays(it))
             makeFollowUpDefault()
         }
         binding.subCatInput.threshold = 1
@@ -266,6 +273,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
+
                 else -> {
                     binding.radioButton4.tag.toString()
 //                    binding.radioButton4.text.toString()

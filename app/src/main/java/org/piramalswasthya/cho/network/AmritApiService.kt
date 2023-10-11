@@ -224,6 +224,9 @@ interface AmritApiService {
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
 
+    @POST("/hwc-facility-service/generalOPD/update/doctorData?apiKey=undefined")
+    suspend fun updateDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
+
     @POST("/hwc-facility-service/labTechnician/save/LabTestResult?apiKey=undefined")
     suspend fun saveLabData(@Body labResultDTO: LabResultDTO) : Response<ResponseBody>
 

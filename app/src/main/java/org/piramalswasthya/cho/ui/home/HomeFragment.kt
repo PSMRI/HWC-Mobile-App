@@ -124,6 +124,7 @@ class HomeFragment : Fragment() {
             searchPrompt.show()
 
         }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 HomeViewModel.State.IDLE -> {
