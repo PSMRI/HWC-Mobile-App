@@ -6,8 +6,8 @@
   <data>
 
     <variable
-        name="ben"
-        type="org.piramalswasthya.cho.model.Patient" />
+        name="benVisitInfo"
+        type="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
 
     <variable
         name="clickListener"
@@ -42,7 +42,7 @@
 
     <LinearLayout
         android:id="@+id/cardLL"
-        android:onClick="@{() -> clickListener.onClickedBen(ben)}"
+        android:onClick="@{() -> clickListener.onClickedBen(benVisitInfo)}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -255,7 +255,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/green"
-            android:onClick="@{()-> clickListener.onClickABHA(ben)}"
+            android:onClick="@{()-> clickListener.onClickABHA(benVisitInfo)}"
             android:text="@string/abha"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="@color/white"

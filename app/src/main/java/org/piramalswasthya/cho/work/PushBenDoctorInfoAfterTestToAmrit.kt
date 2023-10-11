@@ -12,9 +12,8 @@ import org.piramalswasthya.cho.repositories.BenVisitRepo
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
-
 @HiltWorker
-class PushBenDoctorInfoWithTestToAmrit @AssistedInject constructor(
+class PushBenDoctorInfoAfterTestToAmrit  @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val benVisitRepo: BenVisitRepo,
@@ -22,13 +21,13 @@ class PushBenDoctorInfoWithTestToAmrit @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PushBenDoctorInfoWithTestToAmrit"
+        const val name = "PushBenDoctorInfoAfterTestToAmrit"
     }
 
     override suspend fun doWork(): Result {
         init()
         try {
-            val workerResult = benVisitRepo.processUnsyncedDoctorDataWithTest()
+            val workerResult = benVisitRepo.processUnsyncedDoctorDataAfterTest()
             return if (workerResult) {
                 Timber.d("Worker completed")
                 Result.success()

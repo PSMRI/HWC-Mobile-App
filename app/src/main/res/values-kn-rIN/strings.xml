@@ -350,6 +350,8 @@
     <string name="Prescription">ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್</string>
     <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
+    <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="flowCompleted">Flow Completed</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>

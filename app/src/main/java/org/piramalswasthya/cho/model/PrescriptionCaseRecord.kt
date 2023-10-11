@@ -8,6 +8,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.utils.generateUuid
 
 @Entity(
     tableName = "Prescription_Cases_Recorde",
@@ -38,7 +39,19 @@ data class PrescriptionCaseRecord(
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
-)
+) {
+    constructor(patient: Patient, benFlow: BenFlow, prescriptionData: PrescriptionData) : this(
+        generateUuid(),
+        prescriptionData.drugID,
+        prescriptionData.frequency,
+        prescriptionData.duration,
+        instruciton = null,
+        prescriptionData.unit,
+        patient.patientID,
+        benFlow.benFlowID,
+        benFlow.benVisitNo
+    )
+}
 
 @DatabaseView(
     viewName = "Prescription_With_ItemMaster_And_DrugFormMaster",

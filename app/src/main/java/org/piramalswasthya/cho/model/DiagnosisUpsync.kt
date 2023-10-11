@@ -7,7 +7,7 @@ data class DiagnosisUpsync(
     val prescriptionID: Int?,
     val vanID: Int?,
     val parkingPlaceID: Int?,
-    val provisionalDiagnosisList: List<ProvisionalDiagnosisUpsync>,
+    val provisionalDiagnosisList: List<ProvisionalDiagnosisUpsync>?,
     val beneficiaryRegID: String?,
     val benVisitID: String?,
     val visitCode: String?,
