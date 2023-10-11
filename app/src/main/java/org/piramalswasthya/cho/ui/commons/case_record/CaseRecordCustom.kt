@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
@@ -114,7 +115,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         _binding = CaseRecordCustomLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         familyM = binding.testName
         selectF = binding.selectF
@@ -676,8 +685,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     override fun onCancelAction() {
         if(preferenceDao.isUserOnlyDoctorOrMo()){
             val intent = Intent(context, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
+            requireActivity().finish()
         }
         else{
             findNavController().navigateUp()
@@ -696,6 +705,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                             viewModel.updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
                             val intent = Intent(context, HomeActivity::class.java)
                             startActivity(intent)
+                            requireActivity().finish()
                         }
                         else -> {
 
@@ -734,15 +744,17 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         }
                     }
 
-                    addVisitRecordDataToCache(benVisitNo)
-                    addVitalsDataToCache(benVisitNo)
-                    addCaseRecordDataToCatche(benVisitNo)
-                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    showToast()
-                }
+                        addVisitRecordDataToCache(benVisitNo)
+                        addVitalsDataToCache(benVisitNo)
+                        addCaseRecordDataToCatche(benVisitNo)
+                        addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
+                    } else {
+                        showToast()
+                    }
+//                }
             }
         }
     }

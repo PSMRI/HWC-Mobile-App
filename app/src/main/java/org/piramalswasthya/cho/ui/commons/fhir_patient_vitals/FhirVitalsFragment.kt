@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -97,8 +97,15 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         binding.inputHeight.addTextChangedListener(textWatcher)
         return binding.root
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
@@ -125,14 +132,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         heightValue = binding.inputHeight.text?.toString()?.trim()
         weightValue = binding.inputWeight.text?.toString()?.trim()
         bmiValue = binding.inputBmi.text?.toString()?.trim()
-        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
+//        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
         temperatureValue = binding.inputTemperature.text?.toString()?.trim()
         pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
         spo2Value = binding.inputSpo2.text?.toString()?.trim()
         bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
         bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-        rbsValue = binding.inputRbs.text?.toString()?.trim()
+//        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
     private fun addVitalsDataToCache(benVisitNo: Int){
@@ -184,6 +191,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     private fun addPatientVisitInfoSyncToCache(benVisitNo: Int, createNewBenflow: Boolean){
+
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = benVisitNo,
@@ -421,7 +429,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 setNurseComplete()
                 val intent = Intent(context, HomeActivity::class.java)
                 startActivity(intent)
-
+                requireActivity().finish()
             }
 
         }
