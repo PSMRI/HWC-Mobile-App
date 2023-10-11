@@ -118,7 +118,7 @@ class PatientItemAdapter(
     class BenClickListener(
         private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedEsanjeevani: (patientID: String) -> Unit,
+        private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -128,8 +128,8 @@ class PatientItemAdapter(
             clickedABHA(item)
         }
 
-        fun onClickEsanjeevani(item: Patient) {
-            clickedEsanjeevani(item.patientID)
+        fun onClickEsanjeevani(item: PatientDisplayWithVisitInfo) {
+            clickedEsanjeevani(item)
         }
     }
 
