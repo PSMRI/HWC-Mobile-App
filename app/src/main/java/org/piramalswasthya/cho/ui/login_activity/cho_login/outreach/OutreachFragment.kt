@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
@@ -19,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -38,9 +40,12 @@ import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.model.OutreachDropdownList
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
+import java.util.Base64
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -71,6 +76,7 @@ class OutreachFragment(
     var validImage: Boolean? = false
 
     var image: Bitmap? = null
+    var imageString: String? = null
     private var outreachList = ArrayList<OutreachDropdownList>()
     private lateinit var faceDetector: FirebaseVisionFaceDetector
     private var outreachNameMap = emptyMap<Int,String>()
@@ -135,6 +141,7 @@ class OutreachFragment(
 //        }
 //    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
@@ -166,6 +173,7 @@ class OutreachFragment(
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun processImage(image: Bitmap) {
         val firebaseImage = FirebaseVisionImage.fromBitmap(image)
 
@@ -207,6 +215,7 @@ class OutreachFragment(
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun processDetectedFaces(faces: List<FirebaseVisionFace>) {
         for (face in faces) {
             val bounds = face.boundingBox
@@ -219,6 +228,7 @@ class OutreachFragment(
                 Timber.d("Eyes Are Open")
                 validImage = true
                 binding.imageView.setImageBitmap(image)
+                imageString = ImgUtils.bitmapToBase64(image)
                 // Both eyes are open, liveness confirmed
                 // Implement your logic for a live face
             } else {
@@ -281,7 +291,8 @@ class OutreachFragment(
                 null,
                 latitude,
                 longitude,
-                null
+                null,
+                imageString
             )
 
             viewModel.state.observe(viewLifecycleOwner) { state ->

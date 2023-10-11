@@ -75,7 +75,9 @@ class UserRepo @Inject constructor(
                                       logoutTimeStamp: String?,
                                       lat: Double?,
                                       long: Double?,
-                                      logoutType: String?) {
+                                      logoutType: String?,
+                                    userImage: String?
+     ) {
          var user = userDao.getLoggedInUser()
          var userName = user?.userName
          var userId = user?.userId
@@ -88,7 +90,9 @@ class UserRepo @Inject constructor(
             loginTimestamp = loginTimeStamp,
             latitude = lat,
             longitude = long,
-            logoutType = logoutType)
+            logoutType = logoutType,
+            userImage = userImage
+        )
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
 
@@ -101,7 +105,8 @@ class UserRepo @Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
+        userImage: String?
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             //reset all login before another login
@@ -127,7 +132,8 @@ class UserRepo @Inject constructor(
                         logoutTimeStamp,
                         lat,
                         long,
-                        logoutType)
+                        logoutType,
+                    userImage)
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -151,7 +157,8 @@ class UserRepo @Inject constructor(
                         logoutTimeStamp,
                         lat,
                         long,
-                        logoutType)
+                        logoutType,
+                    userImage)
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }

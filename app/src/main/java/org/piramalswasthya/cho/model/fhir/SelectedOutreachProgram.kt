@@ -50,6 +50,9 @@ data class SelectedOutreachProgram(
     @ColumnInfo(name = "logout_type")
     val logoutType: String?,
 
+    @ColumnInfo(name = "user_image")
+    val userImage: String?,
+
     @ColumnInfo(name="syncState")
     var syncState: SyncState = SyncState.UNSYNCED,
 )

@@ -116,7 +116,7 @@ import timber.log.Timber
         ComponentOption::class,
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 76, exportSchema = false
+    version = 77, exportSchema = false
 )
 
 

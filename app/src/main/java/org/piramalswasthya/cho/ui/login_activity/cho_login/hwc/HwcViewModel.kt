@@ -63,7 +63,8 @@ class HwcViewModel @Inject constructor(
                 logoutTimeStamp,
                 lat,
                 long,
-                logoutType)
+                logoutType,
+            null)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
