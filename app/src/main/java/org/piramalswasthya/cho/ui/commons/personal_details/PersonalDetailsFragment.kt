@@ -230,26 +230,6 @@ class PersonalDetailsFragment : Fragment() {
                 }
             }
 
-
-//        }
-
-            val searchTextWatcher = object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    viewModel.filterText(p0?.toString() ?: "")
-                    binding.patientListContainer.patientCount.text =
-                        patientCount.toString() + getResultStr(patientCount)
-                    Log.d("arr","${patientCount}")
-                }
-
-            }
             binding.search.setOnFocusChangeListener { searchView, b ->
                 if (b)
                     (searchView as EditText).addTextChangedListener(searchTextWatcher)
@@ -258,6 +238,23 @@ class PersonalDetailsFragment : Fragment() {
 
             }
         }
+    }
+    private val searchTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+            viewModel.filterText(p0?.toString() ?: "")
+            binding.patientListContainer.patientCount.text =
+                patientCount.toString() + getResultStr(patientCount)
+            Log.d("arr","${patientCount}")
+        }
+
     }
     fun getResultStr(count:Int?):String{
         if(count==1||count==0){
@@ -268,6 +265,7 @@ class PersonalDetailsFragment : Fragment() {
     private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
             binding.search.setText(result)
+            binding.search.addTextChangedListener(searchTextWatcher)
         }
     }
     private fun encryptSHA512(input: String): String {

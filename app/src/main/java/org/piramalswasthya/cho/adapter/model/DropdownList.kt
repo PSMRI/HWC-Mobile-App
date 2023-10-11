@@ -15,5 +15,5 @@ import org.piramalswasthya.cho.model.MaritalStatusMaster
 @JsonClass(generateAdapter = true)
 data class DropdownList(
     val id: Int,
-    var display: String
+    var display: String?
 )
