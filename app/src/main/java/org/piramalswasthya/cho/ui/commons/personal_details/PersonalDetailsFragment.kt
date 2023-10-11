@@ -197,7 +197,7 @@ class PersonalDetailsFragment : Fragment() {
                                     checkAndGenerateABHA(benVisitInfo)
                             },
                             {
-                                patientID -> callLoginDialog(patientID)
+                                    benVisitInfo -> callLoginDialog(benVisitInfo)
                             }
                          ),
                             showAbha = true
@@ -301,7 +301,7 @@ class PersonalDetailsFragment : Fragment() {
         val hashBytes = digest.digest(input.toByteArray())
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
-    private fun callLoginDialog(patientId:String) {
+    private fun callLoginDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
         network = isInternetAvailable(requireContext())
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
         val dialog = context?.let {
@@ -355,7 +355,7 @@ class PersonalDetailsFragment : Fragment() {
                                 TokenESanjeevaniInterceptor.setToken(token)
                             }
                             val intent = Intent(context, WebViewActivity::class.java)
-                            intent.putExtra("patientId", patientId);
+                            intent.putExtra("patientId", benVisitInfo.patient.patientID);
                             intent.putExtra("usernameEs", usernameEs);
                             intent.putExtra("passwordEs", passwordEs);
                             context?.startActivity(intent)

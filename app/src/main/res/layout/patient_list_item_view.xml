@@ -268,7 +268,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_eSanjeevani"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:onClick="@{()-> clickListener.onClickEsanjeevani(ben)}"
+            android:onClick="@{()-> clickListener.onClickEsanjeevani(benVisitInfo)}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/green"
