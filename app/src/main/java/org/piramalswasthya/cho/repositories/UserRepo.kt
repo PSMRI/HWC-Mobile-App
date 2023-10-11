@@ -474,6 +474,9 @@ class UserRepo @Inject constructor(
             when(val response = saveLoginAuditDataToServer(loginAuditDataListUnsynced)){
                 is NetworkResult.Success ->{
                     //TODO UPDATE SYNCED FLAG
+                    loginAuditDataListUnsynced.forEach { it ->
+                        userDao.updateAuditDataFlag(it.id)
+                    }
                 }
                 is NetworkResult.Error -> {
                     if(response.code == socketTimeoutException){

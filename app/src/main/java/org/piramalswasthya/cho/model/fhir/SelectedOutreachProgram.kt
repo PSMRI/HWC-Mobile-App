@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.UserCache
 
 
@@ -47,8 +48,8 @@ data class SelectedOutreachProgram(
     val longitude: Double?,
 
     @ColumnInfo(name = "logout_type")
-    val logoutType: String? ,
+    val logoutType: String?,
 
-    @ColumnInfo(name = "is_synced")
-    val isSynced: Boolean? = false
+    @ColumnInfo(name="syncState")
+    var syncState: SyncState = SyncState.UNSYNCED,
 )
