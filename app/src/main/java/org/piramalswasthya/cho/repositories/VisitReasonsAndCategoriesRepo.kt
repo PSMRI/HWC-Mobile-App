@@ -116,9 +116,9 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
         return visitReasonsAndCategoriesDao.getVisitDbByPatientId(patientID)
     }
 
-     suspend fun getChiefComplaintDBByPatientId(patientID: String) : List<ChiefComplaintDB> {
+     suspend fun getChiefComplaintDBByPatientId(patientID: String,benVisitNo: Int) : List<ChiefComplaintDB> {
          return withContext(Dispatchers.IO) {
-             visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patientID)
+             visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patientID, benVisitNo)
          }
      }
 
