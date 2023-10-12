@@ -463,6 +463,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
                     android:text="@string/report"
+                    android:visibility="gone"
                     android:textSize="18sp"
                     android:textStyle="normal|bold"
                     app:layout_constraintTop_toBottomOf="@+id/routeDropDown" />
@@ -474,6 +475,7 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
                     android:hint="@string/date"
+                    android:visibility="gone"
                     android:paddingBottom="4dp"
                     android:textColorHint="#888888"
                     android:textSize="18sp"
@@ -499,9 +501,8 @@
                 <ScrollView
                     android:id="@+id/scrollview"
                     android:layout_width="match_parent"
+                    android:visibility="gone"
                     android:layout_height="wrap_content">
-
-
 
                     <TableLayout
                         android:id="@+id/tableLayout"
@@ -512,13 +513,12 @@
                         android:layout_marginTop="10dp"
                         android:stretchColumns="*">
 
-
                         <TableRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/select_test_name"
@@ -529,9 +529,9 @@
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="2"
+                                android:layout_weight="1"
                                 android:text="@string/result"
                                 android:gravity="center"
                                 android:textColor="@color/white"

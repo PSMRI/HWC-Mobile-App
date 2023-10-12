@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.components.ViewWithFragmentComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -137,14 +138,45 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         referDropdown = binding.referDropdownText
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-
+        val tableLayout = binding.tableLayout
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
             patientId = benVisitInfo.patient.patientID
-            patId= patientId
+            patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
-            viewModel.getChiefComplaintDB(patId)
-        }
+            viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID,benVisitInfo.benVisitNo!!)
+            if(benVisitInfo.benVisitNo != null){
+               viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            }
+            viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
+                var  nameVal = ""
+                var resultVal = ""
+               if (labReports.size>0){
+                   binding.scrollview.visibility = View.VISIBLE
+                   binding.resultHeading.visibility = View.VISIBLE
+                   binding.dateOption.visibility = View.VISIBLE
+               }
+                for (labReport in labReports) {
+                    val procedureName = labReport.procedure.procedureName
 
+                    for (component in labReport.components) {
+
+                        val tableRowVal = layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                        val componentName = component.componentName
+                        val resultValue = component.testResultValue
+                        val resultUnit = component.testResultUnit
+                        nameVal = "$procedureName- $componentName"
+                        if(resultUnit!=null ){
+                        resultVal = "${resultValue} ${resultUnit}"}
+                        else{
+                            resultVal = "${resultValue}"
+                        }
+                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
+                        tableRowVal.findViewById<TextView>(R.id.numberTextView).setText(resultVal)
+                        tableLayout.addView(tableRowVal)
+                    }
+                }
+            }
+        }
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
@@ -227,18 +259,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //        val layoutManagerR = LinearLayoutManager(requireContext())
 //        binding.reportExtra.layoutManager = layoutManagerR
 
-        val name = "DENGUE"
-        val number = "RBS"
-        val tableLayout = binding.tableLayout
 
-        val tableRow = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
-        tableRow.findViewById<TextView>(R.id.nameTextView).setText(number)
-        tableRow.findViewById<TextView>(R.id.numberTextView).setText(name)
-        val tableRow2 = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
-        tableRow2.findViewById<TextView>(R.id.nameTextView).setText(number)
-        tableRow2.findViewById<TextView>(R.id.numberTextView).setText(name)
-        tableLayout.addView(tableRow)
-        tableLayout.addView(tableRow2)
+//        val name = "DENGUE"
+//        val number = "RBS"
+//
+//
+//        val tableRow = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
+//        tableRow.findViewById<TextView>(R.id.nameTextView).setText(number)
+//        tableRow.findViewById<TextView>(R.id.numberTextView).setText(name)
+//        val tableRow2 = LayoutInflater.from(requireContext()).inflate(R.layout.report_custom_layout, null) as TableRow
+//        tableRow2.findViewById<TextView>(R.id.nameTextView).setText(number)
+//        tableRow2.findViewById<TextView>(R.id.numberTextView).setText(name)
+//        tableLayout.addView(tableRow)
+//        tableLayout.addView(tableRow2)
 //        viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
 //            formMListVal.clear()
 //            formMListVal.addAll(f)

@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
@@ -32,6 +33,7 @@ import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
@@ -45,6 +47,7 @@ class CaseRecordViewModel @Inject constructor(
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
     private val patientRepo: PatientRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
@@ -74,6 +77,10 @@ class CaseRecordViewModel @Inject constructor(
     val counsellingProvided: LiveData<List<CounsellingProvided>>
         get() = _counsellingProvided
 
+    private var _labReportList= MutableLiveData<List<ProcedureDataWithComponent>>()
+    val labReportList: LiveData<List<ProcedureDataWithComponent>>
+        get() = _labReportList
+
     private var _procedureDropdown: LiveData<List<ProceduresMasterData>>
     val procedureDropdown: LiveData<List<ProceduresMasterData>>
         get() = _procedureDropdown
@@ -99,7 +106,6 @@ class CaseRecordViewModel @Inject constructor(
         getProcedureDropdown()
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
-
     }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {
@@ -112,10 +118,10 @@ class CaseRecordViewModel @Inject constructor(
             }
         }
     }
-    fun getChiefComplaintDB(patientID: String) {
+    fun getChiefComplaintDB(patientID: String,benVisitNo: Int) {
         viewModelScope.launch {
             try {
-                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID)
+                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID, benVisitNo)
             } catch (e: Exception) {
                 Timber.d("Error in Getting Chief Complaint DB $e")
             }
@@ -152,7 +158,15 @@ class CaseRecordViewModel @Inject constructor(
             Timber.d("Error in Get Procedure $e")
         }
     }
-
+   fun getLabList(patientID: String,benVisitNo: Int){
+       viewModelScope.launch {
+           try{
+               _labReportList.value = procedureRepo.getProceduresWithComponent(patientID,benVisitNo)
+           }catch (e:Exception){
+               Timber.e("Error in getting Procedure: $e")
+           }
+       }
+   }
     fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
         viewModelScope.launch {
             try {
