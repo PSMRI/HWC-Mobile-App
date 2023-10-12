@@ -164,16 +164,19 @@ class PersonalDetailsFragment : Fragment() {
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isLabTechnician()){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2){
                                          Toast.makeText(
@@ -186,6 +189,7 @@ class PersonalDetailsFragment : Fragment() {
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
                                         Toast.makeText(
