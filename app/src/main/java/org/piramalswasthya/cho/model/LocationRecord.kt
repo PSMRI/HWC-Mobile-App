@@ -34,5 +34,5 @@ data class LocationData(
 )
 data class VillageLocationData(
     val districtBranchID: String,
-    val villageName: String,
+    val villageName: String?,
 )
