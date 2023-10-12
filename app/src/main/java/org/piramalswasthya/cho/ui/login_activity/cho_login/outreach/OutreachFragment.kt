@@ -50,7 +50,8 @@ import javax.inject.Inject
 class OutreachFragment(
     private val userName: String,
     private val rememberUsername: Boolean,
-) : Fragment() {
+    private val isBiometric: Boolean,
+    ) : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -158,9 +159,15 @@ class OutreachFragment(
 
         faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
         getCurrentLocation()
-        if(!viewModel.fetchRememberedPassword().isNullOrBlank()) {
-            viewModel.fetchRememberedPassword()?.let {
-                binding.etPassword.setText(it)
+        if (isBiometric) {
+            binding.tilPassword.visibility = View.GONE
+            binding.btnOutreachLogin.text = "Proceed to Home"
+        }else {
+            binding.tilPassword.visibility = View.VISIBLE
+            if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
+                viewModel.fetchRememberedPassword()?.let {
+                    binding.etPassword.setText(it)
+                }
             }
         }
         return binding.root
@@ -272,7 +279,9 @@ class OutreachFragment(
                 latitude = myLocation!!.latitude
                 longitude = myLocation!!.longitude
             }
-            viewModel.authUser(
+            if(!isBiometric){
+
+                viewModel.authUser(
                 userName,
                 binding.etPassword.text.toString(),
                 "OUTREACH",
@@ -321,8 +330,25 @@ class OutreachFragment(
                     else -> {}
                 }
 
+            }}
+            else{
+                lifecycleScope.launch {
+                    viewModel.setOutreachDetails(
+                        "OUTREACH",
+                        outreachVal,
+                        timestamp,
+                        null,
+                        latitude,
+                        longitude,
+                        null
+                    )
+                    findNavController().navigate(
+                        ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
+                    )
+                    viewModel.resetState()
+                    activity?.finish()
+                }
             }
-
         }
 
 

@@ -19,17 +19,17 @@ class ChoLoginViewModel @Inject constructor(private val userRepo: UserRepo): Vie
         _fingerListData = userRepo.getFPDataFromLocalDB()
     }
 
-    fun insertAuditData(loginType: String?,
-                        selectedOption: String?,
-                        loginTimeStamp: String?,
-                        logoutTimeStamp: String?,
-                        lat: Double?,
-                        long: Double?,
-                        logoutType: String?,
-                        userName:String){
-        viewModelScope.launch {
-            userRepo.updateLoginStatus(userName)
-            userRepo.setOutreachProgram(loginType, selectedOption, loginTimeStamp, logoutTimeStamp, lat, long, logoutType)
-        }
-    }
+//    fun insertAuditData(loginType: String?,
+//                        selectedOption: String?,
+//                        loginTimeStamp: String?,
+//                        logoutTimeStamp: String?,
+//                        lat: Double?,
+//                        long: Double?,
+//                        logoutType: String?,
+//                        userName:String){
+//        viewModelScope.launch {
+//            userRepo.updateLoginStatus(userName)
+//            userRepo.setOutreachProgram(loginType, selectedOption, loginTimeStamp, logoutTimeStamp, lat, long, logoutType)
+//        }
+//    }
 }

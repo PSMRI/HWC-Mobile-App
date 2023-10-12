@@ -73,10 +73,6 @@ class LoginActivity : AppCompatActivity() {
         print("app started")
         setUpActionBar()
 
-//        binding.homeButton.setOnClickListener {
-//            val intent = Intent(this, LoginActivity::class.java)
-//            startActivity(intent)
-//        }
 
         lifecycleScope.launch {
             try {
@@ -96,20 +92,25 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setUpActionBar() {
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //        NavigationUI.setupWithNavController(binding.toolbar, navController)
-        NavigationUI.setupActionBarWithNavController(this, navController)
+//        NavigationUI.setupActionBarWithNavController(this, navController)
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                // This is the ID for the Up button (left arrow in the ActionBar).
-                onBackPressed() // This will simulate the back button press.
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            android.R.id.home -> {
+//                // This is the ID for the Up button (left arrow in the ActionBar).
+//                onBackPressed() // This will simulate the back button press.
+//                return true
+//            }
+//            else -> return super.onOptionsItemSelected(item)
+//        }
+//    }
 //    private fun createSyncServiceNotificationChannel() {
 //        // Create the NotificationChannel, but only on API 26+ because
 //        // the NotificationChannel class is new and not in the support library

@@ -131,6 +131,9 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 logoutType)
             userDao.insertOutreachProgram(selectedOutreachProgram)
             userDao.resetAllUsersLoggedInState()
+            if (user != null) {
+                userDao.updateLogoutTime(user.userId,Date())
+            }
             pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
         }
