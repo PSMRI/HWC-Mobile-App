@@ -56,4 +56,7 @@ interface PrescriptionDao {
 //
 //    @Query("select * from component_details where procedure_id = :procedureId and test_component_id = :testComponentID")
 //    fun getComponentDetails(procedureId: Long, testComponentID: Long): ComponentDetails
+    @Query("delete from Prescription_Cases_Recorde where patientID =:patientID and benVisitNo = :benVisitNo")
+    suspend fun deletePrescriptionByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): Int
+
 }

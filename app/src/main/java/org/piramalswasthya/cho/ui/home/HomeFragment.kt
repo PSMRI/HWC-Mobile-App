@@ -112,7 +112,7 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         viewModel.init(requireContext())
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
+//        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
 
@@ -124,6 +124,7 @@ class HomeFragment : Fragment() {
             searchPrompt.show()
 
         }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 HomeViewModel.State.IDLE -> {

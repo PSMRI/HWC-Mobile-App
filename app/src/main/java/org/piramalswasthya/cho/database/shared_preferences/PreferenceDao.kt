@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.time.LocalDate
 import java.time.ZoneId
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,6 +24,8 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 
     @RequiresApi(Build.VERSION_CODES.O)
     val date = LocalDate.of(2023, 9, 11)
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -174,10 +177,12 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastBenflowSyncTime(timestamp: Long){
+    fun setLastBenflowSyncTime(){
         val prefKey = context.getString(R.string.last_benflow_sync_time)
         val editor = pref.edit()
-        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(timestamp))
+        val currDate = LocalDate.now()
+        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
     }
 
@@ -186,17 +191,19 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setLastPatientSyncTime(){
+        val prefKey = context.getString(R.string.last_patient_sync_time)
+        val editor = pref.edit()
+        val currDate = LocalDate.now()
+        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
+        editor.apply()
+    }
+
     fun getLastSyncTime(): String {
         val prefKey = context.getString(R.string.last_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastPatientSyncTime(timestamp: Long){
-        val prefKey = context.getString(R.string.last_patient_sync_time)
-        val editor = pref.edit()
-        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(timestamp))
-        editor.apply()
     }
 
     fun registerLoginCred(userName: String,password: String) {

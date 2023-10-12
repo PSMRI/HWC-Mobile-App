@@ -45,8 +45,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
         return try {
             val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
             if (workerResult) {
-//                val date = Date()
-//                preferenceDao.setLastBenflowSyncTime(date.time)
+                preferenceDao.setLastBenflowSyncTime()
                 Timber.d("Worker completed")
                 Result.success()
             } else {

@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
 import android.util.Log
 import android.widget.RadioButton
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +43,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitMasterDb
@@ -59,6 +61,7 @@ import javax.inject.Inject
 class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
 
     override var fragmentContainerId = 0
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private lateinit var patientId : String
 
     override val fragment = this
@@ -166,26 +169,34 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         _binding = VisitDetailsInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         if(preferenceDao.isLoginTypeOutReach()){
             binding.radioButton1.isChecked = false
             binding.radioButton2.isChecked = true
-            category = binding.radioButton2.text.toString()
-            binding.radioButton3.text.toString()
+//            category = binding.radioButton2.text.toString()
+            category = binding.radioButton2.tag.toString()
+            reason = binding.radioButton3.text.toString()
             binding.subCatDropDown.visibility = View.VISIBLE
         }
         else{
             binding.radioButton2.isChecked = false
             binding.radioButton1.isChecked = true
-            category = binding.radioButton1.text.toString()
+//            category = binding.radioButton1.text.toString()
+            category = binding.radioButton1.tag.toString()
 //            binding.radioGroup2.visibility = View.VISIBLE
 //            binding.reasonText.visibility = View.VISIBLE
             binding.subCatDropDown.visibility = View.GONE
-            category = binding.radioButton1.text.toString()
-
+//            category = binding.radioButton1.text.toString()
+            category = binding.radioButton1.tag.toString()
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
@@ -213,13 +224,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
                 hintTextColor = defaultHintTextColor }
         }
 
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        patientId = benVisitInfo.patient.patientID
 
-        patientId = requireActivity().intent?.extras?.getString("patientId")!!
+        if(benVisitInfo.benVisitNo != null){
+            viewModel.getTheProcedure(patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+        }
+
         lifecycleScope.launch {
             viewModel.getLastDate(patientId)
         }
         viewModel.lastVisitDate?.observe(viewLifecycleOwner){
-                  viewModel.setIsFollowUp(isWithinThreeDays(it))
+            viewModel.setIsFollowUp(isWithinThreeDays(it))
             makeFollowUpDefault()
         }
         binding.subCatInput.threshold = 1
@@ -238,24 +254,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //                    binding.radioGroup2.visibility = View.VISIBLE
 //                    binding.reasonText.visibility = View.VISIBLE
                     binding.subCatDropDown.visibility = View.GONE
-                    category = binding.radioButton1.text.toString()
+//                    category = binding.radioButton1.text.toString()
+                    category = binding.radioButton1.tag.toString()
                 }
 
                 else -> {
 //                    binding.radioGroup2.visibility = View.GONE
 //                    binding.reasonText.visibility = View.GONE
                     binding.subCatDropDown.visibility = View.VISIBLE
-                    category = binding.radioButton2.text.toString()
+//                    category = binding.radioButton2.text.toString()
+                    category = binding.radioButton2.tag.toString()
                 }
             }
         }
         binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
             reason = when (checkedId) {
                 R.id.radioButton3 -> {
-                    binding.radioButton3.text.toString()
+//                    binding.radioButton3.text.toString()
+                    binding.radioButton3.tag.toString()
                 }
+
                 else -> {
-                    binding.radioButton4.text.toString()
+                    binding.radioButton4.tag.toString()
+//                    binding.radioButton4.text.toString()
                 }
             }
         }
@@ -302,12 +323,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         if(viewModel.getIsFollowUp()){
             binding.radioButton3.isChecked = false
             binding.radioButton4.isChecked = true
-            reason = binding.radioButton4.text.toString()
+//            reason = binding.radioButton4.text.toString()
+            reason = binding.radioButton4.tag.toString()
         }
         else{
             binding.radioButton3.isChecked = true
             binding.radioButton4.isChecked = false
-            reason = binding.radioButton4.text.toString()
+//            reason = binding.radioButton4.text.toString()
+            reason = binding.radioButton3.tag.toString()
         }
     }
     fun isAnyItemEmpty(): Boolean {
@@ -463,8 +486,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
 
-        visitMasterDb.category = selectedCategoryRadioButton?.text.toString()
-        visitMasterDb.reason = selectedReasonRadioButton?.text.toString()
+        visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
+        visitMasterDb.reason = selectedReasonRadioButton?.tag.toString()
         val subCategory = binding.subCatInput.text.toString()
         visitMasterDb.subCategory = subCategory
 
@@ -625,8 +648,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override fun onCancelAction() {
         val intent = Intent(context, HomeActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+        requireActivity().finish()
     }
 
     //methods for voice to text conversion and update the input fields

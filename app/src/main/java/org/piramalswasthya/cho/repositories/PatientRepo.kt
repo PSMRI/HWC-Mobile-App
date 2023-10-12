@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -8,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
@@ -32,6 +34,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.ComponentDetails
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionBatchDTO
@@ -45,6 +48,7 @@ import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
+import org.piramalswasthya.cho.network.DistrictList
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
@@ -81,9 +85,7 @@ class PatientRepo @Inject constructor(
     }
 
     suspend fun getBenFromId(benId: Long): Patient? {
-        return withContext(Dispatchers.IO) {
-            patientDao.getBen(benId)
-        }
+        return patientDao.getBen(benId)
     }
 
     suspend fun updateRecord(it: Patient) {
@@ -132,6 +134,12 @@ class PatientRepo @Inject constructor(
             patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
         }
     }
+//    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
+//        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
+//        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
+//            patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
+//        }
+//    }
 
     suspend fun getPatient(patientId : String) : Patient{
         return patientDao.getPatient(patientId)
@@ -141,13 +149,13 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientDisplay(patientId)
     }
 
-    suspend fun updateNurseSubmitted(patientId : String) {
-        patientDao.updateNurseSubmitted(patientId)
-    }
+//    suspend fun updateNurseSubmitted(patientId : String) {
+//        patientDao.updateNurseSubmitted(patientId)
+//    }
 
-    suspend fun updateDoctorSubmitted(patientId : String) {
-        patientDao.updateDoctorSubmitted(patientId)
-    }
+//    suspend fun updateDoctorSubmitted(patientId : String) {
+//        patientDao.updateDoctorSubmitted(patientId)
+//    }
 
     suspend fun getPatientByBenRegId(beneficiaryRegID : Long) : Patient?{
         return patientDao.getPatientByBenRegId(beneficiaryRegID)
@@ -176,13 +184,13 @@ class PatientRepo @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
+
         val user = userRepo.getLoggedInUser()
 
         val villageList = VillageIdList(
             convertStringToIntList(user?.assignVillageIds ?: ""),
-            preferenceDao.getLastSyncTime()
+            preferenceDao.getLastPatientSyncTime()
         )
 
         return when(val response = downloadRegisterPatientFromServer(villageList)){
@@ -393,7 +401,6 @@ class PatientRepo @Inject constructor(
                     if(response.code == socketTimeoutException){
                         throw SocketTimeoutException("This is an example exception message")
                     }
-                    return false;
                 }
                 else -> {
 
@@ -450,59 +457,63 @@ class PatientRepo @Inject constructor(
         return null
     }
 
-    suspend fun getProcedures(patientId: String): List<ProcedureDTO>? {
+    fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientDao.getPatientDisplayListForNurse()
+    }
+
+    suspend fun getProcedures(benVisitInfo: PatientDisplayWithVisitInfo): List<ProcedureDTO>? {
         val dtos: MutableList<ProcedureDTO> = mutableListOf()
         return withContext(Dispatchers.IO) {
             try {
-                patientDao.getPatient(patientId).beneficiaryRegID?.let {
-                    val procedures = procedureDao.getProcedures(it)
-                    procedures?.forEach { procedure ->
-                        val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
-                        val procedureDTO = ProcedureDTO(
-                            benRegId = it,
-                            procedureDesc = procedure.procedureDesc,
-                            procedureType = procedure.procedureType,
-                            prescriptionID = procedure.prescriptionID,
-                            procedureID = procedure.procedureID,
-                            procedureName = procedure.procedureName,
-                            compListDetails = compListDetails,
-                            isMandatory = procedure.isMandatory
+
+                val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                procedures?.forEach { procedure ->
+                    val compListDetails: MutableList<ComponentDetailDTO> = mutableListOf()
+                    val procedureDTO = ProcedureDTO(
+                        benRegId = benVisitInfo.patient.beneficiaryRegID!!,
+                        procedureDesc = procedure.procedureDesc,
+                        procedureType = procedure.procedureType,
+                        prescriptionID = procedure.prescriptionID,
+                        procedureID = procedure.procedureID,
+                        procedureName = procedure.procedureName,
+                        compListDetails = compListDetails,
+                        isMandatory = procedure.isMandatory
+                    )
+
+                    val components = procedureDao.getComponentDetails(procedure.id)
+                    components?.forEach { componentDetails ->
+                        val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
+                        val componentDetailDTO = ComponentDetailDTO(
+                            id = componentDetails.id,
+                            range_normal_min = componentDetails.rangeNormalMin,
+                            range_normal_max = componentDetails.rangeNormalMax,
+                            range_min = componentDetails.rangeMin,
+                            range_max = componentDetails.rangeMax,
+                            isDecimal = componentDetails.isDecimal,
+                            inputType = componentDetails.inputType,
+                            testComponentID = componentDetails.testComponentID,
+                            measurementUnit = componentDetails.measurementUnit,
+                            testComponentName = componentDetails.testComponentName,
+                            testComponentDesc = componentDetails.testComponentDesc,
+                            testResultValue = componentDetails.testResultValue,
+                            remarks = componentDetails.remarks,
+                            compOpt = componentOptionDTOs
                         )
 
-                        val components = procedureDao.getComponentDetails(procedure.id)
-                        components?.forEach { componentDetails ->
-                            val componentOptionDTOs: MutableList<ComponentOptionDTO> = mutableListOf()
-                            val componentDetailDTO = ComponentDetailDTO(
-                                id = componentDetails.id,
-                                range_normal_min = componentDetails.rangeNormalMin,
-                                range_normal_max = componentDetails.rangeNormalMax,
-                                range_min = componentDetails.rangeMin,
-                                range_max = componentDetails.rangeMax,
-                                isDecimal = componentDetails.isDecimal,
-                                inputType = componentDetails.inputType,
-                                testComponentID = componentDetails.testComponentID,
-                                measurementUnit = componentDetails.measurementUnit,
-                                testComponentName = componentDetails.testComponentName,
-                                testComponentDesc = componentDetails.testComponentDesc,
-                                testResultValue = componentDetails.testResultValue,
-                                remarks = componentDetails.remarks,
-                                compOpt = componentOptionDTOs
+                        val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
+                        componentOptions?.forEach { option ->
+                            val componentOptionDTO = ComponentOptionDTO(
+                                name = option.name
                             )
-
-                            val componentOptions = procedureDao.getComponentOptions(componentDetails.id)
-                            componentOptions?.forEach { option ->
-                                val componentOptionDTO = ComponentOptionDTO(
-                                    name = option.name
-                                )
-                                componentOptionDTOs += componentOptionDTO
-                            }
-                            componentDetailDTO.compOpt = componentOptionDTOs
-                            compListDetails += componentDetailDTO
+                            componentOptionDTOs += componentOptionDTO
                         }
-                        procedureDTO.compListDetails = compListDetails
-                        dtos += procedureDTO
+                        componentDetailDTO.compOpt = componentOptionDTOs
+                        compListDetails += componentDetailDTO
                     }
+                    procedureDTO.compListDetails = compListDetails
+                    dtos += procedureDTO
                 }
+
                 dtos
             } catch (e: Exception) {
                 Timber.d("get failed due to $e")
@@ -512,9 +523,9 @@ class PatientRepo @Inject constructor(
 
     }
 
-    suspend fun getProcedure(benRegId: Long, procedureID: Long): Procedure {
+    suspend fun getProcedure(patientID: String, benVisitNo: Int, procedureID: Long): Procedure {
         return withContext(Dispatchers.IO) {
-            procedureDao.getProcedure(benRegId, procedureID)
+            procedureDao.getProcedure(patientID, benVisitNo, procedureID)
         }
     }
 

@@ -7,43 +7,38 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
 @HiltWorker
-class PullLabDataToAmrit @AssistedInject constructor(
+class PushBenDoctorInfoWithoutTestToAmrit   @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    private val benFlowRepo: BenFlowRepo,
+    private val benVisitRepo: BenVisitRepo,
     private val preferenceDao: PreferenceDao,
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "Pull Lab Data"
+        const val name = "PushBenDoctorInfoWithoutTestToAmrit"
     }
 
     override suspend fun doWork(): Result {
         init()
-
-//        return try {
-//            val workerResult = benFlowRepo.pullLabProcedureData(inputData.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
-//            if (workerResult) {
-//                Timber.d("Worker completed")
-//                Result.success()
-//            } else {
-//                Timber.d("Worker Failed as usual!")
-//                Result.failure()
-//            }
-//        } catch (e: SocketTimeoutException) {
-//            Timber.e("Caught Exception for push amrit worker $e")
-//            Result.retry()
-//        }
-
-        return Result.success()
+        try {
+            val workerResult = benVisitRepo.processUnsyncedDoctorDataWithoutTest()
+            return if (workerResult) {
+                Timber.d("Worker completed")
+                Result.success()
+            } else {
+                Timber.d("Worker Failed as usual!")
+                Result.failure()
+            }
+        } catch (e: SocketTimeoutException) {
+            Timber.e("Caught Exception for push amrit worker $e")
+            return Result.retry()
+        }
     }
 
     private fun init() {

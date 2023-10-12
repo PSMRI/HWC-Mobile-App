@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,6 +22,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentVitalsCustomBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
@@ -96,8 +97,15 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         binding.inputHeight.addTextChangedListener(textWatcher)
         return binding.root
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
 
         masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
@@ -124,14 +132,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         heightValue = binding.inputHeight.text?.toString()?.trim()
         weightValue = binding.inputWeight.text?.toString()?.trim()
         bmiValue = binding.inputBmi.text?.toString()?.trim()
-        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
+//        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
         temperatureValue = binding.inputTemperature.text?.toString()?.trim()
         pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
         spo2Value = binding.inputSpo2.text?.toString()?.trim()
         bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
         bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-        rbsValue = binding.inputRbs.text?.toString()?.trim()
+//        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
     private fun addVitalsDataToCache(benVisitNo: Int){
@@ -188,7 +196,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
-            nurseFlag = 9
+            nurseDataSynced = SyncState.UNSYNCED,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = 9,
+            doctorFlag = 1
         )
         viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
     }
@@ -395,44 +406,30 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             )
         }else{
             CoroutineScope(Dispatchers.IO).launch {
-//                val hasUnSyncedNurseData = viewModel.hasUnSyncedNurseData(masterDb!!.patientId.toString())
-//                if(hasUnSyncedNurseData){
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.unsyncedNurseData),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//                else{
 
-                    var benVisitNo = 0;
-                    var createNewBenflow = false;
-                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                        if(it == null){
-                            benVisitNo = 1;
-                        }
-                        else if(it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        }
-                        else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
-                        }
+                var benVisitNo = 0;
+                var createNewBenflow = false;
+                viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                    if(it == null){
+                        benVisitNo = 1;
                     }
-                    extractFormValues()
-                    setVitalsMasterData()
-                    addVisitRecordDataToCache(benVisitNo)
-                    addVitalsDataToCache(benVisitNo)
-                    addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                    setNurseComplete()
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.vitals_information_is_saved),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-//                }
+                    else if(it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    }
+                    else {
+                        benVisitNo = it.benVisitNo + 1
+                        createNewBenflow = true;
+                    }
+                }
+                extractFormValues()
+                setVitalsMasterData()
+                addVisitRecordDataToCache(benVisitNo)
+                addVitalsDataToCache(benVisitNo)
+                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+                setNurseComplete()
+                val intent = Intent(context, HomeActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
             }
 
         }

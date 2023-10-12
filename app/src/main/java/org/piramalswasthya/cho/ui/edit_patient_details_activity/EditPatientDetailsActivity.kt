@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragmentDirections
@@ -93,7 +94,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            if (preferenceDao.isStartingLabTechnician()) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
-                       (intent?.extras?.getString("patientId")!!)
+                       (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            }
            else if (preferenceDao.isPharmacist()) {
@@ -105,7 +106,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            else {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
-                       (intent?.extras?.getString("patientId")!!)
+                       (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            }
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
@@ -172,7 +173,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
        }
 
         binding.homeButton.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            this.finish()
         }
 
         binding.btnSubmit.setOnClickListener {
@@ -187,9 +190,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
     }
 
-    override fun onBackPressed() {
-        finish()
-    }
+//    override fun onBackPressed() {
+//        finish()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
