@@ -93,7 +93,8 @@ class UserRepo @Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
+        isBiometric: Boolean? = false
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             //reset all login before another login
@@ -112,14 +113,17 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    setOutreachProgram(
-                        loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -137,13 +141,17 @@ class UserRepo @Inject constructor(
                         userDao.insert(user!!.asCacheModel())
                     }
                     preferenceDao.registerUser(user!!)
-                    setOutreachProgram(   loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }

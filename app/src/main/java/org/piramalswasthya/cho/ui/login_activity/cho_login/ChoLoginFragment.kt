@@ -105,10 +105,11 @@ class ChoLoginFragment : Fragment() {
     private fun setActivityContainer(programId: Int){
         userName = (arguments?.getString("userName", ""))!!;
         val rememberUsername:Boolean = (arguments?.getBoolean("rememberUsername"))!!
+        val isBiometric:Boolean = (arguments?.getBoolean("isBiometric"))!!
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-        val hwcFragment  = HwcFragment(userName,rememberUsername)
-        val outreachFragment = OutreachFragment(userName,rememberUsername);
+        val hwcFragment  = HwcFragment(userName,rememberUsername,isBiometric)
+        val outreachFragment = OutreachFragment(userName,rememberUsername,isBiometric);
         when (programId){
             binding.btnHwc.id -> {
 //                binding.fpLoginLayout.visibility = View.VISIBLE

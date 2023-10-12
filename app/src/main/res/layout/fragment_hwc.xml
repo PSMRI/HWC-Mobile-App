@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.login_activity.cho_login.hwc.HwcFragment">
-    <RelativeLayout
+        <RelativeLayout
         android:id="@+id/rl_saving"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

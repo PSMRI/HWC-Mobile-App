@@ -227,7 +227,7 @@ class HomeActivity : AppCompatActivity() {
 
 
         // Set the desired time (hour and minute) when you want the method to run
-        val desiredHour = 17 // Change this to your desired hour (0-23)
+        val desiredHour = 21 // Change this to your desired hour (0-23)
         val desiredMinute = 0 // Change this to your desired minute (0-59)
 
         // Get the current time
@@ -287,7 +287,6 @@ class HomeActivity : AppCompatActivity() {
                 Locale.setDefault(Locale(currentLanguage.symbol))
 
                 val refresh = Intent(this, HomeActivity::class.java)
-                Log.d("refresh Called!", Locale.getDefault().language)
                 finish()
                 startActivity(refresh)
                 this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
