@@ -27,6 +27,7 @@ import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.OutreachRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -42,6 +43,8 @@ class UsernameFragment() : Fragment() {
     @Inject
     lateinit var userDao: UserDao
     @Inject
+    lateinit var userRepo: UserRepo
+    @Inject
     lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
     private var loginSettingsData: LoginSettingsData? = null
 
@@ -50,6 +53,7 @@ class UsernameFragment() : Fragment() {
 
     private lateinit var viewModel: UsernameViewModel
     private var user: UserCache? = null
+    private var prevLoggedInUser: UserCache? = null
     private var showDashboard : Boolean? = null
     private var isBiometric : Boolean = false
     private var _binding: FragmentUsernameBinding? = null
@@ -60,11 +64,13 @@ class UsernameFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
                 lifecycleScope.launch {
+                    if(userRepo.getLoggedInUser() == null){
                     user = userDao.getLastLoggedOutUser()
-                    if(user!=null){
+                    if(user!=null) {
                         binding.etUsername.setText(user?.userName)
                         biometricPrompt.authenticate(promptInfo)
                     }
+                }
                 }
         viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
@@ -83,8 +89,8 @@ class UsernameFragment() : Fragment() {
         }
         val biometricManager = BiometricManager.from(requireContext())
         when (biometricManager.canAuthenticate()) {
-            BiometricManager.BIOMETRIC_SUCCESS ->
-                displayMessage("Biometric authentication is available")
+            BiometricManager.BIOMETRIC_SUCCESS ->{}
+//                displayMessage("Biometric authentication is available")
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
                 displayMessage("This device doesn't support biometric authentication")
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
@@ -104,7 +110,6 @@ class UsernameFragment() : Fragment() {
                 isBiometric = true
                 val username = user?.userName
                 val password = user?.password
-                Toast.makeText(context, "username: $username password: $password", Toast.LENGTH_LONG).show()
 
                 viewModel.authUser(
                     username!!,
@@ -137,7 +142,6 @@ class UsernameFragment() : Fragment() {
                                 getString(R.string.error_while_logging_in),
                                 Toast.LENGTH_LONG
                             ).show()
-//                            viewModel.resetState()
                         }
 
                         else -> {}
