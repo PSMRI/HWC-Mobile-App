@@ -11,6 +11,7 @@ import com.squareup.moshi.JsonClass
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import java.util.Date
 
 @Entity(
     tableName = "USER",
@@ -133,6 +134,8 @@ data class UserCache(
 
     @ColumnInfo(name="assignVillageNames")
     var assignVillageNames : String,
+    @ColumnInfo(name="lastLogoutTime")
+    var lastLogoutTime : Date?,
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(
@@ -292,7 +295,8 @@ data class UserNetwork(
 
     var emergencyContactNo: String? = null,
     var userType: String? = null,
-    var loggedIn : Boolean? = false
+    var loggedIn : Boolean? = false,
+    var lastLogoutTime: Date? = null
 ) {
     fun asCacheModel() : UserCache{
         return UserCache(
@@ -342,7 +346,8 @@ data class UserNetwork(
             blockID = blockID,
             districtBranchID = districtBranchID,
             assignVillageIds = assignVillageIds ?: "",
-            assignVillageNames = assignVillageNames ?: ""
+            assignVillageNames = assignVillageNames ?: "",
+            lastLogoutTime = lastLogoutTime
         )
     }
 }

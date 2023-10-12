@@ -22,6 +22,9 @@
             <argument
                 android:name="rememberUsername"
                 app:argType="boolean" />
+            <argument
+                android:name="isBiometric"
+                app:argType="boolean" />
         </action>
         <action
             android:id="@+id/action_usernameFragment_to_loginSettings"

@@ -73,24 +73,20 @@ class LoginActivity : AppCompatActivity() {
         print("app started")
         setUpActionBar()
 
-//        binding.homeButton.setOnClickListener {
-//            val intent = Intent(this, LoginActivity::class.java)
-//            startActivity(intent)
-//        }
 
         lifecycleScope.launch {
-            try {
-//                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
-                if (userRepo.getLoggedInUser()!=null) {
-                    showDashboard = true
-                    val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                    intent.putExtra("showDashboard", showDashboard)
-                    startActivity(intent)
-                    finish()
-                }
-            }catch (e:Exception){
-                Log.d("Failed to get Login flag","${e}")
-            }
+//            try {
+////                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
+//                if (userRepo.getLoggedInUser()!=null) {
+//                    showDashboard = true
+//                    val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+//                    intent.putExtra("showDashboard", showDashboard)
+//                    startActivity(intent)
+//                    finish()
+//                }
+//            }catch (e:Exception){
+//                Log.d("Failed to get Login flag","${e}")
+//            }
         }
     }
 
