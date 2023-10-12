@@ -145,6 +145,15 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return false;
     }
 
+    fun isPharmacist(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Pharmacist")
+//            return rolesArray.size == 1 && rolesArray.contains("Lab Technician")
+        }
+        return false;
+    }
+
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.login_settings)

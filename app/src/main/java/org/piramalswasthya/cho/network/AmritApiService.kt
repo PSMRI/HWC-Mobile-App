@@ -303,4 +303,16 @@ interface AmritApiService {
     @POST("hwc-facility-service/generalOPD/getBenCaseRecordFromDoctorGeneralOPD")
     suspend fun getDoctorData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
+    @POST("/hwc-facility-service/registrar/get/benDetailsByRegIDForLeftPanelNew?apiKey=undefined")
+    suspend fun getPharmacistPatientDetails(@Body pharmacistPatientDataRequest: PharmacistPatientDataRequest) : Response<ResponseBody>
+
+    @POST("/inventoryapi-v1.0/RX/getPrescribedMedicines?apiKey=undefined")
+    suspend fun getPharmacistPrescriptionList(@Body prescribedMedicineDataRequest: PrescribedMedicineDataRequest) : Response<ResponseBody>
+
+    @GET("hwc-facility-service/common/getPharma-worklist-New/{providerServiceMapID}/{serviceID}/{vanID}")
+    suspend fun dispensePrescriptionForPharmacist(@Path("providerServiceMapID") providerServiceMapID: Int,
+                                   @Path("serviceID") serviceID : Int,
+                                   @Path("vanID") vanID: Int,
+                                   @Query("apiKey") apiKey :String): Response<ResponseBody>
+
 }

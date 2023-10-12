@@ -38,6 +38,11 @@ class PersonalDetailsViewModel @Inject constructor(
     var patientListForLab : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForLab().combine(filter){
             list, filter -> filterBenList(list, filter)
     }
+
+    var patientListForPharmacist : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForPharmacist().combine(filter){
+            list, filter -> filterBenList(list, filter)
+    }
+
     var count : Int = 0
     private val _abha = MutableLiveData<String?>()
     val abha: LiveData<String?>

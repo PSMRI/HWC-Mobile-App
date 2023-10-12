@@ -95,7 +95,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
                        (intent?.extras?.getString("patientId")!!)
                    ))
-           } else {
+           }
+           else if (preferenceDao.isPharmacist()) {
+               navHostFragment.navController
+                   .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
+                       (intent?.extras?.getString("patientId")!!)
+                   ))
+           }
+           else {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
                        (intent?.extras?.getString("patientId")!!)
@@ -151,6 +158,12 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    R.id.labTechnicianFormFragment -> {
                        binding.headerTextRegisterPatient.text =
                            resources.getString(R.string.lab_record_text)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.pharmacistFormFragment -> {
+                       binding.headerTextRegisterPatient.text =
+                           resources.getString(R.string.pharmacist_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }

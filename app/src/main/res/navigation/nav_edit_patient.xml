@@ -57,6 +57,17 @@
             app:destination="@id/patientHomeFragment" />
     </fragment>
     <fragment
+        android:id="@+id/pharmacistFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.pharmacist.PharmacistFormFragment"
+        android:label="PharmacistFormFragment" >
+        <argument
+            android:name="patientId"
+            app:argType="string"/>
+        <action
+            android:id="@+id/action_pharmacistFormFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment" />
+    </fragment>
+    <fragment
         android:id="@+id/patientHomeFragment"
         android:name="org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragment"
         android:label="PatientHomeFragment" >
@@ -66,6 +77,9 @@
         <action
             android:id="@+id/action_patientHomeFragment_to_labTechnicianFormFragment"
             app:destination="@id/labTechnicianFormFragment" />
+        <action
+            android:id="@+id/action_patientHomeFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
     </fragment>
 
 

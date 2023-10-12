@@ -1,0 +1,332 @@
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <variable
+        name="prescription"
+        type="org.piramalswasthya.cho.model.PrescriptionItemDTO" />
+
+    <variable
+        name="clickListener"
+        type="org.piramalswasthya.cho.adapter.PharmacistItemAdapter.BenClickListener" />
+
+    <variable
+        name="showAbha"
+        type="Boolean" />
+
+    <variable
+        name="hasAbha"
+        type="Boolean" />
+
+  </data>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="10dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardMaxElevation="12dp"
+        app:cardPreventCornerOverlap="true"
+        android:layout_marginBottom="@dimen/margin_normal"
+        android:layout_marginHorizontal="@dimen/margin_big"
+        app:contentPadding="@dimen/padding_big">
+
+      <TextView
+          android:id="@+id/medication_name"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:lines="1"
+          android:gravity="center"
+          android:text="Paracetamol Syrup 125ml"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent" />
+
+      <LinearLayout
+          android:id="@+id/cardPrescription"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="20dp"
+          android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_first_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/padding_big">
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/form_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/form_label"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/form_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/form_label"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+
+          <LinearLayout
+              android:layout_width="0dp"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/duration_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/duration2"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/duration_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="50 days"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_second_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/padding_big">
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/frequency_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/frequency2"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/frequency_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/frequency2"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+
+          <LinearLayout
+              android:layout_width="0dp"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="30dp"
+              android:layout_weight="2"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/dose_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dose"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/dose_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100ml"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_third_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/padding_big">
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/quantity_prescribed_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quantity_prescribed"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/quantity_prescribed_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+
+          <LinearLayout
+              android:layout_width="0dp"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              android:layout_marginEnd="40dp"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/route_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/route2"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/route_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oral"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_fourth_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/padding_big">
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/quantity_dispensed_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quantity_dispensed"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/quantity_dispensed_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_fifth_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/padding_big">
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="2"
+              app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/special_instruction_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/special_instructions"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/special_instruction_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comment"
+                android:layout_marginStart="8dp" />
+
+          </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ll_row_5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:layout_marginTop="10dp"
+            android:weightSum="3">
+
+          <com.google.android.material.button.MaterialButton
+              android:id="@+id/btn_view_batch"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="40dp"
+              android:backgroundTint="@color/default_button"
+              android:enabled="false"
+              android:text="@string/view_batch"
+              android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+              android:textColor="@color/white"
+              app:cornerRadius="@dimen/padding_normal"
+              app:layout_constraintBottom_toBottomOf="parent"
+              app:layout_constraintStart_toStartOf="parent" />
+
+          <com.google.android.material.button.MaterialButton
+              android:id="@+id/submit_btn"
+              style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="40dp"
+              android:backgroundTint="@color/default_button"
+              android:text="@string/submit_btn_text"
+              android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+              android:textColor="@color/white"
+              app:cornerRadius="@dimen/padding_normal"
+              app:layout_constraintBottom_toBottomOf="parent"
+              app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+      </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
+</layout>

@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
@@ -11,6 +12,7 @@ import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -26,7 +28,11 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PrescribedDrugs
+import org.piramalswasthya.cho.model.PrescribedDrugsBatch
+import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserDomain
@@ -36,6 +42,8 @@ import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataRequest
+import org.piramalswasthya.cho.network.PharmacistPatientDataRequest
+import org.piramalswasthya.cho.network.PrescribedMedicineDataRequest
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
@@ -53,6 +61,7 @@ class BenFlowRepo @Inject constructor(
     private val vitalsRepo: VitalsRepo,
     private val vitalsDao: VitalsDao,
     private val patientRepo: PatientRepo,
+    private val userDao: UserDao,
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
@@ -515,5 +524,150 @@ class BenFlowRepo @Inject constructor(
             false
         }
     }
+
+//    private suspend fun getBenDetailsForPharmacist(benFlow: BenFlow): NetworkResult<NetworkResponse> {
+//        return networkResultInterceptor {
+//            val pharmacistPatientDataRequest = PharmacistPatientDataRequest(
+//                benFlowID = benFlow.benFlowID!!,
+//                beneficiaryRegID = benFlow.beneficiaryRegID!!
+//            )
+//
+//            val response = apiService.getPharmacistPatientDetails(pharmacistPatientDataRequest)
+//            val responseBody = response.body()?.string()
+//
+//            refreshTokenInterceptor(
+//                responseBody = responseBody,
+//                onSuccess = {
+//                    val jsonObj = JSONObject(responseBody)
+//                    val data = jsonObj.getJSONObject("data")
+//                        .toString()
+////                    val benFlowDetails = Gson().fromJson(data, Array<ProcedureDTO>::class.java)
+//
+//                    NetworkResult.Success(NetworkResponse())
+//                },
+//                onTokenExpired = {
+//                    val user = userRepo.getLoggedInUser()!!
+//                    userRepo.refreshTokenTmc(user.userName, user.password)
+//                    getBenDetailsForPharmacist(benFlow)
+//                },
+//            )
+//        }
+//    }
+
+    private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, facilityID: Int, patientID: String): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val prescribedMedicineDataRequest = PrescribedMedicineDataRequest(
+                beneficiaryRegID = benFlow.beneficiaryRegID!!,
+                facilityID = facilityID!!,
+                parkingPlaceID = benFlow.parkingPlaceID!!,
+                vanID = benFlow.vanID!!,
+                visitCode = benFlow.visitCode!!
+            )
+
+            val response = apiService.getPharmacistPrescriptionList(prescribedMedicineDataRequest)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data")
+                        .toString()
+                    val prescriptionDTO = Gson().fromJson(data, PrescriptionDTO::class.java)
+
+                    prescriptionDao.deletePrescriptionByBenRegID(prescribedMedicineDataRequest.beneficiaryRegID)
+                    prescriptionDTO.let { dto ->
+                        val prescription = Prescription(
+                            prescriptionID = dto.prescriptionID,
+                            beneficiaryRegID = prescribedMedicineDataRequest.beneficiaryRegID,
+                            visitCode = dto.visitCode,
+                            consultantName = dto.consultantName,
+                            patientID = patientID,
+                            benFlowID = benFlow.benFlowID
+                        )
+
+                        val prescriptionID = prescriptionDao.insert(prescription = prescription)
+                        dto.itemList.forEach { prescriptionItemDTO ->
+                            val prescribedDrugs = PrescribedDrugs(
+                                drugID = prescriptionItemDTO.drugID,
+//                                prescriptionID = dto.prescriptionID,
+                                prescriptionID = prescriptionID,
+                                dose = prescriptionItemDTO.dose,
+                                drugForm = prescriptionItemDTO.drugForm,
+                                drugStrength = prescriptionItemDTO.drugStrength,
+                                duration = prescriptionItemDTO.duration,
+                                durationUnit = prescriptionItemDTO.durationUnit,
+                                frequency = prescriptionItemDTO.frequency,
+                                genericDrugName = prescriptionItemDTO.genericDrugName,
+                                isEDL = prescriptionItemDTO.isEDL,
+                                qtyPrescribed = prescriptionItemDTO.qtyPrescribed,
+                                route = prescriptionItemDTO.route,
+                                instructions = prescriptionItemDTO.instructions
+                            )
+                            var prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)
+                            prescriptionItemDTO.batchList.forEach { prescriptionBatchDTO ->
+                                val prescribedDrugsBatch = PrescribedDrugsBatch(
+                                    drugID = prescribedDrugsId,
+//                                    drugID = prescriptionItemDTO.drugID,
+                                    expiryDate = prescriptionBatchDTO.expiryDate,
+                                    expiresIn = prescriptionBatchDTO.expiresIn,
+                                    batchNo = prescriptionBatchDTO.batchNo,
+                                    itemStockEntryID = prescriptionBatchDTO.itemStockEntryID,
+                                    qty = prescriptionBatchDTO.qty,
+                                )
+                                prescriptionDao.insert(prescribedDrugsBatch)
+                            }
+                        }
+
+//                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+                    }
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getPrescriptionsListForPharmacist(benFlow, facilityID, patientID)
+                },
+            )
+        }
+    }
+
+    suspend fun pullPrescriptionListData(patientId: String?): Boolean? {
+        return try {
+            patientId?.let { patientID ->
+                val facilityID = userDao.getLoggedInUserFacilityID()
+                val patient = patientRepo.getPatient(patientId)
+                val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
+                if (benFlow != null) {
+                    getPrescriptionsListForPharmacist(benFlow = benFlow, facilityID = facilityID, patientId)
+                }
+                true
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+//    suspend fun getBenDetailsForPharmacist(benFlowID: Long) : BenFlow {
+//        return benFlowDao.getBenFlowByBenFlowID(benFlowID)
+//    }
+
+//    suspend fun getBenDetailsForPharmacist(patientId: String?): BenFlow? {
+//        return try {
+//            var benFlowBD: BenFlow? = null
+//            patientId?.let { patientID ->
+//                val patient = patientRepo.getPatient(patientId)
+//                val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
+//                if (benFlow != null) {
+//                    benFlowBD = benFlowDao.getBenFlowByBenFlowID(benFlow.benFlowID)
+//                }
+//            }
+//            benFlowBD
+//        } catch (e: Exception) {
+//            var benFlowBD: BenFlow? = null
+//            benFlowBD
+//        }
+//    }
 
 }

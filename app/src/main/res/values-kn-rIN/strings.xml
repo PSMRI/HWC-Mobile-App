@@ -23,6 +23,7 @@
     <string name="User_Login_Type">User_Login_Type</string>
     <string name="login">ಲಾಗಿನ್ ಮಾಡಿ</string>
     <string name="lab_record_text">Lab Record</string>
+    <string name="pharmacist_record_text">Pharmacist Record</string>
     <string name="app_title">HWC Mobile App</string>
     <string name="hwc">ಎಚ್.ಡಬ್ಲ್ಯೂ.ಸಿ</string>
     <string name="facility">Facility</string>
@@ -306,10 +307,12 @@
     <string name="diagnosis">Diagnosis</string>
     <string name="provisional_diagnosis">ತಾತ್ಕಾಲಿಕ / ಅಂತಿಮ ರೋಗನಿರ್ಣಯ <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
+    <string name="dose">Dose: </string>
     <string name="frequency">Frequency</string>
     <string name="instructions">Instructions</string>
     <string name="unit">Unit</string>
     <string name="route">Route</string>
+    <string name="route2">Route: </string>
     <string name="external_investigation">ಬಾಹ್ಯ ತನಿಖೆ</string>
     <string name="save_successful">Save Successful\n</string>
     <string name="something_wend_wong">Something Went Wrong</string>
@@ -359,9 +362,13 @@
     <string name="abha_no">ಎ.ಬಿ.ಎಚ್.ಎ ಐ.ಡಿ:</string>
     <string name="ben_id">Ben Id:</string>
     <string name="ben_age">ವಯಸ್ಸು:</string>
+    <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_dispensed">Quantity Dispensed:</string>
+    <string name="special_instructions">Special Instructions:</string>
     <string name="ben_phone_no">ದೂರವಾಣಿ ಸಂಖ್ಯೆ:</string>
     <string name="ben_gender">ಲಿಂಗ:</string>
     <string name="abha">ಎ.ಬಿ.ಎಚ್.ಎ</string>
+    <string name="view_batch">View Batch</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು</string>
@@ -393,6 +400,13 @@
     <string name="hbyc_count">HBYC Count:</string>
     <string name="select_menu">Select</string>
     <string name="male_opd">Male:</string>
+    <string name="consultant_name">Consultant Name:</string>
+    <string name="frequency2">Frequency</string>
+    <string name="visit_code">Visit Code:</string>
+    <string name="prescription_id">Prescription ID:</string>
+    <string name="system_issue">System Issue</string>
+    <string name="manual_issue">Manual Issue</string>
+    <string name="form_label">Form: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
 </resources>
