@@ -14,6 +14,6 @@ interface InvestigationDao {
     suspend fun insertInvestigation(investigationCaseRecord: InvestigationCaseRecord)
 
     @Transaction
-    @Query("delete from Investigation_Case_Record where patientID =:patientID")
-    suspend fun deleteInvestigationCaseRecordByPatientId(patientID: String): Int
+    @Query("delete from Investigation_Case_Record where patientID =:patientID and benVisitNo =:benVisitNo")
+    suspend fun deleteInvestigationCaseRecordByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): Int
 }

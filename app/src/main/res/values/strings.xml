@@ -346,6 +346,8 @@
     <string name="Prescription">Prescription</string>
     <string name="nurseDataNotSaved">Nurse data is not saved for this record</string>
     <string name="dataSavedCaseRecord">Case Record Data Saved</string>
+    <string name="pendingForLabtech">Pending For Lab Result</string>
+    <string name="flowCompleted">Flow Completed</string>
     <string name="unsyncedNurseData">There are unsynced nurse data found. please sync and try again</string>
     <string name="diagnosisCannotBeEmpty">Please Enter Provisional</string>
     <string name="note_ben_reg">Note!</string>
@@ -399,6 +401,10 @@
     <string name="exit_application">Exit Application</string>
     <string name="do_you_want_to_exit_application">Do you want to exit application</string>
     <string name="patient_cnt_display">" Patient"</string>
+    <string name="alert_popup">Alert</string>
+    <string name="phone_no_not_found">Phone No. not found.</string>
+    <string name="esanjeevaniusername_local_saved" translatable="false">esanjeevaniUsername-local-saved</string>
+    <string name="esanjeevanipassword_local_saved" translatable="false">esanjeevaniPassword-local-saved</string>
     <string name="new_chief_complaint_str">New Chief Complaint</string>
     <string name="follow_up_str">Follow Up</string>
 </resources>

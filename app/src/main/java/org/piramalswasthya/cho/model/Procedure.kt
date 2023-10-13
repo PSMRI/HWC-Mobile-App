@@ -8,17 +8,28 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
 
-@Entity(tableName = "procedure")
+@Entity(
+    tableName = "procedure",
+    foreignKeys = [
+        ForeignKey(
+            entity = Patient::class,
+            parentColumns = ["patientID"],
+            childColumns = ["patientID"],
+            onDelete = ForeignKey.NO_ACTION
+        ),
+    ]
+)
 @JsonClass(generateAdapter = true)
 data class Procedure (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "ben_reg_id") val benRegId: Long,
     @ColumnInfo(name = "procedure_id") val procedureID: Long,
     @ColumnInfo(name = "procedureDesc") val procedureDesc: String,
     @ColumnInfo(name = "procedureType") val procedureType: String,
     @ColumnInfo(name = "prescriptionID") val prescriptionID: Long,
     @ColumnInfo(name = "procedureName") val procedureName: String,
     @ColumnInfo(name = "isMandatory") val isMandatory: Boolean,
+    @ColumnInfo(name = "patientID") val patientID: String,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 )
 
 @Entity(tableName = "component_details",

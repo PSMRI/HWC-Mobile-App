@@ -105,8 +105,9 @@ class UserRepo @Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
+        userImage: String?,
         logoutType: String?,
-        userImage: String?
+        isBiometric: Boolean? = false
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             //reset all login before another login
@@ -125,15 +126,18 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    setOutreachProgram(
-                        loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType,
-                    userImage)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType,
+                            userImage
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -151,14 +155,18 @@ class UserRepo @Inject constructor(
                         userDao.insert(user!!.asCacheModel())
                     }
                     preferenceDao.registerUser(user!!)
-                    setOutreachProgram(   loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType,
-                    userImage)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType,
+                            userImage
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }
@@ -287,6 +295,9 @@ class UserRepo @Inject constructor(
                 response.body()?.string()
                     ?: throw IllegalStateException("Response success but data missing @ $response")
             )
+
+//            user!!.assignVillageIds = "24286,24326,24250,24334,24351,24294"
+
             val responseStatusCode = responseBody.getInt("statusCode")
             if (responseStatusCode == 200) {
                 val data = responseBody.getJSONObject("data")

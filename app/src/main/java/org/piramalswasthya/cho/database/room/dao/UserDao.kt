@@ -8,6 +8,7 @@ import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import java.util.Date
 
 @Dao
 interface UserAuthDao {
@@ -31,7 +32,10 @@ interface UserDao {
 
     @Query("UPDATE USER SET logged_in = 0")
     suspend fun resetAllUsersLoggedInState()
-
+    @Query("UPDATE USER SET lastLogoutTime =:logoutTimestamp  WHERE user_id =:userId")
+    suspend fun updateLogoutTime(userId:Int, logoutTimestamp: Date)
+    @Query("SELECT * FROM USER ORDER BY lastLogoutTime DESC LIMIT 1")
+    suspend fun getLastLoggedOutUser(): UserCache?
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUser(): UserCache?
 

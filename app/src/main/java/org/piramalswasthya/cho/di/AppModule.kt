@@ -72,20 +72,17 @@ import javax.inject.Singleton
 object AppModule {
 
     private const val baseD2DUrl = "http://d2dapi.piramalswasthya.org:9090/api/"
-    //"http://117.245.141.41:9090/api/"
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
-//         private const val  baseAmritUrl = "http://uatamrit.piramalswasthya.org:8080/"
+
     private const val  baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
-//    private const val  baseAmritUrl = "http://example.com/"
+//    private const val  baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
 
     private const val  baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
-//    private const val  baseAmritUrl = "http://example.com/"
-
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
-//    private const val sanjeevaniApi = "http://192.168.5.129:8080/"
+
     private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =

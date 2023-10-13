@@ -8,6 +8,8 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.nullIfEmpty
 
 @Entity(
     tableName = "Investigation_Case_Record",
@@ -37,7 +39,20 @@ data class InvestigationCaseRecord(
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
-)
+) {
+    constructor(docData: DoctorDataDownSync, patient: Patient, benFlow: BenFlow) : this(
+        generateUuid(),
+        docData.investigation?.laboratoryList?.map {
+            it.procedureID
+        }?.joinToString(",").nullIfEmpty(),
+        null,
+        null,
+        docData.Refer?.referredToInstituteID,
+        patient.patientID,
+        benFlow.benFlowID,
+        benFlow.benVisitNo
+    )
+}
 
 data class InvestigationCaseRecordWithHigherHealthCenter(
     @Embedded val investigationCaseRecord: InvestigationCaseRecord,

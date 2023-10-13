@@ -18,8 +18,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -42,10 +44,13 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
@@ -129,7 +134,9 @@ class PersonalDetailsFragment : Fragment() {
             }
 
         }
-
+        binding.searchTil.setEndIconOnClickListener {
+            speechToTextLauncherForSearchByName.launch(Unit)
+        }
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -151,18 +158,56 @@ class PersonalDetailsFragment : Fragment() {
 //                                startActivity(intent)
 //                            },
                             clickListener = PatientItemAdapter.BenClickListener(
-                                { patientID ->
-                                    val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                intent.putExtra("patientId", patientID);
-                                startActivity(intent)
-                                    requireActivity().finish()
+                            {
+                                benVisitInfo ->
+                                    if(benVisitInfo.nurseFlag == null){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isLabTechnician()){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2){
+                                         Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.pendingForLabtech),
+                                            Toast.LENGTH_SHORT
+                                         ).show()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
+                                        Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.flowCompleted),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
                             },
-                                { benId ->
-                                Log.d("ben click listener", "ben click listener")
-                                checkAndGenerateABHA(benId!!)
-                            },{
-                                patientID -> callLoginDialog(patientID)
-                                }
+                            {
+                                benVisitInfo ->
+                                    Log.d("ben click listener", "ben click listener")
+                                    checkAndGenerateABHA(benVisitInfo)
+                            },
+                            {
+                                    benVisitInfo -> callLoginDialog(benVisitInfo)
+                            }
                          ),
                             showAbha = true
                         )
@@ -225,26 +270,6 @@ class PersonalDetailsFragment : Fragment() {
                 }
             }
 
-
-//        }
-
-            val searchTextWatcher = object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    viewModel.filterText(p0?.toString() ?: "")
-                    binding.patientListContainer.patientCount.text =
-                        patientCount.toString() + getResultStr(patientCount)
-                    Log.d("arr","${patientCount}")
-                }
-
-            }
             binding.search.setOnFocusChangeListener { searchView, b ->
                 if (b)
                     (searchView as EditText).addTextChangedListener(searchTextWatcher)
@@ -254,20 +279,54 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
+    private val searchTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+            viewModel.filterText(p0?.toString() ?: "")
+            binding.patientListContainer.patientCount.text =
+                patientCount.toString() + getResultStr(patientCount)
+            Log.d("arr","${patientCount}")
+        }
+
+    }
     fun getResultStr(count:Int?):String{
         if(count==1||count==0){
             return getString(R.string.patient_cnt_display)
         }
         return getString(R.string.patients_cnt_display)
     }
+    private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.search.setText(result)
+            binding.search.addTextChangedListener(searchTextWatcher)
+        }
+    }
     private fun encryptSHA512(input: String): String {
         val digest = MessageDigest.getInstance("SHA-512")
         val hashBytes = digest.digest(input.toByteArray())
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
-    private fun callLoginDialog(patientId:String) {
+    private fun callLoginDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
+        if (benVisitInfo.patient.phoneNo.isNullOrEmpty()) {
+            context?.let {
+                MaterialAlertDialogBuilder(it).setTitle(getString(R.string.alert_popup))
+                    .setMessage(getString(R.string.phone_no_not_found))
+                    .setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+                        dialog.dismiss()
+                    }.create()
+                    .show()
+            }
+        } else{
         network = isInternetAvailable(requireContext())
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
+        val dialogView =
+            LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
         val dialog = context?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle("eSanjeevani Login")
@@ -279,20 +338,38 @@ class PersonalDetailsFragment : Fragment() {
                 .create()
         }
         dialog?.show()
+            val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
+            val rememberMeEsanjeevani = dialogView.findViewById<CheckBox>(R.id.cb_remember_es)
         if (network) {
             // Internet is available
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
-        }
-        else {
+            val rememberedUsername : String? = viewModel.fetchRememberedUsername()
+            val rememberedPassword : String? = viewModel.fetchRememberedPassword()
+            if(!rememberedUsername.isNullOrBlank() && !rememberedPassword.isNullOrBlank()){
+                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text = Editable.Factory.getInstance().newEditable(rememberedUsername)
+                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text = Editable.Factory.getInstance().newEditable(rememberedPassword)
+                rememberMeEsanjeevani.isChecked = true
+            }
+        } else {
             dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.GONE
             dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.VISIBLE
         }
 
-        val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
+
         loginBtn.setOnClickListener {
-            usernameEs = dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text.toString().trim()
-            passwordEs = dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString().trim()
+
+            usernameEs =
+                dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text.toString()
+                    .trim()
+            passwordEs =
+                dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString()
+                    .trim()
+            if(rememberMeEsanjeevani.isChecked){
+                viewModel.rememberUserEsanjeevani(usernameEs,passwordEs)
+            }else{
+                viewModel.forgetUserEsanjeevani()
+            }
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     var passWord = encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
@@ -308,8 +385,7 @@ class PersonalDetailsFragment : Fragment() {
                     if (!network) {
                         errorTv.text = requireContext().getString(R.string.network_error)
                         errorTv.visibility = View.VISIBLE
-                    }
-                    else{
+                    } else {
                         errorTv.text = ""
                         errorTv.visibility = View.GONE
                         val responseToken = apiService.getJwtToken(networkBody)
@@ -319,24 +395,23 @@ class PersonalDetailsFragment : Fragment() {
                                 TokenESanjeevaniInterceptor.setToken(token)
                             }
                             val intent = Intent(context, WebViewActivity::class.java)
-                            intent.putExtra("patientId", patientId);
+                            intent.putExtra("patientId", benVisitInfo.patient.patientID);
                             intent.putExtra("usernameEs", usernameEs);
                             intent.putExtra("passwordEs", passwordEs);
                             context?.startActivity(intent)
-                            if (dialog != null) {
-                                dialog.dismiss()
-                            }
+                            dialog?.dismiss()
                         } else {
                             errorEs = responseToken.message
                             errorTv.text = errorEs
                             errorTv.visibility = View.VISIBLE
                         }
                     }
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     Timber.d("GHere is error $e")
                 }
             }
         }
+    }
     }
 
     fun isInternetAvailable(context: Context): Boolean {
@@ -353,9 +428,9 @@ class PersonalDetailsFragment : Fragment() {
             return networkInfo != null && networkInfo.isConnected
         }
     }
-    private fun checkAndGenerateABHA(benId: Long) {
+    private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {
         Log.d("checkAndGenerateABHA click listener","checkAndGenerateABHA click listener")
-        viewModel.fetchAbha(benId)
+        viewModel.fetchAbha(benVisitInfo.patient.beneficiaryID!!)
     }
     override fun onDestroyView() {
         super.onDestroyView()

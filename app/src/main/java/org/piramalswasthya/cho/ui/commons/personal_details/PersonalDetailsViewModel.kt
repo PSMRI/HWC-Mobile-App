@@ -5,15 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.utils.filterBenList
 import javax.inject.Inject
 
@@ -25,19 +31,27 @@ import javax.inject.Inject
 @HiltViewModel
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
+    private val pref: PreferenceDao,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
-    var patientListForDoctor : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForDoctor().combine(filter){
+    var patientListForNurse : Flow<List<PatientDisplayWithVisitInfo>>? =patientRepo.getPatientDisplayListForNurse().combine(filter){
         list, filter -> filterBenList(list, filter)
-}
-    var patientListForNurse : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlow().combine(filter){
+    }
+
+//    var patientListForDoctor : Flow<List<PatientVisitInfoSyncWithPatient>>? = patientVisitInfoSyncRepo.getPatientListFlowForDoctorMultiVisit().combine(filter){
+//            list, filter -> filterBenList(list, filter)
+//    }
+
+    var patientListForDoctor : Flow<List<PatientDisplayWithVisitInfo>>? = patientVisitInfoSyncRepo.getPatientDisplayListForDoctor().combine(filter){
+        list, filter -> filterBenList(list, filter)
+    }
+
+    var patientListForLab : Flow<List<PatientDisplayWithVisitInfo>>? = patientVisitInfoSyncRepo.getPatientDisplayListForLab().combine(filter){
             list, filter -> filterBenList(list, filter)
     }
 
-    var patientListForLab : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForLab().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
     var count : Int = 0
     private val _abha = MutableLiveData<String?>()
     val abha: LiveData<String?>
@@ -102,6 +116,22 @@ class PersonalDetailsViewModel @Inject constructor(
     fun resetBenRegId() {
         _benRegId.value = null
     }
-
-
+    fun rememberUserEsanjeevani(username: String,password: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.registerEsanjeevaniCred(username,password)
+            }
+        }
+    }
+    fun forgetUserEsanjeevani() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                pref.deleteEsanjeevaniCreds()
+            }
+        }
+    }
+    fun fetchRememberedPassword(): String? =
+        pref.getEsanjeevaniPassword()
+    fun fetchRememberedUsername(): String? =
+        pref.getEsanjeevaniUserName()
 }

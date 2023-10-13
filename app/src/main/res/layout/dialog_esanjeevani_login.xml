@@ -53,6 +53,12 @@
                 android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
             </com.google.android.material.textfield.TextInputLayout>
+            <CheckBox
+                android:id="@+id/cb_remember_es"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/remember_me"
+                app:layout_constraintTop_toBottomOf="@id/et_password_es" />
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_error_es"
                 android:layout_width="match_parent"
@@ -61,7 +67,7 @@
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="@android:color/holo_red_light"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/et_password_es"
+                app:layout_constraintTop_toBottomOf="@id/cb_remember_es"
                 tools:text="Hello"
                 tools:visibility="visible"
                 />

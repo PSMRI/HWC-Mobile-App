@@ -50,7 +50,7 @@ class HwcViewModel @Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
     ) {
         _state.value  = OutreachViewModel.State.SAVING
         viewModelScope.launch {
@@ -68,6 +68,25 @@ class HwcViewModel @Inject constructor(
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
+    }
+    suspend fun setOutreachDetails(
+        loginType: String?,
+        selectedOption: String?,
+        loginTimeStamp: String?,
+        logoutTimeStamp: String?,
+        lat: Double?,
+        long: Double?,
+        logoutType: String?,
+    ){
+        userRepo.setOutreachProgram(
+            loginType,
+            selectedOption,
+            loginTimeStamp,
+            logoutTimeStamp,
+            lat,
+            long,
+            logoutType
+        )
     }
     fun forgetUser() {
         viewModelScope.launch {

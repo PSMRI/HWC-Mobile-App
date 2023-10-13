@@ -1,22 +1,29 @@
 package org.piramalswasthya.cho.ui.home
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
+import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -30,6 +37,8 @@ class HomeViewModel @Inject constructor(
     private val pref: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
+    private val patientRepo: PatientRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
@@ -104,6 +113,7 @@ class HomeViewModel @Inject constructor(
             dataLoadFlagManager.setDataLoaded(true)
             _state.postValue(State.SAVE_SUCCESS)
         } catch (_e: Exception) {
+            Log.d("Exception coming is", _e.toString())
             _state.postValue(State.SAVE_FAILED)
         }
     }
@@ -131,6 +141,17 @@ class HomeViewModel @Inject constructor(
 
     fun navigateToLoginPageComplete() {
         _navigateToLoginPage.value = false
+    }
+
+    fun getData(){
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val patientDisplayList = patientRepo.getPatientDisplayListForNurse()
+//            val patientVisitInfoList = patientVisitInfoSyncRepo.getPatientDisplayListForDoctor()
+//            Log.d("patientDisplayList is", patientDisplayList.size.toString())
+//            Log.d("patientVisitInfoList is", patientVisitInfoList.size.toString())
+//            val dis = patientDisplayList
+//            val vis = patientVisitInfoList
+//        }
     }
 
 
