@@ -60,6 +60,7 @@ class UsernameViewModel@Inject constructor(
                 logoutTimeStamp,
                 lat,
                 long,
+                null,
                 logoutType,
             true)
         }

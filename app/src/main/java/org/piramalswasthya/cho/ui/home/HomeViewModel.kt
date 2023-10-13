@@ -85,6 +85,7 @@ class HomeViewModel @Inject constructor(
             _state.postValue(State.SAVING)
             if (dataLoadFlagManager.isDataLoaded())
                 WorkerUtils.triggerAmritSyncWorker(context)
+            WorkerUtils.pushAuditDetailsWorker(context)
             registrarMasterDataRepo.saveGenderMasterResponseToCache()
             registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
             registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()

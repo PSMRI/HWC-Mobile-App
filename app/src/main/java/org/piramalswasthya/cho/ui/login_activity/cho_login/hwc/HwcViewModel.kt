@@ -63,8 +63,9 @@ class HwcViewModel @Inject constructor(
                 logoutTimeStamp,
                 lat,
                 long,
-                logoutType
-                )
+                null,
+                logoutType,
+            false)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
@@ -85,7 +86,8 @@ class HwcViewModel @Inject constructor(
             logoutTimeStamp,
             lat,
             long,
-            logoutType
+            logoutType,
+            null
         )
     }
     fun forgetUser() {
