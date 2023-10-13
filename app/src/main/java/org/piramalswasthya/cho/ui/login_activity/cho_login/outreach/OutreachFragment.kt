@@ -20,11 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
@@ -266,6 +268,7 @@ class OutreachFragment(
             outreachAdapter.addAll(c.map{it.outreachType})
             outreachAdapter.notifyDataSetChanged()
         }
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
         Timber.tag("Outreach username").i(userName);
         getCurrentLocation()
@@ -372,7 +375,32 @@ class OutreachFragment(
 
 
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isBiometric)
+                    findNavController().navigateUp()
+                else {
+                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
+                        .setMessage("Please confirm to logout and exit.")
+                        .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
+                            lifecycleScope.launch {
+                                val user = userDao.getLoggedInUser()
+                                userDao.resetAllUsersLoggedInState()
+                                if (user != null) {
+                                    userDao.updateLogoutTime(user.userId, Date())
+                                }
+                            }
+                            requireActivity().finish()
+                            dialog.dismiss()
+                        }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+                            dialog.dismiss()
+                        }.create()
+                        .show()
+                }
+            }
+        }
+    }
     private fun getCurrentLocation() {
         // Check if location permissions are granted
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
