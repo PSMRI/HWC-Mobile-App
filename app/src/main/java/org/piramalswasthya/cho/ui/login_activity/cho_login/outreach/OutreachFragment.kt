@@ -273,11 +273,13 @@ class OutreachFragment(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
+            if (image != null) {
+
             // call for lat long
             getCurrentLocation()
 
             val outreachVal = binding.outreachText.text.toString()
-            val selectedOption = findKeyByValue(outreachNameMap,outreachVal)
+            val selectedOption = findKeyByValue(outreachNameMap, outreachVal)
             val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
             val timeZone = TimeZone.getTimeZone("GMT+0530")
             val formatter = SimpleDateFormat(pattern, Locale.getDefault())
@@ -285,64 +287,65 @@ class OutreachFragment(
 
             val timestamp = formatter.format(Date())
 
-            if(myLocation != null){
+            if (myLocation != null) {
                 latitude = myLocation!!.latitude
                 longitude = myLocation!!.longitude
             }
-            if(!isBiometric){
+            if (!isBiometric) {
 
                 viewModel.authUser(
-                userName,
-                binding.etPassword.text.toString(),
-                "OUTREACH",
-                outreachVal,
-                timestamp,
-                null,
-                latitude,
-                longitude,
-                null,
-                imageString
-            )
+                    userName,
+                    binding.etPassword.text.toString(),
+                    "OUTREACH",
+                    outreachVal,
+                    timestamp,
+                    null,
+                    latitude,
+                    longitude,
+                    null,
+                    imageString
+                )
 
-            viewModel.state.observe(viewLifecycleOwner) { state ->
-                when (state!!) {
-                    OutreachViewModel.State.SUCCESS -> {
-                        binding.patientListFragment.visibility = View.VISIBLE
-                        binding.rlSaving.visibility = View.GONE
-                        if (rememberUsername)
-                            viewModel.rememberUser(userName,binding.etPassword.text.toString())
-                        else {
-                            viewModel.forgetUser()
+                viewModel.state.observe(viewLifecycleOwner) { state ->
+                    when (state!!) {
+                        OutreachViewModel.State.SUCCESS -> {
+                            binding.patientListFragment.visibility = View.VISIBLE
+                            binding.rlSaving.visibility = View.GONE
+                            if (rememberUsername)
+                                viewModel.rememberUser(userName, binding.etPassword.text.toString())
+                            else {
+                                viewModel.forgetUser()
+                            }
+                            findNavController().navigate(
+                                ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
+                            )
+                            viewModel.resetState()
+                            activity?.finish()
                         }
-                        findNavController().navigate(
-                            ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
-                        )
-                        viewModel.resetState()
-                        activity?.finish()
-                    }
-                    OutreachViewModel.State.SAVING -> {
-                        binding.patientListFragment.visibility = View.GONE
-                        binding.rlSaving.visibility = View.VISIBLE
-                    }
 
-                    OutreachViewModel.State.ERROR_SERVER,
-                    OutreachViewModel.State.ERROR_NETWORK -> {
-                        binding.patientListFragment.visibility = View.VISIBLE
-                        binding.rlSaving.visibility = View.GONE
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.error_while_logging_in),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        OutreachViewModel.State.SAVING -> {
+                            binding.patientListFragment.visibility = View.GONE
+                            binding.rlSaving.visibility = View.VISIBLE
+                        }
+
+                        OutreachViewModel.State.ERROR_SERVER,
+                        OutreachViewModel.State.ERROR_NETWORK -> {
+                            binding.patientListFragment.visibility = View.VISIBLE
+                            binding.rlSaving.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.error_while_logging_in),
+                                Toast.LENGTH_LONG
+                            ).show()
 //                        viewModel.forgetUser()
-                        viewModel.resetState()
+                            viewModel.resetState()
+                        }
+
+                        else -> {}
                     }
 
-                    else -> {}
                 }
-
-            }}
-            else{
+            } else {
                 lifecycleScope.launch {
                     viewModel.setOutreachDetails(
                         "OUTREACH",
@@ -351,7 +354,8 @@ class OutreachFragment(
                         null,
                         latitude,
                         longitude,
-                        null
+                        null,
+                        imageString
                     )
                     findNavController().navigate(
                         ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
@@ -359,6 +363,10 @@ class OutreachFragment(
                     viewModel.resetState()
                     activity?.finish()
                 }
+            }
+        }
+            else{
+                Toast.makeText(context, "Please capture the image to continue.", Toast.LENGTH_SHORT).show()
             }
         }
 
