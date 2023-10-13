@@ -8,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentChoLoginBinding
 import org.piramalswasthya.cho.databinding.FragmentHwcBinding
@@ -35,6 +38,8 @@ class HwcFragment constructor(
 
     @Inject
     lateinit var prefDao: PreferenceDao
+    @Inject
+    lateinit var userDao: UserDao
 
     private var _binding: FragmentHwcBinding? = null
     private val binding: FragmentHwcBinding
@@ -62,6 +67,8 @@ class HwcFragment constructor(
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
+
         val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
         val timeZone = TimeZone.getTimeZone("GMT+0530")
         val formatter = SimpleDateFormat(pattern, Locale.getDefault())
@@ -146,7 +153,32 @@ class HwcFragment constructor(
             }
             }
         }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isBiometric)
+                    findNavController().navigateUp()
+                else {
+                        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
+                            .setMessage("Please confirm to logout and exit.")
+                            .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
+                                lifecycleScope.launch {
+                                    val user = userDao.getLoggedInUser()
+                                    userDao.resetAllUsersLoggedInState()
+                                    if (user != null) {
+                                        userDao.updateLogoutTime(user.userId, Date())
+                                    }
+                                }
+                                requireActivity().finish()
+                                dialog.dismiss()
+                            }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+                                dialog.dismiss()
+                            }.create()
+                            .show()
+                }
+            }
+        }
+    }
 //    override fun onActivityCreated(savedInstanceState: Bundle?) {
 //        super.onActivityCreated(savedInstanceState)
 ////        binding.btnHwcLogin.setOnClickListener {

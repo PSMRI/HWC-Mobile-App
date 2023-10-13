@@ -128,7 +128,8 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 null,
                 lat,
                 long,
-                logoutType)
+                logoutType,
+            null)
             userDao.insertOutreachProgram(selectedOutreachProgram)
             userDao.resetAllUsersLoggedInState()
             if (user != null) {
