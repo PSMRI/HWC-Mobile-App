@@ -52,6 +52,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
 import org.piramalswasthya.cho.model.ComponentDetailDTO
@@ -61,6 +62,7 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -625,7 +627,14 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         }
         if (isValidData) {
             viewModel.saveLabData(dtos, benVisitInfo)
-            navigateNext()
+            viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
+                when (state!!) {
+                    true -> {
+                        navigateNext()
+                    }
+                    else -> {}
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
         }

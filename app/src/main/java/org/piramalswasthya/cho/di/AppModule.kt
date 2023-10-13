@@ -79,7 +79,7 @@ object AppModule {
 
 //    private const val  baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
 
-    private const val  baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
+    private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 
@@ -111,7 +111,6 @@ object AppModule {
 //            .addInterceptor(TokenInsertD2DInterceptor())
 //            .build()
 //    }
-//
 
     @Singleton
     @Provides

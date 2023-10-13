@@ -14,6 +14,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -21,12 +23,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.components.ViewWithFragmentComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +41,8 @@ import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
+//import org.piramalswasthya.cho.adapter.ReportAdapter
+//import org.piramalswasthya.cho.adapter.ReportAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
@@ -46,6 +52,7 @@ import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.LabReportValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -88,6 +95,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var dAdapter : DiagnosisAdapter
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
+//    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int,String>()
     private var referNameMap = emptyMap<Int,String>()
     private val selectedTestName = mutableListOf<Int>()
@@ -130,17 +138,49 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         referDropdown = binding.referDropdownText
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-
+        val tableLayout = binding.tableLayout
         if(preferenceDao.isUserOnlyDoctorOrMo()) {
             patientId = benVisitInfo.patient.patientID
-            patId= patientId
+            patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
-            viewModel.getChiefComplaintDB(patId)
-        }
+            viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID,benVisitInfo.benVisitNo!!)
+            if(benVisitInfo.benVisitNo != null){
+               viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            }
+            viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
+                var  nameVal = ""
+                var resultVal = ""
+               if (labReports.size>0){
+                   binding.scrollview.visibility = View.VISIBLE
+                   binding.resultHeading.visibility = View.VISIBLE
+                   binding.dateOption.visibility = View.VISIBLE
+               }
+                for (labReport in labReports) {
+                    val procedureName = labReport.procedure.procedureName
 
+                    for (component in labReport.components) {
+
+                        val tableRowVal = layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                        val componentName = component.componentName
+                        val resultValue = component.testResultValue
+                        val resultUnit = component.testResultUnit
+                        nameVal = "$procedureName- $componentName"
+                        if(resultUnit!=null ){
+                        resultVal = "${resultValue} ${resultUnit}"}
+                        else{
+                            resultVal = "${resultValue}"
+                        }
+                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
+                        tableRowVal.findViewById<TextView>(R.id.numberTextView).setText(resultVal)
+                        tableLayout.addView(tableRowVal)
+                    }
+                }
+            }
+        }
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
+
         lifecycleScope.launch {
             referNameMap = viewModel.getReferNameTypeMap()
         }
