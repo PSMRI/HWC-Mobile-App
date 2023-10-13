@@ -175,6 +175,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             currFragment.onCancelAction()
         }
 
+        viewModel.submitActive.observe(this) {
+            binding.btnSubmit.isEnabled = it
+        }
     }
 
 //    override fun onBackPressed() {

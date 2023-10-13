@@ -38,6 +38,11 @@ class LabTechnicianFormViewModel @Inject constructor(
     val loggedInUser: UserCache?
         get() = _loggedInUser
     private var _boolCall = MutableLiveData(false)
+
+    private val _cacheSaved = MutableLiveData(false)
+    val cacheSaved: LiveData<Boolean>
+        get() = _cacheSaved
+
     val boolCall: LiveData<Boolean>
         get() = _boolCall
 
@@ -118,7 +123,9 @@ class LabTechnicianFormViewModel @Inject constructor(
 
                 patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 WorkerUtils.labPushWorker(context)
-
+                withContext(Dispatchers.IO) {
+                    _cacheSaved.postValue(true)
+                }
             }
 
         } catch (e: Exception) {
