@@ -40,6 +40,7 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.duration
 import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
 import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
 import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
@@ -47,6 +48,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitMasterDb
+import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -273,8 +275,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
-
                 else -> {
+                    chiefAndVitalsDataFill()
                     binding.radioButton4.tag.toString()
 //                    binding.radioButton4.text.toString()
                 }
@@ -317,6 +319,50 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             itemList.add(newItem)
             adapter.notifyItemInserted(itemList.size - 1)
             binding.plusButton.isEnabled = false
+        }
+    }
+    private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
+        hideNullFieldsW(vitals)
+        binding.inputHeight.setText(vitals?.height.toString())
+        binding.inputWeight.setText(vitals?.weight.toString())
+        binding.inputBmi.setText(vitals.bmi.toString())
+//        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
+        binding.inputTemperature.setText(vitals.temperature.toString())
+        binding.inputPulseRate.setText(vitals.pulseRate.toString())
+        binding.inputSpo2.setText(vitals.spo2.toString())
+        binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
+        binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
+        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
+//        binding.inputRbs.setText(vitals.rbs.toString())
+    }
+    fun chiefAndVitalsDataFill(){
+        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
+
+        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
+            // Clear the existing data in chiefComplaintDB
+            chiefComplaintDB.clear()
+
+            // Loop through the chiefComplaintList and add data to chiefComplaintDB
+            for (chiefComplaintItem in chiefComplaintList) {
+                val chiefC = ChiefComplaintDB(
+                    id = "33+${chiefComplaintItem.chiefComplaintId}",
+                    chiefComplaintId = chiefComplaintItem.chiefComplaintId,
+                    chiefComplaint = chiefComplaintItem.chiefComplaint,
+                    duration = chiefComplaintItem.duration,
+                    durationUnit = chiefComplaintItem.durationUnit,
+                    description = chiefComplaintItem.description,
+                    patientID = "",
+                    benFlowID = 0
+                )
+                chiefComplaintDB.add(chiefC) // Add the item to the list
+            }
+            chAdapter.notifyDataSetChanged()
+        }
+        if(chiefComplaintDB.size==0){
+            binding.chiefComplaintHeading.visibility = View.GONE
+        }
+        else{
+            binding.chiefComplaintHeading.visibility = View.VISIBLE
         }
     }
     fun makeFollowUpDefault(){
