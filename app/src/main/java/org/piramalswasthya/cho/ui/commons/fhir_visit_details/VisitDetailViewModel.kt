@@ -12,13 +12,16 @@ import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
 import org.piramalswasthya.cho.CHOApplication
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
+import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -28,6 +31,7 @@ import javax.inject.Inject
 class VisitDetailViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
+    private val vitalsRepo: VitalsRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val procedureRepo: ProcedureRepo,
     @ApplicationContext private val application: Context
@@ -35,6 +39,14 @@ class VisitDetailViewModel @Inject constructor(
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
     val subCatVisitList: LiveData<List<SubVisitCategory>>
         get() = _subCatVisitList
+
+    private val _chiefComplaintDB = MutableLiveData<List<ChiefComplaintDB>>()
+    val chiefComplaintDB: LiveData<List<ChiefComplaintDB>>
+        get() = _chiefComplaintDB
+
+    private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
+    val vitalsDB: LiveData<PatientVitalsModel>
+        get() = _vitalsDB
 
     private var _lastVisitDate: LiveData<String>?
     val lastVisitDate: LiveData<String>?
@@ -76,6 +88,26 @@ class VisitDetailViewModel @Inject constructor(
     }
     fun getIsFollowUp():Boolean{
         return isFollowUpChecked
+    }
+    fun getVitalsDB(patientID:String,benVisitNo: Int) {
+        viewModelScope.launch {
+            try {
+                _vitalsDB.value =
+                    vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID, benVisitNo)
+
+            } catch (e: java.lang.Exception) {
+                Timber.d("Error in Getting Higher Health Care $e")
+            }
+        }
+    }
+    fun getChiefComplaintDB(patientID: String,benVisitNo: Int) {
+        viewModelScope.launch {
+            try {
+                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID, benVisitNo)
+            } catch (e: Exception) {
+                Timber.d("Error in Getting Chief Complaint DB $e")
+            }
+        }
     }
     private fun getSubCatVisitList() {
         try {
