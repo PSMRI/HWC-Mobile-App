@@ -56,6 +56,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import javax.inject.Inject
@@ -110,7 +111,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
     private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
-
+    var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
     private val binding: VisitDetailsInfoBinding
         get() {
             return _binding!!
@@ -228,10 +229,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        patientId = benVisitInfo.patient.patientID
-
+        if(benVisitInfo.patient!=null){
+            patientId = benVisitInfo.patient.patientID
+        }
         if(benVisitInfo.benVisitNo != null){
             viewModel.getTheProcedure(patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+            viewModel.getVitalsDB(benVisitInfo.patient.patientID,benVisitInfo.benVisitNo!!)
+            viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID,benVisitInfo.benVisitNo!!)
         }
 
         lifecycleScope.launch {
@@ -273,6 +277,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         binding.radioGroup2.setOnCheckedChangeListener { _, checkedId ->
             reason = when (checkedId) {
                 R.id.radioButton3 -> {
+                    binding.chf.visibility = View.VISIBLE
+                    binding.chiefComplaintExtra.visibility = View.VISIBLE
+                    binding.chiefComplaintHeading.visibility = View.GONE
+                    binding.chiefComplaintExtra2.visibility = View.GONE
+                    binding.vitalsHeading.visibility = View.GONE
+                    binding.vitalsLayout.visibility = View.GONE
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
@@ -321,6 +331,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             adapter.notifyItemInserted(itemList.size - 1)
             binding.plusButton.isEnabled = false
         }
+
     }
     private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
         val itemH = vitalsDB.height
@@ -402,10 +413,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
             (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
-            binding.vitalsExtra.visibility = View.GONE
+            binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
         } else {
-            binding.vitalsExtra.visibility = View.VISIBLE
+            binding.vitalsHeading.visibility = View.VISIBLE
             binding.vitalsLayout.visibility = View.VISIBLE
         }
     }
@@ -424,13 +435,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //        binding.inputRbs.setText(vitals.rbs.toString())
     }
     fun chiefAndVitalsDataFill(){
-        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
-
+        binding.chf.visibility = View.GONE
+        binding.chiefComplaintExtra.visibility = View.GONE
+        binding.chiefComplaintHeading.visibility = View.VISIBLE
+        binding.chiefComplaintExtra2.visibility = View.VISIBLE
+        binding.vitalsHeading.visibility = View.VISIBLE
+        binding.vitalsLayout.visibility = View.VISIBLE
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            // Clear the existing data in chiefComplaintDB
             chiefComplaintDB.clear()
 
-            // Loop through the chiefComplaintList and add data to chiefComplaintDB
             for (chiefComplaintItem in chiefComplaintList) {
                 val chiefC = ChiefComplaintDB(
                     id = "33+${chiefComplaintItem.chiefComplaintId}",
@@ -446,23 +459,57 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             }
             chAdapter.notifyDataSetChanged()
         }
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+        binding.chiefComplaintExtra2.adapter = chAdapter
+        val layoutManagerC = LinearLayoutManager(requireContext())
+        binding.chiefComplaintExtra2.layoutManager = layoutManagerC
+
         if(chiefComplaintDB.size==0){
             binding.chiefComplaintHeading.visibility = View.GONE
         }
         else{
             binding.chiefComplaintHeading.visibility = View.VISIBLE
         }
+        var bool = true
+        viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
+            var vitalDb2 = VitalsMasterDb(
+                height = vitalsDB.height,
+                weight = vitalsDB.weight,
+                bmi = vitalsDB.bmi,
+                waistCircumference = vitalsDB.waistCircumference,
+                temperature = vitalsDB.temperature,
+                pulseRate = vitalsDB.pulseRate,
+                spo2 = vitalsDB.spo2,
+                bpSystolic = vitalsDB.bpSystolic,
+                bpDiastolic =vitalsDB.bpDiastolic,
+                respiratoryRate = vitalsDB.respiratoryRate,
+                rbs = vitalsDB.rbs
+            )
+            bool = false
+            populateVitalsFieldsW(vitalDb2)
+        }
+        if(bool){
+            binding.vitalsHeading.visibility = View.GONE
+            binding.vitalsLayout.visibility = View.GONE
+        }
     }
     fun makeFollowUpDefault(){
         if(viewModel.getIsFollowUp()){
             binding.radioButton3.isChecked = false
             binding.radioButton4.isChecked = true
+            chiefAndVitalsDataFill()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton4.tag.toString()
         }
         else{
             binding.radioButton3.isChecked = true
             binding.radioButton4.isChecked = false
+            binding.chf.visibility = View.VISIBLE
+            binding.chiefComplaintExtra.visibility = View.VISIBLE
+            binding.chiefComplaintHeading.visibility = View.GONE
+            binding.chiefComplaintExtra2.visibility = View.GONE
+            binding.vitalsHeading.visibility = View.GONE
+            binding.vitalsLayout.visibility = View.GONE
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton3.tag.toString()
         }
