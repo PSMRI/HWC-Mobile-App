@@ -31,6 +31,7 @@ import org.hl7.fhir.r4.model.Encounter
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -108,7 +109,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private val itemList = mutableListOf(initialItem)
     private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
     private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
-
+    private lateinit var chAdapter : ChiefComplaintMultiAdapter
 
     private val binding: VisitDetailsInfoBinding
         get() {
@@ -319,6 +320,93 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             itemList.add(newItem)
             adapter.notifyItemInserted(itemList.size - 1)
             binding.plusButton.isEnabled = false
+        }
+    }
+    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
+        val itemH = vitalsDB.height
+        val itemW = vitalsDB.weight
+        val itemB = vitalsDB.bmi
+        val itemC = vitalsDB.waistCircumference
+        val itemT = vitalsDB.temperature
+        val itemP = vitalsDB.pulseRate
+        val itemS = vitalsDB.spo2
+        val itemBs = vitalsDB.bpSystolic
+        val itemBd = vitalsDB.bpDiastolic
+        val itemRs = vitalsDB.respiratoryRate
+        val itemRb = vitalsDB.rbs
+        if (itemH.isNullOrEmpty() || itemH.equals("null")) {
+            binding.heightEditTxt.visibility = View.GONE
+        } else {
+            binding.heightEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemW.isNullOrEmpty() || itemW.equals("null")) {
+            binding.weightEditTxt.visibility = View.GONE
+        } else {
+            binding.weightEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemB.isNullOrEmpty() || itemB.equals("null")) {
+            binding.bmill.visibility = View.GONE
+        } else {
+            binding.bmill.visibility = View.VISIBLE
+        }
+
+//        if (itemC.isNullOrEmpty() || itemC.equals("null")) {
+//            binding.waistCircumEditTxt.visibility = View.GONE
+//        } else {
+//            binding.waistCircumEditTxt.visibility = View.VISIBLE
+//        }
+
+        if (itemT.isNullOrEmpty() || itemT.equals("null")) {
+            binding.temperatureEditTxt.visibility = View.GONE
+        } else {
+            binding.temperatureEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemP.isNullOrEmpty() || itemP.equals("null")) {
+            binding.pulseRateEditTxt.visibility = View.GONE
+        } else {
+            binding.pulseRateEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemS.isNullOrEmpty() || itemS.equals("null")) {
+            binding.spo2EditTxt.visibility = View.GONE
+        } else {
+            binding.spo2EditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
+            binding.bpSystolicEditTxt.visibility = View.GONE
+        } else {
+            binding.bpSystolicEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
+            binding.bpDiastolicEditTxt.visibility = View.GONE
+        } else {
+            binding.bpDiastolicEditTxt.visibility = View.VISIBLE
+        }
+
+        if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
+            binding.respiratoryEditTxt.visibility = View.GONE
+        } else {
+            binding.respiratoryEditTxt.visibility = View.VISIBLE
+        }
+
+//        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
+//            binding.rbsEditTxt.visibility = View.GONE
+//        } else {
+//            binding.rbsEditTxt.visibility = View.VISIBLE
+//        }
+
+        if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
+            binding.vitalsExtra.visibility = View.GONE
+            binding.vitalsLayout.visibility = View.GONE
+        } else {
+            binding.vitalsExtra.visibility = View.VISIBLE
+            binding.vitalsLayout.visibility = View.VISIBLE
         }
     }
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
