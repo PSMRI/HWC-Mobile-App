@@ -29,6 +29,11 @@
             android:checkable="false"
             android:icon="@drawable/ic_completed_tasks"
             android:title="Create ABHA Number" />
+        <item
+            android:id="@+id/master_location_settings"
+            android:checkable="false"
+            android:icon="@drawable/ic_completed_tasks"
+            android:title="Location Settings" />
 
 <!--        <item-->
 <!--            android:id="@+id/dashboard_activity"-->

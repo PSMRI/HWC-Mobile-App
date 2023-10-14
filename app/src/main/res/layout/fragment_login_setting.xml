@@ -63,6 +63,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_state"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -92,6 +94,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_dist"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -121,6 +125,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_taluk"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

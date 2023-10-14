@@ -7,6 +7,7 @@ import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.UserMasterLocation
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import java.util.Date
 
@@ -90,4 +91,6 @@ interface UserDao {
 
     @Query("select logged_in from user")
     suspend fun getLoggedInStatus():Int
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMasterLocation(location: UserMasterLocation)
 }

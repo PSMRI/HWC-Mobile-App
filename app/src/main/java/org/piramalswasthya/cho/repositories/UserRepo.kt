@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
+import org.piramalswasthya.cho.model.UserMasterLocation
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
@@ -95,7 +96,10 @@ class UserRepo @Inject constructor(
         )
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
-
+    suspend fun setUserMasterLoc(userMasterLocation: UserMasterLocation
+    ) {
+        userDao.insertMasterLocation(userMasterLocation)
+    }
     suspend fun authenticateUser(
         userName: String,
         password: String,

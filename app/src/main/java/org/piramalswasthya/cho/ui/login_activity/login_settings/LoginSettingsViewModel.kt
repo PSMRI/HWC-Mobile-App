@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BlockList
@@ -38,6 +39,7 @@ import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
+import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -57,9 +59,12 @@ class LoginSettingsViewModel@Inject constructor(
     enum class NetworkState {
         IDLE,
         LOADING,
-        SUCCESS
+        SUCCESS,
+        FAILURE
     }
-
+    private val _locationMaster = MutableLiveData(NetworkState.IDLE)
+    val locationMaster: LiveData<NetworkState>
+        get() = _locationMaster
     private val _state = MutableLiveData(NetworkState.IDLE)
     val state: LiveData<NetworkState>
         get() = _state
@@ -77,6 +82,17 @@ class LoginSettingsViewModel@Inject constructor(
         get() = _village
 
 
+    var masterVillageList: List<VillageLocationData> = mutableListOf()
+    var masterState: String? = ""
+    var masterDistrict: String? = ""
+    var masterBlock: String? = ""
+    var masterStateId: Int? = null
+    var masterDistrictId: Int? = null
+    var masterBlockId: Int? = null
+    var masterVillage: String? = ""
+    var masterVillageId: Int? = null
+    var userMasterVillage: VillageLocationData? = null
+
     var stateList: List<State> = mutableListOf()
     var districtList: List<District> = mutableListOf()
     var blockList: List<DistrictBlock> = mutableListOf()
@@ -88,12 +104,13 @@ class LoginSettingsViewModel@Inject constructor(
     var selectedVillage: Village? = null
 
 
-    private var userInfo: UserCache? = null
+     var userInfo: UserCache? = null
 
     init{
         viewModelScope.launch {
             async { userInfo = userDao.getLoggedInUser() }.await()
-            fetchStates()
+//            fetchStates()
+            fetchUserMasterLocation()
         }
     }
 
@@ -355,5 +372,21 @@ class LoginSettingsViewModel@Inject constructor(
             Log.i("exception in saving village", e.toString())
         }
     }
-
+    private fun fetchUserMasterLocation(){
+        _locationMaster.value = NetworkState.LOADING
+        val loc = pref.getUserLocationData()
+        try {
+            masterState = loc?.stateName
+            masterVillageId = loc?.stateId
+            masterDistrict = loc?.districtName
+            masterDistrictId = loc?.districtId
+            masterBlock = loc?.blockName
+            masterBlockId = loc?.blockId
+            masterVillageList = loc?.villageList!!
+            _locationMaster.value = NetworkState.SUCCESS
+        }
+        catch (_: Exception){
+            _locationMaster.value = NetworkState.FAILURE
+        }
+    }
 }
