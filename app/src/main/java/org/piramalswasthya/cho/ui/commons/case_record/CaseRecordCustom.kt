@@ -832,17 +832,17 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                         requireActivity().finish()
                                     }
                                     else ->{
-                                        requireActivity().runOnUiThread {
-                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-                                        }
+//                                        requireActivity().runOnUiThread {
+//                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                                        }
                                     }
                                 }
                             }
                         }
                         else -> {
-                            requireActivity().runOnUiThread {
-                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-                            }
+//                            requireActivity().runOnUiThread {
+//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                            }
                         }
                     }
                 }
@@ -856,7 +856,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
 
         } else {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 if(masterDb!!.patientId.toString()!=null) {
                     patId = masterDb!!.patientId.toString()
                 }
@@ -892,9 +892,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                 requireActivity().finish()
                             }
                             else ->{
-                                requireActivity().runOnUiThread {
-                                    Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-                                }
+//                                requireActivity().runOnUiThread {
+//                                    Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                                }
                             }
                         }
 

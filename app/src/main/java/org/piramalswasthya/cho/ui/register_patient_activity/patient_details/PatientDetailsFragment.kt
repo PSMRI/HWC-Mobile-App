@@ -677,7 +677,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        Toast.makeText(requireContext(), getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(requireContext(), getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

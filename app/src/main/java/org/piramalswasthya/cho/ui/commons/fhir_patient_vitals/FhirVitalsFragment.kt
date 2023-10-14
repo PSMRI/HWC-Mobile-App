@@ -407,7 +407,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
             )
         }else{
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Main).launch {
 
                 var benVisitNo = 0;
                 var createNewBenflow = false;
@@ -439,9 +439,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                             requireActivity().finish()
                         }
                         else ->{
-                            requireActivity().runOnUiThread {
-                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-                            }
+//                            requireActivity().runOnUiThread {
+//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                            }
                         }
                     }
                 }
