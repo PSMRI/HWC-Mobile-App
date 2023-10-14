@@ -95,7 +95,8 @@ fun getOutreach(){
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
+        imageString : String?
     ) {
         _state.value = State.SAVING
         viewModelScope.launch {
@@ -108,7 +109,9 @@ fun getOutreach(){
                 logoutTimeStamp,
                 lat,
                 long,
-                logoutType)
+                logoutType,
+            imageString,
+            false)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
@@ -121,6 +124,8 @@ fun getOutreach(){
         lat: Double?,
         long: Double?,
         logoutType: String?,
+        imageString : String?
+
     ){
         userRepo.setOutreachProgram(
             loginType,
@@ -129,7 +134,8 @@ fun getOutreach(){
             logoutTimeStamp,
             lat,
             long,
-            logoutType
+            logoutType,
+            imageString
         )
     }
     fun rememberUser(username: String,password: String) {

@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.database.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.UserAuth
@@ -60,7 +61,11 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOutreachProgram(outreachProgram: SelectedOutreachProgram)
-
+    @Transaction
+    @Query("SELECT * FROM SELECTED_OUTREACH_PROGRAM WHERE syncState =:syncState")
+    suspend fun getLoginAuditDataListUnsynced(syncState: SyncState = SyncState.UNSYNCED) : List<SelectedOutreachProgram>
+    @Query("UPDATE SELECTED_OUTREACH_PROGRAM SET syncState =:synced WHERE id = :selectedOutreachProgramId")
+    suspend fun updateAuditDataFlag(selectedOutreachProgramId: Long,synced: SyncState = SyncState.SYNCED)
     @Query("UPDATE USER SET stateID = :stateId")
     suspend fun updateUserStateId(stateId : Int) : Int
 

@@ -61,6 +61,7 @@ import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import timber.log.Timber
@@ -85,6 +86,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     override val jsonFile : String = "vitals-page.json"
 
     override val viewModel: LabTechnicianFormViewModel by viewModels()
+
+    private val parentViewModel : EditPatientDetailsViewModel by viewModels ({ requireActivity()})
 
     private lateinit var composeView: ComposeView
 
@@ -143,6 +146,8 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
         viewModel.procedures.observe(viewLifecycleOwner) {
             if (it.isNullOrEmpty()) {
+                    parentViewModel.setSubmitActive(false)
+
                 composeView.setContent {
                     AddNoData()
                 }
@@ -151,6 +156,13 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 composeView.setContent {
                     AddProcedures(dtos)
                 }
+                parentViewModel.setSubmitActive(true)
+            }
+        }
+
+        viewModel.cacheSaved.observe(viewLifecycleOwner) {
+            if (it) {
+                navigateNext()
             }
         }
     }
@@ -626,6 +638,9 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
         if (isValidData) {
+            composeView.setContent {
+                AddLoading()
+            }
             viewModel.saveLabData(dtos, benVisitInfo)
             viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
                 when (state!!) {
