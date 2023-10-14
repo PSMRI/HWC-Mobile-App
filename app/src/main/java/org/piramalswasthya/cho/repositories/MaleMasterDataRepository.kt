@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
@@ -43,6 +44,7 @@ class MaleMasterDataRepository @Inject constructor(
     private val subCatVisitDao: SubCatVisitDao,
     private val historyDao: HistoryDao,
     private val userRepo: UserRepo,
+    private val userDao: UserDao,
 ) {
 //    private var visitCategoryID: Int = 6
 //    private var providerServiceMapID: Int = 13
@@ -50,8 +52,12 @@ class MaleMasterDataRepository @Inject constructor(
     var apiKey : String = "f5e3e002-8ef8-44cd-9064-45fbc8cad6d5"
 
 
-    suspend fun getMasterDataForNurse(visitCategoryID: Int, providerServiceMapID: Int, gender: String) : NetworkResult<NetworkResponse> {
+    suspend fun getMasterDataForNurse() : NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
+            val providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
+            val visitCategoryID = 6
+            val gender = "Male"
+
             val response = amritApiService.getNurseMasterData(
                 visitCategoryID, providerServiceMapID,
                 gender, apiKey)
@@ -113,7 +119,7 @@ class MaleMasterDataRepository @Inject constructor(
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    getMasterDataForNurse(visitCategoryID, providerServiceMapID,gender)
+                    getMasterDataForNurse()
                 },
             )
         }

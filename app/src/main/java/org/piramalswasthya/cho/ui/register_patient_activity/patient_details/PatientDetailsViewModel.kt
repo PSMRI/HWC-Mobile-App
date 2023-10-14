@@ -45,6 +45,7 @@ class PatientDetailsViewModel @Inject constructor(
         SUCCESS,
         FAILURE
     }
+
     private val _isClickedSS=MutableLiveData<Boolean>(false)
 
     val isClickedSS: MutableLiveData<Boolean>
@@ -112,6 +113,10 @@ class PatientDetailsViewModel @Inject constructor(
     private val _genderMaster = MutableLiveData(NetworkState.IDLE)
     val genderMaster: MutableLiveData<NetworkState>
         get() = _genderMaster
+
+    private val _isDataSaved = MutableLiveData(false)
+    val isDataSaved: MutableLiveData<Boolean>
+        get() = _isDataSaved
 
     var ageUnitMap = mutableMapOf<AgeUnitEnum, AgeUnit>();
     var ageUnitEnumMap = mutableMapOf<AgeUnit, AgeUnitEnum>();
@@ -245,6 +250,7 @@ class PatientDetailsViewModel @Inject constructor(
     fun insertPatient(patient: Patient){
         viewModelScope.launch {
             patientRepo.insertPatient(patient)
+            _isDataSaved.value = true
         }
     }
 

@@ -44,8 +44,14 @@ class DoctorMasterDataMaleRepo @Inject constructor(
 //            facilityID = facilityId ?: -1
 //        }
     }
-    suspend fun getDoctorMasterMaleData(visitCategoryID : Int,providerServiceMapID: Int,gender: String,facilityID: Int, vanID: Int) {
+    suspend fun getDoctorMasterMaleData() {
         try {
+            val vanID = userDao.getLoggedInUserVanID()
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
+            val visitCategoryID = 6
+            val gender = "Male"
+
             val response = amritApiService.getDoctorMasterData(
                 visitCategoryID, providerServiceMapID,
                 gender,facilityID,vanID, apiKey
