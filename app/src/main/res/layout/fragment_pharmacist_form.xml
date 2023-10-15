@@ -482,25 +482,34 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <RelativeLayout
+    <include
+        android:id="@+id/pharmacist_list_container"
+        layout="@layout/pharmacist_list_view"
         android:layout_width="match_parent"
         android:layout_height="500dp"
         android:layout_gravity="bottom"
         android:layout_marginTop="20dp"
-        android:gravity="bottom">
+        android:gravity="bottom"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/pharmacist_list"
-            android:name="com.google.fhirengine.example.PrescriptionListFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:scrollbars="vertical"
-            app:layoutManager="LinearLayoutManager"
-            tools:context=".PharmacistListActivity"
-            tools:listitem="@layout/pharmacist_list_item_view" />
-    </RelativeLayout>
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="500dp"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:gravity="bottom">-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/pharmacist_list"-->
+<!--            android:name="com.google.fhirengine.example.PrescriptionListFragment"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_marginLeft="16dp"-->
+<!--            android:layout_marginRight="16dp"-->
+<!--            android:scrollbars="vertical"-->
+<!--            app:layoutManager="LinearLayoutManager"-->
+<!--            tools:context=".PharmacistListActivity"-->
+<!--            tools:listitem="@layout/pharmacist_list_item_view" />-->
+<!--    </RelativeLayout>-->
 <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->

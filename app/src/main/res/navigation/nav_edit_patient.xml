@@ -61,11 +61,22 @@
         android:name="org.piramalswasthya.cho.ui.commons.pharmacist.PharmacistFormFragment"
         android:label="PharmacistFormFragment" >
         <argument
-            android:name="patientId"
-            app:argType="string"/>
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
         <action
             android:id="@+id/action_pharmacistFormFragment_to_patientHomeFragment"
             app:destination="@id/patientHomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/prescriptionBatchFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.pharmacist.PrescriptionBatchFormFragment"
+        android:label="PrescriptionFormFragment" >
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
+        <action
+            android:id="@+id/action_prescriptionBatchFormFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/patientHomeFragment"

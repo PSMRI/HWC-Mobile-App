@@ -1,12 +1,10 @@
 package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
-import androidx.room.DatabaseView
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.Relation
+import androidx.room.ForeignKey.Companion.CASCADE
 import com.squareup.moshi.JsonClass
 
 @Entity(
@@ -32,17 +30,19 @@ data class Prescription(
     @ColumnInfo(name = "prescriptionID") val prescriptionID: Long,
     @ColumnInfo(name = "beneficiaryRegID") val beneficiaryRegID: Long,
     @ColumnInfo(name = "visitCode") val visitCode: Long,
-    @ColumnInfo(name = "consultantName") val consultantName: String,
+    @ColumnInfo(name = "consultantName") val consultantName: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long,
+    @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
+    @ColumnInfo(name = "issueType") var issueType: String? = null,
 )
 
 @Entity(tableName = "prescribed_drugs",
     foreignKeys = [ForeignKey(
         entity = Prescription::class,
         childColumns = ["prescriptionID"],
-        parentColumns = ["prescriptionID"],
-        onDelete = ForeignKey.CASCADE
+        parentColumns = ["id"],
+        onDelete = CASCADE
     )])
 @JsonClass(generateAdapter = true)
 data class PrescribedDrugs (
@@ -53,20 +53,20 @@ data class PrescribedDrugs (
     @ColumnInfo(name = "drugForm") val drugForm: String,
     @ColumnInfo(name = "drugStrength") val drugStrength: String,
     @ColumnInfo(name = "duration") val duration: String,
-    @ColumnInfo(name = "durationUnit") val durationUnit: String,
+    @ColumnInfo(name = "durationUnit") val durationUnit: String?= null,
     @ColumnInfo(name = "frequency") val frequency: String,
     @ColumnInfo(name = "genericDrugName") val genericDrugName: String,
     @ColumnInfo(name = "isEDL") val isEDL: Boolean,
     @ColumnInfo(name = "qtyPrescribed") val qtyPrescribed: Int,
     @ColumnInfo(name = "route") val route: String,
-    @ColumnInfo(name = "instructions") val instructions: String
+    @ColumnInfo(name = "instructions") val instructions: String?= null
 )
 
 @Entity(tableName = "prescribed_drugs_batch",
     foreignKeys = [ForeignKey(
         entity = PrescribedDrugs::class,
         childColumns = ["drugID"],
-        parentColumns = ["drugID"],
+        parentColumns = ["id"],
         onDelete = ForeignKey.CASCADE
     )])
 @JsonClass(generateAdapter = true)
@@ -83,9 +83,10 @@ data class PrescribedDrugsBatch (
 @JsonClass(generateAdapter = true)
 data class PrescriptionDTO(
     val beneficiaryRegID: Long,
-    val consultantName: String,
+    val consultantName: String?,
     val prescriptionID: Long,
     val visitCode: Long,
+    var issueType: String? = null,
     var itemList: List<PrescriptionItemDTO>
     )
 
@@ -96,7 +97,7 @@ data class PrescriptionItemDTO(
     val dose: String,
     val drugForm: String,
     val duration: String,
-    val durationUnit: String,
+    val durationUnit: String?= null,
     val frequency: String,
     val genericDrugName: String,
     val drugStrength: String,
@@ -104,7 +105,7 @@ data class PrescriptionItemDTO(
     val isEDL: Boolean,
     val qtyPrescribed: Int,
     val route: String,
-    val instructions: String
+    val instructions: String? = null
 
 )
 
@@ -116,4 +117,50 @@ data class PrescriptionBatchDTO(
     val itemStockEntryID: Int,
     val qty: Int
 
+)
+
+@JsonClass(generateAdapter = true)
+data class PharmacistPatientDataRequest(
+    val beneficiaryRegID: Long,
+    val benFlowID: Long
+)
+
+@JsonClass(generateAdapter = true)
+data class PrescribedMedicineDataRequest(
+    val beneficiaryRegID: Long,
+    val facilityID: Int,
+    val parkingPlaceID: Int,
+    val vanID: Int,
+    val visitCode: Long,
+)
+
+@JsonClass(generateAdapter = true)
+data class PharmacistItemStockExitDataRequest(
+    val itemID: Long,
+    val itemStockEntryID: Int,
+    val quantity: Int,
+    val createdBy: String
+)
+
+@JsonClass(generateAdapter = true)
+data class PharmacistPatientIssueDataRequest(
+    val issuedBy: String,
+    val visitCode: Long?,
+    val facilityID: Int,
+    val age: Int?,
+    val beneficiaryID: Long?,
+    val beneficiaryRegID: Long,
+    val createdBy: String,
+    val providerServiceMapID: Int?,
+    val doctorName: String?,
+    val gender: String?,
+    val issueType: String,
+    val patientName: String,
+    val prescriptionID: Long?,
+    val reference: String,
+    val visitID: Long?,
+    val visitDate: String?,
+    val parkingPlaceID: Int?,
+    val vanID: Int?,
+    var itemStockExit: List<PharmacistItemStockExitDataRequest>
 )

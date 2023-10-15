@@ -2,9 +2,7 @@ package org.piramalswasthya.cho.network
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
-import org.hl7.fhir.r4.model.Patient
 import org.piramalswasthya.cho.model.BenNewFlow
-import org.piramalswasthya.cho.model.DownloadPatRequest
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.ModelObject
@@ -12,7 +10,9 @@ import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInformation
-import org.piramalswasthya.cho.utils.Constants
+import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
+import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
+import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -312,10 +312,7 @@ interface AmritApiService {
     @POST("/inventoryapi-v1.0/RX/getPrescribedMedicines?apiKey=undefined")
     suspend fun getPharmacistPrescriptionList(@Body prescribedMedicineDataRequest: PrescribedMedicineDataRequest) : Response<ResponseBody>
 
-    @GET("hwc-facility-service/common/getPharma-worklist-New/{providerServiceMapID}/{serviceID}/{vanID}")
-    suspend fun dispensePrescriptionForPharmacist(@Path("providerServiceMapID") providerServiceMapID: Int,
-                                   @Path("serviceID") serviceID : Int,
-                                   @Path("vanID") vanID: Int,
-                                   @Query("apiKey") apiKey :String): Response<ResponseBody>
+    @POST("/inventoryapi-v1.0/patientIssue?apiKey=undefined")
+    suspend fun savePharmacistData(@Body patientIssue: PharmacistPatientIssueDataRequest) : Response<ResponseBody>
 
 }

@@ -1,0 +1,172 @@
+package org.piramalswasthya.cho.ui.commons.pharmacist
+
+
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.PharmacistItemAdapter
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
+import org.piramalswasthya.cho.databinding.FragmentPrescriptionBatchFormBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
+import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
+import org.piramalswasthya.cho.model.ProcedureDTO
+import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form), FhirFragmentService, NavigationAdapter {
+
+    private var _binding: FragmentPrescriptionBatchFormBinding? = null
+
+    private val binding: FragmentPrescriptionBatchFormBinding
+        get() {
+            return _binding!!
+        }
+
+    override var fragment: Fragment = this;
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
+    override var fragmentContainerId = 0;
+    private var userInfo: UserCache? = null
+
+    override val jsonFile : String = "vitals-page.json"
+
+    override lateinit var viewModel: PrescriptionBatchFormViewModel
+
+    private var dtos: List<ProcedureDTO>? = null
+    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
+
+    private val args: PharmacistFormFragmentArgs by lazy {
+        PharmacistFormFragmentArgs.fromBundle(requireArguments())
+    }
+
+    private val bundle = Bundle()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Create the ComposeView
+        _binding = FragmentPrescriptionBatchFormBinding.inflate(layoutInflater, container, false)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val data = arguments?.getString("prescriptionDTO")
+        val data2 = arguments?.getString("prescriptionDTO")
+        val data3 = arguments?.getString("prescriptionItemDTO")
+        val prescriptionDTO = Gson().fromJson(data2, PrescriptionDTO::class.java)
+        val prescriptionItemDTO = Gson().fromJson(data3, PrescriptionItemDTO::class.java)
+        val batch = Gson().fromJson(data, PrescriptionBatchDTO::class.java)
+
+        binding.consultantValue.text = prescriptionDTO.consultantName
+        binding.visitCodeValue.text = prescriptionDTO.visitCode.toString()
+        binding.prescriptionIdValue.text = prescriptionDTO.prescriptionID.toString()
+
+        binding.prescribedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+        binding.dispensedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+        binding.batchValue.text = batch.batchNo
+        binding.quantityInHandValue.text = batch.qty.toString()
+        binding.dispensedQuantityValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+        binding.expiryDateValue.text = batch.expiryDate
+
+        binding.btnViewBatch.setOnClickListener{
+            onCancelAction()
+        }
+
+//        viewModel = ViewModelProvider(this).get(PrescriptionBatchFormViewModel::class.java)
+//        viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
+//            when (state!!) {
+//                PrescriptionBatchFormViewModel.NetworkState.SUCCESS -> {
+//                    lifecycleScope.launch {
+//                        viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
+//                        viewModel.getPrescription(benVisitInfo = benVisitInfo)
+//                    }
+//
+//                    viewModel.prescriptions.observe(viewLifecycleOwner) {
+//                        viewModel.prescriptions?.value?.let {it->
+//
+////                            Timber.d("*******************Babs DTO************** ",it)
+//                            binding.consultantValue.text = it.consultantName
+//                            binding.visitCodeValue.text = it.visitCode.toString()
+//                            binding.prescriptionIdValue.text = it.prescriptionID.toString()
+//
+////                            itemAdapter?.submitList(it.itemList)
+//
+//                            it.itemList.let { it ->
+//                            }
+//                        }
+//
+//
+//                    }
+//
+//                }
+//
+//                else -> {
+//
+//                }
+//            }
+////        }
+//        }
+    }
+
+    fun getResultStr(count:Int?):String{
+        if(count==1||count==0){
+            return getString(R.string.patient_cnt_display)
+        }
+        return getString(R.string.patients_cnt_display)
+    }
+
+    override fun getFragmentId(): Int {
+        return R.id.fragment_pharmacist_form;
+    }
+
+    override fun onSubmitAction() {
+        var isValidData = true
+        dtos?.forEach { procedureDTO ->
+            procedureDTO.compListDetails.forEach { componentDetailDTO ->
+                if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
+                    componentDetailDTO.range_max != null &&
+                    componentDetailDTO.range_min != null) {
+                    isValidData = (componentDetailDTO.testResultValue!!.toDouble() > componentDetailDTO.range_min && componentDetailDTO.testResultValue!!.toDouble() < componentDetailDTO.range_max)
+                }
+            }
+        }
+        if (isValidData) {
+//            viewModel.saveLabData(dtos, args.patientId)
+            navigateNext()
+        } else {
+            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onCancelAction() {
+        requireActivity().finish()
+    }
+
+    override fun navigateNext() {
+//        findNavController().navigate(
+//            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
+//        )
+        requireActivity().finish()
+    }
+
+}

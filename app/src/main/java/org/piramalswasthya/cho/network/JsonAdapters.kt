@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
 
 @JsonClass(generateAdapter = true)
@@ -483,21 +484,6 @@ data class NurseDataRequest(
 data class LabProceduresDataRequest(
     val beneficiaryRegID: Long,
     val benVisitID: Long,
-    val visitCode: Long,
-)
-
-@JsonClass(generateAdapter = true)
-data class PharmacistPatientDataRequest(
-    val beneficiaryRegID: Long,
-    val benFlowID: Long
-)
-
-@JsonClass(generateAdapter = true)
-data class PrescribedMedicineDataRequest(
-    val beneficiaryRegID: Long,
-    val facilityID: Int,
-    val parkingPlaceID: Int,
-    val vanID: Int,
     val visitCode: Long,
 )
 

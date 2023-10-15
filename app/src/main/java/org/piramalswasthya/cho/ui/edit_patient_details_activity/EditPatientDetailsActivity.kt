@@ -100,7 +100,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            else if (preferenceDao.isPharmacist()) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
-                       (intent?.extras?.getString("patientId")!!)
+                       (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            }
            else {

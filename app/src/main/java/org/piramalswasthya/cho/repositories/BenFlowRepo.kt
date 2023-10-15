@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
@@ -34,6 +33,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescribedDrugs
 import org.piramalswasthya.cho.model.PrescribedDrugsBatch
+import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
 import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionDTO
@@ -47,14 +47,11 @@ import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataRequest
-import org.piramalswasthya.cho.network.PharmacistPatientDataRequest
-import org.piramalswasthya.cho.network.PrescribedMedicineDataRequest
-import org.piramalswasthya.cho.network.NurseDataResponse
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
-import org.piramalswasthya.cho.utils.generateUuid
+import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -324,7 +321,8 @@ class BenFlowRepo @Inject constructor(
         patientVisitInfoSyncDao.updateBenFlowIdByPatientIdAndBenVisitNo(
             benFlowId = benFlow.benFlowID!!,
             patientID = patient.patientID,
-            benVisitNo = benFlow.benVisitNo!!
+            benVisitNo = benFlow.benVisitNo!!,
+            pharmacistFlag = benFlow.pharmacist_flag!!
         )
     }
 
@@ -508,7 +506,7 @@ class BenFlowRepo @Inject constructor(
 //        }
 //    }
 
-    private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, facilityID: Int, patientID: String): NetworkResult<NetworkResponse> {
+    private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo, facilityID: Int): NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
             val prescribedMedicineDataRequest = PrescribedMedicineDataRequest(
                 beneficiaryRegID = benFlow.beneficiaryRegID!!,
@@ -528,23 +526,23 @@ class BenFlowRepo @Inject constructor(
                     val data = jsonObj.getJSONObject("data")
                         .toString()
                     val prescriptionDTO = Gson().fromJson(data, PrescriptionDTO::class.java)
-
-                    prescriptionDao.deletePrescriptionByBenRegID(prescribedMedicineDataRequest.beneficiaryRegID)
+                    prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
                     prescriptionDTO.let { dto ->
                         val prescription = Prescription(
                             prescriptionID = dto.prescriptionID,
                             beneficiaryRegID = prescribedMedicineDataRequest.beneficiaryRegID,
                             visitCode = dto.visitCode,
                             consultantName = dto.consultantName,
-                            patientID = patientID,
-                            benFlowID = benFlow.benFlowID
+                            patientID = benVisitInfo.patient.patientID,
+                            benFlowID = benFlow.benFlowID,
+                            benVisitNo = benVisitInfo.benVisitNo
                         )
 
                         val prescriptionID = prescriptionDao.insert(prescription = prescription)
                         dto.itemList.forEach { prescriptionItemDTO ->
+                            Timber.d("*******************Prescription Item DTO************** ",prescriptionItemDTO)
                             val prescribedDrugs = PrescribedDrugs(
                                 drugID = prescriptionItemDTO.drugID,
-//                                prescriptionID = dto.prescriptionID,
                                 prescriptionID = prescriptionID,
                                 dose = prescriptionItemDTO.dose,
                                 drugForm = prescriptionItemDTO.drugForm,
@@ -558,17 +556,19 @@ class BenFlowRepo @Inject constructor(
                                 route = prescriptionItemDTO.route,
                                 instructions = prescriptionItemDTO.instructions
                             )
+                            Timber.d("*******************prescribedDrugs Item DTO************** ",prescribedDrugs)
                             var prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)
                             prescriptionItemDTO.batchList.forEach { prescriptionBatchDTO ->
+                                Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchDTO)
                                 val prescribedDrugsBatch = PrescribedDrugsBatch(
                                     drugID = prescribedDrugsId,
-//                                    drugID = prescriptionItemDTO.drugID,
                                     expiryDate = prescriptionBatchDTO.expiryDate,
                                     expiresIn = prescriptionBatchDTO.expiresIn,
                                     batchNo = prescriptionBatchDTO.batchNo,
                                     itemStockEntryID = prescriptionBatchDTO.itemStockEntryID,
                                     qty = prescriptionBatchDTO.qty,
                                 )
+                                Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescribedDrugsBatch)
                                 prescriptionDao.insert(prescribedDrugsBatch)
                             }
                         }
@@ -581,23 +581,21 @@ class BenFlowRepo @Inject constructor(
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
                     userRepo.refreshTokenTmc(user.userName, user.password)
-                    getPrescriptionsListForPharmacist(benFlow, facilityID, patientID)
+                    getPrescriptionsListForPharmacist(benFlow, benVisitInfo, facilityID)
                 },
             )
         }
     }
 
-    suspend fun pullPrescriptionListData(patientId: String?): Boolean? {
+    suspend fun pullPrescriptionListData(benVisitInfo : PatientDisplayWithVisitInfo): Boolean {
+
         return try {
-            patientId?.let { patientID ->
-                val facilityID = userDao.getLoggedInUserFacilityID()
-                val patient = patientRepo.getPatient(patientId)
-                val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
-                if (benFlow != null) {
-                    getPrescriptionsListForPharmacist(benFlow = benFlow, facilityID = facilityID, patientId)
-                }
-                true
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
+            if (benFlow != null) {
+                getPrescriptionsListForPharmacist(benFlow = benFlow, benVisitInfo = benVisitInfo, facilityID)
             }
+            true
         } catch (e: Exception) {
             false
         }

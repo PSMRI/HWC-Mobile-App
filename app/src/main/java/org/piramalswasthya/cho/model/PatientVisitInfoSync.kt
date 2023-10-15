@@ -39,6 +39,8 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name="doctorDataSynced")
     var doctorDataSynced: SyncState? = SyncState.UNSYNCED,
 
+    @ColumnInfo(name="pharmacistDataSynced")
+    var pharmacistDataSynced: SyncState? = SyncState.UNSYNCED,
 
     @ColumnInfo(name="labDataSynced")
     var labDataSynced: SyncState? = SyncState.NOT_ADDED,

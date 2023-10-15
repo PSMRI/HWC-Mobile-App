@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.pharmacist
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,20 +11,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
-import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.work.WorkerUtils
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class PharmacistFormViewModel @Inject constructor(
+class PrescriptionBatchFormViewModel @Inject constructor(
     @ApplicationContext private val application: Context,
     savedStateHandle: SavedStateHandle,
     private val userRepo: UserRepo,
@@ -80,10 +75,10 @@ class PharmacistFormViewModel @Inject constructor(
         }
     }
 //
-    @SuppressLint("StaticFieldLeak")
-    val context: Context = application.applicationContext
+//    @SuppressLint("StaticFieldLeak")
+//    val context: Context = application.applicationContext
 //
-    val state = savedStateHandle
+//    val state = savedStateHandle
 //
 //    val isEntitySaved = MutableLiveData<Boolean>()
 //
@@ -122,35 +117,42 @@ class PharmacistFormViewModel @Inject constructor(
 //        _boolCall.value = false
 //    }
 //
-    fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
-        try {
-
-            viewModelScope.launch {
-
-                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )!!
-                patientVisitInfoSync.pharmacistDataSynced = SyncState.UNSYNCED
-                patientVisitInfoSync.pharmacist_flag = 9
-
-                dtos?.let { prescriptionDTO ->
-                    val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
-                    prescription.issueType = dtos.issueType
-                    patientRepo.updatePrescription(prescription)
-                }
-
-
-                // update sync state for pharmacist data
-
-
-                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-                WorkerUtils.pharmacistPushWorker(context)
-
-            }
-
-        } catch (e: Exception) {
-            Timber.d("error saving lab records due to $e")
-        }
-    }
+//    fun saveLabData(dtos: List<ProcedureDTO>?, patientId: String) {
+//        try {
+//            dtos?.forEach { procedureDTO ->
+//
+//                viewModelScope.launch {
+//                    var procedure =
+//                        patientRepo.getProcedure(procedureDTO.benRegId, procedureDTO.procedureID)
+//                    procedureDTO.compListDetails.forEach { componentDetailDTO ->
+//                        Timber.d("mjf" + componentDetailDTO.testComponentName + ":" + componentDetailDTO.testResultValue)
+//                        var componentDetails =
+//                            patientRepo.getComponent(procedure.id, componentDetailDTO.testComponentID)
+//                        componentDetails.testResultValue = componentDetailDTO.testResultValue
+//                        componentDetails.remarks = componentDetailDTO.remarks
+//                        patientRepo.updateComponentDetails(componentDetails)
+//                    }
+//
+//                    // update sync state for lab data
+//                    val patient = patientRepo.getPatient(patientId = patientId)
+//                    val benFlow = benFlowRepo.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
+//
+//                    val patientVisitInfoSync = benFlow?.benVisitNo?.let {
+//                        patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientId,
+//                            it
+//                        )
+//                    }
+//                    patientVisitInfoSync?.labDataSynced = SyncState.UNSYNCED
+//
+//                    patientVisitInfoSync?.let {
+//                        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(it)
+//                        WorkerUtils.labPushWorker(context)
+//                    }
+//                }
+//            }
+//
+//        } catch (e: Exception) {
+//            Timber.d("error saving lab records due to $e")
+//        }
+//    }
 }

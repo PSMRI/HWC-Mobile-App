@@ -64,6 +64,7 @@
     <string name="visit_details">Visit Details</string>
     <string name="duration">Duration <font color="#FF0000">*</font></string>
     <string name="duration2">Duration: </string>
+    <string name="dispensed">Dispensed: </string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
@@ -307,7 +308,8 @@
     <string name="dosage">Dosage</string>
     <string name="dose">Dose: </string>
     <string name="frequency">Frequency</string>
-    <string name="frequency2">Frequency</string>
+    <string name="frequency2">Frequency:</string>
+    <string name="batch_no">Batch No:</string>
     <string name="instructions">Instructions</string>
     <string name="unit">Unit</string>
     <string name="route">Route</string>
@@ -365,12 +367,16 @@
     <string name="ben_id">Ben Id:</string>
     <string name="ben_age">Age:</string>
     <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_in_hand">Quantity In Hand:</string>
     <string name="quantity_dispensed">Quantity Dispensed:</string>
     <string name="special_instructions">Special Instructions:</string>
+    <string name="dispensed_quantity">Dispensed Quantity:</string>
+    <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>
+    <string name="ok_button">Ok</string>
     <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
@@ -410,6 +416,7 @@
     <string name="visit_code">Visit Code:</string>
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
+    <string name="prescribed_label">Prescribed: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
     <string name="exit_application">Exit Application</string>

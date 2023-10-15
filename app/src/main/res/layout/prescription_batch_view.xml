@@ -72,14 +72,14 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/form_label"
+                android:id="@+id/prescribed_label"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/form_label"
+                android:layout_height="match_parent"
+                android:text="@string/prescribed_label"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/form_value"
+                android:id="@+id/prescribed_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -96,14 +96,14 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/duration_label"
+                android:id="@+id/dispensed_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/duration2"
+                android:text="@string/dispensed"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/duration_value"
+                android:id="@+id/dispensed_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -126,17 +126,17 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/frequency_label"
+                android:id="@+id/batch_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/frequency2"
+                android:text="@string/batch_no"
                 android:breakStrategy="simple"
                 android:ellipsize="none"
                 android:scrollHorizontally="false"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/frequency_value"
+                android:id="@+id/batch_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -144,29 +144,29 @@
 
           </LinearLayout>
 
-          <LinearLayout
-              android:layout_width="0dp"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintTop_toTopOf="parent"
-              android:layout_height="wrap_content"
-              android:layout_weight="2"
-              android:orientation="horizontal">
+<!--          <LinearLayout-->
+<!--              android:layout_width="0dp"-->
+<!--              app:layout_constraintEnd_toEndOf="parent"-->
+<!--              app:layout_constraintTop_toTopOf="parent"-->
+<!--              android:layout_height="wrap_content"-->
+<!--              android:layout_weight="2"-->
+<!--              android:orientation="horizontal">-->
 
-            <TextView
-                android:id="@+id/dose_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dose"
-                android:textStyle="bold" />
+<!--            <TextView-->
+<!--                android:id="@+id/dose_label"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/dose"-->
+<!--                android:textStyle="bold" />-->
 
-            <TextView
-                android:id="@+id/dose_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:layout_marginStart="8dp" />
+<!--            <TextView-->
+<!--                android:id="@+id/dose_value"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text=""-->
+<!--                android:layout_marginStart="8dp" />-->
 
-          </LinearLayout>
+<!--          </LinearLayout>-->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -184,14 +184,14 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/quantity_prescribed_label"
+                android:id="@+id/quantity_in_hand_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/quantity_prescribed"
+                android:text="@string/quantity_in_hand"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/quantity_prescribed_value"
+                android:id="@+id/quantity_in_hand_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -199,29 +199,29 @@
 
           </LinearLayout>
 
-          <LinearLayout
-              android:layout_width="0dp"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintTop_toTopOf="parent"
-              android:layout_height="wrap_content"
-              android:layout_weight="2"
-              android:orientation="horizontal">
+<!--          <LinearLayout-->
+<!--              android:layout_width="0dp"-->
+<!--              app:layout_constraintEnd_toEndOf="parent"-->
+<!--              app:layout_constraintTop_toTopOf="parent"-->
+<!--              android:layout_height="wrap_content"-->
+<!--              android:layout_weight="2"-->
+<!--              android:orientation="horizontal">-->
 
-            <TextView
-                android:id="@+id/route_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/route2"
-                android:textStyle="bold" />
+<!--            <TextView-->
+<!--                android:id="@+id/route_label"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/route2"-->
+<!--                android:textStyle="bold" />-->
 
-            <TextView
-                android:id="@+id/route_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:layout_marginStart="8dp" />
+<!--            <TextView-->
+<!--                android:id="@+id/route_value"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text=""-->
+<!--                android:layout_marginStart="8dp" />-->
 
-          </LinearLayout>
+<!--          </LinearLayout>-->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -239,14 +239,14 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/quantity_dispensed_label"
+                android:id="@+id/dispensed_quantity_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/quantity_dispensed"
+                android:text="@string/dispensed_quantity"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/quantity_dispensed_value"
+                android:id="@+id/dispensed_quantity_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -270,14 +270,14 @@
               android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/special_instruction_label"
+                android:id="@+id/expiry_date_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/special_instructions"
+                android:text="@string/expiry_date"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/special_instruction_value"
+                android:id="@+id/expiry_date_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -301,9 +301,8 @@
               android:layout_height="wrap_content"
               android:layout_marginStart="70dp"
               android:backgroundTint="@color/default_button"
-              android:onClick="@{()-> clickListener.onClickABHA(prescription)}"
               android:enabled="false"
-              android:text="@string/view_batch"
+              android:text="@string/ok"
               android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
               android:textColor="@color/white"
               app:cornerRadius="@dimen/padding_normal"

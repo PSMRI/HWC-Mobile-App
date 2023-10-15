@@ -409,6 +409,13 @@
     <string name="system_issue">System Issue</string>
     <string name="manual_issue">Manual Issue</string>
     <string name="form_label">Form: </string>
+    <string name="prescribed_label">Prescribed: </string>
+    <string name="dispensed">Dispensed: </string>
+    <string name="batch_no">Batch No:</string>
+    <string name="quantity_in_hand">Quantity In Hand:</string>
+    <string name="dispensed_quantity">Dispensed Quantity:</string>
+    <string name="expiry_date">Expiry Date:</string>
+    <string name="ok_button">Ok</string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
     <string name="exit_application">Exit Application</string>

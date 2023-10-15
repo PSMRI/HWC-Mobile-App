@@ -48,11 +48,11 @@ class PersonalDetailsViewModel @Inject constructor(
             list, filter -> filterBenList(list, filter)
     }
 
-    var patientListForLab : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForLab().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
+//    var patientListForLab : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForLab().combine(filter){
+//            list, filter -> filterBenList(list, filter)
+//    }
 
-    var patientListForPharmacist : Flow<List<PatientDisplay>>? =patientRepo.getPatientListFlowForPharmacist().combine(filter){
+    var patientListForPharmacist : Flow<List<PatientDisplayWithVisitInfo>>? =patientVisitInfoSyncRepo.getPatientListFlowForPharmacist().combine(filter){
             list, filter -> filterBenList(list, filter)
     }
 
