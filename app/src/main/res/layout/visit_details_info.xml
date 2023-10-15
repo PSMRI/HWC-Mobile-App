@@ -475,13 +475,26 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <Button
+            android:id="@+id/usePrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/default_button"
+            android:enabled="false"
+            android:text="@string/Use_Previous_data"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layyy"/>
+
         <Space
             android:layout_width="wrap_content"
             android:layout_height="@dimen/bottom_space_height"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layyy" />
+            app:layout_constraintTop_toBottomOf="@+id/usePrevious" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

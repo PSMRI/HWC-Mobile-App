@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,10 +15,12 @@ import org.hl7.fhir.r4.model.Encounter
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
@@ -32,6 +35,7 @@ class VisitDetailViewModel @Inject constructor(
     private val maleMasterDataRepository: MaleMasterDataRepository,
     private val userRepo: UserRepo,
     private val vitalsRepo: VitalsRepo,
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val procedureRepo: ProcedureRepo,
     @ApplicationContext private val application: Context
@@ -44,8 +48,8 @@ class VisitDetailViewModel @Inject constructor(
     val chiefComplaintDB: LiveData<List<ChiefComplaintDB>>
         get() = _chiefComplaintDB
 
-    private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
-    val vitalsDB: LiveData<PatientVitalsModel>
+    private val _vitalsDB = MutableLiveData<PatientVitalsModel?>()
+    val vitalsDB: LiveData<PatientVitalsModel?>
         get() = _vitalsDB
 
     private var _lastVisitDate: LiveData<String>?
@@ -89,21 +93,21 @@ class VisitDetailViewModel @Inject constructor(
     fun getIsFollowUp():Boolean{
         return isFollowUpChecked
     }
-    fun getVitalsDB(patientID:String,benVisitNo: Int) {
+    fun getVitalsDB(patientID:String) {
         viewModelScope.launch {
             try {
                 _vitalsDB.value =
-                    vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID, benVisitNo)
-
+                    vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
+            Log.d("rar","$_vitalsDB")
             } catch (e: java.lang.Exception) {
-                Timber.d("Error in Getting Higher Health Care $e")
+                Timber.d("Error in Getting Vitals $e")
             }
         }
     }
-    fun getChiefComplaintDB(patientID: String,benVisitNo: Int) {
+    fun getChiefComplaintDB(patientID: String) {
         viewModelScope.launch {
             try {
-                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID, benVisitNo)
+                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID)
             } catch (e: Exception) {
                 Timber.d("Error in Getting Chief Complaint DB $e")
             }
@@ -143,7 +147,9 @@ class VisitDetailViewModel @Inject constructor(
             }
         }
     }
-
+    suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
+    }
     fun saveVisitDetailsInfo(encounter: Encounter, conditions: List<Condition>) {
         viewModelScope.launch {
             try {
