@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
@@ -26,10 +27,17 @@ import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.BenificiarySaveResponse
+import org.piramalswasthya.cho.network.NetworkResponse
+import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
+import org.piramalswasthya.cho.network.networkResultInterceptor
+import org.piramalswasthya.cho.network.refreshTokenInterceptor
+import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.work.WorkerUtils
 import retrofit2.HttpException
 import timber.log.Timber
 import java.net.ConnectException
@@ -67,7 +75,9 @@ class UserRepo @Inject constructor(
                                       logoutTimeStamp: String?,
                                       lat: Double?,
                                       long: Double?,
-                                      logoutType: String?) {
+                                      logoutType: String?,
+                                    userImage: String?
+     ) {
          var user = userDao.getLoggedInUser()
          var userName = user?.userName
          var userId = user?.userId
@@ -80,7 +90,9 @@ class UserRepo @Inject constructor(
             loginTimestamp = loginTimeStamp,
             latitude = lat,
             longitude = long,
-            logoutType = logoutType)
+            logoutType = logoutType,
+            userImage = userImage
+        )
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
 
@@ -93,7 +105,9 @@ class UserRepo @Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        userImage: String?,
+        logoutType: String?,
+        isBiometric: Boolean? = false
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
             //reset all login before another login
@@ -112,14 +126,18 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    setOutreachProgram(
-                        loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType,
+                            userImage
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -137,13 +155,18 @@ class UserRepo @Inject constructor(
                         userDao.insert(user!!.asCacheModel())
                     }
                     preferenceDao.registerUser(user!!)
-                    setOutreachProgram(   loginType,
-                        selectedOption,
-                        loginTimeStamp,
-                        logoutTimeStamp,
-                        lat,
-                        long,
-                        logoutType)
+                    if(!isBiometric!!) {
+                        setOutreachProgram(
+                            loginType,
+                            selectedOption,
+                            loginTimeStamp,
+                            logoutTimeStamp,
+                            lat,
+                            long,
+                            logoutType,
+                            userImage
+                        )
+                    }
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }
@@ -442,6 +465,47 @@ class UserRepo @Inject constructor(
         } catch (e: Exception){
             Timber.d("Error in updating login status $e")
         }
+    }
+    private suspend fun saveLoginAuditDataToServer(auditEntryList : List<SelectedOutreachProgram>): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            Timber.d("auditEntry is ", auditEntryList.toString())
+            val response = tmcNetworkApiService.saveUpsyncDetails(auditEntryList)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    Timber.i("audit data synced",  response.body()?.string() ?: "")
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = getLoggedInUser()!!
+                    refreshTokenTmc(user.userName, user.password)
+                    saveLoginAuditDataToServer(auditEntryList)
+                },
+            )
+        }
+    }
+    suspend fun processUnsyncedAuditData(): Boolean{
+        val loginAuditDataListUnsynced: List<SelectedOutreachProgram> = userDao.getLoginAuditDataListUnsynced()
+        if(loginAuditDataListUnsynced.isNotEmpty()){
+            when(val response = saveLoginAuditDataToServer(loginAuditDataListUnsynced)){
+                is NetworkResult.Success ->{
+                    //TODO UPDATE SYNCED FLAG
+                    loginAuditDataListUnsynced.forEach { it ->
+                        userDao.updateAuditDataFlag(it.id)
+                    }
+                }
+                is NetworkResult.Error -> {
+                    if(response.code == socketTimeoutException){
+                    throw SocketTimeoutException("caught exception")
+                }
+                    return false
+                }
+                else ->{}
+            }
+        }
+        return true
     }
 
 }

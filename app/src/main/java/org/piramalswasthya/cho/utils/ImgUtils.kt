@@ -11,6 +11,13 @@ import java.io.File
 
 object ImgUtils {
     @RequiresApi(Build.VERSION_CODES.O)
+    fun bitmapToBase64(bitmap: Bitmap?): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        return Base64.getEncoder().encodeToString(byteArray)
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getEncodedStringForBenImage(context: Context, fileName: String?): String? {
         if (!fileName.isNullOrEmpty()) {
             val file = File(context.getExternalFilesDir("images"), fileName)

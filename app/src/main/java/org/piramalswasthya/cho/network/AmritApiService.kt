@@ -13,6 +13,8 @@ import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
 import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
+import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -206,7 +208,8 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
     suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
-
+    @POST("hwc-facility-service//sync/userActivityLogsToServer")
+    suspend fun saveUpsyncDetails(@Body selectedOutreachProgramList: List<SelectedOutreachProgram>) : Response<ResponseBody>
     @POST("hwc-facility-service/sync/beneficiariesToServer")
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
     @POST("hwc-facility-service/sync/beneficiariesToApp")

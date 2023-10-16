@@ -66,28 +66,6 @@ class OutreachViewModel @Inject constructor(
     init {
         _outreachList= MutableLiveData()
         getOutreach()
-//        Timber.tag("initMethod").d("initMethod inside")
-//        viewModelScope.launch {
-//            languageRepo.saveResponseToCacheLang()
-//            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-//            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-//            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-//            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-//            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-//            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-//            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-//            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-//            stateMasterRepo.saveStateMasterResponseToCache()
-//            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-//            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-//        }
     }
 
 fun getOutreach(){
@@ -117,7 +95,8 @@ fun getOutreach(){
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
+        imageString : String?
     ) {
         _state.value = State.SAVING
         viewModelScope.launch {
@@ -130,10 +109,34 @@ fun getOutreach(){
                 logoutTimeStamp,
                 lat,
                 long,
-                logoutType)
+                logoutType,
+            imageString,
+            false)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
+    }
+    suspend fun setOutreachDetails(
+        loginType: String?,
+        selectedOption: String?,
+        loginTimeStamp: String?,
+        logoutTimeStamp: String?,
+        lat: Double?,
+        long: Double?,
+        logoutType: String?,
+        imageString : String?
+
+    ){
+        userRepo.setOutreachProgram(
+            loginType,
+            selectedOption,
+            loginTimeStamp,
+            logoutTimeStamp,
+            lat,
+            long,
+            logoutType,
+            imageString
+        )
     }
     fun rememberUser(username: String,password: String) {
         viewModelScope.launch {

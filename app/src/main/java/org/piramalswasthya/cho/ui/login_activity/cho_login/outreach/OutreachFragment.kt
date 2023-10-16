@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
@@ -19,10 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
@@ -38,9 +42,12 @@ import org.piramalswasthya.cho.databinding.FragmentOutreachBinding
 import org.piramalswasthya.cho.model.OutreachDropdownList
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
+import java.util.Base64
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -50,7 +57,8 @@ import javax.inject.Inject
 class OutreachFragment(
     private val userName: String,
     private val rememberUsername: Boolean,
-) : Fragment() {
+    private val isBiometric: Boolean,
+    ) : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
@@ -71,6 +79,7 @@ class OutreachFragment(
     var validImage: Boolean? = false
 
     var image: Bitmap? = null
+    var imageString: String? = null
     private var outreachList = ArrayList<OutreachDropdownList>()
     private lateinit var faceDetector: FirebaseVisionFaceDetector
     private var outreachNameMap = emptyMap<Int,String>()
@@ -135,6 +144,7 @@ class OutreachFragment(
 //        }
 //    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
@@ -158,14 +168,21 @@ class OutreachFragment(
 
         faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
         getCurrentLocation()
-        if(!viewModel.fetchRememberedPassword().isNullOrBlank()) {
-            viewModel.fetchRememberedPassword()?.let {
-                binding.etPassword.setText(it)
+        if (isBiometric) {
+            binding.tilPassword.visibility = View.GONE
+            binding.btnOutreachLogin.text = "Proceed to Home"
+        }else {
+            binding.tilPassword.visibility = View.VISIBLE
+            if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
+                viewModel.fetchRememberedPassword()?.let {
+                    binding.etPassword.setText(it)
+                }
             }
         }
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun processImage(image: Bitmap) {
         val firebaseImage = FirebaseVisionImage.fromBitmap(image)
 
@@ -207,6 +224,7 @@ class OutreachFragment(
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun processDetectedFaces(faces: List<FirebaseVisionFace>) {
         for (face in faces) {
             val bounds = face.boundingBox
@@ -219,6 +237,7 @@ class OutreachFragment(
                 Timber.d("Eyes Are Open")
                 validImage = true
                 binding.imageView.setImageBitmap(image)
+                imageString = ImgUtils.bitmapToBase64(image)
                 // Both eyes are open, liveness confirmed
                 // Implement your logic for a live face
             } else {
@@ -249,6 +268,7 @@ class OutreachFragment(
             outreachAdapter.addAll(c.map{it.outreachType})
             outreachAdapter.notifyDataSetChanged()
         }
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
         Timber.tag("Outreach username").i(userName);
         getCurrentLocation()
@@ -256,11 +276,13 @@ class OutreachFragment(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
+            if (image != null) {
+
             // call for lat long
             getCurrentLocation()
 
             val outreachVal = binding.outreachText.text.toString()
-            val selectedOption = findKeyByValue(outreachNameMap,outreachVal)
+            val selectedOption = findKeyByValue(outreachNameMap, outreachVal)
             val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
             val timeZone = TimeZone.getTimeZone("GMT+0530")
             val formatter = SimpleDateFormat(pattern, Locale.getDefault())
@@ -268,66 +290,117 @@ class OutreachFragment(
 
             val timestamp = formatter.format(Date())
 
-            if(myLocation != null){
+            if (myLocation != null) {
                 latitude = myLocation!!.latitude
                 longitude = myLocation!!.longitude
             }
-            viewModel.authUser(
-                userName,
-                binding.etPassword.text.toString(),
-                "OUTREACH",
-                outreachVal,
-                timestamp,
-                null,
-                latitude,
-                longitude,
-                null
-            )
+            if (!isBiometric) {
 
-            viewModel.state.observe(viewLifecycleOwner) { state ->
-                when (state!!) {
-                    OutreachViewModel.State.SUCCESS -> {
-                        binding.patientListFragment.visibility = View.VISIBLE
-                        binding.rlSaving.visibility = View.GONE
-                        if (rememberUsername)
-                            viewModel.rememberUser(userName,binding.etPassword.text.toString())
-                        else {
-                            viewModel.forgetUser()
+                viewModel.authUser(
+                    userName,
+                    binding.etPassword.text.toString(),
+                    "OUTREACH",
+                    outreachVal,
+                    timestamp,
+                    null,
+                    latitude,
+                    longitude,
+                    null,
+                    imageString
+                )
+
+                viewModel.state.observe(viewLifecycleOwner) { state ->
+                    when (state!!) {
+                        OutreachViewModel.State.SUCCESS -> {
+                            binding.patientListFragment.visibility = View.VISIBLE
+                            binding.rlSaving.visibility = View.GONE
+                            if (rememberUsername)
+                                viewModel.rememberUser(userName, binding.etPassword.text.toString())
+                            else {
+                                viewModel.forgetUser()
+                            }
+                            findNavController().navigate(
+                                ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
+                            )
+                            viewModel.resetState()
+                            activity?.finish()
                         }
-                        findNavController().navigate(
-                            ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
-                        )
-                        viewModel.resetState()
-                        activity?.finish()
-                    }
-                    OutreachViewModel.State.SAVING -> {
-                        binding.patientListFragment.visibility = View.GONE
-                        binding.rlSaving.visibility = View.VISIBLE
-                    }
 
-                    OutreachViewModel.State.ERROR_SERVER,
-                    OutreachViewModel.State.ERROR_NETWORK -> {
-                        binding.patientListFragment.visibility = View.VISIBLE
-                        binding.rlSaving.visibility = View.GONE
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.error_while_logging_in),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        OutreachViewModel.State.SAVING -> {
+                            binding.patientListFragment.visibility = View.GONE
+                            binding.rlSaving.visibility = View.VISIBLE
+                        }
+
+                        OutreachViewModel.State.ERROR_SERVER,
+                        OutreachViewModel.State.ERROR_NETWORK -> {
+                            binding.patientListFragment.visibility = View.VISIBLE
+                            binding.rlSaving.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.error_while_logging_in),
+                                Toast.LENGTH_LONG
+                            ).show()
 //                        viewModel.forgetUser()
-                        viewModel.resetState()
+                            viewModel.resetState()
+                        }
+
+                        else -> {}
                     }
 
-                    else -> {}
                 }
-
+            } else {
+                lifecycleScope.launch {
+                    viewModel.setOutreachDetails(
+                        "OUTREACH",
+                        outreachVal,
+                        timestamp,
+                        null,
+                        latitude,
+                        longitude,
+                        null,
+                        imageString
+                    )
+                    findNavController().navigate(
+                        ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
+                    )
+                    viewModel.resetState()
+                    activity?.finish()
+                }
             }
-
+        }
+            else{
+                Toast.makeText(context, "Please capture the image to continue.", Toast.LENGTH_SHORT).show()
+            }
         }
 
 
     }
-
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isBiometric)
+                    findNavController().navigateUp()
+                else {
+                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
+                        .setMessage("Please confirm to logout and exit.")
+                        .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
+                            lifecycleScope.launch {
+                                val user = userDao.getLoggedInUser()
+                                userDao.resetAllUsersLoggedInState()
+                                if (user != null) {
+                                    userDao.updateLogoutTime(user.userId, Date())
+                                }
+                            }
+                            requireActivity().finish()
+                            dialog.dismiss()
+                        }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+                            dialog.dismiss()
+                        }.create()
+                        .show()
+                }
+            }
+        }
+    }
     private fun getCurrentLocation() {
         // Check if location permissions are granted
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==

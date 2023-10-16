@@ -72,15 +72,14 @@ object WorkerUtils {
             .enqueue()
     }
 
-    fun pharmacistPushWorker(context : Context){
-
-        val pushPharmacistDataToAmrit = OneTimeWorkRequestBuilder<PushPharmacistDataToAmrit>()
+    fun pushAuditDetailsWorker(context : Context){
+        val pushLoginAuditDataToAmrit = OneTimeWorkRequestBuilder<PushLoginAuditDataWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork("pharmacist-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushPharmacistDataToAmrit)
+            .beginUniqueWork("audit-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushLoginAuditDataToAmrit)
             .enqueue()
     }
 
