@@ -76,7 +76,10 @@ class PharmacistFormViewModel @Inject constructor(
 
     suspend fun getPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            _prescriptions.postValue(patientRepo.getPrescriptions(benVisitInfo)?.get(0) ?: null)
+            val listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            if(listPrescription!=null && listPrescription.size>0){
+                _prescriptions.postValue(listPrescription.get(0) ?: null)
+            }
         }
     }
 //
