@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -45,6 +46,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.work.WorkerUtils
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -142,7 +144,36 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
 //        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
-    private fun addVitalsDataToCache(benVisitNo: Int){
+
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+
+        val visitDB = VisitDB(
+            visitId = generateUuid(),
+            category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
+            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
+            subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
+            patientID = masterDb!!.patientId.toString(),
+            benVisitNo = benVisitNo,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+        )
+
+        var chiefComplaints = mutableListOf<ChiefComplaintDB>()
+        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+            val chiefC = ChiefComplaintDB(
+                id = generateUuid(),
+                chiefComplaintId=chiefComplaintItem.id,
+                chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
+                duration =  chiefComplaintItem.duration.nullIfEmpty(),
+                durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
+                description = chiefComplaintItem.description.nullIfEmpty(),
+                patientID = masterDb!!.patientId.toString(),
+                benVisitNo = benVisitNo,
+                benFlowID=null
+            )
+            chiefComplaints.add(chiefC)
+        }
+
         val patientVitals = PatientVitalsModel(
             vitalsId = generateUuid(),
             height = heightValue.nullIfEmpty(),
@@ -159,38 +190,6 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = benVisitNo,
         )
-        viewModel.savePatientVitalInfoToCache(patientVitals)
-    }
-    private fun addVisitRecordDataToCache(benVisitNo: Int, ){
-        val visitDB = VisitDB(
-            visitId = generateUuid(),
-            category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
-            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
-            subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-            patientID = masterDb!!.patientId.toString(),
-            benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-        )
-
-        viewModel.saveVisitDbToCatche(visitDB)
-        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
-            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
-            val chiefC = ChiefComplaintDB(
-                id = generateUuid(),
-                chiefComplaintId=chiefComplaintItem.id,
-                chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
-                duration =  chiefComplaintItem.duration.nullIfEmpty(),
-                durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
-                description = chiefComplaintItem.description.nullIfEmpty(),
-                patientID = masterDb!!.patientId.toString(),
-                benVisitNo = benVisitNo,
-                benFlowID=null
-            )
-            viewModel.saveChiefComplaintDbToCatche(chiefC)
-        }
-    }
-
-    private fun addPatientVisitInfoSyncToCache(benVisitNo: Int, createNewBenflow: Boolean){
 
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = masterDb!!.patientId.toString(),
@@ -201,8 +200,11 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
             nurseFlag = 9,
             doctorFlag = 1
         )
-        viewModel.savePatientVisitInfoSync(patientVisitInfoSync)
+
+        viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
+
     }
+
 
     private fun createObservationResource(){
         //Code
@@ -405,7 +407,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
             )
         }else{
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Main).launch {
 
                 var benVisitNo = 0;
                 var createNewBenflow = false;
@@ -423,20 +425,29 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
                 }
                 extractFormValues()
                 setVitalsMasterData()
-                addVisitRecordDataToCache(benVisitNo)
-                addVitalsDataToCache(benVisitNo)
-                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                setNurseComplete()
-                val intent = Intent(context, HomeActivity::class.java)
-                startActivity(intent)
-                requireActivity().finish()
+//                addVisitRecordDataToCache(benVisitNo)
+//                addVitalsDataToCache(benVisitNo)
+//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+                saveNurseData(benVisitNo, createNewBenflow)
+
+                viewModel.isDataSaved.observe(viewLifecycleOwner){
+                    when(it!!){
+                        true ->{
+                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                            val intent = Intent(context, HomeActivity::class.java)
+                            startActivity(intent)
+                            requireActivity().finish()
+                        }
+                        else ->{
+//                            requireActivity().runOnUiThread {
+//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                            }
+                        }
+                    }
+                }
+
             }
 
-        }
-    }
-    private fun setNurseComplete() {
-        CoroutineScope(Dispatchers.IO).launch {
-            viewModel.setNurseCompleted(masterDb!!.patientId.toString())
         }
     }
 

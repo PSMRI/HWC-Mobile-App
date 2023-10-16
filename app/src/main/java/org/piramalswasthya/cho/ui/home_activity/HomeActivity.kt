@@ -116,7 +116,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 //        val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
 //        navController = navHostFragment.navController
-        viewModel.updateLastSyncTimestamp()
+        viewModel.init(this)
         getCurrentLocation()
         setUpNavHeader()
 

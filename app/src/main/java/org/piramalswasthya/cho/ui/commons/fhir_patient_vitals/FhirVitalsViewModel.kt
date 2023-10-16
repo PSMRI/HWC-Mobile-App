@@ -28,8 +28,11 @@ import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -38,6 +41,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.ui.commons.FhirQuestionnaireService
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -53,6 +57,11 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
 
 ) :
     ViewModel(), FhirQuestionnaireService {
+
+    private val _isDataSaved = MutableLiveData<Boolean>(false)
+    val isDataSaved: MutableLiveData<Boolean>
+        get() = _isDataSaved
+
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
@@ -130,53 +139,46 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         }
     }
 
-    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
-        viewModelScope.launch {
-            try {
-                vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
-            } catch (e: Exception) {
-                Timber.e("Error in saving vitals information : $e")
-            }
+    suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+        vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+    }
+
+    suspend fun saveVisitDbToCatche(visitDB: VisitDB){
+        visitRepo.saveVisitDbToCache(visitDB)
+    }
+
+    suspend fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
+        visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
+    }
+
+    suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+        val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+        if(existingPatientVisitInfoSync != null){
+            existingPatientVisitInfoSync.nurseDataSynced = patientVisitInfoSync.nurseDataSynced
+            existingPatientVisitInfoSync.doctorDataSynced = patientVisitInfoSync.doctorDataSynced
+            existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
+            existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
+            existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+        }
+        else{
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
         }
     }
 
-    fun saveVisitDbToCatche(visitDB: VisitDB){
+    fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
+                          patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
             try {
-                visitRepo.saveVisitDbToCache(visitDB)
-            }catch (e:Exception){
-                Timber.e("Error in saving visit Db : $e")
-            }
-        }
-    }
-
-    fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
-        viewModelScope.launch {
-            try {
-                visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
-            }catch (e:Exception){
-                Timber.e("Error in saving chieft complaint Db : $e")
-            }
-        }
-    }
-
-    fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
-        viewModelScope.launch {
-            try {
-                val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
-                if(existingPatientVisitInfoSync != null){
-                    existingPatientVisitInfoSync.nurseDataSynced = patientVisitInfoSync.nurseDataSynced
-                    existingPatientVisitInfoSync.doctorDataSynced = patientVisitInfoSync.doctorDataSynced
-                    existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
-                    existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
-                    existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+                saveVisitDbToCatche(visitDB)
+                chiefComplaints.forEach {
+                    saveChiefComplaintDbToCatche(it)
                 }
-                else{
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-                }
-            }catch (e:Exception){
-                Timber.e("Error in saving chieft complaint Db : $e")
+                savePatientVitalInfoToCache(patientVitals)
+                savePatientVisitInfoSync(patientVisitInfoSync)
+                _isDataSaved.value = true
+            } catch (e: Exception){
+                _isDataSaved.value = false
             }
         }
     }
@@ -189,15 +191,4 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
 
-    suspend fun setNurseCompleted(patienId:String){
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO){
-//                    patientRepo.updateNurseSubmitted(patienId)
-                }
-            }catch (e:Exception){
-                Timber.e("Error in Updating nurse complete in patient Db : $e")
-            }
-        }
-    }
 }

@@ -27,6 +27,7 @@ import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home_activity.HomeActivityViewModel
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
@@ -111,7 +112,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
-        viewModel.init(requireContext())
 //        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
         val fragmentVisitDetails = PersonalDetailsFragment()
@@ -125,12 +125,12 @@ class HomeFragment : Fragment() {
 
         }
 
-        viewModel.state.observe(viewLifecycleOwner) { state ->
+        HomeActivityViewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
-                HomeViewModel.State.IDLE -> {
+                HomeActivityViewModel.State.IDLE -> {
                 }
 
-                HomeViewModel.State.SAVING -> {
+                HomeActivityViewModel.State.SAVING -> {
                     if (!dataLoadFlagManager.isDataLoaded()){
                         binding.patientListFragment.visibility = View.GONE
                         binding.rlSaving.visibility = View.VISIBLE
@@ -138,17 +138,13 @@ class HomeFragment : Fragment() {
                     }
                 }
 
-                HomeViewModel.State.SAVE_SUCCESS -> {
+                HomeActivityViewModel.State.SAVE_SUCCESS -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
                     binding.registration.isEnabled = preferenceDao.isUserRegistrar()
                 }
 
-                HomeViewModel.State.SAVE_FAILED -> {
-//                    Toast.makeText(
-//
-//                        context, resources.getString(R.string.something_wend_wong), Toast.LENGTH_LONG
-//                    ).show()
+                HomeActivityViewModel.State.SAVE_FAILED -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
                 }

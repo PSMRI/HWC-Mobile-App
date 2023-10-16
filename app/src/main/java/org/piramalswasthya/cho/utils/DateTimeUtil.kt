@@ -144,6 +144,18 @@ class DateTimeUtil {
             return date
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun formatBenVisitDate(dateString: String?): String? {
+            try {
+                val inputDateFormat = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a")
+                val outputDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                val date = inputDateFormat.parse(dateString)
+                return outputDateFormat.format(date);
+            } catch (e: Exception){
+                return null;
+            }
+        }
+
     }
 
 }

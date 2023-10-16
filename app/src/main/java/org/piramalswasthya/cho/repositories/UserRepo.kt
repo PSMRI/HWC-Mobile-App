@@ -348,7 +348,7 @@ class UserRepo @Inject constructor(
                                 blockId.toInt(),
                                 null,
                                 null,
-                                name
+                                name ?: ""
                             )
                         )
                     }
