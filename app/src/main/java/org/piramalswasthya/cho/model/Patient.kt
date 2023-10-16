@@ -558,7 +558,7 @@ data class BeneficiariesDTO(
     val benId: BigInteger?,
     val benRegId: BigInteger?,
     val createdBy: String?,
-    val createdDate: String?,
+    val createdDate: Timestamp?,
     val deleted: Boolean?,
     val lastModDate: Timestamp?,
     val modifiedBy: String?,

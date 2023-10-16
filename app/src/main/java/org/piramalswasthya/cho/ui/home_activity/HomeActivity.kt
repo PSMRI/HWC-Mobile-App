@@ -111,19 +111,19 @@ class HomeActivity : AppCompatActivity() {
     var runnable: Runnable? = null
     var delay = 10000
 
-//    override fun onResume() {
-//        handler.postDelayed(Runnable {
-//            handler.postDelayed(runnable!!, delay.toLong())
-//            Log.v("resuming activitiy", "resume")
-//            viewModel.triggerDownSyncWorker(this)
-//        }.also { runnable = it }, delay.toLong())
-//        super.onResume()
-//    }
-//    override fun onPause() {
-//        super.onPause()
-//        Log.v("pausing activitiy", "pause")
-//        handler.removeCallbacks(runnable!!)
-//    }
+    override fun onResume() {
+        handler.postDelayed(Runnable {
+            handler.postDelayed(runnable!!, delay.toLong())
+            Log.v("resuming activitiy", "resume")
+            viewModel.triggerDownSyncWorker(this)
+        }.also { runnable = it }, delay.toLong())
+        super.onResume()
+    }
+    override fun onPause() {
+        super.onPause()
+        Log.v("pausing activitiy", "pause")
+        handler.removeCallbacks(runnable!!)
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {

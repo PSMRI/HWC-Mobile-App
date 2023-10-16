@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.sql.Timestamp
 
 class DateTimeUtil {
 
@@ -85,6 +86,18 @@ class DateTimeUtil {
                 e.printStackTrace()
                 return null
             }
+        }
+
+        fun convertTimestampToISTDate(timestamp: Timestamp?): Date? {
+
+            if (timestamp == null) {
+                return null
+            }
+
+            val milliseconds = timestamp.time - (5.5 * 3600000).toLong()
+
+            return Date(milliseconds)
+
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
