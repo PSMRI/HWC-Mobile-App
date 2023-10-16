@@ -21,6 +21,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
@@ -53,6 +54,10 @@ class VisitDetailViewModel @Inject constructor(
     private var _vitalsDB: PatientVitalsModel? = null
     val vitalsDB: PatientVitalsModel?
         get() = _vitalsDB
+
+    private val _isDataSaved = MutableLiveData<Boolean>(false)
+    val isDataSaved: MutableLiveData<Boolean>
+        get() = _isDataSaved
 
     private val _idPatientId = MutableLiveData<String?>(null)
 
@@ -89,15 +94,46 @@ class VisitDetailViewModel @Inject constructor(
         getSubCatVisitList()
         getChiefMasterComplaintList()
     }
+        fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
+                              patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
+            viewModelScope.launch {
+                try {
+                    saveVisitDbToCatche(visitDB)
+                    chiefComplaints.forEach {
+                        saveChiefComplaintDbToCatche(it)
+                    }
+                    savePatientVitalInfoToCache(patientVitals)
+                    savePatientVisitInfoSync(patientVisitInfoSync)
+                    _isDataSaved.value = true
+                } catch (e: Exception){
+                    _isDataSaved.value = false
+                }
+            }
+        }
+    suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+        vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+    }
 
-//    fun getLastDate(patientID: String) {
-//        try {
-//            _lastVisitDate =
-//                Timber.tag("Lifecycle Check").i("insideiii ${_lastVisitDate?.value.toString()}")
-//        } catch (e: Exception) {
-//            Timber.d("Error in Last Visit Date() $e")
-//        }
-//    }
+    suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+        val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+        if(existingPatientVisitInfoSync != null){
+            existingPatientVisitInfoSync.nurseDataSynced = patientVisitInfoSync.nurseDataSynced
+            existingPatientVisitInfoSync.doctorDataSynced = patientVisitInfoSync.doctorDataSynced
+            existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
+            existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
+            existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+        }
+        else{
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+        }
+    }
+    suspend fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
+        visitReasonsAndCategoriesRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
+    }
+    suspend fun saveVisitDbToCatche(visitDB: VisitDB){
+        visitReasonsAndCategoriesRepo.saveVisitDbToCache(visitDB)
+    }
 
     fun setIsFollowUp(boolean: Boolean) {
         isFollowUpChecked = boolean

@@ -35,6 +35,7 @@ import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.fhir_utils.FhirExtension
@@ -48,6 +49,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
@@ -61,6 +63,7 @@ import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -130,7 +133,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
     private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
     private lateinit var chAdapter: ChiefComplaintMultiAdapter
-    var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
+    var chiefComplaintDB2 = mutableListOf<ChiefComplaintDB>()
     private val binding: VisitDetailsInfoBinding
         get() {
             return _binding!!
@@ -398,90 +401,118 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 //        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
 
-    //    private fun addVisitRecordDataToCache(benVisitNo: Int, ){
-//        val visitDB = VisitDB(
-//            visitId = generateUuid(),
-//            category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
-//            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
-//            subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-//            patientID = masterDb!!.patientId.toString(),
-//            benVisitNo = benVisitNo,
-//            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-//        )
-//
-//        viewModel.saveVisitDbToCatche(visitDB)
-//        for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
-//            val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
-//            val chiefC = ChiefComplaintDB(
-//                id = generateUuid(),
-//                chiefComplaintId=chiefComplaintItem.id,
-//                chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
-//                duration =  chiefComplaintItem.duration.nullIfEmpty(),
-//                durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
-//                description = chiefComplaintItem.description.nullIfEmpty(),
-//                patientID = masterDb!!.patientId.toString(),
-//                benVisitNo = benVisitNo,
-//                benFlowID=null
-//            )
-//            viewModel.saveChiefComplaintDbToCatche(chiefC)
-//        }
-//    }
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
+        val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
+        val subCategory = binding.subCatInput.text.toString()
+        val visitDB = VisitDB(
+            visitId = generateUuid(),
+            category = selectedCategoryRadioButton?.tag.toString(),
+            reasonForVisit = selectedReasonRadioButton?.tag.toString(),
+            subCategory =subCategory,
+            patientID = patientId,
+            benVisitNo = benVisitNo,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+        )
+
+        var chiefComplaints = mutableListOf<ChiefComplaintDB>()
+        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
+            for (chiefComplaintItem in chiefComplaintList) {
+                val chiefC = ChiefComplaintDB(
+                    id = generateUuid(),
+                    chiefComplaintId = chiefComplaintItem.chiefComplaintId,
+                    chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
+                    duration = chiefComplaintItem.duration.nullIfEmpty(),
+                    durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
+                    description = chiefComplaintItem.description.nullIfEmpty(),
+                    patientID = patientId,
+                    benVisitNo = benVisitNo,
+                    benFlowID = null
+                )
+                chiefComplaints.add(chiefC)
+            }
+        }
+
+        val patientVitals = PatientVitalsModel(
+            vitalsId = generateUuid(),
+            height = heightValue.nullIfEmpty(),
+            weight = weightValue.nullIfEmpty(),
+            bmi = bmiValue.nullIfEmpty(),
+            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
+            temperature = temperatureValue.nullIfEmpty(),
+            pulseRate = pulseRateValue.nullIfEmpty(),
+            spo2 = spo2Value.nullIfEmpty(),
+            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
+            bpSystolic = bpSystolicValue.nullIfEmpty(),
+            respiratoryRate = respiratoryValue.nullIfEmpty(),
+            rbs = rbsValue.nullIfEmpty(),
+            patientID = patientId,
+            benVisitNo = benVisitNo,
+        )
+
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = patientId,
+            benVisitNo = benVisitNo,
+            createNewBenFlow = createNewBenflow,
+            nurseDataSynced = SyncState.UNSYNCED,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = 9,
+            doctorFlag = 1
+        )
+
+        viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
+
+    }
     fun goToEnd(){
         extractFormValues()
         setVisitMasterDataAndVitalsForFollow()
         if(preferenceDao.isUserOnlyNurseOrCHO()){
-            val intent = Intent(context, HomeActivity::class.java)
-            startActivity(intent)
-            requireActivity().finish()
-        }else{
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 var benVisitNo = 0;
                 var createNewBenflow = false;
-                if(benVisitInfo.patient!=null) {
-                    viewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
-                        if (it == null) {
-                            benVisitNo = 1;
-                        } else if (it.nurseFlag == 1) {
-                            benVisitNo = it.benVisitNo
-                        } else {
-                            benVisitNo = it.benVisitNo + 1
-                            createNewBenflow = true;
+                viewModel.getLastVisitInfoSync(patientId).let {
+                    if(it == null){
+                        benVisitNo = 1;
+                    }
+                    else if(it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    }
+                    else {
+                        benVisitNo = it.benVisitNo + 1
+                        createNewBenflow = true;
+                    }
+                }
+                extractFormValues()
+                setVitalsMasterData()
+                saveNurseData(benVisitNo, createNewBenflow)
+
+                viewModel.isDataSaved.observe(viewLifecycleOwner){
+                    when(it!!){
+                        true ->{
+                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                            val intent = Intent(context, HomeActivity::class.java)
+                            startActivity(intent)
+                            requireActivity().finish()
+                        }
+                        else ->{
+//                            requireActivity().runOnUiThread {
+//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                            }
                         }
                     }
                 }
-                setVitalsMasterData()
-//                addVisitRecordDataToCache(benVisitNo)
-//                addVitalsDataToCache(benVisitNo)
-//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-//                setNurseComplete()
+
+            }
+        }
+        else{
                 findNavController().navigate(
                     R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
                 )
-            }
-            findNavController().navigate(
-                R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
-            )
         }
     }
-//    private fun addVitalsDataToCache(benVisitNo: Int){
-//        val patientVitals = PatientVitalsModel(
-//            vitalsId = generateUuid(),
-//            height = heightValue.nullIfEmpty(),
-//            weight = weightValue.nullIfEmpty(),
-//            bmi = bmiValue.nullIfEmpty(),
-//            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
-//            temperature = temperatureValue.nullIfEmpty(),
-//            pulseRate = pulseRateValue.nullIfEmpty(),
-//            spo2 = spo2Value.nullIfEmpty(),
-//            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
-//            bpSystolic = bpSystolicValue.nullIfEmpty(),
-//            respiratoryRate = respiratoryValue.nullIfEmpty(),
-//            rbs = rbsValue.nullIfEmpty(),
-//            patientID = masterDb!!.patientId.toString(),
-//            benVisitNo = benVisitNo,
-//        )
-//        viewModel.savePatientVitalInfoToCache(patientVitals)
-//    }
     private fun setVitalsMasterData() {
         var vitalDb = VitalsMasterDb(
             height = heightValue.nullIfEmpty(),
@@ -615,10 +646,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         binding.chiefComplaintExtra2.visibility = View.VISIBLE
         binding.vitalsHeading.visibility = View.VISIBLE
         binding.vitalsLayout.visibility = View.VISIBLE
-        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
-        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            chiefComplaintDB.clear()
 
+        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
             for (chiefComplaintItem in chiefComplaintList) {
                 val chiefC = ChiefComplaintDB(
                     id = "33+${chiefComplaintItem.chiefComplaintId}",
@@ -627,19 +656,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                     duration = chiefComplaintItem.duration,
                     durationUnit = chiefComplaintItem.durationUnit,
                     description = chiefComplaintItem.description,
-                    patientID = "",
+                    patientID = patientId,
                     benFlowID = 0
                 )
-                chiefComplaintDB.add(chiefC) // Add the item to the list
+                chiefComplaintDB2.add(chiefC) // Add the item to the list
             }
-            chAdapter.notifyDataSetChanged()
         }
-
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB2)
         binding.chiefComplaintExtra2.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra2.layoutManager = layoutManagerC
 
-        if (chiefComplaintDB.size == 0) {
+        if (chiefComplaintDB2.size == 0) {
             binding.chiefComplaintHeading.visibility = View.GONE
         } else {
             binding.chiefComplaintHeading.visibility = View.VISIBLE
@@ -844,9 +872,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
     }
 
-    private fun setVisitMasterDataAndVitalsForFollow() {
+    private fun setVisitMasterDataAndVitalsForFollow(){
         val visitMasterDb = VisitMasterDb()
-
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
 
@@ -861,10 +888,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
         val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            chiefComplaintDB.clear()
             for (chiefComplaintData in chiefComplaintList) {
                 var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.id.toInt(),
+                    id = chiefComplaintData.chiefComplaintId,
                     chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
                     duration = chiefComplaintData.duration.nullIfEmpty(),
                     durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
@@ -877,9 +903,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         visitMasterDb.chiefComplaint = chiefComplaintList2
         masterDb?.visitMasterDb = visitMasterDb
 
-
+        var vitalDb = VitalsMasterDb(
+            height = heightValue.nullIfEmpty(),
+            weight = weightValue.nullIfEmpty(),
+            bmi = bmiValue.nullIfEmpty(),
+            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
+            temperature = temperatureValue.nullIfEmpty(),
+            pulseRate = pulseRateValue.nullIfEmpty(),
+            spo2 = spo2Value.nullIfEmpty(),
+            bpSystolic = bpSystolicValue.nullIfEmpty(),
+            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
+            respiratoryRate = respiratoryValue.nullIfEmpty(),
+            rbs = rbsValue.nullIfEmpty()
+        )
+        masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
-
     }
 
     private fun setVisitMasterDataForFollow() {
@@ -900,10 +938,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
         val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            chiefComplaintDB.clear()
             for (chiefComplaintData in chiefComplaintList) {
                 var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.id.toInt(),
+                    id = chiefComplaintData.chiefComplaintId,
                     chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
                     duration = chiefComplaintData.duration.nullIfEmpty(),
                     durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
