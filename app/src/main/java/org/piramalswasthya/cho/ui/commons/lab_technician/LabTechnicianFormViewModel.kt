@@ -43,6 +43,11 @@ class LabTechnicianFormViewModel @Inject constructor(
         get() = _isDataSaved
 
     private var _boolCall = MutableLiveData(false)
+
+    private val _cacheSaved = MutableLiveData(false)
+    val cacheSaved: LiveData<Boolean>
+        get() = _cacheSaved
+
     val boolCall: LiveData<Boolean>
         get() = _boolCall
 
@@ -97,6 +102,13 @@ class LabTechnicianFormViewModel @Inject constructor(
 
             viewModelScope.launch {
 
+                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )!!
+                patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
+                patientVisitInfoSync.doctorFlag = 3
+
                 dtos?.forEach { procedureDTO ->
 
                     val procedure =
@@ -124,6 +136,9 @@ class LabTechnicianFormViewModel @Inject constructor(
 
                 _isDataSaved.value = true
 
+                withContext(Dispatchers.IO) {
+                    _cacheSaved.postValue(true)
+                }
             }
 
         } catch (e: Exception) {

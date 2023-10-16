@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.databinding.FragmentEditPatientDetailsBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
