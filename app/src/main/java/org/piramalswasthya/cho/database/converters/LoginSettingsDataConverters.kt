@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken
 import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.UserMasterLocation
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.network.District
 import org.piramalswasthya.cho.network.DistrictBlock

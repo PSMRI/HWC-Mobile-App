@@ -53,9 +53,10 @@ import org.piramalswasthya.cho.fhir_utils.extension_names.district
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.model.UserMasterLocation
+import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.StateList
@@ -66,6 +67,7 @@ import org.piramalswasthya.cho.repositories.StateMasterRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
 import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientViewModel
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import java.lang.Math.sin
@@ -263,16 +265,19 @@ class LoginSettingsFragment : Fragment() {
 //            )
 //        }
 
-        binding.retry.setOnClickListener {
-            resetData()
-        }
+//        binding.retry.setOnClickListener {
+//            resetData()
+//        }
         binding.submit.setOnClickListener {
-            getCurrentLocation()
-            if(!binding.inputMasterLat.text.isNullOrEmpty() && !binding.inputMasterLong.text.isNullOrEmpty())
+            if(!binding.inputMasterLat.text.isNullOrEmpty() && !binding.inputMasterLong.text.isNullOrEmpty()){
                 submitLocationData()
+                val intent = Intent(context, HomeActivity::class.java)
+                intent.putExtra("showDashboard", true)
+                startActivity(intent)
+                requireActivity().finish()
+            }
             else
                 Toast.makeText(activity,"Please wait while master location coordinates are fetched.",Toast.LENGTH_LONG).show()
-
         }
     }
 
@@ -349,21 +354,11 @@ class LoginSettingsFragment : Fragment() {
         if(stateBool && distBool && talukBool && pancBool){
             lifecycleScope.launch {
 
-            val userMasterLocation = UserMasterLocation(
-                userId = viewModel.userInfo?.userId,
-                stateId = viewModel.masterStateId,
-                stateName = viewModel.masterState,
-                districtId =  viewModel.masterDistrictId,
-                districtName=viewModel.masterDistrict,
-                blockId= viewModel.masterBlockId,
-                blockName=  viewModel.masterBlock,
-                villageId = viewModel.userMasterVillage?.districtBranchID?.toInt(),
-            villageName = viewModel.userMasterVillage?.villageName,
-            masterLatitude = myLocation?.latitude,
-            masterLongitude = myLocation?.longitude)
-                userRepo.setUserMasterLoc(userMasterLocation)
+                userRepo.updateVillageCoordinates(MasterLocationModel(myLocation?.latitude!!, myLocation?.longitude!!,
+                    "addressGeo", viewModel.userMasterVillage?.districtBranchID?.toInt()))
+                userRepo.setUserMasterVillage(UserMasterVillage(viewModel.userMasterVillage?.districtBranchID?.toInt(),
+                    viewModel.userInfo?.userId))
                 Toast.makeText(activity,"Data is Saved!",Toast.LENGTH_SHORT).show()
-                requireActivity().finish()
             }
         } else {
             Toast.makeText(activity,"Please fill all the details",Toast.LENGTH_SHORT).show()
@@ -388,7 +383,6 @@ class LoginSettingsFragment : Fragment() {
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
-                    Log.i("Location","$myLocation")
                     if(myInitialLoc == null && myLocation != null) {
                         myInitialLoc = myLocation
                         binding.inputMasterLong.setText(myInitialLoc?.longitude.toString())
@@ -402,12 +396,7 @@ class LoginSettingsFragment : Fragment() {
                             location.longitude
                         )
 
-                        Log.i("Calculated Distance is ", "$distance")
-                        // Check if the user has moved more than 500 meters
-                        if (distance > 500 && !dialogClosed) {
-                            showDialog()
-                            dialogClosed = true
-                        }
+
                     }
                     // Stop listening for location updates once you have the current location
 //                    locationManager?.removeUpdates(this)
@@ -452,26 +441,6 @@ class LoginSettingsFragment : Fragment() {
         Location.distanceBetween(lat1, lon1, lat2, lon2, results)
         return results[0]
     }
-    private fun showDialog() {
-        var alertDialog: AlertDialog? = null
-        val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You have moved more than 500 meters from the fixed point. Do you want to update your location?")
-//            .setCancelable(false)
-            .setPositiveButton("OK") { _, _ ->
-                // Handle the user's choice to update location here
-                // You can perform any necessary actions when the user selects "Yes"
-//                myInitialLoc = null
-//                getCurrentLocation()
-                alertDialog!!.dismiss()
-            }
-//            .setNegativeButton("No") { _, _ ->
-//               alertDialog!!.dismiss()
-//            }
-
-        alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
-
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123

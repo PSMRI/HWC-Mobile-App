@@ -2,27 +2,16 @@ package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
 @Entity(
-    tableName = "USER_MASTER_LOCATION",
-    foreignKeys = [
-        ForeignKey(
-            entity = UserCache::class,
-            parentColumns = ["user_id"],
-            childColumns = ["user_id"],
-            onDelete = ForeignKey.NO_ACTION
-        )
-    ]
+    tableName = "MASTER_LOCATION",
 )
 @JsonClass(generateAdapter = true)
-data class UserMasterLocation (
+data class MasterLocation (
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
-    @ColumnInfo(name = "user_id")
-    val userId: Int?,
     @ColumnInfo(name = "state_id") val stateId: Int?,
     @ColumnInfo(name = "state_name") val stateName: String?,
     @ColumnInfo(name = "district_id") val districtId: Int?,
@@ -34,3 +23,4 @@ data class UserMasterLocation (
     @ColumnInfo(name = "latitude") val masterLatitude: Double?,
     @ColumnInfo(name = "longitude") val masterLongitude: Double?,
 )
+

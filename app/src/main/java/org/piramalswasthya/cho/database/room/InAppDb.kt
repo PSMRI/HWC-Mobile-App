@@ -117,10 +117,10 @@ import timber.log.Timber
         ComponentOption::class,
         ProcedureDataDownsync::class,
         ComponentDataDownsync::class,
-        UserMasterLocation::class
+        MasterLocation::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 82, exportSchema = false
+    version = 84, exportSchema = false
 )
 
 
