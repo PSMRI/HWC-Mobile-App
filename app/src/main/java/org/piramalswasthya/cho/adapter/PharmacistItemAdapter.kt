@@ -7,16 +7,10 @@ import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
-import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
 
@@ -92,12 +86,12 @@ class PharmacistItemAdapter(
     }
 
     class BenClickListener(
-        private val clickedABHA: (benVisitInfo: PrescriptionItemDTO) -> Unit,
+        private val clickedViewBatch: (benVisitInfo: PrescriptionItemDTO) -> Unit,
     ) {
         fun onClickABHA(item: PrescriptionItemDTO) {
             Log.i("View batch Button", "")
-            Log.d("ABHA Item Click", "ABHA item clicked")
-            clickedABHA(item)
+//            Log.d("ABHA Item Click", "ABHA item clicked")
+            clickedViewBatch(item)
         }
     }
 

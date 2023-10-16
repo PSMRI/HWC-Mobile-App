@@ -83,6 +83,18 @@ object WorkerUtils {
             .enqueue()
     }
 
+    fun pharmacistPushWorker(context : Context){
+
+        val pushPharmacistDataToAmrit = OneTimeWorkRequestBuilder<PushPharmacistDataToAmrit>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork("pharmacist-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushPharmacistDataToAmrit)
+            .enqueue()
+    }
+
     fun labPullWorker(context : Context, patientId: String){
 
         val data = Data.Builder()
