@@ -178,22 +178,19 @@ class PatientRepo @Inject constructor(
             preferenceDao.getLastPatientSyncTime()
         )
 
-        return when(val response = downloadRegisterPatientFromServer(villageList)){
+        when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
-                true
+                return true
             }
-
             is NetworkResult.Error -> {
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
-                true
+                return false
             }
-
-            else -> {
-                true
-            }
+            else -> {}
         }
+        return true
     }
     private fun convertStringToIntList(villageIds : String) : List<Int>{
         return villageIds.split(",").map {

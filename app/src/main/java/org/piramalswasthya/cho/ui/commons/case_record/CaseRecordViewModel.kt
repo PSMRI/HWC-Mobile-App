@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -36,6 +37,7 @@ import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.Exception
@@ -59,6 +61,11 @@ class CaseRecordViewModel @Inject constructor(
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
+
+
+    private val _isDataSaved = MutableLiveData<Boolean>(false)
+    val isDataSaved: MutableLiveData<Boolean>
+        get() = _isDataSaved
 
     private val _isClickedSS=MutableLiveData<Boolean>(false)
 
@@ -167,64 +174,28 @@ class CaseRecordViewModel @Inject constructor(
            }
        }
    }
-    fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
-        viewModelScope.launch {
-            try {
-                caseRecordeRepo.saveInvestigationToCatche(investigationCaseRecord)
-            } catch (e: Exception) {
-                Timber.e("Error in saving Investigation: $e")
-            }
-        }
+    suspend fun saveInvestigationToCache(investigationCaseRecord: InvestigationCaseRecord) {
+        caseRecordeRepo.saveInvestigationToCatche(investigationCaseRecord)
     }
 
-    fun saveDiagnosisToCache(diagnosisCaseRecord: DiagnosisCaseRecord) {
-        viewModelScope.launch {
-            try {
-                caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
-            } catch (e: Exception) {
-                Timber.e("Error in saving diagnosis: $e")
-            }
-        }
+    suspend fun saveDiagnosisToCache(diagnosisCaseRecord: DiagnosisCaseRecord) {
+        caseRecordeRepo.saveDiagnosisToCatche(diagnosisCaseRecord)
     }
 
-    fun savePrescriptionToCache(prescriptionCaseRecord: PrescriptionCaseRecord) {
-        viewModelScope.launch {
-            try {
-                caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
-            } catch (e: Exception) {
-                Timber.e("Error in saving Prescription: $e")
-            }
-        }
+    suspend fun savePrescriptionToCache(prescriptionCaseRecord: PrescriptionCaseRecord) {
+        caseRecordeRepo.savePrescriptionToCatche(prescriptionCaseRecord)
     }
 
-    fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
-        viewModelScope.launch {
-            try {
-                vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
-            } catch (e: Exception) {
-                Timber.e("Error in saving vitals information : $e")
-            }
-        }
+    suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
+        vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
     }
 
-    fun saveVisitDbToCatche(visitDB: VisitDB){
-        viewModelScope.launch {
-            try {
-                visitRepo.saveVisitDbToCache(visitDB)
-            }catch (e:Exception){
-                Timber.e("Error in saving visit Db : $e")
-            }
-        }
+    suspend fun saveVisitDbToCatche(visitDB: VisitDB){
+        visitRepo.saveVisitDbToCache(visitDB)
     }
 
-    fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
-        viewModelScope.launch {
-            try {
-                visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
-            }catch (e:Exception){
-                Timber.e("Error in saving chieft complaint Db : $e")
-            }
-        }
+    suspend fun saveChiefComplaintDbToCatche(chiefComplaintDB: ChiefComplaintDB){
+        visitRepo.saveChiefComplaintDbToCache(chiefComplaintDB)
     }
 
     fun deleteOldDoctorData(patientID: String, benVisitNo: Int){
@@ -241,46 +212,81 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
-    fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+    suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
+        val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+        if(existingPatientVisitInfoSync != null){
+            existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
+            existingPatientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
+            existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
+            existingPatientVisitInfoSync.nurseFlag = 9
+            existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+        }
+        else{
+            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+        }
+    }
+
+    suspend fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = benVisitInfo.patient.patientID,
+            nurseDataSynced = benVisitInfo.nurseDataSynced,
+            doctorDataSynced = SyncState.UNSYNCED,
+            createNewBenFlow = benVisitInfo.createNewBenFlow,
+            benVisitNo = benVisitInfo.benVisitNo!!,
+            benFlowID = benVisitInfo.benFlowID,
+            nurseFlag = 9,
+            doctorFlag = doctorFlag,
+            labtechFlag = benVisitInfo.labtechFlag,
+            pharmacist_flag = benVisitInfo.pharmacist_flag,
+        )
+        if(benVisitInfo.doctorFlag == 3){
+            patientVisitInfoSync.labtechFlag = 1
+        }
+        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+    }
+
+    fun saveDoctorData(diagnosisList: List<DiagnosisCaseRecord>, investigation: InvestigationCaseRecord,
+                       prescriptionList: List<PrescriptionCaseRecord>, benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
         viewModelScope.launch {
             try {
-                val existingPatientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
-                if(existingPatientVisitInfoSync != null){
-                    existingPatientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
-                    existingPatientVisitInfoSync.doctorDataSynced = SyncState.UNSYNCED
-                    existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
-                    existingPatientVisitInfoSync.nurseFlag = 9
-                    existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
+                diagnosisList.forEach {
+                    saveDiagnosisToCache(it)
                 }
-                else{
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                saveInvestigationToCache(investigation)
+                prescriptionList.forEach {
+                    savePrescriptionToCache(it)
                 }
-            }catch (e:Exception){
-                Timber.e("Error in saving chieft complaint Db : $e")
+                updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                _isDataSaved.value = true
+            } catch (e: Exception){
+                _isDataSaved.value = false
             }
         }
     }
 
-    fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
+    fun saveNurseAndDoctorData(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>, patientVitals: PatientVitalsModel,
+                               diagnosisList: List<DiagnosisCaseRecord>, investigation: InvestigationCaseRecord,
+                               prescriptionList: List<PrescriptionCaseRecord>, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
-            val patientVisitInfoSync = PatientVisitInfoSync(
-                patientID = benVisitInfo.patient.patientID,
-                nurseDataSynced = benVisitInfo.nurseDataSynced,
-                doctorDataSynced = SyncState.UNSYNCED,
-                createNewBenFlow = benVisitInfo.createNewBenFlow,
-                benVisitNo = benVisitInfo.benVisitNo!!,
-                benFlowID = benVisitInfo.benFlowID,
-                nurseFlag = 9,
-                doctorFlag = doctorFlag,
-                labtechFlag = benVisitInfo.labtechFlag,
-                pharmacist_flag = benVisitInfo.pharmacist_flag,
-            )
-            if(benVisitInfo.doctorFlag == 3){
-                patientVisitInfoSync.labtechFlag = 1
+            try {
+                saveVisitDbToCatche(visitDB)
+                chiefComplaints.forEach {
+                    saveChiefComplaintDbToCatche(it)
+                }
+                savePatientVitalInfoToCache(patientVitals)
+                diagnosisList.forEach {
+                    saveDiagnosisToCache(it)
+                }
+                saveInvestigationToCache(investigation)
+                prescriptionList.forEach {
+                    savePrescriptionToCache(it)
+                }
+                savePatientVisitInfoSync(patientVisitInfoSync)
+                _isDataSaved.value = true
+            } catch (e: Exception){
+                _isDataSaved.value = false
             }
-            patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-
         }
     }
 

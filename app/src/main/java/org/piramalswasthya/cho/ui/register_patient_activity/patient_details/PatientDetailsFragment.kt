@@ -34,6 +34,7 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
@@ -668,9 +669,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setLocationDetails()
             patient.patientID = generateUuid()
             viewModel.insertPatient(patient)
-            requireActivity().finish()
-            Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
-        }
+            viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
+                when(state!!){
+                    true -> {
+                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        requireActivity().finish()
+                        Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+//                        Toast.makeText(requireContext(), getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+       }
     }
 
     override fun onCancelAction() {

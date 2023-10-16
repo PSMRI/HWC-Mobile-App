@@ -139,6 +139,9 @@ class LabTechnicianFormViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     _cacheSaved.postValue(true)
                 }
+
+                _isDataSaved.value = true
+
             }
 
         } catch (e: Exception) {

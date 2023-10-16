@@ -239,7 +239,8 @@ data class PatientDisplayWithVisitInfo(
 data class BenHealthIdDetails(
     var healthId: String? = null,
     var healthIdNumber: String? = null
-)
+) : Serializable
+
 @JsonClass(generateAdapter = true)
 data class PatientNetwork(
     val accountNo: String?,
