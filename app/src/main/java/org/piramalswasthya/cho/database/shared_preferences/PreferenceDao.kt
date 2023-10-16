@@ -132,13 +132,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         }
         return false
     }
-    fun isLabTechnician(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.contains("Lab Technician")
-        }
-        return false;
-    }
 
     fun isStartingLabTechnician(): Boolean {
         val rolesArray = getUserRoles()?.split(",")

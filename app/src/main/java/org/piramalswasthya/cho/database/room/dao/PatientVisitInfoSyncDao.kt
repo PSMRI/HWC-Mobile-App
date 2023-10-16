@@ -96,7 +96,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9")
+            "WHERE vis.nurseFlag = 9 ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -106,7 +106,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2")
+            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForLab(): Flow<List<PatientDisplayWithVisitInfo>>
 
 }

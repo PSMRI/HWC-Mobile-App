@@ -74,6 +74,19 @@ class DateTimeUtil {
 
         const val format = "yyyy-MM-dd HH:mm:ss"
 
+        fun timestampToDate(timestamp: String?): Date? {
+            if(timestamp == null){
+                return null
+            }
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                return dateFormat.parse(timestamp)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+        }
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun formattedDate(date: Date): String {
             val localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()

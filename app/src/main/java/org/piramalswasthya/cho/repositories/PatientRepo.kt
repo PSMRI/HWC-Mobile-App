@@ -310,7 +310,7 @@ class PatientRepo @Inject constructor(
                                 ageAtMarriage = beneficiary.ageAtMarriage,
                                 phoneNo = beneficiary.preferredPhoneNum,
                                 genderID = beneficiary.beneficiaryDetails?.genderId,
-                                registrationDate = beneficiary.createdDate,
+                                registrationDate = DateTimeUtil.timestampToDate(beneficiary.createdDate),
                                 stateID = beneficiary.currentAddress?.stateId,
                                 districtID = beneficiary.currentAddress?.districtId,
                                 blockID = beneficiary.currentAddress?.subDistrictId,
