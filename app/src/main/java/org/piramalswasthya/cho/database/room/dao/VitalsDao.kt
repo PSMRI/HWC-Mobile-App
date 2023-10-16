@@ -25,7 +25,7 @@ interface VitalsDao {
     suspend fun getPatientVitalsByPatientID(patientID: String): PatientVitalsModel
 
     @Query("SELECT * FROM PATIENT_VITALS WHERE patientID = :patientID ORDER BY benVisitNo DESC LIMIT 1")
-     fun getPatientVitalsByPatientIDAndBenVisitNoForFollowUp(patientID: String): PatientVitalsModel?
+    suspend fun getPatientVitalsByPatientIDAndBenVisitNoForFollowUp(patientID: String): PatientVitalsModel?
     @Query("SELECT * FROM PATIENT_VITALS WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getPatientVitalsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVitalsModel?
 

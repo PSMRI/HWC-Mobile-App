@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,13 +50,21 @@ class VisitDetailViewModel @Inject constructor(
     val chiefComplaintDB: LiveData<List<ChiefComplaintDB>>
         get() = _chiefComplaintDB
 
-    private val _vitalsDB = MutableLiveData<PatientVitalsModel?>()
-    val vitalsDB: LiveData<PatientVitalsModel?>
+    private var _vitalsDB: PatientVitalsModel? = null
+    val vitalsDB: PatientVitalsModel?
         get() = _vitalsDB
 
-    private var _lastVisitDate: LiveData<String>?
-    val lastVisitDate: LiveData<String>?
-        get() = _lastVisitDate
+    private val _idPatientId = MutableLiveData<String?>(null)
+
+    fun setPatientId(id: String) {
+        _idPatientId.value = id
+    }
+
+    val lastVisitDate : LiveData<String?> = _idPatientId.switchMap {
+        it?.let {
+            visitReasonsAndCategoriesRepo.getVisitDbByPatientIDAndBenVisitNo(it)
+        }
+    }
 
     var base64String = ""
     var fileName = ""
@@ -65,7 +75,7 @@ class VisitDetailViewModel @Inject constructor(
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
-     private var isFollowUpChecked :Boolean = false
+    private var isFollowUpChecked: Boolean = false
     val fhirEngine: FhirEngine
         get() = CHOApplication.fhirEngine(application.applicationContext)
 
@@ -78,41 +88,42 @@ class VisitDetailViewModel @Inject constructor(
         _chiefComplaintMaster = MutableLiveData()
         getSubCatVisitList()
         getChiefMasterComplaintList()
-        _lastVisitDate = MutableLiveData()
     }
-     suspend fun getLastDate(patientID:String) {
-        try {
-            _lastVisitDate = visitReasonsAndCategoriesRepo.getVisitDbByPatientIDAndBenVisitNo(patientID)
-        } catch (e: Exception) {
-            Timber.d("Error in Last Visit Date() $e")
-        }
-    }
-    fun setIsFollowUp(boolean: Boolean){
+
+//    fun getLastDate(patientID: String) {
+//        try {
+//            _lastVisitDate =
+//                Timber.tag("Lifecycle Check").i("insideiii ${_lastVisitDate?.value.toString()}")
+//        } catch (e: Exception) {
+//            Timber.d("Error in Last Visit Date() $e")
+//        }
+//    }
+
+    fun setIsFollowUp(boolean: Boolean) {
         isFollowUpChecked = boolean
     }
-    fun getIsFollowUp():Boolean{
+
+    fun getIsFollowUp(): Boolean {
         return isFollowUpChecked
     }
-    fun getVitalsDB(patientID:String) {
-        viewModelScope.launch {
-            try {
-                _vitalsDB.value =
-                    vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
-            Log.d("rar","$_vitalsDB")
-            } catch (e: java.lang.Exception) {
-                Timber.d("Error in Getting Vitals $e")
-            }
-        }
+
+    suspend fun getVitalsDB(patientID: String) {
+        _vitalsDB = vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
     }
+
     fun getChiefComplaintDB(patientID: String) {
         viewModelScope.launch {
             try {
-                _chiefComplaintDB.value =visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(patientID)
+                _chiefComplaintDB.value =
+                    visitReasonsAndCategoriesRepo.getChiefComplaintsByPatientAndBenForFollowUp(
+                        patientID
+                    )
             } catch (e: Exception) {
                 Timber.d("Error in Getting Chief Complaint DB $e")
             }
         }
     }
+
     private fun getSubCatVisitList() {
         try {
             _subCatVisitList = maleMasterDataRepository.getAllSubCatVisit()
@@ -121,7 +132,7 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
-    fun getTheProcedure(patientID: String, benVisitNo: Int){
+    fun getTheProcedure(patientID: String, benVisitNo: Int) {
         viewModelScope.launch {
             val procedureList = procedureRepo.getProceduresWithComponent(patientID, benVisitNo)
             val list = procedureList
@@ -147,9 +158,11 @@ class VisitDetailViewModel @Inject constructor(
             }
         }
     }
-    suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
+
+    suspend fun getLastVisitInfoSync(patientId: String): PatientVisitInfoSync? {
         return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
+
     fun saveVisitDetailsInfo(encounter: Encounter, conditions: List<Condition>) {
         viewModelScope.launch {
             try {

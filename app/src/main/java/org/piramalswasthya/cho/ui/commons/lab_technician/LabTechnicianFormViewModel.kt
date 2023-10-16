@@ -102,13 +102,6 @@ class LabTechnicianFormViewModel @Inject constructor(
 
             viewModelScope.launch {
 
-                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )!!
-                patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
-                patientVisitInfoSync.doctorFlag = 3
-
                 dtos?.forEach { procedureDTO ->
 
                     val procedure =

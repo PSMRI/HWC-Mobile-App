@@ -68,19 +68,20 @@ import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,EndIconClickListener {
+class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
+    EndIconClickListener {
 
     override var fragmentContainerId = 0
-    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
-    private lateinit var patientId : String
+    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private lateinit var patientId: String
 
     override val fragment = this
     override val viewModel: VisitDetailViewModel by viewModels()
 
     override val jsonFile = "patient-visit-details-paginated.json"
 
-    private var usernameEs : String = ""
-    private var passwordEs : String = ""
+    private var usernameEs: String = ""
+    private var passwordEs: String = ""
     private var userInfo: UserCache? = null
 
     private var _binding: VisitDetailsInfoBinding? = null
@@ -92,6 +93,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
+
     @Inject
     lateinit var preferenceDao: PreferenceDao
     private var addCount: Int = 0
@@ -109,17 +111,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private var subCat: Boolean = false
     private val bundle = Bundle()
     private var masterDb: MasterDb? = null
-    var heightValue:String?=null
-    var weightValue :String?=null
-    var bmiValue :String?=null
-    var waistCircumferenceValue :String?=null
-    var temperatureValue :String?=null
-    var pulseRateValue :String?=null
-    var spo2Value :String?=null
-    var bpSystolicValue :String?=null
-    var bpDiastolicValue :String?=null
-    var respiratoryValue :String?=null
-    var rbsValue :String?=null
+    var heightValue: String? = null
+    var weightValue: String? = null
+    var bmiValue: String? = null
+    var waistCircumferenceValue: String? = null
+    var temperatureValue: String? = null
+    var pulseRateValue: String? = null
+    var spo2Value: String? = null
+    var bpSystolicValue: String? = null
+    var bpDiastolicValue: String? = null
+    var respiratoryValue: String? = null
+    var rbsValue: String? = null
 
     private lateinit var adapter: VisitDetailAdapter
 
@@ -127,29 +129,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
     private val itemList = mutableListOf(initialItem)
     private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
     private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
-    private lateinit var chAdapter : ChiefComplaintMultiAdapter
+    private lateinit var chAdapter: ChiefComplaintMultiAdapter
     var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
     private val binding: VisitDetailsInfoBinding
         get() {
             return _binding!!
         }
-    private val speechToTextLauncherForDuration = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNumeric()) {
-            val pattern = "\\d{2}".toRegex()
-            val match = pattern.find(result)
-            val firstTwoDigits = match?.value
-            if(result.toInt() > 0) updateDurationText(firstTwoDigits!!)
+    private val speechToTextLauncherForDuration =
+        registerForActivityResult(SpeechToTextContract()) { result ->
+            if (result.isNotBlank() && result.isNumeric()) {
+                val pattern = "\\d{2}".toRegex()
+                val match = pattern.find(result)
+                val firstTwoDigits = match?.value
+                if (result.toInt() > 0) updateDurationText(firstTwoDigits!!)
+            }
         }
-    }
 
     // method to check string contains numeric val
     private fun String.isNumeric(): Boolean {
-        return try { this.toDouble()
+        return try {
+            this.toDouble()
             true
         } catch (e: NumberFormatException) {
             false
         }
     }
+
     fun isWithinThreeDays(dateString: String?): Boolean {
         if (dateString.isNullOrEmpty()) {
             return false
@@ -170,16 +175,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
         return false
     }
-    private val speechToTextLauncherForDesc = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank()) {
-           updateDescText(result)
+
+    private val speechToTextLauncherForDesc =
+        registerForActivityResult(SpeechToTextContract()) { result ->
+            if (result.isNotBlank()) {
+                updateDescText(result)
+            }
         }
-    }
-    private val speechToTextLauncherForChiefMaster = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank()) {
-            updateChiefText(result)
+    private val speechToTextLauncherForChiefMaster =
+        registerForActivityResult(SpeechToTextContract()) { result ->
+            if (result.isNotBlank()) {
+                updateChiefText(result)
+            }
         }
-    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -190,6 +199,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         _binding = VisitDetailsInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -197,16 +207,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             }
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if(preferenceDao.isLoginTypeOutReach()){
+        if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
             binding.radioButton2.isChecked = true
 //            category = binding.radioButton2.text.toString()
             category = binding.radioButton2.tag.toString()
             reason = binding.radioButton3.text.toString()
             binding.subCatDropDown.visibility = View.VISIBLE
-        }
-        else{
+        } else {
             binding.radioButton2.isChecked = false
             binding.radioButton1.isChecked = true
 //            category = binding.radioButton1.text.toString()
@@ -217,9 +227,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //            category = binding.radioButton1.text.toString()
             category = binding.radioButton1.tag.toString()
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
         super.onViewCreated(view, savedInstanceState)
-        subCatAdapter = SubCategoryAdapter(requireContext(), R.layout.dropdown_subcategory,R.id.tv_dropdown_item_text, subCatOptions.map { it.name })
+        subCatAdapter = SubCategoryAdapter(
+            requireContext(),
+            R.layout.dropdown_subcategory,
+            R.id.tv_dropdown_item_text,
+            subCatOptions.map { it.name })
         binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
         viewModel.getLoggedInUserDetails()
@@ -242,31 +259,38 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             binding.subCatInput.setText(subCat.toString(), false)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
-                hintTextColor = defaultHintTextColor }
+                hintTextColor = defaultHintTextColor
+            }
         }
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        if(benVisitInfo.patient!=null){
+        benVisitInfo =
+            requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        if (benVisitInfo.patient != null) {
+            viewModel.setPatientId(benVisitInfo.patient.patientID)
             masterDb?.patientId = benVisitInfo.patient.patientID
             patientId = benVisitInfo.patient.patientID
         }
         try {
-            viewModel.getVitalsDB(benVisitInfo.patient.patientID)
+
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID)
 
-        }catch (e:Exception){
-            Log.d("arr","$e")
+        } catch (e: Exception) {
+            Log.d("arr", "$e")
         }
-        if(benVisitInfo.benVisitNo != null){
-            viewModel.getTheProcedure(patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+        if (benVisitInfo.benVisitNo != null) {
+            viewModel.getTheProcedure(
+                patientID = benVisitInfo.patient.patientID,
+                benVisitNo = benVisitInfo.benVisitNo!!
+            )
         }
-//        binding.usePrevious.setOnClickListener{
-//            goToEnd()
-//        }
+        binding.usePrevious.setOnClickListener{
+            goToEnd()
+        }
         lifecycleScope.launch {
-            viewModel.getLastDate(patientId)
+            viewModel.getVitalsDB(benVisitInfo.patient.patientID)
+//            viewModel.getLastDate(patientId)
         }
-        viewModel.lastVisitDate?.observe(viewLifecycleOwner){
+        viewModel.lastVisitDate.observe(viewLifecycleOwner) {
             viewModel.setIsFollowUp(isWithinThreeDays(it))
             makeFollowUpDefault()
         }
@@ -311,6 +335,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
+
                 else -> {
                     chiefAndVitalsDataFill()
                     binding.radioButton4.tag.toString()
@@ -358,7 +383,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         }
 
     }
-    private fun extractFormValues(){
+
+    private fun extractFormValues() {
         heightValue = binding.inputHeight.text?.toString()?.trim()
         weightValue = binding.inputWeight.text?.toString()?.trim()
         bmiValue = binding.inputBmi.text?.toString()?.trim()
@@ -371,7 +397,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
 //        rbsValue = binding.inputRbs.text?.toString()?.trim()
     }
-//    private fun addVisitRecordDataToCache(benVisitNo: Int, ){
+
+    //    private fun addVisitRecordDataToCache(benVisitNo: Int, ){
 //        val visitDB = VisitDB(
 //            visitId = generateUuid(),
 //            category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
@@ -399,43 +426,43 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //            viewModel.saveChiefComplaintDbToCatche(chiefC)
 //        }
 //    }
-//    fun goToEnd(){
-//        extractFormValues()
-//        setVisitMasterDataAndVitalsForFollow()
-//        if(preferenceDao.isUserOnlyNurseOrCHO()){
-//            val intent = Intent(context, HomeActivity::class.java)
-//            startActivity(intent)
-//            requireActivity().finish()
-//        }else{
-//            CoroutineScope(Dispatchers.IO).launch {
-//                var benVisitNo = 0;
-//                var createNewBenflow = false;
-//                if(benVisitInfo.patient!=null) {
-//                    viewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
-//                        if (it == null) {
-//                            benVisitNo = 1;
-//                        } else if (it.nurseFlag == 1) {
-//                            benVisitNo = it.benVisitNo
-//                        } else {
-//                            benVisitNo = it.benVisitNo + 1
-//                            createNewBenflow = true;
-//                        }
-//                    }
-//                }
-//                setVitalsMasterData()
+    fun goToEnd(){
+        extractFormValues()
+        setVisitMasterDataAndVitalsForFollow()
+        if(preferenceDao.isUserOnlyNurseOrCHO()){
+            val intent = Intent(context, HomeActivity::class.java)
+            startActivity(intent)
+            requireActivity().finish()
+        }else{
+            CoroutineScope(Dispatchers.IO).launch {
+                var benVisitNo = 0;
+                var createNewBenflow = false;
+                if(benVisitInfo.patient!=null) {
+                    viewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+                        if (it == null) {
+                            benVisitNo = 1;
+                        } else if (it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        } else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
+                    }
+                }
+                setVitalsMasterData()
 //                addVisitRecordDataToCache(benVisitNo)
 //                addVitalsDataToCache(benVisitNo)
 //                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
 //                setNurseComplete()
-//                findNavController().navigate(
-//                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
-//                )
-//            }
-//            findNavController().navigate(
-//                R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
-//            )
-//        }
-//    }
+                findNavController().navigate(
+                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
+                )
+            }
+            findNavController().navigate(
+                R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
+            )
+        }
+    }
 //    private fun addVitalsDataToCache(benVisitNo: Int){
 //        val patientVitals = PatientVitalsModel(
 //            vitalsId = generateUuid(),
@@ -455,7 +482,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //        )
 //        viewModel.savePatientVitalInfoToCache(patientVitals)
 //    }
-    private fun setVitalsMasterData(){
+    private fun setVitalsMasterData() {
         var vitalDb = VitalsMasterDb(
             height = heightValue.nullIfEmpty(),
             weight = weightValue.nullIfEmpty(),
@@ -472,7 +499,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
     }
-    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
+
+    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb) {
         val itemH = vitalsDB.height
         val itemW = vitalsDB.weight
         val itemB = vitalsDB.bmi
@@ -551,7 +579,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 //        }
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals(
+                "null"
+            ) && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals(
+                "null"
+            ) && itemRs.equals("null") && itemRb.equals("null"))
+        ) {
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
         } else {
@@ -559,6 +592,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             binding.vitalsLayout.visibility = View.VISIBLE
         }
     }
+
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
         hideNullFieldsW(vitals)
         binding.inputHeight.setText(vitals?.height.toString())
@@ -573,13 +607,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
 //        binding.inputRbs.setText(vitals.rbs.toString())
     }
-    fun chiefAndVitalsDataFill(){
+
+    fun chiefAndVitalsDataFill() {
         binding.chf.visibility = View.GONE
         binding.chiefComplaintExtra.visibility = View.GONE
         binding.chiefComplaintHeading.visibility = View.VISIBLE
         binding.chiefComplaintExtra2.visibility = View.VISIBLE
         binding.vitalsHeading.visibility = View.VISIBLE
         binding.vitalsLayout.visibility = View.VISIBLE
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
             chiefComplaintDB.clear()
 
@@ -598,49 +634,47 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             }
             chAdapter.notifyDataSetChanged()
         }
-        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+
         binding.chiefComplaintExtra2.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra2.layoutManager = layoutManagerC
 
-        if(chiefComplaintDB.size==0){
+        if (chiefComplaintDB.size == 0) {
             binding.chiefComplaintHeading.visibility = View.GONE
-        }
-        else{
+        } else {
             binding.chiefComplaintHeading.visibility = View.VISIBLE
         }
         var bool = true
-        viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
-            var vitalDb2 = VitalsMasterDb(
-                height = vitalsDB?.height,
-                weight = vitalsDB?.weight,
-                bmi = vitalsDB?.bmi,
-                waistCircumference = vitalsDB?.waistCircumference,
-                temperature = vitalsDB?.temperature,
-                pulseRate = vitalsDB?.pulseRate,
-                spo2 = vitalsDB?.spo2,
-                bpSystolic = vitalsDB?.bpSystolic,
-                bpDiastolic =vitalsDB?.bpDiastolic,
-                respiratoryRate = vitalsDB?.respiratoryRate,
-                rbs = vitalsDB?.rbs
-            )
-            bool = false
-            populateVitalsFieldsW(vitalDb2)
-        }
-        if(bool){
+        var vitalsDB = viewModel.vitalsDB
+        var vitalDb2 = VitalsMasterDb(
+            height = vitalsDB?.height,
+            weight = vitalsDB?.weight,
+            bmi = vitalsDB?.bmi,
+            waistCircumference = vitalsDB?.waistCircumference,
+            temperature = vitalsDB?.temperature,
+            pulseRate = vitalsDB?.pulseRate,
+            spo2 = vitalsDB?.spo2,
+            bpSystolic = vitalsDB?.bpSystolic,
+            bpDiastolic = vitalsDB?.bpDiastolic,
+            respiratoryRate = vitalsDB?.respiratoryRate,
+            rbs = vitalsDB?.rbs
+        )
+        bool = false
+        populateVitalsFieldsW(vitalDb2)
+        if (bool) {
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
         }
     }
-    fun makeFollowUpDefault(){
-        if(viewModel.getIsFollowUp()){
+
+    fun makeFollowUpDefault() {
+        if (viewModel.getIsFollowUp()) {
             binding.radioButton3.isChecked = false
             binding.radioButton4.isChecked = true
             chiefAndVitalsDataFill()
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton4.tag.toString()
-        }
-        else{
+        } else {
             binding.radioButton3.isChecked = true
             binding.radioButton4.isChecked = false
             binding.chf.visibility = View.VISIBLE
@@ -653,6 +687,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             reason = binding.radioButton3.tag.toString()
         }
     }
+
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
             if (item.chiefComplaint!!.isEmpty() || item.duration!!.isEmpty()) {
@@ -750,7 +785,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     override fun navigateNext() {
         extractFormValues()
-        if(viewModel.getIsFollowUp()){
+        if (viewModel.getIsFollowUp()) {
 //            val chiefData = addChiefComplaintsData()
             setVisitMasterDataForFollow()
             findNavController().navigate(
@@ -808,42 +843,45 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             }
         }
     }
+
     private fun setVisitMasterDataAndVitalsForFollow() {
-            val visitMasterDb = VisitMasterDb()
+        val visitMasterDb = VisitMasterDb()
 
-            val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
-            val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
+        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
+        val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
 
-            val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
-            val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
 
-            visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
-            visitMasterDb.reason = selectedReasonRadioButton?.tag.toString()
-            val subCategory = binding.subCatInput.text.toString()
-            visitMasterDb.subCategory = subCategory
+        visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
+        visitMasterDb.reason = selectedReasonRadioButton?.tag.toString()
+        val subCategory = binding.subCatInput.text.toString()
+        visitMasterDb.subCategory = subCategory
 
-            val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
-            viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-                chiefComplaintDB.clear()
-                for (chiefComplaintData in chiefComplaintList) {
-                        var cc = ChiefComplaintValues(
-                            id = chiefComplaintData.id.toInt(),
-                            chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
-                            duration = chiefComplaintData.duration.nullIfEmpty(),
-                            durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
-                            description = chiefComplaintData.description.nullIfEmpty()
-                        )
-                        chiefComplaintList2.add(cc)
-                }
+        val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
+        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
+            chiefComplaintDB.clear()
+            for (chiefComplaintData in chiefComplaintList) {
+                var cc = ChiefComplaintValues(
+                    id = chiefComplaintData.id.toInt(),
+                    chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
+                    duration = chiefComplaintData.duration.nullIfEmpty(),
+                    durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
+                    description = chiefComplaintData.description.nullIfEmpty()
+                )
+                chiefComplaintList2.add(cc)
             }
-
-            visitMasterDb.chiefComplaint = chiefComplaintList2
-            masterDb?.visitMasterDb = visitMasterDb
-
-
-            bundle.putSerializable("MasterDb", masterDb)
-
         }
+
+        visitMasterDb.chiefComplaint = chiefComplaintList2
+        masterDb?.visitMasterDb = visitMasterDb
+
+
+        bundle.putSerializable("MasterDb", masterDb)
+
+    }
+
     private fun setVisitMasterDataForFollow() {
         val masterDb = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
@@ -851,7 +889,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
 
-        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
 
         visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
@@ -878,6 +917,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         masterDb.visitMasterDb = visitMasterDb
         bundle.putSerializable("MasterDb", masterDb)
     }
+
     private fun setVisitMasterData() {
         val masterDb = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
@@ -885,7 +925,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
 
-        val selectedCategoryRadioButton = view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
+        val selectedCategoryRadioButton =
+            view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
         val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
 
         visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
@@ -949,21 +990,33 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
 
     private fun addExtensionsToEncounter(encounter: Encounter) {
         if (userInfo != null) {
-            encounter.addExtension( enCounterExtension.getExtenstion(
-                enCounterExtension.getUrl(vanID),
-                enCounterExtension.getStringType(userInfo!!.vanId.toString()) ) )
+            encounter.addExtension(
+                enCounterExtension.getExtenstion(
+                    enCounterExtension.getUrl(vanID),
+                    enCounterExtension.getStringType(userInfo!!.vanId.toString())
+                )
+            )
 
-            encounter.addExtension( enCounterExtension.getExtenstion(
-                enCounterExtension.getUrl(parkingPlaceID),
-                enCounterExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+            encounter.addExtension(
+                enCounterExtension.getExtenstion(
+                    enCounterExtension.getUrl(parkingPlaceID),
+                    enCounterExtension.getStringType(userInfo!!.parkingPlaceId.toString())
+                )
+            )
 
-            encounter.addExtension( enCounterExtension.getExtenstion(
-                enCounterExtension.getUrl(providerServiceMapId),
-                enCounterExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+            encounter.addExtension(
+                enCounterExtension.getExtenstion(
+                    enCounterExtension.getUrl(providerServiceMapId),
+                    enCounterExtension.getStringType(userInfo!!.serviceMapId.toString())
+                )
+            )
 
-            encounter.addExtension( enCounterExtension.getExtenstion(
-                enCounterExtension.getUrl(createdBy),
-                enCounterExtension.getStringType(userInfo!!.userName) ) )
+            encounter.addExtension(
+                enCounterExtension.getExtenstion(
+                    enCounterExtension.getUrl(createdBy),
+                    enCounterExtension.getStringType(userInfo!!.userName)
+                )
+            )
         }
     }
 
@@ -971,12 +1024,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         // get all the ChiefComplaint data from list and convert that to fhir resource
         for (i in 0 until itemList.size) {
             val chiefComplaintData = itemList[i]
-            if(chiefComplaintData.chiefComplaint!!.isEmpty()){
-                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_chief), Toast.LENGTH_SHORT).show()
+            if (chiefComplaintData.chiefComplaint!!.isEmpty()) {
+                if (catBool && subCat) Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.toast_msg_chief),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
-            if(chiefComplaintData.duration!!.isEmpty()){
-                if(catBool && subCat) Toast.makeText(requireContext(), resources.getString(R.string.toast_msg_duration), Toast.LENGTH_SHORT).show()
+            if (chiefComplaintData.duration!!.isEmpty()) {
+                if (catBool && subCat) Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.toast_msg_duration),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
 
@@ -1020,23 +1081,40 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
             condition.addExtension(
                 conditionExtension.getExtenstion(
                     conditionExtension.getUrl(duration),
-                    conditionExtension.getCoding(chiefComplaintValues.durationUnit!!, chiefComplaintValues.duration!!)))
+                    conditionExtension.getCoding(
+                        chiefComplaintValues.durationUnit!!,
+                        chiefComplaintValues.duration!!
+                    )
+                )
+            )
 
-            condition.addExtension( conditionExtension.getExtenstion(
-                conditionExtension.getUrl(vanID),
-                conditionExtension.getStringType(userInfo!!.vanId.toString()) ) )
+            condition.addExtension(
+                conditionExtension.getExtenstion(
+                    conditionExtension.getUrl(vanID),
+                    conditionExtension.getStringType(userInfo!!.vanId.toString())
+                )
+            )
 
-            condition.addExtension( conditionExtension.getExtenstion(
-                conditionExtension.getUrl(parkingPlaceID),
-                conditionExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
+            condition.addExtension(
+                conditionExtension.getExtenstion(
+                    conditionExtension.getUrl(parkingPlaceID),
+                    conditionExtension.getStringType(userInfo!!.parkingPlaceId.toString())
+                )
+            )
 
-            condition.addExtension( conditionExtension.getExtenstion(
-                conditionExtension.getUrl(providerServiceMapId),
-                conditionExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
+            condition.addExtension(
+                conditionExtension.getExtenstion(
+                    conditionExtension.getUrl(providerServiceMapId),
+                    conditionExtension.getStringType(userInfo!!.serviceMapId.toString())
+                )
+            )
 
-            condition.addExtension( conditionExtension.getExtenstion(
-                conditionExtension.getUrl(createdBy),
-                conditionExtension.getStringType(userInfo!!.userName) ) )
+            condition.addExtension(
+                conditionExtension.getExtenstion(
+                    conditionExtension.getUrl(createdBy),
+                    conditionExtension.getStringType(userInfo!!.userName)
+                )
+            )
         }
     }
 
@@ -1059,14 +1137,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         speechToTextLauncherForDuration.launch(Unit)
         currDurationPos = position
     }
-    private fun updateDurationText(duration:String){
-       if(currDurationPos != -1) {
-           itemList[currDurationPos].duration = duration
-           adapter.notifyItemChanged(currDurationPos)
-       }
+
+    private fun updateDurationText(duration: String) {
+        if (currDurationPos != -1) {
+            itemList[currDurationPos].duration = duration
+            adapter.notifyItemChanged(currDurationPos)
+        }
     }
-    private fun updateDescText(desc: String){
-        if(currDescPos != -1) {
+
+    private fun updateDescText(desc: String) {
+        if (currDescPos != -1) {
             itemList[currDescPos].description = desc
             adapter.notifyItemChanged(currDescPos)
         }
@@ -1076,12 +1156,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,E
         speechToTextLauncherForDesc.launch(Unit)
         currDescPos = position
     }
-    private fun updateChiefText(chief: String){
-        if(currChiefPos != -1) {
+
+    private fun updateChiefText(chief: String) {
+        if (currChiefPos != -1) {
             itemList[currChiefPos].chiefComplaint = chief
             adapter.notifyItemChanged(currChiefPos)
         }
     }
+
     override fun onEndIconChiefClick(position: Int) {
         speechToTextLauncherForChiefMaster.launch(Unit)
         currChiefPos = position
