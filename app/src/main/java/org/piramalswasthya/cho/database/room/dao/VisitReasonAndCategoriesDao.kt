@@ -48,8 +48,8 @@ interface VisitReasonsAndCategoriesDao {
     @Query("SELECT * FROM Visit_DB WHERE patientID = :patientID")
     suspend fun getVisitDbByPatientId(patientID: String) : VisitDB
 
-    @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID")
-     suspend fun getChiefComplaintsByPatientId(patientID: String) :List<ChiefComplaintDB>
+    @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+     suspend fun getChiefComplaintsByPatientId(patientID: String,benVisitNo: Int) :List<ChiefComplaintDB>
 
     @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?

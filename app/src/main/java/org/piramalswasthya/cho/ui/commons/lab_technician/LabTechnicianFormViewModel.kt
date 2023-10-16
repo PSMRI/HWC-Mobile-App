@@ -37,6 +37,11 @@ class LabTechnicianFormViewModel @Inject constructor(
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
+
+    private var _isDataSaved = MutableLiveData(false)
+    val isDataSaved: LiveData<Boolean>
+        get() = _isDataSaved
+
     private var _boolCall = MutableLiveData(false)
 
     private val _cacheSaved = MutableLiveData(false)
@@ -97,17 +102,10 @@ class LabTechnicianFormViewModel @Inject constructor(
 
             viewModelScope.launch {
 
-                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )!!
-                patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
-                patientVisitInfoSync.doctorFlag = 3
-
                 dtos?.forEach { procedureDTO ->
 
                     val procedure =
-                        patientRepo.getProcedure(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, procedureDTO.procedureID)
+                        patientRepo.getProcedure(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!, procedureDTO.procedureID)
                     procedureDTO.compListDetails.forEach { componentDetailDTO ->
                         Timber.d("mjf" + componentDetailDTO.testComponentName + ":" + componentDetailDTO.testResultValue)
                         var componentDetails = patientRepo.getComponent(procedure.id, componentDetailDTO.testComponentID)
@@ -119,13 +117,21 @@ class LabTechnicianFormViewModel @Inject constructor(
                 }
 
                 // update sync state for lab data
-
+                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )!!
+                patientVisitInfoSync.labDataSynced = SyncState.UNSYNCED
+                patientVisitInfoSync.doctorFlag = 3
 
                 patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 WorkerUtils.labPushWorker(context)
                 withContext(Dispatchers.IO) {
                     _cacheSaved.postValue(true)
                 }
+
+                _isDataSaved.value = true
+
             }
 
         } catch (e: Exception) {

@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.app.Application
+import android.content.Context
 import android.location.Location
 import android.os.Build
 import android.text.format.DateFormat
@@ -28,8 +29,16 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
+import org.piramalswasthya.cho.repositories.LanguageRepo
+import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
+import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
+import org.piramalswasthya.cho.ui.home.DataLoadFlagManager
+import org.piramalswasthya.cho.ui.home.HomeViewModel
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.lang.Exception
 import java.text.SimpleDateFormat
@@ -47,60 +56,61 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val pref: PreferenceDao,
                                                  private val userRepo: UserRepo,
                                                  private val userDao: UserDao,
-                                                 private val registrarMasterDataRepo: RegistrarMasterDataRepo,) : AndroidViewModel(application) {
+                                                 private val registrarMasterDataRepo: RegistrarMasterDataRepo,
+                                                 private val languageRepo: LanguageRepo,
+                                                 private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
+                                                 private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
+                                                 private val malMasterDataRepo: MaleMasterDataRepository,
+                                                 private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo,
+                                                 private val dataLoadFlagManager: DataLoadFlagManager) : AndroidViewModel(application) {
 
-    private val _lastSyncTimestampLiveData = MutableLiveData<String>()
 
-    val lastSyncTimestampLiveData: LiveData<String>
-        get() = _lastSyncTimestampLiveData
+    enum class State {
+        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
+    }
 
-    private val _pollState = MutableSharedFlow<SyncJobStatus>()
-
-    val pollState: Flow<SyncJobStatus>
-        get() = _pollState
-
-    init {
+    fun init(context: Context){
         viewModelScope.launch {
-            Log.i("view model is launched", "")
-            viewModelScope.launch {
-                try {
-                    registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-                    registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-                }
-                catch (e : Exception){
+            extracted(context)
+        }
+    }
 
-                }
-
-                Sync.periodicSync<DemoFhirSyncWorker>(
-                    application.applicationContext,
-                    periodicSyncConfiguration =
-                    PeriodicSyncConfiguration(
-                        syncConstraints = Constraints.Builder().build(),
-                        repeat = RepeatInterval(interval = 1, timeUnit = TimeUnit.MINUTES)
-                    )
-                )
-                    .shareIn(this, SharingStarted.Eagerly, 10)
-                    .collect { _pollState.emit(it) }
+    private suspend fun extracted(context: Context) {
+        try {
+            _state.postValue(State.SAVING)
+            if (dataLoadFlagManager.isDataLoaded()){
+                Log.d("syncing started first", "syncing started")
+                WorkerUtils.triggerAmritSyncWorker(context)
             }
+            registrarMasterDataRepo.saveGenderMasterResponseToCache()
+            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
+            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
+            registrarMasterDataRepo.saveReligionMasterResponseToCache()
+            languageRepo.saveResponseToCacheLang()
+            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
+            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
+            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
+            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
+            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
+            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
+            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
+            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
+            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+            doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+            malMasterDataRepo.getMasterDataForNurse()
+            if (!dataLoadFlagManager.isDataLoaded()){
+                Log.d("syncing started second", "syncing started")
+                WorkerUtils.triggerAmritSyncWorker(context)
+            }
+            dataLoadFlagManager.setDataLoaded(true)
+            _state.postValue(State.SAVE_SUCCESS)
+        } catch (_e: Exception) {
+            Log.d("Exception coming is", _e.toString())
+            _state.postValue(State.SAVE_FAILED)
         }
-    }
-
-    fun triggerOneTimeSync() {
-        viewModelScope.launch {
-            Sync.oneTimeSync<DemoFhirSyncWorker>(getApplication())
-                .shareIn(this, SharingStarted.Eagerly, 10)
-                .collect { _pollState.emit(it) }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateLastSyncTimestamp() {
-        val formatter =
-            DateTimeFormatter.ofPattern(
-                if (DateFormat.is24HourFormat(getApplication())) formatString24 else formatString12
-            )
-        _lastSyncTimestampLiveData.value =
-            Sync.getLastSyncTimestamp(getApplication())?.toLocalDateTime()?.format(formatter) ?: ""
     }
 
     private val _navigateToLoginPage = MutableLiveData(false)
@@ -143,9 +153,14 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun navigateToLoginPageComplete() {
         _navigateToLoginPage.value = false
     }
+
     companion object {
-        private const val formatString24 = "yyyy-MM-dd HH:mm:ss"
-        private const val formatString12 = "yyyy-MM-dd hh:mm:ss a"
+
+        private val _state = MutableLiveData(State.IDLE)
+
+        val state: LiveData<State>
+            get() = _state
+
     }
 
 }
