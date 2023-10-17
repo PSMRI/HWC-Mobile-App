@@ -183,8 +183,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.spouseNameText.setEndIconOnClickListener {
             speechToTextLauncherForSpouseName.launch(Unit)
         }
-        binding.ageAtMarriageText.setEndIconOnClickListener {
-            speechToTextLauncherForAgeAtMarriage.launch(Unit)
+        binding.fatherNameText.setEndIconOnClickListener {
+            speechToTextLauncherForFatherName.launch(Unit)
         }
     }
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
@@ -210,12 +210,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 if(result.toInt() > 0) binding.age.setText(result)
             }
     }
-    private val speechToTextLauncherForAgeAtMarriage = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNumeric()) {
-            val pattern = "\\d{2}".toRegex()
-            val match = pattern.find(result)
-            val firstTwoDigits = match?.value
-            if(result.toInt() > 0) binding.ageAtMarriage.setText(result)
+    private val speechToTextLauncherForFatherName = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+            binding.fatherNameEditText.setText(result)
         }
     }
     private fun String.isNumeric(): Boolean {

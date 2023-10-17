@@ -399,7 +399,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
         bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-//        rbsValue = binding.inputRbs.text?.toString()?.trim()
+        rbsValue = binding.inputRBS.text?.toString()?.trim()
     }
 
     fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
