@@ -415,5 +415,5 @@
     <string name="select_test_name_date">Test Name - (Date)</string>
     <string name="result_meas_unit">Result -Measurement Unit</string>
     <string name="date_time">Date and Time</string>
-    <string name="Use_Previous_data">Use Previous data</string>
+    <string name="Use_Previous_data">Submit Old Chief Complaints and vitals data</string>
 </resources>

@@ -483,9 +483,9 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/default_button"
             android:text="@string/Use_Previous_data"
-            android:visibility="gone"
+        android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            android:padding="8dp"
+            android:padding="12dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layyy"/>
 

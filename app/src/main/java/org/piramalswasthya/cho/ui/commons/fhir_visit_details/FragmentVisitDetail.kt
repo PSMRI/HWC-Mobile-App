@@ -335,6 +335,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                     binding.chiefComplaintExtra2.visibility = View.GONE
                     binding.vitalsHeading.visibility = View.GONE
                     binding.vitalsLayout.visibility = View.GONE
+                    binding.usePrevious.visibility = View.GONE
 //                    binding.radioButton3.text.toString()
                     binding.radioButton3.tag.toString()
                 }
