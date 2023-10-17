@@ -411,9 +411,9 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/rbsEditTxt"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                app:layout_flexBasisPercent="50%"
                 app:layout_constraintStart_toStartOf="parent"
                 android:hint="@string/rbs_mg_dl"
                 android:textColorHint="#888888"
@@ -422,9 +422,9 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputRBS"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:textSize="18sp"
-                    android:layout_height="wrap_content" />
+                    android:textSize="18sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Field 2: Height -->

@@ -604,11 +604,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             binding.respiratoryEditTxt.visibility = View.VISIBLE
         }
 
-//        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
-//            binding.rbsEditTxt.visibility = View.GONE
-//        } else {
-//            binding.rbsEditTxt.visibility = View.VISIBLE
-//        }
+        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
+            binding.rbsEditTxt.visibility = View.GONE
+        } else {
+            binding.rbsEditTxt.visibility = View.VISIBLE
+        }
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
             (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals(
