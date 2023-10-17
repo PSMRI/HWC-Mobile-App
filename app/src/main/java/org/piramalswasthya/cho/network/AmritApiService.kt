@@ -249,13 +249,13 @@ interface AmritApiService {
     @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
 
-    @GET("hwc-facility-service/wo/user/get/mastervillage/{userID}/wo")
+    @GET("hwc-facility-service/masterVillage/{userID}/get")
     suspend fun getUserMasterVillage(@Path("userID") userID: Int): Response<ResponseBody>
 
-    @POST("hwc-facility-service/wo/user/set/mastervillage/wo")
+    @POST("hwc-facility-service/masterVillage/set")
     suspend fun setUserMasterVillage(@Body userMasterVillage: UserMasterVillage) : Response<ResponseBody>
 
-    @POST("hwc-facility-service/wo/location/update/villageCoordinates/wo")
+    @POST("hwc-facility-service/wo/location/update/villageCoordinates")
     suspend fun updateMasterVillageCoordinates(@Body masterLocationModel: MasterLocationModel) : Response<ResponseBody>
 
     @POST(authenticate)

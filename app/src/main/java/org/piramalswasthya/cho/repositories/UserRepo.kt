@@ -249,8 +249,8 @@ class UserRepo @Inject constructor(
                     user?.masterLongitude = masterLongitude
                     val masterLocAddress = data.getString("address")
                     user?.masterLocationAddress = masterLocAddress
-//                    val loginDistance = data.getInt("loginDistance")
-//                    user?.loginDistance = loginDistance
+                    val loginDistance = data.getInt("loginDistance")
+                    user?.loginDistance = loginDistance
                     true
                 }else
                     false
@@ -529,27 +529,34 @@ class UserRepo @Inject constructor(
     suspend fun updateVillageCoordinates(masterLocationModel: MasterLocationModel){
         tmcNetworkApiService.updateMasterVillageCoordinates(masterLocationModel)
     }
-     suspend fun setUserMasterVillage(userMasterVillage: UserMasterVillage) {
+     suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
          val response = tmcNetworkApiService.setUserMasterVillage(userMasterVillage)
          val statusCode = response.code()
          if (statusCode == 200) {
              val responseString = response.body()?.string()
              val responseJson = JSONObject(responseString!!)
-             val data = responseJson.getJSONObject("data")
-             val masterVillageName = data.getString("villageName")
-             user?.masterVillageName = masterVillageName
-             val masterVillageId = data.getInt("districtBranchID")
-             user?.masterVillageID = masterVillageId
-             val masterLocAddress = data.getString("address")
-             user?.masterLocationAddress = masterLocAddress
-             val loginDistance = data.getInt("loginDistance")
-             user?.loginDistance = loginDistance
-             val blockId = data.getInt("blockID")
-             user?.masterBlockID = blockId
-             val masterLatitude = data.getDouble("latitude")
-             user?.masterLatitude = masterLatitude
-             val masterLongitude = data.getDouble("longitude")
-             user?.masterLongitude = masterLongitude
+             val responseStatusCode = responseJson.getInt("statusCode")
+             if (responseStatusCode == 200) {
+                 val data = responseJson.getJSONObject("data")
+                 val masterVillageName = data.getString("villageName")
+                 user?.masterVillageName = masterVillageName
+                 val masterVillageId = data.getInt("districtBranchID")
+                 user?.masterVillageID = masterVillageId
+                 val masterLocAddress = data.getString("address")
+                 user?.masterLocationAddress = masterLocAddress
+                 val loginDistance = data.getInt("loginDistance")
+                 user?.loginDistance = loginDistance
+                 val blockId = data.getInt("blockID")
+                 user?.masterBlockID = blockId
+                 val masterLatitude = data.getDouble("latitude")
+                 user?.masterLatitude = masterLatitude
+                 val masterLongitude = data.getDouble("longitude")
+                 user?.masterLongitude = masterLongitude
+
+
+                 userDao.update(user)
+
+             }
          }
      }
     suspend fun processUnsyncedAuditData(): Boolean{

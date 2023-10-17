@@ -353,12 +353,24 @@ class LoginSettingsFragment : Fragment() {
 
         if(stateBool && distBool && talukBool && pancBool){
             lifecycleScope.launch {
-
-                userRepo.updateVillageCoordinates(MasterLocationModel(myLocation?.latitude!!, myLocation?.longitude!!,
-                    "addressGeo", viewModel.userMasterVillage?.districtBranchID?.toInt()))
-                userRepo.setUserMasterVillage(UserMasterVillage(viewModel.userMasterVillage?.districtBranchID?.toInt(),
-                    viewModel.userInfo?.userId))
-                Toast.makeText(activity,"Data is Saved!",Toast.LENGTH_SHORT).show()
+                try {
+                    val user = userDao.getLoggedInUser()
+                    userRepo.updateVillageCoordinates(
+                        MasterLocationModel(
+                            myLocation?.latitude!!, myLocation?.longitude!!,
+                            "addressGeo", viewModel.userMasterVillage?.districtBranchID?.toInt()
+                        )
+                    )
+                    userRepo.setUserMasterVillage(
+                        user!!, UserMasterVillage(
+                            viewModel.userMasterVillage?.districtBranchID?.toInt(),
+                            viewModel.userInfo?.userId
+                        )
+                    )
+                    Toast.makeText(activity, "Data is Saved!", Toast.LENGTH_SHORT).show()
+                }catch(e:Exception){
+                    Toast.makeText(requireContext(), "Error while saving the master location", Toast.LENGTH_SHORT).show()
+                }
             }
         } else {
             Toast.makeText(activity,"Please fill all the details",Toast.LENGTH_SHORT).show()
