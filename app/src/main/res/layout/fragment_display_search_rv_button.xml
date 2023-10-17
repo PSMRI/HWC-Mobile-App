@@ -1,0 +1,76 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home_activity.all_household.AllHouseholdFragment">
+
+
+    <LinearLayout
+        android:id="@+id/ll_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_normal"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/searchView"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="@dimen/padding_normal"
+            android:hint="@string/household_search"
+            android:singleLine="true" />
+
+        <ImageButton
+            android:id="@+id/ib_search"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:src="@drawable/ic_mic"
+            android:backgroundTint="?attr/colorPrimary"
+            />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_any"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/btn_next_page"
+        app:layout_constraintTop_toBottomOf="@+id/ll_search"
+        tools:itemCount="2"
+        tools:listitem="@layout/rv_item_household" />
+
+    <FrameLayout
+        android:id="@+id/fl_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_next_page"
+        app:layout_constraintTop_toBottomOf="@+id/ll_search">
+
+        <TextView
+            android:id="@+id/tv_empty_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/no_records_found"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+    </FrameLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_next_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_normal"
+        android:padding="@dimen/padding_normal"
+        android:text="@string/btn_text_frag_home_nhhr"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
