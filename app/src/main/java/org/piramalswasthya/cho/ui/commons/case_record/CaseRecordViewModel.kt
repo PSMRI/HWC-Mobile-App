@@ -118,7 +118,7 @@ class CaseRecordViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _vitalsDB.value =
-                    vitalsRepo.getVitalsDetailsByPatientID(patientID)
+                    vitalsRepo.getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID)
 
             } catch (e: java.lang.Exception) {
                 Timber.d("Error in Getting Higher Health Care $e")

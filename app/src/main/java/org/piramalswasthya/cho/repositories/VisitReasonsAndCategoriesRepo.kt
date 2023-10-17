@@ -131,7 +131,7 @@ class VisitReasonsAndCategoriesRepo @Inject constructor(
     suspend fun getChiefComplaintsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?{
         return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNo(patientID, benVisitNo)
     }
-    suspend fun getChiefComplaintsByPatientAndBenForFollowUp(patientID: String) : List<ChiefComplaintDB>?{
+    suspend fun getChiefComplaintsByPatientAndBenForFollowUp(patientID: String) : List<ChiefComplaintDB>{
         return visitReasonsAndCategoriesDao.getChiefComplaintsByBenRegIdAndBenVisitNoForFollowUp(patientID)
     }
 

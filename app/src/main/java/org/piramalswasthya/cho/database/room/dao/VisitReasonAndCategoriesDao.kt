@@ -54,8 +54,8 @@ interface VisitReasonsAndCategoriesDao {
     @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?
 
-    @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID ORDER BY benVisitNo DESC LIMIT 1")
-    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNoForFollowUp(patientID: String) : List<ChiefComplaintDB>?
+    @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = (SELECT MAX(benVisitNo) FROM Chielf_Complaint_DB WHERE patientID = :patientID) ORDER BY benVisitNo DESC")
+    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNoForFollowUp(patientID: String) : List<ChiefComplaintDB>
 
 //    @Query("UPDATE Visit_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
 //    suspend fun updateVisitDbBenflow(benflowId: Long, beneficiaryRegID: Long, benVisitNo: Int) : Int

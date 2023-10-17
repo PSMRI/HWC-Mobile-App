@@ -483,6 +483,7 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/default_button"
             android:text="@string/Use_Previous_data"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             android:padding="8dp"
             app:layout_constraintStart_toStartOf="parent"

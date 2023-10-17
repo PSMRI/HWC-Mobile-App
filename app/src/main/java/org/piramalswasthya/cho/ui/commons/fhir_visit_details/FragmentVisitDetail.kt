@@ -646,8 +646,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         binding.chiefComplaintExtra2.visibility = View.VISIBLE
         binding.vitalsHeading.visibility = View.VISIBLE
         binding.vitalsLayout.visibility = View.VISIBLE
-
+        binding.usePrevious.visibility = View.VISIBLE
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
+            chiefComplaintDB2.clear()
             for (chiefComplaintItem in chiefComplaintList) {
                 val chiefC = ChiefComplaintDB(
                     id = "33+${chiefComplaintItem.chiefComplaintId}",
@@ -711,6 +712,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             binding.chiefComplaintExtra2.visibility = View.GONE
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
+            binding.usePrevious.visibility = View.GONE
 //            reason = binding.radioButton4.text.toString()
             reason = binding.radioButton3.tag.toString()
         }
