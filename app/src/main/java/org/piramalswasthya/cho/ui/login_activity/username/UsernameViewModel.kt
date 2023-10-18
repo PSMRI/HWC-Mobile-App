@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.username
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,7 +48,8 @@ class UsernameViewModel@Inject constructor(
         logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?
+        logoutType: String?,
+        context: Context
     ) {
         _state.value  = OutreachViewModel.State.SAVING
         viewModelScope.launch {
@@ -62,7 +64,8 @@ class UsernameViewModel@Inject constructor(
                 long,
                 null,
                 logoutType,
-            true)
+            true,
+            context)
         }
     }
     fun resetState() {

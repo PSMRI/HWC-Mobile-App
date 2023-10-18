@@ -306,7 +306,8 @@ class OutreachFragment(
                     latitude,
                     longitude,
                     null,
-                    imageString
+                    imageString,
+                    requireContext()
                 )
 
                 viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -335,11 +336,6 @@ class OutreachFragment(
                         OutreachViewModel.State.ERROR_NETWORK -> {
                             binding.patientListFragment.visibility = View.VISIBLE
                             binding.rlSaving.visibility = View.GONE
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.error_while_logging_in),
-                                Toast.LENGTH_LONG
-                            ).show()
 //                        viewModel.forgetUser()
                             viewModel.resetState()
                         }
