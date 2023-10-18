@@ -139,7 +139,6 @@ class VisitDetailAdapter(
                 holder.updateResetButtonState()
                 itemChangeListener.onItemChanged()
             }
-
         }
 
 

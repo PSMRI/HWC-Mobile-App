@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_customVitalsFragment"
             app:destination="@id/customVitalsFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_caseRecordCustom"
+            app:destination="@id/caseRecordCustom" />
     </fragment>
 
     <fragment

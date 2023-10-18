@@ -6,6 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 
 @Dao
@@ -14,7 +15,7 @@ interface ChiefComplaintMasterDao {
     suspend fun insertChiefCompMaster(chiefComplaintMaster: ChiefComplaintMaster)
 
     @Query("select * from CHIEF_COMPLAINT_MASTER")
-    fun getAllChiefCompMaster():LiveData<List<ChiefComplaintMaster>>
+    fun getAllChiefCompMaster(): Flow<List<ChiefComplaintMaster>>
 
     @Query("select * from CHIEF_COMPLAINT_MASTER")
     suspend fun getChiefCompMasterMap(): List<ChiefComplaintMaster>
