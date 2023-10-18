@@ -72,7 +72,7 @@
                 android:layout_weight="1"
                 android:textSize="18sp"
                 android:layout_height="match_parent"
-                android:inputType="none"
+                android:inputType="text"
                 android:textColorHint="#888888" />
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -664,6 +664,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 chiefComplaintDB2.add(chiefC) // Add the item to the list
             }
         }
+        if (chiefComplaintDB2.size==0){
+                binding.usePrevious.visibility = View.GONE
+        }
         chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB2)
         binding.chiefComplaintExtra2.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())

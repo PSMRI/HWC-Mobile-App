@@ -48,6 +48,7 @@ import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
@@ -105,6 +106,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     var selectF: TextView? = null
     private val instructionDropdown= instructionDropdownList
     private val formMListVal = ArrayList<ItemMasterList>()
+    private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
@@ -245,6 +247,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
             formMListVal.clear()
             formMListVal.addAll(f)
+
+            formForFilter.clear()
+            formForFilter.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
@@ -306,6 +311,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             frequencyListVal,
             unitListVal,
             instructionDropdown,
+            formForFilter,
             object : RecyclerViewItemChangeListenersP {
                 override fun onItemChanged() {
                     binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
@@ -365,7 +371,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
         binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
         binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
-//        binding.inputRbs.setText(vitals.rbs.toString())
+        binding.inputRBS.setText(vitals.rbs.toString())
     }
     private fun populateVitalsFields() {
         hideNullFields()
@@ -382,7 +388,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.inputBpDiastolic.setText(vitals?.bpDiastolic.toString())
             binding.inputBpSystolic.setText(vitals?.bpSystolic.toString())
             binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate.toString())
-//            binding.inputRbs.setText(vitals?.rbs.toString())
+            binding.inputRBS.setText(vitals?.rbs.toString())
         }
     }
     private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
@@ -457,11 +463,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.respiratoryEditTxt.visibility = View.VISIBLE
         }
 
-//        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
-//            binding.rbsEditTxt.visibility = View.GONE
-//        } else {
-//            binding.rbsEditTxt.visibility = View.VISIBLE
-//        }
+        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
+            binding.rbsEditTxt.visibility = View.GONE
+        } else {
+            binding.rbsEditTxt.visibility = View.VISIBLE
+        }
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
             (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
@@ -484,7 +490,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         var  itemBs = masterDb?.vitalsMasterDb?.bpSystolic.toString()
         var  itemBd = masterDb?.vitalsMasterDb?.bpDiastolic.toString()
         var  itemRs = masterDb?.vitalsMasterDb?.respiratoryRate.toString()
-//        var  itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
+        var  itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
         if(itemH.isNullOrEmpty()||itemH.equals("null")){
             binding.heightEditTxt.visibility = View.GONE
         }
@@ -515,12 +521,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if(itemRs.isNullOrEmpty()||itemRs.equals("null")){
             binding.respiratoryEditTxt.visibility = View.GONE
         }
-//        if(itemRb.isNullOrEmpty()||itemRb.equals("null")){
-//            binding.rbsEditTxt.visibility = View.GONE
-//        }
-        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() )
+        if(itemRb.isNullOrEmpty()||itemRb.equals("null")){
+            binding.rbsEditTxt.visibility = View.GONE
+        }
+        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() &&itemRb.isNullOrEmpty() )
                     ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null"))){
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))){
             binding.vitalsExtra.visibility= View.INVISIBLE
         }
     }

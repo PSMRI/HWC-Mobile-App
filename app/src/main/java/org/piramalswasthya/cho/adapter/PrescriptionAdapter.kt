@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
@@ -22,6 +23,7 @@ class PrescriptionAdapter(
     private val frequencyDropDown: List<String>,
     private val unitDropDown: List<String>,
     private val instructionDropdown: List<String>,
+    private val itemMasterForFilter: List<ItemMasterList>,
     private val itemChangeListener: RecyclerViewItemChangeListenersP
 ) :
     RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
@@ -154,12 +156,14 @@ class PrescriptionAdapter(
             R.layout.drop_down,
             formMD,
             holder.formOptions,
+            itemMasterForFilter
         )
         holder.formOptions.setAdapter(formItemAdapter)
 
-        holder.formOptions.setOnItemClickListener { parent, _, position, _ ->
-            var form = formMD[position]
-            holder.formOptions.setText(form?.dropdownForMed,false)
+        holder.formOptions.setOnItemClickListener { parent, _, position, abc ->
+            val selectedString = parent.getItemAtPosition(position)
+            val form = formMD.first { it.dropdownForMed == selectedString }
+            holder.formOptions.setText(form.dropdownForMed,false)
             itemData.id = form.itemID
         }
 
