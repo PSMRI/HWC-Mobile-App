@@ -79,7 +79,7 @@ class HwcFragment constructor(
         if (isBiometric) {
             binding.tilPasswordHwc.visibility = View.GONE
             binding.btnHwcLogin.text = "Proceed to Home"
-            getCurrentLocation()
+//            getCurrentLocation()
         } else {
             binding.tilPasswordHwc.visibility = View.VISIBLE
             if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
@@ -92,7 +92,7 @@ class HwcFragment constructor(
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
-        getCurrentLocation()
+//        getCurrentLocation()
 
         val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
         val timeZone = TimeZone.getTimeZone("GMT+0530")
@@ -101,6 +101,7 @@ class HwcFragment constructor(
         val timestamp = formatter.format(Date())
 
             binding.btnHwcLogin.setOnClickListener {
+                getCurrentLocation()
 
                 if (!isBiometric) {
                     lifecycleScope.launch {
@@ -227,8 +228,8 @@ class HwcFragment constructor(
                         null,
                         timestamp,
                         null,
-                        null,
-                        null,
+                        currentLocation?.latitude,
+                        currentLocation?.longitude,
                         null,
                     )
                     val user = userDao.getLoggedInUser()
@@ -253,7 +254,7 @@ class HwcFragment constructor(
                                     context,
                                     "distance $distance",
                                     Toast.LENGTH_LONG
-                                ).show()
+                                ).show() //TODO REMOVE THIS TOAST
                                 findNavController().navigate(
                                     ChoLoginFragmentDirections.actionSignInToHomeFromCho(
                                         true
@@ -383,6 +384,11 @@ class HwcFragment constructor(
         val results = FloatArray(1)
         Location.distanceBetween(lat1, lon1, lat2, lon2, results)
         return results[0]
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        getCurrentLocation()
     }
 
 }

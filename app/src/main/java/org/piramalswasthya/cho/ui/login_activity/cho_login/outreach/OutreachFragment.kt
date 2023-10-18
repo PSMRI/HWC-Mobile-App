@@ -167,7 +167,7 @@ class OutreachFragment(
             .build()
 
         faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
-        getCurrentLocation()
+//        getCurrentLocation()
         if (isBiometric) {
             binding.tilPassword.visibility = View.GONE
             binding.btnOutreachLogin.text = "Proceed to Home"
@@ -271,7 +271,7 @@ class OutreachFragment(
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
         Timber.tag("Outreach username").i(userName);
-        getCurrentLocation()
+//        getCurrentLocation()
         binding.imageView.setOnClickListener {
             requestCameraPermission()
         }
@@ -414,22 +414,6 @@ class OutreachFragment(
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
-                    val distance = calculateDistance(
-                        myLocation!!.latitude,
-                        myLocation!!.longitude,
-                        location.latitude,
-                        location.longitude
-                    )
-
-                    // Check if the user has moved more than 500 meters
-                    if (distance > 500) {
-                        // Show the dialog to ask for an update
-                        showDialog()
-                        Toast.makeText(activity,"Value of distance $distance and location is ${location.longitude} and ${location.latitude}",Toast.LENGTH_LONG).show()
-                    }
-
-                    // Stop listening for location updates once you have the current location
-//                    locationManager?.removeUpdates(this)
                 }
 
                 override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -472,27 +456,17 @@ class OutreachFragment(
         Location.distanceBetween(lat1, lon1, lat2, lon2, results)
         return results[0]
     }
-    private fun showDialog() {
-        val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You have moved more than 2 meters from the fixed point. Do you want to update your location?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
-                // Handle the user's choice to update location here
-                // You can perform any necessary actions when the user selects "Yes"
-            }
-            .setNegativeButton("No") { _, _ ->
-                // Handle the user's choice not to update location here
-                // You can perform any necessary actions when the user selects "No"
-            }
 
-        val alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123
         private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
         private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//        getCurrentLocation()
+//    }
 
 }
 

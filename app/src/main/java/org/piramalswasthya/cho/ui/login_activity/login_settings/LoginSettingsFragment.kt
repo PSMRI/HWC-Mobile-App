@@ -118,26 +118,7 @@ class LoginSettingsFragment : Fragment() {
 //        val userName = (arguments?.getString("userName", ""))!!
         viewModel = ViewModelProvider(this)[LoginSettingsViewModel::class.java]
 
-//        binding.dropdownState.setOnItemClickListener { _, _, position, _ ->
-//            viewModel.selectedState = viewModel.stateList[position]
-//            viewModel.updateUserStateId(viewModel.selectedState!!.stateID)
-//            viewModel.fetchDistricts(viewModel.selectedState!!.stateID)
-//            binding.dropdownState.setText(viewModel.selectedState!!.stateName,false)
-//        }
-//
-//        binding.dropdownDist.setOnItemClickListener { _, _, position, _ ->
-//            viewModel.selectedDistrict = viewModel.districtList[position]
-//            viewModel.updateUserDistrictId(viewModel.selectedDistrict!!.districtID)
-//            viewModel.fetchTaluks(viewModel.selectedDistrict!!.districtID)
-//            binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName,false)
-//        }
-//
-//        binding.dropdownTaluk.setOnItemClickListener { _, _, position, _ ->
-//            viewModel.selectedBlock = viewModel.blockList[position]
-//            viewModel.updateUserBlockId(viewModel.selectedBlock!!.blockID)
-//            viewModel.fetchVillageMaster(viewModel.selectedBlock!!.blockID)
-//            binding.dropdownTaluk.setText(viewModel.selectedBlock!!.blockName,false)
-//        }
+
 
         binding.dropdownPanchayat.setOnItemClickListener { _, _, position, _ ->
 //            viewModel.selectedVillage = viewModel.villageList[position]
@@ -145,57 +126,6 @@ class LoginSettingsFragment : Fragment() {
             viewModel.updateUserVillageId(viewModel.userMasterVillage?.districtBranchID!!.toInt())
             binding.dropdownPanchayat.setText(viewModel.userMasterVillage?.villageName,false)
         }
-
-//        viewModel.state.observe(viewLifecycleOwner) { state ->
-//            when (state!!) {
-//                LoginSettingsViewModel.NetworkState.SUCCESS -> {
-//                    val statesAdapter = StatesAdapter(requireContext(), R.layout.drop_down, viewModel.stateList, binding.dropdownState)
-//                    binding.dropdownState.setAdapter(statesAdapter)
-//
-//                    if(viewModel.selectedState != null){
-//                        binding.dropdownState.setText(viewModel.selectedState!!.stateName, false)
-//                    }
-//                    else{
-//                        binding.dropdownState.setText("", false)
-//                    }
-//                }
-//                else -> {}
-//            }
-//        }
-//
-//        viewModel.district.observe(viewLifecycleOwner) { state ->
-//            when (state!!) {
-//                LoginSettingsViewModel.NetworkState.SUCCESS -> {
-//                    val districtAdapter = DistrictAdapter(requireContext(), R.layout.drop_down, viewModel.districtList, binding.dropdownDist)
-//                    binding.dropdownDist.setAdapter(districtAdapter)
-//
-//                    if(viewModel.selectedDistrict != null){
-//                        binding.dropdownDist.setText(viewModel.selectedDistrict!!.districtName, false)
-//                    }
-//                    else{
-//                        binding.dropdownDist.setText("", false)
-//                    }
-//                }
-//                else -> {}
-//            }
-//        }
-//
-//        viewModel.block.observe(viewLifecycleOwner) { state ->
-//            when (state!!) {
-//                LoginSettingsViewModel.NetworkState.SUCCESS -> {
-//                    val blockAdapter = BlockAdapter(requireContext(), R.layout.drop_down, viewModel.blockList, binding.dropdownTaluk)
-//                    binding.dropdownTaluk.setAdapter(blockAdapter)
-//
-//                    if(viewModel.selectedBlock != null){
-//                        binding.dropdownTaluk.setText(viewModel.selectedBlock!!.blockName, false)
-//                    }
-//                    else{
-//                        binding.dropdownTaluk.setText("", false)
-//                    }
-//                }
-//                else -> {}
-//            }
-//        }
 
         viewModel.locationMaster.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -401,12 +331,12 @@ class LoginSettingsFragment : Fragment() {
                         binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
                         Log.i("Initial Location","$myInitialLoc")
                     } else if(myInitialLoc != null) {
-                        val distance = calculateDistance(
-                            myInitialLoc!!.latitude,
-                            myInitialLoc!!.longitude,
-                            location.latitude,
-                            location.longitude
-                        )
+//                        val distance = calculateDistance(
+//                            myInitialLoc!!.latitude,
+//                            myInitialLoc!!.longitude,
+//                            location.latitude,
+//                            location.longitude
+//                        )
 
 
                     }
