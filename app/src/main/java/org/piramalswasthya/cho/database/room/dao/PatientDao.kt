@@ -73,7 +73,7 @@ interface PatientDao {
             "FROM PATIENT pat " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
-            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID")
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

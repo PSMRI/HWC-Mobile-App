@@ -41,6 +41,16 @@
                     android:src="@drawable/translate"
                     android:background="?attr/colorPrimary"/>
 
+                <ImageButton
+                    android:id="@+id/refresh_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="10dp"
+                    android:contentDescription="Refresh"
+                    android:src="@drawable/baseline_refresh_icon"
+                    android:background="?attr/colorPrimary"/>
+
 <!--                <Button-->
 <!--                    android:id="@+id/todayButton"-->
 <!--                    android:layout_width="150dp"-->

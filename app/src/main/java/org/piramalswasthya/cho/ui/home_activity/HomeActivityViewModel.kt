@@ -75,6 +75,13 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         }
     }
 
+    fun triggerDownSyncWorker(context: Context){
+        if (dataLoadFlagManager.isDataLoaded()){
+            Log.d("triggering down", "down trigger")
+            WorkerUtils.triggerDownSyncWorker(context)
+        }
+    }
+
     private suspend fun extracted(context: Context) {
         try {
             _state.postValue(State.SAVING)
