@@ -109,7 +109,7 @@ class HomeActivity : AppCompatActivity() {
 
     var handler: Handler = Handler()
     var runnable: Runnable? = null
-    var delay = 10000
+    var delay = 30000
 
     override fun onResume() {
         handler.postDelayed(Runnable {

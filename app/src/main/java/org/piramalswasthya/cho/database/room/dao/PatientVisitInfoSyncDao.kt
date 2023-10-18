@@ -20,6 +20,10 @@ interface PatientVisitInfoSyncDao {
     suspend fun insertPatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag, labtechFlag = :labtechFlag, doctorDataSynced = :unSynced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET createNewBenFlow = :createNewBenFlow WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updateCreateBenflowFlag(patientID: String, benVisitNo: Int, createNewBenFlow: Boolean? = false)
 
