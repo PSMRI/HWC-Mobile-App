@@ -24,6 +24,8 @@
     <string name="hwc">HWC</string>
     <string name="facility">Facility</string>
     <string name="outreach">Outreach</string>
+    <string name="system_issue">System Issue</string>
+    <string name="manual_issue">Manual Issue</string>
     <string name="wellness_activity">Wellness Activity</string>
     <string name="training">Training</string>
     <string name="health_mela">Health Mela</string>
@@ -61,7 +63,8 @@
     <string name="select_unit_of_duration">Select Unit of Duration</string>
     <string name="visit_details">Visit Details</string>
     <string name="duration">Duration <font color="#FF0000">*</font></string>
-    <string name="duration2">Duration</string>
+    <string name="duration2">Duration: </string>
+    <string name="dispensed">Dispensed: </string>
     <string-array name="unit_of_duration_array">
         <item>hr</item>
     </string-array>
@@ -82,6 +85,7 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">Case Record</string>
     <string name="lab_record_text">Lab Record</string>
+    <string name="pharmacist_record_text">Pharmacist Record</string>
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
@@ -302,10 +306,14 @@
     <string name="diagnosis">Diagnosis</string>
     <string name="provisional_diagnosis">Provisional/Final Diagnosis <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
+    <string name="dose">Dose: </string>
     <string name="frequency">Frequency</string>
+    <string name="frequency2">Frequency:</string>
+    <string name="batch_no">Batch No:</string>
     <string name="instructions">Instructions</string>
     <string name="unit">Unit</string>
     <string name="route">Route</string>
+    <string name="route2">Route: </string>
     <string name="external_investigation">External Investigation</string>
     <string name="save_successful">Save Successful\n</string>
     <string name="something_wend_wong">Something Went Wrong</string>
@@ -358,9 +366,17 @@
     <string name="abha_no">Abha No:</string>
     <string name="ben_id">Ben Id:</string>
     <string name="ben_age">Age:</string>
+    <string name="quantity_prescribed">Quantity Prescribed:</string>
+    <string name="quantity_in_hand">Quantity In Hand:</string>
+    <string name="quantity_dispensed">Quantity Dispensed:</string>
+    <string name="special_instructions">Special Instructions:</string>
+    <string name="dispensed_quantity">Dispensed Quantity:</string>
+    <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
+    <string name="view_batch">View Batch</string>
+    <string name="ok_button">Ok</string>
     <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
@@ -396,6 +412,11 @@
     <string name="hbyc_count">HBYC Count:</string>
     <string name="select_menu">Select</string>
     <string name="male_opd">Male:</string>
+    <string name="consultant_name">Consultant Name:</string>
+    <string name="visit_code">Visit Code:</string>
+    <string name="prescription_id">Prescription ID:</string>
+    <string name="form_label">Form: </string>
+    <string name="prescribed_label">Prescribed: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
     <string name="exit_application">Exit Application</string>
