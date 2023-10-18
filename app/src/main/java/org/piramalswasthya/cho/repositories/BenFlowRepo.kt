@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
@@ -35,8 +36,10 @@ import org.piramalswasthya.cho.model.PrescribedDrugs
 import org.piramalswasthya.cho.model.PrescribedDrugsBatch
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
 import org.piramalswasthya.cho.model.Prescription
+import org.piramalswasthya.cho.model.PrescriptionBatchApiDTO
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataDownsync
@@ -507,6 +510,40 @@ class BenFlowRepo @Inject constructor(
 //        }
 //    }
 
+        suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
+            return networkResultInterceptor {
+                val listAllocation: MutableList<AllocationItemDataRequest> = mutableListOf()
+                prescriptionDTO.itemList.forEach { prescriptionItemDTO ->
+                    val allocationItemDataRequest = AllocationItemDataRequest(
+                        itemID = prescriptionItemDTO.drugID,
+                        quantity = prescriptionItemDTO.qtyPrescribed
+                    )
+                    listAllocation.add(allocationItemDataRequest)
+                }
+                Timber.d("******************* prescriptionBatchDTO Item DTO************** ",listAllocation)
+                val facilityID = userDao.getLoggedInUserFacilityID()
+                val response = apiService.getPharmacistAllocationItemList(listAllocation, facilityID)
+                val responseBody = response.body()?.string()
+
+                refreshTokenInterceptor(
+                    responseBody = responseBody,
+                    onSuccess = {
+                        val jsonObj = JSONObject(responseBody)
+                        val data = jsonObj.getJSONObject("data").toString()
+                        val prescriptionBatchApiDTO = Gson().fromJson(data, PrescriptionBatchApiDTO::class.java)
+                        Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchApiDTO)
+
+                        NetworkResult.Success(NetworkResponse())
+                    },
+                    onTokenExpired = {
+                        val user = userRepo.getLoggedInUser()!!
+                        userRepo.refreshTokenTmc(user.userName, user.password)
+                        getAllocationItemForPharmacist(prescriptionDTO)
+                    },
+                )
+            }
+    }
+
     private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo, facilityID: Int): NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
             val prescribedMedicineDataRequest = PrescribedMedicineDataRequest(
@@ -559,6 +596,7 @@ class BenFlowRepo @Inject constructor(
                             )
                             Timber.d("*******************prescribedDrugs Item DTO************** ",prescribedDrugs)
                             var prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)
+//                            getAllocationItemForPharmacist(prescriptionItemDTO, prescribedDrugsId)
                             prescriptionItemDTO.batchList.forEach { prescriptionBatchDTO ->
                                 Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescriptionBatchDTO)
                                 val prescribedDrugsBatch = PrescribedDrugsBatch(
@@ -567,7 +605,7 @@ class BenFlowRepo @Inject constructor(
                                     expiresIn = prescriptionBatchDTO.expiresIn,
                                     batchNo = prescriptionBatchDTO.batchNo,
                                     itemStockEntryID = prescriptionBatchDTO.itemStockEntryID,
-                                    qty = prescriptionBatchDTO.qty,
+                                    qty = prescriptionBatchDTO.qty
                                 )
                                 Timber.d("******************* prescriptionBatchDTO Item DTO************** ",prescribedDrugsBatch)
                                 prescriptionDao.insert(prescribedDrugsBatch)

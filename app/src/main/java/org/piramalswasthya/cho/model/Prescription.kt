@@ -115,7 +115,25 @@ data class PrescriptionBatchDTO(
     val batchNo: String,
     val expiryDate: String,
     val itemStockEntryID: Int,
-    val qty: Int
+    val qty: Int,
+)
+
+@JsonClass(generateAdapter = true)
+data class PrescriptionBatchApiDTO(
+    val id: Long,
+    val itemID: Long,
+    val itemName: String,
+    var itemBatchList: List<PrescriptionBatchItemApiDTO>,
+
+)
+@JsonClass(generateAdapter = true)
+data class PrescriptionBatchItemApiDTO(
+    val expiresIn: Int,
+    val batchNo: String,
+    val expiryDate: String,
+    val itemStockEntryID: Int,
+    val quantity: Int,
+    val quantityInHand: Int
 
 )
 
@@ -132,6 +150,12 @@ data class PrescribedMedicineDataRequest(
     val parkingPlaceID: Int,
     val vanID: Int,
     val visitCode: Long,
+)
+
+@JsonClass(generateAdapter = true)
+data class AllocationItemDataRequest(
+    val itemID: Long,
+    val quantity: Int,
 )
 
 @JsonClass(generateAdapter = true)
@@ -154,7 +178,7 @@ data class PharmacistPatientIssueDataRequest(
     val providerServiceMapID: Int?,
     val doctorName: String?,
     val gender: String?,
-    val issueType: String,
+    val issueType: String?,
     val patientName: String,
     val prescriptionID: Long?,
     val reference: String,

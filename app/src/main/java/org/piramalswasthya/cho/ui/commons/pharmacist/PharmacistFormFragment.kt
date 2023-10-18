@@ -4,33 +4,27 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.adapter.PharmacistItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
-import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragmentDirections
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -98,68 +92,47 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
             when (state!!) {
                 PharmacistFormViewModel.NetworkState.SUCCESS -> {
                     var result = ""
-                    if(itemAdapter?.itemCount==0||itemAdapter?.itemCount==1) {
-                        result = "Prescription"
-                    }
-                    else {
-                        result = "Prescriptions"
-                    }
+//                    if(itemAdapter?.itemCount==0||itemAdapter?.itemCount==1) {
+//                        result = "Prescription"
+//                    }
+//                    else {
+//                        result = "Prescriptions"
+//                    }
                     itemAdapter = context?.let { it ->
                         PharmacistItemAdapter(
                             it,
-//                            clickListener = PharmacistItemAdapter.BenClickListener { benVisitInfo ->
-//                                Log.d("ben click listener", "ben click listener")
-//                                val bundle = Bundle()
-//                                bundle.putString("prescriptionItemDTO", Gson().toJson(benVisitInfo))
-//                                bundle.putString(
-//                                    "batchList",
-//                                    Gson().toJson(benVisitInfo.batchList?.get(0))
-//                                )
-//                                bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-//                                val batchFragment = PrescriptionBatchFormFragment()
-//                                batchFragment.arguments = bundle
-//                                parentFragmentManager.beginTransaction().apply {
-//                                    replace(R.id.patient_details, batchFragment).commit()
-//                                }
-////                                val action = PharmacistFormFragmentDirections.actionPharmacistFormFragmentToPrescriptionBatchFormFragment().set(data)
-////                                Navigation.findNavController(view).navigate(R.id.action_prescriptionBatchFormFragment_to_patientHomeFragment);
-////                                Navigation.findNavController(view)
-////                                    .navigate(
-////                                        PharmacistFormFragmentDirections.actionPharmacistFormFragmentToPrescriptionBatchFormFragment(
-////                                        (benVisitInfo)
-////                                    ))
-////                                    checkAndGenerateABHA(benVisitInfo)
-//                            }
-                            clickListener = PharmacistItemAdapter.BenClickListener(
-                                {
-                                        benVisitInfo ->
-                                        val bundle = Bundle()
-                                    bundle.putString("prescriptionItemDTO", Gson().toJson(benVisitInfo))
-                                    bundle.putString(
-                                        "batchList",
-                                        Gson().toJson(benVisitInfo.batchList?.get(0))
-                                    )
-                                    bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-                                    val batchFragment = PrescriptionBatchFormFragment()
-                                    batchFragment.arguments = bundle
-                                    parentFragmentManager.beginTransaction().apply {
-                                        replace(R.id.patient_details, batchFragment).commit()
-                                    }
-
+                            clickListener = PharmacistItemAdapter.PharmacistClickListener { prescription ->
+                                val bundle = Bundle()
+                                bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
+                                if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
+                                    bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
                                 }
-                            )
+
+                                bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                Timber.d("*******************Babs DTO************** ",bundle)
+                                val batchFragment = PrescriptionBatchFormFragment()
+                                batchFragment.arguments = bundle
+                                findNavController().navigate(
+                                    R.id.action_pharmacistFormFragment_to_prescriptionBatchFormFragment, bundle
+                                )
+//                                requireActivity().supportFragmentManager.beginTransaction().replace(R.id.patient_detalis, batchFragment).commit()
+//                                parentFragmentManager.beginTransaction().apply {
+//                                    replace(R.id.patient_detalis, batchFragment).commit()
+//                                }
+
+                            }
                         )
                     }
                     binding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
                     lifecycleScope.launch {
                         viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
                         viewModel.getPrescription(benVisitInfo = benVisitInfo)
+                        dtos?.let { viewModel.getAllocationItemForPharmacist(it) }
                     }
 
                     viewModel.prescriptions.observe(viewLifecycleOwner) {
                         dtos = viewModel.prescriptions?.value
                         viewModel.prescriptions?.value?.let {it->
-
 //                            Timber.d("*******************Babs DTO************** ",it)
                             binding.consultantValue.text = it.consultantName
                             binding.visitCodeValue.text = it.visitCode.toString()
@@ -214,6 +187,14 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
     override fun onSubmitAction() {
         Timber.d("submit button", dtos)
         viewModel.savePharmacistData(dtos, benVisitInfo)
+        viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
+            when (state!!) {
+                true -> {
+                    navigateNext()
+                }
+                else -> {}
+            }
+        }
 //        var isValidData = true
 //        if (isValidData) {
 //
@@ -231,6 +212,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
         requireActivity().finish()
     }
 

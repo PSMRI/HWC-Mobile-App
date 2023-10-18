@@ -2,7 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_pharmacist_form"
+    android:id="@+id/fragment_batch_form"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -441,13 +441,12 @@
                         android:weightSum="3">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_view_batch"
+                            android:id="@+id/btn_ok"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="70dp"
                             android:backgroundTint="@color/default_button"
-                            android:enabled="false"
                             android:text="@string/ok"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"

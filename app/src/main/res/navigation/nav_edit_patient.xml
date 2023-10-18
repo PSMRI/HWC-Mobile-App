@@ -66,6 +66,9 @@
         <action
             android:id="@+id/action_pharmacistFormFragment_to_patientHomeFragment"
             app:destination="@id/patientHomeFragment" />
+        <action
+            android:id="@+id/action_pharmacistFormFragment_to_prescriptionBatchFormFragment"
+            app:destination="@id/prescriptionBatchFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/prescriptionBatchFormFragment"

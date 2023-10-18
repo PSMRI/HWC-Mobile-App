@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.network
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
@@ -311,6 +312,9 @@ interface AmritApiService {
 
     @POST("/hwc-facility-service/registrar/get/benDetailsByRegIDForLeftPanelNew?apiKey=undefined")
     suspend fun getPharmacistPatientDetails(@Body pharmacistPatientDataRequest: PharmacistPatientDataRequest) : Response<ResponseBody>
+
+    @POST("/inventoryapi-v1.0/allocateStockFromItemID//{facilityID}?apiKey=undefined")
+    suspend fun getPharmacistAllocationItemList(@Body allocationItemDataRequest: List<AllocationItemDataRequest>, @Path("facilityID") facilityID: Int) : Response<ResponseBody>
 
     @POST("/inventoryapi-v1.0/RX/getPrescribedMedicines?apiKey=undefined")
     suspend fun getPharmacistPrescriptionList(@Body prescribedMedicineDataRequest: PrescribedMedicineDataRequest) : Response<ResponseBody>

@@ -41,6 +41,10 @@ class PharmacistFormViewModel @Inject constructor(
 //    val boolCall: LiveData<Boolean>
 //        get() = _boolCall
 //
+    private var _isDataSaved = MutableLiveData(false)
+    val isDataSaved: LiveData<Boolean>
+        get() = _isDataSaved
+
     var prescriptionForPharmacist : PrescriptionDTO? = null
 
     private var _prescriptions = MutableLiveData<PrescriptionDTO>(null)
@@ -80,6 +84,12 @@ class PharmacistFormViewModel @Inject constructor(
             if(listPrescription!=null && listPrescription.size>0){
                 _prescriptions.postValue(listPrescription.get(0) ?: null)
             }
+        }
+    }
+
+    suspend fun getAllocationItemForPharmacist(prescriptionDTO : PrescriptionDTO) {
+        withContext(Dispatchers.IO) {
+            benFlowRepo.getAllocationItemForPharmacist(prescriptionDTO)
         }
     }
 //
@@ -143,12 +153,12 @@ class PharmacistFormViewModel @Inject constructor(
                     patientRepo.updatePrescription(prescription)
                 }
 
-
                 // update sync state for pharmacist data
-
 
                 patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 WorkerUtils.pharmacistPushWorker(context)
+
+                _isDataSaved.value = true
 
             }
 

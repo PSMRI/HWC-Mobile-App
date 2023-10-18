@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PharmacistItemAdapter
@@ -29,7 +30,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form), FhirFragmentService, NavigationAdapter {
+class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_batch_form), FhirFragmentService, NavigationAdapter {
 
     private var _binding: FragmentPrescriptionBatchFormBinding? = null
 
@@ -51,9 +52,9 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form
     private var dtos: List<ProcedureDTO>? = null
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
 
-    private val args: PharmacistFormFragmentArgs by lazy {
-        PharmacistFormFragmentArgs.fromBundle(requireArguments())
-    }
+//    private val args: PharmacistFormFragmentArgs by lazy {
+//        PharmacistFormFragmentArgs.fromBundle(requireArguments())
+//    }
 
     private val bundle = Bundle()
 
@@ -70,7 +71,7 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val data = arguments?.getString("prescriptionDTO")
+        val data = arguments?.getString("batchList")
         val data2 = arguments?.getString("prescriptionDTO")
         val data3 = arguments?.getString("prescriptionItemDTO")
         val prescriptionDTO = Gson().fromJson(data2, PrescriptionDTO::class.java)
@@ -83,12 +84,15 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form
 
         binding.prescribedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
         binding.dispensedValue.text = prescriptionItemDTO.qtyPrescribed.toString()
-        binding.batchValue.text = batch.batchNo
-        binding.quantityInHandValue.text = batch.qty.toString()
-        binding.dispensedQuantityValue.text = prescriptionItemDTO.qtyPrescribed.toString()
-        binding.expiryDateValue.text = batch.expiryDate
+        if(batch!=null){
+            binding.batchValue.text = batch.batchNo
+            binding.quantityInHandValue.text = batch.qty.toString()
+            binding.dispensedQuantityValue.text = prescriptionItemDTO.qtyPrescribed.toString()
+            binding.expiryDateValue.text = batch.expiryDate
+        }
 
-        binding.btnViewBatch.setOnClickListener{
+        binding.btnOk.setOnClickListener{
+//            requireActivity().finish()
             onCancelAction()
         }
 
@@ -136,30 +140,34 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_pharmacist_form
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_pharmacist_form;
+        return R.id.fragment_batch_form;
     }
 
     override fun onSubmitAction() {
         var isValidData = true
-        dtos?.forEach { procedureDTO ->
-            procedureDTO.compListDetails.forEach { componentDetailDTO ->
-                if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
-                    componentDetailDTO.range_max != null &&
-                    componentDetailDTO.range_min != null) {
-                    isValidData = (componentDetailDTO.testResultValue!!.toDouble() > componentDetailDTO.range_min && componentDetailDTO.testResultValue!!.toDouble() < componentDetailDTO.range_max)
-                }
-            }
-        }
-        if (isValidData) {
-//            viewModel.saveLabData(dtos, args.patientId)
-            navigateNext()
-        } else {
-            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
-        }
+//        dtos?.forEach { procedureDTO ->
+//            procedureDTO.compListDetails.forEach { componentDetailDTO ->
+//                if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
+//                    componentDetailDTO.range_max != null &&
+//                    componentDetailDTO.range_min != null) {
+//                    isValidData = (componentDetailDTO.testResultValue!!.toDouble() > componentDetailDTO.range_min && componentDetailDTO.testResultValue!!.toDouble() < componentDetailDTO.range_max)
+//                }
+//            }
+//        }
+//        if (isValidData) {
+////            viewModel.saveLabData(dtos, args.patientId)
+//            navigateNext()
+//        } else {
+//            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
+//        }
     }
 
     override fun onCancelAction() {
-        requireActivity().finish()
+//        getFragmentManager()?.popBackStack()
+//        requireActivity().finish()
+        findNavController().navigate(
+            R.id.action_prescriptionBatchFormFragment_to_pharmacistFormFragment, bundle
+        )
     }
 
     override fun navigateNext() {

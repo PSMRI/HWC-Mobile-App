@@ -20,7 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
+    app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
     >
 
     <TextView
@@ -35,14 +35,14 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pharmacist_list"
-        android:layout_below="@+id/prescription_count"
         android:name="com.google.fhirengine.example.PatientListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="395dp"
+        android:layout_height="570dp"
+        android:layout_below="@+id/prescription_count"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        app:layoutManager="LinearLayoutManager"
         android:scrollbars="vertical"
+        app:layoutManager="LinearLayoutManager"
         tools:context=".PatientListActivity"
         tools:listitem="@layout/pharmacist_list_item_view" />
 </RelativeLayout>

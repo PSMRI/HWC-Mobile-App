@@ -561,7 +561,7 @@ class BenVisitRepo @Inject constructor(
                             providerServiceMapID = benFlow.providerServiceMapId,
                             doctorName = prescriptionResultDTOs.get(0)?.consultantName,
                             gender = benFlow.genderName,
-                            issueType = "",
+                            issueType = prescriptionResultDTOs[0]?.issueType,
                             patientName = it.patient.firstName+" "+it.patient.lastName,
                             prescriptionID = prescriptionResultDTOs?.get(0)?.prescriptionID,
                             reference = "Prescribed by "+user?.userName!!+" from MMU",

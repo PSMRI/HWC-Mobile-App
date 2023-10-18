@@ -10,20 +10,23 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
 
 
 class PharmacistItemAdapter(
     private val context: Context,
-    private val clickListener: BenClickListener,
+    private val clickListener: PharmacistClickListener,
 ) : ListAdapter<PrescriptionItemDTO,PharmacistItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PrescriptionItemDTO>() {
         override fun areItemsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
-        ) = oldItem.id == newItem.id
+        ) = oldItem.drugID == newItem.drugID
 
         override fun areContentsTheSame(
             oldItem: PrescriptionItemDTO, newItem: PrescriptionItemDTO
@@ -46,12 +49,13 @@ class PharmacistItemAdapter(
 
         fun bind(
             item:PrescriptionItemDTO,
-            clickListener: BenClickListener?
+            clickListener: PharmacistClickListener
         ) {
-            Timber.d("*******************DAta Prescription DTO************** ",item)
+            Timber.d("*******************DAta Prescription DTO************** ",clickListener)
             binding.prescription = item
             binding.clickListener = clickListener
 
+            binding.medicationName.text = (item.genericDrugName + " "+ item.drugStrength)
             binding.formValue.text = (item.drugForm ?: "")
             binding.durationValue.text = (item.duration ?:"") + " " + (item.durationUnit ?: "")
             binding.frequencyValue.text = (item.frequency ?: "")
@@ -81,18 +85,21 @@ class PharmacistItemAdapter(
 
 //        holder.itemView.findViewById<MaterialButton>(R.id.btn_view_batch).setOnClickListener { // When view batch button is clicked
 ////            network = isInternetAvailable(context)
-//
+//            Log.i("View batch Button", "")
 //        }
     }
 
-    class BenClickListener(
+    class PharmacistClickListener(
         private val clickedViewBatch: (benVisitInfo: PrescriptionItemDTO) -> Unit,
     ) {
-        fun onClickABHA(item: PrescriptionItemDTO) {
-            Log.i("View batch Button", "")
-//            Log.d("ABHA Item Click", "ABHA item clicked")
-            clickedViewBatch(item)
-        }
+        fun onClickViewBatch(item: PrescriptionItemDTO) = clickedViewBatch(
+            item,
+        )
+//        fun onClickABHA(item: PrescriptionItemDTO) {
+//            Log.i("View batch Button", "")
+////            Log.d("ABHA Item Click", "ABHA item clicked")
+//            clickedViewBatch(item)
+//        }
     }
 
     fun isInternetAvailable(context: Context): Boolean {
