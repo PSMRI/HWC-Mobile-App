@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Condition
 import org.hl7.fhir.r4.model.Encounter
@@ -73,8 +75,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var base64String = ""
     var fileName = ""
-    private var _chiefComplaintMaster: LiveData<List<ChiefComplaintMaster>>
-    val chiefComplaintMaster: LiveData<List<ChiefComplaintMaster>>
+    private var _chiefComplaintMaster: Flow<List<ChiefComplaintMaster>>
+    val chiefComplaintMaster: Flow<List<ChiefComplaintMaster>>
         get() = _chiefComplaintMaster
 
     private var _loggedInUser: UserCache? = null
@@ -90,7 +92,7 @@ class VisitDetailViewModel @Inject constructor(
 
     init {
         _subCatVisitList = MutableLiveData()
-        _chiefComplaintMaster = MutableLiveData()
+        _chiefComplaintMaster = MutableStateFlow(emptyList())
         getSubCatVisitList()
         getChiefMasterComplaintList()
     }

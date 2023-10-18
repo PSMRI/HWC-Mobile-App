@@ -298,14 +298,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             makeFollowUpDefault()
         }
         binding.subCatInput.threshold = 1
+       lifecycleScope.launch {
+           viewModel.chiefComplaintMaster.collect { chiefComplaintsList ->
+               chiefComplaints.clear()
+               chiefComplaints.addAll(chiefComplaintsList)
 
-        viewModel.chiefComplaintMaster.observe(viewLifecycleOwner) { chiefComplaintsList ->
-            chiefComplaints.clear()
-            chiefComplaints.addAll(chiefComplaintsList)
-
-            chiefComplaintsForFilter.clear()
-            chiefComplaintsForFilter.addAll(chiefComplaintsList)
-        }
+               chiefComplaintsForFilter.clear()
+               chiefComplaintsForFilter.addAll(chiefComplaintsList)
+           }
+       }
 
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -637,7 +638,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
         binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
         binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
-//        binding.inputRbs.setText(vitals.rbs.toString())
+        binding.inputRBS.setText(vitals.rbs.toString())
     }
 
     fun chiefAndVitalsDataFill() {
