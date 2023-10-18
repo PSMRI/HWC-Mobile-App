@@ -166,6 +166,11 @@ class PersonalDetailsFragment : Fragment() {
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
+                                    else if(benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isPharmacist()){
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                    }
                                     else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
@@ -232,7 +237,18 @@ class PersonalDetailsFragment : Fragment() {
                                 patientCount = it.size
                             }
                         }
-                    } else {
+                    }
+                    else if (preferenceDao.isPharmacist()) {
+                        lifecycleScope.launch {
+                            viewModel.patientListForPharmacist?.collect { it ->
+                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
+                                binding.patientListContainer.patientCount.text =
+                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                patientCount = it.size
+                            }
+                        }
+                    }
+                    else {
                         lifecycleScope.launch {
                             viewModel.patientListForNurse?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})

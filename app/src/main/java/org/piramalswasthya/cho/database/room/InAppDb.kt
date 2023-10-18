@@ -117,6 +117,9 @@ import timber.log.Timber
         ComponentOption::class,
         ProcedureDataDownsync::class,
         ComponentDataDownsync::class,
+        Prescription::class,
+        PrescribedDrugs::class,
+        PrescribedDrugsBatch::class,
         MasterLocation::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
