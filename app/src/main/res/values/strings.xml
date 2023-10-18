@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HWC</string>
+    <string name="app_name">CHO</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
@@ -415,4 +415,6 @@
     <string name="remarks">Remarks</string>
     <string name="select_test_name_date">Test Name - (Date)</string>
     <string name="result_meas_unit">Result -Measurement Unit</string>
+    <string name="date_time">Date and Time</string>
+    <string name="Use_Previous_data">Submit Old Chief Complaints and vitals data</string>
 </resources>

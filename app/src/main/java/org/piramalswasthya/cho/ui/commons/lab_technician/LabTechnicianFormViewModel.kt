@@ -126,6 +126,9 @@ class LabTechnicianFormViewModel @Inject constructor(
 
                 patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
                 WorkerUtils.labPushWorker(context)
+
+                _isDataSaved.value = true
+
                 withContext(Dispatchers.IO) {
                     _cacheSaved.postValue(true)
                 }

@@ -43,7 +43,7 @@ interface VisitReasonsAndCategoriesDao {
     suspend fun getVisitDbByBenRegIdAndBenVisitNo(patientID: String, benVisitNo: Int) : VisitDB?
 
     @Query("SELECT benVisitDate FROM Visit_DB WHERE patientID = :patientId ORDER BY benVisitNo DESC LIMIT 1")
-     fun getLatestVisitIdByPatientId(patientId: String): LiveData<String>?
+    fun getLatestVisitIdByPatientId(patientId: String): LiveData<String?>
 
     @Query("SELECT * FROM Visit_DB WHERE patientID = :patientID")
     suspend fun getVisitDbByPatientId(patientID: String) : VisitDB
@@ -53,6 +53,9 @@ interface VisitReasonsAndCategoriesDao {
 
     @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getChiefComplaintsByBenRegIdAndBenVisitNo(patientID: String, benVisitNo: Int) : List<ChiefComplaintDB>?
+
+    @Query("SELECT * FROM Chielf_Complaint_DB WHERE patientID = :patientID AND benVisitNo = (SELECT MAX(benVisitNo) FROM Chielf_Complaint_DB WHERE patientID = :patientID) ORDER BY benVisitNo DESC")
+    suspend fun getChiefComplaintsByBenRegIdAndBenVisitNoForFollowUp(patientID: String) : List<ChiefComplaintDB>
 
 //    @Query("UPDATE Visit_DB SET benFlowID = :benflowId WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
 //    suspend fun updateVisitDbBenflow(benflowId: Long, beneficiaryRegID: Long, benVisitNo: Int) : Int
