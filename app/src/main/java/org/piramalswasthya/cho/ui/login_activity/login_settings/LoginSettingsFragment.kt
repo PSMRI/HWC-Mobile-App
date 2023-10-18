@@ -35,9 +35,11 @@ import timber.log.Timber
 import javax.inject.Inject
 import android.provider.Settings
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.async
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
@@ -71,6 +73,7 @@ import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import java.lang.Math.sin
+import java.util.Date
 import kotlin.math.*
 
 
@@ -114,9 +117,16 @@ class LoginSettingsFragment : Fragment() {
         dialogClosed = false
         return binding.root
     }
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 //        val userName = (arguments?.getString("userName", ""))!!
         viewModel = ViewModelProvider(this)[LoginSettingsViewModel::class.java]
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
 
 
