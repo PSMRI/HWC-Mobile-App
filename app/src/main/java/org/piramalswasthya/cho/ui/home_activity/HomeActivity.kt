@@ -25,7 +25,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -51,6 +53,7 @@ import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -219,9 +222,8 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-//                R.id.dashboard_activity -> {
-//                    // Start the DestinationActivity
-//                    startActivity(Intent(this, DashboardActivity::class.java))
+//                R.id.master_location_settings -> {
+//                    startActivity(Intent(this, MasterLocationSettingsActivity::class.java))
 //                    drawerLayout.closeDrawers()
 //                    true
 //                }

@@ -18,10 +18,12 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
+import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
@@ -223,6 +225,42 @@ class UserRepo @Inject constructor(
         }
     }
 
+    private suspend fun getUserMasterVillage(): Boolean{
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getUserMasterVillage(
+                user!!.userId
+            )
+            val statusCode = response.code()
+            if (statusCode == 200) {
+                val responseString = response.body()?.string() ?: return@withContext false
+                val responseJson = JSONObject(responseString)
+                val responseStatusCode = responseJson.getInt("statusCode")
+                if(responseStatusCode == 200) {
+                    val data = responseJson.getJSONObject("data")
+                    val masterVillageName = data.getString("villageName")
+                    user?.masterVillageName = masterVillageName
+                    val masterVillageId = data.getInt("districtBranchID")
+                    user?.masterVillageID = masterVillageId
+                    val blockId = data.getInt("blockID")
+                    user?.masterBlockID = blockId
+                    val masterLatitude = data.getDouble("latitude")
+                    user?.masterLatitude = masterLatitude
+                    val masterLongitude = data.getDouble("longitude")
+                    user?.masterLongitude = masterLongitude
+                    val masterLocAddress = data.getString("address")
+                    user?.masterLocationAddress = masterLocAddress
+                    val loginDistance = data.getInt("loginDistance")
+                    user?.loginDistance = loginDistance
+                    true
+                }else
+                    false
+            }else {
+                false
+            }
+        }
+
+        }
+
 
     private suspend fun getTokenTmc(userName: String, password: String) {
         withContext(Dispatchers.IO) {
@@ -267,6 +305,7 @@ class UserRepo @Inject constructor(
                     preferenceDao.registerPrimaryApiToken(token)
                     getUserVanSpDetails()
                     getLocDetailsBasedOnSpIDAndPsmID()
+                    getUserMasterVillage()
 //                    getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
@@ -486,6 +525,40 @@ class UserRepo @Inject constructor(
             )
         }
     }
+
+    suspend fun updateVillageCoordinates(masterLocationModel: MasterLocationModel){
+        tmcNetworkApiService.updateMasterVillageCoordinates(masterLocationModel)
+    }
+     suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
+         val response = tmcNetworkApiService.setUserMasterVillage(userMasterVillage)
+         val statusCode = response.code()
+         if (statusCode == 200) {
+             val responseString = response.body()?.string()
+             val responseJson = JSONObject(responseString!!)
+             val responseStatusCode = responseJson.getInt("statusCode")
+             if (responseStatusCode == 200) {
+                 val data = responseJson.getJSONObject("data")
+                 val masterVillageName = data.getString("villageName")
+                 user?.masterVillageName = masterVillageName
+                 val masterVillageId = data.getInt("districtBranchID")
+                 user?.masterVillageID = masterVillageId
+                 val masterLocAddress = data.getString("address")
+                 user?.masterLocationAddress = masterLocAddress
+                 val loginDistance = data.getInt("loginDistance")
+                 user?.loginDistance = loginDistance
+                 val blockId = data.getInt("blockID")
+                 user?.masterBlockID = blockId
+                 val masterLatitude = data.getDouble("latitude")
+                 user?.masterLatitude = masterLatitude
+                 val masterLongitude = data.getDouble("longitude")
+                 user?.masterLongitude = masterLongitude
+
+
+                 userDao.update(user)
+
+             }
+         }
+     }
     suspend fun processUnsyncedAuditData(): Boolean{
         val loginAuditDataListUnsynced: List<SelectedOutreachProgram> = userDao.getLoginAuditDataListUnsynced()
         if(loginAuditDataListUnsynced.isNotEmpty()){
