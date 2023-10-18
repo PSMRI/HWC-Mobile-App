@@ -41,7 +41,7 @@ class HwcViewModel @Inject constructor(
     }
     fun fetchRememberedPassword(): String? =
         pref.getRememberedPassword()
-    fun authUser(
+    suspend fun authUser(
         username: String,
         password: String,
         loginType: String?,

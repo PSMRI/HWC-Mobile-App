@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
 import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
+import org.piramalswasthya.cho.database.converters.UserMasterLocationConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -119,10 +120,10 @@ import timber.log.Timber
         Prescription::class,
         PrescribedDrugs::class,
         PrescribedDrugsBatch::class,
-
+        MasterLocation::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 78, exportSchema = false
+    version = 84, exportSchema = false
 )
 
 
@@ -136,7 +137,8 @@ import timber.log.Timber
     VillageConverter::class,
     MasterDataListConverter::class,
     LocationConverter::class,
-    DateConverter::class
+    DateConverter::class,
+    UserMasterLocationConverter::class
 )
 
 abstract class InAppDb : RoomDatabase() {

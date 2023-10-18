@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.database.shared_preferences
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -132,13 +133,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         }
         return false
     }
-    fun isLabTechnician(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.contains("Lab Technician")
-        }
-        return false;
-    }
 
     fun isStartingLabTechnician(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
@@ -196,6 +190,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val editor = pref.edit()
         val currDate = LocalDate.now()
         val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        Log.d("curr date", DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
     }

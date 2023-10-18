@@ -25,7 +25,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -51,6 +53,7 @@ import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -106,17 +109,38 @@ class HomeActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
 
     private var locationListener: LocationListener? = null
-    val patientDetails = PatientDetails()
-    private val handler = Handler()
+
+    var handler: Handler = Handler()
+    var runnable: Runnable? = null
+    var delay = 30000
+
+    override fun onResume() {
+        handler.postDelayed(Runnable {
+            handler.postDelayed(runnable!!, delay.toLong())
+            Log.v("resuming activitiy", "resume")
+            viewModel.triggerDownSyncWorker(this)
+        }.also { runnable = it }, delay.toLong())
+        super.onResume()
+    }
+    override fun onPause() {
+        super.onPause()
+        Log.v("pausing activitiy", "pause")
+        handler.removeCallbacks(runnable!!)
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
-//        navController = navHostFragment.navController
+
         viewModel.init(this)
+
+        binding.refreshButton.setOnClickListener {
+            Log.d("triggering down outside", "down trigger")
+            viewModel.triggerDownSyncWorker(this)
+        }
+
         getCurrentLocation()
         setUpNavHeader()
 
@@ -198,9 +222,8 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-//                R.id.dashboard_activity -> {
-//                    // Start the DestinationActivity
-//                    startActivity(Intent(this, DashboardActivity::class.java))
+//                R.id.master_location_settings -> {
+//                    startActivity(Intent(this, MasterLocationSettingsActivity::class.java))
 //                    drawerLayout.closeDrawers()
 //                    true
 //                }

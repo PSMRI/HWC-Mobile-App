@@ -86,7 +86,7 @@ class UsernameFragment() : Fragment() {
         if(binding.etUsername.text.isNullOrBlank()) {
             binding.btnNxt.isEnabled = false
             binding.cbRemember.isChecked = false
-            binding.loginSettings.isEnabled = false
+//            binding.loginSettings.isEnabled = false
         }
         val biometricManager = BiometricManager.from(requireContext())
         when (biometricManager.canAuthenticate()) {
@@ -188,7 +188,7 @@ class UsernameFragment() : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
-                binding.loginSettings.isEnabled = !s.isNullOrBlank()
+//                binding.loginSettings.isEnabled = !s.isNullOrBlank()
 //                val userName = (s.toString())!!;
 //                if(!s.isNullOrBlank()){
 //                    lifecycleScope.launch {
@@ -234,17 +234,17 @@ class UsernameFragment() : Fragment() {
             else
                 Toast.makeText(requireContext(), getString(R.string.invalid_username_entered), Toast.LENGTH_LONG).show()
         }
-
-        binding.loginSettings.setOnClickListener{
-            try {
-                findNavController().navigate(
-                    UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
-                )
-            }catch (e: Exception){
-                Timber.d("Failed to navigate"+e.message)
-            }
-
-        }
+//
+//        binding.loginSettings.setOnClickListener{
+//            try {
+//                findNavController().navigate(
+//                    UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
+//                )
+//            }catch (e: Exception){
+//                Timber.d("Failed to navigate"+e.message)
+//            }
+//
+//        }
         when (prefDao.getCurrentLanguage()) {
             Languages.ENGLISH -> binding.rgLangSelect.check(binding.rbEng.id)
             Languages.KANNADA -> binding.rgLangSelect.check(binding.rbKannada.id)

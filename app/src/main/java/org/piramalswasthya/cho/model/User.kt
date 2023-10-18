@@ -129,6 +129,27 @@ data class UserCache(
     @ColumnInfo(name="districtBranchID")
     var districtBranchID : Int?,
 
+    @ColumnInfo(name="masterBlockID")
+    var masterBlockID : Int?,
+
+    @ColumnInfo(name="masterVillageID")
+    var masterVillageID : Int?,
+
+    @ColumnInfo(name="masterVillageName")
+    var masterVillageName : String?,
+
+    @ColumnInfo(name="loginDistance")
+    var loginDistance : Int?,
+
+    @ColumnInfo(name="masterLocationAddress")
+    var masterLocationAddress : String?,
+
+    @ColumnInfo(name="masterLatitude")
+    var masterLatitude : Double?,
+
+    @ColumnInfo(name="masterLongitude")
+    var masterLongitude : Double?,
+
     @ColumnInfo(name="assignVillageIds")
     var assignVillageIds : String,
 
@@ -161,6 +182,14 @@ data class UserCache(
             stateID = stateID,
             districtID = districtID,
             blockID = blockID,
+            districtBranchID = districtBranchID,
+            masterVillageID = masterVillageID,
+            masterBlockID = masterBlockID,
+            masterLocationAddress = masterLocationAddress,
+            loginDistance = loginDistance,
+            masterLongitude = masterLongitude,
+            masterLatitude = masterLatitude,
+            masterVillageName = masterVillageName,
             assignVillageIds = assignVillageIds,
 //            countryId = countryId,
 //            stateIds = stateIds,
@@ -213,6 +242,15 @@ data class UserDomain(
     val stateID : Int?,
     val districtID : Int?,
     val blockID : Int?,
+    var districtBranchID : Int? = null,
+    var masterVillageID: Int?,
+    var masterBlockID : Int? = null,
+    var masterVillageName : String? = null,
+    var loginDistance : Int? = null,
+    var masterLocationAddress: String? = null,
+    var masterLatitude : Double? = null,
+    var masterLongitude : Double? = null,
+
 //    val stateIds: List<Int>,
 //    val districtIds: List<Int>,
 //    val blockIds: List<Int>,
@@ -258,7 +296,13 @@ data class UserNetwork(
     var districtID : Int? = null,
     var blockID : Int? = null,
     var districtBranchID : Int? = null,
-
+    var masterVillageID: Int? = null,
+    var masterBlockID : Int? = null,
+    var masterVillageName : String? = null,
+    var loginDistance : Int? = null,
+    var masterLocationAddress: String? = null,
+    var masterLatitude : Double? = null,
+    var masterLongitude : Double? = null,
     var assignVillageIds: String? = null,
     var assignVillageNames: String? = null,
 
@@ -345,12 +389,30 @@ data class UserNetwork(
             districtID = districtID,
             blockID = blockID,
             districtBranchID = districtBranchID,
+            masterLocationAddress = masterLocationAddress,
+            loginDistance = loginDistance,
+            masterLongitude = masterLongitude,
+            masterLatitude = masterLatitude,
+            masterVillageName = masterVillageName,
             assignVillageIds = assignVillageIds ?: "",
             assignVillageNames = assignVillageNames ?: "",
-            lastLogoutTime = lastLogoutTime
+            lastLogoutTime = lastLogoutTime,
+            masterVillageID = masterVillageID,
+            masterBlockID = masterBlockID,
         )
     }
 }
+
+data class UserMasterVillage(
+    val masterVillageID: Int?,
+    val userID: Int?,
+)
+data class MasterLocationModel(
+    val latitude : Double?,
+    val longitude : Double?,
+    var address : String? = null,
+    val districtBranchID: Int?,
+)
 
 data class NetworkBody(
     val userName: String,

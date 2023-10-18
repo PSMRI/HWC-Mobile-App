@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.sql.Timestamp
 
 class DateTimeUtil {
 
@@ -73,6 +74,31 @@ class DateTimeUtil {
         )
 
         const val format = "yyyy-MM-dd HH:mm:ss"
+
+        fun timestampToDate(timestamp: String?): Date? {
+            if(timestamp == null){
+                return null
+            }
+            try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                return dateFormat.parse(timestamp)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+        }
+
+        fun convertTimestampToISTDate(timestamp: Timestamp?): Date? {
+
+            if (timestamp == null) {
+                return null
+            }
+
+            val milliseconds = timestamp.time - (5.5 * 3600000).toLong()
+
+            return Date(milliseconds)
+
+        }
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun formattedDate(date: Date): String {

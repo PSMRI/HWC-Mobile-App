@@ -3,8 +3,11 @@ package org.piramalswasthya.cho.database.converters
 import android.location.Location
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.piramalswasthya.cho.model.LocationEntity
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.network.District
 import org.piramalswasthya.cho.network.DistrictBlock
 import org.piramalswasthya.cho.network.State
@@ -106,4 +109,17 @@ class DateConverter{
         return date?.time
     }
 
+}
+class UserMasterLocationConverter {
+    @TypeConverter
+    fun toUserMasterLocationList(value: String?): List<VillageLocationData> {
+        val listType = object : TypeToken<List<LocationEntity?>?>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun fromUserMasterLocationList(list: List<VillageLocationData>): String? {
+        val gson = Gson()
+        return gson.toJson(list)
+    }
 }

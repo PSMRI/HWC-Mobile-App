@@ -6,6 +6,7 @@ import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
@@ -14,6 +15,7 @@ import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
 import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
+import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.utils.Constants
 import retrofit2.Response
@@ -248,6 +250,15 @@ interface AmritApiService {
 
     @GET("/commonapi-v1.0/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
+
+    @GET("hwc-facility-service/masterVillage/{userID}/get")
+    suspend fun getUserMasterVillage(@Path("userID") userID: Int): Response<ResponseBody>
+
+    @POST("hwc-facility-service/masterVillage/set")
+    suspend fun setUserMasterVillage(@Body userMasterVillage: UserMasterVillage) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/wo/location/update/villageCoordinates")
+    suspend fun updateMasterVillageCoordinates(@Body masterLocationModel: MasterLocationModel) : Response<ResponseBody>
 
     @POST(authenticate)
     suspend fun getAuthRefIdForWebView(@Body body : NetworkBody) : ModelObject
