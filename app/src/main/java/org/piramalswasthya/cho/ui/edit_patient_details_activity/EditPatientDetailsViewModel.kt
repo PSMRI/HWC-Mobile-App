@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.ui.edit_patient_details_activity
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class EditPatientDetailsViewModel : ViewModel() {
@@ -11,6 +13,10 @@ class EditPatientDetailsViewModel : ViewModel() {
         val gender: String,
         val age: String
     )
+
+    private val _submitActive = MutableLiveData(true)
+    val submitActive: LiveData<Boolean>
+        get() = _submitActive
 
     private var patientDetails: PatientDetails? = null
 
@@ -33,4 +39,8 @@ class EditPatientDetailsViewModel : ViewModel() {
         }
     }
 
+    fun setSubmitActive(boolean: Boolean) {
+            _submitActive.postValue(boolean)
+
+    }
 }

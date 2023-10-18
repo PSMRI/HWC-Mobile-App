@@ -172,7 +172,7 @@ class PersonalDetailsFragment : Fragment() {
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isLabTechnician()){
+                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isStartingLabTechnician()){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
@@ -218,7 +218,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForDoctor?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                    it.size.toString() + getResultStr(it.size)
                                 patientCount = it.size
                             }
                         }
@@ -228,7 +228,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForLab?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                    it.size.toString() + getResultStr(it.size)
                                 patientCount = it.size
                             }
                         }
@@ -237,7 +237,7 @@ class PersonalDetailsFragment : Fragment() {
                             viewModel.patientListForNurse?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                    it.size.toString() + getResultStr(it.size)
                                 patientCount = it.size
                             }
                         }

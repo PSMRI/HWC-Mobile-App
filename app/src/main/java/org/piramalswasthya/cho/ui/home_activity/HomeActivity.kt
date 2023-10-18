@@ -109,17 +109,38 @@ class HomeActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
 
     private var locationListener: LocationListener? = null
-    val patientDetails = PatientDetails()
-    private val handler = Handler()
+
+    var handler: Handler = Handler()
+    var runnable: Runnable? = null
+    var delay = 30000
+
+    override fun onResume() {
+        handler.postDelayed(Runnable {
+            handler.postDelayed(runnable!!, delay.toLong())
+            Log.v("resuming activitiy", "resume")
+            viewModel.triggerDownSyncWorker(this)
+        }.also { runnable = it }, delay.toLong())
+        super.onResume()
+    }
+    override fun onPause() {
+        super.onPause()
+        Log.v("pausing activitiy", "pause")
+        handler.removeCallbacks(runnable!!)
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.homeFragment) as NavHostFragment
-//        navController = navHostFragment.navController
-        viewModel.updateLastSyncTimestamp()
+
+        viewModel.init(this)
+
+        binding.refreshButton.setOnClickListener {
+            Log.d("triggering down outside", "down trigger")
+            viewModel.triggerDownSyncWorker(this)
+        }
+
         getCurrentLocation()
         setUpNavHeader()
 

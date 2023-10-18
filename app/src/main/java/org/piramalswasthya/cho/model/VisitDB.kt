@@ -7,6 +7,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,6 +48,7 @@ data class VisitDB(
         nurseData.GOPDNurseVisitDetail?.subVisitCategory,
         patient.patientID,
         benFlow.benFlowID,
-        benFlow.benVisitNo
+        benFlow.benVisitNo,
+        DateTimeUtil.formatBenVisitDate(benFlow.registrationDate)
     )
 }

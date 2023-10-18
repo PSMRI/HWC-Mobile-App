@@ -178,22 +178,19 @@ class PatientRepo @Inject constructor(
             preferenceDao.getLastPatientSyncTime()
         )
 
-        return when(val response = downloadRegisterPatientFromServer(villageList)){
+        when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
-                true
+                return true
             }
-
             is NetworkResult.Error -> {
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
-                true
+                return false
             }
-
-            else -> {
-                true
-            }
+            else -> {}
         }
+        return true
     }
     private fun convertStringToIntList(villageIds : String) : List<Int>{
         return villageIds.split(",").map {
@@ -307,13 +304,13 @@ class PatientRepo @Inject constructor(
                                 patientID = generateUuid(),
                                 firstName = beneficiary.beneficiaryDetails?.firstName,
                                 lastName = beneficiary.beneficiaryDetails?.lastName,
-                                dob = beneficiary.beneficiaryDetails?.dob,
+                                dob = DateTimeUtil.convertTimestampToISTDate(beneficiary.beneficiaryDetails?.dob),
                                 maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
                                 spouseName = beneficiary.beneficiaryDetails?.spouseName,
                                 ageAtMarriage = beneficiary.ageAtMarriage,
                                 phoneNo = beneficiary.preferredPhoneNum,
                                 genderID = beneficiary.beneficiaryDetails?.genderId,
-                                registrationDate = beneficiary.createdDate,
+                                registrationDate = DateTimeUtil.convertTimestampToISTDate(beneficiary.createdDate),
                                 stateID = beneficiary.currentAddress?.stateId,
                                 districtID = beneficiary.currentAddress?.districtId,
                                 blockID = beneficiary.currentAddress?.subDistrictId,
