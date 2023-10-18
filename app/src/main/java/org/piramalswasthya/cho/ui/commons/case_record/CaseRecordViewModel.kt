@@ -228,22 +228,29 @@ class CaseRecordViewModel @Inject constructor(
     }
 
     suspend fun updateDoctorDataSubmitted(benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
-        val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
-            nurseDataSynced = benVisitInfo.nurseDataSynced,
-            doctorDataSynced = SyncState.UNSYNCED,
-            createNewBenFlow = benVisitInfo.createNewBenFlow,
-            benVisitNo = benVisitInfo.benVisitNo!!,
-            benFlowID = benVisitInfo.benFlowID,
+//        val patientVisitInfoSync = PatientVisitInfoSync(
+//            patientID = benVisitInfo.patient.patientID,
+//            nurseDataSynced = benVisitInfo.nurseDataSynced,
+//            doctorDataSynced = SyncState.UNSYNCED,
+//            createNewBenFlow = benVisitInfo.createNewBenFlow,
+//            benVisitNo = benVisitInfo.benVisitNo!!,
+//            benFlowID = benVisitInfo.benFlowID,
+//            nurseFlag = 9,
+//            doctorFlag = doctorFlag,
+//            labtechFlag = benVisitInfo.labtechFlag,
+//            pharmacist_flag = benVisitInfo.pharmacist_flag,
+//        )
+        var labtechFlag = benVisitInfo.labtechFlag!!
+        if(benVisitInfo.doctorFlag == 3){
+            labtechFlag = 1
+        }
+        patientVisitInfoSyncRepo.updateOnlyDoctorDataSubmitted(
             nurseFlag = 9,
             doctorFlag = doctorFlag,
-            labtechFlag = benVisitInfo.labtechFlag,
-            pharmacist_flag = benVisitInfo.pharmacist_flag,
+            labtechFlag = labtechFlag,
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitInfo.benVisitNo!!
         )
-        if(benVisitInfo.doctorFlag == 3){
-            patientVisitInfoSync.labtechFlag = 1
-        }
-        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
     fun saveDoctorData(diagnosisList: List<DiagnosisCaseRecord>, investigation: InvestigationCaseRecord,
