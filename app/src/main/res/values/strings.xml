@@ -434,5 +434,7 @@
 
     <string name="view">VIEW</string>
     <string name="iv_sync_state_tv">SYNC STATE</string>
+    <string name="high_risk">High Risk</string>
+    <string name="tv_required_text_asterisk">*</string>
 
 </resources>

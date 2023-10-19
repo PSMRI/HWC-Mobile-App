@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
+import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.sakhi.database.room.InAppDb
 import org.piramalswasthya.sakhi.database.room.SyncState
 import org.piramalswasthya.sakhi.database.room.dao.BenDao

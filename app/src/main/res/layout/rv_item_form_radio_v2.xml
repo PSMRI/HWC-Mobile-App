@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="form"
+            type="org.piramalswasthya.cho.model.FormElement" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/cl_ri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:paddingHorizontal="@dimen/padding_small">
+
+        <LinearLayout
+            android:id="@+id/ll_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="@dimen/padding_small"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                showLayout="@{(form.showHighRisk ? true : false)}"
+                android:orientation="horizontal">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_text_hr"
+                    android:layout_width="0dp"
+                    android:layout_weight="6"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_title_hr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/padding_small"
+                        android:text="@{form.title}"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        app:required="@{!form.required}"
+                        app:layout_constraintEnd_toStartOf="@id/tv_nullable_hr"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/cl_text_hr"
+                        app:layout_constraintWidth_max="200dp"
+                        tools:text="Hello you@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_nullable_hr"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/tv_title_hr"
+                        app:layout_constraintTop_toTopOf="@id/cl_text_hr"
+                        android:paddingStart="@dimen/padding_small"
+                        android:text="@{(form.doubleStar? @string/radio_title_ds(form.title) : @string/radio_title(form.title))}"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        app:required="@{form.required}" />
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_ds_hr"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="@string/tv_required_text_asterisk"-->
+<!--                        app:layout_constraintStart_toEndOf="@id/tv_nullable_hr"-->
+<!--                        app:layout_constraintTop_toTopOf="@id/cl_text_hr"-->
+<!--                        android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--                        android:textColor="@color/design_default_color_error"-->
+<!--                        app:required="@{form.doubleStar}" />-->
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/tv_high_risk"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:gravity="end|center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/high_risk"
+                    android:padding="@dimen/padding_small"
+                    android:layout_gravity="end"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/design_default_color_error"
+                    app:required="@{form.showHighRisk}" />
+
+                <ImageView
+                    android:id="@+id/check_red"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:paddingVertical="@dimen/padding_small"
+                    android:src="@drawable/ic_check_circle_red"
+                    app:imgRequired="@{form.showHighRisk}"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                showLayout="@{(form.showHighRisk ? false : true)}"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/padding_small"
+                    android:text="@{form.title}"
+                    android:maxWidth="300dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    app:layout_constraintEnd_toStartOf="@id/tv_nullable_hr"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/cl_text_hr"
+                    app:required2="@{!form.required}"
+                    tools:text="Hello you@asasasasasasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_nullable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/tv_title_hr"
+                    app:layout_constraintTop_toTopOf="@id/cl_text_hr"
+                    android:paddingStart="@dimen/padding_small"
+                    android:text="@{(form.doubleStar? @string/radio_title_ds(form.title) : @string/radio_title(form.title))}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    app:required2="@{form.required}" />
+
+<!--                <TextView-->
+<!--                    android:id="@+id/tv_ds"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/tv_required_text_asterisk"-->
+<!--                    app:layout_constraintStart_toEndOf="@id/tv_nullable_hr"-->
+<!--                    app:layout_constraintTop_toTopOf="@id/cl_text_hr"-->
+<!--                    android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--                    android:textColor="@color/design_default_color_error"-->
+<!--                    app:required="@{form.doubleStar}" />-->
+            </LinearLayout>
+
+
+            <RadioGroup
+                android:id="@+id/rg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:backgroundTint="@{form.enabled ? @color/read_only : @color/md_theme_light_onPrimary}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_title">
+
+            </RadioGroup>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

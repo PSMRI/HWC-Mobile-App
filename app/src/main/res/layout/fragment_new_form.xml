@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:backgroundTint="?attr/colorOnSecondary"
+        android:orientation="vertical"
+        android:padding="@dimen/padding_normal">
+
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_patient_information"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:backgroundTint="?attr/colorPrimary"
+            android:elevation="@dimen/padding_normal"
+            app:cardCornerRadius="@dimen/padding_normal"
+            app:cardElevation="@dimen/padding_normal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_ben_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/padding_normal"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_age_gender"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_age_gender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="@dimen/padding_normal"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <include
+            android:id="@+id/form"
+            layout="@layout/rv_input_form"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:srcCompat="@drawable/ic_edit"
+            android:layout_marginEnd="@dimen/padding_wide"
+            android:layout_marginBottom="@dimen/padding_wide"
+            android:contentDescription="@string/edit" />
+
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_submit"
+
+            android:textColor="@android:color/white" />
+
+
+    </LinearLayout>
+
+
+
+    <ProgressBar
+        android:id="@+id/pb_form"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="?attr/colorPrimary"
+        android:visibility="gone" />
+
+
+
+</FrameLayout>

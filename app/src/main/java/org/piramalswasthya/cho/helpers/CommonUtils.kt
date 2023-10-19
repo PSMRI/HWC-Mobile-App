@@ -1,7 +1,7 @@
 package org.piramalswasthya.cho.helpers
 
 import androidx.core.text.isDigitsOnly
-import org.piramalswasthya.cho.model.BenWithAncListDomain
+//import org.piramalswasthya.cho.model.BenWithAncListDomain
 //import org.piramalswasthya.sakhi.model.AncStatus
 //import org.piramalswasthya.sakhi.model.BenBasicDomain
 //import org.piramalswasthya.sakhi.model.BenBasicDomainForForm
@@ -116,24 +116,25 @@ import java.util.concurrent.TimeUnit
 //    }
 //
 //
-fun filterPwAncList(
-    list: List<BenWithAncListDomain>,
-    filterText: String
-) =
-    list.filter {
-        it.ben.benId.toString().lowercase().contains(filterText) ||
-                it.ben.age.lowercase().contains(filterText) ||
-                it.ben.familyHeadName.lowercase().contains(filterText) ||
-                it.ben.benFullName.lowercase().contains(filterText) ||
-                it.ben.spouseName?.lowercase()?.contains(filterText) ?: false ||
-                it.ben.benId.toString().lowercase().contains(filterText) ||
-                it.ben.mobileNo.lowercase().contains(filterText) ||
-                it.lmpString?.contains(filterText)?:false ||
-                it.eddString?.contains(filterText)?:false ||
-                it.weeksOfPregnancy?.contains(filterText)?:false ||
-                it.ben.rchId.takeIf { it1 -> it1.isDigitsOnly() }?.contains(filterText) ?: false
+//fun filterPwAncList(
+//    list: List<BenWithAncListDomain>,
+//    filterText: String
+//) =
+//    list.filter {
+//        it.ben.benId.toString().lowercase().contains(filterText) ||
+//                it.ben.age.lowercase().contains(filterText) ||
+//                it.ben.familyHeadName.lowercase().contains(filterText) ||
+//                it.ben.benFullName.lowercase().contains(filterText) ||
+//                it.ben.spouseName?.lowercase()?.contains(filterText) ?: false ||
+//                it.ben.benId.toString().lowercase().contains(filterText) ||
+//                it.ben.mobileNo.lowercase().contains(filterText) ||
+//                it.lmpString?.contains(filterText)?:false ||
+//                it.eddString?.contains(filterText)?:false ||
+//                it.weeksOfPregnancy?.contains(filterText)?:false ||
+//                it.ben.rchId.takeIf { it1 -> it1.isDigitsOnly() }?.contains(filterText) ?: false
+//
+//    }
 
-    }
 //
 //fun filterPncDomainList(
 //    list: List<BenPncDomain>,

@@ -34,7 +34,7 @@ data class PregnantWomenVisitCache(
         PregnantWomenVisitDomain(
             benId = benId,
             name = name,
-            age = "${BenBasicCache.getAgeFromDob(dob)} Years",
+            age = " Years",
             familyHeadName = familyHeadName ?: "Not Available",
             spouseName = spouseName,
             mobileNo = mobileNo.toString(),
@@ -79,9 +79,9 @@ enum class AncFormState {
 @Entity(
     tableName = "PREGNANCY_REGISTER",
     foreignKeys = [ForeignKey(
-        entity = BenRegCache::class,
-        parentColumns = arrayOf("beneficiaryId"/* "householdId"*/),
-        childColumns = arrayOf("benId" /*"hhId"*/),
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"/* "householdId"*/),
+        childColumns = arrayOf("patientID" /*"hhId"*/),
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
@@ -91,7 +91,7 @@ enum class AncFormState {
 data class PregnantWomanRegistrationCache(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val benId: Long,
+    val patientID: String,
     var dateOfRegistration: Long = System.currentTimeMillis(),
     var mcpCardNumber: Long? = 0,
     var rchId: Long? = 0,
@@ -138,7 +138,7 @@ data class PregnantWomanRegistrationCache(
 ) : FormDataModel {
     fun asPwrPost(): PwrPost {
         return PwrPost(
-            benId = benId,
+//            benId = benId,
             registrationDate = getDateStringFromLong(dateOfRegistration),
             rchId = rchId,
             mcpCardId = mcpCardNumber,
@@ -172,55 +172,55 @@ data class PregnantWomanRegistrationCache(
     }
 }
 
-data class BenWithPwrCache(
-    @Embedded
-    val ben: BenBasicCache,
-    @Relation(
-        parentColumn = "benId", entityColumn = "benId"
-    )
-    val pwr: List<PregnantWomanRegistrationCache>,
+//data class BenWithPwrCache(
+//    @Embedded
+//    val ben: BenBasicCache,
+//    @Relation(
+//        parentColumn = "benId", entityColumn = "benId"
+//    )
+//    val pwr: List<PregnantWomanRegistrationCache>,
+//
+//    ) {
+//    fun asPwrDomainModel(): BenWithPwrDomain {
+//        return BenWithPwrDomain(
+//            ben = ben.asBasicDomainModel(),
+//            pwr = pwr.firstOrNull { it.active }
+//        )
+//    }
+//
+//    fun asBenBasicDomainModelForHRPPregAssessmentForm(): BenBasicDomainForForm {
+//
+//        return BenBasicDomainForForm(
+//            benId = ben.benId,
+//            hhId = ben.hhId,
+//            regDate = BenBasicCache.dateFormat.format(Date(ben.regDate)),
+//            benName = ben.benName,
+//            benSurname = ben.benSurname ?: "",
+//            gender = ben.gender.name,
+//            dob = ben.dob,
+//            mobileNo = ben.mobileNo.toString(),
+//            fatherName = ben.fatherName,
+//            familyHeadName = ben.familyHeadName ?: "",
+//            spouseName = ben.spouseName ?: "",
+//            lastMenstrualPeriod = getDateStringFromLong(ben.lastMenstrualPeriod),
+//            edd = getEddFromLmp(ben.lastMenstrualPeriod),
+////            typeOfList = typeOfList.name,
+//            rchId = ben.rchId ?: "Not Available",
+//            hrpStatus = ben.hrpStatus,
+//            form1Filled = ben.hrppaFilled,
+//            syncState = ben.hrppaSyncState,
+//            form2Enabled = true,
+//            form2Filled = ben.hrpmbpFilled
+//        )
+//    }
+//
+//}
 
-    ) {
-    fun asPwrDomainModel(): BenWithPwrDomain {
-        return BenWithPwrDomain(
-            ben = ben.asBasicDomainModel(),
-            pwr = pwr.firstOrNull { it.active }
-        )
-    }
-
-    fun asBenBasicDomainModelForHRPPregAssessmentForm(): BenBasicDomainForForm {
-
-        return BenBasicDomainForForm(
-            benId = ben.benId,
-            hhId = ben.hhId,
-            regDate = BenBasicCache.dateFormat.format(Date(ben.regDate)),
-            benName = ben.benName,
-            benSurname = ben.benSurname ?: "",
-            gender = ben.gender.name,
-            dob = ben.dob,
-            mobileNo = ben.mobileNo.toString(),
-            fatherName = ben.fatherName,
-            familyHeadName = ben.familyHeadName ?: "",
-            spouseName = ben.spouseName ?: "",
-            lastMenstrualPeriod = getDateStringFromLong(ben.lastMenstrualPeriod),
-            edd = getEddFromLmp(ben.lastMenstrualPeriod),
-//            typeOfList = typeOfList.name,
-            rchId = ben.rchId ?: "Not Available",
-            hrpStatus = ben.hrpStatus,
-            form1Filled = ben.hrppaFilled,
-            syncState = ben.hrppaSyncState,
-            form2Enabled = true,
-            form2Filled = ben.hrpmbpFilled
-        )
-    }
-
-}
-
-data class BenWithPwrDomain(
-//    val benId: Long,
-    val ben: BenBasicDomain,
-    val pwr: PregnantWomanRegistrationCache?
-)
+//data class BenWithPwrDomain(
+////    val benId: Long,
+//    val ben: BenBasicDomain,
+//    val pwr: PregnantWomanRegistrationCache?
+//)
 
 data class PwrPost(
     val id: Long = 0,
@@ -262,7 +262,7 @@ data class PwrPost(
     fun toPwrCache(): PregnantWomanRegistrationCache {
         return PregnantWomanRegistrationCache(
             id = id,
-            benId = benId,
+            patientID = "",
             dateOfRegistration = getLongFromDate(registrationDate),
             mcpCardNumber = mcpCardId,
             rchId = rchId,
@@ -306,9 +306,9 @@ data class PwrPost(
 @Entity(
     tableName = "PREGNANCY_ANC",
     foreignKeys = [ForeignKey(
-        entity = BenRegCache::class,
-        parentColumns = arrayOf("beneficiaryId"/* "householdId"*/),
-        childColumns = arrayOf("benId" /*"hhId"*/),
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"/* "householdId"*/),
+        childColumns = arrayOf("patientID" /*"hhId"*/),
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
@@ -318,7 +318,7 @@ data class PwrPost(
 data class PregnantWomanAncCache(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val benId: Long,
+    val patientID: String,
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
@@ -364,7 +364,7 @@ data class PregnantWomanAncCache(
 ) : FormDataModel {
     fun asPostModel(): ANCPost {
         return ANCPost(
-            benId = benId,
+            benId = 0,
             ancDate = getDateStringFromLong(ancDate),
             isActive = true,
             ancVisit = visitNumber,
@@ -441,7 +441,7 @@ data class ANCPost(
     fun toAncCache(): PregnantWomanAncCache {
         return PregnantWomanAncCache(
             id = id,
-            benId = benId,
+            patientID = "",
             visitNumber = ancVisit,
             ancDate = getLongFromDate(ancDate),
             isAborted = isAborted,
@@ -488,84 +488,84 @@ data class ANCPost(
 }
 
 
-data class BenWithAncVisitCache(
-//    @ColumnInfo(name = "benId")
-//    val ecBenId: Long,
+//data class BenWithAncVisitCache(
+////    @ColumnInfo(name = "benId")
+////    val ecBenId: Long,
+//
+//    @Embedded
+//    val ben: BenBasicCache,
+//    @Relation(
+//        parentColumn = "benId", entityColumn = "benId"
+//    )
+//    val pwr: List<PregnantWomanRegistrationCache>,
+//
+//    @Relation(
+//        parentColumn = "benId", entityColumn = "benId", entity = PMSMACache::class
+//    )
+//    val pmsma: List<PMSMACache>,
+//
+//    @Relation(
+//        parentColumn = "benId", entityColumn = "benId", entity = PregnantWomanAncCache::class
+//    )
+//    val savedAncRecords: List<PregnantWomanAncCache>
+//) {
+//
+//    companion object {
+//        private val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault())
+//
+//        private fun getAncVisitedDateFromLong(long: Long): String {
+//            return "Visited on ${dateFormat.format(long)}"
+//        }
+//    }
+//
+//    fun asDomainModel(): BenWithAncListDomain {
+//        val lastAncRecord = savedAncRecords.maxByOrNull { it.ancDate }
+//        val activePmsma = pmsma.firstOrNull { it.isActive }
+//        val activePwrRecrod = pwr.first { it.active }
+//        return BenWithAncListDomain(
+////            ecBenId,
+//            ben.asBasicDomainModel(),
+//            activePwrRecrod,
+//            savedAncRecords.filter { it.isActive }.map {
+//                AncStatus(
+//                    benId = it.benId,
+//                    visitNumber = it.visitNumber,
+//                    filledWeek = (TimeUnit.MILLISECONDS.toDays(it.ancDate - activePwrRecrod.lmpDate) / 7).toInt(),
+//                    syncState = it.syncState
+//                )
+//            }.sortedBy { it.visitNumber },
+//            pmsmaFillable = if (activePmsma == null) savedAncRecords.any { it.visitNumber == 1 } else true,
+//            hasPmsma = activePmsma != null,
+//            showAddAnc = if (savedAncRecords.isEmpty())
+//                TimeUnit.MILLISECONDS.toDays(
+//                    getTodayMillis() - activePwrRecrod.lmpDate
+//                ) >= Konstants.minAnc1Week * 7
+//            else
+//                lastAncRecord != null &&
+//                        (activePwrRecrod.lmpDate + TimeUnit.DAYS.toMillis(280)) > (lastAncRecord.ancDate + TimeUnit.DAYS.toMillis(
+//                    28
+//                )) &&
+//                        lastAncRecord.visitNumber < 4 && TimeUnit.MILLISECONDS.toDays(
+//                    getTodayMillis() - lastAncRecord.ancDate
+//                ) > 28,
+//            syncState = if (activePmsma == null && savedAncRecords.isEmpty()) null else if (activePmsma?.syncState == SyncState.UNSYNCED || savedAncRecords.any { it.syncState != SyncState.SYNCED }) SyncState.UNSYNCED else SyncState.SYNCED
+//        )
+//
+//
+//    }
+//}
 
-    @Embedded
-    val ben: BenBasicCache,
-    @Relation(
-        parentColumn = "benId", entityColumn = "benId"
-    )
-    val pwr: List<PregnantWomanRegistrationCache>,
-
-    @Relation(
-        parentColumn = "benId", entityColumn = "benId", entity = PMSMACache::class
-    )
-    val pmsma: List<PMSMACache>,
-
-    @Relation(
-        parentColumn = "benId", entityColumn = "benId", entity = PregnantWomanAncCache::class
-    )
-    val savedAncRecords: List<PregnantWomanAncCache>
-) {
-
-    companion object {
-        private val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault())
-
-        private fun getAncVisitedDateFromLong(long: Long): String {
-            return "Visited on ${dateFormat.format(long)}"
-        }
-    }
-
-    fun asDomainModel(): BenWithAncListDomain {
-        val lastAncRecord = savedAncRecords.maxByOrNull { it.ancDate }
-        val activePmsma = pmsma.firstOrNull { it.isActive }
-        val activePwrRecrod = pwr.first { it.active }
-        return BenWithAncListDomain(
-//            ecBenId,
-            ben.asBasicDomainModel(),
-            activePwrRecrod,
-            savedAncRecords.filter { it.isActive }.map {
-                AncStatus(
-                    benId = it.benId,
-                    visitNumber = it.visitNumber,
-                    filledWeek = (TimeUnit.MILLISECONDS.toDays(it.ancDate - activePwrRecrod.lmpDate) / 7).toInt(),
-                    syncState = it.syncState
-                )
-            }.sortedBy { it.visitNumber },
-            pmsmaFillable = if (activePmsma == null) savedAncRecords.any { it.visitNumber == 1 } else true,
-            hasPmsma = activePmsma != null,
-            showAddAnc = if (savedAncRecords.isEmpty())
-                TimeUnit.MILLISECONDS.toDays(
-                    getTodayMillis() - activePwrRecrod.lmpDate
-                ) >= Konstants.minAnc1Week * 7
-            else
-                lastAncRecord != null &&
-                        (activePwrRecrod.lmpDate + TimeUnit.DAYS.toMillis(280)) > (lastAncRecord.ancDate + TimeUnit.DAYS.toMillis(
-                    28
-                )) &&
-                        lastAncRecord.visitNumber < 4 && TimeUnit.MILLISECONDS.toDays(
-                    getTodayMillis() - lastAncRecord.ancDate
-                ) > 28,
-            syncState = if (activePmsma == null && savedAncRecords.isEmpty()) null else if (activePmsma?.syncState == SyncState.UNSYNCED || savedAncRecords.any { it.syncState != SyncState.SYNCED }) SyncState.UNSYNCED else SyncState.SYNCED
-        )
-
-
-    }
-}
-
-data class BenWithAncListDomain(
-    val ben: BenBasicDomain,
-    val pwr: PregnantWomanRegistrationCache,
-    val anc: List<AncStatus>,
-    val lmpString: String? = getDateString(pwr.lmpDate),
-    val eddString: String? = getDateString(pwr.lmpDate + TimeUnit.DAYS.toMillis(280)),
-    val weeksOfPregnancy: String? = (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - pwr.lmpDate) / 7).takeIf { it <= 40 }
-        ?.toString() ?: "NA",
-    val showAddAnc: Boolean,
-    val pmsmaFillable: Boolean,
-    val hasPmsma: Boolean,
-    val showViewAnc: Boolean = anc.isEmpty(),
-    val syncState: SyncState?
-)
+//data class BenWithAncListDomain(
+//    val ben: BenBasicDomain,
+//    val pwr: PregnantWomanRegistrationCache,
+//    val anc: List<AncStatus>,
+//    val lmpString: String? = getDateString(pwr.lmpDate),
+//    val eddString: String? = getDateString(pwr.lmpDate + TimeUnit.DAYS.toMillis(280)),
+//    val weeksOfPregnancy: String? = (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - pwr.lmpDate) / 7).takeIf { it <= 40 }
+//        ?.toString() ?: "NA",
+//    val showAddAnc: Boolean,
+//    val pmsmaFillable: Boolean,
+//    val hasPmsma: Boolean,
+//    val showViewAnc: Boolean = anc.isEmpty(),
+//    val syncState: SyncState?
+//)
