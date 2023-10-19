@@ -351,14 +351,12 @@ class HomeActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
-            prefDao.getLoggedInUser()?.let {
                 headerView.findViewById<TextView>(R.id.tv_nav_name).text =
                     getString(R.string.nav_item_1_text, user?.name)
                 headerView.findViewById<TextView>(R.id.tv_nav_role).text =
                     getString(R.string.nav_item_2_text, user?.userName)
                 headerView.findViewById<TextView>(R.id.tv_nav_id).text =
                     getString(R.string.nav_item_3_text, user?.userId)
-            }
         }
 
     }
