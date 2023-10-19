@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
 
 @JsonClass(generateAdapter = true)

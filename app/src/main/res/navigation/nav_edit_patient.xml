@@ -60,6 +60,31 @@
             app:destination="@id/patientHomeFragment" />
     </fragment>
     <fragment
+        android:id="@+id/pharmacistFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.pharmacist.PharmacistFormFragment"
+        android:label="PharmacistFormFragment" >
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
+        <action
+            android:id="@+id/action_pharmacistFormFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment" />
+        <action
+            android:id="@+id/action_pharmacistFormFragment_to_prescriptionBatchFormFragment"
+            app:destination="@id/prescriptionBatchFormFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/prescriptionBatchFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.pharmacist.PrescriptionBatchFormFragment"
+        android:label="PrescriptionFormFragment" >
+        <argument
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo"/>
+        <action
+            android:id="@+id/action_prescriptionBatchFormFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
+    </fragment>
+    <fragment
         android:id="@+id/patientHomeFragment"
         android:name="org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragment"
         android:label="PatientHomeFragment" >
@@ -69,6 +94,9 @@
         <action
             android:id="@+id/action_patientHomeFragment_to_labTechnicianFormFragment"
             app:destination="@id/labTechnicianFormFragment" />
+        <action
+            android:id="@+id/action_patientHomeFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
     </fragment>
 
 

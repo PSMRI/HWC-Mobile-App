@@ -96,7 +96,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
-           } else {
+           }
+           else if (preferenceDao.isPharmacist()) {
+               navHostFragment.navController
+                   .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
+                       (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
+                   ))
+           }
+           else {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
@@ -152,6 +159,12 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                    R.id.labTechnicianFormFragment -> {
                        binding.headerTextRegisterPatient.text =
                            resources.getString(R.string.lab_record_text)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.pharmacistFormFragment -> {
+                       binding.headerTextRegisterPatient.text =
+                           resources.getString(R.string.pharmacist_record_text)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }

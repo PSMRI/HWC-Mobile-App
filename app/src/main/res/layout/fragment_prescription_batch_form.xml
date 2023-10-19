@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_batch_form"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cl_heading"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/header_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:orientation="vertical"
+            android:background="@color/default_button"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RelativeLayout
+                android:id="@+id/first_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/consultant_label"
+                    android:lines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/consultant_name"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/consultant_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="120dp"
+                    android:lines="1"
+                    android:textColor="@color/white"
+                    android:text="Babs "
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/second_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="10dp"
+
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/visit_code_label"
+                    android:lines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visit_code"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/visit_code_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="120dp"
+                    android:lines="1"
+                    android:text="30016800005776 "
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/third_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/prescription_id_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:text="@string/prescription_id"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/prescription_id_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="120dp"
+                    android:lines="1"
+                    android:text="3487 "
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+<!--        <LinearLayout-->
+<!--            android:id="@+id/radio_group"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/header_name">-->
+
+<!--            <RadioGroup-->
+<!--                android:id="@+id/select_program"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:checkedButton="@id/btn_system_issue"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:paddingStart="30dp"-->
+<!--                android:weightSum="4">-->
+
+<!--                <com.google.android.material.radiobutton.MaterialRadioButton-->
+<!--                    android:id="@+id/btn_system_issue"-->
+<!--                    style="@style/radio_item_lang"-->
+<!--                    android:text="@string/system_issue"-->
+<!--                    android:value="@string/system_issue" />-->
+
+<!--                <com.google.android.material.radiobutton.MaterialRadioButton-->
+<!--                    android:id="@+id/btn_manual_issue"-->
+<!--                    style="@style/radio_item_lang"-->
+<!--                    android:text="@string/manual_issue"-->
+<!--                    android:value="@string/manual_issue" />-->
+
+<!--            </RadioGroup>-->
+<!--        </LinearLayout>-->
+
+<!--        <include-->
+<!--            android:id="@+id/pharmacist_list_container"-->
+<!--            layout="@layout/pharmacist_list_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="530dp"-->
+<!--            android:layout_below="@+id/radio_group"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/radio_group" />-->
+
+        <LinearLayout
+            android:id="@+id/prescription"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_name">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="10dp"
+                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardMaxElevation="12dp"
+                app:cardPreventCornerOverlap="true"
+                android:layout_marginBottom="@dimen/margin_normal"
+                android:layout_marginHorizontal="@dimen/margin_big"
+                app:contentPadding="@dimen/padding_big">
+
+                <TextView
+                    android:id="@+id/medication_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:gravity="center"
+                    android:text="Batch Selection"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/cardPrescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="20dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/card_first_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/padding_big">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/prescribed_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="@string/prescribed_label"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/prescribed_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/dispensed_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dispensed"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/dispensed_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/card_second_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/padding_big">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/batch_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:breakStrategy="simple"
+                                android:ellipsize="none"
+                                android:scrollHorizontally="false"
+                                android:text="@string/batch_no"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/batch_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+
+                        <!--          <LinearLayout-->
+                        <!--              android:layout_width="0dp"-->
+                        <!--              app:layout_constraintEnd_toEndOf="parent"-->
+                        <!--              app:layout_constraintTop_toTopOf="parent"-->
+                        <!--              android:layout_height="wrap_content"-->
+                        <!--              android:layout_weight="2"-->
+                        <!--              android:orientation="horizontal">-->
+
+                        <!--            <TextView-->
+                        <!--                android:id="@+id/dose_label"-->
+                        <!--                android:layout_width="wrap_content"-->
+                        <!--                android:layout_height="wrap_content"-->
+                        <!--                android:text="@string/dose"-->
+                        <!--                android:textStyle="bold" />-->
+
+                        <!--            <TextView-->
+                        <!--                android:id="@+id/dose_value"-->
+                        <!--                android:layout_width="wrap_content"-->
+                        <!--                android:layout_height="wrap_content"-->
+                        <!--                android:text=""-->
+                        <!--                android:layout_marginStart="8dp" />-->
+
+                        <!--          </LinearLayout>-->
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/card_third_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/padding_big">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/quantity_in_hand_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/quantity_in_hand"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/quantity_in_hand_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+
+                        <!--          <LinearLayout-->
+                        <!--              android:layout_width="0dp"-->
+                        <!--              app:layout_constraintEnd_toEndOf="parent"-->
+                        <!--              app:layout_constraintTop_toTopOf="parent"-->
+                        <!--              android:layout_height="wrap_content"-->
+                        <!--              android:layout_weight="2"-->
+                        <!--              android:orientation="horizontal">-->
+
+                        <!--            <TextView-->
+                        <!--                android:id="@+id/route_label"-->
+                        <!--                android:layout_width="wrap_content"-->
+                        <!--                android:layout_height="wrap_content"-->
+                        <!--                android:text="@string/route2"-->
+                        <!--                android:textStyle="bold" />-->
+
+                        <!--            <TextView-->
+                        <!--                android:id="@+id/route_value"-->
+                        <!--                android:layout_width="wrap_content"-->
+                        <!--                android:layout_height="wrap_content"-->
+                        <!--                android:text=""-->
+                        <!--                android:layout_marginStart="8dp" />-->
+
+                        <!--          </LinearLayout>-->
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/card_fourth_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/padding_big">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/dispensed_quantity_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dispensed_quantity"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/dispensed_quantity_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/card_fifth_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/padding_big">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/expiry_date_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/expiry_date"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/expiry_date_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="" />
+
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/ll_row_5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:baselineAligned="false"
+                        android:weightSum="3">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ok"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="70dp"
+                            android:backgroundTint="@color/default_button"
+                            android:text="@string/ok"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            app:cornerRadius="@dimen/padding_normal"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <!--          <com.google.android.material.button.MaterialButton-->
+                        <!--              android:id="@+id/submit_btn"-->
+                        <!--              style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+                        <!--              android:layout_width="wrap_content"-->
+                        <!--              android:layout_height="wrap_content"-->
+                        <!--              android:layout_marginEnd="40dp"-->
+                        <!--              android:backgroundTint="@color/default_button"-->
+                        <!--              android:text="@string/submit_btn_text"-->
+                        <!--              android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+                        <!--              android:textColor="@color/white"-->
+                        <!--              app:cornerRadius="@dimen/padding_normal"-->
+                        <!--              app:layout_constraintBottom_toBottomOf="parent"-->
+                        <!--              app:layout_constraintEnd_toEndOf="parent" />-->
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toTopOf="@id/cl_heading"-->
+<!--            android:text="Pharmacist">-->
+
+<!--        </TextView>-->
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    <include-->
+<!--        android:id="@+id/pharmacist_list_container"-->
+<!--        layout="@layout/pharmacist_list_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="500dp"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:gravity="bottom"/>-->
+
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="500dp"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:gravity="bottom">-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/pharmacist_list"-->
+<!--            android:name="com.google.fhirengine.example.PrescriptionListFragment"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_marginLeft="16dp"-->
+<!--            android:layout_marginRight="16dp"-->
+<!--            android:scrollbars="vertical"-->
+<!--            app:layoutManager="LinearLayoutManager"-->
+<!--            tools:context=".PharmacistListActivity"-->
+<!--            tools:listitem="@layout/pharmacist_list_item_view" />-->
+<!--    </RelativeLayout>-->
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/cl_form"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/cl_heading">-->
+
+<!--        <androidx.compose.ui.platform.ComposeView-->
+<!--            android:id="@+id/compose_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent" />-->
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

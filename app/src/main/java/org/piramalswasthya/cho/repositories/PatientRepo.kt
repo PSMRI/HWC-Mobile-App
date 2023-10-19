@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -9,12 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
-import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
@@ -22,12 +20,9 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.BeneficiariesDTO
-import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
-import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.model.Address
 import org.piramalswasthya.cho.model.ComponentDetailDTO
 import org.piramalswasthya.cho.model.ComponentOptionDTO
-import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.ComponentDetails
@@ -35,6 +30,10 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientNetwork
+import org.piramalswasthya.cho.model.Prescription
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
+import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.StateMaster
@@ -43,7 +42,6 @@ import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
-import org.piramalswasthya.cho.network.DistrictList
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
@@ -71,6 +69,7 @@ class PatientRepo @Inject constructor(
     private val blockMasterDao: BlockMasterDao,
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
+    private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao
 ) {
 
@@ -119,6 +118,12 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientListFlowForLab()
     }
 
+//    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
+//        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
+//        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
+//            patientDao.updateFlagsByBenRegId(nurseFlag = benFlow.nurseFlag!!, doctorFlag = benFlow.doctorFlag!!, beneficiaryRegID = benFlow.beneficiaryRegID!!)
+//        }
+//    }
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
 //        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){
@@ -531,5 +536,78 @@ class PatientRepo @Inject constructor(
         }
     }
 
+    suspend fun updatePrescription(prescription: Prescription): Int {
+        return withContext(Dispatchers.IO) {
+            val updatedId = prescriptionDao.updatePrescription(prescription.issueType, prescription.prescriptionID)
+
+            updatedId
+        }
+    }
+
+    suspend fun getPrescriptions(benVisitInfo : PatientDisplayWithVisitInfo): List<PrescriptionDTO>? {
+        val dtos: MutableList<PrescriptionDTO> = mutableListOf()
+        return withContext(Dispatchers.IO) {
+            try {
+                val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                prescriptions?.forEach { prescription ->
+                    val prescriptionItemList: MutableList<PrescriptionItemDTO> = mutableListOf()
+                    val prescriptionDTO = PrescriptionDTO(
+                        beneficiaryRegID = benVisitInfo.patient.beneficiaryRegID!!,
+                        consultantName = prescription.consultantName,
+                        prescriptionID = prescription.prescriptionID,
+                        visitCode = prescription.visitCode,
+                        itemList = prescriptionItemList
+                    )
+
+                    val prescribedDrugsList = prescriptionDao.getPrescribedDrugs(prescription.id)
+                    prescribedDrugsList?.forEach { prescribedDrugs ->
+                        val batchList: MutableList<PrescriptionBatchDTO> = mutableListOf()
+                        val prescriptionItemDTO = PrescriptionItemDTO(
+                            id = prescribedDrugs.id,
+                            drugID = prescribedDrugs.drugID,
+                            dose = prescribedDrugs.dose,
+                            drugForm = prescribedDrugs.drugForm,
+                            duration = prescribedDrugs.duration,
+                            durationUnit = prescribedDrugs.durationUnit,
+                            frequency = prescribedDrugs.frequency,
+                            genericDrugName = prescribedDrugs.genericDrugName,
+                            drugStrength = prescribedDrugs.drugStrength,
+                            isEDL = prescribedDrugs.isEDL,
+                            qtyPrescribed = prescribedDrugs.qtyPrescribed,
+                            route = prescribedDrugs.route,
+                            instructions = prescribedDrugs.instructions,
+                            batchList = batchList
+                        )
+
+                        val prescribedDrugsBatchList = prescriptionDao.getPrescribedDrugsBatch(prescribedDrugs.id)
+                        prescribedDrugsBatchList?.forEach { prescribedDrugsBatch ->
+                            val prescriptionBatchDTO = PrescriptionBatchDTO(
+                                expiresIn = prescribedDrugsBatch.expiresIn,
+                                batchNo = prescribedDrugsBatch.batchNo,
+                                expiryDate = prescribedDrugsBatch.expiryDate,
+                                itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
+                                qty = prescribedDrugsBatch.qty,
+                            )
+                            batchList += prescriptionBatchDTO
+                        }
+                        prescriptionItemDTO.batchList = batchList
+                        prescriptionItemList += prescriptionItemDTO
+                    }
+                    prescriptionDTO.itemList = prescriptionItemList
+                    dtos += prescriptionDTO
+                }
+                dtos
+            } catch (e: Exception) {
+                Timber.d("get failed due to $e")
+                null
+            }
+        }
+    }
+
+    suspend fun getPrescription(patientID: String, benVisitNo:Int, prescriptionID: Long): Prescription {
+        return withContext(Dispatchers.IO) {
+            prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
+        }
+    }
 
 }
