@@ -1,33 +1,38 @@
 package org.piramalswasthya.cho.ui.commons.personal_details
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.Environment
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -37,25 +42,28 @@ import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.NetworkBody
-import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
+import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.security.MessageDigest
+import java.util.Objects
 import javax.inject.Inject
 
 
@@ -73,7 +81,8 @@ class PersonalDetailsFragment : Fragment() {
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
-
+    @Inject
+    lateinit var caseRecordeRepo: CaseRecordeRepo
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount : Int = 0
 
@@ -98,6 +107,7 @@ class PersonalDetailsFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View {
         HomeViewModel.resetSearchBool()
+        checkPermissions()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -212,7 +222,14 @@ class PersonalDetailsFragment : Fragment() {
                             },
                             {
                                     benVisitInfo -> callLoginDialog(benVisitInfo)
-                            }
+                            },
+                                {
+                                        benVisitInfo ->
+                                    lifecycleScope.launch {
+                                        getPrescription(benVisitInfo)
+                                    }
+
+                                }
                          ),
                             showAbha = true
                         )
@@ -293,6 +310,189 @@ class PersonalDetailsFragment : Fragment() {
                     (searchView as EditText).removeTextChangedListener(searchTextWatcher)
 
             }
+        }
+    }
+    var pageHeight = 1120
+    var pageWidth = 792
+    private fun generatePDF(prescriptions: List<PrescriptionWithItemMasterAndDrugFormMaster>) {
+
+        val pdfDocument: PdfDocument = PdfDocument()
+
+        val heading: Paint = Paint()
+        val content: Paint = Paint()
+
+        val myPageInfo: PdfDocument.PageInfo? =
+            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+
+        val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
+        val canvas: Canvas = myPage.canvas
+
+        // Set up initial positions for the table
+        val xPosition = 70F
+        var y = 250F // Declare y as a var
+        val rowHeight = 50F
+
+        content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        content.textSize = 15F
+        content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        content.textAlign = Paint.Align.CENTER
+
+        heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        heading.textSize = 40F
+        heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        heading.textAlign = Paint.Align.CENTER
+
+        canvas.drawText("Prescriptions", 396F, 150F, heading)
+
+        // Define fixed column widths
+        val columnWidth = 150F
+
+        // Draw table header
+        canvas.drawText("Medication", xPosition, y, content)
+        canvas.drawText("Frequency", xPosition + columnWidth, y, content)
+        canvas.drawText("Duration", xPosition + 2 * columnWidth, y, content)
+        canvas.drawText("Quantity", xPosition + 3 * columnWidth, y, content)
+        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, content)
+
+        // Move down to the first row
+        y += rowHeight // Reassign y
+
+        // Iterate through the list of prescriptions and draw each as a row
+        for (prescription in prescriptions) {
+            // Draw each field with a fixed width
+            drawTextWithWrapping(canvas, prescription.itemName, xPosition, y, columnWidth, content)
+            drawTextWithWrapping(canvas, prescription.frequency?:null, xPosition + columnWidth, y, columnWidth, content)
+            drawTextWithWrapping(canvas, prescription.duration, xPosition + 2 * columnWidth, y, columnWidth, content)
+            drawTextWithWrapping(canvas, prescription.quantityInHand.toString(), xPosition + 3 * columnWidth, y, columnWidth, content)
+            drawTextWithWrapping(canvas, prescription.instruciton, xPosition + 4 * columnWidth, y, columnWidth, content)
+
+            // Move down to the next row
+            y += rowHeight // Reassign y
+        }
+
+        pdfDocument.finishPage(myPage)
+
+        val outputStream: OutputStream
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            outputStream = createPdfForApi33()
+        } else {
+            outputStream = FileOutputStream(
+                File(
+                    Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS), "AadhaarCard.pdf")
+            )
+        }
+
+        try {
+            pdfDocument.writeTo(outputStream)
+
+            Toast.makeText(requireContext(), "PDF file generated..", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+            Toast.makeText(requireContext(), "Fail to generate PDF file..", Toast.LENGTH_SHORT)
+                .show()
+        }
+        pdfDocument.close()
+    }
+
+    private fun drawTextWithWrapping(canvas: Canvas, text: String?, x: Float, y: Float, maxWidth: Float, paint: Paint) {
+        var yPos = y
+        val textLines = wrapText(text?:"", paint, maxWidth)
+        for (line in textLines) {
+            canvas.drawText(line, x, yPos, paint)
+            yPos += paint.textSize
+        }
+    }
+
+    private fun wrapText(text: String, paint: Paint, maxWidth: Float): List<String> {
+        val result = mutableListOf<String>()
+        val words = text.split(" ")
+        var currentLine = ""
+        for (word in words) {
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            val lineWidth = paint.measureText(testLine)
+            if (lineWidth <= maxWidth) {
+                currentLine = testLine
+            } else {
+                result.add(currentLine)
+                currentLine = word
+            }
+        }
+        if (currentLine.isNotEmpty()) {
+            result.add(currentLine)
+        }
+        return result
+    }
+
+    private fun createPdfForApi33(): OutputStream {
+        val outst: OutputStream
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, "AadhaarCard.pdf")
+            put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+
+        val pdfUri: Uri? = requireContext().contentResolver.insert(
+            MediaStore.Files.getContentUri("external"),
+            contentValues
+        )
+        outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
+        Objects.requireNonNull(outst)
+        return outst
+    }
+
+    private fun hasPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+
+    private fun checkPermissions() {
+
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
+        if (!hasPermission(permissions[0])) {
+            permissionLauncher.launch(permissions)
+        }
+    }
+
+    private var permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        var isGranted = true
+        for (item in it){
+            if (!item.value) {
+                isGranted = false
+            }
+        }
+        if (isGranted) {
+            Toast.makeText(requireContext(), "Permissions Granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(), "Permissions Denied", Toast.LENGTH_SHORT).show()
+
+        }
+    }
+    private suspend fun getPrescription(benVisitInfo: PatientDisplayWithVisitInfo) {
+        val prescriptionContent = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
+        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
+
+        Log.d("PrescriptionPrintMsg",prescriptionContent.toString())
+
+        if (prescriptionContent != null) {
+            generatePDF(prescriptionContent)
         }
     }
     private val searchTextWatcher = object : TextWatcher {

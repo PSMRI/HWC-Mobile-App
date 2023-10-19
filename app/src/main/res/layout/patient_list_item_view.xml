@@ -280,6 +280,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
       </androidx.constraintlayout.widget.ConstraintLayout>
+      <androidx.constraintlayout.widget.ConstraintLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            tools:ignore="MissingConstraints">
+          <com.google.android.material.button.MaterialButton
+              android:id="@+id/prescription_download_btn"
+              android:onClick="@{()-> clickListener.onClickPrescription(benVisitInfo)}"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="PDF"/>
+
+        </LinearLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
   </androidx.cardview.widget.CardView>
