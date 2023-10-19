@@ -349,7 +349,8 @@ class UserRepo @Inject constructor(
             val response = tmcNetworkApiService.getLocDetailsBasedOnSpIDAndPsmID(
                 LocationRequest(
                     user!!.vanId,
-                    user!!.serviceMapId.toString()
+                    user!!.serviceMapId.toString(),
+                    user!!.userId
                 )
             )
             if (!response.isSuccessful) {
