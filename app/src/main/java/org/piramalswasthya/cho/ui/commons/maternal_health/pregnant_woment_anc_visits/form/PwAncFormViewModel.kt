@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.BenRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
+import org.piramalswasthya.cho.repositories.PatientRepo
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,15 +28,16 @@ class PwAncFormViewModel @Inject constructor(
     preferenceDao: PreferenceDao,
     @ApplicationContext context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
-    private val benRepo: BenRepo
+    private val benRepo: BenRepo,
+    private val patientRepo: PatientRepo
 ) : ViewModel() {
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
 
-    private val benId =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).benId
+    private val patientID =
+        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
     private val visitNumber =
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
@@ -66,26 +68,26 @@ class PwAncFormViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val asha = preferenceDao.getLoggedInUser()!!
-            val ben = maternalHealthRepo.getBenFromId(benId)?.also { ben ->
+            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
-                    "${ben.firstName} ${if (ben.lastName == null) "" else ben.lastName}"
-                _benAgeGender.value = "${ben.age} ${ben.ageUnit?.name} | ${ben.gender?.name}"
+                    "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
+                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}"
                 ancCache = PregnantWomanAncCache(
-                    benId = ben.beneficiaryId,
+                    patientID = patientID,
                     visitNumber = visitNumber,
                     syncState = SyncState.UNSYNCED,
                     createdBy = asha.userName,
                     updatedBy = asha.userName
                 )
             }
-            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(benId)!!
-            maternalHealthRepo.getSavedAncRecord(benId, visitNumber)?.let {
+            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
+            maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
                 _recordExists.value = true
             } ?: run {
                 _recordExists.value = false
             }
-            val lastAnc = maternalHealthRepo.getSavedAncRecord(benId, visitNumber - 1)
+            val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
 
             dataset.setUpPage(
                 visitNumber,
@@ -143,13 +145,13 @@ class PwAncFormViewModel @Inject constructor(
                         }
 
                     } else if (ancCache.maternalDeath == true) {
-                        maternalHealthRepo.getSavedRegistrationRecord(benId)?.let {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
                             it.active = false
                             if (it.processed != "N") it.processed = "U"
                             it.syncState = SyncState.UNSYNCED
                             maternalHealthRepo.persistRegisterRecord(it)
                         }
-                        maternalHealthRepo.getAllActiveAncRecords(benId).apply {
+                        maternalHealthRepo.getAllActiveAncRecords(patientID).apply {
                             forEach {
                                 it.isActive = false
                                 if (it.processed != "N") it.processed = "U"

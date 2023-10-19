@@ -786,23 +786,24 @@ class PregnantWomanAncVisitDataset(
 
     fun getWeeksOfPregnancy(): Int = getIndexById(weekOfPregnancy.id)
 
-    fun updateBenRecordToDelivered(it: BenRegCache) {
-        it.genDetails?.apply {
-            reproductiveStatus =
-                englishResources.getStringArray(R.array.nbr_reproductive_status_array)[2]
-            reproductiveStatusId = 3
-        }
-        if (it.processed != "N") it.processed = "U"
-        it.syncState = SyncState.UNSYNCED
-    }
+//    fun updateBenRecordToDelivered(it: BenRegCache) {
+//        it.genDetails?.apply {
+//            reproductiveStatus =
+//                englishResources.getStringArray(R.array.nbr_reproductive_status_array)[2]
+//            reproductiveStatusId = 3
+//        }
+//        if (it.processed != "N") it.processed = "U"
+//        it.syncState = SyncState.UNSYNCED
+//    }
 
-    fun updateBenRecordToEligibleCouple(it: BenRegCache) {
-        it.genDetails?.apply {
-            reproductiveStatus =
-                englishResources.getStringArray(R.array.nbr_reproductive_status_array)[0]
-            reproductiveStatusId = 1
-        }
-        if (it.processed != "N") it.processed = "U"
-        it.syncState = SyncState.UNSYNCED
-    }
+//    fun updateBenRecordToEligibleCouple(it: BenRegCache) {
+//        it.genDetails?.apply {
+//            reproductiveStatus =
+//                englishResources.getStringArray(R.array.nbr_reproductive_status_array)[0]
+//            reproductiveStatusId = 1
+//        }
+//        if (it.processed != "N") it.processed = "U"
+//        it.syncState = SyncState.UNSYNCED
+//    }
+
 }
