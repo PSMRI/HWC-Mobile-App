@@ -121,7 +121,8 @@ class UsernameFragment() : Fragment() {
                     null,
                     null,
                     null,
-                    null
+                    null,
+                    requireContext()
                 )
 
                 viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -136,15 +137,6 @@ class UsernameFragment() : Fragment() {
                                 )
                             )
                         }
-                        OutreachViewModel.State.ERROR_SERVER,
-                        OutreachViewModel.State.ERROR_NETWORK -> {
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.error_while_logging_in),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-
                         else -> {}
                     }
                 }
