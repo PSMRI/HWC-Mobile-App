@@ -63,6 +63,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
 
@@ -314,7 +317,12 @@ class PersonalDetailsFragment : Fragment() {
     }
     var pageHeight = 1120
     var pageWidth = 792
-    private fun generatePDF(prescriptions: List<PrescriptionWithItemMasterAndDrugFormMaster>) {
+    private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
+
+        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
+        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
+
+        Log.d("prescriptionMsg", prescriptions.toString())
 
         val pdfDocument: PdfDocument = PdfDocument()
 
@@ -358,28 +366,33 @@ class PersonalDetailsFragment : Fragment() {
         y += rowHeight // Reassign y
 
         // Iterate through the list of prescriptions and draw each as a row
-        for (prescription in prescriptions) {
-            // Draw each field with a fixed width
-            drawTextWithWrapping(canvas, prescription.itemName, xPosition, y, columnWidth, content)
-            drawTextWithWrapping(canvas, prescription.frequency?:null, xPosition + columnWidth, y, columnWidth, content)
-            drawTextWithWrapping(canvas, prescription.duration, xPosition + 2 * columnWidth, y, columnWidth, content)
-            drawTextWithWrapping(canvas, prescription.quantityInHand.toString(), xPosition + 3 * columnWidth, y, columnWidth, content)
-            drawTextWithWrapping(canvas, prescription.instruciton, xPosition + 4 * columnWidth, y, columnWidth, content)
+        if (prescriptions != null) {
+            for (prescription in prescriptions) {
+                // Draw each field with a fixed width
+                drawTextWithWrapping(canvas, prescription.itemName, xPosition, y, columnWidth, content)
+                drawTextWithWrapping(canvas, prescription.frequency?:null, xPosition + columnWidth, y, columnWidth, content)
+                drawTextWithWrapping(canvas, prescription.duration, xPosition + 2 * columnWidth, y, columnWidth, content)
+                drawTextWithWrapping(canvas, prescription.quantityInHand.toString(), xPosition + 3 * columnWidth, y, columnWidth, content)
+                drawTextWithWrapping(canvas, prescription.instruciton, xPosition + 4 * columnWidth, y, columnWidth, content)
 
-            // Move down to the next row
-            y += rowHeight // Reassign y
+                // Move down to the next row
+                y += rowHeight // Reassign y
+            }
         }
 
         pdfDocument.finishPage(myPage)
 
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault()).format(Date())
+        val fileName : String =  "Prescription_${timeStamp}_.pdf"
+
         val outputStream: OutputStream
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            outputStream = createPdfForApi33()
+            outputStream = createPdfForApi33(fileName)
         } else {
             outputStream = FileOutputStream(
                 File(
                     Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "AadhaarCard.pdf")
+                        Environment.DIRECTORY_DOWNLOADS), fileName)
             )
         }
 
@@ -390,7 +403,7 @@ class PersonalDetailsFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
 
-            Toast.makeText(requireContext(), "Fail to generate PDF file..", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "Failed to generate PDF file..", Toast.LENGTH_SHORT)
                 .show()
         }
         pdfDocument.close()
@@ -425,10 +438,10 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(): OutputStream {
+    private fun createPdfForApi33(fileName:String): OutputStream {
         val outst: OutputStream
         val contentValues = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, "AadhaarCard.pdf")
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
             put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
@@ -486,14 +499,15 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
     private suspend fun getPrescription(benVisitInfo: PatientDisplayWithVisitInfo) {
-        val prescriptionContent = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
-        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
+//        val prescriptionContent = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
+//        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
 
-        Log.d("PrescriptionPrintMsg",prescriptionContent.toString())
+//        Log.d("PrescriptionPrintMsg",prescriptionContent.toString())
 
-        if (prescriptionContent != null) {
-            generatePDF(prescriptionContent)
-        }
+//        if (prescriptionContent != null) {
+//            generatePDF(prescriptionContent)
+            generatePDF(benVisitInfo)
+//        }
     }
     private val searchTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
