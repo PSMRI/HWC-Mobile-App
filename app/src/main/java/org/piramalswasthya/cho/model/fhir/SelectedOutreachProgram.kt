@@ -36,10 +36,10 @@ data class SelectedOutreachProgram(
     val option: String?,
 
     @ColumnInfo(name = "logoutTimestamp")
-    val logoutTimestamp: String?,
+    val logoutTimeStamp: String?,
 
     @ColumnInfo(name = "loginTimestamp")
-    val loginTimestamp: String?,
+    val loginTimeStamp: String?,
 
     @ColumnInfo(name = "latitude")
     val latitude: Double?,
