@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,6 +36,12 @@ class VitalsRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             vitalsDao.getPatientVitalsByPatientID(patientID)
         }
+    }
+    suspend fun getVitalsDetailsByPatientIDAndBenVisitNoForFollowUp(patientID: String): PatientVitalsModel? {
+        return withContext(Dispatchers.IO) {
+                vitalsDao.getPatientVitalsByPatientIDAndBenVisitNoForFollowUp(patientID)
+            }
+
     }
 
     suspend fun getPatientVitalsByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : PatientVitalsModel?{

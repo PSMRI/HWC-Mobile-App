@@ -2,6 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp">
@@ -63,6 +64,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_state"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -92,6 +95,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_dist"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -121,6 +126,8 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_taluk"
+                android:focusable="false"
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -214,27 +221,38 @@
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <Button
-                      android:backgroundTint="@color/default_button"
-                    android:id="@+id/retry"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="@string/retry"
-                    app:layout_constraintEnd_toStartOf="@id/submit"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/masterLong" />
+<!--                <Button-->
+<!--                      android:backgroundTint="@color/default_button"-->
+<!--                    android:id="@+id/retry"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_margin="8dp"-->
+<!--                    android:text="@string/retry"-->
+<!--                    app:layout_constraintEnd_toStartOf="@id/submit"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/masterLong" />-->
 
-                <Button
-                      android:backgroundTint="@color/default_button"
-                    android:id="@+id/submit"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="@string/submit"
-                    app:layout_constraintBaseline_toBaselineOf="@+id/retry"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/retry" />
+        <LinearLayout
+            android:id="@+id/btn_submit_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/masterLong"
+            >
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/default_button"
+            android:text="@string/submit"
+             />
+        </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

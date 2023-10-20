@@ -6,6 +6,7 @@ import android.content.Intent
 import android.opengl.Visibility
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -47,6 +48,7 @@ import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.DiagnosisValue
@@ -104,6 +106,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     var selectF: TextView? = null
     private val instructionDropdown= instructionDropdownList
     private val formMListVal = ArrayList<ItemMasterList>()
+    private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
@@ -158,7 +161,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                }
                 for (labReport in labReports) {
                     val procedureName = labReport.procedure.procedureName
-
+                    binding.inputDate.setText(labReport.procedure.createdDate)
+                    binding.inputDate.inputType = InputType.TYPE_NULL
+                    binding.inputDate.isFocusable = false
+                    binding.inputDate.isClickable = false
                     for (component in labReport.components) {
 
                         val tableRowVal = layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
@@ -241,6 +247,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         viewModel.formMedicineDosage.observe(viewLifecycleOwner) { f ->
             formMListVal.clear()
             formMListVal.addAll(f)
+
+            formForFilter.clear()
+            formForFilter.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
@@ -302,6 +311,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             frequencyListVal,
             unitListVal,
             instructionDropdown,
+            formForFilter,
             object : RecyclerViewItemChangeListenersP {
                 override fun onItemChanged() {
                     binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
@@ -354,14 +364,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.inputHeight.setText(vitals?.height.toString())
         binding.inputWeight.setText(vitals?.weight.toString())
         binding.inputBmi.setText(vitals.bmi.toString())
-        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
+//        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
         binding.inputTemperature.setText(vitals.temperature.toString())
         binding.inputPulseRate.setText(vitals.pulseRate.toString())
         binding.inputSpo2.setText(vitals.spo2.toString())
         binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
         binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
         binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
-        binding.inputRbs.setText(vitals.rbs.toString())
+        binding.inputRBS.setText(vitals.rbs.toString())
     }
     private fun populateVitalsFields() {
         hideNullFields()
@@ -371,14 +381,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.inputHeight.setText(vitals?.height.toString())
             binding.inputWeight.setText(vitals?.weight.toString())
             binding.inputBmi.setText(vitals?.bmi.toString())
-            binding.inputWaistCircum.setText(vitals?.waistCircumference.toString())
+//            binding.inputWaistCircum.setText(vitals?.waistCircumference.toString())
             binding.inputTemperature.setText(vitals?.temperature.toString())
             binding.inputPulseRate.setText(vitals?.pulseRate.toString())
             binding.inputSpo2.setText(vitals?.spo2.toString())
             binding.inputBpDiastolic.setText(vitals?.bpDiastolic.toString())
             binding.inputBpSystolic.setText(vitals?.bpSystolic.toString())
             binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate.toString())
-            binding.inputRbs.setText(vitals?.rbs.toString())
+            binding.inputRBS.setText(vitals?.rbs.toString())
         }
     }
     private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
@@ -411,11 +421,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.bmill.visibility = View.VISIBLE
         }
 
-        if (itemC.isNullOrEmpty() || itemC.equals("null")) {
-            binding.waistCircumEditTxt.visibility = View.GONE
-        } else {
-            binding.waistCircumEditTxt.visibility = View.VISIBLE
-        }
+//        if (itemC.isNullOrEmpty() || itemC.equals("null")) {
+//            binding.waistCircumEditTxt.visibility = View.GONE
+//        } else {
+//            binding.waistCircumEditTxt.visibility = View.VISIBLE
+//        }
 
         if (itemT.isNullOrEmpty() || itemT.equals("null")) {
             binding.temperatureEditTxt.visibility = View.GONE
@@ -473,7 +483,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         var  itemH = masterDb?.vitalsMasterDb?.height.toString()
         var  itemW = masterDb?.vitalsMasterDb?.weight.toString()
         var  itemB = masterDb?.vitalsMasterDb?.bmi.toString()
-        var  itemC = masterDb?.vitalsMasterDb?.waistCircumference.toString()
+//        var  itemC = masterDb?.vitalsMasterDb?.waistCircumference.toString()
         var  itemT = masterDb?.vitalsMasterDb?.temperature.toString()
         var  itemP = masterDb?.vitalsMasterDb?.pulseRate.toString()
         var  itemS = masterDb?.vitalsMasterDb?.spo2.toString()
@@ -490,9 +500,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if(itemB.isNullOrEmpty()||itemB.equals("null")){
             binding.bmill.visibility = View.GONE
         }
-        if(itemC.isNullOrEmpty()||itemC.equals("null")){
-            binding.waistCircumEditTxt.visibility = View.GONE
-        }
+//        if(itemC.isNullOrEmpty()||itemC.equals("null")){
+//            binding.waistCircumEditTxt.visibility = View.GONE
+//        }
         if(itemT.isNullOrEmpty()||itemT.equals("null")){
             binding.temperatureEditTxt.visibility = View.GONE
         }
@@ -514,9 +524,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         if(itemRb.isNullOrEmpty()||itemRb.equals("null")){
             binding.rbsEditTxt.visibility = View.GONE
         }
-        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty()
-            && itemRb.isNullOrEmpty()) ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))){
+        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() &&itemRb.isNullOrEmpty() )
+                    ||
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))){
             binding.vitalsExtra.visibility= View.INVISIBLE
         }
     }

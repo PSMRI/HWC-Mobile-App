@@ -33,8 +33,8 @@
 
                 <ImageButton
                     android:id="@+id/translate_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
                     android:layout_gravity="end"
                     android:layout_marginRight="15dp"
                     android:contentDescription="Translate"

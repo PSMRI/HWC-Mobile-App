@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
@@ -20,6 +21,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun insertPatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+    }
+
+    suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updateOnlyDoctorDataSubmitted(nurseFlag, doctorFlag, labtechFlag, patientID, benVisitNo)
     }
 
     suspend fun updateCreateBenflowFlag(patientID: String, benVisitNo: Int){
@@ -48,6 +53,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun getPatientLabDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientLabDataUnsynced()
+    }
+
+    suspend fun getPatientPharmacistDataUnsynced() : List<PatientVisitInfoSyncWithPatient>{
+        return patientVisitInfoSyncDao.getPatientPharmacistDataUnsynced()
     }
 
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?{
@@ -86,6 +95,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updateLabDataSyncState(patientID = patientID, syncState = syncState, benVisitNo = benVisitNo )
     }
 
+    suspend fun updatePharmacistDataSyncState(patientID: String, benVisitNo: Int, syncState: SyncState){
+        patientVisitInfoSyncDao.updatePharmacistDataSyncState(patientID = patientID, syncState = syncState, benVisitNo = benVisitNo )
+    }
+
     suspend fun hasUnSyncedNurseData(patientID: String) : Boolean {
         val syncState = patientVisitInfoSyncDao.getNurseDataSyncStatus(patientID);
         return (syncState != null && syncState == SyncState.UNSYNCED);
@@ -103,4 +116,7 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.getPatientDisplayListForLab()
     }
 
+    fun getPatientListFlowForPharmacist() : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncDao.getPatientDisplayListForPharmacist()
+    }
 }

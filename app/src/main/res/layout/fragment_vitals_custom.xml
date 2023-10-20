@@ -133,24 +133,23 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/rbsEditTxt"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="10dp"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            android:hint="@string/rbs_mg_dl"-->
-<!--            android:textColorHint="#888888"-->
-<!--            android:textSize="18sp"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">-->
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/inputRbs"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:inputType="number"-->
-<!--                android:textSize="18sp"-->
-<!--                android:layout_height="wrap_content" />-->
-
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rbsEditTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:hint="@string/rbs_mg_dl"
+            android:textColorHint="#888888"
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputRBS"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:textSize="18sp"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/anthroHeading"
@@ -161,7 +160,7 @@
             android:textSize="18sp"
             android:paddingBottom="6dp"
             android:textStyle="normal|bold"
-            app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt" />
+            app:layout_constraintTop_toBottomOf="@+id/rbsEditTxt" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/heightEditTxt"

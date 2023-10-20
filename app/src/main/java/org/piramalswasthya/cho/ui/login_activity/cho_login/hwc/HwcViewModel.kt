@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login.hwc
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -41,7 +42,7 @@ class HwcViewModel @Inject constructor(
     }
     fun fetchRememberedPassword(): String? =
         pref.getRememberedPassword()
-    fun authUser(
+    suspend fun authUser(
         username: String,
         password: String,
         loginType: String?,
@@ -51,6 +52,7 @@ class HwcViewModel @Inject constructor(
         lat: Double?,
         long: Double?,
         logoutType: String?,
+        context: Context
     ) {
         _state.value  = OutreachViewModel.State.SAVING
         viewModelScope.launch {
@@ -65,7 +67,8 @@ class HwcViewModel @Inject constructor(
                 long,
                 null,
                 logoutType,
-            false)
+            false,
+            context)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }

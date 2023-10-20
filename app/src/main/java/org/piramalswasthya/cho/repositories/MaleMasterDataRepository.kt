@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import okhttp3.RequestBody
 import org.json.JSONObject
@@ -282,7 +283,7 @@ class MaleMasterDataRepository @Inject constructor(
         return historyDao.getAllSurgeryDropdown()
     }
 
-    fun getChiefMasterComplaint():LiveData<List<ChiefComplaintMaster>>{
+    fun getChiefMasterComplaint():Flow<List<ChiefComplaintMaster>>{
           return chiefComplaintMasterDao.getAllChiefCompMaster()
     }
     fun getAllSubCatVisit(): LiveData<List<SubVisitCategory>> {

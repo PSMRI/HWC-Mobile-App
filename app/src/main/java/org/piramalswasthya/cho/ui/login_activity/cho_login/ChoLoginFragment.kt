@@ -98,7 +98,7 @@ class ChoLoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChoLoginBinding.inflate(layoutInflater, container, false)
-        getCurrentLocation()
+//        getCurrentLocation()
         return binding.root
     }
 
@@ -139,7 +139,7 @@ class ChoLoginFragment : Fragment() {
 //    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        getCurrentLocation()
+//        getCurrentLocation()
         setActivityContainer(binding.selectProgram.id)
         binding.selectProgram.setOnCheckedChangeListener { _, programId ->
             setActivityContainer(programId)

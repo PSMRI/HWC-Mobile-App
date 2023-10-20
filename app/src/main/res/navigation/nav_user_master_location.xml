@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_user_master_location"
+    app:startDestination="@id/loginSettingsFragmentMaster">
+    <fragment
+        android:id="@+id/loginSettingsFragmentMaster"
+        android:name="org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsFragment"
+        android:label="Location"
+        tools:layout="@layout/fragment_login_setting" />
+</navigation>

@@ -93,7 +93,7 @@ class HomeFragment : Fragment() {
                 dialog.dismiss()
                 HomeViewModel.setSearchBool()
             }
-            .setNegativeButton("Registration"){dialog, _->
+            .setNegativeButton("Proceed with Registration"){dialog, _->
                 val intent = Intent(context, RegisterPatientActivity::class.java)
                 startActivity(intent)
                 dialog.dismiss()

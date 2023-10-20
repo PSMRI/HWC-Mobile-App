@@ -141,7 +141,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
         bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
         bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
         respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-//        rbsValue = binding.inputRbs.text?.toString()?.trim()
+        rbsValue = binding.inputRBS.text?.toString()?.trim()
     }
 
 

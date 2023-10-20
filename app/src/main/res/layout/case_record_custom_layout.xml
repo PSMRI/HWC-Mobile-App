@@ -68,91 +68,6 @@
                     android:paddingBottom="10dp"
                     app:layout_constraintTop_toBottomOf="@+id/vitalsExtra">
 
-                <!-- Field 1: Weight -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/weightEditTxt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/weight_kg_text"
-                    android:paddingRight="4dp"
-                    app:layout_flexBasisPercent="50%"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputWeight"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Field 2: Height -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/heightEditTxt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_flexBasisPercent="50%"
-                    android:hint="@string/height_cm"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toEndOf="@+id/weightEditTxt">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputHeight"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Field 3: BMI -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/bmill"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="4dp"
-                    app:layout_flexBasisPercent="50%"
-                    android:hint="@string/bmi"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputBmi"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Field 4: Waist Circumference -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/waistCircumEditTxt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_flexBasisPercent="50%"
-                    android:hint="@string/waist_circumference_cm"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toEndOf="@+id/bmill">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputWaistCircum"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <!-- Field 5: Temperature -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/temperatureEditTxt"
@@ -174,6 +89,48 @@
                         android:focusable="false"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/bpSystolicEditTxt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_flexBasisPercent="50%"
+                        android:hint="@string/bp_mmhg_systolic_text"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@+id/spo2EditTxt">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputBpSystolic"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:editable="false"
+                            android:focusable="false"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Field 9: BP Diastolic -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/bpDiastolicEditTxt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="4dp"
+                        app:layout_flexBasisPercent="50%"
+                        android:hint="@string/bp_mmhg_diastolic_text"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputBpDiastolic"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:editable="false"
+                            android:focusable="false"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Field 6: Pulse Rate -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -218,49 +175,6 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Field 8: BP Systolic -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/bpSystolicEditTxt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_flexBasisPercent="50%"
-                    android:hint="@string/bp_mmhg_systolic_text"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toEndOf="@+id/spo2EditTxt">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputBpSystolic"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Field 9: BP Diastolic -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/bpDiastolicEditTxt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="4dp"
-                    app:layout_flexBasisPercent="50%"
-                    android:hint="@string/bp_mmhg_diastolic_text"
-                    android:textColorHint="#888888"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputBpDiastolic"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:textSize="18sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <!-- Field 10: Respiratory Rate -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/respiratoryEditTxt"
@@ -287,17 +201,77 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_flexBasisPercent="50%"
+                        app:layout_constraintStart_toStartOf="parent"
                         android:hint="@string/rbs_mg_dl"
                         android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/bpDiastolicRespiratoryLayout">
-
+                        app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputRbs"
+                            android:id="@+id/inputRBS"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Field 2: Height -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/heightEditTxt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_flexBasisPercent="50%"
+                        android:hint="@string/height_cm"
+                        android:paddingRight="4dp"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@+id/weightEditTxt">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputHeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:editable="false"
+                            android:focusable="false"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/weightEditTxt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/weight_kg_text"
+                        app:layout_flexBasisPercent="50%"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputWeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:editable="false"
+                            android:focusable="false"
+                            android:textSize="18sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Field 3: BMI -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/bmill"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="4dp"
+                        app:layout_flexBasisPercent="50%"
+                        android:hint="@string/bmi"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputBmi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:editable="false"
                             android:focusable="false"
                             android:textSize="18sp" />
@@ -474,7 +448,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
-                    android:hint="@string/date"
+                    android:paddingTop="4dp"
+                    android:hint="@string/date_time"
                     android:visibility="gone"
                     android:paddingBottom="4dp"
                     android:textColorHint="#888888"
@@ -485,7 +460,7 @@
                         android:id="@+id/inputDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
+                        android:inputType="none"
                         android:textColorHint="#888888"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>

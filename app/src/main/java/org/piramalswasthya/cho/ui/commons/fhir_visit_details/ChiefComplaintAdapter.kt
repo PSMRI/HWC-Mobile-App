@@ -42,18 +42,18 @@ class ChiefComplaintAdapter(
                 val results = FilterResults()
                 constraint?.let { query ->
                     val filteredData = ArrayList<ChiefComplaintMaster>()
+                    val lowerCaseQuery = query.toString().lowercase()
+
                     for (item in dataListConst) {
-                        if (item.chiefComplaint.lowercase().startsWith(query.toString().lowercase())) {
+                        if (item.chiefComplaint.lowercase().contains(lowerCaseQuery)) {
                             filteredData.add(item)
                         }
                     }
                     results.values = filteredData
                     results.count = filteredData.size
                 }
-
                 return results
             }
-
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 results?.let { filterResults ->
                     clear()
