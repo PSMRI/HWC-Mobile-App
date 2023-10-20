@@ -22,13 +22,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.VillageDropdownAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.ChiefComplaintAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
@@ -56,12 +60,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var viewModel: PatientDetailsViewModel
 
     private var doAgeToDob = true;
-
     private var patient = Patient();
-
+    private lateinit var villageAdapter :VillageDropdownAdapter
+    private var villageList = ArrayList<VillageLocationData>()
+    private var villageListFilter = ArrayList<VillageLocationData>()
     private val dobUtil : DateTimeUtil = DateTimeUtil()
     var bool: Boolean = false
-
     private var currentFileName: String? = null
     private var currentPhotoPath: String? = null
     private lateinit var  photoURI: Uri
@@ -168,6 +172,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+//        villageAdapter = VillageDropdownAdapter(
+//            context = requireContext(),
+//           resource = R.layout.drop_down,
+//            dataList = viewModel.villageList,
+//            autoCompleteTextView = binding.villageDropdown,
+////            dataListConst = viewModel.villageListFilter
+//        )
+//        binding.villageDropdown.setAdapter(villageAdapter)
+
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
         }
@@ -318,7 +331,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
         }
         binding.villageDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedVillage = viewModel.villageList[position];
+            viewModel.selectedVillage = parent.getItemAtPosition(position) as VillageLocationData
             binding.villageDropdown.setText(viewModel.selectedVillage!!.villageName, false)
         }
 
@@ -407,8 +420,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
                 val isVillageFilled = s?.isNotEmpty() == true // Check if not empty
                 viewModel.setVillageBool(isVillageFilled) // Update LiveData
+                villageAdapter.notifyDataSetChanged()
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -534,9 +549,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.villageVal.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
-                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
-                    binding.villageDropdown.setAdapter(dropdownAdapter)
+//                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
+//                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
+                  villageAdapter = VillageDropdownAdapter(
+                        requireContext(),
+                        R.layout.drop_down,
+                        viewModel.villageList,
+                        binding.villageDropdown,
+                        viewModel.villageListFilter
+                    )
+                    binding.villageDropdown.setAdapter(villageAdapter)
                 }
                 else -> {
 
