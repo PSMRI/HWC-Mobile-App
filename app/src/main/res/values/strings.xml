@@ -436,5 +436,12 @@
     <string name="iv_sync_state_tv">SYNC STATE</string>
     <string name="high_risk">High Risk</string>
     <string name="tv_required_text_asterisk">*</string>
+    <string name="btn_submit">Submit</string>
+    <string name="edit">EDIT</string>
+    <string name="radio_title_ds">%s<span> **</span></string>
+    <string name="radio_title">%s<span> *</span></string>
+    <string name="anc_visit_number">ANC Visit %1d</string>
 
+    <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
+    <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
 </resources>

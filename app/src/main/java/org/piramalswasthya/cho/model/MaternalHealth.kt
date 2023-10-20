@@ -85,7 +85,7 @@ enum class AncFormState {
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(name = "ind_pwc", value = ["benId"/* "hhId"*/])]
+    indices = [Index(name = "ind_pwc", value = ["patientID"/* "hhId"*/])]
 )
 
 data class PregnantWomanRegistrationCache(
@@ -312,7 +312,7 @@ data class PwrPost(
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(name = "ind_mha", value = ["benId"/* "hhId"*/])],
+    indices = [Index(name = "ind_mha", value = ["patientID"/* "hhId"*/])],
 )
 
 data class PregnantWomanAncCache(

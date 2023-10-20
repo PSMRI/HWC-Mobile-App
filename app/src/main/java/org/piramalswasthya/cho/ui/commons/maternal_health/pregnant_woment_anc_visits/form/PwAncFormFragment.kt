@@ -85,7 +85,7 @@ class PwAncFormFragment : Fragment() {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    WorkerUtils.triggerAmritPushWorker(requireContext())
+                    WorkerUtils.triggerAmritSyncWorker(requireContext())
                     findNavController().navigateUp()
                 }
 
@@ -160,9 +160,9 @@ class PwAncFormFragment : Fragment() {
     }
     override fun onStart() {
         super.onStart()
-        activity?.let {
-            (it as HomeActivity).updateActionBar(R.drawable.ic__pregnancy, getString(R.string.anc_visit))
-        }
+//        activity?.let {
+//            (it as HomeActivity).updateActionBar(R.drawable.ic__pregnancy, getString(R.string.anc_visit))
+//        }
     }
 
     override fun onDestroy() {

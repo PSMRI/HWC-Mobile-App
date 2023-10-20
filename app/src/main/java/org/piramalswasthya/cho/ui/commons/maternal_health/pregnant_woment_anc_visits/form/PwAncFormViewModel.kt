@@ -16,7 +16,6 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
-import org.piramalswasthya.cho.repositories.BenRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import timber.log.Timber
@@ -28,7 +27,6 @@ class PwAncFormViewModel @Inject constructor(
     preferenceDao: PreferenceDao,
     @ApplicationContext context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
-    private val benRepo: BenRepo,
     private val patientRepo: PatientRepo
 ) : ViewModel() {
 
@@ -36,10 +34,13 @@ class PwAncFormViewModel @Inject constructor(
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
 
-    private val patientID =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
-    private val visitNumber =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
+    private val patientID = ""
+    private val visitNumber = 0
+
+//    private val patientID =
+//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+//    private val visitNumber =
+//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
 
     private val _state = MutableLiveData(State.IDLE)
@@ -119,18 +120,18 @@ class PwAncFormViewModel @Inject constructor(
                     if (registerRecord.syncState == SyncState.UNSYNCED)
                         maternalHealthRepo.persistRegisterRecord(registerRecord)
                     if (ancCache.pregnantWomanDelivered == true) {
-                        maternalHealthRepo.getBenFromId(benId)?.let {
-                            dataset.updateBenRecordToDelivered(it)
-                            benRepo.updateRecord(it)
-                        }
+//                        maternalHealthRepo.getBenFromId(benId)?.let {
+//                            dataset.updateBenRecordToDelivered(it)
+//                            benRepo.updateRecord(it)
+//                        }
                     } else if (ancCache.isAborted) {
-                        maternalHealthRepo.getSavedRegistrationRecord(benId)?.let {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
                             it.active = false
                             if (it.processed != "N") it.processed = "U"
                             it.syncState = SyncState.UNSYNCED
                             maternalHealthRepo.persistRegisterRecord(it)
                         }
-                        maternalHealthRepo.getAllActiveAncRecords(benId).apply {
+                        maternalHealthRepo.getAllActiveAncRecords(patientID).apply {
                             forEach {
                                 it.isActive = false
                                 if (it.processed != "N") it.processed = "U"
@@ -139,10 +140,10 @@ class PwAncFormViewModel @Inject constructor(
                             }
                             maternalHealthRepo.updateAncRecord(toTypedArray())
                         }
-                        maternalHealthRepo.getBenFromId(benId)?.let {
-                            dataset.updateBenRecordToEligibleCouple(it)
-                            benRepo.updateRecord(it)
-                        }
+//                        maternalHealthRepo.getBenFromId(benId)?.let {
+//                            dataset.updateBenRecordToEligibleCouple(it)
+//                            benRepo.updateRecord(it)
+//                        }
 
                     } else if (ancCache.maternalDeath == true) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {

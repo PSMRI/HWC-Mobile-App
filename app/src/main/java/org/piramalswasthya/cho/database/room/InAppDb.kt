@@ -29,6 +29,7 @@ import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
@@ -116,9 +117,11 @@ import timber.log.Timber
         ComponentOption::class,
         ProcedureDataDownsync::class,
         ComponentDataDownsync::class,
+        PregnantWomanAncCache::class,
+        PregnantWomanRegistrationCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 79, exportSchema = false
+    version = 80, exportSchema = false
 )
 
 
@@ -132,7 +135,7 @@ import timber.log.Timber
     VillageConverter::class,
     MasterDataListConverter::class,
     LocationConverter::class,
-    DateConverter::class
+    DateConverter::class,
 )
 
 abstract class InAppDb : RoomDatabase() {
@@ -170,7 +173,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val prescriptionDao: PrescriptionDao
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
-
+    abstract val maternalHealthDao: MaternalHealthDao
 
     companion object {
         @Volatile

@@ -6,9 +6,9 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
-import org.piramalswasthya.cho.model.BenRegCache
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import java.util.concurrent.TimeUnit
@@ -316,7 +316,7 @@ class PregnantWomanAncVisitDataset(
 
     suspend fun setUpPage(
         visitNumber: Int,
-        ben: BenRegCache?,
+        ben: PatientDisplay?,
         regis: PregnantWomanRegistrationCache,
         lastAnc: PregnantWomanAncCache?,
         saved: PregnantWomanAncCache?

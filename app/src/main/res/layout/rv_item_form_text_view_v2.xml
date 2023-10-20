@@ -14,32 +14,32 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_normal">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_edit_text"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            asteriskRequired="@{form.required}"
-            hintText="@{form.title}"
-            android:labelFor="@id/et"
-            app:boxBackgroundColor="@color/read_only"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+<!--        <com.google.android.material.textfield.TextInputLayout-->
+<!--            android:id="@+id/til_edit_text"-->
+<!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:asteriskRequired="@{form.required}"-->
+<!--            android:hintText="@{form.title}"-->
+<!--            android:labelFor="@id/et"-->
+<!--            app:boxBackgroundColor="@color/read_only"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
-                android:inputType="none"
-                android:singleLine="true"
-                android:text="@{form.value}"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                tools:text="Woo hoo" />
+<!--            <com.google.android.material.textfield.TextInputEditText-->
+<!--                android:id="@+id/et"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:clickable="false"-->
+<!--                android:focusable="false"-->
+<!--                android:inputType="none"-->
+<!--                android:singleLine="true"-->
+<!--                android:text="@{form.value}"-->
+<!--                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"-->
+<!--                tools:text="Woo hoo" />-->
 
-        </com.google.android.material.textfield.TextInputLayout>
+<!--        </com.google.android.material.textfield.TextInputLayout>-->
 
 <!--        <TextView-->
 <!--            android:id="@+id/tv_nullable"-->
