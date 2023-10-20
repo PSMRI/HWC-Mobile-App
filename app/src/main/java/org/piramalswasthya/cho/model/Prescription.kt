@@ -86,7 +86,7 @@ data class PrescriptionDTO(
     val consultantName: String?,
     val prescriptionID: Long,
     val visitCode: Long,
-    var issueType: String? = null,
+    var issueType: String? = "System Issue",
     var itemList: List<PrescriptionItemDTO>
     )
 
@@ -173,7 +173,7 @@ data class PharmacistPatientIssueDataRequest(
     val facilityID: Int,
     val age: Int?,
     val beneficiaryID: Long?,
-    val beneficiaryRegID: Long,
+    val benRegID: Long,
     val createdBy: String,
     val providerServiceMapID: Int?,
     val doctorName: String?,
