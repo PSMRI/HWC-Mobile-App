@@ -115,6 +115,7 @@ class HwcFragment constructor(
                             currentLocation?.latitude,
                             currentLocation?.longitude,
                             null,
+                            requireContext()
                         )
                     }
 
@@ -207,11 +208,7 @@ class HwcFragment constructor(
                             OutreachViewModel.State.ERROR_NETWORK -> {
                                 binding.patientListFragment.visibility = View.VISIBLE
                                 binding.rlSaving.visibility = View.GONE
-                                Toast.makeText(
-                                    requireContext(),
-                                    getString(R.string.error_while_logging_in),
-                                    Toast.LENGTH_LONG
-                                ).show()
+
 //                        viewModel.forgetUser()
                                 viewModel.resetState()
                             }

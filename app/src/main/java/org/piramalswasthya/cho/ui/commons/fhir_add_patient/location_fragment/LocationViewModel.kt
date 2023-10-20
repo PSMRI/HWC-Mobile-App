@@ -41,24 +41,24 @@ class LocationViewModel @Inject constructor(private val apiService: AmritApiServ
     var blockList: List<DistrictBlock>? = null
     var villageList: List<Village>? = null
 
-    fun getStateList() {
-        viewModelScope.launch {
-            try {
-                _refreshState.value = RefreshState.REFRESHING
-                val request = LocationRequest(vanID = 153, spPSMID = "64")
-                withContext(Dispatchers.IO) {
-                    val stateData = apiService.getLocDetailsBasedOnSpIDAndPsmID(request)
-                    if (stateData != null) {
-                        stateList = listOf()
-                    }
-                }
-                _refreshState.value = RefreshState.REFRESH_SUCCESS
-            } catch (e: Exception) {
-                Timber.d("Fetching states failed ${e.message}")
-                _refreshState.value = RefreshState.REFRESH_FAILED
-            }
-        }
-    }
+//    fun getStateList() {
+//        viewModelScope.launch {
+//            try {
+//                _refreshState.value = RefreshState.REFRESHING
+//                val request = LocationRequest(vanID = 153, spPSMID = "64")
+//                withContext(Dispatchers.IO) {
+//                    val stateData = apiService.getLocDetailsBasedOnSpIDAndPsmID(request)
+//                    if (stateData != null) {
+//                        stateList = listOf()
+//                    }
+//                }
+//                _refreshState.value = RefreshState.REFRESH_SUCCESS
+//            } catch (e: Exception) {
+//                Timber.d("Fetching states failed ${e.message}")
+//                _refreshState.value = RefreshState.REFRESH_FAILED
+//            }
+//        }
+//    }
 
 //    fun getDistrictList(stateId: Int) {
 //        viewModelScope.launch {
