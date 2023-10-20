@@ -1,37 +1,36 @@
-package org.piramalswasthya.cho.ui.commons.fhir_visit_details
+package org.piramalswasthya.cho.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Filter
 import android.widget.AutoCompleteTextView
+import android.widget.Filter
 import android.widget.TextView
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.VillageLocationData
 
-class ChiefComplaintAdapter(
-    context: Context,
-    resource: Int,
-    private val dataList: List<ChiefComplaintMaster>,
-    autoCompleteTextView: AutoCompleteTextView,
-    private val dataListConst: List<ChiefComplaintMaster>,
-) : ArrayAdapter<ChiefComplaintMaster>(context, resource, dataList) {
+class VillageDropdownAdapter (context: Context,
+                              resource: Int,
+                              private val dataList: List<VillageLocationData>,
+                              autoCompleteTextView: AutoCompleteTextView,
+                              private val dataListConst: List<VillageLocationData>,
+) : ArrayAdapter<VillageLocationData>(context, resource, dataList) {
+
+
     init {
-        // Set the custom filter to the AutoCompleteTextView
         autoCompleteTextView.setAdapter(this)
     }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
-        val chiefComplaint = dataList[position]
-        (view as? TextView)?.text = chiefComplaint.chiefComplaint
+        val village = dataList[position]
+        (view as? TextView)?.text = village.villageName
         return view
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getDropDownView(position, convertView, parent)
-        val chiefComplaint = dataList[position]
-        (view as? TextView)?.text = chiefComplaint.chiefComplaint
+        val village = dataList[position]
+        (view as? TextView)?.text = village.villageName
         return view
     }
     override fun getFilter(): Filter {
@@ -39,11 +38,11 @@ class ChiefComplaintAdapter(
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val results = FilterResults()
                 constraint?.let { query ->
-                    val filteredData = ArrayList<ChiefComplaintMaster>()
+                    val filteredData = ArrayList<VillageLocationData>()
                     val lowerCaseQuery = query.toString().lowercase()
 
                     for (item in dataListConst) {
-                        if (item.chiefComplaint.lowercase().contains(lowerCaseQuery)) {
+                        if (item.villageName?.lowercase()?.contains(lowerCaseQuery) == true) {
                             filteredData.add(item)
                         }
                     }
@@ -56,7 +55,7 @@ class ChiefComplaintAdapter(
                 results?.let { filterResults ->
                     clear()
                     if (filterResults.count > 0) {
-                        addAll(filterResults.values as List<ChiefComplaintMaster>)
+                        addAll(filterResults.values as List<VillageLocationData>)
                         notifyDataSetChanged()
                     }
                 }
