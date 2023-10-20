@@ -166,18 +166,21 @@ class PersonalDetailsFragment : Fragment() {
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    else if(benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isPharmacist()){
+                                    else if((benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isPharmacist()) ||
+                                        (benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist")){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
                                     }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1){
+                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1) ||
+                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isStartingLabTechnician()){
+                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isStartingLabTechnician()) ||
+                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician")){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
@@ -218,7 +221,7 @@ class PersonalDetailsFragment : Fragment() {
                         )
                     }
                     binding.patientListContainer.patientList.adapter = itemAdapter
-                    if(preferenceDao.isUserOnlyDoctorOrMo()) {
+                    if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")) {
                         lifecycleScope.launch {
                             viewModel.patientListForDoctor?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
@@ -228,7 +231,7 @@ class PersonalDetailsFragment : Fragment() {
                             }
                         }
                     }
-                    else if (preferenceDao.isStartingLabTechnician()) {
+                    else if (preferenceDao.isStartingLabTechnician() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician")) {
                         lifecycleScope.launch {
                             viewModel.patientListForLab?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
@@ -238,12 +241,22 @@ class PersonalDetailsFragment : Fragment() {
                             }
                         }
                     }
-                    else if (preferenceDao.isPharmacist()) {
+                    else if (preferenceDao.isPharmacist() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist")) {
                         lifecycleScope.launch {
                             viewModel.patientListForPharmacist?.collect { it ->
                                 itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
                                 binding.patientListContainer.patientCount.text =
                                     itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                patientCount = it.size
+                            }
+                        }
+                    }
+                    else if (preferenceDao.isUserOnlyNurseOrCHO() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Nurse")){
+                        lifecycleScope.launch {
+                            viewModel.patientListForNurse?.collect { it ->
+                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
+                                binding.patientListContainer.patientCount.text =
+                                    it.size.toString() + getResultStr(it.size)
                                 patientCount = it.size
                             }
                         }

@@ -91,13 +91,13 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            }
        }else {
            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-           if (preferenceDao.isStartingLabTechnician()) {
+           if (preferenceDao.isStartingLabTechnician() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician")) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            }
-           else if (preferenceDao.isPharmacist()) {
+           else if (preferenceDao.isPharmacist() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist")) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
@@ -127,7 +127,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                           resources.getString(R.string.vitals_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
-                       if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()) {
+                       if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Nurse")) {
                            binding.btnSubmit.text = resources.getString(R.string.next)
                        } else {
                            binding.btnSubmit.text =
