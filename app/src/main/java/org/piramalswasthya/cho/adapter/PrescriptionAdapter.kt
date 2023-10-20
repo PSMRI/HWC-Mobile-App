@@ -1,24 +1,29 @@
 package org.piramalswasthya.cho.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PrescriptionValues
+import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
 
 class PrescriptionAdapter(
-    private val itemList: MutableList<PrescriptionValues>,
+    private val listTemplate: MutableList<PrescriptionValuesForTemplate>,
+    private val itemList: MutableList<PrescriptionValuesForTemplate>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
     private val unitDropDown: List<String>,
@@ -41,10 +46,13 @@ class PrescriptionAdapter(
         val instructionOption: AutoCompleteTextView = itemView.findViewById(R.id.inputInstruction)
         val unitOption: AutoCompleteTextView =
             itemView.findViewById(R.id.unitDropDownVal)
+        val tempText : TextInputLayout = itemView.findViewById(R.id.tempName)
+        val tempName : TextInputEditText = itemView.findViewById(R.id.inputTestName)
         val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
         val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
         val addButton : FloatingActionButton = itemView.findViewById(R.id.addButton)
         val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButton)
+        val saveTemplate : Button = itemView.findViewById(R.id.saveTemplate)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -71,6 +79,7 @@ class PrescriptionAdapter(
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
                     instructionOption.text!!.isNotEmpty() ||
+                    tempName.text!!.isNotEmpty() ||
                     unitOption.text.isNotEmpty()
             resetButton.isEnabled = isItemFilled
         }
@@ -97,6 +106,7 @@ class PrescriptionAdapter(
                 itemData.duration = ""
                 itemData.instruction = ""
                 itemData.unit = ""
+                itemData.tempName =""
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()
             }
@@ -139,17 +149,29 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        // Bind data and set listeners for user interactions
+        holder.saveTemplate.setOnClickListener {
+            // Save the prescription at the current position to the listTemplate
+            holder.tempText.visibility =View.VISIBLE
+            if (position < itemList.size) {
+
+                val prescriptionToSave = itemList[position]
+                listTemplate.add(prescriptionToSave.copy())
+                notifyDataSetChanged()
+                if(holder.tempName.text.toString().isNotEmpty())
+                showSavedToast(holder.itemView.context)
+                else
+                    showSavedToastErro(holder.itemView.context)
+            }
+        }
+
         holder.formOptions.setText(itemData.form)
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
         holder.instructionOption.setText(itemData.instruction)
+        holder.tempName.setText(itemData.tempName)
         holder.unitOption.setText(unitDropDown[0])
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
-
-
-//       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
 
         val formItemAdapter = FormItemAdapter(
             holder.itemView.context,
@@ -188,6 +210,11 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
+        holder.tempName.addTextChangedListener{
+            itemData.tempName= it.toString()
+            holder.updateResetButtonState()
+            itemChangeListener.onItemChanged()
+        }
 
         holder.frequencyOptions.addTextChangedListener {
             itemData.frequency = it.toString()
@@ -219,7 +246,12 @@ class PrescriptionAdapter(
         holder.updateResetButtonState()
     }
 
-
+    private fun showSavedToast(context: Context) {
+        Toast.makeText(context, "Prescription Template Saved", Toast.LENGTH_SHORT).show()
+    }
+    private fun showSavedToastErro(context: Context) {
+        Toast.makeText(context, "Enter the Template Name", Toast.LENGTH_SHORT).show()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.prescription_custome_layout, parent, false)

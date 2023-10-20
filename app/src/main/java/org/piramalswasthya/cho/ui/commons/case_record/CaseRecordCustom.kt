@@ -61,6 +61,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionValues
+import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
@@ -77,9 +78,11 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -93,8 +96,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     lateinit var preferenceDao: PreferenceDao
     private val initialItemD = DiagnosisValue()
     private val itemListD = mutableListOf(initialItemD)
-    private val initialItemP = PrescriptionValues()
+    private val initialItemP = PrescriptionValuesForTemplate()
     private val itemListP = mutableListOf(initialItemP)
+    private val initialItemTemp = PrescriptionValuesForTemplate()
+    private val tempList  = mutableListOf(initialItemTemp)
     private lateinit var dAdapter : DiagnosisAdapter
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
@@ -306,6 +311,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonD.isEnabled = false
         }
         pAdapter = PrescriptionAdapter(
+            tempList,
             itemListP,
             formMListVal,
             frequencyListVal,
@@ -324,7 +330,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         pAdapter.notifyItemInserted(itemListP.size - 1)
         binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
         binding.plusButtonP.setOnClickListener {
-            val newItem = PrescriptionValues()
+            val newItem = PrescriptionValuesForTemplate()
             itemListP.add(newItem)
 //            pAdapter.notifyItemInserted(itemListP.size -   1)
             view.clearFocus()
@@ -702,8 +708,29 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
+        for (i in 0 until tempList.size) {
+            val prescriptionData = tempList[i]
+            var formVal = prescriptionData.id
+            var freqVal = prescriptionData.frequency.nullIfEmpty()
+            var unitVal = prescriptionData.unit.nullIfEmpty()
+            var durVal = prescriptionData.duration.nullIfEmpty()
+            var instruction = prescriptionData.instruction.nullIfEmpty()
 
-
+            if (formVal != null) {
+                var pres = PrescriptionCaseRecord(
+                    prescriptionCaseRecordId = generateUuid(),
+                    itemId = formVal,
+                    frequency = freqVal,
+                    duration = durVal,
+                    instruciton = instruction,
+                    unit = unitVal,
+                    patientID =patId,
+                    benVisitNo = benVisitNo
+                )
+                Timber.tag("Prec").i("${pres}")
+                prescriptionList.add(pres);
+            }
+        }
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }

@@ -438,4 +438,7 @@
     <string name="result_meas_unit">Result -Measurement Unit</string>
     <string name="date_time">Date and Time</string>
     <string name="Use_Previous_data">Submit Old Chief Complaints and vitals data</string>
+    <string name="save_template">Save this Template</string>
+    <string name="enter_temp_name">Enter Template Name</string>
+    <string name="select_temp_to_fill">Select Template Name To Fill</string>
 </resources>
