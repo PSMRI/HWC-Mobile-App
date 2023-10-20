@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
@@ -120,10 +121,11 @@ import timber.log.Timber
         Prescription::class,
         PrescribedDrugs::class,
         PrescribedDrugsBatch::class,
-        MasterLocation::class
+        MasterLocation::class,
+        PrescriptionTemplateDB::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 85, exportSchema = false
+    version = 86, exportSchema = false
 )
 
 
@@ -176,6 +178,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val prescriptionDao: PrescriptionDao
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
+    abstract val prescriptionTemplateDao:PrescriptionTemplateDao
 
 
     companion object {
