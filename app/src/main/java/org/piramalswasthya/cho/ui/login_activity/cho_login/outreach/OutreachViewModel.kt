@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -96,7 +97,8 @@ fun getOutreach(){
         lat: Double?,
         long: Double?,
         logoutType: String?,
-        imageString : String?
+        imageString : String?,
+        context: Context
     ) {
         _state.value = State.SAVING
         viewModelScope.launch {
@@ -111,7 +113,8 @@ fun getOutreach(){
                 long,
                 logoutType,
             imageString,
-            false)
+            false,
+                context)
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
