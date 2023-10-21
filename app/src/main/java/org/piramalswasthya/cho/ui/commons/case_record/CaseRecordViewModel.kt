@@ -26,6 +26,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
@@ -34,7 +35,9 @@ import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -56,6 +59,8 @@ class CaseRecordViewModel @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
     private val caseRecordeDao: CaseRecordeDao,
     private val investigationDao: InvestigationDao,
+    private val userRepo: UserRepo,
+    private val templateRepo: PrescriptionTemplateRepo
 ): ViewModel() {
 
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
@@ -103,6 +108,7 @@ class CaseRecordViewModel @Inject constructor(
     private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
     val vitalsDB: LiveData<PatientVitalsModel>
         get() = _vitalsDB
+    var userId : Int = -1
 
     init {
         _counsellingProvided = MutableLiveData()
@@ -113,6 +119,21 @@ class CaseRecordViewModel @Inject constructor(
         getProcedureDropdown()
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
+        getLoggedInUserDetails()
+    }
+    fun getLoggedInUserDetails() {
+        viewModelScope.launch {
+            try {
+                userId = userRepo.getUserCacheDetails()?.userId!!
+            } catch (e: java.lang.Exception) {
+                Timber.d("Error in calling getLoggedInUserDetails() $e")
+            }
+        }
+    }
+    fun savePrescriptionTemp(prescriptionTemplateDB: PrescriptionTemplateDB){
+        viewModelScope.launch {
+            templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)
+        }
     }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {

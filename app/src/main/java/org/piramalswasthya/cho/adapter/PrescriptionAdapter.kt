@@ -150,17 +150,21 @@ class PrescriptionAdapter(
         }
 
         holder.saveTemplate.setOnClickListener {
-            // Save the prescription at the current position to the listTemplate
-            holder.tempText.visibility =View.VISIBLE
-            if (position < itemList.size) {
-
-                val prescriptionToSave = itemList[position]
-                listTemplate.add(prescriptionToSave.copy())
-                notifyDataSetChanged()
-                if(holder.tempName.text.toString().isNotEmpty())
-                showSavedToast(holder.itemView.context)
-                else
-                    showSavedToastErro(holder.itemView.context)
+                holder.tempText.visibility = View.VISIBLE
+                val testName = holder.tempName.text.toString()
+            if (testName.isNotEmpty()) {
+                if (isTestNameUnique(testName)) {
+                    if (position < itemList.size) {
+                        val prescriptionToSave = itemList[position]
+                        listTemplate.add(prescriptionToSave.copy())
+                        showSavedToast(holder.itemView.context)
+                    }
+                } else {
+                    showTestNameNotUniqueError(holder.itemView.context)
+                }
+            }else {
+                showSavedToastErro(holder.itemView.context)
+                holder.tempName.requestFocus()
             }
         }
 
@@ -245,6 +249,19 @@ class PrescriptionAdapter(
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
     }
+    private fun isTestNameUnique(testName: String): Boolean {
+        for (item in listTemplate) {
+            if (item.tempName == testName) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun showTestNameNotUniqueError(context: Context) {
+        Toast.makeText(context, "Test name must be unique", Toast.LENGTH_SHORT).show()
+    }
+
 
     private fun showSavedToast(context: Context) {
         Toast.makeText(context, "Prescription Template Saved", Toast.LENGTH_SHORT).show()
