@@ -276,7 +276,7 @@ class OutreachFragment(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-            if (image != null) {
+            if (imageString!=null && validImage!!) {
 
             // call for lat long
             getCurrentLocation()
