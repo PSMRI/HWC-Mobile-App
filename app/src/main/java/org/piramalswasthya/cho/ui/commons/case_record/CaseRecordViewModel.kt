@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -52,6 +53,7 @@ class CaseRecordViewModel @Inject constructor(
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
     private val patientRepo: PatientRepo,
@@ -85,9 +87,7 @@ class CaseRecordViewModel @Inject constructor(
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
 
-    private var _tempDB: LiveData<List<PrescriptionTemplateDB?>>
-    val tempDB: LiveData<List<PrescriptionTemplateDB?>>
-        get() = _tempDB
+    val tempDB=templateRepo.getProceduresWithComponent(preferenceDao.userID)
 
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
@@ -124,17 +124,6 @@ class CaseRecordViewModel @Inject constructor(
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
         getLoggedInUserDetails()
-        _tempDB = MutableLiveData()
-        getTemplateDB()
-    }
-    fun getTemplateDB(){
-        viewModelScope.launch {
-            try {
-                _tempDB = templateRepo.getProceduresWithComponent(userId)
-            } catch (e: java.lang.Exception) {
-                Timber.d("Error in calling getLoggedInUserDetails() $e")
-            }
-        }
     }
     fun getLoggedInUserDetails() {
         viewModelScope.launch {

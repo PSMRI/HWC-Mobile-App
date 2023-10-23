@@ -31,7 +31,11 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     @RequiresApi(Build.VERSION_CODES.O)
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-
+    var userID : Int
+        get() = pref.getInt("UserID", -1)
+        set(value) {
+            pref.edit().putInt("UserID", value).apply()
+        }
 
 //    fun getD2DApiToken(): String? {
 //        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
