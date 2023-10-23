@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -17,6 +18,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.repositories.BenFlowRepo
+import org.piramalswasthya.cho.repositories.BenVisitRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -28,7 +30,7 @@ import javax.inject.Inject
 class PharmacistFormViewModel @Inject constructor(
     @ApplicationContext private val application: Context,
     savedStateHandle: SavedStateHandle,
-    private val userRepo: UserRepo,
+    private val benVisitRepo: BenVisitRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo
@@ -44,8 +46,6 @@ class PharmacistFormViewModel @Inject constructor(
     private var _isDataSaved = MutableLiveData(false)
     val isDataSaved: LiveData<Boolean>
         get() = _isDataSaved
-
-    var prescriptionForPharmacist : PrescriptionDTO? = null
 
     private var _prescriptions = MutableLiveData<PrescriptionDTO>(null)
     val prescriptions: LiveData<PrescriptionDTO>
@@ -140,25 +140,36 @@ class PharmacistFormViewModel @Inject constructor(
 
             viewModelScope.launch {
 
-                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )!!
-                patientVisitInfoSync.pharmacistDataSynced = SyncState.UNSYNCED
-                patientVisitInfoSync.pharmacist_flag = 9
-
                 dtos?.let { prescriptionDTO ->
-                    val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
-                    prescription.issueType = dtos.issueType
-                    patientRepo.updatePrescription(prescription)
+                    if(benVisitInfo.benVisitNo!=null){
+                        val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
+                        prescription.issueType = dtos.issueType
+                        patientRepo.updatePrescription(prescription)
+                    }
                 }
 
                 // update sync state for pharmacist data
 
-                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-                WorkerUtils.pharmacistPushWorker(context)
+//                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                WorkerUtils.pharmacistPushWorker(context)
+                val resp = benVisitRepo.savePharmacistData(dtos, benVisitInfo)
+                if(resp){
+                    val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                        benVisitInfo.patient.patientID,
+                        benVisitInfo.benVisitNo!!
+                    )!!
+                    patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
+                    patientVisitInfoSync.pharmacist_flag = 9
 
-                _isDataSaved.value = true
+                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+
+                    Toast.makeText(context, "Item Dispensed", Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
+                }
+
+                _isDataSaved.value = resp
 
             }
 
@@ -166,4 +177,36 @@ class PharmacistFormViewModel @Inject constructor(
             Timber.d("error saving lab records due to $e")
         }
     }
+
+//    fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
+//        try {
+//
+//            viewModelScope.launch {
+//
+//                val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+//                    benVisitInfo.patient.patientID,
+//                    benVisitInfo.benVisitNo!!
+//                )!!
+//                patientVisitInfoSync.pharmacistDataSynced = SyncState.UNSYNCED
+//                patientVisitInfoSync.pharmacist_flag = 9
+//
+//                dtos?.let { prescriptionDTO ->
+//                    val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
+//                    prescription.issueType = dtos.issueType
+//                    patientRepo.updatePrescription(prescription)
+//                }
+//
+//                // update sync state for pharmacist data
+//
+//                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                WorkerUtils.pharmacistPushWorker(context)
+//
+//                _isDataSaved.value = true
+//
+//            }
+//
+//        } catch (e: Exception) {
+//            Timber.d("error saving lab records due to $e")
+//        }
+//    }
 }
