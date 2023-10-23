@@ -126,7 +126,6 @@ class UserRepo @Inject constructor(
             Timber.d("user", loggedInUser.toString())
             loggedInUser?.let {
                 if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
-                    preferenceDao.userID= user!!.userId
                     preferenceDao.setUserRoles(loggedInUser.roles);
                     preferenceDao.setUserLoginType(loginType);
                     val tokenB = preferenceDao.getPrimaryApiToken()
@@ -166,11 +165,9 @@ class UserRepo @Inject constructor(
                     preferenceDao.setUserRoles(user!!.roles);
                     if (userDao.getUser(userName, password)?.userName == userName) {
                         userDao.update(user!!.asCacheModel())
-                        preferenceDao.userID= user!!.userId
                     } else {
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
-                        preferenceDao.userID= user!!.userId
                     }
                     if(!isBiometric!!) {
                         setOutreachProgram(
