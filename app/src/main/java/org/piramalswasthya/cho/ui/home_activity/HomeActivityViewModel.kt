@@ -89,6 +89,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 Log.d("syncing started first", "syncing started")
                 WorkerUtils.triggerAmritSyncWorker(context)
             }
+            WorkerUtils.pushAuditDetailsWorker(context)
             registrarMasterDataRepo.saveGenderMasterResponseToCache()
             registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
             registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()

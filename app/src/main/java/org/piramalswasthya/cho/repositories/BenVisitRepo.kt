@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.model.ComponentResultDTO
 import org.piramalswasthya.cho.model.LabResultDTO
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.model.PharmacistItemStockExitDataRequest
@@ -149,7 +150,8 @@ class BenVisitRepo @Inject constructor(
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    Timber.i("lab data submitted",  response.body()?.string() ?: "")
+                    val jsonObj = JSONObject(responseBody)
+                    Timber.i("lab data submitted",  jsonObj)
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
@@ -556,7 +558,7 @@ class BenVisitRepo @Inject constructor(
                             facilityID = userDao.getLoggedInUserFacilityID(),
                             age = it.patient.age,
                             beneficiaryID = it.patient.beneficiaryID,
-                            beneficiaryRegID = it.patient.beneficiaryRegID!!,
+                            benRegID = it.patient.beneficiaryRegID!!,
                             createdBy = user?.userName!!,
                             providerServiceMapID = benFlow.providerServiceMapId,
                             doctorName = prescriptionResultDTOs.get(0)?.consultantName,
@@ -598,6 +600,72 @@ class BenVisitRepo @Inject constructor(
         }
 
         return true
+
+    }
+
+    suspend fun savePharmacistData(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo): Boolean{
+        val user = userRepo.getLoggedInUser()
+        var resp : Boolean = false
+        if(benVisitInfo.patient.beneficiaryRegID != null){
+            withContext(Dispatchers.IO){
+
+                val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
+                if(benFlow != null){
+
+                    val itemStockExitList : MutableList<PharmacistItemStockExitDataRequest> = mutableListOf()
+                    dtos?.itemList?.forEach { prescriptionItemDTO ->
+                        prescriptionItemDTO.batchList.forEach { item ->
+                            val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
+                                itemID = prescriptionItemDTO.drugID,
+                                itemStockEntryID = item.itemStockEntryID,
+                                quantity = prescriptionItemDTO.qtyPrescribed,
+                                createdBy = user?.userName!!
+                            )
+
+                            itemStockExitList+=pharmacistPatientIssueDataRequest
+                        }
+                    }
+
+
+                    val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
+                        issuedBy = "MMU",
+                        visitCode = benFlow.visitCode,
+                        facilityID = userDao.getLoggedInUserFacilityID(),
+                        age = benVisitInfo.patient.age,
+                        beneficiaryID = benVisitInfo.patient.beneficiaryID,
+                        benRegID = benVisitInfo.patient.beneficiaryRegID!!,
+                        createdBy = user?.userName!!,
+                        providerServiceMapID = benFlow.providerServiceMapId,
+                        doctorName = dtos?.consultantName,
+                        gender = benFlow.genderName,
+                        issueType = dtos?.issueType,
+                        patientName = benVisitInfo.patient.firstName+" "+benVisitInfo.patient.lastName,
+                        prescriptionID = dtos?.prescriptionID,
+                        reference = "Prescribed by "+user?.userName!!+" from MMU",
+                        visitID = benFlow.benVisitID,
+                        visitDate = benFlow.visitDate,
+                        parkingPlaceID = benFlow.parkingPlaceID,
+                        vanID = benFlow.vanID,
+                        itemStockExit = itemStockExitList
+                    )
+
+//                    Timber.d("*******************DAta Prescription DTO************** ",pharmacistPatientIssueDataRequest)
+                    when(val response = registerPharmacistData(pharmacistPatientIssueDataRequest)){
+                        is NetworkResult.Success -> {
+//                            Timber.d("*******************DAta Prescription DTO************** ",response)
+                            resp = true
+                        }
+                        is NetworkResult.Error -> {
+                            resp = false
+                        }
+                        else -> {}
+                    }
+
+                } else { }
+            }
+        }
+
+        return resp
 
     }
 

@@ -49,16 +49,16 @@ data class PrescribedDrugs (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "drugID") val drugID: Long,
     @ColumnInfo(name = "prescriptionID") val prescriptionID: Long,
-    @ColumnInfo(name = "dose") val dose: String,
-    @ColumnInfo(name = "drugForm") val drugForm: String,
-    @ColumnInfo(name = "drugStrength") val drugStrength: String,
-    @ColumnInfo(name = "duration") val duration: String,
+    @ColumnInfo(name = "dose") val dose: String?=null,
+    @ColumnInfo(name = "drugForm") val drugForm: String?=null,
+    @ColumnInfo(name = "drugStrength") val drugStrength: String? =null,
+    @ColumnInfo(name = "duration") val duration: String?=null,
     @ColumnInfo(name = "durationUnit") val durationUnit: String?= null,
-    @ColumnInfo(name = "frequency") val frequency: String,
+    @ColumnInfo(name = "frequency") val frequency: String?=null,
     @ColumnInfo(name = "genericDrugName") val genericDrugName: String,
     @ColumnInfo(name = "isEDL") val isEDL: Boolean,
-    @ColumnInfo(name = "qtyPrescribed") val qtyPrescribed: Int,
-    @ColumnInfo(name = "route") val route: String,
+    @ColumnInfo(name = "qtyPrescribed") val qtyPrescribed: Int? =0,
+    @ColumnInfo(name = "route") val route: String?=null,
     @ColumnInfo(name = "instructions") val instructions: String?= null
 )
 
@@ -86,7 +86,7 @@ data class PrescriptionDTO(
     val consultantName: String?,
     val prescriptionID: Long,
     val visitCode: Long,
-    var issueType: String? = null,
+    var issueType: String? = "System Issue",
     var itemList: List<PrescriptionItemDTO>
     )
 
@@ -94,17 +94,17 @@ data class PrescriptionDTO(
 data class PrescriptionItemDTO(
     val id: Long,
     val drugID: Long,
-    val dose: String,
-    val drugForm: String,
-    val duration: String,
+    val dose: String? =null,
+    val drugForm: String? =null,
+    val duration: String?=null,
     val durationUnit: String?= null,
-    val frequency: String,
+    val frequency: String? =null,
     val genericDrugName: String,
-    val drugStrength: String,
+    val drugStrength: String? =null,
     var batchList: List<PrescriptionBatchDTO>,
     val isEDL: Boolean,
-    val qtyPrescribed: Int,
-    val route: String,
+    val qtyPrescribed: Int? =0,
+    val route: String? =null,
     val instructions: String? = null
 
 )
@@ -155,14 +155,14 @@ data class PrescribedMedicineDataRequest(
 @JsonClass(generateAdapter = true)
 data class AllocationItemDataRequest(
     val itemID: Long,
-    val quantity: Int,
+    val quantity: Int? =0,
 )
 
 @JsonClass(generateAdapter = true)
 data class PharmacistItemStockExitDataRequest(
     val itemID: Long,
     val itemStockEntryID: Int,
-    val quantity: Int,
+    val quantity: Int? =0,
     val createdBy: String
 )
 
@@ -173,7 +173,7 @@ data class PharmacistPatientIssueDataRequest(
     val facilityID: Int,
     val age: Int?,
     val beneficiaryID: Long?,
-    val beneficiaryRegID: Long,
+    val benRegID: Long,
     val createdBy: String,
     val providerServiceMapID: Int?,
     val doctorName: String?,
