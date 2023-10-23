@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -10,7 +11,7 @@ interface PrescriptionTemplateDao {
     @Insert
     suspend fun insertPrescriptionTemplates(prescriptionTemplateDB: PrescriptionTemplateDB)
 
-//    @Query("SELECT * FROM Prescription_Template_DB WHERE user_id = :userID")
-//    suspend fun getPatientVitalsByPatientIDAndBenVisitNo(userID: Int, benVisitNo: Int): List<PrescriptionTemplateDB>?
+    @Query("SELECT * FROM Prescription_Template_DB WHERE user_id = :userID")
+    fun getTemplateForUser(userID: Int): LiveData<List<PrescriptionTemplateDB?>>
 
 }

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
@@ -22,9 +23,7 @@ class PrescriptionTemplateRepo @Inject constructor(
             Timber.d("Error in saving Template $e")
         }
     }
-//    suspend fun getProceduresWithComponent(patientID: String, benVisitNo: Int): List<ProcedureDataWithComponent>{
-//        return withContext(Dispatchers.IO) {
-//            procedureDao.getProceduresWithComponent(patientID, benVisitNo)
-//        }
-//    }
+    fun getProceduresWithComponent(userID: Int): LiveData<List<PrescriptionTemplateDB?>>{
+        return prescriptionTemplateDao.getTemplateForUser(userID)
+    }
 }

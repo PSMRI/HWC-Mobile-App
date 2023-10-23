@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Toast
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,12 +17,15 @@ import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
+import org.piramalswasthya.cho.ui.commons.case_record.TempNameAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
 
 class PrescriptionAdapter(
+    private val listTemplateDB: MutableList<PrescriptionTemplateDB?>,
     private val listTemplate: MutableList<PrescriptionValuesForTemplate>,
     private val itemList: MutableList<PrescriptionValuesForTemplate>,
     private val formMD: List<ItemMasterList>,
@@ -38,6 +42,8 @@ class PrescriptionAdapter(
 
     private val viewHolders = mutableListOf<PrescriptionAdapter.ViewHolder>()
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tempNameOption: AutoCompleteTextView =
+            itemView.findViewById(R.id.inputUseTempForFields)
         val formOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.dosagesDropDownVal)
         val frequencyOptions: AutoCompleteTextView =
@@ -74,7 +80,7 @@ class PrescriptionAdapter(
         }
 
         fun updateResetButtonState() {
-            val isItemFilled = formOptions.text.isNotEmpty() ||
+            val isItemFilled = tempNameOption.text.isNotEmpty() ||
                     formOptions.text.isNotEmpty() ||
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
@@ -169,6 +175,7 @@ class PrescriptionAdapter(
         }
 
         holder.formOptions.setText(itemData.form)
+        holder.tempNameOption.setText(itemData.tempName)
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
         holder.instructionOption.setText(itemData.instruction)
@@ -191,6 +198,25 @@ class PrescriptionAdapter(
             val form = formMD.first { it.dropdownForMed == selectedString }
             holder.formOptions.setText(form.dropdownForMed,false)
             itemData.id = form.itemID
+        }
+
+        val tempNameAdapter = TempNameAdapter(
+            holder.itemView.context,
+            R.layout.drop_down,
+            listTemplateDB,
+            holder.tempNameOption
+        )
+        holder.tempNameOption.setAdapter(tempNameAdapter)
+
+        holder.tempNameOption.setOnItemClickListener { parent, _, position, abc ->
+            val selectedString = parent.getItemAtPosition(position)
+            val form = listTemplateDB.first { it?.templateName == selectedString }
+            holder.tempNameOption.setText(form?.templateName,false)
+            holder.formOptions.setText(form?.drugName)
+            holder.frequencyOptions.setText(form?.frequency)
+            holder.durationInput.setText(form?.duration)
+            holder.instructionOption.setText(form?.instruction)
+            holder.unitOption.setText(form?.unit)
         }
 
         val frequencyAdapter =
@@ -259,7 +285,7 @@ class PrescriptionAdapter(
     }
 
     private fun showTestNameNotUniqueError(context: Context) {
-        Toast.makeText(context, "Test name must be unique", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Template name already exsists", Toast.LENGTH_SHORT).show()
     }
 
 

@@ -111,6 +111,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
     private val instructionDropdown= instructionDropdownList
+    private val tempDBVal = ArrayList<PrescriptionTemplateDB?>()
     private val formMListVal = ArrayList<ItemMasterList>()
     private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
@@ -258,6 +259,13 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             formForFilter.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
+
+        viewModel.tempDB.observe(viewLifecycleOwner) { f ->
+            tempDBVal.clear()
+            tempDBVal.addAll(f)
+            pAdapter.notifyDataSetChanged()
+        }
+
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
             counsellingTypes.addAll(f)
@@ -312,6 +320,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonD.isEnabled = false
         }
         pAdapter = PrescriptionAdapter(
+            tempDBVal,
             tempList,
             itemListP,
             formMListVal,
@@ -711,6 +720,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         for (i in 0 until tempList.size) {
             val prescriptionData = tempList[i]
+            var formName = prescriptionData.form
             var formVal = prescriptionData.id
             var tempNameVal = prescriptionData.tempName
             var freqVal = prescriptionData.frequency.nullIfEmpty()
@@ -723,6 +733,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     id = generateUuid(),
                     userID = viewModel.userId,
                     templateName = tempNameVal,
+                    drugName = formName,
                     drugId = formVal,
                     frequency = freqVal,
                     duration = durVal,
@@ -820,6 +831,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         for (i in 0 until tempList.size) {
             val prescriptionData = tempList[i]
+            var formName = prescriptionData.form
             var formVal = prescriptionData.id
             var tempNameVal = prescriptionData.tempName
             var freqVal = prescriptionData.frequency.nullIfEmpty()
@@ -832,6 +844,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     id = generateUuid(),
                     userID = viewModel.userId,
                     templateName = tempNameVal,
+                    drugName = formName,
                     drugId = formVal,
                     frequency = freqVal,
                     duration = durVal,

@@ -85,6 +85,10 @@ class CaseRecordViewModel @Inject constructor(
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
 
+    private var _tempDB: LiveData<List<PrescriptionTemplateDB?>>
+    val tempDB: LiveData<List<PrescriptionTemplateDB?>>
+        get() = _tempDB
+
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
         get() = _counsellingProvided
@@ -120,6 +124,17 @@ class CaseRecordViewModel @Inject constructor(
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
         getLoggedInUserDetails()
+        _tempDB = MutableLiveData()
+        getTemplateDB()
+    }
+    fun getTemplateDB(){
+        viewModelScope.launch {
+            try {
+                _tempDB = templateRepo.getProceduresWithComponent(userId)
+            } catch (e: java.lang.Exception) {
+                Timber.d("Error in calling getLoggedInUserDetails() $e")
+            }
+        }
     }
     fun getLoggedInUserDetails() {
         viewModelScope.launch {
