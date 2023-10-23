@@ -123,7 +123,7 @@ import timber.log.Timber
         MasterLocation::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 85, exportSchema = false
+    version = 86, exportSchema = false
 )
 
 
