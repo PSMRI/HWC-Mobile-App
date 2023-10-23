@@ -281,6 +281,11 @@ class PrescriptionAdapter(
                 return false
             }
         }
+        for (item in listTemplateDB) {
+            if (item?.templateName == testName) {
+                return false
+            }
+        }
         return true
     }
 
