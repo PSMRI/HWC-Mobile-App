@@ -64,7 +64,7 @@ class CaseRecordViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo
 ): ViewModel() {
-
+    var userId : Int = preferenceDao.userID
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
@@ -87,7 +87,7 @@ class CaseRecordViewModel @Inject constructor(
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
 
-    val tempDB=templateRepo.getProceduresWithComponent(preferenceDao.userID)
+    val tempDB=templateRepo.getProceduresWithComponent(userId)
 
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
@@ -112,7 +112,6 @@ class CaseRecordViewModel @Inject constructor(
     private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
     val vitalsDB: LiveData<PatientVitalsModel>
         get() = _vitalsDB
-    var userId : Int = -1
 
     init {
         _counsellingProvided = MutableLiveData()
@@ -123,7 +122,7 @@ class CaseRecordViewModel @Inject constructor(
         getProcedureDropdown()
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
-        getLoggedInUserDetails()
+//        getLoggedInUserDetails()
     }
     fun getLoggedInUserDetails() {
         viewModelScope.launch {
