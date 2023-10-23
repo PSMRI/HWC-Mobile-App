@@ -718,6 +718,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
+        val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
         for (i in 0 until tempList.size) {
             val prescriptionData = tempList[i]
             var formName = prescriptionData.form
@@ -740,10 +741,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     unit = unitVal,
                     instruction = instruction
                 )
+                prescriptionTempList.add(pres)
                 Timber.tag("arr").i("${pres}")
                 viewModel.savePrescriptionTemp(pres)
             }
         }
+        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }

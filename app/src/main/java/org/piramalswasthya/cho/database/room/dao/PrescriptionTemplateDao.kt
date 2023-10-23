@@ -9,7 +9,7 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 @Dao
 interface PrescriptionTemplateDao {
     @Insert
-    suspend fun insertPrescriptionTemplates(prescriptionTemplateDB: PrescriptionTemplateDB)
+    suspend fun insertPrescriptionTemplates(vararg prescriptionTemplateDB: PrescriptionTemplateDB)
 
     @Query("SELECT * FROM Prescription_Template_DB WHERE user_id = :userID")
     fun getTemplateForUser(userID: Int): LiveData<List<PrescriptionTemplateDB?>>

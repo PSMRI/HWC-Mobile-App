@@ -94,7 +94,6 @@ class BenVisitRepo @Inject constructor(
                 },
             )
         }
-
     }
 
     suspend fun updateDoctorData(patientDoctorForm: PatientDoctorFormUpsync): NetworkResult<NetworkResponse> {

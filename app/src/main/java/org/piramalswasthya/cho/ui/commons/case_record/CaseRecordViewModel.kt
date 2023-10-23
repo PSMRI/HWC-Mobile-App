@@ -138,6 +138,11 @@ class CaseRecordViewModel @Inject constructor(
             templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)
         }
     }
+    fun savePrescriptionTempToServer(prescriptionTemplateDB: List<PrescriptionTemplateDB>){
+        viewModelScope.launch {
+            templateRepo.saveTemplateToServer(prescriptionTemplateDB)
+        }
+    }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {
             try {
