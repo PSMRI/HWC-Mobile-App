@@ -165,7 +165,6 @@ class UserRepo @Inject constructor(
                     } else {
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
-                        preferenceDao.userID= user!!.userId
                     }
                     if(!isBiometric!!) {
                         setOutreachProgram(

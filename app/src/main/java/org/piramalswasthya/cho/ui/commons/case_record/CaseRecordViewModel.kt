@@ -64,7 +64,7 @@ class CaseRecordViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo
 ): ViewModel() {
-    var userId : Int = preferenceDao.userID
+    var userId : Int = preferenceDao.getLoggedInUser()!!.userId
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
