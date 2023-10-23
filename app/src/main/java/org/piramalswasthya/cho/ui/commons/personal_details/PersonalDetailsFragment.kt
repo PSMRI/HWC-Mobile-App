@@ -376,8 +376,12 @@ class PersonalDetailsFragment : Fragment() {
             for (prescription in prescriptions) {
                 // Draw each field with a fixed width
                 drawTextWithWrapping(canvas, prescription.itemName, xPosition, y, columnWidth, content)
-                drawTextWithWrapping(canvas, prescription.frequency?:null, xPosition + columnWidth, y, columnWidth, content)
-                drawTextWithWrapping(canvas, prescription.duration, xPosition + 2 * columnWidth, y, columnWidth, content)
+                drawTextWithWrapping(canvas, prescription.frequency?:"", xPosition + columnWidth, y, columnWidth, content)
+                if(prescription.unit.isNullOrEmpty()){
+                    drawTextWithWrapping(canvas,(prescription.duration) ?: "", xPosition + 2 * columnWidth, y, columnWidth, content)
+                } else{
+                    drawTextWithWrapping(canvas,(prescription.duration + " " + prescription.unit), xPosition + 2 * columnWidth, y, columnWidth, content)
+                }
                 drawTextWithWrapping(canvas, prescription.quantityInHand.toString(), xPosition + 3 * columnWidth, y, columnWidth, content)
                 drawTextWithWrapping(canvas, prescription.instruciton, xPosition + 4 * columnWidth, y, columnWidth, content)
 
