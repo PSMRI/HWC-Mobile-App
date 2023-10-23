@@ -123,18 +123,21 @@ class VisitDetailAdapter(
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
         holder.subtractButton.isEnabled = !itemData.duration.isNullOrEmpty()
         holder.addButton.setOnClickListener {
-            durationCount = if(itemData.duration.isNullOrEmpty()){
-                0
-            }else {
-                itemData.duration!!.toInt()
+            if(itemData.duration.isNullOrEmpty()){
+                durationCount = 0
+            }else if(itemData.duration!!.toInt() <= 99) {
+                durationCount = itemData.duration!!.toInt()
             }
+            if(durationCount<99){
                 durationCount++
                 holder.durationInput.setText(durationCount.toString())
                 holder.updateResetButtonState()
                 itemChangeListener.onItemChanged()
+            }
 
             // Enable the "Subtract" button
             holder.subtractButton.isEnabled = true
+
         }
         holder.subtractButton.setOnClickListener {
             durationCount = if(itemData.duration.isNullOrEmpty()){
@@ -181,6 +184,15 @@ class VisitDetailAdapter(
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
+
+                if (!s.isNullOrBlank()) {
+                    // Limit the input to 2 digits
+                    if (s.length > 2) {
+                        // If the input is longer than 2 digits, truncate it
+                        s.replace(0, s.length, s.subSequence(0, 2))
+                    }
+                }
+
                 itemData.duration = s.toString()
 
                 if (s.isNullOrEmpty()) {
