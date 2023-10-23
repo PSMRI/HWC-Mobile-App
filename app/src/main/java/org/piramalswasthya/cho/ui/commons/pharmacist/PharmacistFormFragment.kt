@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -76,7 +77,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-
+        dtos?.issueType = "System Issue"
         binding.selectProgram.setOnCheckedChangeListener { _, programId ->
             when (programId){
                 binding.btnManualIssue.id -> {
@@ -106,15 +107,18 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
                                 bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
                                 if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
                                     bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
-                                }
 
-                                bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-                                Timber.d("*******************Babs DTO************** ",bundle)
-                                val batchFragment = PrescriptionBatchFormFragment()
-                                batchFragment.arguments = bundle
-                                findNavController().navigate(
-                                    R.id.action_pharmacistFormFragment_to_prescriptionBatchFormFragment, bundle
-                                )
+                                    bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                    Timber.d("*******************Babs DTO************** ",bundle)
+                                    val batchFragment = PrescriptionBatchFormFragment()
+                                    batchFragment.arguments = bundle
+                                    findNavController().navigate(
+                                        R.id.action_pharmacistFormFragment_to_prescriptionBatchFormFragment, bundle
+                                    )
+                                }
+                                else{
+                                    Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+                                }
 //                                requireActivity().supportFragmentManager.beginTransaction().replace(R.id.patient_detalis, batchFragment).commit()
 //                                parentFragmentManager.beginTransaction().apply {
 //                                    replace(R.id.patient_detalis, batchFragment).commit()
