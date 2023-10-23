@@ -72,12 +72,12 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-      if(preferenceDao.isUserOnlyDoctorOrMo()){
+      if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
           binding.patientDetalis.visibility= View.GONE
           binding.onlyDoctor.visibility=View.VISIBLE
       }
 //        navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
-       if(preferenceDao.isUserOnlyDoctorOrMo()){
+       if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
@@ -127,9 +127,10 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //                           resources.getString(R.string.vitals_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
-                       if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Nurse")) {
+                       if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo() && !preferenceDao.isCHO()) {
                            binding.btnSubmit.text = resources.getString(R.string.next)
-                       } else {
+                       }
+                       else {
                            binding.btnSubmit.text =
                                resources.getString(R.string.submit_to_doctor_text)
                        }

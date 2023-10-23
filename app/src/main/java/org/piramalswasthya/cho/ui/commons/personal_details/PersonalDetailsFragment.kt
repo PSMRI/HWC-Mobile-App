@@ -34,6 +34,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -193,7 +194,8 @@ class PersonalDetailsFragment : Fragment() {
                                             Toast.LENGTH_SHORT
                                          ).show()
                                     }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3){
+                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3) ||
+                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
@@ -205,6 +207,9 @@ class PersonalDetailsFragment : Fragment() {
                                             resources.getString(R.string.flowCompleted),
                                             Toast.LENGTH_SHORT
                                         ).show()
+                                    }
+                                else{
+//                                        Timber.d("*******************Babs DTO************** ", Gson().toJson(benVisitInfo))
                                     }
 
                             },
