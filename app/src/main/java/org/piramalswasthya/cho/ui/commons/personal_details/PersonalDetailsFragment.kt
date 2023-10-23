@@ -328,6 +328,7 @@ class PersonalDetailsFragment : Fragment() {
 
         val heading: Paint = Paint()
         val content: Paint = Paint()
+        val subheading: Paint = Paint()
 
         val myPageInfo: PdfDocument.PageInfo? =
             PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
@@ -345,6 +346,11 @@ class PersonalDetailsFragment : Fragment() {
         content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
         content.textAlign = Paint.Align.CENTER
 
+        subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+        subheading.textSize = 16F
+        subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        subheading.textAlign = Paint.Align.CENTER
+
         heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         heading.textSize = 40F
         heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
@@ -356,11 +362,11 @@ class PersonalDetailsFragment : Fragment() {
         val columnWidth = 150F
 
         // Draw table header
-        canvas.drawText("Medication", xPosition, y, content)
-        canvas.drawText("Frequency", xPosition + columnWidth, y, content)
-        canvas.drawText("Duration", xPosition + 2 * columnWidth, y, content)
-        canvas.drawText("Quantity", xPosition + 3 * columnWidth, y, content)
-        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, content)
+        canvas.drawText("Medication", xPosition, y, subheading)
+        canvas.drawText("Frequency", xPosition + columnWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + 2 * columnWidth, y, subheading)
+        canvas.drawText("Quantity", xPosition + 3 * columnWidth, y, subheading)
+        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight // Reassign y
