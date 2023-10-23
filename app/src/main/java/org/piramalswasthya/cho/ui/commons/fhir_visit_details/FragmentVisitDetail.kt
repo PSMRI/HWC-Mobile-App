@@ -817,64 +817,71 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
 
     override fun navigateNext() {
-        extractFormValues()
-        if (viewModel.getIsFollowUp()) {
-//            val chiefData = addChiefComplaintsData()
-            setVisitMasterDataForFollow()
-            findNavController().navigate(
-                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
+
+        findNavController().navigate(
+            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                benVisitInfo.patient.patientID, 1
             )
-        } else {
-            // initially calling checkAndAddCatSubCat() but now changed to
-            // validation on category and Subcategory
-            catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.toast_cat_select),
-                    Toast.LENGTH_SHORT
-                ).show()
-                false
-            } else true
+        )
 
-
-//        if (binding.subCatInput.text.isNullOrEmpty()) {
-//            if(catBool) binding.subCatInput.requestFocus()
-//            binding.subCatDropDown.apply {
-//                boxStrokeColor = Color.RED
-//                hintTextColor = ColorStateList.valueOf(Color.RED)
-//            }
-//            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
-//            subCat = false
+//        extractFormValues()
+//        if (viewModel.getIsFollowUp()) {
+////            val chiefData = addChiefComplaintsData()
+//            setVisitMasterDataForFollow()
+//            findNavController().navigate(
+//                R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
+//            )
 //        } else {
-            subCategory = binding.subCatInput.text.toString()
-            subCat = true
-            //}
-
-            if (catBool) createEncounterResource()
-
-            // calling to add Chief Complaints
-            val chiefData = addChiefComplaintsData()
-
-            setVisitMasterData()
-
-            if (catBool && isFileSelected && isFileUploaded && chiefData) {
-                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
-                findNavController().navigate(
-                    R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
-                )
-            } else if (!isFileSelected && catBool && chiefData) {
-                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
-                findNavController().navigate(
-                    R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
-                )
-            } else if (isFileSelected && !isFileUploaded && catBool && chiefData) {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.toast_upload_file),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+//            // initially calling checkAndAddCatSubCat() but now changed to
+//            // validation on category and Subcategory
+//            catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
+//                Toast.makeText(
+//                    requireContext(),
+//                    resources.getString(R.string.toast_cat_select),
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//                false
+//            } else true
+//
+//
+////        if (binding.subCatInput.text.isNullOrEmpty()) {
+////            if(catBool) binding.subCatInput.requestFocus()
+////            binding.subCatDropDown.apply {
+////                boxStrokeColor = Color.RED
+////                hintTextColor = ColorStateList.valueOf(Color.RED)
+////            }
+////            if(catBool) Toast.makeText(requireContext(), resources.getString(R.string.toast_sub_cat_select), Toast.LENGTH_SHORT).show()
+////            subCat = false
+////        } else {
+//            subCategory = binding.subCatInput.text.toString()
+//            subCat = true
+//            //}
+//
+//            if (catBool) createEncounterResource()
+//
+//            // calling to add Chief Complaints
+//            val chiefData = addChiefComplaintsData()
+//
+//            setVisitMasterData()
+//
+//            if (catBool && isFileSelected && isFileUploaded && chiefData) {
+//                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
+//                findNavController().navigate(
+//                    R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
+//                )
+//            } else if (!isFileSelected && catBool && chiefData) {
+//                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
+//                findNavController().navigate(
+//                    R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
+//                )
+//            } else if (isFileSelected && !isFileUploaded && catBool && chiefData) {
+//                Toast.makeText(
+//                    requireContext(),
+//                    resources.getString(R.string.toast_upload_file),
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        }
     }
 
     private fun setVisitMasterDataAndVitalsForFollow(){

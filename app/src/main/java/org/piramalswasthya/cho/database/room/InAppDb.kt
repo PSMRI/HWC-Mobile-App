@@ -121,12 +121,12 @@ import timber.log.Timber
         Prescription::class,
         PrescribedDrugs::class,
         PrescribedDrugsBatch::class,
-        MasterLocation::class
+        MasterLocation::class,
         PregnantWomanAncCache::class,
         PregnantWomanRegistrationCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 84, exportSchema = false
+    version = 81, exportSchema = false
 )
 
 

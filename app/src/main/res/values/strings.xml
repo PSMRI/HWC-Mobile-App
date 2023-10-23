@@ -306,10 +306,14 @@
     <string name="diagnosis">Diagnosis</string>
     <string name="provisional_diagnosis">Provisional/Final Diagnosis <font color="#FF0000">*</font></string>
     <string name="dosage">Dosage</string>
+    <string name="dose">Dose: </string>
     <string name="frequency">Frequency</string>
+    <string name="frequency2">Frequency:</string>
+    <string name="batch_no">Batch No:</string>
     <string name="instructions">Instructions</string>
     <string name="unit">Unit</string>
     <string name="route">Route</string>
+    <string name="route2">Route: </string>
     <string name="external_investigation">External Investigation</string>
     <string name="save_successful">Save Successful\n</string>
     <string name="something_wend_wong">Something Went Wrong</string>

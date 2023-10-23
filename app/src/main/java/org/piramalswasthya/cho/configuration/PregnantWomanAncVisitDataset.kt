@@ -517,7 +517,8 @@ class PregnantWomanAncVisitDataset(
             ancDate.id -> {
                 ancDate.value?.let {
                     val long = getLongFromDate(it)
-                    val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
+                    val weeks = 2
+//                    val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
                     val listChanged = if (weeks >= Konstants.minWeekToShowDelivered) {
                         triggerDependants(
                             source = maternalDeath,

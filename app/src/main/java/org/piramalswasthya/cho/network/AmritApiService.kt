@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.network
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
 import org.piramalswasthya.cho.model.LabResultDTO
@@ -218,6 +219,8 @@ interface AmritApiService {
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
 
+    @POST("/flw-0.0.1/maternalCare/ancVisit/saveAll")
+    suspend fun postAncForm(@Body ancPostList: List<ANCPost>): Response<ResponseBody>
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
 

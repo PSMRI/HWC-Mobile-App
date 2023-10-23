@@ -1,5 +1,6 @@
 package org.piramalswasthya.sakhi.ui.home_activity.maternal_health.pregnant_woment_anc_visits.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,19 +15,27 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.sakhi.ui.home_activity.maternal_health.pregnant_woment_anc_visits.form.PwAncFormViewModel.State
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
 @AndroidEntryPoint
-class PwAncFormFragment : Fragment() {
+class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
 
     private var _binding: FragmentNewFormBinding? = null
     private val binding: FragmentNewFormBinding
         get() = _binding!!
 
-    private val viewModel: PwAncFormViewModel by viewModels()
+    override val fragment = this
+
+    override val viewModel: PwAncFormViewModel by viewModels()
+
+    override var fragmentContainerId = 0
+
+    override val jsonFile = "patient-visit-details-paginated.json"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -163,6 +172,28 @@ class PwAncFormFragment : Fragment() {
 //        activity?.let {
 //            (it as HomeActivity).updateActionBar(R.drawable.ic__pregnancy, getString(R.string.anc_visit))
 //        }
+    }
+
+    override fun getFragmentId(): Int {
+        return R.id.fragment_new_form
+    }
+
+    override fun onSubmitAction() {
+        navigateNext()
+    }
+
+    override fun navigateNext() {
+        submitAncForm()
+//        findNavController().navigate(
+//
+//            R.id.action_fhirVisitDetailsFragment_to_pwAncFormFragment, bundle
+//        )
+    }
+
+    override fun onCancelAction() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onDestroy() {

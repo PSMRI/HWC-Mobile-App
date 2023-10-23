@@ -18,7 +18,9 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,20 +29,18 @@ class PwAncFormViewModel @Inject constructor(
     preferenceDao: PreferenceDao,
     @ApplicationContext context: Context,
     private val maternalHealthRepo: MaternalHealthRepo,
-    private val patientRepo: PatientRepo
+    private val patientRepo: PatientRepo,
+    private val userRepo: UserRepo,
 ) : ViewModel() {
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
 
-    private val patientID = ""
-    private val visitNumber = 0
-
-//    private val patientID =
-//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
-//    private val visitNumber =
-//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
+    private val patientID =
+        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+    private val visitNumber =
+        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
 
     private val _state = MutableLiveData(State.IDLE)
@@ -68,7 +68,7 @@ class PwAncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = preferenceDao.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()!!
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
@@ -81,7 +81,18 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
+//            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+            registerRecord = PregnantWomanRegistrationCache(
+                patientID = patientID,
+                lmpDate = Calendar.getInstance().apply {
+                    set(Calendar.MONTH, 0)
+                    set(Calendar.DAY_OF_MONTH, 1)
+                }.timeInMillis,
+                createdBy = "",
+                updatedBy = "",
+                syncState = SyncState.SYNCED
+            )
+
             maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
                 _recordExists.value = true
@@ -117,8 +128,8 @@ class PwAncFormViewModel @Inject constructor(
                     _state.postValue(State.SAVING)
                     dataset.mapValues(ancCache, 1)
                     maternalHealthRepo.persistAncRecord(ancCache)
-                    if (registerRecord.syncState == SyncState.UNSYNCED)
-                        maternalHealthRepo.persistRegisterRecord(registerRecord)
+//                    if (registerRecord.syncState == SyncState.UNSYNCED)
+//                        maternalHealthRepo.persistRegisterRecord(registerRecord)
                     if (ancCache.pregnantWomanDelivered == true) {
 //                        maternalHealthRepo.getBenFromId(benId)?.let {
 //                            dataset.updateBenRecordToDelivered(it)

@@ -42,9 +42,9 @@ interface MaternalHealthDao {
 //    @Query("select count(*) from HRP_NON_PREGNANT_ASSESS assess where isHighRisk = 1")
 //    fun getAllECRecords(): Flow<Int>
 //
-//    @Query("SELECT * FROM pregnancy_anc WHERE processed in ('N', 'U')")
-//    suspend fun getAllUnprocessedAncVisits(): List<PregnantWomanAncCache>
-//
+    @Query("SELECT * FROM pregnancy_anc WHERE processed in ('N', 'U')")
+    suspend fun getAllUnprocessedAncVisits(): List<PregnantWomanAncCache>
+
     @Query("SELECT * FROM pregnancy_register WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPWRs(): List<PregnantWomanRegistrationCache>
 

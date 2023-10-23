@@ -362,9 +362,9 @@ data class PregnantWomanAncCache(
     var updatedDate: Long = System.currentTimeMillis(),
     var syncState: SyncState
 ) : FormDataModel {
-    fun asPostModel(): ANCPost {
+    fun asPostModel(benId: Long): ANCPost {
         return ANCPost(
-            benId = 0,
+            benId = benId,
             ancDate = getDateStringFromLong(ancDate),
             isActive = true,
             ancVisit = visitNumber,

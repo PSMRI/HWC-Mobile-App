@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_caseRecordCustom"
             app:destination="@id/caseRecordCustom" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_pwAncFormFragment"
+            app:destination="@id/pwAncFormFragment" />
     </fragment>
 
     <fragment
@@ -84,6 +87,7 @@
             android:id="@+id/action_prescriptionBatchFormFragment_to_pharmacistFormFragment"
             app:destination="@id/pharmacistFormFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/patientHomeFragment"
         android:name="org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragment"
@@ -97,6 +101,18 @@
         <action
             android:id="@+id/action_patientHomeFragment_to_pharmacistFormFragment"
             app:destination="@id/pharmacistFormFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pwAncFormFragment"
+        android:name="org.piramalswasthya.sakhi.ui.home_activity.maternal_health.pregnant_woment_anc_visits.form.PwAncFormFragment"
+        android:label="PwAncFormFragment">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="visitNumber"
+            app:argType="integer" />
     </fragment>
 
 
