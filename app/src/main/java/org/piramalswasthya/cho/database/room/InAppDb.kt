@@ -125,7 +125,7 @@ import timber.log.Timber
         PrescriptionTemplateDB::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 88, exportSchema = false
+    version = 89, exportSchema = false
 )
 
 
@@ -178,6 +178,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val prescriptionDao: PrescriptionDao
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
+   abstract val prescriptionTemplateDao:PrescriptionTemplateDao
 
 
     companion object {
