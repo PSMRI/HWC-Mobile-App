@@ -1,4 +1,6 @@
-package org.piramalswasthya.sakhi.ui.home_activity.maternal_health.pregnant_woment_anc_visits.form
+package org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_woment_anc_visits.form
+
+
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -37,10 +39,14 @@ class PwAncFormViewModel @Inject constructor(
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
 
-    private val patientID =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
-    private val visitNumber =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
+    private val patientID = ""
+    private val visitNumber = 0
+
+
+//    private val patientID =
+//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+//    private val visitNumber =
+//        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
 
     private val _state = MutableLiveData(State.IDLE)

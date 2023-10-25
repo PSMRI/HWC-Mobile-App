@@ -16,6 +16,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 import java.sql.Timestamp
+import java.util.Locale
 
 class DateTimeUtil {
 
@@ -86,6 +87,19 @@ class DateTimeUtil {
                 e.printStackTrace()
                 return null
             }
+        }
+
+        fun getDateTimeStringFromLong(dateLong: Long?): String? {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            dateLong?.let {
+                val dateString = dateFormat.format(dateLong)
+                val timeString = timeFormat.format(dateLong)
+                return "${dateString}T${timeString}.000Z"
+            } ?: run {
+                return null
+            }
+
         }
 
         fun convertTimestampToISTDate(timestamp: Timestamp?): Date? {

@@ -1,7 +1,5 @@
-package org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_woment_anc_visits.form
+package org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form
 
-
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,27 +14,19 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
-import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_woment_anc_visits.form.PwAncFormViewModel.State
+import org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormViewModel.State
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
 @AndroidEntryPoint
-class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
+class PncFormFragment : Fragment() {
 
     private var _binding: FragmentNewFormBinding? = null
     private val binding: FragmentNewFormBinding
         get() = _binding!!
 
-    override val fragment = this
-
-    override val viewModel: PwAncFormViewModel by viewModels()
-
-    override var fragmentContainerId = 0
-
-    override val jsonFile = "patient-visit-details-paginated.json"
+    private val viewModel: PncFormViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,9 +52,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
                 lifecycleScope.launch {
                     viewModel.formList.collect {
                         if (it.isNotEmpty())
-
                             adapter.submitList(it)
-
                     }
                 }
             }
@@ -135,18 +123,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
     private fun hardCodedListUpdate(formId: Int) {
         binding.form.rvInputForm.adapter?.apply {
             when (formId) {
-                1 -> {
-                    notifyItemChanged(viewModel.getIndexOfWeeksOfPregnancy())
-                    notifyItemChanged(viewModel.getIndexOfWeeksOfPregnancy()+1)
-                }
-                16 ->{
-                    notifyItemChanged(viewModel.getIndexOfTTBooster())
-                }
-                18 ->{
-                    notifyItemChanged(viewModel.getIndexOfTT1())
-                    notifyItemChanged(viewModel.getIndexOfTT2())
 
-                }
+                1 -> notifyItemChanged(1)
 
 //                9 ->{
 //                    notifyItemChanged(viewModel.getIndexOfDiastolic())
@@ -171,30 +149,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
     override fun onStart() {
         super.onStart()
 //        activity?.let {
-//            (it as HomeActivity).updateActionBar(R.drawable.ic__pregnancy, getString(R.string.anc_visit))
+//            (it as HomeActivity).updateActionBar(R.drawable.ic__pnc, "PNC Form")
 //        }
-    }
-
-    override fun getFragmentId(): Int {
-        return R.id.fragment_new_form
-    }
-
-    override fun onSubmitAction() {
-        navigateNext()
-    }
-
-    override fun navigateNext() {
-        submitAncForm()
-//        findNavController().navigate(
-//
-//            R.id.action_fhirVisitDetailsFragment_to_pwAncFormFragment, bundle
-//        )
-    }
-
-    override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
-        requireActivity().finish()
     }
 
     override fun onDestroy() {

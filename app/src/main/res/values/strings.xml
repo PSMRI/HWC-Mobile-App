@@ -468,4 +468,71 @@
 
     <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
     <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
+
+    <!--  Post Natal Care  -->
+    <string name="pnc_period">PNC Period</string>
+    <string name="pnc_visit_date">PNC Visit Date</string>
+    <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
+    <string name="pnc_contraception_method">Method of Contraception</string>
+    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
+    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
+    <string name="pnc_other_danger_sign">Other Danger Sign</string>
+    <string name="pnc_referral_facility">Referral Facility</string>
+    <string name="pnc_mother_death">Mother Death</string>
+    <string name="pnc_death_date">Date of Death</string>
+    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_other_death_cause">Other Death Cause</string>
+    <string name="pnc_death_place">Place of Death</string>
+    <string name="pnc_remarks">Remarks</string>
+    <string-array name="pnc_period_array">
+        <item>1st Day</item>
+        <item>3rd Day</item>
+        <item>7th Day</item>
+        <item>14th Day</item>
+        <item>21st Day</item>
+        <item>28th Day</item>
+        <item>42nd Day</item>
+    </string-array>
+    <string-array name="pnc_confirmation_array">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string-array name="pnc_contraception_method_array">
+        <item>POST PARTUM IUCD (PPIUCD) WITHIN 48 HRS OF DELIVERY</item>
+        <item>CONDOM</item>
+        <item>MALE STERILIZATION</item>
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>ANY OTHER (SPECIFY)</item>
+    </string-array>
+    <string-array name="pnc_mother_danger_sign_array">
+        <item>PPH</item>
+        <item>FEVER</item>
+        <item>SEPSIS</item>
+        <item>SEVERE ABDOMINAL PAIN</item>
+        <item>SEVERE HEADACHE OR BLURRED VISION</item>
+        <item>DIFFICULT BREATHING</item>
+        <item>Any Other</item>
+    </string-array>
+    <string-array name="pnc_referral_facility_array">
+        <item>Primary Health Centre</item>
+        <item>Community Health Centre</item>
+        <item>District Hospital</item>
+        <item>Other Private Hospital</item>
+        <item>Any Other (Specify)</item>
+    </string-array>
+    <string-array name="pnc_death_cause_array">
+        <item>ECLAMPSIA</item>
+        <item>HAEMORRHAGE (PPH)</item>
+        <item>ANAEMIA</item>
+        <item>HIGH FEVER</item>
+        <item>Any Other</item>
+    </string-array>
+    <string-array name="pnc_death_place_array">
+        <item>Home</item>
+        <item>Hospital</item>
+        <item>Transit</item>
+    </string-array>
+
 </resources>
