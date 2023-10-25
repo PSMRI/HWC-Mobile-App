@@ -110,7 +110,6 @@ class PersonalDetailsFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View {
         HomeViewModel.resetSearchBool()
-        checkPermissions()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -544,7 +543,8 @@ class PersonalDetailsFragment : Fragment() {
 
     private fun checkPermissions() {
 
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val permissions =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             arrayOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_VIDEO,
@@ -577,9 +577,7 @@ class PersonalDetailsFragment : Fragment() {
 
         }
     }
-    private suspend fun getPrescription(benVisitInfo: PatientDisplayWithVisitInfo) {
-            generatePDF(benVisitInfo)
-    }
+
     private val searchTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
