@@ -349,7 +349,7 @@ class PersonalDetailsFragment : Fragment() {
         val canvas: Canvas = myPage.canvas
 
         // Set up initial positions for the table
-        val xPosition = 70F
+        val xPosition = 75F
         var y = 250F // Declare y as a var
         val rowHeight = 50F
 
@@ -372,15 +372,16 @@ class PersonalDetailsFragment : Fragment() {
         canvas.drawText("Patient Name: $patientName", 396F, 200F, subheading)
 
         // Define fixed column widths
-        val columnWidth = 130F
+        val columnWidth = 150F
 
         // Draw table header
         canvas.drawText("S.No.", xPosition, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
         canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
-        canvas.drawText("Quantity", xPosition + 4 * columnWidth, y, subheading)
-        canvas.drawText("Instructions", xPosition + 5 * columnWidth, y, subheading)
+//        canvas.drawText("Quantity", xPosition + 4 * columnWidth, y, subheading)
+//        canvas.drawText("Instructions", xPosition + 5 * columnWidth, y, subheading)
+        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight // Reassign y
@@ -435,18 +436,18 @@ class PersonalDetailsFragment : Fragment() {
                             content
                         )
                     }
-                    drawTextWithWrapping(
-                        canvas,
-                        prescription.quantityInHand.toString(),
-                        xPosition + 4 * columnWidth,
-                        y,
-                        columnWidth,
-                        content
-                    )
+//                    drawTextWithWrapping(
+//                        canvas,
+//                        prescription.quantityInHand.toString(),
+//                        xPosition + 4 * columnWidth,
+//                        y,
+//                        columnWidth,
+//                        content
+//                    )
                     drawTextWithWrapping(
                         canvas,
                         prescription.instruciton,
-                        xPosition + 5 * columnWidth,
+                        xPosition + 4 * columnWidth,
                         y,
                         columnWidth,
                         content
