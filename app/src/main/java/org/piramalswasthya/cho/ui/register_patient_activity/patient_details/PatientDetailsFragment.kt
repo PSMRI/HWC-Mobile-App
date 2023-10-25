@@ -242,13 +242,29 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val inputDateFormat = SimpleDateFormat("dd/MM/yyyy")
                     val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-//                    try {
                         // Parse the input date string
                         val date: Date = userData.dateOfBirth?.let { inputDateFormat.parse(it) } as Date
 
                         // Format the date to "yyyy-MM-dd" format
                         val outputDateStr: String = outputDateFormat.format(date)
                         val outputDate : Date = outputDateFormat.parse(outputDateStr) as Date
+
+                    when(userData.gender) {
+                        "M" -> {
+                            viewModel.selectedGenderMaster = viewModel.genderMasterList[0]
+                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+                        }
+
+                        "F" -> {
+                            viewModel.selectedGenderMaster = viewModel.genderMasterList[1]
+                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+                        }
+
+                        else -> {
+                            viewModel.selectedGenderMaster = viewModel.genderMasterList[2]
+                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+                        }
+                    }
 
 //                    binding.genderDropdown.text = userData.gender
 //                    binding.mobileNumber.text = userData.mobileNumber
@@ -271,33 +287,37 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         var name = ""
         var gender = ""
         var dateOfBirth = ""
-
-        while (xml.eventType != XmlPullParser.END_DOCUMENT) {
-            when (xml.eventType) {
-                XmlPullParser.START_TAG -> {
-                    when (xml.name) {
-                        "QPDB" -> {
-                            name = xml.getAttributeValue(null, "n")
-                            gender = xml.getAttributeValue(null, "g")
+        try {
+            while (xml.eventType != XmlPullParser.END_DOCUMENT) {
+                when (xml.eventType) {
+                    XmlPullParser.START_TAG -> {
+                        when (xml.name) {
+                            "QPDB" -> {
+                                name = xml.getAttributeValue(null, "n")
+                                gender = xml.getAttributeValue(null, "g")
 //                            mobileNumber = xml.getAttributeValue(null, "m")
-                            dateOfBirth = xml.getAttributeValue(null, "d")
+                                dateOfBirth = xml.getAttributeValue(null, "d")
 
-                        }
-                        "PrintLetterBarcodeData" -> {
-                            name = xml.getAttributeValue(null, "name")
-                            gender = xml.getAttributeValue(null, "gender")
-                            dateOfBirth = xml.getAttributeValue(null, "dob")
+                            }
 
+                            "PrintLetterBarcodeData" -> {
+                                name = xml.getAttributeValue(null, "name")
+                                gender = xml.getAttributeValue(null, "gender")
+                                dateOfBirth = xml.getAttributeValue(null, "dob")
+
+                            }
                         }
                     }
                 }
+                xml.next()
             }
-            xml.next()
+//Log.d("aadhaarData",(name))
+//Log.d("aadhaarDataDOB",(dateOfBirth))
+//Log.d("aadhaarDataGender",(gender))
+        }catch (e:Exception){
+            Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
-Log.d("aadhaarData",(name))
-Log.d("aadhaarDataDOB",(dateOfBirth))
-Log.d("aadhaarDataGender",(gender))
-        return PatientAadhaarDetails(name, gender, dateOfBirth)
+            return PatientAadhaarDetails(name, gender, dateOfBirth)
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
