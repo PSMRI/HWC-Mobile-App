@@ -250,7 +250,8 @@ class BenVisitRepo @Inject constructor(
                             diagnosisList = diagnosisCaseRecordVal,
                             investigation = investigationCaseRecordVal,
                             prescriptionList = prescriptionCaseRecordVal,
-                            procedureList = procedureList
+                            procedureList = procedureList,
+                            prescriptionID = null
                         )
 
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
@@ -303,7 +304,8 @@ class BenVisitRepo @Inject constructor(
                             diagnosisList = diagnosisCaseRecordVal,
                             investigation = investigationCaseRecordVal,
                             prescriptionList = prescriptionCaseRecordVal,
-                            procedureList = procedureList
+                            procedureList = procedureList,
+                            prescriptionID = null
                         )
 
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
@@ -355,7 +357,8 @@ class BenVisitRepo @Inject constructor(
                             diagnosisList = diagnosisCaseRecordVal,
                             investigation = investigationCaseRecordVal,
                             prescriptionList = prescriptionCaseRecordVal,
-                            procedureList = procedureList
+                            procedureList = procedureList,
+                            prescriptionID = it.patientVisitInfoSync.prescriptionID
                         )
 
                         patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)

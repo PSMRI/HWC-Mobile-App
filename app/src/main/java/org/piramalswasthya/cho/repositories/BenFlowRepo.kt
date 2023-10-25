@@ -164,7 +164,7 @@ class BenFlowRepo @Inject constructor(
     }
 
     @Transaction
-    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync){
+    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync,docData:DoctorDataDownSync){
 
         prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
         prescriptionCaseRecord?.let {
@@ -180,6 +180,7 @@ class BenFlowRepo @Inject constructor(
         }
 
         patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
+        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
@@ -227,7 +228,7 @@ class BenFlowRepo @Inject constructor(
                         DiagnosisCaseRecord(patient = patient, benFlow = benFlow, provisionalDiagnosisUpsync = it)
                     } ?: emptyList()
 
-                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync)
+                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync, docData = docData)
                     if(benFlow.doctorFlag == 3 && !docData.LabReport.isNullOrEmpty()){
                         refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
                     }
