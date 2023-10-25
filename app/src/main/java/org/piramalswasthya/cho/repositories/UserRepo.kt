@@ -82,7 +82,8 @@ class UserRepo @Inject constructor(
                                       lat: Double?,
                                       long: Double?,
                                       logoutType: String?,
-                                    userImage: String?
+                                    userImage: String?,
+                                    isOutOfReach:Boolean?
      ) {
          var user = userDao.getLoggedInUser()
          var userName = user?.userName
@@ -97,7 +98,8 @@ class UserRepo @Inject constructor(
             latitude = lat,
             longitude = long,
             logoutType = logoutType,
-            userImage = userImage
+            userImage = userImage,
+            isOutOfReach = isOutOfReach
         )
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
@@ -133,18 +135,18 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    if(!isBiometric!!) {
-                        setOutreachProgram(
-                            loginType,
-                            selectedOption,
-                            loginTimeStamp,
-                            logoutTimeStamp,
-                            lat,
-                            long,
-                            logoutType,
-                            userImage
-                        )
-                    }
+//                    if(!isBiometric!!) {
+//                        setOutreachProgram(
+//                            loginType,
+//                            selectedOption,
+//                            loginTimeStamp,
+//                            logoutTimeStamp,
+//                            lat,
+//                            long,
+//                            logoutType,
+//                            userImage
+//                        )
+//                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -166,18 +168,18 @@ class UserRepo @Inject constructor(
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
                     }
-                    if(!isBiometric!!) {
-                        setOutreachProgram(
-                            loginType,
-                            selectedOption,
-                            loginTimeStamp,
-                            logoutTimeStamp,
-                            lat,
-                            long,
-                            logoutType,
-                            userImage
-                        )
-                    }
+//                    if(!isBiometric!!) {
+//                        setOutreachProgram(
+//                            loginType,
+//                            selectedOption,
+//                            loginTimeStamp,
+//                            logoutTimeStamp,
+//                            lat,
+//                            long,
+//                            logoutType,
+//                            userImage
+//                        )
+//                    }
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }

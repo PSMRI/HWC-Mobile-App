@@ -294,7 +294,8 @@ class BenFlowRepo @Inject constructor(
     suspend fun checkAndDownsyncNurseData(benFlow: BenFlow, patient: Patient){
         val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID = patient.patientID, benVisitNo = benFlow.benVisitNo!!)
         if(patientVisitInfoSync != null && benFlow.nurseFlag!! == 9 && patientVisitInfoSync.nurseFlag!! == 1){
-            patientVisitInfoSync.nurseFlag = benFlow.nurseFlag
+            patientVisitInfoSync.nurseFlag = 9
+            patientVisitInfoSync.doctorFlag = 1
             getAndSaveNurseDataToDb(benFlow, patient, patientVisitInfoSync)
         }
     }
