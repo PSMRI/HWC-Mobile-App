@@ -19,7 +19,7 @@ import java.util.Locale
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(name = "delOutInd", value = ["benId"])])
+    indices = [Index(name = "delOutInd", value = ["patientID"])])
 
 data class DeliveryOutcomeCache (
     @PrimaryKey(autoGenerate = true)

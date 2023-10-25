@@ -457,6 +457,7 @@
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
 
     <string name="view">VIEW</string>
+    <string name="something_wend_wong_contact_testing">Something wend wong! Contact testing!</string>
     <string name="iv_sync_state_tv">SYNC STATE</string>
     <string name="high_risk">High Risk</string>
     <string name="tv_required_text_asterisk">*</string>

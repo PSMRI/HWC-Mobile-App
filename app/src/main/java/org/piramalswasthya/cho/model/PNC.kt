@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(name = "ind_pnc", value = ["benId"/* "hhId"*/])],
+    indices = [Index(name = "ind_pnc", value = ["patientID"/* "hhId"*/])],
 )
 data class PNCVisitCache(
     @PrimaryKey(autoGenerate = true)

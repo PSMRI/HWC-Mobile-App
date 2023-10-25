@@ -70,19 +70,6 @@ class PncFormViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val asha = preferenceDao.getLoggedInUser()!!
-
-//            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
-//                _benName.value =
-//                    "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-//                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}"
-//                ancCache = PregnantWomanAncCache(
-//                    patientID = patientID,
-//                    visitNumber = visitNumber,
-//                    syncState = SyncState.UNSYNCED,
-//                    createdBy = asha.userName,
-//                    updatedBy = asha.userName
-//                )
-//            }
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"

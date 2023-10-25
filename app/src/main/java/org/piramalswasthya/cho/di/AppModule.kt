@@ -17,10 +17,12 @@ import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
+import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
@@ -30,6 +32,7 @@ import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
@@ -332,6 +335,18 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideMaternalHealthDao(database: InAppDb): MaternalHealthDao = database.maternalHealthDao
+
+    @Singleton
+    @Provides
+    fun provideImmunizationDao(database: InAppDb): ImmunizationDao = database.immunizationDao
+
+    @Singleton
+    @Provides
+    fun provideDeliveryOutcomeDao(database: InAppDb): DeliveryOutcomeDao = database.deliveryOutcomeDao
+
+    @Singleton
+    @Provides
+    fun providePncDao(database: InAppDb): PncDao = database.pncDao
 
 
 //    @Singleton

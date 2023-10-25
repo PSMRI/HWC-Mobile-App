@@ -6,6 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import org.piramalswasthya.cho.configuration.FormDataModel
+import org.piramalswasthya.cho.database.room.SyncState
+
 //import org.piramalswasthya.sakhi.configuration.FormDataModel
 //import org.piramalswasthya.sakhi.database.room.SyncState
 //import org.piramalswasthya.sakhi.network.getLongFromDate
@@ -19,68 +22,68 @@ enum class ImmunizationCategory {
     MOTHER
 }
 
-//@Entity(tableName = "VACCINE")
-//data class Vaccine(
-//    @PrimaryKey
-//    val id: Int,
-//    val name: String,
-//    val minAllowedAgeInMillis : Long,
-//    val maxAllowedAgeInMillis : Long,
-//    val category: ImmunizationCategory,
-//    val childCategory: ChildImmunizationCategory,
-////    val dueDuration: Long,
-//    val overdueDurationSinceMinInMillis: Long = maxAllowedAgeInMillis,
-//    val dependantVaccineId: Int? = null,
-//    val dependantCoolDuration: Long? = null,
-//)
-//
-//@Entity(
-//    tableName = "IMMUNIZATION", primaryKeys = ["beneficiaryId", "vaccineId"], foreignKeys = [ForeignKey(
-//        entity = BenRegCache::class,
-//        parentColumns = arrayOf("beneficiaryId"),
-//        childColumns = arrayOf("beneficiaryId"),
-//        onUpdate = ForeignKey.CASCADE,
-//        onDelete = ForeignKey.CASCADE
-//    ), ForeignKey(
-//        entity = Vaccine::class,
-//        parentColumns = arrayOf("id"),
-//        childColumns = arrayOf("vaccineId"),
-//        onDelete = ForeignKey.CASCADE
-//    )], indices = [Index(
-//        name = "ind_imm", value = ["beneficiaryId"]
-//    ), Index(name = "ind_vaccine", value = ["vaccineId"])]
-//)
-//data class ImmunizationCache(
-//    val id: Long = 0,
-//    val beneficiaryId: Long,
-//    var vaccineId: Int,
-//    var date: Long? = null,
-//    var placeId: Int=0,
-//    var place: String="",
-//    var byWhoId: Int=0,
-//    var byWho: String="",
-//    var processed: String? = "N",
-//    var createdBy: String,
-//    var createdDate: Long = System.currentTimeMillis(),
-//    var updatedBy: String,
-//    val updatedDate: Long = System.currentTimeMillis(),
-//    var syncState: SyncState
-//) : FormDataModel {
-//    fun asPostModel(): ImmunizationPost {
-//        return ImmunizationPost(
-//            id = id,
-//            beneficiaryId = beneficiaryId,
-//            vaccineName = "",
-//            receivedDate = getDateStrFromLong(date),
-//            vaccinationreceivedat = place,
-//            vaccinatedBy = byWho,
-//            createdDate = getDateStrFromLong(createdDate),
-//            createdBy = createdBy,
-//            modifiedBy = updatedBy,
-//            lastModDate = getDateStrFromLong(updatedDate)
-//        )
-//    }
-//}
+@Entity(tableName = "VACCINE")
+data class Vaccine(
+    @PrimaryKey
+    val id: Int,
+    val name: String,
+    val minAllowedAgeInMillis : Long,
+    val maxAllowedAgeInMillis : Long,
+    val category: ImmunizationCategory,
+    val childCategory: ChildImmunizationCategory,
+//    val dueDuration: Long,
+    val overdueDurationSinceMinInMillis: Long = maxAllowedAgeInMillis,
+    val dependantVaccineId: Int? = null,
+    val dependantCoolDuration: Long? = null,
+)
+
+@Entity(
+    tableName = "IMMUNIZATION", primaryKeys = ["patientID", "vaccineId"], foreignKeys = [ForeignKey(
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patientID"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.CASCADE
+    ), ForeignKey(
+        entity = Vaccine::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("vaccineId"),
+        onDelete = ForeignKey.CASCADE
+    )], indices = [Index(
+        name = "ind_imm", value = ["patientID"]
+    ), Index(name = "ind_vaccine", value = ["vaccineId"])]
+)
+data class ImmunizationCache(
+    val id: Long = 0,
+    val patientID: String,
+    var vaccineId: Int,
+    var date: Long? = null,
+    var placeId: Int=0,
+    var place: String="",
+    var byWhoId: Int=0,
+    var byWho: String="",
+    var processed: String? = "N",
+    var createdBy: String,
+    var createdDate: Long = System.currentTimeMillis(),
+    var updatedBy: String,
+    val updatedDate: Long = System.currentTimeMillis(),
+    var syncState: SyncState
+) : FormDataModel {
+    fun asPostModel(beneficiaryId: Long): ImmunizationPost {
+        return ImmunizationPost(
+            id = id,
+            beneficiaryId = beneficiaryId,
+            vaccineName = "",
+            receivedDate = getDateStrFromLong(date),
+            vaccinationreceivedat = place,
+            vaccinatedBy = byWho,
+            createdDate = getDateStrFromLong(createdDate),
+            createdBy = createdBy,
+            modifiedBy = updatedBy,
+            lastModDate = getDateStrFromLong(updatedDate)
+        )
+    }
+}
 //
 //data class ChildImmunizationDetailsCache(
 ////    @ColumnInfo(name = "benId")
@@ -137,18 +140,18 @@ enum class VaccineState {
     PENDING, OVERDUE, DONE, MISSED, UNAVAILABLE
 }
 
-//data class ImmunizationPost (
-//    val id: Long = 0,
-//    val beneficiaryId: Long,
-//    var vaccineName: String = "",
-//    val receivedDate: String? = null,
-//    val vaccinationreceivedat: String? = null,
-//    val vaccinatedBy: String? = null,
-//    val createdDate: String? = null,
-//    val createdBy: String,
-//    var lastModDate: String? = null,
-//    var modifiedBy: String
-//) {
+data class ImmunizationPost (
+    val id: Long = 0,
+    val beneficiaryId: Long,
+    var vaccineName: String = "",
+    val receivedDate: String? = null,
+    val vaccinationreceivedat: String? = null,
+    val vaccinatedBy: String? = null,
+    val createdDate: String? = null,
+    val createdBy: String,
+    var lastModDate: String? = null,
+    var modifiedBy: String
+) {
 //    fun toCacheModel(): ImmunizationCache {
 //        return ImmunizationCache(
 //            id = id,
@@ -167,4 +170,4 @@ enum class VaccineState {
 //            syncState = SyncState.SYNCED
 //        )
 //    }
-//}
+}

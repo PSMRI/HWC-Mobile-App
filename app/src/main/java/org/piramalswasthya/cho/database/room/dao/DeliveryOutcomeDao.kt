@@ -26,7 +26,7 @@ interface DeliveryOutcomeDao {
     @Update
     suspend fun updateDeliveryOutcome(it: DeliveryOutcomeCache)
 
-    @MapInfo(keyColumn = "benId", valueColumn ="dateOfDelivery")
-    @Query("select * from delivery_outcome where isActive = 1")
-    suspend fun getAllBenIdAndDeliverDate(): Map<Long, Long>
+//    @MapInfo(keyColumn = "benId", valueColumn ="dateOfDelivery")
+//    @Query("select * from delivery_outcome where isActive = 1")
+//    suspend fun getAllBenIdAndDeliverDate(): Map<Long, Long>
 }

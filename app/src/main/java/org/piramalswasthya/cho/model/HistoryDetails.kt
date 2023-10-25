@@ -354,11 +354,11 @@ data class ImmunizationHistory(
 data class Immunization(
     val defaultReceivingAge: String?,
     val hideSelectAll: Boolean?,
-    val vaccines: List<Vaccine>?
+    val vaccines: List<VaccineUpsync>?
 )
 
 @JsonClass(generateAdapter = true)
-data class Vaccine(
+data class VaccineUpsync(
     val hide: Boolean?,
     val sctCode: String?,
     val sctTerm: String?,
@@ -367,15 +367,15 @@ data class Vaccine(
 )
 
 
-val bcg_vaccine = Vaccine(false, "17971005", "Sedated", false, "BCG")
-val opv_0_vaccine = Vaccine(true, "82286005", "Hyper IgM syndrome", false, "OPV-0")
-val hbv_0_vaccine = Vaccine(true, "386661006", "Fever (finding)", false, "HBV-0")
+val bcg_vaccine = VaccineUpsync(false, "17971005", "Sedated", false, "BCG")
+val opv_0_vaccine = VaccineUpsync(true, "82286005", "Hyper IgM syndrome", false, "OPV-0")
+val hbv_0_vaccine = VaccineUpsync(true, "386661006", "Fever (finding)", false, "HBV-0")
 
-val pentavalent_1_vaccine = Vaccine(false, null, null, false, "Pentavalent-1")
-val rota_vaccine_1_vaccine = Vaccine(false, null, null, false, "Rota Vaccine-1")
-val opv_1_vaccine = Vaccine(false, null, null, false, "OPV-1")
-val fipv_1_vaccine = Vaccine(false, null, null, false, "fIPV-1")
-val pcv_1_vaccine = Vaccine(false, null, null, false, "PCV1")
+val pentavalent_1_vaccine = VaccineUpsync(false, null, null, false, "Pentavalent-1")
+val rota_vaccine_1_vaccine = VaccineUpsync(false, null, null, false, "Rota Vaccine-1")
+val opv_1_vaccine = VaccineUpsync(false, null, null, false, "OPV-1")
+val fipv_1_vaccine = VaccineUpsync(false, null, null, false, "fIPV-1")
+val pcv_1_vaccine = VaccineUpsync(false, null, null, false, "PCV1")
 
 val vaccine_at_birth = arrayListOf(bcg_vaccine, opv_0_vaccine, hbv_0_vaccine)
 val vaccine_6_weeks = arrayListOf(pentavalent_1_vaccine, rota_vaccine_1_vaccine, opv_1_vaccine, fipv_1_vaccine, pcv_1_vaccine)
