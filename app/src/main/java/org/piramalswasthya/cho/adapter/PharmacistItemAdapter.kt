@@ -57,7 +57,9 @@ class PharmacistItemAdapter(
 
             binding.medicationName.text = (item.genericDrugName + " "+ item.drugStrength)
             binding.formValue.text = (item.drugForm ?: "")
-            binding.durationValue.text = (item.duration ?:"") + " " + (item.durationUnit ?: "")
+            if(item.duration!=null){
+                binding.durationValue.text = (item.duration ?:"") + " " + (item.durationUnit ?: "")
+            }
             binding.frequencyValue.text = (item.frequency ?: "")
             binding.doseValue.text = item.dose ?: ""
             binding.quantityPrescribedValue.text = item.qtyPrescribed.toString() ?: ""

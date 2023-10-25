@@ -390,17 +390,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     }
 
     private fun extractFormValues() {
-        heightValue = binding.inputHeight.text?.toString()?.trim()
-        weightValue = binding.inputWeight.text?.toString()?.trim()
-        bmiValue = binding.inputBmi.text?.toString()?.trim()
+        heightValue = binding.inputHeight.text?.toString()?.trim().nullIfEmpty()
+        weightValue = binding.inputWeight.text?.toString()?.trim().nullIfEmpty()
+        bmiValue = binding.inputBmi.text?.toString()?.trim().nullIfEmpty()
 //        waistCircumferenceValue = binding.inputWaistCircum.text?.toString()?.trim()
-        temperatureValue = binding.inputTemperature.text?.toString()?.trim()
-        pulseRateValue = binding.inputPulseRate.text?.toString()?.trim()
-        spo2Value = binding.inputSpo2.text?.toString()?.trim()
-        bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim()
-        bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim()
-        respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim()
-        rbsValue = binding.inputRBS.text?.toString()?.trim()
+        temperatureValue = binding.inputTemperature.text?.toString()?.trim().nullIfEmpty()
+        pulseRateValue = binding.inputPulseRate.text?.toString()?.trim().nullIfEmpty()
+        spo2Value = binding.inputSpo2.text?.toString()?.trim().nullIfEmpty()
+        bpSystolicValue = binding.inputBpSystolic.text?.toString()?.trim().nullIfEmpty()
+        bpDiastolicValue = binding.inputBpDiastolic.text?.toString()?.trim().nullIfEmpty()
+        respiratoryValue = binding.inputRespiratoryPerMin.text?.toString()?.trim().nullIfEmpty()
+        rbsValue = binding.inputRBS.text?.toString()?.trim().nullIfEmpty()
     }
 
     fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
@@ -414,7 +414,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             visitId = generateUuid(),
             category = selectedCategoryRadioButton?.tag.toString(),
             reasonForVisit = selectedReasonRadioButton?.tag.toString(),
-            subCategory =subCategory,
+            subCategory = subCategory.nullIfEmpty(),
             patientID = patientId,
             benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
@@ -437,20 +437,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 chiefComplaints.add(chiefC)
             }
         }
-
+        var vitalsDB = viewModel.vitalsDB
         val patientVitals = PatientVitalsModel(
             vitalsId = generateUuid(),
-            height = heightValue.nullIfEmpty(),
-            weight = weightValue.nullIfEmpty(),
-            bmi = bmiValue.nullIfEmpty(),
-            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
-            temperature = temperatureValue.nullIfEmpty(),
-            pulseRate = pulseRateValue.nullIfEmpty(),
-            spo2 = spo2Value.nullIfEmpty(),
-            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
-            bpSystolic = bpSystolicValue.nullIfEmpty(),
-            respiratoryRate = respiratoryValue.nullIfEmpty(),
-            rbs = rbsValue.nullIfEmpty(),
+            height = vitalsDB?.height,
+            weight = vitalsDB?.weight,
+            bmi = vitalsDB?.bmi,
+            waistCircumference = vitalsDB?.waistCircumference,
+            temperature = vitalsDB?.temperature,
+            pulseRate = vitalsDB?.pulseRate,
+            spo2 = vitalsDB?.spo2,
+            bpDiastolic = vitalsDB?.bpDiastolic,
+            bpSystolic = vitalsDB?.bpSystolic,
+            respiratoryRate = vitalsDB?.respiratoryRate,
+            rbs = vitalsDB?.rbs,
             patientID = patientId,
             benVisitNo = benVisitNo,
         )
@@ -516,20 +516,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
     }
     private fun setVitalsMasterData() {
-        var vitalDb = VitalsMasterDb(
-            height = heightValue.nullIfEmpty(),
-            weight = weightValue.nullIfEmpty(),
-            bmi = bmiValue.nullIfEmpty(),
-            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
-            temperature = temperatureValue.nullIfEmpty(),
-            pulseRate = pulseRateValue.nullIfEmpty(),
-            spo2 = spo2Value.nullIfEmpty(),
-            bpSystolic = bpSystolicValue.nullIfEmpty(),
-            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
-            respiratoryRate = respiratoryValue.nullIfEmpty(),
-            rbs = rbsValue.nullIfEmpty()
+        var vitalsDB = viewModel.vitalsDB
+        var vitalDb2 = VitalsMasterDb(
+            height = vitalsDB?.height,
+            weight = vitalsDB?.weight,
+            bmi = vitalsDB?.bmi,
+            waistCircumference = vitalsDB?.waistCircumference,
+            temperature = vitalsDB?.temperature,
+            pulseRate = vitalsDB?.pulseRate,
+            spo2 = vitalsDB?.spo2,
+            bpSystolic = vitalsDB?.bpSystolic,
+            bpDiastolic = vitalsDB?.bpDiastolic,
+            respiratoryRate = vitalsDB?.respiratoryRate,
+            rbs = vitalsDB?.rbs
         )
-        masterDb?.vitalsMasterDb = vitalDb
+        masterDb?.vitalsMasterDb = vitalDb2
         bundle.putSerializable("MasterDb", masterDb)
     }
 
@@ -612,11 +613,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals(
-                "null"
-            ) && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals(
-                "null"
-            ) && itemRs.equals("null") && itemRb.equals("null"))
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null")
+                    && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))
         ) {
             binding.vitalsHeading.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
@@ -910,20 +908,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         visitMasterDb.chiefComplaint = chiefComplaintList2
         masterDb?.visitMasterDb = visitMasterDb
 
-        var vitalDb = VitalsMasterDb(
-            height = heightValue.nullIfEmpty(),
-            weight = weightValue.nullIfEmpty(),
-            bmi = bmiValue.nullIfEmpty(),
-            waistCircumference = waistCircumferenceValue.nullIfEmpty(),
-            temperature = temperatureValue.nullIfEmpty(),
-            pulseRate = pulseRateValue.nullIfEmpty(),
-            spo2 = spo2Value.nullIfEmpty(),
-            bpSystolic = bpSystolicValue.nullIfEmpty(),
-            bpDiastolic = bpDiastolicValue.nullIfEmpty(),
-            respiratoryRate = respiratoryValue.nullIfEmpty(),
-            rbs = rbsValue.nullIfEmpty()
+        var vitalsDB = viewModel.vitalsDB
+        var vitalDb2 = VitalsMasterDb(
+            height = vitalsDB?.height,
+            weight = vitalsDB?.weight,
+            bmi = vitalsDB?.bmi,
+            waistCircumference = vitalsDB?.waistCircumference,
+            temperature = vitalsDB?.temperature,
+            pulseRate = vitalsDB?.pulseRate,
+            spo2 = vitalsDB?.spo2,
+            bpSystolic = vitalsDB?.bpSystolic,
+            bpDiastolic = vitalsDB?.bpDiastolic,
+            respiratoryRate = vitalsDB?.respiratoryRate,
+            rbs = vitalsDB?.rbs
         )
-        masterDb?.vitalsMasterDb = vitalDb
+        Log.d("kkkk","${vitalDb2.height}")
+        masterDb?.vitalsMasterDb = vitalDb2
         bundle.putSerializable("MasterDb", masterDb)
     }
 

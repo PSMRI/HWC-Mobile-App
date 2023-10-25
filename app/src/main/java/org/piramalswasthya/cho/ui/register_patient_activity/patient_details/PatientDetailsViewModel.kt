@@ -121,7 +121,8 @@ class PatientDetailsViewModel @Inject constructor(
     var ageUnitMap = mutableMapOf<AgeUnitEnum, AgeUnit>();
     var ageUnitEnumMap = mutableMapOf<AgeUnit, AgeUnitEnum>();
     var ageUnitList : List<AgeUnit> = mutableListOf()
-    var villageList : List<VillageLocationData> = mutableListOf()//TODO
+    var villageList  = mutableListOf<VillageLocationData>()
+    var villageListFilter  = mutableListOf<VillageLocationData>()
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
@@ -195,7 +196,8 @@ class PatientDetailsViewModel @Inject constructor(
     private fun fetchVillages(){
         _villageVal.value = NetworkState.LOADING
         try {
-            villageList = prefDao.getUserLocationData()?.villageList!!
+            villageList.addAll(prefDao.getUserLocationData()?.villageList!!)
+            villageListFilter.addAll(prefDao.getUserLocationData()?.villageList!!)
             _villageVal.value = NetworkState.SUCCESS
         }
         catch (_: Exception){

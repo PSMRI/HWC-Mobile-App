@@ -86,7 +86,12 @@ class PatientItemAdapter(
 
             binding.patientName.text = (item.patient.firstName ?: "") + " " + (item.patient.lastName ?: "")
             binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            if(!item.patient.age.toString().isNullOrEmpty() && item.patient.age!! <= 1){
+                val unit = item.ageUnit?.dropLast(1)
+                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
+            }else{
+                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
             binding.patientGender.text = item.genderName
             if(item.patient.syncState == SyncState.SYNCED){

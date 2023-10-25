@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">CHO</string>
+    <string name="app_name">HWC</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
+    <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -377,6 +378,7 @@
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>
     <string name="ok_button">Ok</string>
+    <string name="change_role">Change Role</string>
     <string name="password_local_saved">password-local-saved</string>
     <string name="remember_me">Remember Me</string>
     <string name="other_cphc_services">Other CPHC Services</string>
@@ -393,6 +395,11 @@
 
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
+    <string name="registrar_role">Registrar</string>
+    <string name="nurse_role">Nurse</string>
+    <string name="doctor_role">Doctor</string>
+    <string name="pharmacist_role">Pharmacist</string>
+    <string name="lab_technician_role">Lab Technician</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>

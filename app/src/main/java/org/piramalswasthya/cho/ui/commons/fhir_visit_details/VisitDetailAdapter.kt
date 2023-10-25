@@ -121,9 +121,13 @@ class VisitDetailAdapter(
         )
         holder.chiefComplaintOptions.setAdapter(chiefComplaintAdapter)
         holder.durationUnitDropdown.setAdapter(unitDropdownAdapter)
-
-        holder.subtractButton.isEnabled = false
+        holder.subtractButton.isEnabled = !itemData.duration.isNullOrEmpty()
         holder.addButton.setOnClickListener {
+            durationCount = if(itemData.duration.isNullOrEmpty()){
+                0
+            }else {
+                itemData.duration!!.toInt()
+            }
                 durationCount++
                 holder.durationInput.setText(durationCount.toString())
                 holder.updateResetButtonState()
@@ -133,6 +137,11 @@ class VisitDetailAdapter(
             holder.subtractButton.isEnabled = true
         }
         holder.subtractButton.setOnClickListener {
+            durationCount = if(itemData.duration.isNullOrEmpty()){
+                0
+            }else {
+                itemData.duration!!.toInt()
+            }
             if (durationCount > 1) {
                 durationCount--
                 holder.durationInput.setText(durationCount.toString())
@@ -175,12 +184,14 @@ class VisitDetailAdapter(
                 itemData.duration = s.toString()
 
                 if (s.isNullOrEmpty()) {
+                    holder.subtractButton.isEnabled = false
                     holder.durationInputLayout.apply {
                         requestFocus()
                         boxStrokeColor = Color.RED
                         hintTextColor = ColorStateList.valueOf(Color.RED)
                     }
                 } else {
+                    holder.subtractButton.isEnabled = true
                     holder.durationInputLayout.apply {
                         boxStrokeColor = resources.getColor(R.color.purple)
                         hintTextColor = defaultHintTextColor

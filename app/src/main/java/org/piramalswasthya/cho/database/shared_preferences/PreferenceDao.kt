@@ -80,6 +80,13 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null)
     }
 
+    fun setSecondRolesForCHO(roles: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.SECOND_USER_ROLES)
+        editor.putString(prefKey, roles)
+        editor.apply()
+    }
+
     fun isUserOnlyDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
@@ -148,6 +155,19 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
             return rolesArray.size == 1 && rolesArray.contains("Pharmacist")
         }
         return false;
+    }
+
+    fun isCHO(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.size == 5
+        }
+        return false;
+    }
+
+    fun getCHOSecondRole(): String? {
+        val prefKey = context.getString(R.string.SECOND_USER_ROLES)
+        return pref.getString(prefKey, null)
     }
 
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {

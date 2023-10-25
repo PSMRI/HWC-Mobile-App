@@ -21,6 +21,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.semantics.Role
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -47,6 +48,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
+import org.piramalswasthya.cho.helpers.Roles
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
@@ -54,6 +56,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -88,6 +91,7 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var selectedLanguage: String
     private lateinit var currentLanguage: Languages
+    private lateinit var currentRoleSelected: String
     private var selectedLanguageIndex: Int = 0
     private val languages = arrayOf("English", "ಕನ್ನಡ")
 
@@ -214,6 +218,10 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+        if(!prefDao.isCHO()){
+            navigationView.menu.removeItem(R.id.roles_list)
+        }
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.abha_id_activity -> {
@@ -222,11 +230,12 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-//                R.id.master_location_settings -> {
+                R.id.roles_list -> {
 //                    startActivity(Intent(this, MasterLocationSettingsActivity::class.java))
 //                    drawerLayout.closeDrawers()
-//                    true
-//                }
+                    showRolePopUp()
+                    true
+                }
                 R.id.menu_logout -> {
                     logoutAlert.show()
                     true
@@ -340,6 +349,63 @@ class HomeActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun showRolePopUp() {
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_roles_radio_btns, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setTitle("Choose Role")
+
+            .setPositiveButton("Apply") { dialog, _ ->
+                prefDao.setSecondRolesForCHO(currentRoleSelected)
+//                Toast.makeText(this, "$test2 Selected", Toast.LENGTH_SHORT).show()
+                val refresh = Intent(this, HomeActivity::class.java)
+                finish()
+                startActivity(refresh)
+                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+//                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_roles_select_dialog)
+        val registrarRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_registrar_dialog)
+        val nurseRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_nurse_dialog)
+        val doctorRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_doctor_dialog)
+        val pharmacistRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_pharmacist_dialog)
+        val labTechnicianRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_lab_technician_dialog)
+        if (radioGroup != null && registrarRadioButton != null && nurseRadioButton != null && doctorRadioButton != null && pharmacistRadioButton != null
+            && labTechnicianRadioButton != null) {
+
+//            val rolesArray = prefDao.getUserRoles()?.split(",")
+//            if(rolesArray != null){
+//                return rolesArray.size == 1 && rolesArray.contains("Pharmacist")
+//            }
+
+            when (prefDao.getCHOSecondRole()) {
+                "Registrar" -> radioGroup.check(registrarRadioButton.id)
+                "Nurse" -> radioGroup.check(nurseRadioButton.id)
+                "Doctor" -> radioGroup.check(doctorRadioButton.id)
+                "Pharmacist" -> radioGroup.check(pharmacistRadioButton.id)
+                "Lab Technician" -> radioGroup.check(labTechnicianRadioButton.id)
+            }
+
+            radioGroup.setOnCheckedChangeListener { _, i ->
+                currentRoleSelected = when (i) {
+                    registrarRadioButton.id -> "Registrar"
+                    nurseRadioButton.id -> "Nurse"
+                    doctorRadioButton.id -> "Doctor"
+                    pharmacistRadioButton.id -> "Pharmacist"
+                    labTechnicianRadioButton.id -> "Lab Technician"
+                    else -> "Nurse"
+                }
+            }
+        }
+        dialog.show()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -351,14 +417,12 @@ class HomeActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
-            prefDao.getLoggedInUser()?.let {
                 headerView.findViewById<TextView>(R.id.tv_nav_name).text =
                     getString(R.string.nav_item_1_text, user?.name)
                 headerView.findViewById<TextView>(R.id.tv_nav_role).text =
                     getString(R.string.nav_item_2_text, user?.userName)
                 headerView.findViewById<TextView>(R.id.tv_nav_id).text =
                     getString(R.string.nav_item_3_text, user?.userId)
-            }
         }
 
     }
