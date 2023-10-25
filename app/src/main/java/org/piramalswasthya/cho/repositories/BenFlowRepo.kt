@@ -544,6 +544,7 @@ class BenFlowRepo @Inject constructor(
     }
 
     private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo, facilityID: Int): NetworkResult<NetworkResponse> {
+//        Log.i("Location From home is", "${benFlow!!}")
         return networkResultInterceptor {
             val prescribedMedicineDataRequest = PrescribedMedicineDataRequest(
                 beneficiaryRegID = benFlow.beneficiaryRegID!!,
@@ -633,8 +634,10 @@ class BenFlowRepo @Inject constructor(
             if (benFlow != null) {
                 getPrescriptionsListForPharmacist(benFlow = benFlow, benVisitInfo = benVisitInfo, facilityID)
             }
+
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }

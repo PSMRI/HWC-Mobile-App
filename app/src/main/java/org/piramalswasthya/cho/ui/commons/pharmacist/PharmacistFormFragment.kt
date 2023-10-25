@@ -109,7 +109,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
                                     bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
 
                                     bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-                                    Timber.d("*******************Babs DTO************** ",bundle)
+//                                    Timber.d("*******************Babs DTO************** ",bundle)
+//                                    Log.i("Location From home is", "${test!!}")
                                     val batchFragment = PrescriptionBatchFormFragment()
                                     batchFragment.arguments = bundle
                                     findNavController().navigate(
