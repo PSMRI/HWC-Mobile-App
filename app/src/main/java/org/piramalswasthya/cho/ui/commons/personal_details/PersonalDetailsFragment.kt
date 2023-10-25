@@ -232,7 +232,7 @@ class PersonalDetailsFragment : Fragment() {
                                 {
                                         benVisitInfo ->
                                     lifecycleScope.launch {
-                                        getPrescription(benVisitInfo)
+                                        generatePDF(benVisitInfo)
                                     }
 
                                 }
@@ -331,11 +331,11 @@ class PersonalDetailsFragment : Fragment() {
     var pageHeight = 1120
     var pageWidth = 792
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
-
+        val patientName = (benVisitInfo.patient.firstName?:"") + " " + (benVisitInfo.patient.lastName?:"")
         val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
 
-        Log.d("prescriptionMsg", prescriptions.toString())
+//        Log.d("prescriptionMsg", prescriptions.toString())
 
         val pdfDocument: PdfDocument = PdfDocument()
 
@@ -369,44 +369,100 @@ class PersonalDetailsFragment : Fragment() {
         heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
         heading.textAlign = Paint.Align.CENTER
 
-        canvas.drawText("Prescriptions", 396F, 150F, heading)
+        canvas.drawText("Prescription", 396F, 150F, heading)
+        canvas.drawText("Patient Name: $patientName", 396F, 200F, subheading)
 
         // Define fixed column widths
-        val columnWidth = 150F
+        val columnWidth = 130F
 
         // Draw table header
-        canvas.drawText("Medication", xPosition, y, subheading)
-        canvas.drawText("Frequency", xPosition + columnWidth, y, subheading)
-        canvas.drawText("Duration", xPosition + 2 * columnWidth, y, subheading)
-        canvas.drawText("Quantity", xPosition + 3 * columnWidth, y, subheading)
-        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
+        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
+        canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
+        canvas.drawText("Quantity", xPosition + 4 * columnWidth, y, subheading)
+        canvas.drawText("Instructions", xPosition + 5 * columnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight // Reassign y
 
         // Iterate through the list of prescriptions and draw each as a row
-        if (prescriptions != null) {
+        if (!prescriptions.isNullOrEmpty()) {
+            var count:Int = 0
             for (prescription in prescriptions) {
                 // Draw each field with a fixed width
-                drawTextWithWrapping(canvas, prescription.itemName, xPosition, y, columnWidth, content)
-                drawTextWithWrapping(canvas, prescription.frequency?:"", xPosition + columnWidth, y, columnWidth, content)
-                if(prescription.unit.isNullOrEmpty()){
-                    drawTextWithWrapping(canvas,(prescription.duration) ?: "", xPosition + 2 * columnWidth, y, columnWidth, content)
-                } else{
-                    drawTextWithWrapping(canvas,(prescription.duration + " " + prescription.unit), xPosition + 2 * columnWidth, y, columnWidth, content)
-                }
-                drawTextWithWrapping(canvas, prescription.quantityInHand.toString(), xPosition + 3 * columnWidth, y, columnWidth, content)
-                drawTextWithWrapping(canvas, prescription.instruciton, xPosition + 4 * columnWidth, y, columnWidth, content)
+                if(prescription!=null) {
+                    count++
+                    drawTextWithWrapping(
+                        canvas,
+                        count.toString(),
+                        xPosition,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.itemName,
+                        xPosition + columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.frequency ?: "",
+                        xPosition + 2 * columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    if (prescription.unit.isNullOrEmpty()) {
+                        drawTextWithWrapping(
+                            canvas,
+                            (prescription.duration) ?: "",
+                            xPosition + 3 * columnWidth,
+                            y,
+                            columnWidth,
+                            content
+                        )
+                    } else {
+                        drawTextWithWrapping(
+                            canvas,
+                            (prescription.duration + " " + prescription.unit),
+                            xPosition + 3 * columnWidth,
+                            y,
+                            columnWidth,
+                            content
+                        )
+                    }
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.quantityInHand.toString(),
+                        xPosition + 4 * columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.instruciton,
+                        xPosition + 5 * columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
 
-                // Move down to the next row
-                y += rowHeight // Reassign y
+                    // Move down to the next row
+                    y += rowHeight // Reassign y
+                }
             }
         }
 
         pdfDocument.finishPage(myPage)
 
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault()).format(Date())
-        val fileName : String =  "Prescription_${timeStamp}_.pdf"
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName : String =  "Prescription_$patientName"+"_${timeStamp}_.pdf"
 
         val outputStream: OutputStream
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -422,11 +478,11 @@ class PersonalDetailsFragment : Fragment() {
         try {
             pdfDocument.writeTo(outputStream)
 
-            Toast.makeText(requireContext(), "PDF file generated..", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
 
-            Toast.makeText(requireContext(), "Failed to generate PDF file..", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "Failed to generate PDF file", Toast.LENGTH_SHORT)
                 .show()
         }
         pdfDocument.close()
@@ -522,15 +578,7 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
     private suspend fun getPrescription(benVisitInfo: PatientDisplayWithVisitInfo) {
-//        val prescriptionContent = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
-//        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-
-//        Log.d("PrescriptionPrintMsg",prescriptionContent.toString())
-
-//        if (prescriptionContent != null) {
-//            generatePDF(prescriptionContent)
             generatePDF(benVisitInfo)
-//        }
     }
     private val searchTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
