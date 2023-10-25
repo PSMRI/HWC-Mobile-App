@@ -55,4 +55,7 @@ data class SelectedOutreachProgram(
 
     @ColumnInfo(name="syncState")
     var syncState: SyncState = SyncState.UNSYNCED,
+
+    @ColumnInfo(name="outOfReachFlag")
+    var isOutOfReach: Boolean? = null,
 )

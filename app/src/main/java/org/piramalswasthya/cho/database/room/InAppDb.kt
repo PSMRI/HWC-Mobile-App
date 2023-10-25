@@ -178,7 +178,6 @@ abstract class InAppDb : RoomDatabase() {
     abstract val prescriptionDao: PrescriptionDao
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
-    abstract val prescriptionTemplateDao:PrescriptionTemplateDao
 
 
     companion object {

@@ -127,8 +127,8 @@ fun getOutreach(){
         lat: Double?,
         long: Double?,
         logoutType: String?,
-        imageString : String?
-
+        imageString : String?,
+        isOutOfReach : Boolean?
     ){
         userRepo.setOutreachProgram(
             loginType,
@@ -138,7 +138,8 @@ fun getOutreach(){
             lat,
             long,
             logoutType,
-            imageString
+            imageString,
+            isOutOfReach
         )
     }
     fun rememberUser(username: String,password: String) {
