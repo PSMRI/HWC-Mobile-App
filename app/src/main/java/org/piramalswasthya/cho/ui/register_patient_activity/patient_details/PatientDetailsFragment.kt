@@ -29,18 +29,23 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.commons.fhir_visit_details.ChiefComplaintAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import timber.log.Timber
 import java.io.File
+import java.io.StringReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -78,6 +83,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.ivImgCapture.setOnClickListener {
             checkAndRequestCameraPermission()
         }
+        scanCode()
+
         return binding.root
     }
     @RequiresApi(Build.VERSION_CODES.P)
@@ -181,6 +188,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //        )
 //        binding.villageDropdown.setAdapter(villageAdapter)
 
+
+
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
         }
@@ -200,6 +209,97 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             speechToTextLauncherForFatherName.launch(Unit)
         }
     }
+
+
+    private fun scanCode() {
+        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == 2) {
+                val scannedData = result.data?.getStringExtra("data")
+                if (scannedData != null) {
+                    val userData = parseUserData(scannedData)
+//                    val imageStr = userData.base64Image
+//                    var imageBytes = Base64.decode(userData.base64Image, Base64.DEFAULT)
+//                    Glide.with(this).load(imageBytes).into(binding.photo)
+
+////                    val imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+//                    val byteArrayOutputStream = ByteArrayOutputStream()
+//
+//                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.picture_frame)
+//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream)
+//                    var imageBytes: ByteArray = byteArrayOutputStream.toByteArray()
+//                    val imageString: String = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+////                    imageBytes = Base64.decode(imageString, Base64.DEFAULT)
+//                    val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+//                    if (imageBitmap != null) {
+//                        binding.photo.setImageBitmap(imageBitmap)
+//                    }
+                    val nameparts = userData.name?.split(" ")
+                    val firstName = nameparts?.get(0)
+                    val lastName = nameparts?.get(nameparts.size-1)
+                    binding.firstName.text =  Editable.Factory.getInstance().newEditable(firstName ?: "")
+                    binding.lastName.text =  Editable.Factory.getInstance().newEditable(lastName ?: "")
+
+                    val inputDateFormat = SimpleDateFormat("dd/MM/yyyy")
+                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+//                    try {
+                        // Parse the input date string
+                        val date: Date = userData.dateOfBirth?.let { inputDateFormat.parse(it) } as Date
+
+                        // Format the date to "yyyy-MM-dd" format
+                        val outputDateStr: String = outputDateFormat.format(date)
+                        val outputDate : Date = outputDateFormat.parse(outputDateStr) as Date
+
+//                    binding.genderDropdown.text = userData.gender
+//                    binding.mobileNumber.text = userData.mobileNumber
+//                    binding.dateOfBirth.text = userData.dateOfBirth
+//                    binding.address.text = userData.address
+//                    binding.ll.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        binding.btnScanAadhaar.setOnClickListener {
+            resultLauncher.launch(Intent(requireContext(), ScanAadhaarActivity::class.java))
+        }
+    }
+
+    private fun parseUserData(xmlData: String):PatientAadhaarDetails {
+        val xml = XmlPullParserFactory.newInstance().newPullParser()
+        xml.setInput(StringReader(xmlData))
+
+        var name = ""
+        var gender = ""
+        var dateOfBirth = ""
+
+        while (xml.eventType != XmlPullParser.END_DOCUMENT) {
+            when (xml.eventType) {
+                XmlPullParser.START_TAG -> {
+                    when (xml.name) {
+                        "QPDB" -> {
+                            name = xml.getAttributeValue(null, "n")
+                            gender = xml.getAttributeValue(null, "g")
+//                            mobileNumber = xml.getAttributeValue(null, "m")
+                            dateOfBirth = xml.getAttributeValue(null, "d")
+
+                        }
+                        "PrintLetterBarcodeData" -> {
+                            name = xml.getAttributeValue(null, "name")
+                            gender = xml.getAttributeValue(null, "gender")
+                            dateOfBirth = xml.getAttributeValue(null, "dob")
+
+                        }
+                    }
+                }
+            }
+            xml.next()
+        }
+Log.d("aadhaarData",(name))
+Log.d("aadhaarDataDOB",(dateOfBirth))
+Log.d("aadhaarDataGender",(gender))
+        return PatientAadhaarDetails(name, gender, dateOfBirth)
+    }
+
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
              binding.firstName.setText(result)
