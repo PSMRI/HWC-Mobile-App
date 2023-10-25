@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class PrescriptionTemplateRepo @Inject constructor(
     private val prescriptionTemplateDao: PrescriptionTemplateDao,
     private val amritApiService: AmritApiService,
-    private val userRepo: UserRepo
+    private val userRepo: UserRepo,
+    private val preferenceDao: PreferenceDao
 ) {
     suspend fun saveTemplateToServer(prescriptionTemplateDB: List<PrescriptionTemplateDB>): NetworkResult<NetworkResponse> {
             return networkResultInterceptor {
@@ -90,7 +92,7 @@ class PrescriptionTemplateRepo @Inject constructor(
             Timber.d("Error in saving Template $e")
         }
     }
-    fun getProceduresWithComponent(userID: Int): LiveData<List<PrescriptionTemplateDB?>>{
-        return prescriptionTemplateDao.getTemplateForUser(userID)
+    suspend fun getProceduresWithComponent(userId : Int):List<PrescriptionTemplateDB?>{
+        return prescriptionTemplateDao.getTemplateForUser(userId)
     }
 }

@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.database.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationEntity
@@ -46,7 +47,7 @@ interface UserDao {
     suspend fun getCountry(): LocationEntity?
 
     @Query("SELECT * FROM USER WHERE logged_in = 1 LIMIT 1")
-    fun getLoggedInUserLiveData(): LiveData<UserCache>
+    fun getLoggedInUserAsFlow(): Flow<UserCache?>
 
     @Query("SELECT facilityID FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUserFacilityID(): Int

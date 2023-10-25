@@ -5,9 +5,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
@@ -64,7 +68,7 @@ class CaseRecordViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val templateRepo: PrescriptionTemplateRepo
 ): ViewModel() {
-    var userId : Int = preferenceDao.getLoggedInUser()!!.userId
+    val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
@@ -87,7 +91,10 @@ class CaseRecordViewModel @Inject constructor(
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
 
-    val tempDB=templateRepo.getProceduresWithComponent(userId)
+    val tempDB= userId.transformLatest {
+        it?.let {
+            emit(templateRepo.getProceduresWithComponent(it) ) }
+    }.asLiveData()
 
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
@@ -124,15 +131,15 @@ class CaseRecordViewModel @Inject constructor(
         getHigherHealthCareDropdown()
 //        getLoggedInUserDetails()
     }
-    fun getLoggedInUserDetails() {
-        viewModelScope.launch {
-            try {
-                userId = userRepo.getUserCacheDetails()?.userId!!
-            } catch (e: java.lang.Exception) {
-                Timber.d("Error in calling getLoggedInUserDetails() $e")
-            }
-        }
-    }
+//    fun getLoggedInUserDetails():Int {
+//        viewModelScope.launch {
+//            try {
+//               return userRepo.getLoggedInUser()?.userId!!
+//            } catch (e: java.lang.Exception) {
+//                Timber.d("Error in calling getLoggedInUserDetails() $e")
+//            }
+//        }
+//    }
     fun savePrescriptionTemp(prescriptionTemplateDB: PrescriptionTemplateDB){
         viewModelScope.launch {
             templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)

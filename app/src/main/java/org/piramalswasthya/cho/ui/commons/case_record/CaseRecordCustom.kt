@@ -732,7 +732,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             if (formVal != null) {
                 var pres = PrescriptionTemplateDB(
                     id = generateUuid(),
-                    userID = viewModel.userId,
+                    userID = preferenceDao.getLoggedInUser()!!.userId,
                     templateName = tempNameVal,
                     drugName = formName,
                     drugId = formVal,
@@ -746,7 +746,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 viewModel.savePrescriptionTemp(pres)
             }
         }
-        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+//        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -832,6 +832,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
+        val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
         for (i in 0 until tempList.size) {
             val prescriptionData = tempList[i]
             var formName = prescriptionData.form
@@ -845,7 +846,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             if (formVal != null) {
                 var pres = PrescriptionTemplateDB(
                     id = generateUuid(),
-                    userID = viewModel.userId,
+                    userID = preferenceDao.getLoggedInUser()!!.userId,
                     templateName = tempNameVal,
                     drugName = formName,
                     drugId = formVal,
@@ -854,10 +855,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     unit = unitVal,
                     instruction = instruction
                 )
+                prescriptionTempList.add(pres)
                 Timber.tag("arr").i("${pres}")
                 viewModel.savePrescriptionTemp(pres)
             }
         }
+//        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -909,6 +912,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                         requireActivity().finish()
                                     }
                                     else ->{
+
 //                                        requireActivity().runOnUiThread {
 //                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
 //                                        }
