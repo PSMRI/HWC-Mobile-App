@@ -95,7 +95,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork("audit-data-sync", ExistingWorkPolicy.APPEND_OR_REPLACE, pushLoginAuditDataToAmrit)
+            .beginUniqueWork("audit-data-sync", ExistingWorkPolicy.APPEND, pushLoginAuditDataToAmrit)
             .enqueue()
     }
 
