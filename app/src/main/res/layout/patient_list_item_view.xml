@@ -234,9 +234,6 @@
         </LinearLayout>
       </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-
       <androidx.constraintlayout.widget.ConstraintLayout
           android:id="@+id/ll_row_5"
           android:layout_width="match_parent"
@@ -279,6 +276,27 @@
             app:cornerRadius="@dimen/padding_normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+      <androidx.constraintlayout.widget.ConstraintLayout
+          android:id="@+id/ll_row_6"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:baselineAligned="false"
+          android:weightSum="3">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/prescription_download_btn"
+            android:onClick="@{()-> clickListener.onClickPrescription(benVisitInfo)}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/Prescription"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/white"
+            app:cornerRadius="@dimen/padding_normal"
+            app:icon="@drawable/downlaod_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
       </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
