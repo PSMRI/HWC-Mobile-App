@@ -395,7 +395,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), FhirFragme
     }
 
     override fun navigateNext() {
-        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo()){
+        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo() && !preferenceDao.isCHO()){
             extractFormValues()
             createObservationResource()
             if (!isNull) {
