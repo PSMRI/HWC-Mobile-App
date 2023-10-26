@@ -37,23 +37,17 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         init()
-//        try {
-////                setForeground(createForegroundInfo("Downloading"))
-//        } catch (throwable: Throwable) {
-//            Timber.d("FgLW", "Something bad happened", throwable)
-//        }
         return try {
             val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
-//            if (workerResult) {
+            if (workerResult) {
                 preferenceDao.setLastBenflowSyncTime()
-//            }
-            Timber.d("Worker completed")
+            }
+            Timber.d("Benflow Download Worker completed")
             Result.success()
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()
         }
-
     }
 
     private fun init() {

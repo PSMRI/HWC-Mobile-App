@@ -186,7 +186,8 @@ class PatientRepo @Inject constructor(
 
         when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
-                return (response.data as DownsyncSuccess).isSuccess
+                return true
+//                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
                 if(response.code == socketTimeoutException){

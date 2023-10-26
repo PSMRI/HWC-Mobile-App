@@ -151,7 +151,8 @@ class BenFlowRepo @Inject constructor(
 
         when(val response = syncFlowIds(villageList)){
             is NetworkResult.Success -> {
-                return (response.data as DownsyncSuccess).isSuccess
+                return true
+//                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
                 Log.d("error code is", response.code.toString())
