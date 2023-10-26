@@ -215,17 +215,27 @@ class PrescriptionAdapter(
             val selectedString = parent.getItemAtPosition(position) as PrescriptionTemplateDB
             val form = listTemplateDB.first { it?.templateName == selectedString.templateName }
             holder.tempNameOption.setText(form?.templateName,false)
-            holder.formOptions.setText(form?.drugName)
-            itemData.form= form?.drugName.toString()
-            itemData.id= form?.drugId
-            holder.frequencyOptions.setText(form?.frequency)
-            itemData.frequency= form?.frequency.toString()
-            holder.durationInput.setText(form?.duration)
-            itemData.duration= form?.duration.toString()
-            holder.instructionOption.setText(form?.instruction)
-            itemData.instruction= form?.instruction.toString()
-            holder.unitOption.setText(form?.unit)
-            itemData.unit= form?.unit.toString()
+            if(form?.drugName!=null) {
+                holder.formOptions.setText(form.drugName)
+                itemData.form = form.drugName
+                itemData.id= form.drugId
+            }
+            if(form?.frequency!=null && !(form.frequency.equals("null"))) {
+                holder.frequencyOptions.setText(form.frequency)
+                itemData.frequency= form.frequency
+            }
+            if(form?.duration!=null && !(form.duration.equals("null"))) {
+                holder.durationInput.setText(form.duration)
+                itemData.duration= form.duration
+            }
+            if(form?.instruction!=null && !(form.instruction.equals("null"))) {
+                holder.instructionOption.setText(form.instruction)
+                itemData.instruction= form?.instruction
+            }
+            if(form?.unit!=null && !(form.unit.equals("null"))) {
+                holder.unitOption.setText(form.unit)
+                itemData.unit= form.unit
+            }
         }
 
         val frequencyAdapter =
