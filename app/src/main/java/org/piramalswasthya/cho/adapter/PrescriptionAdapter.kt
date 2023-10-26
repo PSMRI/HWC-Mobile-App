@@ -215,7 +215,7 @@ class PrescriptionAdapter(
             val selectedString = parent.getItemAtPosition(position) as PrescriptionTemplateDB
             val form = listTemplateDB.first { it?.templateName == selectedString.templateName }
             holder.tempNameOption.setText(form?.templateName,false)
-            if(form?.drugName!=null) {
+            if(form?.drugName!=null && !(form.drugName.equals("null"))) {
                 holder.formOptions.setText(form.drugName)
                 itemData.form = form.drugName
                 itemData.id= form.drugId
