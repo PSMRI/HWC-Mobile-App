@@ -173,7 +173,7 @@ class PersonalDetailsFragment : Fragment() {
                             clickListener = PatientItemAdapter.BenClickListener(
                             {
                                 benVisitInfo ->
-                                    if((benVisitInfo.nurseFlag == null && !preferenceDao.isUserRegistrarOnly()) || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() != "Registrar")){
+                                    if((benVisitInfo.nurseFlag == null && !preferenceDao.isUserRegistrarOnly() && !preferenceDao.isCHO()) || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() != "Registrar")){
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
