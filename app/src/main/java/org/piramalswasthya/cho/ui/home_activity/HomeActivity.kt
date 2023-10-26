@@ -277,6 +277,9 @@ class HomeActivity : AppCompatActivity() {
 
         }, delayMillis)
         currentLanguage = prefDao.getCurrentLanguage()
+        if (prefDao.getCHOSecondRole()!=null){
+            currentRoleSelected = prefDao.getCHOSecondRole()!!
+        }
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
@@ -357,12 +360,17 @@ class HomeActivity : AppCompatActivity() {
             .setTitle("Choose Role")
 
             .setPositiveButton("Apply") { dialog, _ ->
-                prefDao.setSecondRolesForCHO(currentRoleSelected)
+                if(currentRoleSelected!=null){
+                    prefDao.setSecondRolesForCHO(currentRoleSelected)
 //                Toast.makeText(this, "$test2 Selected", Toast.LENGTH_SHORT).show()
-                val refresh = Intent(this, HomeActivity::class.java)
-                finish()
-                startActivity(refresh)
-                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    val refresh = Intent(this, HomeActivity::class.java)
+                    finish()
+                    startActivity(refresh)
+                    this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                }
+                else{
+                    Toast.makeText(this, "No role Selected", Toast.LENGTH_SHORT).show()
+                }
 
 //                dialog.dismiss()
             }
@@ -378,11 +386,6 @@ class HomeActivity : AppCompatActivity() {
         val labTechnicianRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_lab_technician_dialog)
         if (radioGroup != null && registrarRadioButton != null && nurseRadioButton != null && doctorRadioButton != null && pharmacistRadioButton != null
             && labTechnicianRadioButton != null) {
-
-//            val rolesArray = prefDao.getUserRoles()?.split(",")
-//            if(rolesArray != null){
-//                return rolesArray.size == 1 && rolesArray.contains("Pharmacist")
-//            }
 
             when (prefDao.getCHOSecondRole()) {
                 "Registrar" -> radioGroup.check(registrarRadioButton.id)
