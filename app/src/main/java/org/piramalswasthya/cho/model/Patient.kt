@@ -226,6 +226,7 @@ data class PatientDisplayWithVisitInfo(
     val nurseDataSynced: SyncState?,
     val doctorDataSynced: SyncState?,
     val createNewBenFlow: Boolean?,
+    val prescriptionID:Int?,
     val benVisitNo: Int?,
     val benFlowID: Long?,
     val nurseFlag: Int?,
