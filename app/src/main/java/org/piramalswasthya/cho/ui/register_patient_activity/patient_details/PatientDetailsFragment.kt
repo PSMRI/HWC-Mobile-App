@@ -27,18 +27,14 @@ import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.ChiefComplaintAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
-import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.xmlpull.v1.XmlPullParser
@@ -211,43 +207,37 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun scanCode() {
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == 2) {
                 val scannedData = result.data?.getStringExtra("data")
                 if (scannedData != null) {
                     val userData = parseUserData(scannedData)
-//                    val imageStr = userData.base64Image
-//                    var imageBytes = Base64.decode(userData.base64Image, Base64.DEFAULT)
-//                    Glide.with(this).load(imageBytes).into(binding.photo)
 
-////                    val imageBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-//                    val byteArrayOutputStream = ByteArrayOutputStream()
-//
-//                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.picture_frame)
-//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream)
-//                    var imageBytes: ByteArray = byteArrayOutputStream.toByteArray()
-//                    val imageString: String = Base64.encodeToString(imageBytes, Base64.DEFAULT)
-////                    imageBytes = Base64.decode(imageString, Base64.DEFAULT)
-//                    val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-//                    if (imageBitmap != null) {
-//                        binding.photo.setImageBitmap(imageBitmap)
-//                    }
-                    val nameparts = userData.name?.split(" ")
-                    val firstName = nameparts?.get(0)
-                    val lastName = nameparts?.get(nameparts.size-1)
+                    val nameParts = userData.name?.split(" ")
+                    val firstName = nameParts?.get(0)
+                    val lastName = nameParts?.get(nameParts.size-1)
                     binding.firstName.text =  Editable.Factory.getInstance().newEditable(firstName ?: "")
                     binding.lastName.text =  Editable.Factory.getInstance().newEditable(lastName ?: "")
 
                     val inputDateFormat = SimpleDateFormat("dd/MM/yyyy")
                     val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
+                        if(!userData.dateOfBirth.isNullOrEmpty()) {
+                            val date: Date =
+                                userData.dateOfBirth.let { inputDateFormat.parse(it) } as Date
 
-                        // Parse the input date string
-                        val date: Date = userData.dateOfBirth?.let { inputDateFormat.parse(it) } as Date
+                            val outputDateStr: String = outputDateFormat.format(date)
+                            val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
 
-                        // Format the date to "yyyy-MM-dd" format
-                        val outputDateStr: String = outputDateFormat.format(date)
-                        val outputDate : Date = outputDateFormat.parse(outputDateStr) as Date
+                            viewModel.selectedDateOfBirth = outputDate
+
+                            dobUtil.showDatePickerDialog(
+                                requireContext(),
+                                viewModel.selectedDateOfBirth
+                            )
+
+                        }
 
                     when(userData.gender) {
                         "M" -> {
@@ -265,12 +255,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
                         }
                     }
-
-//                    binding.genderDropdown.text = userData.gender
-//                    binding.mobileNumber.text = userData.mobileNumber
-//                    binding.dateOfBirth.text = userData.dateOfBirth
-//                    binding.address.text = userData.address
-//                    binding.ll.visibility = View.VISIBLE
                 }
             }
         }
@@ -311,9 +295,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 }
                 xml.next()
             }
-//Log.d("aadhaarData",(name))
-//Log.d("aadhaarDataDOB",(dateOfBirth))
-//Log.d("aadhaarDataGender",(gender))
+
         }catch (e:Exception){
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
@@ -456,7 +438,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth)
+            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth).show()
         }
 
         binding.age.addTextChangedListener(ageTextWatcher)
