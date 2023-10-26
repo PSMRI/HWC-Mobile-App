@@ -186,7 +186,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
     override fun navigateNext() {
         submitAncForm()
 //        findNavController().navigate(
-//
 //            R.id.action_fhirVisitDetailsFragment_to_pwAncFormFragment, bundle
 //        )
     }

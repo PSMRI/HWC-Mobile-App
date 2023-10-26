@@ -16,9 +16,11 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.configuration.PncFormDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.PncRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,19 +32,18 @@ class PncFormViewModel @Inject constructor(
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val pncRepo: PncRepo,
     private val patientRepo: PatientRepo,
+    private val userRepo: UserRepo,
 ) : ViewModel() {
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
     }
 
-    private val patientID = ""
-    private val visitNumber = 0
 
-//    private val benId =
-//        PncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).benId
-//    private val visitNumber =
-//        PncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
+    private val patientID =
+        PncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+    private val visitNumber =
+        PncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
 
     private val _state = MutableLiveData(State.IDLE)
@@ -69,7 +70,7 @@ class PncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = preferenceDao.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()!!
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
@@ -83,7 +84,15 @@ class PncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            val outcomeRecord = deliveryOutcomeRepo.getDeliveryOutcome(patientID)!!
+//            val outcomeRecord = deliveryOutcomeRepo.getDeliveryOutcome(patientID)!!
+            val outcomeRecord = DeliveryOutcomeCache(
+                patientID = patientID,
+                isActive = false,
+                createdBy = "",
+                updatedBy = "",
+                dateOfDelivery = 0,
+                syncState = SyncState.UNSYNCED
+            )
             pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
                 pncCache = it
                 _recordExists.value = true

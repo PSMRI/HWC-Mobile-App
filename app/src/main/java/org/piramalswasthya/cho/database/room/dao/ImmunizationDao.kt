@@ -23,6 +23,9 @@ interface ImmunizationDao {
     @Query("SELECT COUNT(*)>0 FROM VACCINE")
     suspend fun vaccinesLoaded(): Boolean
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addVaccine(vaccine: Vaccine)
+
     @Insert
     suspend fun addVaccine(vararg vaccine: Vaccine)
 

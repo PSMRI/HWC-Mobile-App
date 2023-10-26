@@ -16,7 +16,11 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.ChildImmunizationCategory
 import org.piramalswasthya.cho.model.ImmunizationCache
+import org.piramalswasthya.cho.model.ImmunizationCategory
+import org.piramalswasthya.cho.model.Vaccine
+import org.piramalswasthya.cho.repositories.UserRepo
 
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,6 +32,7 @@ class ImmunizationFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val vaccineDao: ImmunizationDao,
     private val patientDao: PatientDao,
+    private val userRepo: UserRepo,
 ) : ViewModel() {
 
     enum class State {
@@ -38,12 +43,12 @@ class ImmunizationFormViewModel @Inject constructor(
     val state: LiveData<State>
         get() = _state
 
-    private val patientID = ""
-    private val vaccineId = 0
 
-//    private val benId = ImmunizationFormFragmentArgs.fromSavedStateHandle(savedStateHandle).benId
-//    private val vaccineId =
-//        ImmunizationFormFragmentArgs.fromSavedStateHandle(savedStateHandle).vaccineId
+    private val patientID =
+        ImmunizationFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+    private val vaccineId =
+        ImmunizationFormFragmentArgs.fromSavedStateHandle(savedStateHandle).vaccineId
+
 
     private val _recordExists = MutableLiveData<Boolean>()
     val recordExists: LiveData<Boolean>
@@ -63,7 +68,7 @@ class ImmunizationFormViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val asha  = preferenceDao.getLoggedInUser()!!
+                val asha  = userRepo.getLoggedInUser()!!
                 val savedRecord = vaccineDao.getImmunizationRecord(patientID, vaccineId)
                 immCache = savedRecord?.also { _recordExists.postValue(true) } ?: run {
                     ImmunizationCache(
@@ -76,6 +81,19 @@ class ImmunizationFormViewModel @Inject constructor(
                 val ben = patientDao.getPatientById(patientID)!!
                 _benName.postValue("${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}")
                 _benAgeGender.postValue("${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}")
+                val saveVaccine = Vaccine(
+                    0,
+                    "vaccine",
+                    315569520000,
+                    788923800000,
+                    ImmunizationCategory.CHILD,
+                    ChildImmunizationCategory.BIRTH,
+                    788923800000,
+                    0,
+                    800000
+                )
+                vaccineDao.addVaccine(saveVaccine)
+
                 val vaccine = vaccineDao.getVaccineById(vaccineId)
                     ?: throw IllegalStateException("Unknown Vaccine Injected, contact HAZMAT team!")
                 dataset.setFirstPage(ben, vaccine, savedRecord)

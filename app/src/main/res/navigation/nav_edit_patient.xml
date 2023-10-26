@@ -23,6 +23,12 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_pwAncFormFragment"
             app:destination="@id/pwAncFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_pncFormFragment"
+            app:destination="@id/pncFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_immunizationFormFragment"
+            app:destination="@id/immunizationFormFragment" />
     </fragment>
 
     <fragment
@@ -105,13 +111,37 @@
 
     <fragment
         android:id="@+id/pwAncFormFragment"
-        android:name="org.piramalswasthya.sakhi.ui.home_activity.maternal_health.pregnant_woment_anc_visits.form.PwAncFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_woment_anc_visits.form.PwAncFormFragment"
         android:label="PwAncFormFragment">
         <argument
             android:name="patientID"
             app:argType="string" />
         <argument
             android:name="visitNumber"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pncFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormFragment"
+        android:label="PncFormFragment">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="visitNumber"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/immunizationFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form.ImmunizationFormFragment"
+        android:label="ImmunizationFormFragment">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="vaccineId"
             app:argType="integer" />
     </fragment>
 

@@ -15,18 +15,29 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.ui.commons.FhirFragmentService
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form.ImmunizationFormViewModel.State
 import timber.log.Timber
 
 @AndroidEntryPoint
-class ImmunizationFormFragment : Fragment() {
+class ImmunizationFormFragment : Fragment(), NavigationAdapter, FhirFragmentService {
     private var _binding: FragmentNewFormBinding? = null
 
     private val binding: FragmentNewFormBinding
         get() = _binding!!
 
 
-    private val viewModel: ImmunizationFormViewModel by viewModels()
+    override val viewModel: ImmunizationFormViewModel by viewModels()
+
+    override var fragmentContainerId: Int = 0
+
+    override val fragment: Fragment = this
+
+    override val jsonFile: String = "patient-visit-details-paginated.json"
+    override fun navigateNext() {
+        submitImmForm()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -133,7 +144,17 @@ class ImmunizationFormFragment : Fragment() {
     }
 
 
+    override fun getFragmentId(): Int {
+        return R.id.fragment_new_form
+    }
 
+    override fun onSubmitAction() {
+        navigateNext()
+    }
+
+    override fun onCancelAction() {
+        submitImmForm()
+    }
 
 
 }
