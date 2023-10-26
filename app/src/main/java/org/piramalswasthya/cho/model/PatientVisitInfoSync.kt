@@ -33,6 +33,9 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name = "patientID")
     var patientID: String = "",
 
+    @ColumnInfo(name="prescriptionID")
+    var prescriptionID: Int? = null,
+
     @ColumnInfo(name="nurseDataSynced")
     var nurseDataSynced: SyncState? = SyncState.UNSYNCED,
 

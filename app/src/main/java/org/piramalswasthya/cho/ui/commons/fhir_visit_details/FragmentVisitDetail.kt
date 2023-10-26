@@ -878,6 +878,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     }
 
     private fun setVisitMasterDataAndVitalsForFollow(){
+        val masterDb2 = MasterDb(patientId)
         val visitMasterDb = VisitMasterDb()
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
@@ -906,7 +907,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
 
         visitMasterDb.chiefComplaint = chiefComplaintList2
-        masterDb?.visitMasterDb = visitMasterDb
+        masterDb2.visitMasterDb = visitMasterDb
 
         var vitalsDB = viewModel.vitalsDB
         var vitalDb2 = VitalsMasterDb(
@@ -923,8 +924,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             rbs = vitalsDB?.rbs
         )
         Log.d("kkkk","${vitalDb2.height}")
-        masterDb?.vitalsMasterDb = vitalDb2
-        bundle.putSerializable("MasterDb", masterDb)
+        masterDb2.vitalsMasterDb = vitalDb2
+        bundle.putSerializable("MasterDb", masterDb2)
     }
 
     private fun setVisitMasterDataForFollow() {

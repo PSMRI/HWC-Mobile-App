@@ -93,9 +93,9 @@ data class PatientDoctorFormUpsync(
     val createdBy: String?,
     val isSpecialist: Boolean?,
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, prescriptionList: List<PrescriptionWithItemMasterAndDrugFormMaster>?, procedureList: List<ProceduresMasterData> ): this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, prescriptionList: List<PrescriptionWithItemMasterAndDrugFormMaster>?, procedureList: List<ProceduresMasterData>,prescriptionID:Int? ): this(
         "Management of Communicable Diseases including National Health Programs",
-        DiagnosisUpsync(user, benFlow, diagnosisList),
+        DiagnosisUpsync(user, benFlow, diagnosisList,prescriptionID),
         InvestigationUpsync(user, benFlow, investigation, procedureList),
         prescription = prescriptionList?.map {
             PrescriptionUpsync(user, it)
