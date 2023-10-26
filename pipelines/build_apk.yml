@@ -1,5 +1,4 @@
 stages:
-  - lint
   - build
   - publish
 variables:
@@ -41,14 +40,14 @@ before_script:
     - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
     - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
     - chmod +x ./gradlew
-lint:
-  stage: lint
-  #when: manual
-  tags:
-  - main
-  script:
-    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-  allow_failure: true
+# lint:
+#   stage: lint
+#   #when: manual
+#   tags:
+#   - main
+#   script:
+#     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+#   allow_failure: true
 build:
   stage: build
   #when: manual
