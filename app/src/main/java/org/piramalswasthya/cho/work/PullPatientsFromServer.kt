@@ -34,14 +34,11 @@ class PullPatientsFromServer @AssistedInject constructor(
         init()
         return try {
             val workerResult = patientRepo.downloadAndSyncPatientRecords()
-            if (workerResult) {
+//            if (workerResult) {
                 preferenceDao.setLastPatientSyncTime()
-                Timber.d("Patient Download Worker completed")
-                Result.success()
-            } else {
-                Timber.d("Patient Download Worker Failed as usual!")
-                Result.failure()
-            }
+//            }
+            Timber.d("Patient Download Worker completed")
+            Result.success()
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()

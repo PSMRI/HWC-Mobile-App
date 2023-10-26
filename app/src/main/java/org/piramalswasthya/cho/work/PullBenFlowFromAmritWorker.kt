@@ -44,14 +44,11 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
 //        }
         return try {
             val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
-            if (workerResult) {
+//            if (workerResult) {
                 preferenceDao.setLastBenflowSyncTime()
-                Timber.d("Worker completed")
-                Result.success()
-            } else {
-                Timber.d("Worker Failed as usual!")
-                Result.failure()
-            }
+//            }
+            Timber.d("Worker completed")
+            Result.success()
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()

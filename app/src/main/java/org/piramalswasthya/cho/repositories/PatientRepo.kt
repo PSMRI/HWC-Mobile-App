@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
+import org.piramalswasthya.cho.network.DownsyncSuccess
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
@@ -185,7 +186,7 @@ class PatientRepo @Inject constructor(
 
         when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
-                return true
+                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
                 if(response.code == socketTimeoutException){
@@ -294,52 +295,58 @@ class PatientRepo @Inject constructor(
                         val dataListType = object : TypeToken<List<BeneficiariesDTO>>() {}.type
                         val beneficiariesDTO : List<BeneficiariesDTO> = gson.fromJson(data, dataListType)
 
+                        var isSuccess = true
+
                         for(beneficiary in beneficiariesDTO){
-                            var benHealthIdDetails: BenHealthIdDetails? = null
-                            if(beneficiary.abhaDetails != null){
-                                benHealthIdDetails = BenHealthIdDetails(
-                                    healthId = beneficiary.abhaDetails[0].HealthID,
-                                    healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
+                            try{
+                                var benHealthIdDetails: BenHealthIdDetails? = null
+                                if(beneficiary.abhaDetails != null){
+                                    benHealthIdDetails = BenHealthIdDetails(
+                                        healthId = beneficiary.abhaDetails[0].HealthID,
+                                        healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
+                                    )
+                                }
+
+                                downloadLocationMasterData(beneficiary.currentAddress)
+
+                                val patient = Patient(
+                                    patientID = generateUuid(),
+                                    firstName = beneficiary.beneficiaryDetails?.firstName,
+                                    lastName = beneficiary.beneficiaryDetails?.lastName,
+                                    dob = DateTimeUtil.convertTimestampToISTDate(beneficiary.beneficiaryDetails?.dob),
+                                    maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
+                                    spouseName = beneficiary.beneficiaryDetails?.spouseName,
+                                    ageAtMarriage = beneficiary.ageAtMarriage,
+                                    phoneNo = beneficiary.preferredPhoneNum,
+                                    genderID = beneficiary.beneficiaryDetails?.genderId,
+                                    registrationDate = DateTimeUtil.convertTimestampToISTDate(beneficiary.lastModDate),
+                                    stateID = beneficiary.currentAddress?.stateId,
+                                    districtID = beneficiary.currentAddress?.districtId,
+                                    blockID = beneficiary.currentAddress?.subDistrictId,
+                                    districtBranchID = beneficiary.currentAddress?.villageId,
+                                    communityID = beneficiary.beneficiaryDetails?.communityId,
+                                    religionID = beneficiary.beneficiaryDetails?.religionId,
+                                    parentName = null,
+                                    syncState = SyncState.SYNCED,
+                                    beneficiaryID = beneficiary.benId?.toLong(),
+                                    beneficiaryRegID = beneficiary.benRegId?.toLong(),
+                                    healthIdDetails = benHealthIdDetails
                                 )
-                            }
 
-                            downloadLocationMasterData(beneficiary.currentAddress)
+                                setPatientAge(patient)
 
-                            val patient = Patient(
-                                patientID = generateUuid(),
-                                firstName = beneficiary.beneficiaryDetails?.firstName,
-                                lastName = beneficiary.beneficiaryDetails?.lastName,
-                                dob = DateTimeUtil.convertTimestampToISTDate(beneficiary.beneficiaryDetails?.dob),
-                                maritalStatusID = beneficiary.beneficiaryDetails?.maritalStatusId,
-                                spouseName = beneficiary.beneficiaryDetails?.spouseName,
-                                ageAtMarriage = beneficiary.ageAtMarriage,
-                                phoneNo = beneficiary.preferredPhoneNum,
-                                genderID = beneficiary.beneficiaryDetails?.genderId,
-                                registrationDate = DateTimeUtil.convertTimestampToISTDate(beneficiary.lastModDate),
-                                stateID = beneficiary.currentAddress?.stateId,
-                                districtID = beneficiary.currentAddress?.districtId,
-                                blockID = beneficiary.currentAddress?.subDistrictId,
-                                districtBranchID = beneficiary.currentAddress?.villageId,
-                                communityID = beneficiary.beneficiaryDetails?.communityId,
-                                religionID = beneficiary.beneficiaryDetails?.religionId,
-                                parentName = null,
-                                syncState = SyncState.SYNCED,
-                                beneficiaryID = beneficiary.benId?.toLong(),
-                                beneficiaryRegID = beneficiary.benRegId?.toLong(),
-                                healthIdDetails = benHealthIdDetails
-                            )
-
-                            setPatientAge(patient)
-
-                            // check if patient is present or not
-                            if(patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0){
-                                patientDao.updatePatient(patient)
-                            } else {
-                                patientDao.insertPatient(patient)
+                                // check if patient is present or not
+                                if(patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0){
+                                    patientDao.updatePatient(patient)
+                                } else {
+                                    patientDao.insertPatient(patient)
+                                }
+                            } catch (e: Exception){
+                                isSuccess = false
                             }
                         }
 
-                        NetworkResult.Success(NetworkResponse())
+                        NetworkResult.Success(DownsyncSuccess(isSuccess))
                     },
                     onTokenExpired = {
                         val user = userRepo.getLoggedInUser()!!
