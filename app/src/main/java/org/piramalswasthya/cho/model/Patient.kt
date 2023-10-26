@@ -769,5 +769,11 @@ data class AbhaAddressDTO(
     @Expose val AuthenticationMode: String?,
     @Expose val CreatedDate: Timestamp?
 )
+@JsonClass(generateAdapter = true)
+data class PatientAadhaarDetails(
+    val name:String?,
+    val gender: String?,
+    val dateOfBirth: String?,
 
+)
 
