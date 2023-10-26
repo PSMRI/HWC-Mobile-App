@@ -65,6 +65,7 @@ class HwcFragment constructor(
     var currentLatitude :Double? = null
     var currentLongitude :Double? = null
 
+    var timestamp: String?=null
     private var currentLocation: Location? = null
     private var locationManager: LocationManager? = null
     private var locationListener: LocationListener? = null
@@ -98,7 +99,7 @@ class HwcFragment constructor(
         val timeZone = TimeZone.getTimeZone("GMT+0530")
         val formatter = SimpleDateFormat(pattern, Locale.getDefault())
         formatter.timeZone = timeZone
-        val timestamp = formatter.format(Date())
+        timestamp = formatter.format(Date())
 
             binding.btnHwcLogin.setOnClickListener {
                 getCurrentLocation()
@@ -163,6 +164,16 @@ class HwcFragment constructor(
                                                     true
                                                 )
                                             )
+                                            viewModel.setOutreachDetails(
+                                                "HWC",
+                                                null,
+                                                timestamp,
+                                                null,
+                                                currentLocation?.latitude,
+                                                currentLocation?.longitude,
+                                                null,
+                                                false
+                                            )
                                             viewModel.resetState()
                                             activity?.finish()
                                         }
@@ -179,11 +190,31 @@ class HwcFragment constructor(
                                                 true
                                             )
                                         )
+                                        viewModel.setOutreachDetails(
+                                            "HWC",
+                                            null,
+                                            timestamp,
+                                            null,
+                                            currentLocation?.latitude,
+                                            currentLocation?.longitude,
+                                            null,
+                                            null
+                                        )
                                         viewModel.resetState()
                                         activity?.finish()
                                     }
 
                                 } else {
+                                    viewModel.setOutreachDetails(
+                                        "HWC",
+                                        null,
+                                        timestamp,
+                                        null,
+                                        currentLocation?.latitude,
+                                        currentLocation?.longitude,
+                                        null,
+                                        false
+                                    )
                                     // OPEN SETTINGS PAGE
                                     startActivity(
                                         Intent(
@@ -219,16 +250,9 @@ class HwcFragment constructor(
                     }
                 }
                 else{
+                    //WHEN LOGGED IN THROUGH BIOMETRIC
                 lifecycleScope.launch {
-                    viewModel.setOutreachDetails(
-                        "HWC",
-                        null,
-                        timestamp,
-                        null,
-                        currentLocation?.latitude,
-                        currentLocation?.longitude,
-                        null,
-                    )
+
                     val user = userDao.getLoggedInUser()
                     userLatitude = user?.masterLatitude
                      userLongitude = user?.masterLongitude
@@ -247,11 +271,16 @@ class HwcFragment constructor(
                                 showDialog(distance)
                             }
                             else {
-                                Toast.makeText(
-                                    context,
-                                    "distance $distance",
-                                    Toast.LENGTH_LONG
-                                ).show() //TODO REMOVE THIS TOAST
+                                viewModel.setOutreachDetails(
+                                    "HWC",
+                                    null,
+                                    timestamp,
+                                    null,
+                                    currentLocation?.latitude,
+                                    currentLocation?.longitude,
+                                    null,
+                                    false
+                                )
                                 findNavController().navigate(
                                     ChoLoginFragmentDirections.actionSignInToHomeFromCho(
                                         true
@@ -262,6 +291,16 @@ class HwcFragment constructor(
                             }
                         }
                         else {
+                            viewModel.setOutreachDetails(
+                                "HWC",
+                                null,
+                                timestamp,
+                                null,
+                                currentLocation?.latitude,
+                                currentLocation?.longitude,
+                                null,
+                                null
+                            )
                             Toast.makeText(
                                 context,
                                 "Unable to verify location",
@@ -358,11 +397,29 @@ class HwcFragment constructor(
         }
     }
     private fun showDialog(distance:Float) {
+        val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+        val timeZone = TimeZone.getTimeZone("GMT+0530")
+        val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+        formatter.timeZone = timeZone
+        timestamp = formatter.format(Date())
+
         val alertDialogBuilder = AlertDialog.Builder(activity)
         alertDialogBuilder.setMessage("Your current location is $distance meters away from your assigned village.")
             .setTitle("Alert!")
             .setCancelable(false)
             .setPositiveButton("OK") { d, _ ->
+                lifecycleScope.launch {
+                viewModel.setOutreachDetails(
+                    "HWC",
+                    null,
+                    timestamp,
+                    null,
+                    currentLocation?.latitude,
+                    currentLocation?.longitude,
+                    null,
+                    true
+                )
+                }
                 d.dismiss()
                 findNavController().navigate(
                     ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
