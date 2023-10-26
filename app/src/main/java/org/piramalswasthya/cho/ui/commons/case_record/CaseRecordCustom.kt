@@ -746,7 +746,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 viewModel.savePrescriptionTemp(pres)
             }
         }
-//        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -860,7 +860,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 viewModel.savePrescriptionTemp(pres)
             }
         }
-//        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
