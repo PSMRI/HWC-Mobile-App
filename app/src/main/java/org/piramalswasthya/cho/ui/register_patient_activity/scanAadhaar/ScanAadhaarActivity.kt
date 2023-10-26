@@ -6,16 +6,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import org.piramalswasthya.cho.utils.ImgUtils
 
 
 class ScanAadhaarActivity : AppCompatActivity(){
-
-    private var canFinishActivity = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,29 +40,27 @@ class ScanAadhaarActivity : AppCompatActivity(){
 
     }
 
-    override fun onResume() {
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finish()
+    }
 
+    override fun onResume() {
         super.onResume()
         // finishing the activity when moving back from capture activity with out any action.
-
-        if (canFinishActivity) {
-            canFinishActivity = false
+        if (ImgUtils.canFinishActivity) {
+            ImgUtils.canFinishActivity = false
             finish()
         }
 
     }
-
     private fun scanCode() {
-
         val options = ScanOptions()
         options.setBeepEnabled(true)
         options.setOrientationLocked(false)
-//        options.captureActivity = CaptureAct::class.java
+        options.captureActivity = CaptureAct::class.java
         barCodeLauncher.launch(options)
-
     }
-
-// Once getting the result , passing the result to MainActivity.
 
     private var barCodeLauncher = registerForActivityResult(
         ScanContract()
@@ -72,7 +68,6 @@ class ScanAadhaarActivity : AppCompatActivity(){
 
         if (result.contents != null) {
             Intent().also { intent ->
-                Log.e("content", "" + result.contents)
                 intent.action = "com.example.broadcast.MY_NOTIFICATION"
                 intent.putExtra("data", result.contents)
                 sendBroadcast(intent)

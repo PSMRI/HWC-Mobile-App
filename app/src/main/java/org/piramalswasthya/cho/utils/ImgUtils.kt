@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 object ImgUtils {
+    var canFinishActivity = false
     @RequiresApi(Build.VERSION_CODES.O)
     fun bitmapToBase64(bitmap: Bitmap?): String {
         val byteArrayOutputStream = ByteArrayOutputStream()

@@ -62,6 +62,9 @@
             android:name=".ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.register_patient_activity.scanAadhaar.CaptureAct"
+            android:exported="false" />
+        <activity
             android:name=".ui.master_location_settings.MasterLocationSettingsActivity"
             android:exported="false" />
         <activity

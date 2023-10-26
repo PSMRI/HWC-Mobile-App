@@ -217,16 +217,33 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                     val nameParts = userData.name?.split(" ")
                     val firstName = nameParts?.get(0)
-                    val lastName = nameParts?.get(nameParts.size-1)
-                    binding.firstName.text =  Editable.Factory.getInstance().newEditable(firstName ?: "")
-                    binding.lastName.text =  Editable.Factory.getInstance().newEditable(lastName ?: "")
+                    val lastName = nameParts?.get(nameParts.size - 1)
+                    binding.firstName.text =
+                        Editable.Factory.getInstance().newEditable(firstName ?: "")
+                    binding.lastName.text =
+                        Editable.Factory.getInstance().newEditable(lastName ?: "")
 
-                    val inputDateFormat = SimpleDateFormat("dd/MM/yyyy")
+                    val inputDateFormat1 = SimpleDateFormat("dd/MM/yyyy")
+                    val inputDateFormat2 = SimpleDateFormat("dd-MM-yyyy")
+                    val inputDateFormat3 = SimpleDateFormat("yyyy-MM-dd")
+                    val inputDateFormat4 = SimpleDateFormat("yyyy/MM/dd")
+
                     val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
-                        if(!userData.dateOfBirth.isNullOrEmpty()) {
-                            val date: Date =
-                                userData.dateOfBirth.let { inputDateFormat.parse(it) } as Date
 
+                    if (!userData.dateOfBirth.isNullOrEmpty()) {
+                        var date: Date? = null
+                        if(userData.dateOfBirth[2].toString()=="/") {
+                             date =
+                                userData.dateOfBirth.let { inputDateFormat1.parse(it) } as Date
+                        }else if(userData.dateOfBirth[2].toString()=="-"){
+                            date = userData.dateOfBirth.let { inputDateFormat2.parse(it) } as Date
+                        }
+                        else if(userData.dateOfBirth[4].toString()=="-"){
+                            date = userData.dateOfBirth.let { inputDateFormat3.parse(it) } as Date
+                        } else if(userData.dateOfBirth[4].toString()=="/"){
+                            date = userData.dateOfBirth.let { inputDateFormat4.parse(it) } as Date
+                        }
+                        if(date!=null) {
                             val outputDateStr: String = outputDateFormat.format(date)
                             val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
 
@@ -236,23 +253,34 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                                 requireContext(),
                                 viewModel.selectedDateOfBirth
                             )
-
                         }
 
-                    when(userData.gender) {
-                        "M" -> {
-                            viewModel.selectedGenderMaster = viewModel.genderMasterList[0]
-                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
-                        }
+                    }
+                    if (!userData.gender.isNullOrEmpty()){
+                        when (userData.gender) {
+                            "M" -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[0]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
 
-                        "F" -> {
-                            viewModel.selectedGenderMaster = viewModel.genderMasterList[1]
-                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
-                        }
+                            "F" -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[1]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
 
-                        else -> {
-                            viewModel.selectedGenderMaster = viewModel.genderMasterList[2]
-                            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+                            else -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[2]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
                         }
                     }
                 }
@@ -279,9 +307,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             "QPDB" -> {
                                 name = xml.getAttributeValue(null, "n")
                                 gender = xml.getAttributeValue(null, "g")
-//                            mobileNumber = xml.getAttributeValue(null, "m")
                                 dateOfBirth = xml.getAttributeValue(null, "d")
-
                             }
 
                             "PrintLetterBarcodeData" -> {
@@ -290,6 +316,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                                 dateOfBirth = xml.getAttributeValue(null, "dob")
 
                             }
+//                            else->{}
                         }
                     }
                 }
