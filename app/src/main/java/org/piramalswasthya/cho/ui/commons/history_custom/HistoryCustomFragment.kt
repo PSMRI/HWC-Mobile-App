@@ -12,33 +12,17 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
-import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
-import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
-import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Age
-import org.hl7.fhir.r4.model.Annotation
-import org.hl7.fhir.r4.model.CodeableConcept
-import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.FamilyMemberHistory
-import org.hl7.fhir.r4.model.Immunization
-import org.hl7.fhir.r4.model.MedicationStatement
-import org.hl7.fhir.r4.model.Observation
-import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent
-import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.model.ResourceType
-import org.hl7.fhir.r4.model.StringType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentHistoryCustomBinding
-import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
+import org.piramalswasthya.cho.model.Immunization
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
@@ -93,10 +77,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
     private var surgeryMap = emptyMap<Int,String>()
     private var doseTypeMap = emptyMap<Int,String>()
     private var vaccineTypeMap = emptyMap<Int,String>()
-    private val observationExtension: FhirExtension = FhirExtension(ResourceType.Observation)
-    private val immunizationExtension: FhirExtension = FhirExtension(ResourceType.Immunization)
-    private val familyMemberHistoryExtension:FhirExtension = FhirExtension(ResourceType.FamilyMemberHistory)
-    private val medicationStatementExtension: FhirExtension = FhirExtension(ResourceType.MedicationStatement)
     private val viewModel:HistoryCustomViewModel by viewModels()
     private lateinit var dropdownAgeG: AutoCompleteTextView
     private lateinit var dropdownVS: AutoCompleteTextView
@@ -398,54 +378,54 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
         findNavController().navigateUp()
     }
      fun navigateNext(){
-        addMedicationDataToCatche()
-        addPastIllnessAndSurgeryData()
-        addCovidData()
-        addMedicationData()
-        addTobAndAlcDataToCatche()
-        addTobAndAlcData()
-         addAssociateAilmentsData()
-         addAssociateAilmentsDataToCatche()
-         addCovidVaccinationDataToCatche()
-         addPastHistoryDataToCatche()
-//        findNavController().navigate(
-//            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
-//        )
+//        addMedicationDataToCatche()
+//        addPastIllnessAndSurgeryData()
+//        addCovidData()
+//        addMedicationData()
+//        addTobAndAlcDataToCatche()
+//        addTobAndAlcData()
+//         addAssociateAilmentsData()
+//         addAssociateAilmentsDataToCatche()
+//         addCovidVaccinationDataToCatche()
+//         addPastHistoryDataToCatche()
+////        findNavController().navigate(
+////            HistoryCustomFragmentDirections.actionHistoryCustomFragmentToFhirVitalsFragment()
+////        )
     }
-    private fun addCovidData(){
-        val immunization = Immunization()
-        val vaccineStatusVal = binding.vStatusText
-        val vaccineTypeVal = binding.vTypeText
-        val doseVal = binding.doseTakenText
-        if(vaccineStatusVal?.text?.isNotEmpty()!! && vaccineTypeVal?.text?.isNotEmpty()!! && doseVal.text.isNotEmpty())
-        {
-            val vaccId = findKeyByValue(vaccineTypeMap,vaccineTypeVal.text.toString())
-            val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
-
-            immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
-            var bool = immunization.status==Immunization.ImmunizationStatus.COMPLETED
-            immunization.occurrence = StringType("Unknown")
-            val vaccineCoding = Coding()
-            vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
-            vaccineCoding.code = "213"
-            if(bool) {
-                val vaccineCode = CodeableConcept()
-                vaccineCode.coding = listOf(vaccineCoding)
-                vaccineCode.text = vaccId.toString()
-                immunization.vaccineCode = vaccineCode
-
-                val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
-                protocolApplied.doseNumber = StringType(doseId.toString())
-                immunization.protocolApplied = listOf(protocolApplied)
-            }
-            val patientReference = Reference()
-            patientReference.reference = "Patient/11090786"
-            immunization.patient = patientReference
-
-            addExtensionsToImmunizationResources(immunization)
-            viewModel.saveCovidDetailsInfo(immunization)
-        }
-    }
+//    private fun addCovidData(){
+//        val immunization = Immunization()
+//        val vaccineStatusVal = binding.vStatusText
+//        val vaccineTypeVal = binding.vTypeText
+//        val doseVal = binding.doseTakenText
+//        if(vaccineStatusVal?.text?.isNotEmpty()!! && vaccineTypeVal?.text?.isNotEmpty()!! && doseVal.text.isNotEmpty())
+//        {
+//            val vaccId = findKeyByValue(vaccineTypeMap,vaccineTypeVal.text.toString())
+//            val doseId = findKeyByValue(doseTypeMap,doseVal.text.toString())
+//
+//            immunization.status = if (vaccineStatusVal.text.toString() == "Yes") Immunization.ImmunizationStatus.COMPLETED else Immunization.ImmunizationStatus.NOTDONE
+//            var bool = immunization.status==Immunization.ImmunizationStatus.COMPLETED
+//            immunization.occurrence = StringType("Unknown")
+//            val vaccineCoding = Coding()
+//            vaccineCoding.system = "http://hl7.org/fhir/sid/cvx"
+//            vaccineCoding.code = "213"
+//            if(bool) {
+//                val vaccineCode = CodeableConcept()
+//                vaccineCode.coding = listOf(vaccineCoding)
+//                vaccineCode.text = vaccId.toString()
+//                immunization.vaccineCode = vaccineCode
+//
+//                val protocolApplied = Immunization.ImmunizationProtocolAppliedComponent()
+//                protocolApplied.doseNumber = StringType(doseId.toString())
+//                immunization.protocolApplied = listOf(protocolApplied)
+//            }
+//            val patientReference = Reference()
+//            patientReference.reference = "Patient/11090786"
+//            immunization.patient = patientReference
+//
+//            addExtensionsToImmunizationResources(immunization)
+//            viewModel.saveCovidDetailsInfo(immunization)
+//        }
+//    }
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
@@ -546,341 +526,6 @@ class HistoryCustomFragment : Fragment(R.layout.fragment_history_custom), Naviga
                 alcohol = alcoholVal
             )
             viewModel.saveTobAndAlcHistoryToCache(tobaccoAlcoholHistory)
-    }
-    private fun addTobAndAlcData(){
-        val alcoholVal = binding.alcoholText.text.toString()
-        val tobaccoVal = binding.tobaccoText.text.toString()
-
-        val observationResource = Observation()
-        val categoryCoding = Coding()
-        categoryCoding.system = "http://terminology.hl7.org/CodeSystem/observation-category"
-        categoryCoding.code = "social-history"
-        categoryCoding.display = "Social History"
-
-        val category = CodeableConcept()
-        category.coding = listOf(categoryCoding)
-        category.text = "History"
-
-        observationResource.category = listOf(category)
-
-        // Create code
-        val codeCoding = Coding()
-        codeCoding.system = "http://loinc.org"
-        codeCoding.code = "11331-6"
-        codeCoding.display = "History of Alcohol use"
-
-        val codeCoding2 = Coding()
-        codeCoding2.system = "http://loinc.org"
-        codeCoding2.code = "11367-0"
-        codeCoding2.display = "History of Tobacco use"
-
-        val code = CodeableConcept()
-        code.coding = listOf(codeCoding,codeCoding2)
-        code.text = "Personal habits"
-
-        observationResource.code = code
-
-        val components = mutableListOf<ObservationComponentComponent>()
-
-        var tobaccoCode = CodeableConcept()
-        tobaccoCode.text = "tobaccoUseStatus"
-        observationResource.code = tobaccoCode
-
-        val tobComponent = ObservationComponentComponent()
-        tobComponent.code = tobaccoCode
-        tobComponent.valueStringType.setValue(tobaccoVal)
-        components.add(tobComponent)
-
-        val alcCode = CodeableConcept()
-        alcCode.text = "alcoholIntakeStatus"
-        observationResource.code = alcCode
-
-        val alcComponent = ObservationComponentComponent()
-        alcComponent.code = alcCode
-        alcComponent.valueStringType.setValue(alcoholVal)
-
-
-        components.add(alcComponent)
-        observationResource.component = components
-        addExtensionsToObservationResources(observationResource)
-        viewModel.saveTobAndAlcHistoryDetailsInfo(observationResource)
-
-    }
-    private fun addAssociateAilmentsData() {
-        val familyMemberHistory = FamilyMemberHistory()
-
-        familyMemberHistory.patient = Reference()
-        familyMemberHistory.patient.reference = "Patient/32231"
-        familyMemberHistory.patient.display = "32231"
-
-        val conditions = mutableListOf<FamilyMemberHistory.FamilyMemberHistoryConditionComponent>()
-
-        val count = binding.associatedAilmentsExtra.childCount
-        for (i in 0 until count) {
-            val childView: View? = binding.associatedAilmentsExtra?.getChildAt(i)
-            val associateAilmentsVal = childView?.findViewById<AutoCompleteTextView>(R.id.aaText)?.text.toString()
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
-            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
-            val familyVal = childView?.findViewById<TextView>(R.id.selectF)?.text.toString()
-            val inactiveVal = childView?.findViewById<CheckBox>(R.id.inactiveCheckbox)
-            val isChecked = inactiveVal?.isChecked ?: false
-            val otherAA =  childView?.findViewById<TextInputEditText>(R.id.otherTextField)?.text.toString()
-            var codeU :String
-            if(unitDurationVal.equals("Days"))
-                codeU = "d"
-            else if(unitDurationVal.equals("Weeks"))
-                codeU = "wk"
-            else if(unitDurationVal.equals("Months"))
-                codeU = "mo"
-            else
-                codeU = "a"
-            val condition = FamilyMemberHistory.FamilyMemberHistoryConditionComponent()
-
-            val code = CodeableConcept()
-
-            val coding = Coding()
-            coding.system = "http://snomed.info/sct"
-            coding.code = durationVal
-            coding.display = associateAilmentsVal
-            coding.userSelected = isChecked
-
-            code.coding = listOf(coding)
-            code.text = otherAA
-
-            condition.code = code
-            if (durationVal.isNotEmpty()) {
-            val onsetAge = Age()
-            onsetAge.value = BigDecimal(durationVal)
-            onsetAge.unit = unitDurationVal
-            onsetAge.system = "http://unitsofmeasure.org"
-            onsetAge.code = codeU
-            condition.onset = onsetAge
-
-            }
-
-            val note = Annotation()
-            note.text = familyVal
-            condition.note = mutableListOf(note)
-
-            conditions.add(condition)
-        }
-        familyMemberHistory.condition = conditions
-
-        addExtensionsToFamilyMemberHistoryResources(familyMemberHistory)
-        viewModel.saveFamilyMemberHistoyrDetailsInfo(familyMemberHistory)
-    }
-    private fun addMedicationData() {
-        val medicationStatement = MedicationStatement()
-        medicationStatement.status = MedicationStatement.MedicationStatementStatus.UNKNOWN
-
-        val count = binding.medicationExtra.childCount
-        for (i in 0 until count) {
-            val childView: View? = binding.medicationExtra?.getChildAt(i)
-            val currentMVal =
-                childView?.findViewById<TextInputEditText>(R.id.currentMText)?.text.toString()
-            val durationVal =
-                childView?.findViewById<TextInputEditText>(R.id.inputDuration)?.text.toString()
-            val unitDurationVal =
-                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)?.text.toString()
-
-            val cod = Coding()
-            cod.system = "http://snomed.info/sct"
-            cod.code = durationVal+","+unitDurationVal
-            cod.display = currentMVal
-            medicationStatement.medicationCodeableConcept.addCoding(cod)
-        }
-        medicationStatement.subject.reference = "Patient/benRegId"
-        medicationStatement.subject.display = "benRegId"
-        addExtensionsToMedicationStatementResources(medicationStatement)
-        viewModel.saveMedicationDetailsInfo(medicationStatement)
-    }
-
-
-    private fun addPastIllnessAndSurgeryData() {
-        val observationResource = Observation()
-        // Create category
-        val categoryCoding = Coding()
-        categoryCoding.system = "http://terminology.hl7.org/CodeSystem/observation-category"
-        categoryCoding.code = "social-history"
-        categoryCoding.display = "Social History"
-
-        val category = CodeableConcept()
-        category.coding = listOf(categoryCoding)
-        category.text = "History"
-
-        observationResource.category = listOf(category)
-
-        // Create code
-        val codeCoding = Coding()
-        codeCoding.system = "http://loinc.org"
-        codeCoding.code = "11348-0"
-        codeCoding.display = "Past medical history"
-
-        val code = CodeableConcept()
-        code.coding = listOf(codeCoding)
-        code.text = "Past medical history"
-
-        observationResource.code = code
-
-        // Create components
-        val components = mutableListOf<ObservationComponentComponent>()
-
-        val count = binding.pastIllnessExtra.childCount
-        for (i in 0 until count) {
-            val childView: View? = binding.pastIllnessExtra?.getChildAt(i)
-            val illnessVal = childView?.findViewById<AutoCompleteTextView>(R.id.illnessText)
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
-            val unitDurationVal = childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
-
-            if (illnessVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
-                val id = findKeyByValue(illnessMap, illnessVal?.text?.toString())
-                val pastIllnessCoding = Coding()
-                pastIllnessCoding.code = id.toString() // Replace with actual code
-                pastIllnessCoding.display = illnessVal.text.toString() // Replace with actual display
-
-                val pastIllnessCode = CodeableConcept()
-                pastIllnessCode.coding = listOf(pastIllnessCoding)
-                pastIllnessCode.text = "pastIllness"
-                observationResource.code = pastIllnessCode
-
-                val illComponent = ObservationComponentComponent()
-                illComponent.code = pastIllnessCode
-                illComponent.valueQuantity.value =
-                    BigDecimal(durationVal.text.toString()) // Set the duration value
-                illComponent.valueQuantity.unit =
-                    unitDurationVal.text.toString()
-
-                components.add(illComponent)
-            }
-        }
-
-        val count2 = binding.pastSurgeryExtra.childCount
-        for (i in 0 until count2) {
-            val childView: View? = binding.pastSurgeryExtra?.getChildAt(i)
-            val surgeryVal = childView?.findViewById<AutoCompleteTextView>(R.id.surgeryText)
-            val durationVal = childView?.findViewById<TextInputEditText>(R.id.inputDuration)
-            val unitDurationVal =
-                childView?.findViewById<AutoCompleteTextView>(R.id.dropdownDurUnit)
-
-            if (surgeryVal?.text?.isNotEmpty()!! && durationVal?.text?.isNotEmpty()!! && unitDurationVal?.text?.isNotEmpty()!!) {
-                val id = findKeyByValue(surgeryMap, surgeryVal?.text?.toString())
-                val pastSurgeryCoding = Coding()
-                pastSurgeryCoding.code = id.toString() // Replace with actual code
-                pastSurgeryCoding.display = surgeryVal.text.toString() // Replace with actual display
-
-                val pastSurgeryCode = CodeableConcept()
-                pastSurgeryCode.coding = listOf(pastSurgeryCoding)
-                pastSurgeryCode.text = "pastSurgery"
-                observationResource.code = pastSurgeryCode
-
-                val surgComponent = ObservationComponentComponent()
-                surgComponent.code = pastSurgeryCode
-                surgComponent.valueQuantity.value =
-                    BigDecimal(durationVal.text.toString()) // Set the duration value
-                surgComponent.valueQuantity.unit =
-                    unitDurationVal.text.toString()
-
-                components.add(surgComponent)
-            }
-        }
-        observationResource.component = components
-        addExtensionsToObservationResources(observationResource)
-        viewModel.saveIllnessORSurgeryDetailsInfo(observationResource)
-    }
-    private fun addExtensionsToFamilyMemberHistoryResources(
-        familyMemberHistory: FamilyMemberHistory,
-    ) {
-        if (userInfo != null) {
-            familyMemberHistory.addExtension( familyMemberHistoryExtension.getExtenstion(
-                familyMemberHistoryExtension.getUrl(vanID),
-                familyMemberHistoryExtension.getStringType(userInfo!!.vanId.toString())))
-
-            familyMemberHistory.addExtension( familyMemberHistoryExtension.getExtenstion(
-                familyMemberHistoryExtension.getUrl(parkingPlaceID),
-                familyMemberHistoryExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
-
-            familyMemberHistory.addExtension( familyMemberHistoryExtension.getExtenstion(
-                familyMemberHistoryExtension.getUrl(providerServiceMapId),
-                familyMemberHistoryExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-
-            familyMemberHistory.addExtension( familyMemberHistoryExtension.getExtenstion(
-                familyMemberHistoryExtension.getUrl(createdBy),
-                familyMemberHistoryExtension.getStringType(userInfo!!.userName) ) )
-
-        }
-    }
-    private fun addExtensionsToObservationResources(
-        observation: Observation,
-    ) {
-        if (userInfo != null) {
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(vanID),
-                observationExtension.getStringType(userInfo!!.vanId.toString())))
-
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(parkingPlaceID),
-                observationExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
-
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(providerServiceMapId),
-                observationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-
-            observation.addExtension( observationExtension.getExtenstion(
-                observationExtension.getUrl(createdBy),
-                observationExtension.getStringType(userInfo!!.userName) ) )
-
-        }
-    }
-    private fun addExtensionsToImmunizationResources(
-        immunization: Immunization,
-    ) {
-        if (userInfo != null) {
-            immunization.addExtension( immunizationExtension.getExtenstion(
-                immunizationExtension.getUrl(vanID),
-                immunizationExtension.getStringType(userInfo!!.vanId.toString()) ) )
-
-            immunization.addExtension( immunizationExtension.getExtenstion(
-                immunizationExtension.getUrl(parkingPlaceID),
-                immunizationExtension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
-
-            immunization.addExtension( immunizationExtension.getExtenstion(
-                immunizationExtension.getUrl(providerServiceMapId),
-                immunizationExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-
-            immunization.addExtension( immunizationExtension.getExtenstion(
-                immunizationExtension.getUrl(createdBy),
-                immunizationExtension.getStringType(userInfo!!.userName) ) )
-
-            //This will be used in PUT
-//            immunization.addExtension( immunizationExtension.getExtenstion(
-//                immunizationExtension.getUrl(modifiedBY),
-//                immunizationExtension.getStringType(userInfo!!.userName) ) )
-        }
-    }
-    private fun addExtensionsToMedicationStatementResources(
-        medicationStatement: MedicationStatement,
-    ) {
-        if (userInfo != null) {
-            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
-                medicationStatementExtension.getUrl(vanID),
-                medicationStatementExtension.getStringType(userInfo!!.vanId.toString())))
-
-            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
-                medicationStatementExtension.getUrl(parkingPlaceID),
-                medicationStatementExtension.getStringType(userInfo!!.parkingPlaceId.toString())))
-
-            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
-                medicationStatementExtension.getUrl(providerServiceMapId),
-                medicationStatementExtension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-
-            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
-                medicationStatementExtension.getUrl(createdBy),
-                medicationStatementExtension.getStringType(userInfo!!.userName) ) )
-
-//            medicationStatement.addExtension( medicationStatementExtension.getExtenstion(
-//                medicationStatementExtension.getUrl(benFlowID),
-//                medicationStatementExtension.getStringType(userInfo!!.b) ) )
-        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

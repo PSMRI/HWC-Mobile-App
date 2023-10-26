@@ -4,7 +4,6 @@ package org.piramalswasthya.cho.ui.commons.lab_technician
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,18 +47,15 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
 import org.piramalswasthya.cho.model.ComponentDetailDTO
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -68,7 +64,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form), FhirFragmentService, NavigationAdapter {
+class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form), NavigationAdapter {
 
     private var _binding: FragmentLabTechnicianFormBinding? = null
 
@@ -77,15 +73,15 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             return _binding!!
         }
 
-    override var fragment: Fragment = this;
+    var fragment: Fragment = this;
     @Inject
     lateinit var preferenceDao: PreferenceDao
-    override var fragmentContainerId = 0;
+    var fragmentContainerId = 0;
     private var userInfo: UserCache? = null
 
-    override val jsonFile : String = "vitals-page.json"
+    val jsonFile : String = "vitals-page.json"
 
-    override val viewModel: LabTechnicianFormViewModel by viewModels()
+    val viewModel: LabTechnicianFormViewModel by viewModels()
 
     private val parentViewModel : EditPatientDetailsViewModel by viewModels ({ requireActivity()})
 
@@ -661,7 +657,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         requireActivity().finish()
     }
 
-    override fun navigateNext() {
+    fun navigateNext() {
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )

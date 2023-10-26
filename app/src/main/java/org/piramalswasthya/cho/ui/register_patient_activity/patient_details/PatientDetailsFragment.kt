@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -27,24 +26,20 @@ import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.ChiefComplaintAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
-import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import javax.inject.Inject
 import java.util.Locale
+import javax.inject.Inject
 
 
 @AndroidEntryPoint

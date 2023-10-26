@@ -1,40 +1,22 @@
 package org.piramalswasthya.cho.ui.web_view_activity
 
-import android.app.AlertDialog
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.navigation.fragment.findNavController
-import com.google.android.fhir.FhirEngine
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
+import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.ResourceType
 import org.json.JSONObject
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.ActivityWebViewBinding
 import org.piramalswasthya.cho.model.EsanjeevniPatient
-import org.piramalswasthya.cho.model.EsanjeevniPatientAddress
-import org.piramalswasthya.cho.model.EsanjeevniPatientContactDetails
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
-import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
-import org.piramalswasthya.cho.utils.DateTimeUtil
-import org.piramalswasthya.cho.fhir_utils.FhirExtension
-import org.piramalswasthya.cho.fhir_utils.extension_names.*
 import org.piramalswasthya.cho.ui.web_view_activity.web_view.WebViewFragment
-import timber.log.Timber
 import java.security.MessageDigest
 import javax.inject.Inject
 
@@ -48,9 +30,6 @@ class WebViewActivity : AppCompatActivity() {
 
 
     private var _binding : ActivityWebViewBinding? = null
-
-    @Inject
-    lateinit var fhirEngine : FhirEngine
 
 
     private val binding  : ActivityWebViewBinding
