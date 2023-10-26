@@ -52,15 +52,15 @@ class PrescriptionTemplateRepo @Inject constructor(
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    val responseString = response.body()?.string() ?: throw IllegalStateException("Response empty!!!")
+                    val responseString = responseBody ?: throw IllegalStateException("Response empty!!!")
                     Timber.i("doctor data submitted",  responseString)
-//                    val json = JSONObject(responseString)
-//                    val data = json.getJSONArray("data").toString()
+                    val json = JSONObject(responseString)
+                    val data = json.getJSONArray("data").toString()
 
-                    val list  = Gson().fromJson(responseString, Array<PrescriptionTemplateDB>::class.java)
+                    val list  = Gson().fromJson(data, Array<PrescriptionTemplateDB>::class.java)
                     saveAllPrescriptionTemplateToCache(list)
 
-
+//
 //                    val data = responseBody.let { JSONObject(it).getString("data") }
 //                    val result = Gson().fromJson(data, NurseDataResponse::class.java)
                     NetworkResult.Success(NetworkResponse())

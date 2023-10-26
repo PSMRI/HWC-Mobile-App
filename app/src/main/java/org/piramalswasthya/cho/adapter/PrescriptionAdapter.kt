@@ -23,6 +23,8 @@ import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.commons.case_record.TempNameAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
+import org.piramalswasthya.cho.utils.nullIfEmpty
+import timber.log.Timber
 
 class PrescriptionAdapter(
     private val listTemplateDB: MutableList<PrescriptionTemplateDB?>,
@@ -158,11 +160,12 @@ class PrescriptionAdapter(
         holder.saveTemplate.setOnClickListener {
                 holder.tempText.visibility = View.VISIBLE
                 val testName = holder.tempName.text.toString()
-            if (testName.isNotEmpty()) {
+            if (testName.isNotBlank() || testName.isNullOrEmpty()) {
                 if (isTestNameUnique(testName)) {
                     if (position < itemList.size) {
                         val prescriptionToSave = itemList[position]
                         listTemplate.add(prescriptionToSave.copy())
+                        Timber.i("listTemplate: ${listTemplate}")
                         showSavedToast(holder.itemView.context)
                     }
                 } else {
@@ -209,14 +212,20 @@ class PrescriptionAdapter(
         holder.tempNameOption.setAdapter(tempNameAdapter)
 
         holder.tempNameOption.setOnItemClickListener { parent, _, position, abc ->
-            val selectedString = parent.getItemAtPosition(position)
-            val form = listTemplateDB.first { it?.templateName == selectedString }
+            val selectedString = parent.getItemAtPosition(position) as PrescriptionTemplateDB
+            val form = listTemplateDB.first { it?.templateName == selectedString.templateName }
             holder.tempNameOption.setText(form?.templateName,false)
             holder.formOptions.setText(form?.drugName)
+            itemData.form= form?.drugName.toString()
+            itemData.id= form?.drugId
             holder.frequencyOptions.setText(form?.frequency)
+            itemData.frequency= form?.frequency.toString()
             holder.durationInput.setText(form?.duration)
+            itemData.duration= form?.duration.toString()
             holder.instructionOption.setText(form?.instruction)
+            itemData.instruction= form?.instruction.toString()
             holder.unitOption.setText(form?.unit)
+            itemData.unit= form?.unit.toString()
         }
 
         val frequencyAdapter =

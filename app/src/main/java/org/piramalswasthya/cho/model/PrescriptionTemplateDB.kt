@@ -9,9 +9,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class PrescriptionTemplateDB(
     @PrimaryKey
-    @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "user_id") val userID: Int,
     @ColumnInfo(name = "template_name") val templateName: String,
+    @ColumnInfo(name = "user_id") val userID: Int,
     @ColumnInfo(name = "drugName") val drugName: String,
     @ColumnInfo(name = "drugId") val drugId: Int,
     @ColumnInfo(name = "frequency") val frequency: String?,

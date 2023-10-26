@@ -222,7 +222,7 @@ interface AmritApiService {
     @POST("hwc-facility-service/sync/prescriptionTemplatesToServer")
     suspend fun sendTemplateToServer(@Body prescriptionTemplateDB: List<PrescriptionTemplateDB>): Response<ResponseBody>
 
-    @GET("hwc-facility-service/sync/{userID}/prescriptionTemplatesToServer")
+    @GET("hwc-facility-service/sync/{userID}/prescriptionTemplatesDataToApp")
     suspend fun getTemplateFromServer(@Path("userID") userID: Int,): Response<ResponseBody>
 
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
@@ -90,10 +91,11 @@ class CaseRecordViewModel @Inject constructor(
     private var _formMedicineDosage: LiveData<List<ItemMasterList>>
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
-
+    var userIDVAl:Int? = null
     val tempDB= userId.transformLatest {
         it?.let {
-            emit(templateRepo.getProceduresWithComponent(it) ) }
+            emit(templateRepo.getProceduresWithComponent(it) )
+        }
     }.asLiveData()
 
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
@@ -121,6 +123,10 @@ class CaseRecordViewModel @Inject constructor(
         get() = _vitalsDB
 
     init {
+        viewModelScope.launch {
+            userIDVAl = userId.first()
+
+        }
         _counsellingProvided = MutableLiveData()
         getCounsellingTypes()
         _formMedicineDosage = MutableLiveData()

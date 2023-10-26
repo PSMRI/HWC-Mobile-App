@@ -730,20 +730,25 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             var instruction = prescriptionData.instruction.nullIfEmpty()
 
             if (formVal != null) {
-                var pres = PrescriptionTemplateDB(
-                    id = generateUuid(),
-                    userID = preferenceDao.getLoggedInUser()!!.userId,
-                    templateName = tempNameVal,
-                    drugName = formName,
-                    drugId = formVal,
-                    frequency = freqVal,
-                    duration = durVal,
-                    unit = unitVal,
-                    instruction = instruction
-                )
-                prescriptionTempList.add(pres)
+                var pres = viewModel.userIDVAl?.let {
+                    PrescriptionTemplateDB(
+                        templateName = tempNameVal,
+                        userID = it,
+                        drugName = formName,
+                        drugId = formVal,
+                        frequency = freqVal,
+                        duration = durVal,
+                        unit = unitVal,
+                        instruction = instruction
+                    )
+                }
+                if (pres != null) {
+                    prescriptionTempList.add(pres)
+                }
                 Timber.tag("arr").i("${pres}")
-                viewModel.savePrescriptionTemp(pres)
+                if (pres != null) {
+                    viewModel.savePrescriptionTemp(pres)
+                }
             }
         }
         viewModel.savePrescriptionTempToServer(prescriptionTempList)
@@ -834,33 +839,40 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
         for (i in 0 until tempList.size) {
-            val prescriptionData = tempList[i]
-            var formName = prescriptionData.form
-            var formVal = prescriptionData.id
-            var tempNameVal = prescriptionData.tempName
-            var freqVal = prescriptionData.frequency.nullIfEmpty()
-            var unitVal = prescriptionData.unit.nullIfEmpty()
-            var durVal = prescriptionData.duration.nullIfEmpty()
-            var instruction = prescriptionData.instruction.nullIfEmpty()
+            val prescriptionTemp = tempList[i]
+            var formName = prescriptionTemp.form
+            var formVal = prescriptionTemp.id
+            var tempNameVal = prescriptionTemp.tempName
+            var freqVal = prescriptionTemp.frequency.nullIfEmpty()
+            var unitVal = prescriptionTemp.unit.nullIfEmpty()
+            var durVal = prescriptionTemp.duration.nullIfEmpty()
+            var instruction = prescriptionTemp.instruction.nullIfEmpty()
 
             if (formVal != null) {
-                var pres = PrescriptionTemplateDB(
-                    id = generateUuid(),
-                    userID = preferenceDao.getLoggedInUser()!!.userId,
-                    templateName = tempNameVal,
-                    drugName = formName,
-                    drugId = formVal,
-                    frequency = freqVal,
-                    duration = durVal,
-                    unit = unitVal,
-                    instruction = instruction
-                )
-                prescriptionTempList.add(pres)
+                var pres = viewModel.userIDVAl?.let {
+                    PrescriptionTemplateDB(
+                        templateName = tempNameVal,
+                        userID = it,
+                        drugName = formName,
+                        drugId = formVal,
+                        frequency = freqVal,
+                        duration = durVal,
+                        unit = unitVal,
+                        instruction = instruction
+                    )
+                }
+                if (pres != null) {
+                    prescriptionTempList.add(pres)
+                }
                 Timber.tag("arr").i("${pres}")
-                viewModel.savePrescriptionTemp(pres)
+                if (pres != null) {
+                    viewModel.savePrescriptionTemp(pres)
+                }
             }
         }
-        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+        if(prescriptionTempList!=null) {
+            viewModel.savePrescriptionTempToServer(prescriptionTempList)
+        }
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
