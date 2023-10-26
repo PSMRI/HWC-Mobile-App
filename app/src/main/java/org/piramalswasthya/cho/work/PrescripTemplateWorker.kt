@@ -18,7 +18,7 @@ import java.sql.Timestamp
 
 
 @HiltWorker
-class PullPatientsFromServer @AssistedInject constructor(
+class PrescripTemplateWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val patientRepo: PatientRepo,
@@ -26,7 +26,7 @@ class PullPatientsFromServer @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        const val name = "PullPatientFromPullBenFromServer"
+        const val name = "PrescripTemplateWorker"
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,9 +36,12 @@ class PullPatientsFromServer @AssistedInject constructor(
             val workerResult = patientRepo.downloadAndSyncPatientRecords()
             if (workerResult) {
                 preferenceDao.setLastPatientSyncTime()
+                Timber.d("Patient Download Worker completed")
+                Result.success()
+            } else {
+                Timber.d("Patient Download Worker Failed as usual!")
+                Result.failure()
             }
-            Timber.d("Patient Download Worker completed")
-            Result.success()
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()

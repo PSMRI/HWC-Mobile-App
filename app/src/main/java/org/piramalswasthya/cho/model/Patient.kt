@@ -226,6 +226,7 @@ data class PatientDisplayWithVisitInfo(
     val nurseDataSynced: SyncState?,
     val doctorDataSynced: SyncState?,
     val createNewBenFlow: Boolean?,
+    val prescriptionID:Int?,
     val benVisitNo: Int?,
     val benFlowID: Long?,
     val nurseFlag: Int?,
@@ -768,5 +769,11 @@ data class AbhaAddressDTO(
     @Expose val AuthenticationMode: String?,
     @Expose val CreatedDate: Timestamp?
 )
+@JsonClass(generateAdapter = true)
+data class PatientAadhaarDetails(
+    val name:String?,
+    val gender: String?,
+    val dateOfBirth: String?,
 
+)
 

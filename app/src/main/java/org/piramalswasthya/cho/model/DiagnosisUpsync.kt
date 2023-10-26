@@ -15,14 +15,14 @@ data class DiagnosisUpsync(
     val createdBy: String?,
     val isSpecialist: Boolean
 ) {
-    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?) : this(
-        null,
+    constructor(user: UserDomain?, benFlow: BenFlow?, diagnosisList: List<DiagnosisCaseRecord>?,prescriptionID:Int?) : this(
+        prescriptionID = prescriptionID,
         user?.vanId,
         user?.parkingPlaceId,
         provisionalDiagnosisList = diagnosisList?.map {
             ProvisionalDiagnosisUpsync(term = it.diagnosis)
         } ?: emptyList(),
-        benFlow?.beneficiaryID.toString(),
+        benFlow?.beneficiaryRegID.toString(),
         benFlow?.benVisitID.toString(),
         benFlow?.visitCode.toString(),
         user?.serviceMapId.toString(),

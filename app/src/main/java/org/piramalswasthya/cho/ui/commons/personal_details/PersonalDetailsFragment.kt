@@ -199,7 +199,7 @@ class PersonalDetailsFragment : Fragment() {
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 ||
+                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2) ||
                                         (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
                                          Toast.makeText(
                                             requireContext(),

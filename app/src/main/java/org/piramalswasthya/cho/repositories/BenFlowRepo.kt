@@ -46,6 +46,7 @@ import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.DownsyncSuccess
 import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
@@ -151,8 +152,11 @@ class BenFlowRepo @Inject constructor(
         when(val response = syncFlowIds(villageList)){
             is NetworkResult.Success -> {
                 return true
+//                return (response.data as DownsyncSuccess).isSuccess
             }
             is NetworkResult.Error -> {
+                Log.d("error code is", response.code.toString())
+                Log.d("error code message is", response.message)
                 if(response.code == socketTimeoutException){
                     throw SocketTimeoutException("This is an example exception message")
                 }
@@ -164,7 +168,7 @@ class BenFlowRepo @Inject constructor(
     }
 
     @Transaction
-    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync){
+    suspend fun refreshDoctorData(prescriptionCaseRecord: List<PrescriptionCaseRecord>?, investigationCaseRecord: InvestigationCaseRecord, diagnosisCaseRecords : List<DiagnosisCaseRecord>,patient: Patient, benFlow: BenFlow, patientVisitInfoSync: PatientVisitInfoSync,docData:DoctorDataDownSync){
 
         prescriptionDao.deletePrescriptionByPatientIdAndBenVisitNo(patient.patientID, patientVisitInfoSync.benVisitNo)
         prescriptionCaseRecord?.let {
@@ -180,6 +184,7 @@ class BenFlowRepo @Inject constructor(
         }
 
         patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
+        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
@@ -227,7 +232,7 @@ class BenFlowRepo @Inject constructor(
                         DiagnosisCaseRecord(patient = patient, benFlow = benFlow, provisionalDiagnosisUpsync = it)
                     } ?: emptyList()
 
-                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync)
+                    refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync, docData = docData)
                     if(benFlow.doctorFlag == 3 && !docData.LabReport.isNullOrEmpty()){
                         refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
                     }
@@ -343,36 +348,24 @@ class BenFlowRepo @Inject constructor(
                 responseBody = responseBody,
                 onSuccess = {
                     val benflowArray = responseBody.let { JSONObject(it).getJSONArray("data") }
+                    var isSuccess = true
                     for (i in 0 until benflowArray.length()) {
-                        val data = benflowArray.getString(i)
-                        val benFlow = Gson().fromJson(data, BenFlow::class.java)
-                        val patient = patientRepo.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
-                        benFlowDao.insertBenFlow(benFlow)
-//                        visitReasonsAndCategoriesRepo.updateBenFlowId(
-//                            benFlowId = benFlow.benFlowID,
-//                            beneficiaryRegID = benFlow.beneficiaryRegID!!,
-//                            benVisitNo = benFlow.benVisitNo!!,
-//                        )
-//                        vitalsRepo.updateBenFlowId(
-//                            benFlowId = benFlow.benFlowID,
-//                            beneficiaryRegID = benFlow.beneficiaryRegID!!,
-//                            benVisitNo = benFlow.benVisitNo!!,
-//                        )
-                        if(patient != null){
-                            checkAndAddNewVisitInfo(benFlow, patient)
-                            updateBenFlowId(benFlow, patient)
-                            checkAndDownsyncNurseData(benFlow, patient)
-                            checkAndDownsyncDoctorData(benFlow, patient)
-//                            if(benFlow.nurseFlag == 9 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null){
-//                                getAndSaveNurseDataToDb(benFlow, patient)
-//                            }
-//                            if(benFlow.doctorFlag != null &&  benFlow.doctorFlag > 1 && benFlow.beneficiaryRegID != null && benFlow.visitCode != null){
-//                                getAndSaveDoctorDataToDb(benFlow, patient)
-//                            }
+                        try {
+                            val data = benflowArray.getString(i)
+                            val benFlow = Gson().fromJson(data, BenFlow::class.java)
+                            val patient = patientRepo.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
+                            benFlowDao.insertBenFlow(benFlow)
+                            if(patient != null){
+                                checkAndAddNewVisitInfo(benFlow, patient)
+                                updateBenFlowId(benFlow, patient)
+                                checkAndDownsyncNurseData(benFlow, patient)
+                                checkAndDownsyncDoctorData(benFlow, patient)
+                            }
+                        } catch (e : Exception){
+                            isSuccess = false
                         }
-
                     }
-                    NetworkResult.Success(NetworkResponse())
+                    NetworkResult.Success(DownsyncSuccess(isSuccess))
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!

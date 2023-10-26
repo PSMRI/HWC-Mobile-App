@@ -18,6 +18,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
@@ -43,6 +44,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
                                                  private val malMasterDataRepo: MaleMasterDataRepository,
                                                  private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo,
+                                                 private val prescriptionTemplateRepo: PrescriptionTemplateRepo,
                                                  private val dataLoadFlagManager: DataLoadFlagManager) : AndroidViewModel(application) {
 
 
@@ -87,8 +89,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             registrarMasterDataRepo.saveQualificationMasterResponseToCache()
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+
             malMasterDataRepo.getMasterDataForNurse()
             if (!dataLoadFlagManager.isDataLoaded()){
                 Log.d("syncing started second", "syncing started")

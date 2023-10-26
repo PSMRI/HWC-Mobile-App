@@ -34,6 +34,7 @@ import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
+import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
@@ -292,6 +293,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideProcedureDao(database: InAppDb): ProcedureDao = database.procedureDao
+
+    @Singleton
+    @Provides
+    fun providePrescriptionTemplateDao(database: InAppDb): PrescriptionTemplateDao = database.prescriptionTemplateDao
 
     @Singleton
     @Provides
