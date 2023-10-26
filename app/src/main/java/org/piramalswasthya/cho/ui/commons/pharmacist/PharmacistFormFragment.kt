@@ -210,6 +210,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
     }
 
     override fun onCancelAction() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
         requireActivity().finish()
     }
 
