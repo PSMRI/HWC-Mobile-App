@@ -276,7 +276,7 @@ class OutreachFragment(
             requestCameraPermission()
         }
         binding.btnOutreachLogin.setOnClickListener {
-            if (image != null) {
+            if (imageString!=null && validImage!!) {
 
             // call for lat long
             getCurrentLocation()
@@ -320,11 +320,24 @@ class OutreachFragment(
                             else {
                                 viewModel.forgetUser()
                             }
-                            findNavController().navigate(
-                                ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
-                            )
-                            viewModel.resetState()
-                            activity?.finish()
+                            lifecycleScope.launch {
+                                viewModel.setOutreachDetails(
+                                    "OUTREACH",
+                                    outreachVal,
+                                    timestamp,
+                                    null,
+                                    latitude,
+                                    longitude,
+                                    null,
+                                    imageString,
+                                    null
+                                )
+                                findNavController().navigate(
+                                    ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)
+                                )
+                                viewModel.resetState()
+                                activity?.finish()
+                            }
                         }
 
                         OutreachViewModel.State.SAVING -> {
@@ -354,7 +367,8 @@ class OutreachFragment(
                         latitude,
                         longitude,
                         null,
-                        imageString
+                        imageString,
+                        null
                     )
                     findNavController().navigate(
                         ChoLoginFragmentDirections.actionSignInToHomeFromCho(true)

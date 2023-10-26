@@ -33,6 +33,12 @@
     <string name="health_mela">ಆರೋಗ್ಯ ಮೇಳ</string>
     <string name="vhsnc_vhsnd">ವಿ.ಎಚ್.ಎಸ್.ಎನ್.ಡಿ/ವಿ.ಎಚ್.ಎಸ್.ಎನ್.ಸಿ</string>
     <string name="add_patient">Add Patient\n</string>
+    <string name="change_role">Change Role</string>
+    <string name="registrar_role">Registrar</string>
+    <string name="nurse_role">Nurse</string>
+    <string name="doctor_role">Doctor</string>
+    <string name="pharmacist_role">Pharmacist</string>
+    <string name="lab_technician_role">Lab Technician</string>
     <string name="query_hint_patient_search">Tap here to Search</string>
     <string name="title_patient_list">Registered Patients</string>
     <string name="login_settings">login_settings</string>

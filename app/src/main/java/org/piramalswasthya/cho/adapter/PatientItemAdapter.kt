@@ -86,7 +86,12 @@ class PatientItemAdapter(
 
             binding.patientName.text = (item.patient.firstName ?: "") + " " + (item.patient.lastName ?: "")
             binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            if(!item.patient.age.toString().isNullOrEmpty() && item.patient.age!! <= 1){
+                val unit = item.ageUnit?.dropLast(1)
+                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
+            }else{
+                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
             binding.patientGender.text = item.genderName
             if(item.patient.syncState == SyncState.SYNCED){
@@ -99,6 +104,11 @@ class PatientItemAdapter(
                 binding.llBenId.visibility = View.GONE
                 binding.ivSyncState.visibility = View.GONE
             }
+            if(item.doctorFlag == 9){
+                binding.prescriptionDownloadBtn.visibility = View.VISIBLE
+            }else{
+                binding.prescriptionDownloadBtn.visibility = View.GONE
+            }
 
             binding.executePendingBindings()
 
@@ -110,7 +120,7 @@ class PatientItemAdapter(
     ) = BenViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
-        patientId = getItem(position).patient.patientID
+//        patientId = getItem(position).patient.patientID
         holder.bind(getItem(position), clickListener, showAbha)
 
     }
@@ -119,6 +129,7 @@ class PatientItemAdapter(
         private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedDownloadPrescription:(benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -130,6 +141,9 @@ class PatientItemAdapter(
 
         fun onClickEsanjeevani(item: PatientDisplayWithVisitInfo) {
             clickedEsanjeevani(item)
+        }
+        fun onClickPrescription(item: PatientDisplayWithVisitInfo) {
+            clickedDownloadPrescription(item)
         }
     }
 

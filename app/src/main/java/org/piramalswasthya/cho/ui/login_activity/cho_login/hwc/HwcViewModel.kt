@@ -81,6 +81,7 @@ class HwcViewModel @Inject constructor(
         lat: Double?,
         long: Double?,
         logoutType: String?,
+        isOutOfReach : Boolean?
     ){
         userRepo.setOutreachProgram(
             loginType,
@@ -90,7 +91,8 @@ class HwcViewModel @Inject constructor(
             lat,
             long,
             logoutType,
-            null
+            null,
+            isOutOfReach
         )
     }
     fun forgetUser() {

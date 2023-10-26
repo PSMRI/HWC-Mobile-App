@@ -384,6 +384,11 @@ data class BenificiaryResponse(
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
+data class DownsyncSuccess(
+    val isSuccess: Boolean
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
 data class BenificiarySaveResponse(
     val beneficiaryID: Long,
     val beneficiaryRegID: Long

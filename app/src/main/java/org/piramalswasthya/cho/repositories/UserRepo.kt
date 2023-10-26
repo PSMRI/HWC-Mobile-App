@@ -26,7 +26,6 @@ import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
-import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.StateMaster
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.UserDomain
@@ -36,7 +35,6 @@ import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
-import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
@@ -46,7 +44,6 @@ import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
-import org.piramalswasthya.cho.work.WorkerUtils
 import retrofit2.HttpException
 import timber.log.Timber
 import java.net.ConnectException
@@ -85,7 +82,8 @@ class UserRepo @Inject constructor(
                                       lat: Double?,
                                       long: Double?,
                                       logoutType: String?,
-                                    userImage: String?
+                                    userImage: String?,
+                                    isOutOfReach:Boolean?
      ) {
          var user = userDao.getLoggedInUser()
          var userName = user?.userName
@@ -95,12 +93,13 @@ class UserRepo @Inject constructor(
             userName = userName,
             loginType = loginType,
             option = selectedOption,
-            logoutTimestamp = logoutTimeStamp,
-            loginTimestamp = loginTimeStamp,
+            logoutTimeStamp = logoutTimeStamp,
+            loginTimeStamp = loginTimeStamp,
             latitude = lat,
             longitude = long,
             logoutType = logoutType,
-            userImage = userImage
+            userImage = userImage,
+            isOutOfReach = isOutOfReach
         )
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
@@ -136,18 +135,18 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     userDao.update(loggedInUser)
-                    if(!isBiometric!!) {
-                        setOutreachProgram(
-                            loginType,
-                            selectedOption,
-                            loginTimeStamp,
-                            logoutTimeStamp,
-                            lat,
-                            long,
-                            logoutType,
-                            userImage
-                        )
-                    }
+//                    if(!isBiometric!!) {
+//                        setOutreachProgram(
+//                            loginType,
+//                            selectedOption,
+//                            loginTimeStamp,
+//                            logoutTimeStamp,
+//                            lat,
+//                            long,
+//                            logoutType,
+//                            userImage
+//                        )
+//                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -169,18 +168,18 @@ class UserRepo @Inject constructor(
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
                     }
-                    if(!isBiometric!!) {
-                        setOutreachProgram(
-                            loginType,
-                            selectedOption,
-                            loginTimeStamp,
-                            logoutTimeStamp,
-                            lat,
-                            long,
-                            logoutType,
-                            userImage
-                        )
-                    }
+//                    if(!isBiometric!!) {
+//                        setOutreachProgram(
+//                            loginType,
+//                            selectedOption,
+//                            loginTimeStamp,
+//                            logoutTimeStamp,
+//                            lat,
+//                            long,
+//                            logoutType,
+//                            userImage
+//                        )
+//                    }
                     return@withContext OutreachViewModel.State.SUCCESS
 //                        }
                 }

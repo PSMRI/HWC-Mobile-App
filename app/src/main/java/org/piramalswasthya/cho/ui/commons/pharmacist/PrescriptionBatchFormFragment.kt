@@ -72,6 +72,9 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val data = arguments?.getString("batchList")
+        if(data==null){
+            Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+        }
         val data2 = arguments?.getString("prescriptionDTO")
         val data3 = arguments?.getString("prescriptionItemDTO")
         val prescriptionDTO = Gson().fromJson(data2, PrescriptionDTO::class.java)
