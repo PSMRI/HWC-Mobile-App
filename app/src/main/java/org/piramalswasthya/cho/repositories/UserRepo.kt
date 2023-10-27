@@ -382,7 +382,8 @@ class UserRepo @Inject constructor(
                 val villageList = districtObject.getJSONArray("villageList")
 
                 val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
-                val villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                villageLocationDataList = villageLocationDataList.toSet().toList()
 
                 val stateMaster = data.getJSONArray("stateMaster")
                 var stateMasterName : String = ""
