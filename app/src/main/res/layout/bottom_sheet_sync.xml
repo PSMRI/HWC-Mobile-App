@@ -12,7 +12,7 @@
         android:orientation="horizontal"
         android:padding="@dimen/padding_normal"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/colorAccent">
+        android:background="@color/seed">
 
         <TextView
             android:layout_width="0dp"
