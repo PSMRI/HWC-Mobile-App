@@ -18,18 +18,18 @@ object WorkerUtils {
 
     fun triggerDownSyncWorker(context : Context){
 
-        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
-            .setConstraints(networkOnlyConstraint)
-            .build()
-
-        val workManager = WorkManager.getInstance(context)
-        workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
-            .then(pullBenFlowFromAmritWorker)
-            .enqueue()
+//        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
+//            .setConstraints(networkOnlyConstraint)
+//            .build()
+//        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
+//            .setConstraints(networkOnlyConstraint)
+//            .build()
+//
+//        val workManager = WorkManager.getInstance(context)
+//        workManager
+//            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+//            .then(pullBenFlowFromAmritWorker)
+//            .enqueue()
     }
 
     fun triggerAmritSyncWorker(context : Context){
@@ -70,6 +70,11 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushImmunizationWorkRequest =
+            OneTimeWorkRequestBuilder<PushChildImmunizationToAmritWorker>()
+                .setConstraints(networkOnlyConstraint)
+                .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -81,7 +86,8 @@ object WorkerUtils {
             .then(pushBenDoctorInfoWithoutTestToAmrit)
             .then(pushBenDoctorInfoAfterTestToAmrit)
 //            .then(pushPWRToAmritWorker)
-            .then(pushPNCWorkRequest)
+//            .then(pushPNCWorkRequest)
+            .then(pushImmunizationWorkRequest)
 //            .then(pushLabDataToAmrit)
             .enqueue()
     }
