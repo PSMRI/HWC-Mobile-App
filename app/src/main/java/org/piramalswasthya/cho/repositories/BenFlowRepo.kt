@@ -192,9 +192,10 @@ class BenFlowRepo @Inject constructor(
     @Transaction
     suspend fun refreshLabData(labReportData: List<LabReportData>, patientVisitInfoSync: PatientVisitInfoSync){
 
+        procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
+
         labReportData.forEach {
 
-            procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID = patientVisitInfoSync.patientID, benVisitNo = patientVisitInfoSync.benVisitNo)
             val procedure = ProcedureDataDownsync( labReportData = it, patientVisitInfoSync = patientVisitInfoSync)
 
             val procedureDataID = procedureDao.insert(procedure)
