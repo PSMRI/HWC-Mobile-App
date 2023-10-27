@@ -7,6 +7,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.network.AmritApiService
 //import org.piramalswasthya.sakhi.database.room.SyncState
 //import org.piramalswasthya.sakhi.database.shared_preferences.PreferenceDao
@@ -46,24 +47,24 @@ class EcrRepo @Inject constructor(
 //        }
 //    }
 //
-//    suspend fun getSavedRecord(benId: Long): EligibleCoupleRegCache? {
+//    suspend fun getSavedRecord(patientID: String): EligibleCoupleRegCache? {
 //        return withContext(Dispatchers.IO) {
 //            database.ecrDao.getSavedECR(benId)
 //        }
 //    }
 //
-//    suspend fun getEct(benId: Long, createdDate: Long): EligibleCoupleTrackingCache? {
-//        return withContext(Dispatchers.IO) {
-//            database.ecrDao.getEct(benId, createdDate)
-//        }
-//    }
-//
-//    suspend fun saveEct(eligibleCoupleTrackingCache: EligibleCoupleTrackingCache) {
-//        withContext(Dispatchers.IO) {
-//            database.ecrDao.upsert(eligibleCoupleTrackingCache)
-//        }
-//    }
-//
+    suspend fun getEct(patientID: String, createdDate: Long): EligibleCoupleTrackingCache? {
+        return withContext(Dispatchers.IO) {
+            database.ecrDao.getEct(patientID, createdDate)
+        }
+    }
+
+    suspend fun saveEct(eligibleCoupleTrackingCache: EligibleCoupleTrackingCache) {
+        withContext(Dispatchers.IO) {
+            database.ecrDao.upsert(eligibleCoupleTrackingCache)
+        }
+    }
+
 //    suspend fun pushAndUpdateEcrRecord(): Boolean {
 //        return withContext(Dispatchers.IO) {
 //            val ecrList = database.ecrDao.getAllUnprocessedECR()
@@ -597,11 +598,11 @@ class EcrRepo @Inject constructor(
 //        return list
 //    }
 //
-//    suspend fun getLatestEctByBenId(benId: Long): EligibleCoupleTrackingCache? {
-//        return withContext(Dispatchers.IO){
-//            database.ecrDao.getLatestEct(benId)
-//        }
-//    }
+    suspend fun getLatestEctByBenId(benId: String): EligibleCoupleTrackingCache? {
+        return withContext(Dispatchers.IO){
+            database.ecrDao.getLatestEct(benId)
+        }
+    }
 //    private suspend fun saveECRCacheFromResponse(dataObj: String): MutableList<EligibleCoupleRegCache> {
 //        val tbScreeningList = mutableListOf<TBScreeningCache>()
 //        var requestDTO = Gson().fromJson(dataObj, TBScreeningRequestDTO::class.java)

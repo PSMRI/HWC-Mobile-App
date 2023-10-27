@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
@@ -347,6 +348,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun providePncDao(database: InAppDb): PncDao = database.pncDao
+
+    @Singleton
+    @Provides
+    fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
 
 
 //    @Singleton

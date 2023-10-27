@@ -1,4 +1,4 @@
-package org.piramalswasthya.sakhi.ui.home_activity.eligible_couple.tracking.form
+package org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -12,7 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.EligibleCoupleTrackingDataset
+import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 //import org.piramalswasthya.sakhi.configuration.EligibleCoupleTrackingDataset
 //import org.piramalswasthya.sakhi.database.room.SyncState
@@ -25,13 +28,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EligibleCoupleTrackingFormViewModel @Inject constructor(
-//    savedStateHandle: SavedStateHandle,
-//    preferenceDao: PreferenceDao,
-//    @ApplicationContext context: Context,
-//    private val ecrRepo: EcrRepo,
+    savedStateHandle: SavedStateHandle,
+    preferenceDao: PreferenceDao,
+    @ApplicationContext context: Context,
+    private val ecrRepo: EcrRepo,
     private val patientRepo: PatientRepo
 ) : ViewModel() {
 
+
+    val patientID = ""
+
+    private val zero = 0
+
+    val createdDate = zero.toLong()
 
 //    val benId =
 //        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).benId
@@ -39,59 +48,66 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 //    val createdDate =
 //        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).createdDate
 
-//    enum class State {
-//        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
-//    }
-//
-//    private val _state = MutableLiveData(State.IDLE)
-//    val state: LiveData<State>
-//        get() = _state
-//
-//    private val _benName = MutableLiveData<String>()
-//    val benName: LiveData<String>
-//        get() = _benName
-//    private val _benAgeGender = MutableLiveData<String>()
-//    val benAgeGender: LiveData<String>
-//        get() = _benAgeGender
-//
-//    private val _recordExists = MutableLiveData<Boolean>()
-//    val recordExists: LiveData<Boolean>
-//        get() = _recordExists
-//
-//    //    private lateinit var user: UserDomain
-//    private val dataset =
-//        EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
-//    val formList = dataset.listFlow
-//
-//    var isPregnant: Boolean = false
-//
-//    private lateinit var eligibleCoupleTracking: EligibleCoupleTrackingCache
-//
-//    init {
-//        viewModelScope.launch {
-//            val asha = preferenceDao.getLoggedInUser()!!
-//            val ben = ecrRepo.getBenFromId(benId)?.also { ben ->
-//                _benName.value =
-//                    "${ben.firstName} ${if (ben.lastName == null) "" else ben.lastName}"
-//                _benAgeGender.value = "${ben.age} ${ben.ageUnit?.name} | ${ben.gender?.name}"
-//                eligibleCoupleTracking = EligibleCoupleTrackingCache(
-//                    benId = ben.beneficiaryId,
-//                    syncState = SyncState.UNSYNCED,
-//                    createdBy = asha.userName,
-//                    updatedBy = asha.userName,
-//                )
-//            }
-//
-//            val pastTrack = ecrRepo.getLatestEctByBenId(benId)
-//
-//            ecrRepo.getEct(benId, createdDate)?.let {
-//                eligibleCoupleTracking = it
-//                _recordExists.value = true
-//            } ?: run {
-//                _recordExists.value = false
-//            }
-//
-//            ecrRepo.getSavedRecord(benId)?.let {
+    enum class State {
+        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
+    }
+
+    private val _state = MutableLiveData(State.IDLE)
+    val state: LiveData<State>
+        get() = _state
+
+    private val _benName = MutableLiveData<String>()
+    val benName: LiveData<String>
+        get() = _benName
+    private val _benAgeGender = MutableLiveData<String>()
+    val benAgeGender: LiveData<String>
+        get() = _benAgeGender
+
+    private val _recordExists = MutableLiveData<Boolean>()
+    val recordExists: LiveData<Boolean>
+        get() = _recordExists
+
+    //    private lateinit var user: UserDomain
+    private val dataset =
+        EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
+    val formList = dataset.listFlow
+
+    var isPregnant: Boolean = false
+
+    private lateinit var eligibleCoupleTracking: EligibleCoupleTrackingCache
+
+    init {
+        viewModelScope.launch {
+            val asha = preferenceDao.getLoggedInUser()!!
+            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
+                _benName.value =
+                    "${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}"
+                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}"
+                eligibleCoupleTracking = EligibleCoupleTrackingCache(
+                    patientID = patientID,
+                    syncState = SyncState.UNSYNCED,
+                    createdBy = asha.userName,
+                    updatedBy = asha.userName,
+                )
+            }
+
+            val pastTrack = ecrRepo.getLatestEctByBenId(patientID)
+
+            ecrRepo.getEct(patientID, createdDate)?.let {
+                eligibleCoupleTracking = it
+                _recordExists.value = true
+            } ?: run {
+                _recordExists.value = false
+            }
+
+            dataset.setUpPage(
+                ben,
+                0,
+                pastTrack,
+                if (recordExists.value == true) eligibleCoupleTracking else null
+            )
+
+//            ecrRepo.getSavedRecord(patientID)?.let {
 //                dataset.setUpPage(
 //                    ben,
 //                    it.dateOfReg,
@@ -99,51 +115,51 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 //                    if (recordExists.value == true) eligibleCoupleTracking else null
 //                )
 //            }
-//
-//        }
-//    }
-//
-//    fun updateListOnValueChanged(formId: Int, index: Int) {
-//        viewModelScope.launch {
-//            dataset.updateList(formId, index)
-//        }
-//
-//    }
-//
-////    fun getIndexOfEdd(): Int = dataset.getIndexOfEdd()
-////    fun getIndexOfWeeksOfPregnancy(): Int = dataset.getIndexOfWeeksPregnancy()
-////    fun getIndexOfPastIllness(): Int = dataset.getIndexOfPastIllness()
-//
-//    fun saveForm() {
-//        viewModelScope.launch {
-//            withContext(Dispatchers.IO) {
-//                try {
-//                    _state.postValue(State.SAVING)
-//
-//                    dataset.mapValues(eligibleCoupleTracking, 1)
-//                    ecrRepo.saveEct(eligibleCoupleTracking)
-//                    isPregnant = (eligibleCoupleTracking.isPregnant == "Yes") ||
-//                            (eligibleCoupleTracking.pregnancyTestResult == "Positive")
-//                    if (isPregnant) {
+
+        }
+    }
+
+    fun updateListOnValueChanged(formId: Int, index: Int) {
+        viewModelScope.launch {
+            dataset.updateList(formId, index)
+        }
+
+    }
+
+//    fun getIndexOfEdd(): Int = dataset.getIndexOfEdd()
+//    fun getIndexOfWeeksOfPregnancy(): Int = dataset.getIndexOfWeeksPregnancy()
+//    fun getIndexOfPastIllness(): Int = dataset.getIndexOfPastIllness()
+
+    fun saveForm() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    _state.postValue(State.SAVING)
+
+                    dataset.mapValues(eligibleCoupleTracking, 1)
+                    ecrRepo.saveEct(eligibleCoupleTracking)
+                    isPregnant = (eligibleCoupleTracking.isPregnant == "Yes") ||
+                            (eligibleCoupleTracking.pregnancyTestResult == "Positive")
+                    if (isPregnant) {
 //                        ecrRepo.getBenFromId(benId)?.let {
 //                            dataset.updateBen(it)
 //                            benRepo.updateRecord(it)
 //                        }
-//                    }
-//
-//                    _state.postValue(State.SAVE_SUCCESS)
-//                } catch (e: Exception) {
-//                    Timber.d("saving ECT data failed due to $e")
-//                    _state.postValue(State.SAVE_FAILED)
-//                }
-//            }
-//        }
-//    }
-//
-//    fun resetState() {
-//        _state.value = State.IDLE
-//    }
-//
-//    fun getIndexOfIsPregnant() = dataset.getIndexOfIsPregnant()
+                    }
+
+                    _state.postValue(State.SAVE_SUCCESS)
+                } catch (e: Exception) {
+                    Timber.d("saving ECT data failed due to $e")
+                    _state.postValue(State.SAVE_FAILED)
+                }
+            }
+        }
+    }
+
+    fun resetState() {
+        _state.value = State.IDLE
+    }
+
+    fun getIndexOfIsPregnant() = dataset.getIndexOfIsPregnant()
 
 }

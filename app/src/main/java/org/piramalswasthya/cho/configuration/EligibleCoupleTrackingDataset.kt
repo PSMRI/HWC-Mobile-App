@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientDisplay
 import java.util.Calendar
 
 class EligibleCoupleTrackingDataset(
@@ -103,7 +104,7 @@ class EligibleCoupleTrackingDataset(
     fun getIndexOfIsPregnant() = getIndexById(isPregnant.id)
 
     suspend fun setUpPage(
-        ben: Patient?,
+        ben: PatientDisplay?,
         dateOfReg: Long,
         lastTrack: EligibleCoupleTrackingCache?,
         saved: EligibleCoupleTrackingCache?
