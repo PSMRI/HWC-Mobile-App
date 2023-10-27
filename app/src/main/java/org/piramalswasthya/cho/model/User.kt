@@ -8,8 +8,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
-import org.hl7.fhir.r4.model.ResourceType
-import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.util.Date
 
@@ -495,8 +493,6 @@ data class EsanjeevniPatient(
     "11001"
     )
 }
-
-private val extension: FhirExtension = FhirExtension(ResourceType.Patient)
 
 @JsonClass(generateAdapter = true)
 data class EsanjeevniPatientAddress(

@@ -1,20 +1,16 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.app.Activity
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import android.graphics.Color
-import android.util.Log
 import android.widget.RadioButton
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,25 +21,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Annotation
-import org.hl7.fhir.r4.model.CodeableConcept
-import org.hl7.fhir.r4.model.Coding
-import org.hl7.fhir.r4.model.Condition
-import org.hl7.fhir.r4.model.Encounter
-import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
-import org.piramalswasthya.cho.fhir_utils.FhirExtension
-import org.piramalswasthya.cho.fhir_utils.extension_names.createdBy
-import org.piramalswasthya.cho.fhir_utils.extension_names.duration
-import org.piramalswasthya.cho.fhir_utils.extension_names.parkingPlaceID
-import org.piramalswasthya.cho.fhir_utils.extension_names.providerServiceMapId
-import org.piramalswasthya.cho.fhir_utils.extension_names.vanID
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
@@ -57,31 +40,29 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
+class FragmentVisitDetail : Fragment(), NavigationAdapter,
     EndIconClickListener {
 
-    override var fragmentContainerId = 0
+    var fragmentContainerId = 0
     private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
     private lateinit var patientId: String
 
-    override val fragment = this
-    override val viewModel: VisitDetailViewModel by viewModels()
+    val fragment = this
+    val viewModel: VisitDetailViewModel by viewModels()
 
-    override val jsonFile = "patient-visit-details-paginated.json"
+    val jsonFile = "patient-visit-details-paginated.json"
 
     private var usernameEs: String = ""
     private var passwordEs: String = ""
@@ -104,8 +85,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private var category: String = ""
     private var subCategory: String = ""
     private var reason: String = ""
-    private var encounter = Encounter()
-    private var listOfConditions = mutableListOf<Condition>()
     private var base64String = ""
     private var currDurationPos = -1
     private var currDescPos = -1
@@ -130,8 +109,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 
     private val initialItem = ChiefComplaintValues()
     private val itemList = mutableListOf(initialItem)
-    private val enCounterExtension: FhirExtension = FhirExtension(ResourceType.Encounter)
-    private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
     private lateinit var chAdapter: ChiefComplaintMultiAdapter
     var chiefComplaintDB2 = mutableListOf<ChiefComplaintDB>()
     private val binding: VisitDetailsInfoBinding
@@ -816,7 +793,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     }
 
 
-    override fun navigateNext() {
+    fun navigateNext() {
         extractFormValues()
         if (viewModel.getIsFollowUp()) {
 //            val chiefData = addChiefComplaintsData()
@@ -850,20 +827,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             subCat = true
             //}
 
-            if (catBool) createEncounterResource()
-
             // calling to add Chief Complaints
             val chiefData = addChiefComplaintsData()
 
             setVisitMasterData()
 
             if (catBool && isFileSelected && isFileUploaded && chiefData) {
-                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
                 findNavController().navigate(
                     R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                 )
             } else if (!isFileSelected && catBool && chiefData) {
-                if (encounter != null) viewModel.saveVisitDetailsInfo(encounter!!, listOfConditions)
                 findNavController().navigate(
                     R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                 )
@@ -1002,69 +975,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         bundle.putSerializable("MasterDb", masterDb)
     }
 
-
-    private fun createEncounterResource() {
-        // Set Encounter type
-        val encounterType = Coding()
-        encounterType.system =
-            "http://snomed.info/sct"
-        encounterType.code = "Category"
-        encounterType.display = category
-        encounter.type = listOf(CodeableConcept().addCoding(encounterType))
-
-        // Set Service Type
-        val serviceType = Coding()
-        serviceType.system =
-            "http://snomed.info/sct"
-        serviceType.code = "SubCategory"
-        serviceType.display = subCategory
-        encounter.serviceType = CodeableConcept().addCoding(serviceType)
-
-        val classVal = Coding()
-        classVal.system = "http://terminology.hl7.org/CodeSystem/v3-ActCode"
-        classVal.code = "AMB"
-        classVal.display = "ambulatory"
-        encounter.class_ = classVal
-
-        encounter.status = Encounter.EncounterStatus.INPROGRESS
-        encounter!!.reasonCode = listOf(CodeableConcept().setText(reason))
-
-        // add extensions
-        addExtensionsToEncounter(encounter)
-    }
-
-    private fun addExtensionsToEncounter(encounter: Encounter) {
-        if (userInfo != null) {
-            encounter.addExtension(
-                enCounterExtension.getExtenstion(
-                    enCounterExtension.getUrl(vanID),
-                    enCounterExtension.getStringType(userInfo!!.vanId.toString())
-                )
-            )
-
-            encounter.addExtension(
-                enCounterExtension.getExtenstion(
-                    enCounterExtension.getUrl(parkingPlaceID),
-                    enCounterExtension.getStringType(userInfo!!.parkingPlaceId.toString())
-                )
-            )
-
-            encounter.addExtension(
-                enCounterExtension.getExtenstion(
-                    enCounterExtension.getUrl(providerServiceMapId),
-                    enCounterExtension.getStringType(userInfo!!.serviceMapId.toString())
-                )
-            )
-
-            encounter.addExtension(
-                enCounterExtension.getExtenstion(
-                    enCounterExtension.getUrl(createdBy),
-                    enCounterExtension.getStringType(userInfo!!.userName)
-                )
-            )
-        }
-    }
-
     private fun addChiefComplaintsData(): Boolean {
         // get all the ChiefComplaint data from list and convert that to fhir resource
         for (i in 0 until itemList.size) {
@@ -1091,76 +1001,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             ) {
 
                 // Creating the "Condition" resource
-                val condition = Condition()
 
-                // Set the code for the chief complaint
-                val chiefComplaint = Coding()
-                chiefComplaint.system =
-                    "http://snomed.info/sct"
-                chiefComplaint.code = chiefComplaintData.id.toString()
-                chiefComplaint.display = chiefComplaintData.chiefComplaint
-                condition.code = CodeableConcept().addCoding(chiefComplaint)
-
-                // Set the note for the description
-                val note = Annotation()
-                note.text = chiefComplaintData.description
-                condition.note = listOf(note)
-
-                //set subject to condition
-                val ref = Reference("give here reg/ben-reg Id")
-                condition.subject = ref
-
-                // calling this addExtensionsToConditionResources() method to add van,parking, providerServiceMapId and duration extension
-                addExtensionsToConditionResources(condition, chiefComplaintData)
-                listOfConditions.add(condition)
             }
         }
         return true
-    }
-
-    private fun addExtensionsToConditionResources(
-        condition: Condition,
-        chiefComplaintValues: ChiefComplaintValues
-    ) {
-        if (userInfo != null) {
-            condition.addExtension(
-                conditionExtension.getExtenstion(
-                    conditionExtension.getUrl(duration),
-                    conditionExtension.getCoding(
-                        chiefComplaintValues.durationUnit!!,
-                        chiefComplaintValues.duration!!
-                    )
-                )
-            )
-
-            condition.addExtension(
-                conditionExtension.getExtenstion(
-                    conditionExtension.getUrl(vanID),
-                    conditionExtension.getStringType(userInfo!!.vanId.toString())
-                )
-            )
-
-            condition.addExtension(
-                conditionExtension.getExtenstion(
-                    conditionExtension.getUrl(parkingPlaceID),
-                    conditionExtension.getStringType(userInfo!!.parkingPlaceId.toString())
-                )
-            )
-
-            condition.addExtension(
-                conditionExtension.getExtenstion(
-                    conditionExtension.getUrl(providerServiceMapId),
-                    conditionExtension.getStringType(userInfo!!.serviceMapId.toString())
-                )
-            )
-
-            condition.addExtension(
-                conditionExtension.getExtenstion(
-                    conditionExtension.getUrl(createdBy),
-                    conditionExtension.getStringType(userInfo!!.userName)
-                )
-            )
-        }
     }
 
     override fun getFragmentId(): Int {

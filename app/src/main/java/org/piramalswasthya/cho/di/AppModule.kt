@@ -1,8 +1,13 @@
 package org.piramalswasthya.cho.di
 
+//import org.piramalswasthya.cho.network.AmritApiService
+//import org.piramalswasthya.sakhi.network.AbhaApiService
+//import org.piramalswasthya.sakhi.network.AmritApiService
+//import org.piramalswasthya.sakhi.network.D2DApiService
+//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
+//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
+//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
 import android.content.Context
-import com.google.android.fhir.FhirEngine
-import com.google.android.fhir.FhirEngineProvider
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -23,7 +28,6 @@ import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
-import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -33,6 +37,7 @@ import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
+import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
@@ -46,23 +51,11 @@ import org.piramalswasthya.cho.network.AbhaApiService
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.FlwApiService
-//import org.piramalswasthya.cho.network.AmritApiService
-//import org.piramalswasthya.sakhi.network.AbhaApiService
-//import org.piramalswasthya.sakhi.network.AmritApiService
-//import org.piramalswasthya.sakhi.network.D2DApiService
 import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.repositories.BlockMasterRepo
-import org.piramalswasthya.cho.repositories.DistrictMasterRepo
-import org.piramalswasthya.cho.repositories.StateMasterRepo
-import org.piramalswasthya.cho.repositories.VillageMasterRepo
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
@@ -228,10 +221,6 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideRoomDatabase(@ApplicationContext context: Context) = InAppDb.getInstance(context)
-
-    @Singleton
-    @Provides
-    fun provideFhirEngine(@ApplicationContext context: Context) : FhirEngine = FhirEngineProvider.getInstance(context)
 
     @Singleton
     @Provides

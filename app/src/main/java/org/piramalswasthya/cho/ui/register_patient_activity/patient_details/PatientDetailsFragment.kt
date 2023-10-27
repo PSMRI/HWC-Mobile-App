@@ -44,8 +44,8 @@ import java.io.File
 import java.io.StringReader
 import java.text.SimpleDateFormat
 import java.util.Date
-import javax.inject.Inject
 import java.util.Locale
+import javax.inject.Inject
 
 
 @AndroidEntryPoint

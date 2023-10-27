@@ -1,20 +1,16 @@
 package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.os.Bundle
-import android.util.Log
 import android.text.Html
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.NavHostFragment
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.FhirAddPatientFragment
-import org.piramalswasthya.cho.ui.commons.fhir_add_patient.location_fragment.FhirLocationFragment
 
 class RegisterPatientFragment : Fragment() {
 
