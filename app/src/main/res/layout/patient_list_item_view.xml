@@ -78,10 +78,11 @@
           </LinearLayout>
 
 
-      <ImageView
+      <ImageButton
           android:id="@+id/iv_sync_state"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:onClick="@{() -> clickListener.onClickSync(benVisitInfo)}"
           android:src="@drawable/baseline_info_24"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="parent"

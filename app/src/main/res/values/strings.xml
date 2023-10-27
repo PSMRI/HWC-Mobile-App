@@ -448,4 +448,14 @@
     <string name="save_template">Save this Template</string>
     <string name="enter_temp_name">Enter Template Name</string>
     <string name="select_temp_to_fill">Select Template Name To Fill</string>
+    <string name="form_name">Form Name</string>
+    <string name="Sync_state">Sync Status</string>
+    <string name="patient_form">Patient Registration Form</string>
+    <string name="sync">Sync</string>
+    <string name="pharmacy_form">Pharmacy Form</string>
+    <string name="lab_form">Lab Technician Form</string>
+    <string name="doctor_form">Doctor Form</string>
+    <string name="nurse_form">Nurse Form</string>
+    <string name="Yes_state">YES</string>
+    <string name="No_state">NO</string>
 </resources>
