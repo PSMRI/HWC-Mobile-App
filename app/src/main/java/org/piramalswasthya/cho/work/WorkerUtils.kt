@@ -70,10 +70,13 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
-        val pushImmunizationWorkRequest =
-            OneTimeWorkRequestBuilder<PushChildImmunizationToAmritWorker>()
-                .setConstraints(networkOnlyConstraint)
-                .build()
+        val pushImmunizationWorkRequest = OneTimeWorkRequestBuilder<PushChildImmunizationToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushECToAmritWorker = OneTimeWorkRequestBuilder<PushECToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
 
         val workManager = WorkManager.getInstance(context)
         workManager
@@ -88,6 +91,7 @@ object WorkerUtils {
 //            .then(pushPWRToAmritWorker)
 //            .then(pushPNCWorkRequest)
 //            .then(pushImmunizationWorkRequest)
+            .then(pushECToAmritWorker)
 //            .then(pushLabDataToAmrit)
             .enqueue()
     }

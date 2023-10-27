@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 //import org.piramalswasthya.sakhi.configuration.EligibleCoupleTrackingDataset
 //import org.piramalswasthya.sakhi.database.room.SyncState
 //import org.piramalswasthya.sakhi.database.shared_preferences.PreferenceDao
@@ -32,21 +33,22 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     preferenceDao: PreferenceDao,
     @ApplicationContext context: Context,
     private val ecrRepo: EcrRepo,
-    private val patientRepo: PatientRepo
+    private val patientRepo: PatientRepo,
+    private val userRepo: UserRepo,
 ) : ViewModel() {
 
 
-    val patientID = ""
-
-    private val zero = 0
-
-    val createdDate = zero.toLong()
-
-//    val benId =
-//        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).benId
+//    val patientID = ""
 //
-//    val createdDate =
-//        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).createdDate
+//    private val zero = 0
+//
+//    val createdDate = zero.toLong()
+
+    val patientID =
+        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+
+    val createdDate =
+        EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).createdDate
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
@@ -78,7 +80,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = preferenceDao.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()!!
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}"

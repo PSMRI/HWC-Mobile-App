@@ -29,6 +29,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_immunizationFormFragment"
             app:destination="@id/immunizationFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_eligibleCoupleTrackingFormFragment"
+            app:destination="@id/eligibleCoupleTrackingFormFragment" />
     </fragment>
 
     <fragment
@@ -143,6 +146,17 @@
         <argument
             android:name="vaccineId"
             app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/eligibleCoupleTrackingFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment"
+        android:label="EligibleCoupleTrackingFormFragment">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="createdDate"
+            app:argType="long" />
     </fragment>
 
 
