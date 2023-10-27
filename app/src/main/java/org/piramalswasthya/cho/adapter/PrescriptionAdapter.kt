@@ -46,6 +46,8 @@ class PrescriptionAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tempNameOption: AutoCompleteTextView =
             itemView.findViewById(R.id.inputUseTempForFields)
+        val tempNameOptionInput: TextInputLayout =
+            itemView.findViewById(R.id.useTempForFields)
         val formOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.dosagesDropDownVal)
         val frequencyOptions: AutoCompleteTextView =
@@ -160,13 +162,13 @@ class PrescriptionAdapter(
         holder.saveTemplate.setOnClickListener {
                 holder.tempText.visibility = View.VISIBLE
                 val testName = holder.tempName.text.toString()
-            if (testName.isNotBlank() || testName.isNullOrEmpty()) {
+            if (!testName.isNullOrEmpty()) {
                 if (isTestNameUnique(testName)) {
                     if (position < itemList.size) {
                         val prescriptionToSave = itemList[position]
                         listTemplate.add(prescriptionToSave.copy())
-                        Timber.i("listTemplate: ${listTemplate}")
                         showSavedToast(holder.itemView.context)
+                        holder.saveTemplate.isEnabled = false
                     }
                 } else {
                     showTestNameNotUniqueError(holder.itemView.context)
@@ -175,6 +177,11 @@ class PrescriptionAdapter(
                 showSavedToastErro(holder.itemView.context)
                 holder.tempName.requestFocus()
             }
+        }
+        if (listTemplateDB.size>0){
+            holder.tempNameOptionInput.visibility = View.VISIBLE
+        }else{
+            holder.tempNameOptionInput.visibility = View.GONE
         }
 
         holder.formOptions.setText(itemData.form)
