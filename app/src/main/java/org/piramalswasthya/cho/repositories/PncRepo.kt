@@ -1,12 +1,16 @@
 package org.piramalswasthya.cho.repositories
 
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
@@ -19,6 +23,7 @@ class PncRepo @Inject constructor(
     private val pncDao: PncDao,
     private val userRepo: UserRepo,
     private val preferenceDao: PreferenceDao,
+    private val patientDao: PatientDao,
 ) {
     suspend fun getSavedPncRecord(patientID: String, visitNumber: Int): PNCVisitCache? {
         return withContext(Dispatchers.IO) {
@@ -39,96 +44,94 @@ class PncRepo @Inject constructor(
 
     }
 
-//    suspend fun processPncVisits(): Boolean {
-//        return withContext(Dispatchers.IO) {
-//            val user = preferenceDao.getLoggedInUser()
-//                ?: throw IllegalStateException("No user logged in!!")
+    suspend fun processPncVisits(): Boolean {
+        return withContext(Dispatchers.IO) {
+
+            val pncList = pncDao.getAllUnprocessedPncVisits()
+
+            val pncPostList = mutableSetOf<PNCNetwork>()
+
+            pncList.forEach {
+                pncPostList.clear()
+                val ben = patientDao.getPatient(it.patientID)
+                pncPostList.add(it.asNetworkModel(ben.beneficiaryID!!))
+                it.syncState = SyncState.SYNCING
+                pncDao.update(it)
+                val uploadDone = postDataToAmritServer(pncPostList)
+                if (uploadDone) {
+                    it.processed = "P"
+                    it.syncState = SyncState.SYNCED
+                } else {
+                    it.syncState = SyncState.UNSYNCED
+                }
+                pncDao.update(it)
+                if (!uploadDone)
+                    return@withContext false
+            }
+
+            return@withContext true
+        }
+    }
 //
-//            val pncList = pncDao.getAllUnprocessedPncVisits()
-//
-//            val pncPostList = mutableSetOf<PNCNetwork>()
-//
-//            pncList.forEach {
-//                pncPostList.clear()
-////                val ben = benDao.getBen(it.benId)
-//                    ?: throw IllegalStateException("No beneficiary exists for benId: ${it.benId}!!")
-//                pncPostList.add(it.asNetworkModel())
-//                it.syncState = SyncState.SYNCING
-//                pncDao.update(it)
-//                val uploadDone = postDataToAmritServer(pncPostList)
-//                if (uploadDone) {
-//                    it.processed = "P"
-//                    it.syncState = SyncState.SYNCED
-//                } else {
-//                    it.syncState = SyncState.UNSYNCED
-//                }
-//                pncDao.update(it)
-//                if (!uploadDone)
-//                    return@withContext false
-//            }
-//
-//            return@withContext true
-//        }
-//    }
-//
-//    private suspend fun postDataToAmritServer(ancPostList: MutableSet<PNCNetwork>): Boolean {
-//        if (ancPostList.isEmpty()) return false
-//        val user =
-//            preferenceDao.getLoggedInUser()
-//                ?: throw IllegalStateException("No user logged in!!")
-//
-//        try {
-//
-//            val response = amritApiService.postPncForm(ancPostList.toList())
-//            val statusCode = response.code()
-//
-//            if (statusCode == 200) {
-//                try {
-//                    val responseString = response.body()?.string()
-//                    if (responseString != null) {
-//                        val jsonObj = JSONObject(responseString)
-//
-//                        val errormessage = jsonObj.getString("errorMessage")
-//                        if (jsonObj.isNull("statusCode")) throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
-//                        val responsestatuscode = jsonObj.getInt("statusCode")
-//
-//                        when (responsestatuscode) {
-//                            200 -> {
-//                                Timber.d("Saved Successfully to server")
-//                                return true
-//                            }
-//
-//                            5002 -> {
-//                                if (userRepo.refreshTokenTmc(
-//                                        user.userName,
-//                                        user.password
-//                                    )
-//                                ) throw SocketTimeoutException()
-//                            }
-//
-//                            else -> {
-//                                throw IOException("Throwing away IO eXcEpTiOn")
-//                            }
-//                        }
-//                    }
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
-//            } else {
-//                //server_resp5();
-//            }
-//            Timber.w("Bad Response from server, need to check $ancPostList $response ")
-//            return false
-//        } catch (e: SocketTimeoutException) {
-//            Timber.d("Caught exception $e here")
-//            return postDataToAmritServer(ancPostList)
-//        } catch (e: JSONException) {
-//            Timber.d("Caught exception $e here")
-//            return false
-//        }
-//    }
+    private suspend fun postDataToAmritServer(ancPostList: MutableSet<PNCNetwork>): Boolean {
+        if (ancPostList.isEmpty()) return false
+        val user =
+            userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+
+        try {
+
+            val response = amritApiService.postPncForm(ancPostList.toList())
+            val statusCode = response.code()
+
+            if (statusCode == 200) {
+                try {
+                    val responseString = response.body()?.string()
+                    if (responseString != null) {
+                        val jsonObj = JSONObject(responseString)
+
+                        val errormessage = jsonObj.getString("errorMessage")
+                        if (jsonObj.isNull("statusCode")) throw IllegalStateException("Amrit server not responding properly, Contact Service Administrator!!")
+                        val responsestatuscode = jsonObj.getInt("statusCode")
+
+                        when (responsestatuscode) {
+                            200 -> {
+                                Timber.d("Saved Successfully to server")
+                                return true
+                            }
+
+                            5002 -> {
+                                if (userRepo.refreshTokenTmc(
+                                        user.userName,
+                                        user.password
+                                    )
+                                ) throw SocketTimeoutException()
+                            }
+
+                            else -> {
+                                Log.d("pnc error message", errormessage)
+                                throw IOException("Throwing away IO eXcEpTiOn")
+                            }
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+                //server_resp5();
+            }
+            Timber.w("Bad Response from server, need to check $ancPostList $response ")
+            return false
+        } catch (e: SocketTimeoutException) {
+            Timber.d("Caught exception $e here")
+            return postDataToAmritServer(ancPostList)
+        } catch (e: JSONException) {
+            Timber.d("Caught exception $e here")
+            return false
+        }
+    }
 //
 //
 //    //PULL

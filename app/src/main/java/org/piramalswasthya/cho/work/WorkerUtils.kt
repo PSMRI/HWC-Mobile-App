@@ -66,6 +66,10 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushPNCWorkRequest = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -76,7 +80,8 @@ object WorkerUtils {
             .then(pushBenDoctorInfoPendingTestToAmrit)
             .then(pushBenDoctorInfoWithoutTestToAmrit)
             .then(pushBenDoctorInfoAfterTestToAmrit)
-            .then(pushPWRToAmritWorker)
+//            .then(pushPWRToAmritWorker)
+            .then(pushPNCWorkRequest)
 //            .then(pushLabDataToAmrit)
             .enqueue()
     }

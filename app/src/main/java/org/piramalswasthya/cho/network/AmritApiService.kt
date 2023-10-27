@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInformation
@@ -221,6 +222,10 @@ interface AmritApiService {
 
     @POST("/flw-0.0.1/maternalCare/ancVisit/saveAll")
     suspend fun postAncForm(@Body ancPostList: List<ANCPost>): Response<ResponseBody>
+
+    @POST("/flw-0.0.1/maternalCare/pnc/saveAll")
+    suspend fun postPncForm(@Body ancPostList: List<PNCNetwork>): Response<ResponseBody>
+
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
 

@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -191,6 +192,7 @@ class MaternalHealthRepo @Inject constructor(
                             }
 
                             else -> {
+                                Log.d("anc error message", errormessage)
                                 throw IOException("Throwing away IO eXcEpTiOn")
                             }
                         }

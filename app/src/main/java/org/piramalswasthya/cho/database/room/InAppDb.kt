@@ -133,7 +133,7 @@ import timber.log.Timber
         DeliveryOutcomeCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 86, exportSchema = false
+    version = 88, exportSchema = false
 )
 
 

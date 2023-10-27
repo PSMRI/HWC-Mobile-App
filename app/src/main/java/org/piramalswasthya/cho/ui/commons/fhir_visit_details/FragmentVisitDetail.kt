@@ -819,12 +819,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     override fun navigateNext() {
 
         findNavController().navigate(
-            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
-                benVisitInfo.patient.patientID, 0
-            )
-//            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
-//                benVisitInfo.patient.patientID, 1
+//            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
+//                benVisitInfo.patient.patientID, 0
 //            )
+            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                benVisitInfo.patient.patientID, 1
+            )
 //            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
 //                benVisitInfo.patient.patientID, 1
 //            )
