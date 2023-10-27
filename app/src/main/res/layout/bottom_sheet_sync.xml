@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-
     <LinearLayout
         android:id="@+id/ll_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="@dimen/padding_normal"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/colorAccent">
 
         <TextView
             android:layout_width="0dp"
@@ -22,8 +22,8 @@
             android:textSize="18dp"
             android:padding="@dimen/padding_normal"
             android:text="@string/form_name"
-            android:textColor="@color/colorAccent"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+            android:textColor="@android:color/white"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
 
         <TextView
@@ -34,12 +34,17 @@
             android:textSize="18dp"
             android:padding="@dimen/padding_normal"
             android:text="@string/Sync_state"
-            android:textColor="@color/colorAccent"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+            android:textColor="@android:color/white"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
     </LinearLayout>
 
-    <LinearLayout
+
+
+
+
+
+<LinearLayout
         android:id="@+id/ben_reg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
