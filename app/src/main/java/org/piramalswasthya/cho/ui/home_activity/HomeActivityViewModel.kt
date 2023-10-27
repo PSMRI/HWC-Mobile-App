@@ -107,6 +107,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+            vaccineAndDoseTypeRepo.checkAndAddVaccines()
             doctorMaleMasterDataRepo.getDoctorMasterMaleData()
             malMasterDataRepo.getMasterDataForNurse()
             if (!dataLoadFlagManager.isDataLoaded()){
