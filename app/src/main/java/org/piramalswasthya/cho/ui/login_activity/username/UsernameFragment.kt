@@ -136,6 +136,7 @@ class UsernameFragment() : Fragment() {
                                     isBiometric
                                 )
                             )
+                            isBiometric = false
                         }
                         else -> {}
                     }
