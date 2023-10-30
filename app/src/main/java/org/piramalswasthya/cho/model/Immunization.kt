@@ -173,3 +173,24 @@ data class ImmunizationPost (
 //        )
 //    }
 }
+
+
+data class ImmunizationDetailsDomain(
+    val ben : Patient,
+    val vaccineStateList: List<VaccineDomain>,
+//    val onClick: (Long, Int) -> Unit
+)
+
+data class VaccineCategoryDomain(
+    val category : ChildImmunizationCategory,
+    val categoryString : String = category.name,
+    val vaccineStateList: List<VaccineDomain>,
+//    val onClick: (Long, Int) -> Unit
+)
+data class VaccineDomain(
+//    val benId: Long,
+    val vaccineId: Int,
+    val vaccineName : String,
+    val vaccineCategory : ChildImmunizationCategory,
+    val state: VaccineState,
+)
