@@ -97,7 +97,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     lateinit var preferenceDao: PreferenceDao
     private val initialItemD = DiagnosisValue()
     private val itemListD = mutableListOf(initialItemD)
-    private val initialItemP = PrescriptionValuesForTemplate()
+    private val initialItemP = PrescriptionValues()
     private val itemListP = mutableListOf(initialItemP)
     private val initialItemTemp = PrescriptionValuesForTemplate()
     private val tempList  = mutableListOf(initialItemTemp)
@@ -320,8 +320,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonD.isEnabled = false
         }
         pAdapter = PrescriptionAdapter(
-            tempDBVal,
-            tempList,
+//            tempDBVal,
+//            tempList,
             itemListP,
             formMListVal,
             frequencyListVal,
@@ -340,7 +340,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         pAdapter.notifyItemInserted(itemListP.size - 1)
         binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
         binding.plusButtonP.setOnClickListener {
-            val newItem = PrescriptionValuesForTemplate()
+            val newItem = PrescriptionValues()
             itemListP.add(newItem)
 //            pAdapter.notifyItemInserted(itemListP.size -   1)
             view.clearFocus()

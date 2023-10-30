@@ -327,11 +327,34 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/useTempForFields"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:textSize="18sp"
+                    android:paddingTop="4dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/testName"
+                    android:hint="@string/select_temp_to_fill"
+                    android:textColorHint="#808080"> <!-- Set text color hint to black -->
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputUseTempForFields"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/diaF"
-                    app:layout_constraintTop_toBottomOf="@+id/testName">
+                    app:layout_constraintTop_toBottomOf="@+id/useTempForFields">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/diagnosisExtra"
@@ -408,6 +431,41 @@
                 </FrameLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tempName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="@string/enter_temp_name"
+                    android:paddingBottom="4dp"
+                    android:paddingTop="6dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputTestName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/saveTemplate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/default_button"
+                    android:text="@string/save_template"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:padding="12dp"
+                    android:layout_gravity="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tempName"/>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/routeDropDown"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -418,7 +476,7 @@
                     android:hint="@string/councilling_advice"
                     android:textColorHint="#808080"
                     android:textSize="18sp"
-                    app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra"> <!-- Set text color hint to black -->
+                    app:layout_constraintTop_toBottomOf="@+id/saveTemplate"> <!-- Set text color hint to black -->
 
                     <AutoCompleteTextView
                         android:id="@+id/routeDropDownVal"

@@ -59,29 +59,6 @@
 <!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/useTempForFields"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"
-        android:hint="@string/select_temp_to_fill"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
-
-        <AutoCompleteTextView
-            android:id="@+id/inputUseTempForFields"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textSize="18sp"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dosagesDropDown"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -90,7 +67,7 @@
         android:layout_marginRight="4dp"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/useTempForFields"
+        app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"
         android:hint="@string/form_medicine_dosage"
         android:textColorHint="#808080"> <!-- Set text color hint to black -->
 
@@ -234,42 +211,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tempName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:hint="@string/enter_temp_name"
-        android:paddingBottom="4dp"
-        android:visibility="gone"
-        android:paddingTop="4dp"
-        android:textColorHint="#888888"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/instruction">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputTestName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:textColorHint="#888888"
-            android:textSize="18sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/saveTemplate"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/default_button"
-        android:text="@string/save_template"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="12dp"
-        android:layout_gravity="center"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tempName"/>
-
     <!--    <Button-->
 <!--        android:id="@+id/deleteButton"-->
 <!--        android:layout_width="wrap_content"-->
@@ -292,7 +233,7 @@
         android:src="@drawable/baseline_refresh_icon"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/saveTemplate" />
+        app:layout_constraintTop_toBottomOf="@+id/instruction" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/deleteButton"
@@ -304,6 +245,6 @@
         android:layout_margin="@dimen/custom_ui_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
-        app:layout_constraintTop_toBottomOf="@+id/saveTemplate" />
+        app:layout_constraintTop_toBottomOf="@+id/instruction" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
