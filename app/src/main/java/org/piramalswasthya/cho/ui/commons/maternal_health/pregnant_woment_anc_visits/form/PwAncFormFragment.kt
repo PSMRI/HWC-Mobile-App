@@ -179,9 +179,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
         return R.id.fragment_new_form
     }
 
-    override fun onSubmitAction() {
-        navigateNext()
-    }
 
     override fun navigateNext() {
         submitAncForm()
@@ -190,10 +187,12 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
 //        )
     }
 
+    override fun onSubmitAction() {
+        navigateNext()
+    }
+
     override fun onCancelAction() {
-        val intent = Intent(context, HomeActivity::class.java)
-        startActivity(intent)
-        requireActivity().finish()
+        findNavController().navigateUp()
     }
 
     override fun onDestroy() {

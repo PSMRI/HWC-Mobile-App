@@ -153,7 +153,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter, FhirFragmentServ
     }
 
     override fun onCancelAction() {
-        submitImmForm()
+        findNavController().navigateUp()
     }
 
 

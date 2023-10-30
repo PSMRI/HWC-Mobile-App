@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -178,7 +179,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService {
     }
 
     override fun onCancelAction() {
-        submitAncForm()
+        findNavController().navigateUp()
     }
 
 }

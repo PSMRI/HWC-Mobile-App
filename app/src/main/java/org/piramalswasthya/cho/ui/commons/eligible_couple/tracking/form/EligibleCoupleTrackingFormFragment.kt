@@ -164,7 +164,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter, FhirFr
     }
 
     override fun onCancelAction() {
-        submitEligibleTrackingForm()
+        findNavController().navigateUp()
     }
 
 
