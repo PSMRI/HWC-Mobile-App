@@ -147,8 +147,6 @@ data class PharmacistPatientDataRequest(
 data class PrescribedMedicineDataRequest(
     val beneficiaryRegID: Long,
     val facilityID: Int,
-    val parkingPlaceID: Int,
-    val vanID: Int,
     val visitCode: Long,
 )
 
