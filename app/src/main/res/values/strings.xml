@@ -458,4 +458,5 @@
     <string name="nurse_form">Nurse Form</string>
     <string name="Yes_state">YES</string>
     <string name="No_state">NO</string>
+    <string name="duration_prescription">Duration</string>
 </resources>

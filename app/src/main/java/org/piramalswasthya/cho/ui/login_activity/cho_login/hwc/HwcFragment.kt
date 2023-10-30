@@ -152,7 +152,7 @@ class HwcFragment constructor(
                                             currentLatitude!!, currentLongitude!!
                                         )
                                         if (distance > userLoginDistance!!) {
-                                            showDialog(distance)
+                                            showDialog()
                                         } else {
 //                                            Toast.makeText(
 //                                                context,
@@ -268,7 +268,7 @@ class HwcFragment constructor(
                                 currentLatitude!!, currentLongitude!!
                             )
                             if (distance > userLoginDistance!!) {
-                                showDialog(distance)
+                                showDialog()
                             }
                             else {
                                 viewModel.setOutreachDetails(
@@ -396,7 +396,7 @@ class HwcFragment constructor(
             )
         }
     }
-    private fun showDialog(distance:Float) {
+    private fun showDialog() {
         val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
         val timeZone = TimeZone.getTimeZone("GMT+0530")
         val formatter = SimpleDateFormat(pattern, Locale.getDefault())
@@ -404,7 +404,7 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("You are logged-in from different location, your attendance is marked as Absent. Do you want to retry?")
+        alertDialogBuilder.setMessage("You are trying to Log-in away from your facility. Do you want to retry?")
             .setTitle("Alert!")
             .setCancelable(false)
             .setPositiveButton("Yes"){d,_->
@@ -418,7 +418,7 @@ class HwcFragment constructor(
                 d.dismiss()
                 findNavController().navigateUp()
             }
-            .setNegativeButton("No, proceed to Home") { d, _ ->
+            .setNegativeButton("No") { d, _ ->
                 lifecycleScope.launch {
                 viewModel.setOutreachDetails(
                     "HWC",

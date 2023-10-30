@@ -519,11 +519,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
                 val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setAge(isDobFilled) // Update LiveData
+                if (!s.isNullOrBlank() && s.toString().toInt() != 0)
+                    viewModel.setAge(isDobFilled) // Update LiveData
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!s.isNullOrBlank() && s.toString().toInt() == 0) s.clear()
+
+            }
         })
         binding.ageInUnitDropdown.addTextChangedListener (object :TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -794,7 +799,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return R.id.fragment_add_patient_location;
     }
     fun checkVisibleFieldIsEmpty():Boolean{
-        if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
+        if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.ageVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
 //        if(viewModel.ageGreaterThan11.value!!){
