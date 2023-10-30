@@ -404,10 +404,21 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         val alertDialogBuilder = AlertDialog.Builder(activity)
-        alertDialogBuilder.setMessage("Your current location is $distance meters away from your assigned village.")
+        alertDialogBuilder.setMessage("You are logged-in from different location, your attendance is marked as Absent. Do you want to retry?")
             .setTitle("Alert!")
             .setCancelable(false)
-            .setPositiveButton("OK") { d, _ ->
+            .setPositiveButton("Yes"){d,_->
+                lifecycleScope.launch {
+                    val user = userDao.getLoggedInUser()
+                    userDao.resetAllUsersLoggedInState()
+                    if (user != null) {
+                        userDao.updateLogoutTime(user.userId, Date())
+                    }
+                }
+                d.dismiss()
+                findNavController().navigateUp()
+            }
+            .setNegativeButton("No, proceed to Home") { d, _ ->
                 lifecycleScope.launch {
                 viewModel.setOutreachDetails(
                     "HWC",

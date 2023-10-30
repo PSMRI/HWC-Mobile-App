@@ -5,9 +5,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
@@ -15,6 +20,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -26,6 +32,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
@@ -34,7 +41,9 @@ import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -49,6 +58,7 @@ class CaseRecordViewModel @Inject constructor(
     private val doctorMasterDataMaleRepo: DoctorMasterDataMaleRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vitalsRepo: VitalsRepo,
+    preferenceDao: PreferenceDao,
     private val procedureRepo: ProcedureRepo,
     private val visitRepo: VisitReasonsAndCategoriesRepo,
     private val patientRepo: PatientRepo,
@@ -56,8 +66,10 @@ class CaseRecordViewModel @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
     private val caseRecordeDao: CaseRecordeDao,
     private val investigationDao: InvestigationDao,
+    private val userRepo: UserRepo,
+    private val templateRepo: PrescriptionTemplateRepo
 ): ViewModel() {
-
+    val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
@@ -79,6 +91,12 @@ class CaseRecordViewModel @Inject constructor(
     private var _formMedicineDosage: LiveData<List<ItemMasterList>>
     val formMedicineDosage: LiveData<List<ItemMasterList>>
         get() = _formMedicineDosage
+    var userIDVAl:Int? = null
+    val tempDB= userId.transformLatest {
+        it?.let {
+            emit(templateRepo.getProceduresWithComponent(it) )
+        }
+    }.asLiveData()
 
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
@@ -105,6 +123,10 @@ class CaseRecordViewModel @Inject constructor(
         get() = _vitalsDB
 
     init {
+        viewModelScope.launch {
+            userIDVAl = userId.first()
+
+        }
         _counsellingProvided = MutableLiveData()
         getCounsellingTypes()
         _formMedicineDosage = MutableLiveData()
@@ -113,6 +135,26 @@ class CaseRecordViewModel @Inject constructor(
         getProcedureDropdown()
         _higherHealthCare = MutableLiveData()
         getHigherHealthCareDropdown()
+//        getLoggedInUserDetails()
+    }
+//    fun getLoggedInUserDetails():Int {
+//        viewModelScope.launch {
+//            try {
+//               return userRepo.getLoggedInUser()?.userId!!
+//            } catch (e: java.lang.Exception) {
+//                Timber.d("Error in calling getLoggedInUserDetails() $e")
+//            }
+//        }
+//    }
+    fun savePrescriptionTemp(prescriptionTemplateDB: PrescriptionTemplateDB){
+        viewModelScope.launch {
+            templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)
+        }
+    }
+    fun savePrescriptionTempToServer(prescriptionTemplateDB: List<PrescriptionTemplateDB>){
+        viewModelScope.launch {
+            templateRepo.saveTemplateToServer(prescriptionTemplateDB)
+        }
     }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {

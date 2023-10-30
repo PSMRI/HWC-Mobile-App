@@ -23,14 +23,13 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), FhirFragmentService, NavigationAdapter {
+class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), NavigationAdapter {
 
     private var _binding: FragmentPharmacistFormBinding? = null
 
@@ -39,16 +38,13 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
             return _binding!!
         }
 
-    override var fragment: Fragment = this;
+    var fragment: Fragment = this;
     @Inject
     lateinit var preferenceDao: PreferenceDao
-    override var fragmentContainerId = 0;
     private var userInfo: UserCache? = null
     private lateinit var navHostFragment: PrescriptionItemDTO
 
-    override val jsonFile : String = "vitals-page.json"
-
-    override lateinit var viewModel: PharmacistFormViewModel
+    lateinit var viewModel: PharmacistFormViewModel
 
     private var dtos: PrescriptionDTO? = null
 
@@ -215,7 +211,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Fhir
         requireActivity().finish()
     }
 
-    override fun navigateNext() {
+    fun navigateNext() {
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )

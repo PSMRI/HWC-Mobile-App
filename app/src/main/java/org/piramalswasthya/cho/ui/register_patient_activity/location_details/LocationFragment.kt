@@ -1,47 +1,22 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.location_details
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.ResourceType
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DistrictAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.StatesAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.VillageAdapter
-import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.databinding.FragmentLocationBinding
 //import org.piramalswasthya.cho.databinding.FragmentLoginSettingBinding
-import org.piramalswasthya.cho.model.BlockMaster
-import org.piramalswasthya.cho.model.DistrictMaster
-import org.piramalswasthya.cho.model.StateMaster
-import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.model.VillageMaster
-import org.piramalswasthya.cho.patient.patient
-import org.piramalswasthya.cho.repositories.BlockMasterRepo
-import org.piramalswasthya.cho.repositories.DistrictMasterRepo
-import org.piramalswasthya.cho.repositories.StateMasterRepo
-import org.piramalswasthya.cho.repositories.VillageMasterRepo
-import org.piramalswasthya.cho.fhir_utils.FhirExtension
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import timber.log.Timber
-import org.piramalswasthya.cho.fhir_utils.extension_names.*
 import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
-import java.util.UUID
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocationFragment : Fragment() , NavigationAdapter {

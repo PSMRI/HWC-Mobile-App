@@ -8,16 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.PharmacistItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
 import org.piramalswasthya.cho.databinding.FragmentPrescriptionBatchFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionBatchDTO
@@ -25,12 +20,11 @@ import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_batch_form), FhirFragmentService, NavigationAdapter {
+class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_batch_form), NavigationAdapter {
 
     private var _binding: FragmentPrescriptionBatchFormBinding? = null
 
@@ -39,15 +33,15 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
             return _binding!!
         }
 
-    override var fragment: Fragment = this;
+    var fragment: Fragment = this;
     @Inject
     lateinit var preferenceDao: PreferenceDao
-    override var fragmentContainerId = 0;
+    var fragmentContainerId = 0;
     private var userInfo: UserCache? = null
 
-    override val jsonFile : String = "vitals-page.json"
+    val jsonFile : String = "vitals-page.json"
 
-    override lateinit var viewModel: PrescriptionBatchFormViewModel
+    lateinit var viewModel: PrescriptionBatchFormViewModel
 
     private var dtos: List<ProcedureDTO>? = null
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
@@ -173,7 +167,7 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
         )
     }
 
-    override fun navigateNext() {
+    fun navigateNext() {
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )

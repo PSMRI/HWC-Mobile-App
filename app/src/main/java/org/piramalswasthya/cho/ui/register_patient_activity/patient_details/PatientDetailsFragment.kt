@@ -27,24 +27,25 @@ import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.ChiefComplaintAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
-import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import timber.log.Timber
 import java.io.File
+import java.io.StringReader
 import java.text.SimpleDateFormat
 import java.util.Date
-import javax.inject.Inject
 import java.util.Locale
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -78,6 +79,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.ivImgCapture.setOnClickListener {
             checkAndRequestCameraPermission()
         }
+        scanCode()
+
         return binding.root
     }
     @RequiresApi(Build.VERSION_CODES.P)
@@ -181,6 +184,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //        )
 //        binding.villageDropdown.setAdapter(villageAdapter)
 
+
+
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
         }
@@ -200,6 +205,130 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             speechToTextLauncherForFatherName.launch(Unit)
         }
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun scanCode() {
+        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == 2) {
+                val scannedData = result.data?.getStringExtra("data")
+                if (scannedData != null) {
+                    val userData = parseUserData(scannedData)
+
+                    val nameParts = userData.name?.split(" ")
+                    val firstName = nameParts?.get(0)
+                    val lastName = nameParts?.get(nameParts.size - 1)
+                    binding.firstName.text =
+                        Editable.Factory.getInstance().newEditable(firstName ?: "")
+                    binding.lastName.text =
+                        Editable.Factory.getInstance().newEditable(lastName ?: "")
+
+                    val inputDateFormat1 = SimpleDateFormat("dd/MM/yyyy")
+                    val inputDateFormat2 = SimpleDateFormat("dd-MM-yyyy")
+                    val inputDateFormat3 = SimpleDateFormat("yyyy-MM-dd")
+                    val inputDateFormat4 = SimpleDateFormat("yyyy/MM/dd")
+
+                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+                    if (!userData.dateOfBirth.isNullOrEmpty()) {
+                        var date: Date? = null
+                        if(userData.dateOfBirth[2].toString()=="/") {
+                             date =
+                                userData.dateOfBirth.let { inputDateFormat1.parse(it) } as Date
+                        }else if(userData.dateOfBirth[2].toString()=="-"){
+                            date = userData.dateOfBirth.let { inputDateFormat2.parse(it) } as Date
+                        }
+                        else if(userData.dateOfBirth[4].toString()=="-"){
+                            date = userData.dateOfBirth.let { inputDateFormat3.parse(it) } as Date
+                        } else if(userData.dateOfBirth[4].toString()=="/"){
+                            date = userData.dateOfBirth.let { inputDateFormat4.parse(it) } as Date
+                        }
+                        if(date!=null) {
+                            val outputDateStr: String = outputDateFormat.format(date)
+                            val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
+
+                            viewModel.selectedDateOfBirth = outputDate
+
+                            dobUtil.showDatePickerDialog(
+                                requireContext(),
+                                viewModel.selectedDateOfBirth
+                            )
+                        }
+
+                    }
+                    if (!userData.gender.isNullOrEmpty()){
+                        when (userData.gender) {
+                            "M" -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[0]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
+
+                            "F" -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[1]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
+
+                            else -> {
+                                viewModel.selectedGenderMaster = viewModel.genderMasterList[2]
+                                binding.genderDropdown.setText(
+                                    viewModel.selectedGenderMaster!!.genderName,
+                                    false
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.btnScanAadhaar.setOnClickListener {
+            resultLauncher.launch(Intent(requireContext(), ScanAadhaarActivity::class.java))
+        }
+    }
+
+    private fun parseUserData(xmlData: String):PatientAadhaarDetails {
+        val xml = XmlPullParserFactory.newInstance().newPullParser()
+        xml.setInput(StringReader(xmlData))
+
+        var name = ""
+        var gender = ""
+        var dateOfBirth = ""
+        try {
+            while (xml.eventType != XmlPullParser.END_DOCUMENT) {
+                when (xml.eventType) {
+                    XmlPullParser.START_TAG -> {
+                        when (xml.name) {
+                            "QPDB" -> {
+                                name = xml.getAttributeValue(null, "n")
+                                gender = xml.getAttributeValue(null, "g")
+                                dateOfBirth = xml.getAttributeValue(null, "d")
+                            }
+
+                            "PrintLetterBarcodeData" -> {
+                                name = xml.getAttributeValue(null, "name")
+                                gender = xml.getAttributeValue(null, "gender")
+                                dateOfBirth = xml.getAttributeValue(null, "dob")
+
+                            }
+//                            else->{}
+                        }
+                    }
+                }
+                xml.next()
+            }
+
+        }catch (e:Exception){
+            Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
+        }
+            return PatientAadhaarDetails(name, gender, dateOfBirth)
+    }
+
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
              binding.firstName.setText(result)
@@ -336,7 +465,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth)
+            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth).show()
         }
 
         binding.age.addTextChangedListener(ageTextWatcher)

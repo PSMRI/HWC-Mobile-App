@@ -62,16 +62,16 @@ class RegisterPatientActivity : AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.submit_btn_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.fragmentLocation -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.location_information)
-                    binding.btnSubmit.text = resources.getString(R.string.next)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.otherInformationsFragment ->{
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.other_information)
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
+//                R.id.fragmentLocation -> {
+//                    binding.headerTextRegisterPatient.text = resources.getString(R.string.location_information)
+//                    binding.btnSubmit.text = resources.getString(R.string.next)
+//                    binding.btnCancel.text = resources.getString(R.string.cancel)
+//                }
+//                R.id.otherInformationsFragment ->{
+//                    binding.headerTextRegisterPatient.text = resources.getString(R.string.other_information)
+//                    binding.btnSubmit.text = resources.getString(R.string.submit)
+//                    binding.btnCancel.text = resources.getString(R.string.cancel)
+//                }
             }
         }
 

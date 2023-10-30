@@ -5,16 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Immunization
 import kotlinx.coroutines.withContext
-import org.hl7.fhir.r4.model.FamilyMemberHistory
-import org.hl7.fhir.r4.model.MedicationStatement
-import org.hl7.fhir.r4.model.Observation
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.DoseType
@@ -65,9 +60,6 @@ class HistoryCustomViewModel @Inject constructor(
     private var _loggedInUser: UserCache? = null
     val loggedInUser: UserCache?
         get() = _loggedInUser
-
-    val fhirEngine: FhirEngine
-        get() = CHOApplication.fhirEngine(application.applicationContext)
 
     private var _boolCall = MutableLiveData(false)
     val boolCall: LiveData<Boolean>
@@ -126,61 +118,7 @@ class HistoryCustomViewModel @Inject constructor(
             }
         }
     }
-    fun saveIllnessORSurgeryDetailsInfo(observation: Observation){
-        viewModelScope.launch {
-            try{
-                   var uuid = generateUuid()
-                    observation.id = uuid
-                    fhirEngine.create(observation)
-            } catch (e: Exception){
-                Timber.d("Error in Saving Illness Details Informations")
-            }
-        }
-    }
-    fun saveTobAndAlcHistoryDetailsInfo(observation: Observation){
-        viewModelScope.launch {
-            try{
-                var uuid = generateUuid()
-                observation.id = uuid
-                fhirEngine.create(observation)
-            } catch (e: Exception){
-                Timber.d("Error in Saving Personal History Details Informations")
-            }
-        }
-    }
-    fun saveMedicationDetailsInfo(medicationStatement: MedicationStatement){
-        viewModelScope.launch {
-            try{
-                var uuid = generateUuid()
-                medicationStatement.id = uuid
-                fhirEngine.create(medicationStatement)
-            } catch (e: Exception){
-                Timber.d("Error in Saving Medication Details Informations")
-            }
-        }
-    }
-    fun saveFamilyMemberHistoyrDetailsInfo(familyMemberHistory: FamilyMemberHistory){
-        viewModelScope.launch {
-            try{
-                var uuid = generateUuid()
-                familyMemberHistory.id = uuid
-                fhirEngine.create(familyMemberHistory)
-            } catch (e: Exception){
-                Timber.d("Error in Saving Family Member History Details Informations")
-            }
-        }
-    }
-    fun saveCovidDetailsInfo(immunization: Immunization){
-        viewModelScope.launch {
-            try{
-                    var uuid = generateUuid()
-                    immunization.id = uuid
-                    fhirEngine.create(immunization)
-            } catch (e: Exception){
-                Timber.d("Error in Saving Covid Details Informations")
-            }
-        }
-    }
+
     suspend fun getIllMap(): Map<Int, String> {
         return try {
             maleMasterDataRepository.getIllnessByNameMap()

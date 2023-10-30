@@ -3,50 +3,32 @@ package org.piramalswasthya.cho.ui.home_activity
 import android.app.Application
 import android.content.Context
 import android.location.Location
-import android.os.Build
-import android.text.format.DateFormat
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.work.Constraints
-import com.google.android.fhir.sync.PeriodicSyncConfiguration
-import com.google.android.fhir.sync.RepeatInterval
-import com.google.android.fhir.sync.Sync
-import com.google.android.fhir.sync.SyncJobStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.ui.home.DataLoadFlagManager
-import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.work.WorkerUtils
-import timber.log.Timber
-import java.lang.Exception
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -62,6 +44,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
                                                  private val malMasterDataRepo: MaleMasterDataRepository,
                                                  private val doctorMaleMasterDataRepo: DoctorMasterDataMaleRepo,
+                                                 private val prescriptionTemplateRepo: PrescriptionTemplateRepo,
                                                  private val dataLoadFlagManager: DataLoadFlagManager) : AndroidViewModel(application) {
 
 
@@ -106,8 +89,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             registrarMasterDataRepo.saveQualificationMasterResponseToCache()
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+            prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             doctorMaleMasterDataRepo.getDoctorMasterMaleData()
+
             malMasterDataRepo.getMasterDataForNurse()
             if (!dataLoadFlagManager.isDataLoaded()){
                 Log.d("syncing started second", "syncing started")

@@ -184,6 +184,7 @@ class PersonalDetailsFragment : Fragment() {
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", benVisitInfo);
                                         startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1) ||
                                         (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
@@ -240,6 +241,9 @@ class PersonalDetailsFragment : Fragment() {
                                         generatePDF(benVisitInfo)
                                     }
 
+                                },
+                                {
+                                    benVisitInfo ->  openDialog(benVisitInfo)
                                 }
                          ),
                             showAbha = true
@@ -333,6 +337,14 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
+    private lateinit var syncBottomSheet : SyncBottomSheetFragment
+    private fun openDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
+        syncBottomSheet = SyncBottomSheetFragment(benVisitInfo)
+        if(!syncBottomSheet.isVisible)
+            syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
+        Timber.tag("sync").i("${benVisitInfo}")
+    }
+
     var pageHeight = 1120
     var pageWidth = 792
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {

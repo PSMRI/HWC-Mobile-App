@@ -56,11 +56,11 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -365,7 +365,8 @@ class HomeActivity : AppCompatActivity() {
             .setPositiveButton("Apply") { dialog, _ ->
                 if(currentRoleSelected!=null){
                     prefDao.setSecondRolesForCHO(currentRoleSelected)
-//                Toast.makeText(this, "$test2 Selected", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "Trigger started", Toast.LENGTH_SHORT).show()
+                    WorkerUtils.triggerDownSyncWorker(this)
                     val refresh = Intent(this, HomeActivity::class.java)
                     finish()
                     startActivity(refresh)
