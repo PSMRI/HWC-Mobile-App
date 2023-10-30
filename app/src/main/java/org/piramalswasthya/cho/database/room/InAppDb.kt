@@ -135,7 +135,7 @@ import timber.log.Timber
         EligibleCoupleTrackingCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 88, exportSchema = false
+    version = 89, exportSchema = false
 )
 
 

@@ -60,9 +60,9 @@ interface ImmunizationDao {
 //    @Query("SELECT * FROM VACCINE where category = :immCat order by id")
 //    suspend fun getVaccinesForCategory(immCat : ImmunizationCategory): List<Vaccine>
 
-    @Query("SELECT * FROM VACCINE WHERE id = :vaccineId limit 1")
+    @Query("SELECT * FROM VACCINE WHERE vaccineId = :vaccineId limit 1")
     suspend fun getVaccineById(vaccineId: Int): Vaccine?
 
-    @Query("SELECT * FROM VACCINE WHERE name = :name limit 1")
+    @Query("SELECT * FROM VACCINE WHERE vaccineName = :name limit 1")
     suspend fun getVaccineByName(name: String): Vaccine?
 }

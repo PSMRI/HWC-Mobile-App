@@ -114,8 +114,8 @@ class ImmunizationDataset(context: Context, language: Languages) : Dataset(conte
         name.value = ben.patient.firstName ?: "Baby of ${ben.patient.parentName}"
         motherName.value = ben.patient.parentName
         dateOfBirth.value = getDateFromLong(ben.patient.dob!!.time)
-        vaccineName.value = vaccine.name.dropLastWhile { it.isDigit() }
-        doseNumber.value = vaccine.name.takeLastWhile { it.isDigit() }
+        vaccineName.value = vaccine.vaccineName.dropLastWhile { it.isDigit() }
+        doseNumber.value = vaccine.vaccineName.takeLastWhile { it.isDigit() }
         expectedDate.value =
             getDateFromLong(ben.patient.dob!!.time + vaccine.minAllowedAgeInMillis + vaccine.overdueDurationSinceMinInMillis)
         dateOfVaccination.value = getDateFromLong(System.currentTimeMillis())

@@ -121,7 +121,7 @@ class ImmunizationRepo @Inject constructor(
                 val patient = patientRepo.getPatient(cache.patientID)
                 var immunizationDTO = cache.asPostModel(patient.beneficiaryID!!)
                 val vaccine = immunizationDao.getVaccineById(cache.vaccineId)!!
-                immunizationDTO.vaccineName = vaccine.name
+                immunizationDTO.vaccineName = vaccine.vaccineName
                 immunizationDTOs.add(immunizationDTO)
             }
             if (immunizationDTOs.isEmpty()) return@withContext true

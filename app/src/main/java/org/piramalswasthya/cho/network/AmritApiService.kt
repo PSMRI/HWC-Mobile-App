@@ -234,6 +234,9 @@ interface AmritApiService {
     @POST("/flw-0.0.1/couple/tracking/saveAll")
     suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
 
+    @GET("/flw-0.0.1/child-care/vaccine/getAll")
+    suspend fun getAllChildVaccines(@Query("category") category: String): Response<ResponseBody>
+
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>
 

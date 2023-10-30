@@ -126,6 +126,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     var respiratoryValue: String? = null
     var rbsValue: String? = null
 
+
+    private val careAndPreg: String = "Care in Pregnancy & Childbirth"
+    private val anc: String = "ANC"
+    private val pnc: String = "PNC"
+
+    private val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
+    private val fpAndCs: String = "Family Planning & Contraceptives Services"
+
+    private val neonatalAndInfant: String = "Neonatal & Infant Health"
+    private val immunization: String = "Immunization Services"
+
+
+    private val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
+    private val age_0_to_1: List<String> = listOf(neonatalAndInfant)
+
     private lateinit var adapter: VisitDetailAdapter
 
     private val initialItem = ChiefComplaintValues()
@@ -211,6 +226,25 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
     }
 
+    private fun setSubCategoryDropdown(){
+        if(benVisitInfo.ageUnit?.lowercase() != "years" || (benVisitInfo.patient.age != null && benVisitInfo.patient.age!! <= 1)){
+            subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                age_0_to_1)
+            binding.subCatInput.setAdapter(subCatAdapter)
+        }
+        else if(benVisitInfo.patient.age != null && benVisitInfo.patient.age!! > 1 && benVisitInfo.ageUnit?.lowercase() == "years" && benVisitInfo.genderName?.lowercase() == "female"){
+            subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                female_1_to_59)
+            binding.subCatInput.setAdapter(subCatAdapter)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -235,12 +269,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             onBackPressedCallback
         )
         super.onViewCreated(view, savedInstanceState)
-        subCatAdapter = SubCategoryAdapter(
-            requireContext(),
-            R.layout.dropdown_subcategory,
-            R.id.tv_dropdown_item_text,
-            subCatOptions.map { it.name })
-        binding.subCatInput.setAdapter(subCatAdapter)
+//        subCatAdapter = SubCategoryAdapter(
+//            requireContext(),
+//            R.layout.dropdown_subcategory,
+//            R.id.tv_dropdown_item_text,
+//            subCatOptions.map { it.name })
+//        binding.subCatInput.setAdapter(subCatAdapter)
         // calling to get LoggedIn user Details
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner) {
@@ -249,12 +283,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 viewModel.resetBool()
             }
         }
-        viewModel.subCatVisitList.observe(viewLifecycleOwner) { subCats ->
-            subCatOptions.clear()
-            subCatOptions.addAll(subCats)
-            subCatAdapter.addAll(subCatOptions.map { it.name })
-            subCatAdapter.notifyDataSetChanged()
-        }
+
+//        viewModel.subCatVisitList.observe(viewLifecycleOwner) { subCats ->
+//            subCatOptions.clear()
+//            subCatOptions.addAll(subCats)
+//            subCatAdapter.addAll(subCatOptions.map { it.name })
+//            subCatAdapter.notifyDataSetChanged()
+//        }
 
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
 //            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
@@ -272,11 +307,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
             viewModel.setPatientId(benVisitInfo.patient.patientID)
             masterDb?.patientId = benVisitInfo.patient.patientID
             patientId = benVisitInfo.patient.patientID
+            setSubCategoryDropdown()
         }
         try {
-
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID)
-
         } catch (e: Exception) {
             Log.d("arr", "$e")
         }
@@ -313,7 +347,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 R.id.radioButton1 -> {
 //                    binding.radioGroup2.visibility = View.VISIBLE
 //                    binding.reasonText.visibility = View.VISIBLE
+                    binding.reasonText.visibility = View.VISIBLE
+                    binding.radioGroup2.visibility = View.VISIBLE
                     binding.subCatDropDown.visibility = View.GONE
+                    binding.reasonForVisitDropDown.visibility = View.GONE
 //                    category = binding.radioButton1.text.toString()
                     category = binding.radioButton1.tag.toString()
                 }
@@ -321,7 +358,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 else -> {
 //                    binding.radioGroup2.visibility = View.GONE
 //                    binding.reasonText.visibility = View.GONE
+                    binding.reasonText.visibility = View.GONE
+                    binding.radioGroup2.visibility = View.GONE
                     binding.subCatDropDown.visibility = View.VISIBLE
+                    binding.reasonForVisitDropDown.visibility = View.VISIBLE
 //                    category = binding.radioButton2.text.toString()
                     category = binding.radioButton2.tag.toString()
                 }
