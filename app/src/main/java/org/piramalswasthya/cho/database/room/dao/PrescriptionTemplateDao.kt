@@ -13,5 +13,6 @@ interface PrescriptionTemplateDao {
 
     @Query("SELECT * FROM Prescription_Template_DB WHERE user_id = :userID")
     suspend fun getTemplateForUser(userID: Int): List<PrescriptionTemplateDB?>
-
+    @Query("SELECT * FROM Prescription_Template_DB WHERE template_name = :selectedString")
+    suspend fun getTemplateForUserUsingTemplateName(selectedString: String): List<PrescriptionTemplateDB?>
 }

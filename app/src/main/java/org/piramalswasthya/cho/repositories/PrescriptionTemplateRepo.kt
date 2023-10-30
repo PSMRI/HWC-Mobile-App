@@ -95,4 +95,8 @@ class PrescriptionTemplateRepo @Inject constructor(
     suspend fun getProceduresWithComponent(userId : Int):List<PrescriptionTemplateDB?>{
         return prescriptionTemplateDao.getTemplateForUser(userId)
     }
+
+    suspend fun getTemplateUsingTempName(selectedString: String): List<PrescriptionTemplateDB?> {
+        return prescriptionTemplateDao.getTemplateForUserUsingTemplateName(selectedString)
+    }
 }
