@@ -90,7 +90,7 @@
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/dosagesDropDown"
         android:hint="@string/Frequency"
-        android:textColorHint="#808080"> <!-- Set text color hint to black -->
+        android:textColorHint="#808080">
 
         <AutoCompleteTextView
             android:id="@+id/frequencyDropDownVal"

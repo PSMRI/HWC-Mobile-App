@@ -452,18 +452,37 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <Button
-                    android:id="@+id/saveTemplate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/default_button"
-                    android:text="@string/save_template"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:padding="12dp"
-                    android:layout_gravity="center"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tempName"/>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tempName">
+
+                    <Button
+                        android:id="@+id/saveTemplate"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/default_button"
+                        android:text="@string/save_template"
+                        app:layout_constraintEnd_toStartOf="@+id/deleteTemp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintHorizontal_weight="1" />
+
+                    <Button
+                        android:id="@+id/deleteTemp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/default_button"
+                        android:text="@string/delete_temp"
+                        app:layout_constraintStart_toEndOf="@+id/saveTemplate"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_weight="1"
+                        android:layout_marginStart="8dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/routeDropDown"

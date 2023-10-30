@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/ll_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_normal"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/seed">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="left"
+            android:textSize="18dp"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/temp_name"
+            android:textColor="@android:color/white"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="right"
+            android:textSize="18dp"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/delete_temp"
+            android:textColor="@android:color/white"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tempExtra"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/templist_adapter"
+        app:layout_constraintTop_toBottomOf="@+id/ll_header"/>
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/tempExtra"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:paddingTop="8dp"-->
+<!--        android:paddingBottom="10dp"-->
+<!--        tools:listitem="@layout/templist_adapter"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/ll_header" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

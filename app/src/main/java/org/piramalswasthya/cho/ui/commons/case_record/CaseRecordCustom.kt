@@ -58,6 +58,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFreq
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.personal_details.SyncBottomSheetFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
@@ -304,6 +305,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
         }
         binding.saveTemplate.setOnClickListener { saveTemp() }
+        binding.deleteTemp.setOnClickListener { openBottomSheet(uniqueTemplateNames) }
 
         val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         binding.referDropdownText.setAdapter(referAdapter)
@@ -417,6 +419,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     itemListP.add(prescriptionValue)
                 }
             }
+    }
+    private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
+    private fun openBottomSheet(str: HashSet<String?>) {
+        syncBottomSheet = TemplateListBottomSheetFragment(str)
+        if(!syncBottomSheet.isVisible)
+            syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
     }
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
         hideNullFieldsW(vitals)
