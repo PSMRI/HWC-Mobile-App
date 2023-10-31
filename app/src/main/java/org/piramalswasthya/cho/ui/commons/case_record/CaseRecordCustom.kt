@@ -282,8 +282,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         binding.inputUseTempForFields.setOnItemClickListener { parent, _, position, _ ->
+            itemListP.clear()
+            pAdapter.notifyDataSetChanged()
             val selectedString = parent.getItemAtPosition(position) as String
-
           lifecycleScope.launch {
               val selectedTemplates = viewModel.getTemplatesByTemplateName(selectedString)
               convertToPrescriptionValues(selectedTemplates)
