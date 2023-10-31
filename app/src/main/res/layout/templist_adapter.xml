@@ -1,40 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding_normal">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tempName"
+    <TextView
+        android:id="@+id/inputTestName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="20dp"
-        android:paddingBottom="4dp"
+        android:inputType="text"
+        android:padding="@dimen/padding_normal"
         android:textColorHint="#888888"
-        app:boxBackgroundMode="none"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/dustbinIcon"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputTestName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:textColorHint="#888888"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        android:id="@+id/tempName"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="4dp"-->
+    <!--        android:layout_marginEnd="20dp"-->
+    <!--        android:paddingBottom="4dp"-->
+    <!--        android:textColorHint="#888888"-->
+    <!--        app:boxBackgroundMode="none"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/dustbinIcon"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:id="@+id/inputTestName"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:inputType="text"-->
+    <!--            android:textColorHint="#888888"-->
+    <!--            android:textSize="14sp" />-->
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <ImageButton
         android:id="@+id/dustbinIcon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:src="@drawable/dustbin_icon"
-        app:layout_constraintStart_toEndOf="@+id/tempName"
-        app:layout_constraintTop_toTopOf="@+id/tempName"
+        app:layout_constraintBottom_toBottomOf="@+id/inputTestName"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="14dp" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/inputTestName"
+        app:layout_constraintTop_toTopOf="@+id/inputTestName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

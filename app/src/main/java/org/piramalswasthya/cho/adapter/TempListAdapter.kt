@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import org.piramalswasthya.cho.R
@@ -28,7 +29,7 @@ class TempListAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextInputEditText = itemView.findViewById(R.id.inputTestName)
+        private val text: TextView = itemView.findViewById(R.id.inputTestName)
         private val image: ImageButton = itemView.findViewById(R.id.dustbinIcon)
 
         fun bind(item: String?) {

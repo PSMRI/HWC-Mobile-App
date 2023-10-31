@@ -99,4 +99,7 @@ class PrescriptionTemplateRepo @Inject constructor(
     suspend fun getTemplateUsingTempName(selectedString: String): List<PrescriptionTemplateDB?> {
         return prescriptionTemplateDao.getTemplateForUserUsingTemplateName(selectedString)
     }
+    suspend fun deleteTemplate(selectedString: String){
+        prescriptionTemplateDao.delete(selectedString)
+    }
 }
