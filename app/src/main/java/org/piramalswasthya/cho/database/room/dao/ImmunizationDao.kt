@@ -7,7 +7,9 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.ChildImmunizationDetailsCache
 import org.piramalswasthya.cho.model.ImmunizationCache
+import org.piramalswasthya.cho.model.ImmunizationCategory
 import org.piramalswasthya.cho.model.Vaccine
 //import org.piramalswasthya.sakhi.database.room.SyncState
 //import org.piramalswasthya.sakhi.model.ChildImmunizationDetailsCache
@@ -32,22 +34,23 @@ interface ImmunizationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addImmunizationRecord( imm: ImmunizationCache)
 
-    @Query("SELECT * FROM IMMUNIZATION WHERE patientID=:patientID AND vaccineId =:vaccineId limit 1")
+    @Query("SELECT * FROM IMMUNIZATION WHERE patID=:patientID AND vaccineId =:vaccineId limit 1")
     suspend fun getImmunizationRecord(patientID: String, vaccineId: Int): ImmunizationCache?
 
 
     @Query("SELECT * FROM IMMUNIZATION WHERE  syncState = :syncState")
     suspend fun getUnsyncedImmunization(syncState: SyncState): List<ImmunizationCache>
 
-//    @Transaction
-//    @Query(
-//        "SELECT * FROM BEN_BASIC_CACHE ben LEFT OUTER JOIN IMMUNIZATION imm WHERE ben.dob BETWEEN :minDob AND :maxDob "
-//    )
-//    fun getBenWithImmunizationRecords(
-//        minDob: Long,
-//        maxDob: Long,
-////        vaccineIdList: List<Int>
-//    ): Flow<List<ChildImmunizationDetailsCache>>
+    @Transaction
+    @Query(
+        "SELECT ben.* FROM PATIENT ben LEFT OUTER JOIN IMMUNIZATION imm WHERE ben.dob BETWEEN :minDob AND :maxDob group by ben.patientID"
+    )
+    fun getBenWithImmunizationRecords(
+        minDob: Long,
+        maxDob: Long,
+//        vaccineIdList: List<Int>
+    ): Flow<List<ChildImmunizationDetailsCache>>
+
 //    @Transaction
 //    @Query(
 //        "SELECT ben.*, reg.lmpDate as lmp, imm.* FROM BEN_BASIC_CACHE ben inner join pregnancy_register reg on ben.benId = reg.benId LEFT OUTER JOIN IMMUNIZATION imm WHERE ben.reproductiveStatusId = :reproductiveStatusId "
@@ -57,8 +60,8 @@ interface ImmunizationDao {
 ////        vaccineIdList: List<Int>
 //    ): Flow<List<MotherImmunizationDetailsCache>>
 //
-//    @Query("SELECT * FROM VACCINE where category = :immCat order by id")
-//    suspend fun getVaccinesForCategory(immCat : ImmunizationCategory): List<Vaccine>
+    @Query("SELECT * FROM VACCINE where category = :immCat order by vaccineId")
+    suspend fun getVaccinesForCategory(immCat : ImmunizationCategory): List<Vaccine>
 
     @Query("SELECT * FROM VACCINE WHERE vaccineId = :vaccineId limit 1")
     suspend fun getVaccineById(vaccineId: Int): Vaccine?

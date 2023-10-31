@@ -118,7 +118,7 @@ class ImmunizationRepo @Inject constructor(
 
             val immunizationDTOs = mutableListOf<ImmunizationPost>()
             immunizationCacheList.forEach { cache ->
-                val patient = patientRepo.getPatient(cache.patientID)
+                val patient = patientRepo.getPatient(cache.patID)
                 var immunizationDTO = cache.asPostModel(patient.beneficiaryID!!)
                 val vaccine = immunizationDao.getVaccineById(cache.vaccineId)!!
                 immunizationDTO.vaccineName = vaccine.vaccineName

@@ -60,6 +60,8 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUni
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationListViewModel
+import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationVaccineBottomSheetFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -149,6 +151,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     private val conditionExtension: FhirExtension = FhirExtension(ResourceType.Condition)
     private lateinit var chAdapter: ChiefComplaintMultiAdapter
     var chiefComplaintDB2 = mutableListOf<ChiefComplaintDB>()
+
+    private val childImmunizationListViewModel: ChildImmunizationListViewModel by viewModels()
+
+    private val bottomSheet: ChildImmunizationVaccineBottomSheetFragment by lazy { ChildImmunizationVaccineBottomSheetFragment() }
+
     private val binding: VisitDetailsInfoBinding
         get() {
             return _binding!!
@@ -933,11 +940,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 )
             }
             else if(reasonForVisit == immunization){
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
-                        benVisitInfo.patient.patientID, 1
-                    )
+                childImmunizationListViewModel.updateBottomSheetData(
+                    benVisitInfo.patient.patientID
                 )
+                if (!bottomSheet.isVisible)
+                    bottomSheet.show(childFragmentManager, "ImM")
+//                findNavController().navigate(
+//                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
+//                        benVisitInfo.patient.patientID, 1
+//                    )
+//                )
             }
             else if(reasonForVisit == fpAndCs){
                 findNavController().navigate(

@@ -38,10 +38,10 @@ data class Vaccine(
 )
 
 @Entity(
-    tableName = "IMMUNIZATION", primaryKeys = ["patientID", "vaccineId"], foreignKeys = [ForeignKey(
+    tableName = "IMMUNIZATION", primaryKeys = ["patID", "vaccineId"], foreignKeys = [ForeignKey(
         entity = Patient::class,
         parentColumns = arrayOf("patientID"),
-        childColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patID"),
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     ), ForeignKey(
@@ -50,12 +50,12 @@ data class Vaccine(
         childColumns = arrayOf("vaccineId"),
         onDelete = ForeignKey.CASCADE
     )], indices = [Index(
-        name = "ind_imm", value = ["patientID"]
+        name = "ind_imm", value = ["patID"]
     ), Index(name = "ind_vaccine", value = ["vaccineId"])]
 )
 data class ImmunizationCache(
     val id: Long = 0,
-    val patientID: String,
+    val patID: String,
     var vaccineId: Int,
     var date: Long? = null,
     var placeId: Int=0,
@@ -86,15 +86,15 @@ data class ImmunizationCache(
     }
 }
 //
-//data class ChildImmunizationDetailsCache(
-////    @ColumnInfo(name = "benId")
-//    @Embedded
-//    val ben: BenBasicCache,
-////    @ColumnInfo(name = "benName") val benName : String,
-//    @Relation(
-//        parentColumn = "benId", entityColumn = "beneficiaryId"
-//    ) val givenVaccines: List<ImmunizationCache>
-//)
+data class ChildImmunizationDetailsCache(
+//    @ColumnInfo(name = "benId")
+    @Embedded
+    val ben: Patient,
+//    @ColumnInfo(name = "benName") val benName : String,
+    @Relation(
+        parentColumn = "patientID", entityColumn = "patID"
+    ) val givenVaccines: List<ImmunizationCache>
+)
 //
 //data class MotherImmunizationDetailsCache(
 ////    @ColumnInfo(name = "benId")

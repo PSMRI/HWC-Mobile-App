@@ -39,11 +39,11 @@ class ChildImmunizationVaccineBottomSheetFragment : BottomSheetDialogFragment() 
         binding.rvImmCat.adapter =
             ImmunizationCategoryAdapter(ImmunizationCategoryAdapter.ImmunizationIconClickListener {
                 val benId = viewModel.getSelectedBenId()
-                findNavController().navigate(
-                    ChildImmunizationListFragmentDirections.actionChildImmunizationListFragmentToImmunizationFormFragment(
-                        benId = benId, vaccineId = it
-                    )
-                )
+//                findNavController().navigate(
+//                    ChildImmunizationListFragmentDirections.actionChildImmunizationListFragmentToImmunizationFormFragment(
+//                        benId = benId, vaccineId = it
+//                    )
+//                )
                 dismiss()
             })
 
@@ -62,8 +62,7 @@ class ChildImmunizationVaccineBottomSheetFragment : BottomSheetDialogFragment() 
             VaccineCategoryDomain(category,
                 vaccineStateList = detail.vaccineStateList.filter { it.vaccineCategory == category })
         }.filter { it.vaccineStateList.isNotEmpty() }
-        Timber.d("Called list at bottom sheet ${_binding?.rvImmCat?.adapter} ${detail.ben.benId} $list")
-
+        Timber.d("Called list at bottom sheet ${_binding?.rvImmCat?.adapter} ${detail.ben.patientID} $list")
         (_binding?.rvImmCat?.adapter as ImmunizationCategoryAdapter?)?.submitList(list)
     }
 

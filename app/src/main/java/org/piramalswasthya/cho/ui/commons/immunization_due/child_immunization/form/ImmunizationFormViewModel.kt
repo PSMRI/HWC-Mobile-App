@@ -72,7 +72,7 @@ class ImmunizationFormViewModel @Inject constructor(
                 val savedRecord = vaccineDao.getImmunizationRecord(patientID, vaccineId)
                 immCache = savedRecord?.also { _recordExists.postValue(true) } ?: run {
                     ImmunizationCache(
-                        patientID = patientID,
+                        patID = patientID,
                         vaccineId = vaccineId,
                         createdBy = asha.userName,
                         updatedBy = asha.userName,
