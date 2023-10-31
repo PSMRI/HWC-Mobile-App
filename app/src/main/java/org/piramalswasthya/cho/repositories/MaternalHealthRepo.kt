@@ -143,19 +143,21 @@ class MaternalHealthRepo @Inject constructor(
             ancList.forEach {
                 ancPostList.clear()
                 val ben = patientDao.getPatient(it.patientID)
-                ancPostList.add(it.asPostModel(ben.beneficiaryID!!))
-                it.syncState = SyncState.SYNCING
-                maternalHealthDao.updateANC(it)
-                val uploadDone = postDataToAmritServer(ancPostList)
-                if (uploadDone) {
-                    it.processed = "P"
-                    it.syncState = SyncState.SYNCED
-                } else {
-                    it.syncState = SyncState.UNSYNCED
-                }
-                maternalHealthDao.updateANC(it)
+                if(ben.beneficiaryID != null){
+                    ancPostList.add(it.asPostModel(ben.beneficiaryID!!))
+                    it.syncState = SyncState.SYNCING
+                    maternalHealthDao.updateANC(it)
+                    val uploadDone = postDataToAmritServer(ancPostList)
+                    if (uploadDone) {
+                        it.processed = "P"
+                        it.syncState = SyncState.SYNCED
+                    } else {
+                        it.syncState = SyncState.UNSYNCED
+                    }
+                    maternalHealthDao.updateANC(it)
 //                if (!uploadDone)
 //                    return@withContext false
+                }
             }
 
             return@withContext true
