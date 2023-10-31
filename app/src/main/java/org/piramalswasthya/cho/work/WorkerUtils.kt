@@ -18,18 +18,18 @@ object WorkerUtils {
 
     fun triggerDownSyncWorker(context : Context){
 
-//        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
-//            .setConstraints(networkOnlyConstraint)
-//            .build()
-//        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
-//            .setConstraints(networkOnlyConstraint)
-//            .build()
-//
-//        val workManager = WorkManager.getInstance(context)
-//        workManager
-//            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
-//            .then(pullBenFlowFromAmritWorker)
-//            .enqueue()
+        val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+        val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val workManager = WorkManager.getInstance(context)
+        workManager
+            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .then(pullBenFlowFromAmritWorker)
+            .enqueue()
     }
 
     fun triggerAmritSyncWorker(context : Context){

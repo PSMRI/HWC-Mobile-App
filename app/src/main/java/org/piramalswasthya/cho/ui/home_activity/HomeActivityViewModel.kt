@@ -61,7 +61,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun triggerDownSyncWorker(context: Context){
         if (dataLoadFlagManager.isDataLoaded()){
             Log.d("triggering down", "down trigger")
-            WorkerUtils.triggerAmritSyncWorker(context)
+            WorkerUtils.triggerDownSyncWorker(context)
         }
     }
 
