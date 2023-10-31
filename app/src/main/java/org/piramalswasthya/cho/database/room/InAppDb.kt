@@ -133,11 +133,11 @@ import timber.log.Timber
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
-        EligibleCoupleTrackingCache::class
+        EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 90, exportSchema = false
+    version = 91, exportSchema = false
 )
 
 

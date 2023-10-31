@@ -15,27 +15,26 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
 @AndroidEntryPoint
-class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter, FhirFragmentService {
+class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     private var _binding: FragmentNewFormBinding? = null
     private val binding: FragmentNewFormBinding
         get() = _binding!!
 
-    override val viewModel: EligibleCoupleTrackingFormViewModel by viewModels()
+    val viewModel: EligibleCoupleTrackingFormViewModel by viewModels()
 
-    override var fragmentContainerId: Int = 0
+    var fragmentContainerId: Int = 0
 
-    override val fragment: Fragment = this
+    val fragment: Fragment = this
 
-    override val jsonFile: String = "patient-visit-details-paginated.json"
-    override fun navigateNext() {
+    val jsonFile: String = "patient-visit-details-paginated.json"
+    fun navigateNext() {
         submitEligibleTrackingForm()
     }
 
