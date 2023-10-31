@@ -22,6 +22,8 @@ import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.PncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -70,6 +72,11 @@ class PncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val calendar = Calendar.getInstance()
+            calendar.time = Date() // Set the calendar to the current date and time
+            calendar.add(Calendar.DAY_OF_MONTH, -42) // Subtract 42 days
+            val millis = calendar.timeInMillis
+
             val asha = userRepo.getLoggedInUser()!!
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
@@ -88,9 +95,9 @@ class PncFormViewModel @Inject constructor(
             val outcomeRecord = DeliveryOutcomeCache(
                 patientID = patientID,
                 isActive = false,
-                createdBy = "",
-                updatedBy = "",
-                dateOfDelivery = 0,
+                createdBy = asha.userName,
+                updatedBy = asha.userName,
+                dateOfDelivery = millis,
                 syncState = SyncState.UNSYNCED
             )
             pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
