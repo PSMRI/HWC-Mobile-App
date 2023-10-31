@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.adapter.RecyclerViewItemClickedListener
 import org.piramalswasthya.cho.adapter.TempListAdapter
@@ -17,14 +19,14 @@ import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import timber.log.Timber
 import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
   private val prescriptionTemplateRepo: PrescriptionTemplateRepo
 ) : BottomSheetDialogFragment() {
     private var _binding: TempBottomSheetBinding? = null
     private val binding: TempBottomSheetBinding
         get() = _binding!!
-
+    private val viewModel: TemplateBottomSheetViewModel by viewModels<TemplateBottomSheetViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -38,12 +40,11 @@ class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
         val adapter = TempListAdapter(str,
             object : RecyclerViewItemClickedListener {
                 override fun onItemClicked(string: String?) {
-                    lifecycleScope.launch {
-                        string?.let { prescriptionTemplateRepo.markTemplateDelete(it) }
-                        prescriptionTemplateRepo.callDeleteTemplateFromServer()
+                    string?.let {
+                        viewModel.callMarkDel(it)
                     }
+                    viewModel.callDel()
                     str.remove(string)
-                    dismiss()
                     showToastAndRefreshList("Template deleted")
                 }
             },

@@ -89,6 +89,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             registrarMasterDataRepo.saveQualificationMasterResponseToCache()
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+
             prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             doctorMaleMasterDataRepo.getDoctorMasterMaleData()

@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
+import org.piramalswasthya.cho.utils.generateUuid
 import timber.log.Timber
 import java.lang.IllegalStateException
 import javax.inject.Inject
@@ -58,6 +59,9 @@ class PrescriptionTemplateRepo @Inject constructor(
                     val data = json.getJSONArray("data").toString()
 
                     val list  = Gson().fromJson(data, Array<PrescriptionTemplateDB>::class.java)
+                    list.forEach { it.id = generateUuid()
+                    it.deleteStatus = 0
+                    }
                     saveAllPrescriptionTemplateToCache(list)
 
 //
@@ -74,15 +78,15 @@ class PrescriptionTemplateRepo @Inject constructor(
         }
     }
 
-    suspend fun deleteTemplateFromServer(userID: Int,tempID:Int): NetworkResult<NetworkResponse> {
+    suspend fun deleteTemplateFromServer(userID: Int,tempID:Int?): NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
-            val response = amritApiService.deleteTemplateFromServer(userID,tempID)
-            val responseBody = response.body()?.string()
+            val response = tempID?.let { amritApiService.deleteTemplateFromServer(userID, it) }
+            val responseBody = response?.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    Log.i("Template deleted",  response.body()?.string() ?: "")
-                    prescriptionTemplateDao.delete(tempID)
+                    Timber.tag("XX").i("${userID} ${tempID}")
+                    tempID?.let { prescriptionTemplateDao.delete(it) }
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {
@@ -125,10 +129,18 @@ class PrescriptionTemplateRepo @Inject constructor(
 //    }
 
     suspend fun callDeleteTemplateFromServer(){
-        var id = userRepo.getLoggedInUser()?.userId
-        var tempID = prescriptionTemplateDao.getTemplateIdWhichIsDeleted()
-        if(tempID!=null && id!=null) {
-            deleteTemplateFromServer(id, tempID)
+        try {
+            var id = userRepo.getLoggedInUser()!!.userId
+            Timber.tag("XX").i("${id}")
+            var tempID = prescriptionTemplateDao.getTemplateIdWhichIsDeleted()
+            Timber.tag("XX").i("${id} ${tempID}")
+            if (tempID != null) {
+                tempID.forEach {
+                    deleteTemplateFromServer(id, it)
+                }
+            }
+        }catch (e:Exception){
+            Timber.tag("XX").i("${e}")
         }
     }
     suspend fun markTemplateDelete(selectedString: String){

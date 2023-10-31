@@ -910,6 +910,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     if (formVal != null) {
                         var pres = viewModel.userIDVAl?.let {
                             PrescriptionTemplateDB(
+                                id = generateUuid(),
                                 tempID = tempId,
                                 templateName = tempNameVal,
                                 userID = it,
