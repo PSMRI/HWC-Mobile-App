@@ -23,18 +23,23 @@ import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
+import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
+import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
+import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
@@ -122,6 +127,13 @@ import timber.log.Timber
         PrescribedDrugs::class,
         PrescribedDrugsBatch::class,
         MasterLocation::class,
+        PregnantWomanAncCache::class,
+        PregnantWomanRegistrationCache::class,
+        PNCVisitCache::class,
+        Vaccine::class,
+        ImmunizationCache::class,
+        DeliveryOutcomeCache::class,
+        EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
@@ -179,6 +191,11 @@ abstract class InAppDb : RoomDatabase() {
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
    abstract val prescriptionTemplateDao:PrescriptionTemplateDao
+    abstract val maternalHealthDao: MaternalHealthDao
+    abstract val immunizationDao: ImmunizationDao
+    abstract val deliveryOutcomeDao: DeliveryOutcomeDao
+    abstract val pncDao: PncDao
+    abstract val ecrDao: EcrDao
 
 
     companion object {

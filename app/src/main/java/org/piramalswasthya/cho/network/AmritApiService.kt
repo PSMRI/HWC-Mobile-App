@@ -3,13 +3,17 @@ package org.piramalswasthya.cho.network
 import androidx.room.Delete
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
+import org.piramalswasthya.cho.model.ECTNetwork
+import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
 import org.piramalswasthya.cho.model.PatientVisitInformation
@@ -231,6 +235,21 @@ interface AmritApiService {
 
     @GET("hwc-facility-service/sync/{userID}/prescriptionTemplatesDataToApp")
     suspend fun getTemplateFromServer(@Path("userID") userID: Int): Response<ResponseBody>
+
+    @POST("/flw-0.0.1/maternalCare/ancVisit/saveAll")
+    suspend fun postAncForm(@Body ancPostList: List<ANCPost>): Response<ResponseBody>
+
+    @POST("/flw-0.0.1/maternalCare/pnc/saveAll")
+    suspend fun postPncForm(@Body ancPostList: List<PNCNetwork>): Response<ResponseBody>
+
+    @POST("/flw-0.0.1/child-care/vaccination/saveAll")
+    suspend fun postChildImmunizationDetails(@Body immunizationList: List<ImmunizationPost>): Response<ResponseBody>
+
+    @POST("/flw-0.0.1/couple/tracking/saveAll")
+    suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
+
+    @GET("/flw-0.0.1/child-care/vaccine/getAll")
+    suspend fun getAllChildVaccines(@Query("category") category: String): Response<ResponseBody>
 
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>

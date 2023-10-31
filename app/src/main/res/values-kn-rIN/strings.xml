@@ -92,6 +92,12 @@
     <string name="personal_info">Personal Info</string>
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
+
+    <string name="anc">ANC</string>
+    <string name="pnc">PNC</string>
+    <string name="immunization">Immunization</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
     <string name="weight_kg_text">ತೂಕ (ಕೆಜಿ)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">ಬಿ.ಪಿ ಡಯಾಸ್ಟೊಲಿಕ್</string>
@@ -431,4 +437,22 @@
     <string name="phone_no_not_found">Phone No. not found.</string>
     <string name="new_chief_complaint_str">New Chief Complaint</string>
     <string name="follow_up_str">Follow Up</string>
+
+    <string name="form_input_empty_error">Required field cannot be empty !</string>
+    <string name="form_input_upper_case_error">Only Alphabets in upper case allowed!</string>
+    <string name="form_input_missing_entry_error">Field must contain %1d digits.</string>
+    <string name="form_input_alphabet_space_only_error">Only Alphabets and whitespace allowed!</string>
+    <string name="form_input_alphabet_special_only_error">Only Alphabets and special characters allowed!</string>
+    <string name="form_input_min_limit_error">%1s should be greater than or equal to %2d</string>
+    <string name="form_input_alph_numeric_space_only_error">Only Alphabets and Numerics allowed!</string>
+    <string name="form_input__no_alpha_space_error">No Alphabets or spaces allowed!</string>
+    <string name="form_input_digit_only_error">Only Digits allowed!</string>
+    <string name="form_input_min_limit_error_decimal">%1s should be greater than or equal to %2.1f</string>
+    <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
+    <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
+    <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
+    <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
+    <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+
 </resources>

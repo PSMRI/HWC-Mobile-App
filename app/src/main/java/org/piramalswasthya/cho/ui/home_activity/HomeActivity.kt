@@ -365,7 +365,6 @@ class HomeActivity : AppCompatActivity() {
             .setPositiveButton("Apply") { dialog, _ ->
                 if(currentRoleSelected!=null){
                     prefDao.setSecondRolesForCHO(currentRoleSelected)
-//                    Toast.makeText(this, "Trigger started", Toast.LENGTH_SHORT).show()
                     WorkerUtils.triggerDownSyncWorker(this)
                     val refresh = Intent(this, HomeActivity::class.java)
                     finish()

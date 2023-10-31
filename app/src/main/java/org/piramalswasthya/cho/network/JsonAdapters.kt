@@ -5,6 +5,8 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @JsonClass(generateAdapter = true)
 data class D2DAuthUserRequest(
@@ -492,5 +494,9 @@ data class LabProceduresDataRequest(
     val visitCode: Long,
 )
 
-
+fun getLongFromDate(dateString: String?): Long {
+    val f = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.ENGLISH)
+    val date = dateString?.let { f.parse(it) }
+    return date?.time ?: 0L
+}
 

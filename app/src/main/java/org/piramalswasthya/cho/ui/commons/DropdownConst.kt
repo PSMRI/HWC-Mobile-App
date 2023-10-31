@@ -2,6 +2,20 @@ package org.piramalswasthya.cho.ui.commons
 
 class DropdownConst {
     companion object {
+
+        val careAndPreg: String = "Care in Pregnancy & Childbirth"
+        val anc: String = "ANC"
+        val pnc: String = "PNC"
+
+        val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
+        val fpAndCs: String = "Family Planning & Contraceptives Services"
+
+        val neonatalAndInfant: String = "Neonatal & Infant Health"
+        val immunization: String = "Immunization Services"
+
+        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
+        val age_0_to_1: List<String> = listOf(neonatalAndInfant)
+
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
         val dangerSignList = mutableListOf("Fast Breathing", "Chest Indrawing", "Stridor", "Grunt", "Respiratory Distress", "Cold and Calm Peripheral Pulses", "Convulsions", "Hypothermia", "Delirium", "Drowsy", "Uncontrolled Bleeding", "Hematemesis", "Refusal of Fits")
         val lymphNodeList = mutableListOf("Cervical LN", "Axillary LN", "Inguinal LN", "Generalised LN")

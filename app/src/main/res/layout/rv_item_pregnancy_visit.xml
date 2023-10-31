@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="25dp"
+        android:background="@drawable/rounded_corner_view"
+        android:outlineProvider="none"
+        android:text="@string/prescription_text"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+<!--    <data>-->
+
+<!--        <variable-->
+<!--            name="visit"-->
+<!--            type="org.piramalswasthya.cho.model.BenWithAncListDomain" />-->
+
+<!--        <variable-->
+<!--            name="clickListener"-->
+<!--            type="org.piramalswasthya.cho.adapter.AncVisitListAdapter.PregnancyVisitClickListener" />-->
+
+<!--    </data>-->
+
+<!--    <androidx.cardview.widget.CardView-->
+<!--        android:id="@+id/cv_content"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="@dimen/margin_normal"-->
+<!--        android:backgroundTint="?attr/colorPrimary"-->
+<!--        android:elevation="@dimen/padding_normal"-->
+<!--        android:padding="@dimen/padding_wide"-->
+<!--        app:cardCornerRadius="@dimen/padding_normal"-->
+<!--        app:cardElevation="@dimen/padding_normal">-->
+
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/ll_title_pwr_tracking_bar"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="?attr/colorOnPrimary"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:paddingHorizontal="@dimen/padding_tiny"-->
+<!--                app:layout_constraintTop_toTopOf="parent">-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/tv_hh_ec_id"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:drawablePadding="@dimen/padding_small"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:padding="@dimen/padding_small"-->
+<!--                    android:text="@{visit.ben.familyHeadName}"-->
+<!--                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                    android:textColor="?attr/colorPrimaryVariant"-->
+<!--                    app:drawableLeftCompat="@drawable/ic__hh"-->
+<!--                    app:drawableTint="?attr/colorPrimary"-->
+<!--                    tools:text="Hello Meister" />-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/iv_sync_state"-->
+<!--                    android:layout_width="24dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical|end"-->
+<!--                    android:layout_marginHorizontal="@dimen/padding_small"-->
+<!--                    android:contentDescription="@string/iv_sync_state_tv"-->
+<!--                    app:syncState="@{visit.syncState}"-->
+<!--                    tools:src="@drawable/ic_synced" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/linear_pwr_tracking_Layout"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:padding="@dimen/padding_normal"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/ll_title_pwr_tracking_bar">-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/ll_ben_pwr_tracking_details"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:baselineAligned="false"-->
+<!--                    android:orientation="horizontal">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/name_ben"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.ben.benFullName}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/age"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.ben.age}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/tv_husband_name_ph"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.ben.spouseName}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                </LinearLayout>-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/ll_ben_pwr_tracking_details_2"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:baselineAligned="false"-->
+<!--                    android:orientation="horizontal">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/beneficiary_id"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            benIdText="@{visit.ben.benId}"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/tv_mob_no_ph"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.ben.mobileNo}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/tv_rch_id"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.ben.rchId}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                </LinearLayout>-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/ll_ben_pwr_tracking_details_3"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:baselineAligned="false"-->
+<!--                    android:orientation="horizontal">-->
+
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/pregnancy_weeks"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.weeksOfPregnancy}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/pmsma_lmp"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.lmpString}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:orientation="vertical"-->
+<!--                        android:padding="@dimen/padding_small">-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/pmsma_edd"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+<!--                            android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@{visit.eddString}"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="?attr/colorOnPrimary"-->
+<!--                            tools:text="TextView" />-->
+<!--                    </LinearLayout>-->
+<!--                </LinearLayout>-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginVertical="@dimen/margin_normal"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/linear_pwr_tracking_Layout">-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/btn_add_anc"-->
+<!--                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginHorizontal="@dimen/margin_normal"-->
+<!--                    android:layout_weight="1"-->
+
+<!--                    android:backgroundTint="@android:color/holo_green_dark"-->
+<!--                    android:onClick="@{() -> clickListener.addVisit(visit)}"-->
+<!--                    android:text="@string/add_anc_visits"-->
+<!--                    android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/btn_view_visits"-->
+<!--                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginHorizontal="@dimen/margin_normal"-->
+<!--                    android:layout_weight="1"-->
+
+<!--                    android:backgroundTint="@android:color/holo_green_dark"-->
+<!--                    android:onClick="@{() -> clickListener.showVisits(visit)}"-->
+<!--                    android:text="@string/anc_visits"-->
+<!--                    android:textColor="?attr/colorOnPrimary" />-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/btn_pmsma"-->
+<!--                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginHorizontal="@dimen/margin_normal"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:backgroundTint="@android:color/holo_green_dark"-->
+<!--                    android:onClick="@{() -> clickListener.pmsma(visit)}"-->
+<!--                    android:text="@string/pmsma"-->
+<!--                    android:textColor="?attr/colorOnPrimary" />-->
+
+<!--            </LinearLayout>-->
+
+
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+<!--    </androidx.cardview.widget.CardView>-->
+</layout>

@@ -87,6 +87,12 @@
     <string name="case_record_text">Case Record</string>
     <string name="lab_record_text">Lab Record</string>
     <string name="pharmacist_record_text">Pharmacist Record</string>
+
+    <string name="anc">ANC</string>
+    <string name="pnc">PNC</string>
+    <string name="immunization">Immunization</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>
@@ -460,6 +466,130 @@
     <string name="Yes_state">YES</string>
     <string name="No_state">NO</string>
     <string name="duration_prescription">Duration</string>
+
+    <string name="form_input_empty_error">Required field cannot be empty !</string>
+    <string name="form_input_upper_case_error">Only Alphabets in upper case allowed!</string>
+    <string name="form_input_missing_entry_error">Field must contain %1d digits.</string>
+    <string name="form_input_alphabet_space_only_error">Only Alphabets and whitespace allowed!</string>
+    <string name="form_input_alphabet_special_only_error">Only Alphabets and special characters allowed!</string>
+    <string name="form_input_min_limit_error">%1s should be greater than or equal to %2d</string>
+    <string name="form_input_alph_numeric_space_only_error">Only Alphabets and Numerics allowed!</string>
+    <string name="form_input__no_alpha_space_error">No Alphabets or spaces allowed!</string>
+    <string name="form_input_digit_only_error">Only Digits allowed!</string>
+    <string name="form_input_min_limit_error_decimal">%1s should be greater than or equal to %2.1f</string>
+    <string name="form_input_max_limit_error">%1s should be lesser than or equal to %2d</string>
+    <string name="form_input_max_limit_error_decimal">%1s should be lesser than or equal to %2.1f</string>
+    <string name="form_input_error_invalid_mobile">Invalid Mobile Number !</string>
+    <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
+    <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
+    <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+
+    <string name="view">VIEW</string>
+    <string name="something_wend_wong_contact_testing">Something wend wong! Contact testing!</string>
+    <string name="iv_sync_state_tv">SYNC STATE</string>
+    <string name="high_risk">High Risk</string>
+    <string name="tv_required_text_asterisk">*</string>
+    <string name="btn_submit">Submit</string>
+    <string name="edit">EDIT</string>
+    <string name="radio_title_ds">%s<span> **</span></string>
+    <string name="radio_title">%s<span> *</span></string>
+    <string name="anc_visit_number">ANC Visit %1d</string>
+
+    <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
+    <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
+
+    <!--  Post Natal Care  -->
+    <string name="pnc_period">PNC Period</string>
+    <string name="pnc_visit_date">PNC Visit Date</string>
+    <string name="pnc_ifa_tabs_given">No. of IFA Tablets given</string>
+    <string name="pnc_contraception_method">Method of Contraception</string>
+    <string name="pnc_any_contraception_method">Any Method of Contraception</string>
+    <string name="pnc_other_ppc_method">Other PPC Method</string>
+    <string name="pnc_mother_danger_sign">Mother Danger Sign</string>
+    <string name="pnc_other_danger_sign">Other Danger Sign</string>
+    <string name="pnc_referral_facility">Referral Facility</string>
+    <string name="pnc_mother_death">Mother Death</string>
+    <string name="pnc_death_date">Date of Death</string>
+    <string name="pnc_death_cause">Probable Cause of Mother Death</string>
+    <string name="pnc_other_death_cause">Other Death Cause</string>
+    <string name="pnc_death_place">Place of Death</string>
+    <string name="pnc_remarks">Remarks</string>
+    <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
+    <string name="tracking_date">Date of Visit</string>
+    <string-array name="pnc_period_array">
+        <item>1st Day</item>
+        <item>3rd Day</item>
+        <item>7th Day</item>
+        <item>14th Day</item>
+        <item>21st Day</item>
+        <item>28th Day</item>
+        <item>42nd Day</item>
+    </string-array>
+    <string-array name="pnc_confirmation_array">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    <string-array name="pnc_contraception_method_array">
+        <item>POST PARTUM IUCD (PPIUCD) WITHIN 48 HRS OF DELIVERY</item>
+        <item>CONDOM</item>
+        <item>MALE STERILIZATION</item>
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>ANY OTHER (SPECIFY)</item>
+    </string-array>
+    <string-array name="pnc_mother_danger_sign_array">
+        <item>PPH</item>
+        <item>FEVER</item>
+        <item>SEPSIS</item>
+        <item>SEVERE ABDOMINAL PAIN</item>
+        <item>SEVERE HEADACHE OR BLURRED VISION</item>
+        <item>DIFFICULT BREATHING</item>
+        <item>Any Other</item>
+    </string-array>
+    <string-array name="pnc_referral_facility_array">
+        <item>Primary Health Centre</item>
+        <item>Community Health Centre</item>
+        <item>District Hospital</item>
+        <item>Other Private Hospital</item>
+        <item>Any Other (Specify)</item>
+    </string-array>
+    <string-array name="pnc_death_cause_array">
+        <item>ECLAMPSIA</item>
+        <item>HAEMORRHAGE (PPH)</item>
+        <item>ANAEMIA</item>
+        <item>HIGH FEVER</item>
+        <item>Any Other</item>
+    </string-array>
+    <string-array name="pnc_death_place_array">
+        <item>Home</item>
+        <item>Hospital</item>
+        <item>Transit</item>
+    </string-array>
+    <string-array name="visit_months">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+    <string-array name="method_of_contraception">
+        <item>Self</item>
+        <item>ANTRA Injection</item>
+        <item>Copper T (IUCD)</item>
+        <item>Condom</item>
+        <item>Mala N</item>
+        <item>Chaya</item>
+        <item>ECP</item>
+        <item>Any Other Method</item>
+    </string-array>
+
     <string name="template_null">Enter Template Name</string>
     <string name="templte_exists">Template name already exists</string>
     <string name="delete_temp">Delete Template</string>
