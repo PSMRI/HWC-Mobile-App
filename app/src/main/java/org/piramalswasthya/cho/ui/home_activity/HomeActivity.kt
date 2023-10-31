@@ -56,11 +56,11 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -277,6 +277,12 @@ class HomeActivity : AppCompatActivity() {
 
         }, delayMillis)
         currentLanguage = prefDao.getCurrentLanguage()
+        currentRoleSelected = if (prefDao.getCHOSecondRole()!=null){
+            prefDao.getCHOSecondRole()!!
+        } else{
+            prefDao.setSecondRolesForCHO("Registrar")
+            prefDao.getCHOSecondRole()!!
+        }
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
@@ -357,12 +363,18 @@ class HomeActivity : AppCompatActivity() {
             .setTitle("Choose Role")
 
             .setPositiveButton("Apply") { dialog, _ ->
-                prefDao.setSecondRolesForCHO(currentRoleSelected)
-//                Toast.makeText(this, "$test2 Selected", Toast.LENGTH_SHORT).show()
-                val refresh = Intent(this, HomeActivity::class.java)
-                finish()
-                startActivity(refresh)
-                this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                if(currentRoleSelected!=null){
+                    prefDao.setSecondRolesForCHO(currentRoleSelected)
+//                    Toast.makeText(this, "Trigger started", Toast.LENGTH_SHORT).show()
+                    WorkerUtils.triggerDownSyncWorker(this)
+                    val refresh = Intent(this, HomeActivity::class.java)
+                    finish()
+                    startActivity(refresh)
+                    this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                }
+                else{
+                    Toast.makeText(this, "No role Selected", Toast.LENGTH_SHORT).show()
+                }
 
 //                dialog.dismiss()
             }
@@ -378,11 +390,6 @@ class HomeActivity : AppCompatActivity() {
         val labTechnicianRadioButton = dialogView.findViewById<MaterialRadioButton>(R.id.rb_lab_technician_dialog)
         if (radioGroup != null && registrarRadioButton != null && nurseRadioButton != null && doctorRadioButton != null && pharmacistRadioButton != null
             && labTechnicianRadioButton != null) {
-
-//            val rolesArray = prefDao.getUserRoles()?.split(",")
-//            if(rolesArray != null){
-//                return rolesArray.size == 1 && rolesArray.contains("Pharmacist")
-//            }
 
             when (prefDao.getCHOSecondRole()) {
                 "Registrar" -> radioGroup.check(registrarRadioButton.id)

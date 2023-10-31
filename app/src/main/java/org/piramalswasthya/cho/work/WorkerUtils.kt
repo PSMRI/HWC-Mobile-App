@@ -161,9 +161,22 @@ object WorkerUtils {
             .enqueueUniqueWork(DownloadCardWorker.name, ExistingWorkPolicy.REPLACE, workRequest).state
     }
 
+    fun presTemplate(
+        context: Context,
+    ) {
+
+        val workRequest = OneTimeWorkRequestBuilder<PrescripTemplateWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(PrescripTemplateWorker.name, ExistingWorkPolicy.KEEP, workRequest).state
+    }
+
     fun cancelAllWork(context: Context) {
         val workManager = WorkManager.getInstance(context)
         workManager.cancelAllWork()
     }
+
 
 }

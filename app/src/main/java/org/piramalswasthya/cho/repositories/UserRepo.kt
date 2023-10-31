@@ -10,6 +10,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -68,6 +70,9 @@ class UserRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             userDao.getLoggedInUser()?.asDomainModel()
         }
+    }
+     fun getLoggedInUserAsFlow(): Flow<Int?> {
+        return userDao.getLoggedInUserAsFlow().map { it?.asDomainModel()?.userId }
     }
     suspend fun isUserLoggedIn(): Int {
         return withContext(Dispatchers.IO) {
@@ -377,7 +382,8 @@ class UserRepo @Inject constructor(
                 val villageList = districtObject.getJSONArray("villageList")
 
                 val itemType = object : TypeToken<List<VillageLocationData>>() {}.type
-                val villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                var villageLocationDataList : List<VillageLocationData> = Gson().fromJson(villageList.toString(), itemType)
+                villageLocationDataList = villageLocationDataList.toSet().toList()
 
                 val stateMaster = data.getJSONArray("stateMaster")
                 var stateMasterName : String = ""

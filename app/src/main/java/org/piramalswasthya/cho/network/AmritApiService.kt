@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.model.PatientVisitInformation
 import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
 import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.utils.Constants
@@ -221,6 +222,12 @@ interface AmritApiService {
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/prescriptionTemplatesToServer")
+    suspend fun sendTemplateToServer(@Body prescriptionTemplateDB: List<PrescriptionTemplateDB>): Response<ResponseBody>
+
+    @GET("hwc-facility-service/sync/{userID}/prescriptionTemplatesDataToApp")
+    suspend fun getTemplateFromServer(@Path("userID") userID: Int,): Response<ResponseBody>
 
     @POST("/flw-0.0.1/maternalCare/ancVisit/saveAll")
     suspend fun postAncForm(@Body ancPostList: List<ANCPost>): Response<ResponseBody>

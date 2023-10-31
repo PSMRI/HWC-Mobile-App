@@ -28,7 +28,7 @@ class DateTimeUtil {
         get() = _selectedDate
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun showDatePickerDialog(context: Context, initialDate: Date?) {
+    fun showDatePickerDialog(context: Context, initialDate: Date?) : DatePickerDialog {
         val calendar = Calendar.getInstance()
         initialDate?.let {
             calendar.time = it
@@ -59,8 +59,7 @@ class DateTimeUtil {
         val minCalendar = Calendar.getInstance()
         minCalendar.add(Calendar.YEAR, -99)
         datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
-
-        datePickerDialog.show()
+        return datePickerDialog
     }
 
 

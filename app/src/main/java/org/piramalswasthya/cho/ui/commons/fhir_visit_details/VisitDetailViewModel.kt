@@ -1,22 +1,16 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import com.google.android.fhir.FhirEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import org.hl7.fhir.r4.model.Condition
-import org.hl7.fhir.r4.model.Encounter
-import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -33,7 +27,6 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -87,8 +80,6 @@ class VisitDetailViewModel @Inject constructor(
     val loggedInUser: UserCache?
         get() = _loggedInUser
     private var isFollowUpChecked: Boolean = false
-    val fhirEngine: FhirEngine
-        get() = CHOApplication.fhirEngine(application.applicationContext)
 
     private var _boolCall = MutableLiveData(false)
     val boolCall: LiveData<Boolean>
@@ -211,19 +202,6 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getLastVisitInfoSync(patientId: String): PatientVisitInfoSync? {
         return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
-    }
-
-    fun saveVisitDetailsInfo(encounter: Encounter, conditions: List<Condition>) {
-        viewModelScope.launch {
-            try {
-//                fhirEngine.create(encounter)
-//                conditions.forEach { condition ->
-//                    fhirEngine.create(condition)
-//                }
-            } catch (e: Exception) {
-                Timber.d("Error in Saving Visit Details Informations")
-            }
-        }
     }
 
     suspend fun getChiefMap(): Map<Int, String> {

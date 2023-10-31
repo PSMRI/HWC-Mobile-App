@@ -4,23 +4,18 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.IllnessAdapter
-import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.databinding.FragmentIllnessFieldsBinding
 import org.piramalswasthya.cho.model.IllnessDropdown
-import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.ui.HistoryFieldsInterface
-import org.piramalswasthya.cho.ui.commons.fhir_visit_details.VisitDetailViewModel
 
 @AndroidEntryPoint
 class IllnessFieldsFragment(): Fragment() {

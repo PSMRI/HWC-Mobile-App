@@ -1,10 +1,8 @@
 package org.piramalswasthya.cho.ui.commons.lab_technician
 
 
-
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,30 +10,14 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -48,27 +30,24 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.dropdown_adapters.BlockAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
 import org.piramalswasthya.cho.model.ComponentDetailDTO
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
-import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.login_activity.login_settings.LoginSettingsViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form), FhirFragmentService, NavigationAdapter {
+class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form),
+    NavigationAdapter {
 
     private var _binding: FragmentLabTechnicianFormBinding? = null
 
@@ -77,25 +56,25 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             return _binding!!
         }
 
-    override var fragment: Fragment = this;
+    var fragment: Fragment = this
+
     @Inject
     lateinit var preferenceDao: PreferenceDao
-    override var fragmentContainerId = 0;
+    var fragmentContainerId = 0
     private var userInfo: UserCache? = null
 
-    override val jsonFile : String = "vitals-page.json"
+    val jsonFile: String = "vitals-page.json"
 
-    override val viewModel: LabTechnicianFormViewModel by viewModels()
+    val viewModel: LabTechnicianFormViewModel by viewModels()
 
-    private val parentViewModel : EditPatientDetailsViewModel by viewModels ({ requireActivity()})
+    private val parentViewModel: EditPatientDetailsViewModel by viewModels({ requireActivity() })
 
     private lateinit var composeView: ComposeView
 
     private var dtos: List<ProcedureDTO>? = null
 
-    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
-    private lateinit var patientId : String
-
+    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private lateinit var patientId: String
 
 
     private val args: LabTechnicianFormFragmentArgs by lazy {
@@ -114,6 +93,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
         return composeView
     }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -121,16 +101,21 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        benVisitInfo =
+            requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         patientId = benVisitInfo.patient.patientID
 
         viewModel.getLoggedInUserDetails()
-        viewModel.boolCall.observe(viewLifecycleOwner){
-            if(it){
+        viewModel.boolCall.observe(viewLifecycleOwner) {
+            if (it) {
                 userInfo = viewModel.loggedInUser
                 viewModel.resetBool()
             }
@@ -146,7 +131,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
         viewModel.procedures.observe(viewLifecycleOwner) {
             if (it.isNullOrEmpty()) {
-                    parentViewModel.setSubmitActive(false)
+                parentViewModel.setSubmitActive(false)
 
                 composeView.setContent {
                     AddNoData()
@@ -185,6 +170,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             )
         }
     }
+
     @Composable
     fun AddProcedures(dtos: List<ProcedureDTO>?) {
         Column {
@@ -216,7 +202,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                             when (it.inputType) {
                                 "TextBox" -> {
                                     var textState by remember { mutableStateOf("") }
-                                    it.testResultValue?.let {res ->
+                                    it.testResultValue?.let { res ->
                                         textState = res
                                     }
                                     var remarksTextState by remember { mutableStateOf("") }
@@ -254,7 +240,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                                             BasicTextField(
                                                 value = textState,
                                                 onValueChange = { newText ->
-                                                    if (newText.isNotEmpty() && newText.toDouble() < 10000){
+                                                    if (newText.isNotEmpty() && newText.toDouble() < 10000) {
                                                         textState = newText
                                                         it.testResultValue = newText
                                                     } else if (newText.isEmpty()) {
@@ -337,7 +323,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
                                 "RadioButton" -> {
                                     var selectedOption by remember { mutableStateOf("") }
-                                    var options = mutableListOf<String>()
+                                    val options = mutableListOf<String>()
                                     Timber.d("comp otpipns ${it.testComponentName}" + it.compOpt.size)
                                     it.compOpt.forEach { opt ->
                                         options.add(opt.name.toString())
@@ -457,7 +443,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                                                 .padding(start = 16.dp, top = 16.dp)
                                         ) {
                                             Column {
-                                                Row() {
+                                                Row {
                                                     DropDown(it.compOpt.map { c -> c.name })
                                                 }
                                             }
@@ -513,7 +499,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             }
         }
 
-        }
+    }
 
 
     @Composable
@@ -590,11 +576,11 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         ) {
-            var value = dto.testResultValue
-            var rangeMin = dto.range_min
-            var rangeMax = dto.range_max
+            val value = dto.testResultValue
+            val rangeMin = dto.range_min
+            val rangeMax = dto.range_max
             if (!value.isNullOrEmpty() && rangeMax != null && rangeMin != null) {
-                var valueDouble = value.toDouble()
+                val valueDouble = value.toDouble()
                 if (valueDouble > rangeMax || valueDouble < rangeMin) {
                     Text(
                         text = "Range " + dto.range_min + " to " + dto.range_max,
@@ -623,7 +609,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_lab_technician_form;
+        return R.id.fragment_lab_technician_form
     }
 
     override fun onSubmitAction() {
@@ -632,8 +618,11 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             procedureDTO.compListDetails.forEach { componentDetailDTO ->
                 if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
                     componentDetailDTO.range_max != null &&
-                    componentDetailDTO.range_min != null) {
-                    isValidData = (componentDetailDTO.testResultValue!!.toDouble() > componentDetailDTO.range_min && componentDetailDTO.testResultValue!!.toDouble() < componentDetailDTO.range_max)
+                    componentDetailDTO.range_min != null
+                ) {
+                    isValidData =
+                        isValidData && (componentDetailDTO.testResultValue!!.toDouble() >= componentDetailDTO.range_min)
+                                && (componentDetailDTO.testResultValue!!.toDouble() <= componentDetailDTO.range_max)
                 }
             }
         }
@@ -642,7 +631,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 AddLoading()
             }
             viewModel.saveLabData(dtos, benVisitInfo)
-            viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
+            viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
                 when (state!!) {
                     true -> {
                         navigateNext()
@@ -661,7 +650,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         requireActivity().finish()
     }
 
-    override fun navigateNext() {
+    fun navigateNext() {
 //        findNavController().navigate(
 //            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
 //        )

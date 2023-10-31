@@ -60,7 +60,9 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
+import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
@@ -77,9 +79,11 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -93,8 +97,10 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     lateinit var preferenceDao: PreferenceDao
     private val initialItemD = DiagnosisValue()
     private val itemListD = mutableListOf(initialItemD)
-    private val initialItemP = PrescriptionValues()
+    private val initialItemP = PrescriptionValuesForTemplate()
     private val itemListP = mutableListOf(initialItemP)
+    private val initialItemTemp = PrescriptionValuesForTemplate()
+    private val tempList  = mutableListOf(initialItemTemp)
     private lateinit var dAdapter : DiagnosisAdapter
     private lateinit var chAdapter : ChiefComplaintMultiAdapter
     private lateinit var pAdapter : PrescriptionAdapter
@@ -105,6 +111,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
     private val instructionDropdown= instructionDropdownList
+    private val tempDBVal = ArrayList<PrescriptionTemplateDB?>()
     private val formMListVal = ArrayList<ItemMasterList>()
     private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
@@ -143,7 +150,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         val tableLayout = binding.tableLayout
-        if(preferenceDao.isUserOnlyDoctorOrMo()) {
+        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")) {
             patientId = benVisitInfo.patient.patientID
             patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -193,7 +200,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
-        if (preferenceDao.isUserOnlyDoctorOrMo()) {
+        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")) {
             viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
                 // Clear the existing data in chiefComplaintDB
                 chiefComplaintDB.clear()
@@ -252,6 +259,13 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             formForFilter.addAll(f)
             pAdapter.notifyDataSetChanged()
         }
+
+        viewModel.tempDB.observe(viewLifecycleOwner) { f ->
+            tempDBVal.clear()
+            tempDBVal.addAll(f)
+            pAdapter.notifyDataSetChanged()
+        }
+
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
             counsellingTypes.addAll(f)
@@ -306,6 +320,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonD.isEnabled = false
         }
         pAdapter = PrescriptionAdapter(
+            tempDBVal,
+            tempList,
             itemListP,
             formMListVal,
             frequencyListVal,
@@ -324,7 +340,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         pAdapter.notifyItemInserted(itemListP.size - 1)
         binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
         binding.plusButtonP.setOnClickListener {
-            val newItem = PrescriptionValues()
+            val newItem = PrescriptionValuesForTemplate()
             itemListP.add(newItem)
 //            pAdapter.notifyItemInserted(itemListP.size -   1)
             view.clearFocus()
@@ -332,7 +348,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        if(preferenceDao.isUserOnlyDoctorOrMo()){
+        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
                     var vitalDb2 = VitalsMasterDb(
@@ -702,8 +718,40 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
+        val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
+        for (i in 0 until tempList.size) {
+            val prescriptionData = tempList[i]
+            var formName = prescriptionData.form
+            var formVal = prescriptionData.id
+            var tempNameVal = prescriptionData.tempName
+            var freqVal = prescriptionData.frequency.nullIfEmpty()
+            var unitVal = prescriptionData.unit.nullIfEmpty()
+            var durVal = prescriptionData.duration.nullIfEmpty()
+            var instruction = prescriptionData.instruction.nullIfEmpty()
 
-
+            if (formVal != null) {
+                var pres = viewModel.userIDVAl?.let {
+                    PrescriptionTemplateDB(
+                        templateName = tempNameVal,
+                        userID = it,
+                        drugName = formName,
+                        drugId = formVal,
+                        frequency = freqVal,
+                        duration = durVal,
+                        unit = unitVal,
+                        instruction = instruction
+                    )
+                }
+                if (pres != null) {
+                    prescriptionTempList.add(pres)
+                }
+                Timber.tag("arr").i("${pres}")
+                if (pres != null) {
+                    viewModel.savePrescriptionTemp(pres)
+                }
+            }
+        }
+        viewModel.savePrescriptionTempToServer(prescriptionTempList)
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -789,8 +837,42 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
+        val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
+        for (i in 0 until tempList.size) {
+            val prescriptionTemp = tempList[i]
+            var formName = prescriptionTemp.form
+            var formVal = prescriptionTemp.id
+            var tempNameVal = prescriptionTemp.tempName
+            var freqVal = prescriptionTemp.frequency.nullIfEmpty()
+            var unitVal = prescriptionTemp.unit.nullIfEmpty()
+            var durVal = prescriptionTemp.duration.nullIfEmpty()
+            var instruction = prescriptionTemp.instruction.nullIfEmpty()
 
-
+            if (formVal != null) {
+                var pres = viewModel.userIDVAl?.let {
+                    PrescriptionTemplateDB(
+                        templateName = tempNameVal,
+                        userID = it,
+                        drugName = formName,
+                        drugId = formVal,
+                        frequency = freqVal,
+                        duration = durVal,
+                        unit = unitVal,
+                        instruction = instruction
+                    )
+                }
+                if (pres != null) {
+                    prescriptionTempList.add(pres)
+                }
+                Timber.tag("arr").i("${pres}")
+                if (pres != null) {
+                    viewModel.savePrescriptionTemp(pres)
+                }
+            }
+        }
+        if(prescriptionTempList!=null) {
+            viewModel.savePrescriptionTempToServer(prescriptionTempList)
+        }
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -811,7 +893,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
     override fun onCancelAction() {
-        if(preferenceDao.isUserOnlyDoctorOrMo()){
+        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
             val intent = Intent(context, HomeActivity::class.java)
             startActivity(intent)
             requireActivity().finish()
@@ -821,7 +903,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
     }
     fun navigateNext() {
-        if (preferenceDao.isUserOnlyDoctorOrMo()) {
+        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {
@@ -842,6 +924,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                         requireActivity().finish()
                                     }
                                     else ->{
+
 //                                        requireActivity().runOnUiThread {
 //                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
 //                                        }

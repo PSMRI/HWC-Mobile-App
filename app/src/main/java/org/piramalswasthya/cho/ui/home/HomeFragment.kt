@@ -118,7 +118,12 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+        if(preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse"))){
+            binding.registration.isEnabled = true
+        }
+        else binding.registration.isEnabled = !preferenceDao.isCHO() && preferenceDao.isUserRegistrar()
+
+//
 
         binding.registration.setOnClickListener {
             searchPrompt.show()
@@ -141,7 +146,11 @@ class HomeFragment : Fragment() {
                 HomeActivityViewModel.State.SAVE_SUCCESS -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
-                    binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+//                    binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+                    if(preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse"))){
+                        binding.registration.isEnabled = true
+                    }
+                    else binding.registration.isEnabled = !preferenceDao.isCHO() && preferenceDao.isUserRegistrar()
                 }
 
                 HomeActivityViewModel.State.SAVE_FAILED -> {
