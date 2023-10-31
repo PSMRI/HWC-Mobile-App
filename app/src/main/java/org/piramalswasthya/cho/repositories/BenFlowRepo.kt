@@ -544,8 +544,6 @@ class BenFlowRepo @Inject constructor(
             val prescribedMedicineDataRequest = PrescribedMedicineDataRequest(
                 beneficiaryRegID = benFlow.beneficiaryRegID!!,
                 facilityID = facilityID!!,
-                parkingPlaceID = benFlow.parkingPlaceID!!,
-                vanID = benFlow.vanID!!,
                 visitCode = benFlow.visitCode!!
             )
 

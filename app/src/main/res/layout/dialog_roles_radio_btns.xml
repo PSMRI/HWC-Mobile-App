@@ -7,7 +7,7 @@
         android:id="@+id/rg_roles_select_dialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:checkedButton="@id/rb_eng"
+        android:checkedButton="@id/rb_registrar_dialog"
         android:orientation="vertical"
         android:layout_marginLeft="50dp"
         android:paddingStart="@dimen/padding_wide"

@@ -84,9 +84,15 @@ class PatientItemAdapter(
             binding.showAbha = showAbha
             binding.hasAbha = !item.patient.healthIdDetails?.healthIdNumber.isNullOrEmpty()
 
-            binding.patientName.text = (item.patient.firstName ?: "") + " " + (item.patient.lastName ?: "")
+            val firstName = item.patient.firstName ?: ""
+            val lastName = item.patient.lastName ?: ""
+            val capitalizedFirstName = firstName.split(" ").joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+            val capitalizedLastName = lastName.split(" ").joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+
+            val fullName = "$capitalizedFirstName $capitalizedLastName"
+            binding.patientName.text = fullName
             binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            if(!item.patient.age.toString().isNullOrEmpty() && item.patient.age!! <= 1){
+            if(!item.patient.age?.toString().isNullOrEmpty() && item.patient.age!! <= 1){
                 val unit = item.ageUnit?.dropLast(1)
                 binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
             }else{

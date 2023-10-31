@@ -8,9 +8,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/cl_heading"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        >
 
         <LinearLayout
             android:id="@+id/header_name"
@@ -144,19 +146,16 @@
                     android:value="@string/manual_issue" />
 
             </RadioGroup>
+
+            <include
+                android:id="@+id/pharmacist_list_container"
+                layout="@layout/pharmacist_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="76dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
         </LinearLayout>
-
-        <include
-            android:id="@+id/pharmacist_list_container"
-            layout="@layout/pharmacist_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="454dp"
-            android:layout_gravity="start"
-            android:gravity="bottom"
-            app:layout_constraintTop_toBottomOf="@id/radio_group"
-            tools:layout_editor_absoluteX="0dp" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--    <RelativeLayout-->

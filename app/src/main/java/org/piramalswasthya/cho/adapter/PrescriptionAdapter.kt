@@ -125,6 +125,7 @@ class PrescriptionAdapter(
             }
             // Disable the "Add" button when the duration count reaches the maximum
             if (durationCount >= maxDuration) {
+                Toast.makeText(holder.itemView.context, "Maximum value allowed for Duration is 6.", Toast.LENGTH_SHORT).show()
                 holder.addButton.isEnabled = false
             }
             // Enable the "Subtract" button
