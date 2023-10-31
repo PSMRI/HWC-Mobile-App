@@ -19,7 +19,9 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.PncRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
@@ -36,6 +38,8 @@ class VisitDetailViewModel @Inject constructor(
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val procedureRepo: ProcedureRepo,
+    private val maternalHealthRepo: MaternalHealthRepo,
+    private val pncRepo: PncRepo,
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -105,6 +109,14 @@ class VisitDetailViewModel @Inject constructor(
         }
     suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
+    }
+
+    fun getLastAncVisitNumber(benId: String): LiveData<Int?> {
+        return maternalHealthRepo.getLastVisitNumber(benId)
+    }
+
+    fun getLastPncVisitNumber(benId: String): LiveData<Int?> {
+        return pncRepo.getLastVisitNumber(benId)
     }
 
     suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){

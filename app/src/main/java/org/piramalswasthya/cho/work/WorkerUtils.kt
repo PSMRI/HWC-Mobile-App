@@ -65,6 +65,22 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushPWRToAmritWorker = OneTimeWorkRequestBuilder<PushPWRToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushPNCWorkRequest = OneTimeWorkRequestBuilder<PushPNCToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushImmunizationWorkRequest = OneTimeWorkRequestBuilder<PushChildImmunizationToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+        val pushECToAmritWorker = OneTimeWorkRequestBuilder<PushECToAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
@@ -75,6 +91,10 @@ object WorkerUtils {
             .then(pushBenDoctorInfoPendingTestToAmrit)
             .then(pushBenDoctorInfoWithoutTestToAmrit)
             .then(pushBenDoctorInfoAfterTestToAmrit)
+            .then(pushPWRToAmritWorker)
+            .then(pushPNCWorkRequest)
+            .then(pushECToAmritWorker)
+            .then(pushImmunizationWorkRequest)
 //            .then(pushLabDataToAmrit)
             .enqueue()
     }

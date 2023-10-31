@@ -222,7 +222,7 @@ class PersonalDetailsFragment : Fragment() {
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
-                                else{
+                                    else{
 //                                        Timber.d("*******************Babs DTO************** ", Gson().toJson(benVisitInfo))
                                     }
 
@@ -233,18 +233,18 @@ class PersonalDetailsFragment : Fragment() {
                                     checkAndGenerateABHA(benVisitInfo)
                             },
                             {
-                                    benVisitInfo -> callLoginDialog(benVisitInfo)
+                                benVisitInfo -> callLoginDialog(benVisitInfo)
                             },
-                                {
-                                        benVisitInfo ->
+                            {
+                                benVisitInfo ->
                                     lifecycleScope.launch {
                                         generatePDF(benVisitInfo)
                                     }
 
-                                },
-                                {
-                                    benVisitInfo ->  openDialog(benVisitInfo)
-                                }
+                            },
+                            {
+                                benVisitInfo ->  openDialog(benVisitInfo)
+                            }
                          ),
                             showAbha = true
                         )

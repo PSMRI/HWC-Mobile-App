@@ -5,6 +5,8 @@ import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 
+
+
 fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
     if (!boolean) {
         isErrorEnabled = true

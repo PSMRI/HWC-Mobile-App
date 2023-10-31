@@ -277,8 +277,11 @@ class HomeActivity : AppCompatActivity() {
 
         }, delayMillis)
         currentLanguage = prefDao.getCurrentLanguage()
-        if (prefDao.getCHOSecondRole()!=null){
-            currentRoleSelected = prefDao.getCHOSecondRole()!!
+        currentRoleSelected = if (prefDao.getCHOSecondRole()!=null){
+            prefDao.getCHOSecondRole()!!
+        } else{
+            prefDao.setSecondRolesForCHO("Registrar")
+            prefDao.getCHOSecondRole()!!
         }
     }
     private val logoutAlert by lazy {
@@ -362,7 +365,6 @@ class HomeActivity : AppCompatActivity() {
             .setPositiveButton("Apply") { dialog, _ ->
                 if(currentRoleSelected!=null){
                     prefDao.setSecondRolesForCHO(currentRoleSelected)
-//                    Toast.makeText(this, "Trigger started", Toast.LENGTH_SHORT).show()
                     WorkerUtils.triggerDownSyncWorker(this)
                     val refresh = Intent(this, HomeActivity::class.java)
                     finish()

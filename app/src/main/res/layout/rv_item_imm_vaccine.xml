@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="org.piramalswasthya.cho.model.VaccineState"/>
+
+        <variable
+            name="vaccine"
+            type="org.piramalswasthya.cho.model.VaccineDomain" />
+
+        <variable
+            name="clickListener"
+            type="org.piramalswasthya.cho.adapter.ImmunizationCategoryAdapter.ImmunizationIconClickListener" />
+
+    </data>
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_normal"
+        android:elevation="@dimen/padding_normal"
+        app:cardCornerRadius="@dimen/padding_normal"
+        app:cardElevation="@dimen/padding_normal">
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_normal"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{vaccine.vaccineName}"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                tools:text="Ebababebabisa" />
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:padding="@dimen/padding_normal"
+                vaccineState="@{vaccine.state}" />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="?attr/colorPrimary"
+                android:text="@KCUF"
+                android:onClick="@{()-> clickListener.onClicked(vaccine)}"
+                android:textColor="?attr/colorOnPrimary"
+                vaccineState="@{vaccine.state}" />
+
+<!--            android:onClick="@{()-> clickListener.onClick(vaccine)}"-->
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+</layout>
