@@ -56,6 +56,7 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
+import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -127,21 +128,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
     var bpDiastolicValue: String? = null
     var respiratoryValue: String? = null
     var rbsValue: String? = null
-
-
-    private val careAndPreg: String = "Care in Pregnancy & Childbirth"
-    private val anc: String = "ANC"
-    private val pnc: String = "PNC"
-
-    private val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
-    private val fpAndCs: String = "Family Planning & Contraceptives Services"
-
-    private val neonatalAndInfant: String = "Neonatal & Infant Health"
-    private val immunization: String = "Immunization Services"
-
-
-    private val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
-    private val age_0_to_1: List<String> = listOf(neonatalAndInfant)
 
     private lateinit var adapter: VisitDetailAdapter
 
@@ -239,7 +225,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                age_0_to_1)
+                DropdownConst.age_0_to_1)
             binding.subCatInput.setAdapter(subCatAdapter)
         }
         else if(benVisitInfo.patient.age != null && benVisitInfo.patient.age!! > 1 && benVisitInfo.ageUnit?.lowercase() == "years" && benVisitInfo.genderName?.lowercase() == "female"){
@@ -247,27 +233,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                female_1_to_59)
+                DropdownConst.female_1_to_59)
             binding.subCatInput.setAdapter(subCatAdapter)
         }
     }
 
     private fun setReasonForVisitDropdown(subCat: String){
-        if(subCat == careAndPreg){
+
+        Log.d("Reason for visit is ", "Working " + subCat)
+        if(subCat == DropdownConst.careAndPreg){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(anc, pnc)
+                listOf(DropdownConst.anc, DropdownConst.pnc)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
-        else if(subCat == fpAndOtherRep){
+        else if(subCat == DropdownConst.fpAndOtherRep){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(fpAndCs)
+                listOf(DropdownConst.fpAndCs)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
@@ -276,7 +264,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(immunization)
+                listOf(DropdownConst.immunization)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
@@ -347,7 +335,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
 //        }
 
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
-//            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             var subCat = parent.getItemAtPosition(position)
             binding.subCatInput.setText(subCat.toString(), false)
             setReasonForVisitDropdown(subCat.toString())
@@ -358,7 +345,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         }
 
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
-//            var subCat = parent.getItemAtPosition(position) as SubVisitCategory
             var subCat = parent.getItemAtPosition(position)
             binding.reasonForVisitInput.setText(subCat.toString(), false)
         }
@@ -925,7 +911,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         val selectedCategory = selectedCategoryRadioButton?.tag.toString()
         if(selectedCategory == "Other CPHC Services"){
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
-            if(reasonForVisit == anc){
+            if(reasonForVisit == DropdownConst.anc){
                 viewModel.getLastAncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
                     val visitNumber = (it ?: 0) + 1
                     findNavController().navigate(
@@ -935,7 +921,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                     )
                 }
             }
-            else if(reasonForVisit == pnc){
+            else if(reasonForVisit == DropdownConst.pnc){
                 viewModel.getLastPncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
                     val visitNumber = (it ?: 0) + 1
                     findNavController().navigate(
@@ -945,14 +931,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                     )
                 }
             }
-            else if(reasonForVisit == immunization){
+            else if(reasonForVisit == DropdownConst.immunization){
                 childImmunizationListViewModel.updateBottomSheetData(
                     benVisitInfo.patient.patientID
                 )
                 if (!bottomSheet.isVisible)
                     bottomSheet.show(childFragmentManager, "ImM")
             }
-            else if(reasonForVisit == fpAndCs){
+            else if(reasonForVisit == DropdownConst.fpAndCs){
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
                         benVisitInfo.patient.patientID, 0
