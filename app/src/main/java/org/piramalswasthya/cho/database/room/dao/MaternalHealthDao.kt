@@ -1,19 +1,24 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.model.*
 
 @Dao
 interface MaternalHealthDao {
-
     @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
     fun getSavedRecord(patientID: String): PregnantWomanRegistrationCache?
 //    @Query("select * from pregnancy_register where benId = :benId and active = 1 order by createdDate limit 1")
 //    fun getSavedActiveRecord(benId: Long): PregnantWomanRegistrationCache?
 //
+
+    @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
+    fun getLastVisitNumber(patientID: String): LiveData<Int?>
+
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
     fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
+
     @Query("select * from pregnancy_anc where isActive== 1 and patientID = :patientID")
     fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 //    @Query("select * from pregnancy_anc where benId in (:benId) and isActive = 1")

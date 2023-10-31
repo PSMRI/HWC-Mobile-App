@@ -87,6 +87,12 @@
     <string name="case_record_text">Case Record</string>
     <string name="lab_record_text">Lab Record</string>
     <string name="pharmacist_record_text">Pharmacist Record</string>
+
+    <string name="anc">ANC</string>
+    <string name="pnc">PNC</string>
+    <string name="immunization">Immunization</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">BP (mmHg) Diastolic</string>

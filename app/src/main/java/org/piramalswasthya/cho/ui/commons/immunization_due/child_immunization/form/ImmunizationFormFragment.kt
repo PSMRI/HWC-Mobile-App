@@ -145,7 +145,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter, FhirFragmentServ
 
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_new_form
+        return R.id.fragment_immunization
     }
 
     override fun onSubmitAction() {

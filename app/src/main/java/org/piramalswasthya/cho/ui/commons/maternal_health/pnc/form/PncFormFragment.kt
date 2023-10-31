@@ -171,7 +171,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService {
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_new_form
+        return R.id.fragment_pnc
     }
 
     override fun onSubmitAction() {

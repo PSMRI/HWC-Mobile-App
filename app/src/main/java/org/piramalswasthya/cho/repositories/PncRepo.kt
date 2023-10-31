@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,6 +38,10 @@ class PncRepo @Inject constructor(
         }
     }
 
+    fun getLastVisitNumber(patientID: String): LiveData<Int?> {
+        return pncDao.getLastVisitNumber(patientID)
+    }
+
     suspend fun persistPncRecord(pncCache: PNCVisitCache) {
         withContext(Dispatchers.IO) {
             pncDao.insert(pncCache)
@@ -65,8 +70,8 @@ class PncRepo @Inject constructor(
                     it.syncState = SyncState.UNSYNCED
                 }
                 pncDao.update(it)
-                if (!uploadDone)
-                    return@withContext false
+//                if (!uploadDone)
+//                    return@withContext false
             }
 
             return@withContext true

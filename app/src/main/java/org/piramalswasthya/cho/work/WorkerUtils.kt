@@ -88,10 +88,10 @@ object WorkerUtils {
             .then(pushBenDoctorInfoPendingTestToAmrit)
             .then(pushBenDoctorInfoWithoutTestToAmrit)
             .then(pushBenDoctorInfoAfterTestToAmrit)
-//            .then(pushPWRToAmritWorker)
-//            .then(pushPNCWorkRequest)
+            .then(pushPWRToAmritWorker)
+            .then(pushPNCWorkRequest)
+            .then(pushECToAmritWorker)
             .then(pushImmunizationWorkRequest)
-//            .then(pushECToAmritWorker)
 //            .then(pushLabDataToAmrit)
             .enqueue()
     }

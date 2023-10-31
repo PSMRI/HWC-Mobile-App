@@ -176,7 +176,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService{
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_new_form
+        return R.id.fragment_anc
     }
 
 

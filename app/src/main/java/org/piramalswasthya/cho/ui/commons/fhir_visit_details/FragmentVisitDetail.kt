@@ -926,18 +926,24 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
         if(selectedCategory == "Other CPHC Services"){
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == anc){
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benVisitInfo.patient.patientID, 1
+                viewModel.getLastAncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+                    val visitNumber = (it ?: 0) + 1
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                            benVisitInfo.patient.patientID, visitNumber
+                        )
                     )
-                )
+                }
             }
             else if(reasonForVisit == pnc){
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
-                        benVisitInfo.patient.patientID, 1
+                viewModel.getLastPncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+                    val visitNumber = (it ?: 0) + 1
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                            benVisitInfo.patient.patientID, visitNumber
+                        )
                     )
-                )
+                }
             }
             else if(reasonForVisit == immunization){
                 childImmunizationListViewModel.updateBottomSheetData(
@@ -945,11 +951,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter, FhirFragmentService,
                 )
                 if (!bottomSheet.isVisible)
                     bottomSheet.show(childFragmentManager, "ImM")
-//                findNavController().navigate(
-//                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
-//                        benVisitInfo.patient.patientID, 1
-//                    )
-//                )
             }
             else if(reasonForVisit == fpAndCs){
                 findNavController().navigate(

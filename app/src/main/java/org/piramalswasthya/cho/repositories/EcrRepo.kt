@@ -177,8 +177,8 @@ class EcrRepo @Inject constructor(
                     it.syncState = SyncState.UNSYNCED
                 }
                 database.ecrDao.updateEligibleCoupleTracking(it)
-                if(!uploadDone)
-                    return@withContext false
+//                if(!uploadDone)
+//                    return@withContext false
             }
 
             return@withContext true

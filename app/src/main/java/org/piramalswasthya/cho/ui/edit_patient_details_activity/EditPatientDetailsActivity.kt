@@ -134,6 +134,34 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                                resources.getString(R.string.submit_to_doctor_text)
                        }
                    }
+                   R.id.fragment_anc -> {
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.fragment_pnc -> {
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.fragment_immunization -> {
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.immunization)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
+                   R.id.fragment_fp -> {
+//                       binding.headerTextEditPatient.text =
+//                           resources.getString(R.string.case_record_text)
+                       binding.headerTextRegisterPatient.text = resources.getString(R.string.eligible_couple_tracking)
+                       binding.btnSubmit.text = resources.getString(R.string.submit)
+                       binding.btnCancel.text = resources.getString(R.string.cancel)
+                   }
 //                R.id.examinationFragment ->{
 //                    binding.headerTextEditPatient.text = resources.getString(R.string.examination_text)
 //                    binding.btnSubmit.text = resources.getString(R.string.submit)

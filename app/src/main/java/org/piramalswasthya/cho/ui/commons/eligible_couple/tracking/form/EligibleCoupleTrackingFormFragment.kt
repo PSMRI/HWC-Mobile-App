@@ -156,7 +156,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter, FhirFr
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_new_form
+        return R.id.fragment_fp
     }
 
     override fun onSubmitAction() {

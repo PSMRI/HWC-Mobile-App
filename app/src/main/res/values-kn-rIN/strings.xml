@@ -92,6 +92,12 @@
     <string name="personal_info">Personal Info</string>
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
+
+    <string name="anc">ANC</string>
+    <string name="pnc">PNC</string>
+    <string name="immunization">Immunization</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
     <string name="weight_kg_text">ತೂಕ (ಕೆಜಿ)</string>
     <string name="temperature_f_text">Temperature(F)</string>
     <string name="bp_mmhg_diastolic_text">ಬಿ.ಪಿ ಡಯಾಸ್ಟೊಲಿಕ್</string>

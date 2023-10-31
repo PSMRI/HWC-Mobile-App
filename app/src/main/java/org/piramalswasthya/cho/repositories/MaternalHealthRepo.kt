@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,6 +54,11 @@ class MaternalHealthRepo @Inject constructor(
 //        }
 //    }
 //
+
+    fun getLastVisitNumber(benId: String): LiveData<Int?> {
+        return maternalHealthDao.getLastVisitNumber(benId)
+    }
+
     suspend fun getSavedAncRecord(benId: String, visitNumber: Int): PregnantWomanAncCache? {
         return withContext(Dispatchers.IO) {
             maternalHealthDao.getSavedRecord(benId, visitNumber)
@@ -148,8 +154,8 @@ class MaternalHealthRepo @Inject constructor(
                     it.syncState = SyncState.UNSYNCED
                 }
                 maternalHealthDao.updateANC(it)
-                if (!uploadDone)
-                    return@withContext false
+//                if (!uploadDone)
+//                    return@withContext false
             }
 
             return@withContext true

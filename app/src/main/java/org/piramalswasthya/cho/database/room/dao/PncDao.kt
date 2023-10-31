@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,6 +13,9 @@ interface PncDao {
 
     @Query("select * from pnc_visit where patientID = :patientID and pncPeriod = :visitNumber and isActive = 1 limit 1")
     suspend fun getSavedRecord(patientID: String, visitNumber: Int): PNCVisitCache?
+
+    @Query("select pncPeriod from pnc_visit where patientID = :patientID order by pncPeriod desc limit 1")
+    fun getLastVisitNumber(patientID: String): LiveData<Int?>
 
     @Query("select * from pnc_visit where patientID = :patientID and isActive = 1 order by pncPeriod desc limit 1")
     suspend fun getLastSavedRecord(patientID: String): PNCVisitCache?

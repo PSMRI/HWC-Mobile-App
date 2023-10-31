@@ -171,8 +171,8 @@ class ImmunizationRepo @Inject constructor(
                 return@withContext false
 
             } catch (e: java.lang.IllegalStateException) {
-                Timber.d("save_child_immunization error : $e")
-                return@withContext false
+//                Timber.d("save_child_immunization error : $e")
+//                return@withContext false
             }
             false
         }
