@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.network
 
+import androidx.room.Delete
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
@@ -21,6 +22,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -221,9 +223,14 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/sync/prescriptionTemplatesToServer")
     suspend fun sendTemplateToServer(@Body prescriptionTemplateDB: List<PrescriptionTemplateDB>): Response<ResponseBody>
+    @DELETE("hwc-facility-service/sync/{userID}/prescriptionTemplates/{tempID}/delete")
+    suspend fun deleteTemplateFromServer(
+        @Path("userID") userID: Int,
+        @Path("tempID") tempID: Int
+    ): Response<ResponseBody>
 
     @GET("hwc-facility-service/sync/{userID}/prescriptionTemplatesDataToApp")
-    suspend fun getTemplateFromServer(@Path("userID") userID: Int,): Response<ResponseBody>
+    suspend fun getTemplateFromServer(@Path("userID") userID: Int): Response<ResponseBody>
 
     @POST("/hwc-facility-service/sync/generalOPDNurseFormDataToServer")
     suspend fun saveNurseData(@Body patientVisitInfo: PatientVisitInformation) : Response<ResponseBody>

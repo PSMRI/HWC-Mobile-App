@@ -7,6 +7,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TableRow
@@ -52,13 +53,13 @@ import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
+import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.personal_details.SyncBottomSheetFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
@@ -79,6 +80,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val viewModel: CaseRecordViewModel by viewModels()
     @Inject
     lateinit var preferenceDao: PreferenceDao
+    @Inject
+    lateinit var prescriptionTemplateRepo: PrescriptionTemplateRepo
+
     private val initialItemD = DiagnosisValue()
     private val itemListD = mutableListOf(initialItemD)
     private val initialItemP = PrescriptionValues()
@@ -289,9 +293,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
               val selectedTemplates = viewModel.getTemplatesByTemplateName(selectedString)
               convertToPrescriptionValues(selectedTemplates)
           }
+            val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
+            inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
         }
-
-
 
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
@@ -305,8 +309,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 showDialogWithFamilyMembers(procedureDropdown)
             }
         }
-        binding.saveTemplate.setOnClickListener { saveTemp() }
-        binding.deleteTemp.setOnClickListener { openBottomSheet(uniqueTemplateNames) }
+        binding.saveTemplate.setOnClickListener {
+            saveTemp()
+            binding.saveTemplate.isEnabled = false
+            binding.saveTemplate.alpha = 0.5f
+        }
+        binding.deleteTemp.setOnClickListener {
+            tempAdapter.notifyDataSetChanged()
+            openBottomSheet(uniqueTemplateNames)
+        }
 
         val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         binding.referDropdownText.setAdapter(referAdapter)
@@ -408,6 +419,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 val prescriptionValue = templateDB?.let {
                     it?.drugName?.let { it1 ->
                         PrescriptionValues(
+                            id =templateDB.drugId,
                             form = it1,
                             frequency = templateDB.frequency ?: "",
                             duration = templateDB.duration ?: "",
@@ -423,7 +435,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
     private fun openBottomSheet(str: HashSet<String?>) {
-        syncBottomSheet = TemplateListBottomSheetFragment(str)
+        syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
         if(!syncBottomSheet.isVisible)
             syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
     }
@@ -770,41 +782,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 prescriptionList.add(pres);
             }
         }
-//        val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
-//        for (i in 0 until tempList.size) {
-//            val prescriptionData = tempList[i]
-//            var formName = prescriptionData.form
-//            var formVal = prescriptionData.id
-//            var tempNameVal = prescriptionData.tempName
-//            var freqVal = prescriptionData.frequency.nullIfEmpty()
-//            var unitVal = prescriptionData.unit.nullIfEmpty()
-//            var durVal = prescriptionData.duration.nullIfEmpty()
-//            var instruction = prescriptionData.instruction.nullIfEmpty()
-//
-//            if (formVal != null) {
-//                var pres = viewModel.userIDVAl?.let {
-//                    PrescriptionTemplateDB(
-//                        tempID = generateIntFromUuid(),
-//                        templateName = tempNameVal,
-//                        userID = it,
-//                        drugName = formName,
-//                        drugId = formVal,
-//                        frequency = freqVal,
-//                        duration = durVal,
-//                        unit = unitVal,
-//                        instruction = instruction
-//                    )
-//                }
-//                if (pres != null) {
-//                    prescriptionTempList.add(pres)
-//                }
-//                Timber.tag("arr").i("${pres}")
-//                if (pres != null) {
-//                    viewModel.savePrescriptionTemp(pres)
-//                }
-//            }
-//        }
-//        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+
         if(idString.nullIfEmpty() == null){
             doctorFlag = 9
         }
@@ -884,7 +862,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     frequency = freqVal,
                     duration = durVal,
                     instruciton = instruction,
-                    unit = unitVal,
+                    unit = unitVal?:"Days",
                     patientID =patId,
                     benVisitNo = benVisitNo
                 )
@@ -918,6 +896,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     ).show()
                 }
             } else {
+                val tempId = generateIntFromUuid()
                 val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
                 for (i in 0 until itemListP.size) {
                     val prescriptionTemp = itemListP[i]
@@ -931,15 +910,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     if (formVal != null) {
                         var pres = viewModel.userIDVAl?.let {
                             PrescriptionTemplateDB(
-                                tempID = generateIntFromUuid(),
+                                tempID = tempId,
                                 templateName = tempNameVal,
                                 userID = it,
                                 drugName = formName,
                                 drugId = formVal,
                                 frequency = freqVal,
                                 duration = durVal,
-                                unit = unitVal,
-                                instruction = instruction
+                                unit = unitVal?:"Days",
+                                instruction = instruction,
+                                deleteStatus = 0
                             )
                         }
                         if (pres != null) {

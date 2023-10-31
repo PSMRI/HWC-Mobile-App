@@ -2,7 +2,9 @@ package org.piramalswasthya.cho.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @Entity(tableName = "Prescription_Template_DB")
@@ -16,6 +18,8 @@ data class PrescriptionTemplateDB(
     @ColumnInfo(name = "drugId") val drugId: Int,
     @ColumnInfo(name = "frequency") val frequency: String?,
     @ColumnInfo(name = "duration") val duration: String?,
-    @ColumnInfo(name = "unit") val unit: String?,
+    @ColumnInfo(name = "unit") val unit: String,
     @ColumnInfo(name = "instruction") val instruction: String?,
+    @Json(ignore = true)
+    @ColumnInfo(name = "deleteStatus") val deleteStatus: Int?,
 )

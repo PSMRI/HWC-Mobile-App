@@ -73,6 +73,27 @@ class PrescriptionTemplateRepo @Inject constructor(
             )
         }
     }
+
+    suspend fun deleteTemplateFromServer(userID: Int,tempID:Int): NetworkResult<NetworkResponse> {
+        return networkResultInterceptor {
+            val response = amritApiService.deleteTemplateFromServer(userID,tempID)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    Log.i("Template deleted",  response.body()?.string() ?: "")
+                    prescriptionTemplateDao.delete(tempID)
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    deleteTemplateFromServer(userID,tempID)
+                },
+            )
+        }
+    }
+
     suspend fun savePrescriptionTemplateToCache(prescriptionTemplateDB: PrescriptionTemplateDB) {
         try{
             withContext(Dispatchers.IO){
@@ -99,7 +120,18 @@ class PrescriptionTemplateRepo @Inject constructor(
     suspend fun getTemplateUsingTempName(selectedString: String): List<PrescriptionTemplateDB?> {
         return prescriptionTemplateDao.getTemplateForUserUsingTemplateName(selectedString)
     }
-    suspend fun deleteTemplate(selectedString: String){
-        prescriptionTemplateDao.delete(selectedString)
+//    suspend fun deleteTemplate(selectedString: String){
+//        prescriptionTemplateDao.delete(selectedString)
+//    }
+
+    suspend fun callDeleteTemplateFromServer(){
+        var id = userRepo.getLoggedInUser()?.userId
+        var tempID = prescriptionTemplateDao.getTemplateIdWhichIsDeleted()
+        if(tempID!=null && id!=null) {
+            deleteTemplateFromServer(id, tempID)
+        }
+    }
+    suspend fun markTemplateDelete(selectedString: String){
+        prescriptionTemplateDao.markTemplateDelete(selectedString)
     }
 }
