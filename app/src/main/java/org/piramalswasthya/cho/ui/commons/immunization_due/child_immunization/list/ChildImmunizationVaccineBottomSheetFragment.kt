@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.databinding.BottomSheetImmVaccineBinding
 import org.piramalswasthya.cho.model.ChildImmunizationCategory
 import org.piramalswasthya.cho.model.ImmunizationDetailsDomain
 import org.piramalswasthya.cho.model.VaccineCategoryDomain
+import org.piramalswasthya.cho.ui.commons.fhir_visit_details.FragmentVisitDetailDirections
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -39,11 +40,11 @@ class ChildImmunizationVaccineBottomSheetFragment : BottomSheetDialogFragment() 
         binding.rvImmCat.adapter =
             ImmunizationCategoryAdapter(ImmunizationCategoryAdapter.ImmunizationIconClickListener {
                 val benId = viewModel.getSelectedBenId()
-//                findNavController().navigate(
-//                    ChildImmunizationListFragmentDirections.actionChildImmunizationListFragmentToImmunizationFormFragment(
-//                        benId = benId, vaccineId = it
-//                    )
-//                )
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToImmunizationFormFragment(
+                        benId, it
+                    )
+                )
                 dismiss()
             })
 
