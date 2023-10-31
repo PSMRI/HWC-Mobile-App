@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form.ImmunizationFormViewModel.State
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -77,7 +79,9 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter, FhirFragmentServ
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, resources.getString(R.string.save_successful), Toast.LENGTH_LONG).show()
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    findNavController().navigateUp()
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
                 }
 
                 State.SAVE_FAILED -> {

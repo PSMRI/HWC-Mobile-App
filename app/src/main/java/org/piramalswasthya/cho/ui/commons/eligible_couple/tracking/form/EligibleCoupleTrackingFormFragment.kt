@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.ui.commons.FhirFragmentService
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 
@@ -81,6 +83,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter, FhirFr
                 EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS -> {
                     navigateToNextScreen()
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
                 }
 
                 else -> {}

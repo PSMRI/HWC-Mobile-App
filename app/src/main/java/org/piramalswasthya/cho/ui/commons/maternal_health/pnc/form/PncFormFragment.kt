@@ -96,7 +96,9 @@ class PncFormFragment() : Fragment(), NavigationAdapter, FhirFragmentService {
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    findNavController().navigateUp()
+                    val intent = Intent(context, HomeActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
                 }
 
                 State.SAVE_FAILED -> {
