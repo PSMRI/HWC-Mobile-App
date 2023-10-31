@@ -11,7 +11,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 
-class ChiefComplaintMultiAdapter (private val chiefComplaints: List<ChiefComplaintDB>) :
+class ChiefComplaintMultiAdapter  (private val chiefComplaints: List<ChiefComplaintDB>) :
     RecyclerView.Adapter<ChiefComplaintMultiAdapter.ViewHolder>() {
 
     // ViewHolder class for caching views

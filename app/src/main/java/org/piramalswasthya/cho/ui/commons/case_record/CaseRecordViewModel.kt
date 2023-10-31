@@ -368,4 +368,8 @@ class CaseRecordViewModel @Inject constructor(
         }
     }
 
+    suspend fun getTemplatesByTemplateName(selectedString: String): List<PrescriptionTemplateDB?> {
+        return templateRepo.getTemplateUsingTempName(selectedString)
+    }
+
 }
