@@ -4,6 +4,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple">#6434BA</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
 <!--    <color name="purple">#296292</color>-->
     <color name="primary">#50AF93</color>
     <color name="green_heading">#50AF93</color>
@@ -18,4 +19,5 @@
     <color name="default_header">#24303C</color>
     <color name="default_button">#296292</color>
     <color name="grey">#8BC34A</color>
+    <color name="read_only">#D8D8D8</color>
 </resources>
