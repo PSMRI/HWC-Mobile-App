@@ -25,9 +25,11 @@ object ImgUtils {
 
             if (file.exists()) {
                 try {
-                    val bm = BitmapFactory.decodeFile(file.path)
+                    val options = BitmapFactory.Options()
+                    options.inSampleSize = 4
+                    val bm = BitmapFactory.decodeFile(file.path, options)
                     val stream = ByteArrayOutputStream()
-                    bm.compress(Bitmap.CompressFormat.JPEG, 70, stream)
+                    bm.compress(Bitmap.CompressFormat.JPEG, 20, stream)
                     val byteFormat = stream.toByteArray()
                     if (!Base64.getEncoder().encodeToString(byteFormat).isNullOrEmpty()) {
                         return "data:image/png;base64," + Base64.getEncoder()

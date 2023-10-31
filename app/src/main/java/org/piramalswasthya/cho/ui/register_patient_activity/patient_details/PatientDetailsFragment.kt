@@ -34,6 +34,7 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -784,8 +785,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
-//        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
-        patient.benImage = null
+        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
     }
 
     private fun setLocationDetails(){

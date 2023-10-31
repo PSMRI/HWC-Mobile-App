@@ -1,16 +1,13 @@
 package org.piramalswasthya.cho.ui.login_activity
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -25,10 +22,8 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.ui.commons.case_record.CaseRecordViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragment
-import timber.log.Timber
+import org.piramalswasthya.cho.work.WorkerUtils
 import java.util.*
 import javax.inject.Inject
 
@@ -82,6 +77,7 @@ class LoginActivity : AppCompatActivity() {
                     val intent = Intent(this@LoginActivity, HomeActivity::class.java)
                     intent.putExtra("showDashboard", showDashboard)
                     startActivity(intent)
+//                    WorkerUtils.scheduleAutoLogoutWorker(this@LoginActivity)
                     finish()
                 }
             }catch (e:Exception){
