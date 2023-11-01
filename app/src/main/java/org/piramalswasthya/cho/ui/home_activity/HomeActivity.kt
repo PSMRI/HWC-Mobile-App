@@ -260,24 +260,7 @@ class HomeActivity : AppCompatActivity() {
         // Create an ArrayAdapter to bind the data to the ListView
         var adapter = PatientListAdapter(this, benificiaryList)
 
-//        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//        val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
-//        alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
-//        val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
-//
-//        // Set the alarm to trigger at 5 PM
-//        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
-//        calendar.set(Calendar.MINUTE, 46)
-//        calendar.set(Calendar.SECOND, 0)
-//
-//        // Schedule the alarm to repeat daily
-//        alarmManager.setRepeating(
-//            AlarmManager.RTC,
-//            calendar.timeInMillis,
-//            AlarmManager.INTERVAL_DAY,
-//            pendingIntent
-//        )
+        triggerAlarmManager()
 
         // Set the desired time (hour and minute) when you want the method to run
         val desiredHour = 21 // Change this to your desired hour (0-23)
@@ -316,7 +299,26 @@ class HomeActivity : AppCompatActivity() {
                 dialog.dismiss()
             }.create()
     }
+private fun triggerAlarmManager(){
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
+    alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+    val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
 
+    // Set the alarm to trigger at 5 PM
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.HOUR_OF_DAY, 18) // 5 PM
+    calendar.set(Calendar.MINUTE, 59)
+    calendar.set(Calendar.SECOND, 0)
+
+    // Schedule the alarm to repeat daily
+    alarmManager.setRepeating(
+        AlarmManager.RTC,
+        calendar.timeInMillis,
+        AlarmManager.INTERVAL_DAY,
+        pendingIntent
+    )
+}
     override fun onBackPressed() {
 //        super.onBackPressed()
         if (!exitAlert.isShowing)
