@@ -13,13 +13,15 @@ import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
 
-    const val syncWorkerUniqueName  = "SYNC-WITH-AMRIT"
+    const val syncOneTimeAmritSyncWorker = "SYNC-WITH-AMRIT"
+    const val syncPeriodicDownSyncWorker = "PERIODIC-DOWN-SYNC"
+    const val syncOneTimeDownSyncWorker = "ONE-TIME-DOWN-SYNC"
 
     private val networkOnlyConstraint = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    fun triggerDownSyncWorker(context : Context){
+    fun triggerDownSyncWorker(context : Context, syncName: String){
 
         val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
@@ -30,7 +32,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .enqueue()
     }
@@ -83,7 +85,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pushBenToAmritWorker)
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
