@@ -36,6 +36,35 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/ll_full_load_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/tv_load_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_tiny"
+            android:text="@string/downloading"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/pb_load_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+    </LinearLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
@@ -59,13 +88,7 @@
                 android:enabled="false"
                 android:text="@string/registration" />
 
-<!--            <Button-->
-<!--                android:id="@+id/advance_search"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="@dimen/btn_height"-->
-<!--                android:layout_weight="1"-->
-<!--                android:backgroundTint="@color/default_button"-->
-<!--                android:text="@string/advance_search" />-->
         </LinearLayout>
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

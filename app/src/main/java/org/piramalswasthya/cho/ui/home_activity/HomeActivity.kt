@@ -122,7 +122,7 @@ class HomeActivity : AppCompatActivity() {
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
             Log.v("resuming activitiy", "resume")
-            viewModel.triggerDownSyncWorker(this)
+            viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
         }.also { runnable = it }, delay.toLong())
         super.onResume()
     }
@@ -142,7 +142,7 @@ class HomeActivity : AppCompatActivity() {
 
         binding.refreshButton.setOnClickListener {
             Log.d("triggering down outside", "down trigger")
-            viewModel.triggerDownSyncWorker(this)
+            viewModel.triggerDownSyncWorker(this, WorkerUtils.syncOneTimeDownSyncWorker)
         }
 
         getCurrentLocation()
@@ -365,7 +365,7 @@ class HomeActivity : AppCompatActivity() {
             .setPositiveButton("Apply") { dialog, _ ->
                 if(currentRoleSelected!=null){
                     prefDao.setSecondRolesForCHO(currentRoleSelected)
-                    WorkerUtils.triggerDownSyncWorker(this)
+                    WorkerUtils.triggerDownSyncWorker(this, WorkerUtils.syncOneTimeDownSyncWorker)
                     val refresh = Intent(this, HomeActivity::class.java)
                     finish()
                     startActivity(refresh)
