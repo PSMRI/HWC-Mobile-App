@@ -54,6 +54,7 @@ import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.frequencyMap
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
@@ -757,7 +758,6 @@ private fun openBottomSheet(str: HashSet<String?>) {
             benVisitNo = benVisitNo
         )
 
-
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
@@ -767,11 +767,17 @@ private fun openBottomSheet(str: HashSet<String?>) {
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
 
+
             if (formVal != null) {
+                val frequencyDescription = frequencyMap[freqVal]
+                var mappedFrequency: String? = null
+                if (frequencyDescription != null) {
+                    mappedFrequency = frequencyDescription
+                }
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
                     itemId = formVal,
-                    frequency = freqVal,
+                    frequency = mappedFrequency,
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
@@ -853,15 +859,19 @@ private fun openBottomSheet(str: HashSet<String?>) {
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
-
             if (formVal != null) {
+                val frequencyDescription = frequencyMap[freqVal]
+                var mappedFrequency: String? = null
+                if (frequencyDescription != null) {
+                    mappedFrequency = frequencyDescription
+                }
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
                     itemId = formVal,
-                    frequency = freqVal,
+                    frequency = mappedFrequency,
                     duration = durVal,
                     instruciton = instruction,
-                    unit = unitVal?:"Days",
+                    unit = unitVal?:"Day(s)",
                     patientID =patId,
                     benVisitNo = benVisitNo
                 )
