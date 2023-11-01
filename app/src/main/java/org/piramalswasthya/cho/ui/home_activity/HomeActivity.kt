@@ -267,8 +267,8 @@ class HomeActivity : AppCompatActivity() {
 //
 //        // Set the alarm to trigger at 5 PM
 //        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.HOUR_OF_DAY, 11) // 5 PM
-//        calendar.set(Calendar.MINUTE, 40)
+//        calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
+//        calendar.set(Calendar.MINUTE, 46)
 //        calendar.set(Calendar.SECOND, 0)
 //
 //        // Schedule the alarm to repeat daily
