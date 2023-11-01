@@ -23,6 +23,7 @@ import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.util.*
 import javax.inject.Inject
@@ -74,9 +75,31 @@ class LoginActivity : AppCompatActivity() {
 //                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
                 if (userRepo.getLoggedInUser()!=null) {
                     showDashboard = true
+                    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val alarmIntent = Intent(this@LoginActivity, AutoLogoutReceiver::class.java)
+                    alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+                    val pendingIntent = PendingIntent.getBroadcast(this@LoginActivity, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
+
+                    // Set the alarm to trigger at 5 PM
+                    val calendar = Calendar.getInstance()
+                    calendar.set(Calendar.HOUR_OF_DAY, 13) // 5 PM
+                    calendar.set(Calendar.MINUTE, 20)
+                    calendar.set(Calendar.SECOND, 0)
+                    val intervalMillis = 1 * 60 * 1000 // 2 minutes in milliseconds
+
+                    // Schedule the alarm to repeat daily
+                    alarmManager.setRepeating(
+                        AlarmManager.RTC,
+//                        System.currentTimeMillis(),
+//                        intervalMillis.toLong(),
+                        calendar.timeInMillis,
+                        AlarmManager.INTERVAL_DAY,
+                        pendingIntent
+                    )
                     val intent = Intent(this@LoginActivity, HomeActivity::class.java)
                     intent.putExtra("showDashboard", showDashboard)
                     startActivity(intent)
+
 //                    WorkerUtils.scheduleAutoLogoutWorker(this@LoginActivity)
                     finish()
                 }

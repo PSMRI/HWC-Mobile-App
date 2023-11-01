@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -56,6 +58,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.util.Calendar
@@ -257,6 +260,24 @@ class HomeActivity : AppCompatActivity() {
         // Create an ArrayAdapter to bind the data to the ListView
         var adapter = PatientListAdapter(this, benificiaryList)
 
+//        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//        val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
+//        alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+//        val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
+//
+//        // Set the alarm to trigger at 5 PM
+//        val calendar = Calendar.getInstance()
+//        calendar.set(Calendar.HOUR_OF_DAY, 11) // 5 PM
+//        calendar.set(Calendar.MINUTE, 40)
+//        calendar.set(Calendar.SECOND, 0)
+//
+//        // Schedule the alarm to repeat daily
+//        alarmManager.setRepeating(
+//            AlarmManager.RTC,
+//            calendar.timeInMillis,
+//            AlarmManager.INTERVAL_DAY,
+//            pendingIntent
+//        )
 
         // Set the desired time (hour and minute) when you want the method to run
         val desiredHour = 21 // Change this to your desired hour (0-23)
