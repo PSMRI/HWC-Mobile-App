@@ -311,10 +311,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         binding.saveTemplate.setOnClickListener {
             saveTemp()
-            binding.saveTemplate.isEnabled = false
-            binding.saveTemplate.alpha = 0.5f
         }
         binding.deleteTemp.setOnClickListener {
+
             tempAdapter.notifyDataSetChanged()
             openBottomSheet(uniqueTemplateNames)
         }
@@ -434,11 +433,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
     }
     private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
-    private fun openBottomSheet(str: HashSet<String?>) {
-        syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
-        if(!syncBottomSheet.isVisible)
-            syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
-    }
+private fun openBottomSheet(str: HashSet<String?>) {
+    syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
+    if(!syncBottomSheet.isVisible)
+        syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
+}
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
         hideNullFieldsW(vitals)
         binding.inputHeight.setText(vitals?.height.toString())
@@ -938,6 +937,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 requireActivity().runOnUiThread {
                     Toast.makeText(requireContext(), resources.getString(R.string.template_save), Toast.LENGTH_SHORT).show()
                 }
+                binding.saveTemplate.isEnabled = false
+                binding.saveTemplate.alpha = 0.5f
             }
         }
     }
