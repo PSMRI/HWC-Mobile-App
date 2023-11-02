@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -117,6 +119,11 @@ class PrescriptionAdapter(
         val itemData = itemList[position]
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
+            if(itemData.duration.isNullOrEmpty()){
+                durationCount = 0
+            }else if(itemData.duration!!.toInt() <= maxDuration) {
+                durationCount = itemData.duration!!.toInt()
+            }
             if (durationCount < maxDuration) {
                 durationCount++
                 holder.durationInput.setText(durationCount.toString())
@@ -134,6 +141,11 @@ class PrescriptionAdapter(
 
         // Set up click listener for the "Subtract" button
         holder.subtractButton.setOnClickListener {
+            durationCount = if(itemData.duration.isNullOrEmpty()){
+                0
+            }else {
+                itemData.duration.toInt()
+            }
             if (durationCount > 1) {
                 durationCount--
                 holder.durationInput.setText(durationCount.toString())
@@ -141,7 +153,7 @@ class PrescriptionAdapter(
                 itemChangeListener.onItemChanged()
             } else if (durationCount == 1) {
                 // When durationCount is 1, show the hint "duration" and disable "Subtract"
-                holder.durationInput.hint = holder.itemView.context.getString(R.string.duration2)
+                holder.durationInput.hint = holder.itemView.context.getString(R.string.duration_prescription)
                 holder.durationInput.text = null
                 holder.subtractButton.isEnabled = false
             }
@@ -204,11 +216,21 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
-        holder.durationInput.addTextChangedListener {
-            itemData.duration = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
+        holder.durationInput.addTextChangedListener (object : TextWatcher {override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
+                if (!s.isNullOrBlank() && s.toString().toInt()>6) {
+                    s.clear()
+                    Toast.makeText(holder.itemView.context, "Maximum value allowed for Duration is 6.", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    itemData.duration = s.toString()
+                    holder.updateResetButtonState()
+                    itemChangeListener.onItemChanged()
+                }
+            }
+        })
 
         holder.instructionOption.addTextChangedListener {
             itemData.instruction = it.toString()

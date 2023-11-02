@@ -58,10 +58,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         }
     }
 
-    fun triggerDownSyncWorker(context: Context){
+    fun triggerDownSyncWorker(context: Context, syncName: String){
         if (dataLoadFlagManager.isDataLoaded()){
             Log.d("triggering down", "down trigger")
-            WorkerUtils.triggerDownSyncWorker(context)
+            WorkerUtils.triggerDownSyncWorker(context, syncName)
         }
     }
 
