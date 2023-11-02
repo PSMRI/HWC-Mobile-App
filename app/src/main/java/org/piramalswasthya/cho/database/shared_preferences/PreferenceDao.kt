@@ -86,6 +86,13 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun setSwitchRoles(roles: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.SWITCH_USER_ROLES)
+        editor.putString(prefKey, roles)
+        editor.apply()
+    }
+
     fun isUserOnlyDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
@@ -113,6 +120,14 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
             return rolesArray.size == 1 && rolesArray.contains("Registrar")
         }
         return false;
+    }
+
+    fun getFirstUserRole():String{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray[0]
+        }
+        return "";
     }
 
         fun setUserLoginType(str:String?){
@@ -173,9 +188,30 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return false;
     }
 
+    fun isUserSwitchRole(): Boolean {
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.size in 2..4
+        }
+        return false;
+    }
+
     fun getCHOSecondRole(): String? {
         val prefKey = context.getString(R.string.SECOND_USER_ROLES)
         return pref.getString(prefKey, null)
+    }
+
+    fun getSwitchRole(): String? {
+        val prefKey = context.getString(R.string.SWITCH_USER_ROLES)
+        return pref.getString(prefKey, null)
+    }
+
+    fun isContainsRole(role: String):Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains(role)
+        }
+        return false;
     }
 
     fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
