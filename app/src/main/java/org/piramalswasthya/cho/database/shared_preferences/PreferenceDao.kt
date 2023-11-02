@@ -306,6 +306,20 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, LocationData::class.java)
     }
+//    fun getVillageNameFromDistrictBranchId(districtBranchId: String): String? {
+//        val locationData = getUserLocationData()
+//
+//        locationData?.let { data ->
+//            val villageList = data.villageList
+//            for (village in villageList) {
+//                if (village.districtBranchID == districtBranchId) {
+//                    return village.villageName
+//                }
+//            }
+//        }
+//
+//        return null // District Branch ID not found or error occurred
+//    }
 
 //
 
