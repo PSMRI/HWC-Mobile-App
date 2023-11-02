@@ -434,11 +434,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
     }
     private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
-private fun openBottomSheet(str: HashSet<String?>) {
-    syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
-    if(!syncBottomSheet.isVisible)
-        syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
-}
+    private fun openBottomSheet(str: HashSet<String?>) {
+        syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
+        if(!syncBottomSheet.isVisible)
+            syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
+    }
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
         hideNullFieldsW(vitals)
         binding.inputHeight.setText(vitals?.height.toString())
