@@ -284,6 +284,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             }
                         }
                     }
+                    if(!userData.mobileNumber.isNullOrEmpty()){
+                        binding.phoneNo.setText(userData.mobileNumber)
+                    }
                 }
             }
         }
@@ -300,6 +303,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         var name = ""
         var gender = ""
         var dateOfBirth = ""
+        var mobileNumber = ""
         try {
             while (xml.eventType != XmlPullParser.END_DOCUMENT) {
                 when (xml.eventType) {
@@ -308,6 +312,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             "QPDB" -> {
                                 name = xml.getAttributeValue(null, "n")
                                 gender = xml.getAttributeValue(null, "g")
+                                mobileNumber = xml.getAttributeValue(null, "m")
                                 dateOfBirth = xml.getAttributeValue(null, "d")
                             }
 
@@ -327,7 +332,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }catch (e:Exception){
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
-            return PatientAadhaarDetails(name, gender, dateOfBirth)
+            return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->

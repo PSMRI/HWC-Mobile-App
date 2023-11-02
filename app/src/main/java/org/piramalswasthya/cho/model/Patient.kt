@@ -773,7 +773,7 @@ data class AbhaAddressDTO(
 data class PatientAadhaarDetails(
     val name:String?,
     val gender: String?,
+    val mobileNumber: String?,
     val dateOfBirth: String?,
-
 )
 

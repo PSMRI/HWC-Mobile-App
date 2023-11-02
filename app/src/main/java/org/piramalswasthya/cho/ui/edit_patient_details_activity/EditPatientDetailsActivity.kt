@@ -13,6 +13,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
@@ -65,6 +66,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //        val args = Bundle()
 //        args.putString("patientId", patientId)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        (application as CHOApplication).addActivity(this)
 
         super.onCreate(savedInstanceState)
         _binding = ActivityEditPatientDetailsBinding.inflate(layoutInflater)
@@ -229,6 +231,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        (application as CHOApplication).activityList.remove(this)
     }
 
 }
