@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,9 +29,7 @@ import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 
 class PrescriptionAdapter(
-    private val listTemplateDB: MutableList<PrescriptionTemplateDB?>,
-    private val listTemplate: MutableList<PrescriptionValuesForTemplate>,
-    private val itemList: MutableList<PrescriptionValuesForTemplate>,
+    private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
     private val unitDropDown: List<String>,
@@ -44,10 +44,6 @@ class PrescriptionAdapter(
 
     private val viewHolders = mutableListOf<PrescriptionAdapter.ViewHolder>()
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tempNameOption: AutoCompleteTextView =
-            itemView.findViewById(R.id.inputUseTempForFields)
-        val tempNameOptionInput: TextInputLayout =
-            itemView.findViewById(R.id.useTempForFields)
         val formOptions: AutoCompleteTextView =
             itemView.findViewById(R.id.dosagesDropDownVal)
         val frequencyOptions: AutoCompleteTextView =
@@ -56,13 +52,10 @@ class PrescriptionAdapter(
         val instructionOption: AutoCompleteTextView = itemView.findViewById(R.id.inputInstruction)
         val unitOption: AutoCompleteTextView =
             itemView.findViewById(R.id.unitDropDownVal)
-        val tempText : TextInputLayout = itemView.findViewById(R.id.tempName)
-        val tempName : TextInputEditText = itemView.findViewById(R.id.inputTestName)
         val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
         val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
         val addButton : FloatingActionButton = itemView.findViewById(R.id.addButton)
         val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButton)
-        val saveTemplate : Button = itemView.findViewById(R.id.saveTemplate)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -84,12 +77,11 @@ class PrescriptionAdapter(
         }
 
         fun updateResetButtonState() {
-            val isItemFilled = tempNameOption.text.isNotEmpty() ||
+            val isItemFilled = formOptions.text.isNotEmpty() ||
                     formOptions.text.isNotEmpty() ||
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
                     instructionOption.text!!.isNotEmpty() ||
-                    tempName.text!!.isNotEmpty() ||
                     unitOption.text.isNotEmpty()
             resetButton.isEnabled = isItemFilled
         }
@@ -116,7 +108,6 @@ class PrescriptionAdapter(
                 itemData.duration = ""
                 itemData.instruction = ""
                 itemData.unit = ""
-                itemData.tempName =""
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()
             }
@@ -128,6 +119,11 @@ class PrescriptionAdapter(
         val itemData = itemList[position]
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
+            if(itemData.duration.isNullOrEmpty()){
+                durationCount = 0
+            }else if(itemData.duration!!.toInt() <= maxDuration) {
+                durationCount = itemData.duration!!.toInt()
+            }
             if (durationCount < maxDuration) {
                 durationCount++
                 holder.durationInput.setText(durationCount.toString())
@@ -145,6 +141,11 @@ class PrescriptionAdapter(
 
         // Set up click listener for the "Subtract" button
         holder.subtractButton.setOnClickListener {
+            durationCount = if(itemData.duration.isNullOrEmpty()){
+                0
+            }else {
+                itemData.duration.toInt()
+            }
             if (durationCount > 1) {
                 durationCount--
                 holder.durationInput.setText(durationCount.toString())
@@ -152,7 +153,7 @@ class PrescriptionAdapter(
                 itemChangeListener.onItemChanged()
             } else if (durationCount == 1) {
                 // When durationCount is 1, show the hint "duration" and disable "Subtract"
-                holder.durationInput.hint = holder.itemView.context.getString(R.string.duration2)
+                holder.durationInput.hint = holder.itemView.context.getString(R.string.duration_prescription)
                 holder.durationInput.text = null
                 holder.subtractButton.isEnabled = false
             }
@@ -160,40 +161,17 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        holder.saveTemplate.setOnClickListener {
-                holder.tempText.visibility = View.VISIBLE
-                val testName = holder.tempName.text.toString()
-            if (!testName.isNullOrEmpty()) {
-                if (isTestNameUnique(testName)) {
-                    if (position < itemList.size) {
-                        val prescriptionToSave = itemList[position]
-                        listTemplate.add(prescriptionToSave.copy())
-                        showSavedToast(holder.itemView.context)
-                        holder.saveTemplate.isEnabled = false
-                    }
-                } else {
-                    showTestNameNotUniqueError(holder.itemView.context)
-                }
-            }else {
-                showSavedToastErro(holder.itemView.context)
-                holder.tempName.requestFocus()
-            }
-        }
-        if (listTemplateDB.size>0){
-            holder.tempNameOptionInput.visibility = View.VISIBLE
-        }else{
-            holder.tempNameOptionInput.visibility = View.GONE
-        }
-
+        // Bind data and set listeners for user interactions
         holder.formOptions.setText(itemData.form)
-        holder.tempNameOption.setText(itemData.tempName)
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
         holder.instructionOption.setText(itemData.instruction)
-        holder.tempName.setText(itemData.tempName)
         holder.unitOption.setText(unitDropDown[0])
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
+
+
+//       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
 
         val formItemAdapter = FormItemAdapter(
             holder.itemView.context,
@@ -204,46 +182,10 @@ class PrescriptionAdapter(
         )
         holder.formOptions.setAdapter(formItemAdapter)
 
-        holder.formOptions.setOnItemClickListener { parent, _, position, abc ->
-            val selectedString = parent.getItemAtPosition(position)
-            val form = formMD.first { it.dropdownForMed == selectedString }
-            holder.formOptions.setText(form.dropdownForMed,false)
+        holder.formOptions.setOnItemClickListener { parent, _, position, _ ->
+            var form = formMD[position]
+            holder.formOptions.setText(form?.dropdownForMed,false)
             itemData.id = form.itemID
-        }
-
-        val tempNameAdapter = TempNameAdapter(
-            holder.itemView.context,
-            R.layout.drop_down,
-            listTemplateDB,
-            holder.tempNameOption
-        )
-        holder.tempNameOption.setAdapter(tempNameAdapter)
-
-        holder.tempNameOption.setOnItemClickListener { parent, _, position, abc ->
-            val selectedString = parent.getItemAtPosition(position) as PrescriptionTemplateDB
-            val form = listTemplateDB.first { it?.templateName == selectedString.templateName }
-            holder.tempNameOption.setText(form?.templateName,false)
-            if(form?.drugName!=null && !(form.drugName.equals("null"))) {
-                holder.formOptions.setText(form.drugName)
-                itemData.form = form.drugName
-                itemData.id= form.drugId
-            }
-            if(form?.frequency!=null && !(form.frequency.equals("null"))) {
-                holder.frequencyOptions.setText(form.frequency)
-                itemData.frequency= form.frequency
-            }
-            if(form?.duration!=null && !(form.duration.equals("null"))) {
-                holder.durationInput.setText(form.duration)
-                itemData.duration= form.duration
-            }
-            if(form?.instruction!=null && !(form.instruction.equals("null"))) {
-                holder.instructionOption.setText(form.instruction)
-                itemData.instruction= form?.instruction
-            }
-            if(form?.unit!=null && !(form.unit.equals("null"))) {
-                holder.unitOption.setText(form.unit)
-                itemData.unit= form.unit
-            }
         }
 
         val frequencyAdapter =
@@ -267,11 +209,6 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
-        holder.tempName.addTextChangedListener{
-            itemData.tempName= it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
 
         holder.frequencyOptions.addTextChangedListener {
             itemData.frequency = it.toString()
@@ -279,11 +216,21 @@ class PrescriptionAdapter(
             itemChangeListener.onItemChanged()
         }
 
-        holder.durationInput.addTextChangedListener {
-            itemData.duration = it.toString()
-            holder.updateResetButtonState()
-            itemChangeListener.onItemChanged()
-        }
+        holder.durationInput.addTextChangedListener (object : TextWatcher {override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!s.isNullOrBlank() && s.length == 1 && s[0] == '0') s.clear()
+                if (!s.isNullOrBlank() && s.toString().toInt()>6) {
+                    s.clear()
+                    Toast.makeText(holder.itemView.context, "Maximum value allowed for Duration is 6.", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    itemData.duration = s.toString()
+                    holder.updateResetButtonState()
+                    itemChangeListener.onItemChanged()
+                }
+            }
+        })
 
         holder.instructionOption.addTextChangedListener {
             itemData.instruction = it.toString()
@@ -302,31 +249,8 @@ class PrescriptionAdapter(
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
     }
-    private fun isTestNameUnique(testName: String): Boolean {
-        for (item in listTemplate) {
-            if (item.tempName == testName) {
-                return false
-            }
-        }
-        for (item in listTemplateDB) {
-            if (item?.templateName == testName) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun showTestNameNotUniqueError(context: Context) {
-        Toast.makeText(context, "Template name already exsists", Toast.LENGTH_SHORT).show()
-    }
 
 
-    private fun showSavedToast(context: Context) {
-        Toast.makeText(context, "Prescription Template Saved", Toast.LENGTH_SHORT).show()
-    }
-    private fun showSavedToastErro(context: Context) {
-        Toast.makeText(context, "Enter the Template Name", Toast.LENGTH_SHORT).show()
-    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.prescription_custome_layout, parent, false)

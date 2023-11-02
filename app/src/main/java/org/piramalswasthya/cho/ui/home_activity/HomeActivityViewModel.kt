@@ -58,10 +58,10 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         }
     }
 
-    fun triggerDownSyncWorker(context: Context){
+    fun triggerDownSyncWorker(context: Context, syncName: String){
         if (dataLoadFlagManager.isDataLoaded()){
             Log.d("triggering down", "down trigger")
-            WorkerUtils.triggerDownSyncWorker(context)
+            WorkerUtils.triggerDownSyncWorker(context, syncName)
         }
     }
 
@@ -89,6 +89,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             registrarMasterDataRepo.saveQualificationMasterResponseToCache()
             registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
             vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
+
             prescriptionTemplateRepo.getTemplateFromServer(userRepo.getLoggedInUser()!!.userId)
             vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
             vaccineAndDoseTypeRepo.getVaccineDetailsFromServer()

@@ -12,6 +12,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -109,6 +112,40 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    private fun setUpWorkerProgress() {
+        WorkManager.getInstance(requireContext())
+            .getWorkInfosLiveData(WorkQuery.fromUniqueWorkNames(WorkerUtils.syncOneTimeAmritSyncWorker))
+            .observe(viewLifecycleOwner) { workInfoMutableList ->
+                workInfoMutableList?.let { list ->
+                    list.takeIf { it.isNotEmpty() }?.let { workInfoMutableList1 ->
+                        workInfoMutableList1.filter { it.state == WorkInfo.State.RUNNING }.takeIf {
+                            it.isNotEmpty()
+                        }?.first()?.let {
+                            binding.llFullLoadProgress.visibility = View.VISIBLE
+                        } ?: run {
+                            binding.llFullLoadProgress.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+
+        WorkManager.getInstance(requireContext())
+            .getWorkInfosLiveData(WorkQuery.fromUniqueWorkNames(WorkerUtils.syncOneTimeDownSyncWorker))
+            .observe(viewLifecycleOwner) { workInfoMutableList ->
+                workInfoMutableList?.let { list ->
+                    list.takeIf { it.isNotEmpty() }?.let { workInfoMutableList1 ->
+                        workInfoMutableList1.filter { it.state == WorkInfo.State.RUNNING }.takeIf {
+                            it.isNotEmpty()
+                        }?.first()?.let {
+                            binding.llFullLoadProgress.visibility = View.VISIBLE
+                        } ?: run {
+                            binding.llFullLoadProgress.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -130,6 +167,8 @@ class HomeFragment : Fragment() {
             searchPrompt.show()
 
         }
+
+        setUpWorkerProgress()
 
         HomeActivityViewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {

@@ -193,7 +193,9 @@ class EcrRepo @Inject constructor(
         try {
             val response =
                 amritApiService.postEctForm(
-                    ectPostList.toList().map {
+                    ectPostList.toList()
+                    .filter{ ben -> patientRepo.getPatient(ben.patientID).beneficiaryID != null }
+                    .map {
                         val pat = patientRepo.getPatient(it.patientID)
                         it.asNetworkModel(pat.beneficiaryID!!)
                     }

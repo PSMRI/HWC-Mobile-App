@@ -2,21 +2,26 @@ package org.piramalswasthya.cho.work
 
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import org.piramalswasthya.sakhi.work.PullBenFlowFromAmritWorker
 import org.piramalswasthya.sakhi.work.PushBenToAmritWorker
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 object WorkerUtils {
 
-    const val syncWorkerUniqueName  = "SYNC-WITH-AMRIT"
+    const val syncOneTimeAmritSyncWorker = "SYNC-WITH-AMRIT"
+    const val syncPeriodicDownSyncWorker = "PERIODIC-DOWN-SYNC"
+    const val syncOneTimeDownSyncWorker = "ONE-TIME-DOWN-SYNC"
 
     private val networkOnlyConstraint = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    fun triggerDownSyncWorker(context : Context){
+    fun triggerDownSyncWorker(context : Context, syncName: String){
 
         val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
@@ -27,7 +32,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .enqueue()
     }
@@ -80,7 +85,7 @@ object WorkerUtils {
 
         val workManager = WorkManager.getInstance(context)
         workManager
-            .beginUniqueWork(syncWorkerUniqueName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pushBenToAmritWorker)
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
@@ -118,7 +123,34 @@ object WorkerUtils {
             .beginUniqueWork("audit-data-sync", ExistingWorkPolicy.APPEND, pushLoginAuditDataToAmrit)
             .enqueue()
     }
-
+//    fun scheduleAutoLogoutWorker(context : Context) {
+//        Log.d("auto logout", "inside logout")
+////        val currentTime = Calendar.getInstance()
+////        val targetTime = Calendar.getInstance().apply {
+////            set(Calendar.HOUR_OF_DAY, 17) // 5 PM
+////            set(Calendar.MINUTE, 20)
+////        }
+////
+////        // Calculate the delay for the worker
+////        val delay = targetTime.timeInMillis - currentTime.timeInMillis
+//
+////        if (delay > 0) {
+////            Log.d("timedelay", "delay")
+////            val autoLogoutRequest = OneTimeWorkRequestBuilder<AutoLogOutWorker>()
+////                .build()
+////                OneTimeWorkRequest.Builder(AutoLogOutWorker::class.java)
+////                .setInitialDelay(delay, java.util.concurrent.TimeUnit.MILLISECONDS)
+////                .build()
+//
+////            WorkManager.getInstance().enqueue(autoLogoutRequest)
+//        val autoLogoutRequest = PeriodicWorkRequest.Builder(AutoLogOutWorker::class.java, 15, TimeUnit.MINUTES).build()
+//
+//            val workManager = WorkManager.getInstance(context)
+//            workManager
+//                .enqueueUniquePeriodicWork("logoutWorker", ExistingPeriodicWorkPolicy.REPLACE, autoLogoutRequest)
+////                .enqueue()
+////        }
+//    }
     fun pharmacistPushWorker(context : Context){
 
         val pushPharmacistDataToAmrit = OneTimeWorkRequestBuilder<PushPharmacistDataToAmrit>()

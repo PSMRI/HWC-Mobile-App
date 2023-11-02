@@ -59,19 +59,21 @@ class PncRepo @Inject constructor(
             pncList.forEach {
                 pncPostList.clear()
                 val ben = patientDao.getPatient(it.patientID)
-                pncPostList.add(it.asNetworkModel(ben.beneficiaryID!!))
-                it.syncState = SyncState.SYNCING
-                pncDao.update(it)
-                val uploadDone = postDataToAmritServer(pncPostList)
-                if (uploadDone) {
-                    it.processed = "P"
-                    it.syncState = SyncState.SYNCED
-                } else {
-                    it.syncState = SyncState.UNSYNCED
-                }
-                pncDao.update(it)
+                if (ben.beneficiaryID != null){
+                    pncPostList.add(it.asNetworkModel(ben.beneficiaryID!!))
+                    it.syncState = SyncState.SYNCING
+                    pncDao.update(it)
+                    val uploadDone = postDataToAmritServer(pncPostList)
+                    if (uploadDone) {
+                        it.processed = "P"
+                        it.syncState = SyncState.SYNCED
+                    } else {
+                        it.syncState = SyncState.UNSYNCED
+                    }
+                    pncDao.update(it)
 //                if (!uploadDone)
 //                    return@withContext false
+                }
             }
 
             return@withContext true
