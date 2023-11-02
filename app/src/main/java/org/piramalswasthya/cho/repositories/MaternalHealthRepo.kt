@@ -47,12 +47,16 @@ class MaternalHealthRepo @Inject constructor(
             maternalHealthDao.getSavedRecord(benId)
         }
     }
-//
-//    suspend fun getLatestActiveRegistrationRecord(benId: Long): PregnantWomanRegistrationCache? {
-//        return withContext(Dispatchers.IO) {
-//            maternalHealthDao.getSavedActiveRecord(benId)
-//        }
-//    }
+
+    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
+        return maternalHealthDao.getSavedActiveRecordObserve(benId)
+    }
+
+    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
+        return withContext(Dispatchers.IO) {
+            maternalHealthDao.getSavedActiveRecord(benId)
+        }
+    }
 //
 
     fun getLastVisitNumber(benId: String): LiveData<Int?> {
@@ -64,6 +68,8 @@ class MaternalHealthRepo @Inject constructor(
             maternalHealthDao.getSavedRecord(benId, visitNumber)
         }
     }
+
+
 //
 //    suspend fun getLatestAncRecord(benId: Long): PregnantWomanAncCache? {
 //        return withContext(Dispatchers.IO) {

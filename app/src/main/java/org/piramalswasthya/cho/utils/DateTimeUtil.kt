@@ -28,7 +28,7 @@ class DateTimeUtil {
         get() = _selectedDate
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun showDatePickerDialog(context: Context, initialDate: Date?) : DatePickerDialog {
+    fun showDatePickerDialog(context: Context, initialDate: Date?, maxDays: Int = 0, minDays: Int = -(99*365)) : DatePickerDialog {
         val calendar = Calendar.getInstance()
         initialDate?.let {
             calendar.time = it
@@ -53,11 +53,12 @@ class DateTimeUtil {
 
         // Set max date to the current date
         val maxCalendar = Calendar.getInstance()
+        maxCalendar.add(Calendar.DAY_OF_YEAR, maxDays)
         datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
 
         // Set min date to 99 years ago from the current date
         val minCalendar = Calendar.getInstance()
-        minCalendar.add(Calendar.YEAR, -99)
+        minCalendar.add(Calendar.DAY_OF_YEAR, minDays)
         datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
         return datePickerDialog
     }

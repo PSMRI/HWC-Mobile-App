@@ -84,18 +84,17 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-//            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)
-            registerRecord = PregnantWomanRegistrationCache(
-                patientID = patientID,
-                lmpDate = Calendar.getInstance().apply {
-                    set(Calendar.MONTH, 0)
-                    set(Calendar.DAY_OF_MONTH, 1)
-                }.timeInMillis,
-                createdBy = "",
-                updatedBy = "",
-                syncState = SyncState.SYNCED
-            )
-
+            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
+//            registerRecord = PregnantWomanRegistrationCache(
+//                patientID = patientID,
+//                lmpDate = Calendar.getInstance().apply {
+//                    set(Calendar.MONTH, 0)
+//                    set(Calendar.DAY_OF_MONTH, 1)
+//                }.timeInMillis,
+//                createdBy = "",
+//                updatedBy = "",
+//                syncState = SyncState.SYNCED
+//            )
             maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
                 _recordExists.value = true
