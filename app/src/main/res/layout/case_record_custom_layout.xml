@@ -440,6 +440,7 @@
                     android:paddingBottom="4dp"
                     android:paddingTop="6dp"
                     android:textColorHint="#888888"
+                    android:inputType="textCapSentences"
                     android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra">
 
