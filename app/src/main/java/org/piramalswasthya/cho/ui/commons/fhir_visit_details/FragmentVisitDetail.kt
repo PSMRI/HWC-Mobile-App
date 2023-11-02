@@ -433,6 +433,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.subCatDropDown.visibility = View.GONE
                     binding.reasonForVisitDropDown.visibility = View.GONE
                     binding.layyy.visibility = View.VISIBLE
+                    binding.usePrevious.visibility = View.VISIBLE
 //                    category = binding.radioButton1.text.toString()
                     category = binding.radioButton1.tag.toString()
                 }
@@ -445,6 +446,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.subCatDropDown.visibility = View.VISIBLE
                     binding.reasonForVisitDropDown.visibility = View.VISIBLE
                     binding.layyy.visibility = View.GONE
+                    binding.usePrevious.visibility = View.GONE
 //                    category = binding.radioButton2.text.toString()
                     category = binding.radioButton2.tag.toString()
                 }
@@ -957,7 +959,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        else if(lmpDate != null){
+                        else if(it1 == null){
                             viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
                             viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                                 if(it2){
@@ -990,7 +992,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                        else if(deliveryDate != null){
+                        else if(it1 == null){
                             viewModel.saveDeliveryOutcome(benVisitInfo.patient.patientID, deliveryDate!!)
                             viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
                                 if(it2){
