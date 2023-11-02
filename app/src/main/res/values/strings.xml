@@ -454,6 +454,7 @@
     <string name="save_template">Save this Template</string>
     <string name="enter_temp_name">Enter Template Name</string>
     <string name="select_temp_to_fill">Select Template Name To Fill</string>
+    <string name="template_save">Template Name saved </string>
     <string name="form_name">Form Name</string>
     <string name="Sync_state">Sync Status</string>
     <string name="patient_form">Patient Registration Form</string>
@@ -589,4 +590,8 @@
         <item>Any Other Method</item>
     </string-array>
 
+    <string name="template_null">Enter Template Name</string>
+    <string name="templte_exists">Template name already exists</string>
+    <string name="delete_temp">Delete Template</string>
+    <string name="temp_name">Template Name</string>
 </resources>
