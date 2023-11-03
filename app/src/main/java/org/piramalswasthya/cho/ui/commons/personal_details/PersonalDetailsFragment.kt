@@ -368,7 +368,7 @@ class PersonalDetailsFragment : Fragment() {
 
         // Set up initial positions for the table
         val xPosition = 75F
-        var y = 250F // Declare y as a var
+        var y = 270F // Declare y as a var
         val rowHeight = 50F
 
         content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
@@ -387,7 +387,10 @@ class PersonalDetailsFragment : Fragment() {
         heading.textAlign = Paint.Align.CENTER
 
         canvas.drawText("Prescription", 396F, 150F, heading)
-        canvas.drawText("Patient Name: $patientName", 396F, 200F, subheading)
+//        canvas.drawText("Date: ", xPosition, 180F, subheading)
+        canvas.drawText("Patient Name: $patientName", 685F, 180F, subheading)
+        canvas.drawText("Age: ${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}", 685F, 200F, subheading)
+        canvas.drawText("Gender: ${benVisitInfo.genderName}", 685F, 220F, subheading)
 
         // Define fixed column widths
         val columnWidth = 150F
