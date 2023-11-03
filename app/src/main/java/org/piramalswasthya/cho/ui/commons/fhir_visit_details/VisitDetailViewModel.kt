@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
@@ -171,6 +172,10 @@ class VisitDetailViewModel @Inject constructor(
             deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcomeCache)
             _isDeliveryDateSaved.value = true
         }
+    }
+
+    fun getAllAncRecords(benId: String): LiveData<List<PregnantWomanAncCache>> {
+        return maternalHealthRepo.getAllAncRecords(benId)
     }
 
     suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){

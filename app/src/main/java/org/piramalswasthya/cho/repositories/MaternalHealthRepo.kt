@@ -82,6 +82,10 @@ class MaternalHealthRepo @Inject constructor(
             maternalHealthDao.getAllActiveAncRecords(benId)
         }
     }
+
+    fun getAllAncRecords(benId: String): LiveData<List<PregnantWomanAncCache>> {
+        return maternalHealthDao.getAllAncRecords(benId)
+    }
 //
 //    suspend fun getBenFromId(benId: Long): BenRegCache? {
 //        return withContext(Dispatchers.IO) {

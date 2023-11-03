@@ -44,6 +44,8 @@ class PwAncFormViewModel @Inject constructor(
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
     private val visitNumber =
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
+    val isOldVisit =
+        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).isOldVisit
 
 
     private val _state = MutableLiveData(State.IDLE)

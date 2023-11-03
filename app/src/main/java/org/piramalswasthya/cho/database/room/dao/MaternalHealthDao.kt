@@ -24,6 +24,9 @@ interface MaternalHealthDao {
 
     @Query("select * from pregnancy_anc where isActive== 1 and patientID = :patientID")
     fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
+
+    @Query("select * from pregnancy_anc where patientID = :patientID")
+    fun getAllAncRecords(patientID: String): LiveData<List<PregnantWomanAncCache>>
 //    @Query("select * from pregnancy_anc where benId in (:benId) and isActive = 1")
 //    fun getAllActiveAncRecords(benId: Set<Long>): List<PregnantWomanAncCache>
 //

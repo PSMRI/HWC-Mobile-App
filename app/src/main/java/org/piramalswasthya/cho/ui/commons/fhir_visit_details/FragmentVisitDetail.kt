@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.AncVisitAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.SyncState
@@ -255,10 +256,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    fun removeVisibility(){
+        binding.lmpDate.visibility = View.GONE
+        binding.deliveryDate.visibility = View.GONE
+        binding.rvAnc.visibility = View.GONE
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.lmpDate.visibility = View.GONE
         binding.deliveryDate.visibility = View.GONE
+        binding.rvAnc.visibility = View.GONE
 
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -326,6 +334,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
             var subCat = parent.getItemAtPosition(position)
             binding.subCatInput.setText(subCat.toString(), false)
+            binding.reasonForVisitInput.setText("", false)
+            removeVisibility()
             setReasonForVisitDropdown(subCat.toString())
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
@@ -333,21 +343,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
 
+
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
             var subCat = parent.getItemAtPosition(position)
             binding.reasonForVisitInput.setText(subCat.toString(), false)
+            removeVisibility()
             if(subCat == DropdownConst.anc){
+                binding.rvAnc.visibility = View.VISIBLE
                 viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
                     if(it == null && lmpDate == null){
                         binding.lmpDate.visibility = View.VISIBLE
-                        binding.deliveryDate.visibility = View.GONE
                     }
                 }
             }
             else if(subCat == DropdownConst.pnc){
                 viewModel.getDeliveryOutcomeObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
                     if(it == null && deliveryDate == null){
-                        binding.lmpDate.visibility = View.GONE
                         binding.deliveryDate.visibility = View.VISIBLE
                     }
                 }
@@ -382,14 +393,28 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
 
-        benVisitInfo =
-            requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        if (benVisitInfo.patient != null) {
-            viewModel.setPatientId(benVisitInfo.patient.patientID)
-            masterDb?.patientId = benVisitInfo.patient.patientID
-            patientId = benVisitInfo.patient.patientID
-            setSubCategoryDropdown()
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+
+        viewModel.setPatientId(benVisitInfo.patient.patientID)
+        masterDb?.patientId = benVisitInfo.patient.patientID
+        patientId = benVisitInfo.patient.patientID
+        setSubCategoryDropdown()
+
+        viewModel.getAllAncRecords(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+            (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
         }
+
+        binding.rvAnc.adapter =
+            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                        benId, visitNumber, true
+                    )
+                )
+            })
+
+
         try {
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID)
         } catch (e: Exception) {
@@ -413,15 +438,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             makeFollowUpDefault()
         }
         binding.subCatInput.threshold = 1
-       lifecycleScope.launch {
-           viewModel.chiefComplaintMaster.collect { chiefComplaintsList ->
-               chiefComplaints.clear()
-               chiefComplaints.addAll(chiefComplaintsList)
+        lifecycleScope.launch {
+            viewModel.chiefComplaintMaster.collect { chiefComplaintsList ->
+                chiefComplaints.clear()
+                chiefComplaints.addAll(chiefComplaintsList)
 
-               chiefComplaintsForFilter.clear()
-               chiefComplaintsForFilter.addAll(chiefComplaintsList)
-           }
-       }
+                chiefComplaintsForFilter.clear()
+                chiefComplaintsForFilter.addAll(chiefComplaintsList)
+            }
+        }
 
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -965,7 +990,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                                 if(it2){
                                     findNavController().navigate(
                                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                            benVisitInfo.patient.patientID, visitNumber
+                                            benVisitInfo.patient.patientID, visitNumber, false
                                         )
                                     )
                                 }
@@ -974,7 +999,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         else{
                             findNavController().navigate(
                                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                    benVisitInfo.patient.patientID, visitNumber
+                                    benVisitInfo.patient.patientID, visitNumber, false
                                 )
                             )
                         }
