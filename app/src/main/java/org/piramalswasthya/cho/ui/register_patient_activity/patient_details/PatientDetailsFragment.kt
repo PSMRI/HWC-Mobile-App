@@ -20,12 +20,14 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.VillageDropdownAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.AlertAgePickerBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
@@ -88,7 +90,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun checkAndRequestCameraPermission() {
         if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )  == PackageManager.PERMISSION_GRANTED
+            )  == PackageManager.PERMISSION_GRANTED
         ) {
             // Camera permission is granted, proceed to take a picture
             takePicture()
@@ -98,8 +100,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
     private fun requestCameraPermission() {
-            val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
-            requestPermissions(permission, 112)
+        val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
+        requestPermissions(permission, 112)
     }
 
     private val takePictureLauncher =
@@ -124,7 +126,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         photoFile?.also {
-             photoURI = FileProvider.getUriForFile(
+            photoURI = FileProvider.getUriForFile(
                 requireContext(),
                 "org.piramalswasthya.cho.provider",
                 it
@@ -205,9 +207,44 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.fatherNameText.setEndIconOnClickListener {
             speechToTextLauncherForFatherName.launch(Unit)
         }
+
+        binding.age.setOnClickListener {
+            ageAlertDialog.show()
+        }
+
     }
 
+    private val ageAlertDialog by lazy {
+        val alertBinding = AlertAgePickerBinding.inflate(layoutInflater,binding.root,false)
+        alertBinding.dialogNumberPickerYears.minValue = 0
+        alertBinding.dialogNumberPickerYears.maxValue = 100
 
+        alertBinding.dialogNumberPickerMonths.minValue = 0
+        alertBinding.dialogNumberPickerMonths.maxValue = 11
+
+        alertBinding.dialogNumberPickerWeeks.minValue = 0
+        alertBinding.dialogNumberPickerWeeks.maxValue = 3       // Assuming a maximum of 3 weeks in a month
+
+        alertBinding.dialogNumberPickerDays.minValue = 0
+        alertBinding.dialogNumberPickerDays.maxValue = 6
+
+        val alert = MaterialAlertDialogBuilder(requireContext()).setView(alertBinding.root)
+            .setOnCancelListener {
+//                viewModel.resetSelectedHouseholdId()
+//                alertBinding.rgGender.clearCheck()
+//                addBenAlertBinding.linearLayout4.visibility = View.GONE
+//                addBenAlertBinding.actvRth.text = null
+            }.create()
+
+        alertBinding.btnOk.setOnClickListener {
+//            viewModel.resetSelectedHouseholdId()
+//            alert.cancel()
+        }
+        alertBinding.btnCancel.setOnClickListener {
+            alert.cancel()
+        }
+        alert
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     private fun scanCode() {
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -234,7 +271,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     if (!userData.dateOfBirth.isNullOrEmpty()) {
                         var date: Date? = null
                         if(userData.dateOfBirth[2].toString()=="/") {
-                             date =
+                            date =
                                 userData.dateOfBirth.let { inputDateFormat1.parse(it) } as Date
                         }else if(userData.dateOfBirth[2].toString()=="-"){
                             date = userData.dateOfBirth.let { inputDateFormat2.parse(it) } as Date
@@ -332,12 +369,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }catch (e:Exception){
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
-            return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
+        return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
-             binding.firstName.setText(result)
+            binding.firstName.setText(result)
         }
     }
     private val speechToTextLauncherForLastName = registerForActivityResult(SpeechToTextContract()) { result ->
@@ -351,12 +388,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
     private val speechToTextLauncherForAge = registerForActivityResult(SpeechToTextContract()) { result ->
-            if (result.isNotBlank() && result.isNumeric()) {
-                val pattern = "\\d{2}".toRegex()
-                val match = pattern.find(result)
-                val firstTwoDigits = match?.value
-                if(result.toInt() > 0) binding.age.setText(result)
-            }
+        if (result.isNotBlank() && result.isNumeric()) {
+            val pattern = "\\d{2}".toRegex()
+            val match = pattern.find(result)
+            val firstTwoDigits = match?.value
+            if(result.toInt() > 0) binding.age.setText(result)
+        }
     }
     private val speechToTextLauncherForFatherName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
@@ -511,7 +548,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
             override fun afterTextChanged(s: Editable?) {}
         })
-       binding.dateOfBirth.addTextChangedListener (object :TextWatcher{
+        binding.dateOfBirth.addTextChangedListener (object :TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -626,24 +663,24 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
 
 
-        private fun isValidPhoneNumber(phoneNumber: String) {
-            var char = phoneNumber.get(0)
+    private fun isValidPhoneNumber(phoneNumber: String) {
+        var char = phoneNumber.get(0)
 
-             if(char.equals('9') || char.equals('8') || char.equals('7') || char.equals('6')) {
-                 Log.d("aryan","${char}")
-                 if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
-                         if (isNotRepeatableNumber(phoneNumber)) {
-                             viewModel.setPhoneN(true, "null")
-                         } else {
-                             viewModel.setPhoneN(false, resources.getString(R.string.enter_a_valid_phone_number))
-                         }
-                 } else {
-                     viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
-                 }
-             }else{
-                 viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
-             }
+        if(char.equals('9') || char.equals('8') || char.equals('7') || char.equals('6')) {
+            Log.d("aryan","${char}")
+            if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
+                if (isNotRepeatableNumber(phoneNumber)) {
+                    viewModel.setPhoneN(true, "null")
+                } else {
+                    viewModel.setPhoneN(false, resources.getString(R.string.enter_a_valid_phone_number))
+                }
+            } else {
+                viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
+            }
+        }else{
+            viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
         }
+    }
     fun isNotRepeatableNumber(input: String): Boolean {
 
         val digits = input.toCharArray()
@@ -691,7 +728,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
 //                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
 //                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
-                  villageAdapter = VillageDropdownAdapter(
+                    villageAdapter = VillageDropdownAdapter(
                         requireContext(),
                         R.layout.drop_down,
                         viewModel.villageList,
@@ -841,7 +878,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
                 }
             }
-       }
+        }
     }
 
     override fun onCancelAction() {
@@ -849,3 +886,4 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
 }
+
