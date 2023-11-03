@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -23,14 +24,10 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.semantics.Role
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -51,17 +48,15 @@ import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
-import org.piramalswasthya.cho.helpers.Roles
 import org.piramalswasthya.cho.list.benificiaryList
-import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
+import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
-import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -96,6 +91,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var selectedLanguage: String
     private lateinit var currentLanguage: Languages
     private lateinit var currentRoleSelected: String
+    private lateinit var currentSwitchRoleSelected: String
     private var selectedLanguageIndex: Int = 0
     private val languages = arrayOf("English", "ಕನ್ನಡ")
 
@@ -225,6 +221,9 @@ class HomeActivity : AppCompatActivity() {
         if(!prefDao.isCHO()){
             navigationView.menu.removeItem(R.id.roles_list)
         }
+        if(prefDao.isCHO() || !prefDao.isUserSwitchRole()){
+            navigationView.menu.removeItem(R.id.roles_switch)
+        }
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -238,6 +237,10 @@ class HomeActivity : AppCompatActivity() {
 //                    startActivity(Intent(this, MasterLocationSettingsActivity::class.java))
 //                    drawerLayout.closeDrawers()
                     showRolePopUp()
+                    true
+                }
+                R.id.roles_switch -> {
+                    showRoleSwitchPopUp()
                     true
                 }
                 R.id.menu_logout -> {
@@ -284,6 +287,17 @@ class HomeActivity : AppCompatActivity() {
             prefDao.setSecondRolesForCHO("Registrar")
             prefDao.getCHOSecondRole()!!
         }
+
+        if(prefDao.isUserSwitchRole()){
+            if(prefDao.getSwitchRole()!=null){
+                currentSwitchRoleSelected = prefDao.getSwitchRole()!!
+            }
+            else{
+                currentSwitchRoleSelected = prefDao.getFirstUserRole()
+                prefDao.setSwitchRoles(prefDao.getFirstUserRole())
+            }
+        }
+
     }
     private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
@@ -428,6 +442,89 @@ private fun triggerAlarmManager(){
                     pharmacistRadioButton.id -> "Pharmacist"
                     labTechnicianRadioButton.id -> "Lab Technician"
                     else -> "Nurse"
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun showRoleSwitchPopUp() {
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_switch_roles_radio_btns, null)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setTitle("Choose Role")
+
+            .setPositiveButton("Apply") { dialog, _ ->
+                Toast.makeText(this, "Test role Selected", Toast.LENGTH_SHORT).show()
+                if(currentSwitchRoleSelected!=null){
+                    prefDao.setSwitchRoles(currentSwitchRoleSelected)
+//                    WorkerUtils.triggerDownSyncWorker(this)
+                    val refresh = Intent(this, HomeActivity::class.java)
+                    finish()
+                    startActivity(refresh)
+                    this?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                }
+                else{
+                    Toast.makeText(this, "No role Selected", Toast.LENGTH_SHORT).show()
+                }
+
+//                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        if (!prefDao.isCHO()){
+
+            val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_roles_select_dialog)
+            val registrarRadioButton = dialogView.findViewById<RadioButton>(R.id.rb_registrar_dialog)
+            val nurseRadioButton = dialogView.findViewById<RadioButton>(R.id.rb_nurse_dialog)
+            val doctorRadioButton = dialogView.findViewById<RadioButton>(R.id.rb_doctor_dialog)
+            val pharmacistRadioButton = dialogView.findViewById<RadioButton>(R.id.rb_pharmacist_dialog)
+            val labTechnicianRadioButton = dialogView.findViewById<RadioButton>(R.id.rb_lab_technician_dialog)
+            if (radioGroup != null && registrarRadioButton != null && nurseRadioButton != null && doctorRadioButton != null && pharmacistRadioButton != null
+                && labTechnicianRadioButton != null) {
+
+                if(prefDao.isContainsRole("Registrar")){
+                    registrarRadioButton.setVisibilityOfLayout(true)
+                }
+
+                if(prefDao.isContainsRole("Nurse")){
+                    nurseRadioButton.setVisibilityOfLayout(true)
+                }
+
+                if(prefDao.isContainsRole("Doctor") || prefDao.isContainsRole("MO")){
+                    doctorRadioButton.setVisibilityOfLayout(true)
+                }
+
+                if(prefDao.isContainsRole("Pharmacist")){
+                    pharmacistRadioButton.setVisibilityOfLayout(true)
+                }
+
+                if(prefDao.isContainsRole("Lab Technician")){
+                    labTechnicianRadioButton.setVisibilityOfLayout(true)
+                }
+
+                when (prefDao.getSwitchRole()) {
+                    "Registrar" -> radioGroup.check(registrarRadioButton.id)
+                    "Nurse" -> radioGroup.check(nurseRadioButton.id)
+                    "Doctor" -> radioGroup.check(doctorRadioButton.id)
+                    "MO" -> radioGroup.check(doctorRadioButton.id)
+                    "Pharmacist" -> radioGroup.check(pharmacistRadioButton.id)
+                    "Lab Technician" -> radioGroup.check(labTechnicianRadioButton.id)
+                }
+//
+                radioGroup.setOnCheckedChangeListener { _, i ->
+                    currentSwitchRoleSelected = when (i) {
+                        registrarRadioButton.id -> "Registrar"
+                        nurseRadioButton.id -> "Nurse"
+                        doctorRadioButton.id -> "Doctor"
+                        pharmacistRadioButton.id -> "Pharmacist"
+                        labTechnicianRadioButton.id -> "Lab Technician"
+                        else -> "Nurse"
+                    }
                 }
             }
         }

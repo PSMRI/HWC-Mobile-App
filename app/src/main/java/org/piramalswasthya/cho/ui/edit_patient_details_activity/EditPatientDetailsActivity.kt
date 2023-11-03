@@ -74,12 +74,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-      if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
+      if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
+          (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
           binding.patientDetalis.visibility= View.GONE
           binding.onlyDoctor.visibility=View.VISIBLE
       }
 //        navHostFragment.navController.setGraph(R.navigation.nav_edit_patient, args);
-       if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
+       if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
+           (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
            navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
                when (destination.id) {
@@ -93,13 +95,15 @@ class EditPatientDetailsActivity: AppCompatActivity() {
            }
        }else {
            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-           if (preferenceDao.isStartingLabTechnician() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician")) {
+           if (preferenceDao.isStartingLabTechnician() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician") ||
+               (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Lab Technician")) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                    ))
            }
-           else if (preferenceDao.isPharmacist() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist")) {
+           else if (preferenceDao.isPharmacist() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist") ||
+               (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Pharmacist")) {
                navHostFragment.navController
                    .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
                        (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)

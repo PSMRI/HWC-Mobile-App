@@ -155,10 +155,11 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        if(preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse"))){
+        if((preferenceDao.isUserSwitchRole() && (preferenceDao.getSwitchRole().equals("Registrar") || preferenceDao.getSwitchRole().equals("Nurse"))) ||
+            (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
             binding.registration.isEnabled = true
         }
-        else binding.registration.isEnabled = !preferenceDao.isCHO() && preferenceDao.isUserRegistrar()
+        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && preferenceDao.isUserRegistrar()
 
 //
 
