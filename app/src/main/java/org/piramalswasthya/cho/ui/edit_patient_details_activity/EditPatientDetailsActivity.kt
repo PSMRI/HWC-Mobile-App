@@ -208,11 +208,13 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         }
 
         binding.btnSubmit.setOnClickListener {
+            binding.btnSubmit.visibility = View.VISIBLE
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onSubmitAction()
         }
 
         binding.btnCancel.setOnClickListener {
+            binding.btnSubmit.visibility = View.VISIBLE
             currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onCancelAction()
         }
@@ -222,9 +224,6 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         }
     }
 
-//    override fun onBackPressed() {
-//        finish()
-//    }
 
     override fun onDestroy() {
         super.onDestroy()

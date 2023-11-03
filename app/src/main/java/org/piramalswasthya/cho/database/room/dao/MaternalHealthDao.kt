@@ -9,9 +9,12 @@ import org.piramalswasthya.cho.model.*
 interface MaternalHealthDao {
     @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
     fun getSavedRecord(patientID: String): PregnantWomanRegistrationCache?
-//    @Query("select * from pregnancy_register where benId = :benId and active = 1 order by createdDate limit 1")
-//    fun getSavedActiveRecord(benId: Long): PregnantWomanRegistrationCache?
-//
+
+    @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
+    fun getSavedActiveRecord(benId: String): PregnantWomanRegistrationCache?
+
+    @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
+    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?>
 
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
     fun getLastVisitNumber(patientID: String): LiveData<Int?>
@@ -21,6 +24,9 @@ interface MaternalHealthDao {
 
     @Query("select * from pregnancy_anc where isActive== 1 and patientID = :patientID")
     fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
+
+    @Query("select * from pregnancy_anc where patientID = :patientID")
+    fun getAllAncRecords(patientID: String): LiveData<List<PregnantWomanAncCache>>
 //    @Query("select * from pregnancy_anc where benId in (:benId) and isActive = 1")
 //    fun getAllActiveAncRecords(benId: Set<Long>): List<PregnantWomanAncCache>
 //
