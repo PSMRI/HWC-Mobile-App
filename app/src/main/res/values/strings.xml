@@ -458,12 +458,12 @@
     <string name="template_save">Template Name saved </string>
     <string name="form_name">Form Name</string>
     <string name="Sync_state">Sync Status</string>
-    <string name="patient_form">Patient Registration Form</string>
+    <string name="patient_form">Registrations</string>
     <string name="sync">Sync</string>
     <string name="pharmacy_form">Pharmacy Form</string>
     <string name="lab_form">Lab Technician Form</string>
-    <string name="doctor_form">Doctor Form</string>
-    <string name="nurse_form">Nurse Form</string>
+    <string name="doctor_form">Case Record</string>
+    <string name="nurse_form">Visit and Vitals</string>
     <string name="Yes_state">YES</string>
     <string name="No_state">NO</string>
     <string name="duration_prescription">Duration</string>
@@ -595,4 +595,5 @@
     <string name="templte_exists">Template name already exists</string>
     <string name="delete_temp">Delete Template</string>
     <string name="temp_name">Template Name</string>
+    <string name="villageName">Village Name:</string>
 </resources>

@@ -126,7 +126,7 @@ data class Patient (
     var blockID : Int? = null,
 
     @ColumnInfo(name="districtBranchID")
-    var districtBranchID : Int? = null,
+    var districtBranchID : Int? = null,//v
 
     @ColumnInfo(name="communityID")
     var communityID : Int? = null,
@@ -220,9 +220,9 @@ data class PatientDisplayWithVisitInfo(
     @Embedded val patient: Patient,
 
     val genderName: String?,
+    val villageName: String?,
     val ageUnit: String?,
     val maritalStatus: String?,
-
     val nurseDataSynced: SyncState?,
     val doctorDataSynced: SyncState?,
     val createNewBenFlow: Boolean?,

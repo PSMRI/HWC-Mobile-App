@@ -58,11 +58,21 @@ class DropdownConst {
             "UPHC",
             "PHC"
         )
+        val frequencyMap = mapOf(
+            "1-0-0" to "Once Daily (OD)",
+            "0-1-0" to "Once Daily (OD)",
+            "0-0-1" to "Once Daily (OD)",
+            "1-1-0" to "Twice Daily (BD)",
+            "1-0-1" to "Twice Daily (BD)",
+            "0-1-1" to "Twice Daily (BD)",
+            "1-1-1" to "Thrice Daily (TID)",
+            "1-1-1-1" to "Four Times in a Day (QID)"
+        )
         val medicationRouteList = mutableListOf("Ears","Eyes/Ear","Eyes","ID","IM","IV","Local application","Nostrils","Oral","Rectal")
-        val unitVal = mutableListOf("Day","Month","Week")
+        val unitVal = mutableListOf("Day(s)","Month(s)","Week(s)")
         val instructionDropdownList = mutableListOf("After Food","Before Food")
 
-        val mutualVisitUnitsVal = mutableListOf("Hours", "Days", "Weeks", "Months", "Years")
+        val mutualVisitUnitsVal = mutableListOf("Hour(s)", "Day(s)", "Week(s)", "Month(s)", "Year(s)")
     }
 
 }

@@ -101,30 +101,33 @@ interface PatientVisitInfoSyncDao {
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?
 
     @Transaction
-    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus " +
+    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus " +
             "FROM PATIENT_VISIT_INFO_SYNC vis " +
             "LEFT JOIN PATIENT pat ON pat.patientID = vis.patientID " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
             "WHERE vis.nurseFlag = 9 ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
-    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus " +
+    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName,vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus " +
             "FROM PATIENT_VISIT_INFO_SYNC vis " +
             "LEFT JOIN PATIENT pat ON pat.patientID = vis.patientID " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
             "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForLab(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
-    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus " +
+    @Query("SELECT pat.*, vis.*, gen.gender_name as genderName,vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus " +
             "FROM PATIENT_VISIT_INFO_SYNC vis " +
             "LEFT JOIN PATIENT pat ON pat.patientID = vis.patientID " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
             "WHERE vis.doctorFlag = 9 AND vis.pharmacist_flag = 1")

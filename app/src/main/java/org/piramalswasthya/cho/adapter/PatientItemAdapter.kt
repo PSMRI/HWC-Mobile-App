@@ -99,6 +99,7 @@ class PatientItemAdapter(
                 binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
             }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
+            binding.village.text = item.villageName ?: ""
             binding.patientGender.text = item.genderName
             if(item.patient.syncState == SyncState.SYNCED){
                 binding.ivSyncState.visibility = View.VISIBLE

@@ -69,11 +69,12 @@ interface PatientDao {
 //    @Transaction
 //    @Query("select * from patient p inner join benflow bf on p.beneficiaryRegID = bf.beneficiaryRegID where (bf.doctorFlag = 9) AND bf.pharmacist_flag = 1 ORDER BY bf.visitDate DESC")
 //    fun getPatientListFlowForPharmacist(): Flow<List<PatientDisplay>>
-    @Query("SELECT pat.*, gen.gender_name as genderName, age.age_name as ageUnit, mat.status as maritalStatus, " +
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
             "null as nurseDataSynced, null as doctorDataSynced, null as prescriptionID,null as createNewBenFlow, null as benVisitNo, " +
             "null as benFlowID, null as nurseFlag, null as doctorFlag, null as labtechFlag, null as pharmacist_flag " +
             "FROM PATIENT pat " +
             "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
