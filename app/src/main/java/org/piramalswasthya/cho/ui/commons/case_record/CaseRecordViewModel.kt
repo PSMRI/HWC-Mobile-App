@@ -97,7 +97,7 @@ class CaseRecordViewModel @Inject constructor(
             emit(templateRepo.getProceduresWithComponent(it) )
         }
     }.asLiveData()
-
+    val labReportProcedureTypes = mutableListOf<String>()
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>
         get() = _counsellingProvided

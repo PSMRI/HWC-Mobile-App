@@ -153,7 +153,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
                 var  nameVal = ""
                 var resultVal = ""
-               if (labReports.size>0){
+                for (labReport in labReports) {
+                    val procedureType = labReport.procedure.procedureName
+                    procedureType?.let { viewModel.labReportProcedureTypes.add(it) }
+                }
+
+                if (labReports.size>0){
                    binding.scrollview.visibility = View.VISIBLE
                    binding.resultHeading.visibility = View.VISIBLE
                    binding.dateOption.visibility = View.VISIBLE
@@ -339,7 +344,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             procedureDropdown.clear()
             procedureDropdown.addAll(f)
             familyM!!.setOnClickListener {
-                showDialogWithFamilyMembers(procedureDropdown)
+                showDialogWithFamilyMembers(procedureDropdown, viewModel.labReportProcedureTypes)
             }
         }
         binding.saveTemplate.setOnClickListener {
@@ -646,8 +651,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
 
-    private fun showDialogWithFamilyMembers(proceduresMasterData: List<ProceduresMasterData>) {
+    private fun showDialogWithFamilyMembers(
+        proceduresMasterData: List<ProceduresMasterData>,
+        labReportProcedureTypes: List<String>
+    ) {
         val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
+
+        val disabledItems = labReportProcedureTypes.map { type ->
+            proceduresMasterData.indexOfFirst { it.procedureName == type }
+        }.toSet().toTypedArray()
 
         val builder = AlertDialog.Builder(requireContext())
             .setTitle("Select Test Name")
@@ -657,7 +669,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 selectedItems
             ) { _, which, isChecked ->
                 if (isChecked) {
-                    selectedTestName.add(which)
+                    if (!disabledItems.contains(which)) {
+                        selectedTestName.add(which)
+                    } else {
+                        Toast.makeText(requireContext(), "Test with result cannot be selected", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     selectedTestName.remove(which)
                 }
@@ -681,6 +697,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val alertDialog = builder.create()
         alertDialog.show()
     }
+
+
     fun isAnyItemEmptyD(): Boolean {
         for (item in itemListD) {
             if (item.diagnosis.isEmpty()) {
