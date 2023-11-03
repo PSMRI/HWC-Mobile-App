@@ -127,7 +127,7 @@ class VisitDetailViewModel @Inject constructor(
         vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
     }
 
-    fun getLastAncVisitNumber(benId: String): LiveData<Int?> {
+    fun getLastVisitNumber(benId: String): LiveData<Int?> {
         return maternalHealthRepo.getLastVisitNumber(benId)
     }
 
@@ -174,8 +174,8 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
-    fun getAllAncRecords(benId: String): LiveData<List<PregnantWomanAncCache>> {
-        return maternalHealthRepo.getAllAncRecords(benId)
+    fun getAllActiveAncRecordsObserve(benId: String): LiveData<List<PregnantWomanAncCache>> {
+        return maternalHealthRepo.getAllActiveAncRecordsObserve(benId)
     }
 
     suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){

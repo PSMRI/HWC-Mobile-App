@@ -48,6 +48,10 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun getSavedRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
+        return  maternalHealthDao.getSavedRecordObserve(benId)
+    }
+
     fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
         return maternalHealthDao.getSavedActiveRecordObserve(benId)
     }
@@ -83,8 +87,8 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
-    fun getAllAncRecords(benId: String): LiveData<List<PregnantWomanAncCache>> {
-        return maternalHealthDao.getAllAncRecords(benId)
+    fun getAllActiveAncRecordsObserve(benId: String): LiveData<List<PregnantWomanAncCache>> {
+        return maternalHealthDao.getAllActiveAncRecordsObserve(benId)
     }
 //
 //    suspend fun getBenFromId(benId: Long): BenRegCache? {

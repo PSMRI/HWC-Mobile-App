@@ -57,6 +57,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class FragmentVisitDetail : Fragment(), NavigationAdapter,
@@ -118,6 +119,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private val deliveryDateUtil : DateTimeUtil = DateTimeUtil()
 
     private lateinit var adapter: VisitDetailAdapter
+
+    private var lastAncVisit by Delegates.notNull<Int>()
 
     private val initialItem = ChiefComplaintValues()
     private val itemList = mutableListOf(initialItem)
@@ -365,6 +368,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
 
+
         binding.lmpDate.setOnClickListener {
             lmpDateUtil.showDatePickerDialog(
                 requireContext(), lmpDate,
@@ -401,8 +405,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         patientId = benVisitInfo.patient.patientID
         setSubCategoryDropdown()
 
-        viewModel.getAllAncRecords(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+        viewModel.getAllActiveAncRecordsObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
             (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
+        }
+
+        viewModel.getLastVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+            lastAncVisit = it ?: 0
         }
 
         binding.rvAnc.adapter =
@@ -974,37 +982,67 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if(selectedCategory == "Other CPHC Services"){
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.anc){
-                viewModel.getLastAncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
-                    val visitNumber = (it ?: 0) + 1
-                    viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
-                        if(it1 == null && lmpDate == null){
-                            Toast.makeText(
-                                requireContext(),
-                                "Select LMP Date",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        else if(it1 == null){
-                            viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
-                            viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
-                                if(it2){
-                                    findNavController().navigate(
-                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                            benVisitInfo.patient.patientID, visitNumber, false
-                                        )
+
+                viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
+                    if(it1 == null && lmpDate == null){
+                        Toast.makeText(
+                            requireContext(),
+                            "Select LMP Date",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else if(it1 == null){
+                        viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
+                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
+                            if(it2){
+                                findNavController().navigate(
+                                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
                                     )
-                                }
+                                )
                             }
                         }
-                        else{
-                            findNavController().navigate(
-                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                    benVisitInfo.patient.patientID, visitNumber, false
-                                )
+                    }
+                    else{
+                        findNavController().navigate(
+                            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                                benVisitInfo.patient.patientID, lastAncVisit + 1, false
                             )
-                        }
+                        )
                     }
                 }
+
+//                viewModel.getLastActiveAncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+//                    val visitNumber = (it ?: 0) + 1
+//                    viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
+//                        if(it1 == null && lmpDate == null){
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Select LMP Date",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//                        else if(it1 == null){
+//                            viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
+//                            viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
+//                                if(it2){
+//                                    findNavController().navigate(
+//                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+//                                            benVisitInfo.patient.patientID, visitNumber, false
+//                                        )
+//                                    )
+//                                }
+//                            }
+//                        }
+//                        else{
+//                            findNavController().navigate(
+//                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+//                                    benVisitInfo.patient.patientID, visitNumber, false
+//                                )
+//                            )
+//                        }
+//                    }
+//                }
             }
             else if(reasonForVisit == DropdownConst.pnc){
                 viewModel.getLastPncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){

@@ -10,6 +10,9 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
     fun getSavedRecord(patientID: String): PregnantWomanRegistrationCache?
 
+    @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
+    fun getSavedRecordObserve(patientID: String): LiveData<PregnantWomanRegistrationCache?>
+
     @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
     fun getSavedActiveRecord(benId: String): PregnantWomanRegistrationCache?
 
@@ -22,11 +25,11 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
     fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
 
-    @Query("select * from pregnancy_anc where isActive== 1 and patientID = :patientID")
+    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
     fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
-    @Query("select * from pregnancy_anc where patientID = :patientID")
-    fun getAllAncRecords(patientID: String): LiveData<List<PregnantWomanAncCache>>
+    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
+    fun getAllActiveAncRecordsObserve(patientID: String): LiveData<List<PregnantWomanAncCache>>
 //    @Query("select * from pregnancy_anc where benId in (:benId) and isActive = 1")
 //    fun getAllActiveAncRecords(benId: Set<Long>): List<PregnantWomanAncCache>
 //

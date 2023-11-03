@@ -73,18 +73,23 @@
 
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:visibility="gone"
-            tools:visibility="visible"
-            app:srcCompat="@drawable/ic_edit"
-            android:layout_marginEnd="@dimen/padding_wide"
-            android:layout_marginBottom="@dimen/padding_wide"
-            android:contentDescription="@string/edit" />
+                android:id="@+id/fab_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="@dimen/padding_wide"
+                android:layout_marginBottom="@dimen/padding_wide"
+                android:contentDescription="@string/edit"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_edit"
+                tools:visibility="visible" />
 
         </FrameLayout>
+
+        <Space
+            android:layout_width="397dp"
+            android:layout_height="@dimen/bottom_space_height"
+            app:layout_constraintTop_toBottomOf="@+id/form" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_submit"
