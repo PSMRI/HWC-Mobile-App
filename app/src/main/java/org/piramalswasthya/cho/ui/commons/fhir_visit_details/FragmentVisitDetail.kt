@@ -265,6 +265,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.rvAnc.visibility = View.GONE
     }
 
+    fun setVisibility(){
+        val reasonForVisit = binding.reasonForVisitInput.text.toString()
+        if(reasonForVisit == DropdownConst.anc){
+            binding.lmpDate.visibility = View.VISIBLE
+            binding.deliveryDate.visibility = View.GONE
+            binding.rvAnc.visibility = View.VISIBLE
+        }
+        else if(reasonForVisit == DropdownConst.pnc){
+            binding.lmpDate.visibility = View.GONE
+            binding.deliveryDate.visibility = View.VISIBLE
+            binding.rvAnc.visibility = View.GONE
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.lmpDate.visibility = View.GONE
@@ -457,8 +471,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
 
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
+
             when (checkedId) {
                 R.id.radioButton1 -> {
+                    removeVisibility()
 //                    binding.radioGroup2.visibility = View.VISIBLE
 //                    binding.reasonText.visibility = View.VISIBLE
                     binding.reasonText.visibility = View.VISIBLE
@@ -474,6 +490,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 else -> {
 //                    binding.radioGroup2.visibility = View.GONE
 //                    binding.reasonText.visibility = View.GONE
+                    setVisibility()
                     binding.reasonText.visibility = View.GONE
                     binding.radioGroup2.visibility = View.GONE
                     binding.subCatDropDown.visibility = View.VISIBLE
@@ -482,6 +499,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.usePrevious.visibility = View.GONE
 //                    category = binding.radioButton2.text.toString()
                     category = binding.radioButton2.tag.toString()
+
                 }
             }
         }

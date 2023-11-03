@@ -52,7 +52,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
                 binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
+//                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
@@ -74,9 +74,9 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
-        binding.btnSubmit.setOnClickListener {
-            submitAncForm()
-        }
+//        binding.btnSubmit.setOnClickListener {
+//            submitAncForm()
+//        }
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
