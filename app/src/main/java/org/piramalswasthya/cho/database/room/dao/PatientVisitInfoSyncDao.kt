@@ -46,7 +46,7 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND doctorFlag = 9 AND labtechFlag != 1 ORDER BY benVisitNo ASC")
     suspend fun getPatientDoctorDataWithoutTestUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND labtechFlag = 1 AND prescriptionID IS NOT NULL ORDER BY benVisitNo ASC")
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND labtechFlag = 1 ORDER BY benVisitNo ASC")
     suspend fun getPatientDoctorDataAfterTestUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
 //    @Transaction
