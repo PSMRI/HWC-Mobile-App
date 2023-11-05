@@ -23,6 +23,9 @@ interface PrescriptionTemplateDao {
     @Query("SELECT tempID FROM Prescription_Template_DB WHERE deleteStatus==1")
     suspend fun getTemplateIdWhichIsDeleted(): List<Int?>
 
+    @Query("DELETE FROM Prescription_Template_DB")
+    suspend fun deleteAll()
+
     @Query("DELETE FROM Prescription_Template_DB where tempID = :tempID")
     suspend fun delete(tempID: Int)
     @Query("UPDATE Prescription_Template_DB SET deleteStatus = 1 where template_name = :selectedString")

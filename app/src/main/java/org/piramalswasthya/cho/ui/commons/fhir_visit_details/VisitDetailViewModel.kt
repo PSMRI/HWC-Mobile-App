@@ -11,13 +11,18 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
+import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
@@ -27,6 +32,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 
 
@@ -40,6 +46,7 @@ class VisitDetailViewModel @Inject constructor(
     private val procedureRepo: ProcedureRepo,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val pncRepo: PncRepo,
+    private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -57,6 +64,15 @@ class VisitDetailViewModel @Inject constructor(
     private val _isDataSaved = MutableLiveData<Boolean>(false)
     val isDataSaved: MutableLiveData<Boolean>
         get() = _isDataSaved
+
+    private val _isLMPDateSaved = MutableLiveData<Boolean>(false)
+    val isLMPDateSaved: MutableLiveData<Boolean>
+        get() = _isLMPDateSaved
+
+    private val _isDeliveryDateSaved = MutableLiveData<Boolean>(false)
+    val isDeliveryDateSaved: MutableLiveData<Boolean>
+        get() = _isDeliveryDateSaved
+
 
     private val _idPatientId = MutableLiveData<String?>(null)
 
@@ -111,12 +127,55 @@ class VisitDetailViewModel @Inject constructor(
         vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
     }
 
-    fun getLastAncVisitNumber(benId: String): LiveData<Int?> {
+    fun getLastVisitNumber(benId: String): LiveData<Int?> {
         return maternalHealthRepo.getLastVisitNumber(benId)
     }
 
     fun getLastPncVisitNumber(benId: String): LiveData<Int?> {
         return pncRepo.getLastVisitNumber(benId)
+    }
+
+    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
+        return maternalHealthRepo.getSavedActiveRecordObserve(benId)
+    }
+
+    fun savePregnantWomanRegistration(benId: String, lmpDate: Date) {
+        viewModelScope.launch {
+            val user = userRepo.getLoggedInUser()!!
+            val pwr = PregnantWomanRegistrationCache(
+                patientID = benId,
+                lmpDate = lmpDate.time,
+                createdBy = user.userName,
+                syncState = SyncState.UNSYNCED,
+                updatedBy = user.userName
+            )
+            maternalHealthRepo.persistRegisterRecord(pwr)
+            _isLMPDateSaved.value = true
+        }
+    }
+
+    fun getDeliveryOutcomeObserve(benId: String): LiveData<DeliveryOutcomeCache?> {
+        return deliveryOutcomeRepo.getDeliveryOutcomeObserve(benId)
+    }
+
+    fun saveDeliveryOutcome(benId: String, deliveryDate: Date) {
+        viewModelScope.launch {
+            val user = userRepo.getLoggedInUser()!!
+            val deliveryOutcomeCache = DeliveryOutcomeCache(
+                patientID = benId,
+                dateOfDelivery = deliveryDate.time,
+                createdBy = user.userName,
+                syncState = SyncState.UNSYNCED,
+                updatedBy = user.userName,
+                isActive = true,
+            )
+            deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcomeCache)
+            _isDeliveryDateSaved.value = true
+        }
+    }
+
+    fun getAllActiveAncRecordsObserve(benId: String): LiveData<List<PregnantWomanAncCache>> {
+        return maternalHealthRepo.getAllActiveAncRecordsObserve(benId)
     }
 
     suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){

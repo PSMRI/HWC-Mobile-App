@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.database.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.MapInfo
@@ -13,6 +14,9 @@ interface DeliveryOutcomeDao {
 
     @Query("SELECT * FROM DELIVERY_OUTCOME WHERE patientID = :patientID and isActive=1 limit 1")
     fun getDeliveryOutcome(patientID: String): DeliveryOutcomeCache?
+
+    @Query("SELECT * FROM DELIVERY_OUTCOME WHERE patientID = :patientID and isActive=1 limit 1")
+    fun getDeliveryOutcomeObserve(patientID: String): LiveData<DeliveryOutcomeCache?>
 
     @Query("SELECT * FROM DELIVERY_OUTCOME WHERE patientID in (:patientID) and isActive = 1")
     fun getAllDeliveryOutcomes(patientID: Set<String>): List<DeliveryOutcomeCache>

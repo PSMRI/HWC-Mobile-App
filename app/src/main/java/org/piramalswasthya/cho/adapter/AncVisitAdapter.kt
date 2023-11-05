@@ -6,19 +6,19 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemPregnancyAncBinding
-import org.piramalswasthya.cho.model.AncStatus
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
 
 class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
-    ListAdapter<AncStatus, AncVisitAdapter.AncViewHolder>(
+    ListAdapter<PregnantWomanAncCache, AncVisitAdapter.AncViewHolder>(
         MyDiffUtilCallBack
     ) {
-    private object MyDiffUtilCallBack : DiffUtil.ItemCallback<AncStatus>() {
+    private object MyDiffUtilCallBack : DiffUtil.ItemCallback<PregnantWomanAncCache>() {
         override fun areItemsTheSame(
-            oldItem: AncStatus, newItem: AncStatus
-        ) = oldItem.benId == newItem.benId
+            oldItem: PregnantWomanAncCache, newItem: PregnantWomanAncCache
+        ) = oldItem.patientID == newItem.patientID
 
         override fun areContentsTheSame(
-            oldItem: AncStatus, newItem: AncStatus
+            oldItem: PregnantWomanAncCache, newItem: PregnantWomanAncCache
         ) = oldItem == newItem
 
     }
@@ -34,7 +34,7 @@ class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
         }
 
         fun bind(
-            item: AncStatus, clickListener: AncVisitClickListener
+            item: PregnantWomanAncCache, clickListener: AncVisitClickListener
         ) {
             binding.visit = item
             binding.clickListener = clickListener
@@ -53,11 +53,11 @@ class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
 
 
     class AncVisitClickListener(
-        private val clickedForm: (benId: Long, visitNumber: Int) -> Unit,
+        private val clickedForm: (patientID: String, visitNumber: Int) -> Unit,
 
         ) {
-        fun onClickedVisit(item: AncStatus) = clickedForm(
-            item.benId, item.visitNumber
+        fun onClickedVisit(item: PregnantWomanAncCache) = clickedForm(
+            item.patientID, item.visitNumber
         )
     }
 

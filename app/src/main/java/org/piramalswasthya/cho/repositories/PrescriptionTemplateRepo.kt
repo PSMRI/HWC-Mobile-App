@@ -54,7 +54,6 @@ class PrescriptionTemplateRepo @Inject constructor(
                 responseBody = responseBody,
                 onSuccess = {
                     val responseString = responseBody ?: throw IllegalStateException("Response empty!!!")
-                    Timber.i("doctor data submitted",  responseString)
                     val json = JSONObject(responseString)
                     val data = json.getJSONArray("data").toString()
 
@@ -62,6 +61,7 @@ class PrescriptionTemplateRepo @Inject constructor(
                     list.forEach { it.id = generateUuid()
                     it.deleteStatus = 0
                     }
+                    deleteAllEntities()
                     saveAllPrescriptionTemplateToCache(list)
 
 //
@@ -85,7 +85,6 @@ class PrescriptionTemplateRepo @Inject constructor(
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    Timber.tag("XX").i("${userID} ${tempID}")
                     tempID?.let { prescriptionTemplateDao.delete(it) }
                     NetworkResult.Success(NetworkResponse())
                 },
@@ -106,6 +105,9 @@ class PrescriptionTemplateRepo @Inject constructor(
         } catch (e: Exception){
             Timber.d("Error in saving Template $e")
         }
+    }
+    suspend fun deleteAllEntities() {
+        prescriptionTemplateDao.deleteAll()
     }
 
     suspend fun saveAllPrescriptionTemplateToCache(prescriptionTemplateDB: Array<PrescriptionTemplateDB>) {
@@ -131,16 +133,14 @@ class PrescriptionTemplateRepo @Inject constructor(
     suspend fun callDeleteTemplateFromServer(){
         try {
             var id = userRepo.getLoggedInUser()!!.userId
-            Timber.tag("XX").i("${id}")
             var tempID = prescriptionTemplateDao.getTemplateIdWhichIsDeleted()
-            Timber.tag("XX").i("${id} ${tempID}")
             if (tempID != null) {
                 tempID.forEach {
                     deleteTemplateFromServer(id, it)
                 }
             }
         }catch (e:Exception){
-            Timber.tag("XX").i("${e}")
+            Timber.i("${e}")
         }
     }
     suspend fun markTemplateDelete(selectedString: String){

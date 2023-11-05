@@ -63,12 +63,12 @@ data class PregnantWomenVisitDomain(
 
 }
 
-data class AncStatus(
-    val benId: Long,
-    val visitNumber: Int,
-    val filledWeek: Int,
-    val syncState: SyncState? = null
-)
+//data class AncStatus(
+//    val benId: Long,
+//    val visitNumber: Int,
+//    val filledWeek: Int,
+//    val syncState: SyncState? = null
+//)
 
 enum class AncFormState {
     ALLOW_FILL,

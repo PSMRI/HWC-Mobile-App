@@ -96,6 +96,7 @@
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
+                android:textAllCaps="true"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,6 +118,7 @@
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
+                android:textAllCaps="true"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -137,6 +139,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
+                android:textAllCaps="true"
                 android:drawableEnd="@null"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
