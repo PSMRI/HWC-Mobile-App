@@ -180,6 +180,7 @@
                 android:id="@+id/age"
                 android:layout_width="match_parent"
                 android:textSize="18sp"
+                android:focusable="false"
                 android:maxEms="2"
                 android:maxLength="2"
                 android:imeOptions="actionDone"

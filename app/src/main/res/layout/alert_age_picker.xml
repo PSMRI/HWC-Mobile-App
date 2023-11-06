@@ -88,7 +88,6 @@
             android:id="@+id/btn_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
             android:text="@string/ok"
             android:textColor="?attr/colorOnPrimary"
             app:layout_constraintEnd_toEndOf="parent"

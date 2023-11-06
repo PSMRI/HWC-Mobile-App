@@ -162,6 +162,26 @@ class DateTimeUtil {
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateDateOfBirth(years: Int, months: Int, weeks: Int, days: Int): Date {
+//            val days = when(unit){
+//                AgeUnitEnum.DAYS -> value
+//                AgeUnitEnum.WEEKS -> value*7
+//                AgeUnitEnum.MONTHS -> value*30
+//                AgeUnitEnum.YEARS -> value*365
+//            }
+//
+            val calendar = Calendar.getInstance()
+//            calendar.add(Calendar.DAY_OF_YEAR, -days)
+            calendar.add(Calendar.YEAR, -years)
+            calendar.add(Calendar.MONTH, -months)
+
+            // Subtract weeks and days
+            val totalDaysToSubtract = (weeks * 7) + days
+            calendar.add(Calendar.DAY_OF_YEAR, -totalDaysToSubtract)
+            return calendar.time
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
         fun formatDateToUTC(date: Date): String {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             sdf.timeZone = TimeZone.getTimeZone("UTC")

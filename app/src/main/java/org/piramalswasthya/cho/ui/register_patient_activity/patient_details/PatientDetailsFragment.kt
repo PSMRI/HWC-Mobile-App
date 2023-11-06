@@ -51,6 +51,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @AndroidEntryPoint
 class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
@@ -237,8 +238,30 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }.create()
 
         alertBinding.btnOk.setOnClickListener {
-//            viewModel.resetSelectedHouseholdId()
-//            alert.cancel()
+            viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
+            viewModel.enteredAgeMonths = alertBinding.dialogNumberPickerMonths.value
+            viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
+            viewModel.enteredAgeDays = alertBinding.dialogNumberPickerDays.value
+
+            setAgeToDateOfBirth()
+
+            if(viewModel.enteredAgeYears != 0){
+                viewModel.enteredAge = viewModel.enteredAgeYears
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+            }else if(viewModel.enteredAgeMonths != 0){
+                viewModel.enteredAge = viewModel.enteredAgeMonths
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+            }else if(viewModel.enteredAgeWeeks != 0){
+                viewModel.enteredAge = viewModel.enteredAgeWeeks
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+            }else{
+                viewModel.enteredAge = viewModel.enteredAgeDays
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+            }
+            binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+
+            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+            alert.dismiss()
         }
         alertBinding.btnCancel.setOnClickListener {
             alert.cancel()
@@ -780,11 +803,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
         viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
-        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
-            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
+//        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
+//            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
+            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
+                viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
             binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
 //            setMarriedFieldsVisibility()
-        }
+//        }
         doAgeToDob = true;
     }
 
