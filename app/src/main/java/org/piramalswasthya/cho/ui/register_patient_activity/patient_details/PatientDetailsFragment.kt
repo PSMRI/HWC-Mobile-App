@@ -496,7 +496,26 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setFirstName(isDobFilled) // Update LiveData
+                val upperCaseText = s.toString().toUpperCase()
+                binding.firstName.removeTextChangedListener(this)
+                binding.firstName.setText(upperCaseText)
+                binding.firstName.setSelection(upperCaseText.length)
+                binding.firstName.addTextChangedListener(this)
+                viewModel.setFirstName(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.fatherNameEditText.addTextChangedListener (object :TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
+                val upperCaseText = s.toString().toUpperCase()
+                binding.fatherNameEditText.removeTextChangedListener(this)
+                binding.fatherNameEditText.setText(upperCaseText)
+                binding.fatherNameEditText.setSelection(upperCaseText.length)
+                binding.fatherNameEditText.addTextChangedListener(this)
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -505,8 +524,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setLastName(isDobFilled) // Update LiveData
+                val isDobFilled = s?.isNotEmpty() == true
+                val upperCaseText = s.toString().toUpperCase()
+                binding.lastName.removeTextChangedListener(this)
+                binding.lastName.setText(upperCaseText)
+                binding.lastName.setSelection(upperCaseText.length)
+                binding.lastName.addTextChangedListener(this)
+                viewModel.setLastName(isDobFilled)
             }
 
             override fun afterTextChanged(s: Editable?) {}
