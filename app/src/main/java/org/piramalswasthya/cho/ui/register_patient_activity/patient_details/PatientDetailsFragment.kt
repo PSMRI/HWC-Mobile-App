@@ -259,8 +259,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
             }
             binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
-
             viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+            binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
             alert.dismiss()
         }
         alertBinding.btnCancel.setOnClickListener {
@@ -508,12 +508,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
-        binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
-            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
-            binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
-            setAgeToDateOfBirth()
-        }
+//        binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
+//            viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
+//            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+//            binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
+//            setAgeToDateOfBirth()
+//        }
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
@@ -733,19 +733,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setAdapters(){
-        viewModel.ageUnit.observe(viewLifecycleOwner) { state ->
-            when (state!!){
-                PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
-                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
-                    binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
-                    binding.ageInUnitDropdown.setText("Years",false)
-                }
-                else -> {
-
-                }
-            }
-        }
+//        viewModel.ageUnit.observe(viewLifecycleOwner) { state ->
+//            when (state!!){
+//                PatientDetailsViewModel.NetworkState.SUCCESS -> {
+//                    val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
+//                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
+//                    binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
+//                    binding.ageInUnitDropdown.setText("Years",false)
+//                }
+//                else -> {
+//
+//                }
+//            }
+//        }
         viewModel.villageVal.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
