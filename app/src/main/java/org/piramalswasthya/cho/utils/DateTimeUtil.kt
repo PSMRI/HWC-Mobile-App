@@ -146,7 +146,25 @@ class DateTimeUtil {
             }
             return Age(AgeUnitEnum.DAYS, period.days);
         }
+        fun calculateAgePicker(dateOfBirth: Date): AgePicker {
+            val today = Calendar.getInstance()
+            val birthDate = Calendar.getInstance().apply { time = dateOfBirth }
 
+            var years = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+            var months = today.get(Calendar.MONTH) - birthDate.get(Calendar.MONTH)
+            val days = today.get(Calendar.DAY_OF_MONTH) - birthDate.get(Calendar.DAY_OF_MONTH)
+
+            // Check if the birthdate hasn't occurred yet this year
+            if (months < 0 || (months == 0 && days < 0)) {
+                years--
+                today.add(Calendar.YEAR, -1)
+                months += 12
+            }
+
+            val weeks = (today.timeInMillis - birthDate.timeInMillis) / (7 * 24 * 60 * 60 * 1000)
+
+            return AgePicker(years, months, weeks.toInt(), days)
+        }
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateDateOfBirth(value: Int, unit: AgeUnitEnum): Date {
             val days = when(unit){
@@ -218,6 +236,8 @@ class DateTimeUtil {
     }
 
 }
+    data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
+
 
 data class Age(
     val unit: AgeUnitEnum,

@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -210,6 +211,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.age.setOnClickListener {
+            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_years)?.value = viewModel.enteredAgeYears!!
+            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_months)?.value = viewModel.enteredAgeMonths!!
+            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_weeks)?.value = viewModel.enteredAgeWeeks!!
+            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_days)?.value = viewModel.enteredAgeDays!!
             ageAlertDialog.show()
         }
 
@@ -229,13 +234,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         alertBinding.dialogNumberPickerDays.minValue = 0
         alertBinding.dialogNumberPickerDays.maxValue = 6
 
+//        alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
+//        alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
+//        alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
+//        alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
+
         val alert = MaterialAlertDialogBuilder(requireContext()).setView(alertBinding.root)
-            .setOnCancelListener {
-//                viewModel.resetSelectedHouseholdId()
-//                alertBinding.rgGender.clearCheck()
-//                addBenAlertBinding.linearLayout4.visibility = View.GONE
-//                addBenAlertBinding.actvRth.text = null
-            }.create()
+                    .create()
+
+
 
         alertBinding.btnOk.setOnClickListener {
             viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
@@ -814,17 +821,55 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
 
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun setDateOfBirthToAge(date: Date){
+//        val age = DateTimeUtil.calculateAge(date);
+//        viewModel.enteredAge = age.value
+//        viewModel.selectedDateOfBirth = date
+//        viewModel.selectedAgeUnitEnum = age.unit
+//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
+//        doAgeToDob = false;
+//        binding.age.setText(age.value.toString())
+//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+//        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
+//    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
-        val age = DateTimeUtil.calculateAge(date);
-        viewModel.enteredAge = age.value
+        val age = DateTimeUtil.calculateAgePicker(date);
+//        viewModel.enteredAge = age.value
+        viewModel.enteredAgeYears = age.years
+        viewModel.enteredAgeMonths = age.months
+        viewModel.enteredAgeWeeks = age.weeks
+        viewModel.enteredAgeDays = age.days
+
+
+
+        if(viewModel.enteredAgeYears != 0){
+            viewModel.enteredAge = viewModel.enteredAgeYears
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+        }else if(viewModel.enteredAgeMonths != 0){
+            viewModel.enteredAge = viewModel.enteredAgeMonths
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+        }else if(viewModel.enteredAgeWeeks != 0){
+            viewModel.enteredAge = viewModel.enteredAgeWeeks
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+        }else{
+            viewModel.enteredAge = viewModel.enteredAgeDays
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+        }
+        binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+        viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
+
         viewModel.selectedDateOfBirth = date
-        viewModel.selectedAgeUnitEnum = age.unit
-        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
+//        viewModel.selectedAgeUnitEnum = age.unit
+//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
         doAgeToDob = false;
-        binding.age.setText(age.value.toString())
-        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+//        binding.age.setText(age.value.toString())
+//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
