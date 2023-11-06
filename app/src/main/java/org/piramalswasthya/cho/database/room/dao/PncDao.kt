@@ -15,7 +15,7 @@ interface PncDao {
     suspend fun getSavedRecord(patientID: String, visitNumber: Int): PNCVisitCache?
 
     @Query("select pncPeriod from pnc_visit where patientID = :patientID order by pncPeriod desc limit 1")
-    fun getLastVisitNumber(patientID: String): LiveData<Int?>
+    suspend fun getLastVisitNumber(patientID: String): Int?
 
     @Query("select * from pnc_visit where patientID = :patientID and isActive = 1 order by pncPeriod desc limit 1")
     suspend fun getLastSavedRecord(patientID: String): PNCVisitCache?
@@ -28,8 +28,12 @@ interface PncDao {
 
     @Update
     suspend fun update(vararg pnc: PNCVisitCache)
+
     @Query("select * from pnc_visit where patientID in (:eligBenIds) and isActive = 1")
     suspend fun getAllPNCs(eligBenIds: Set<String>): List<PNCVisitCache>
+
+    @Query("select * from pnc_visit where patientID = :patientID and isActive = 1")
+    fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
 
 
 }

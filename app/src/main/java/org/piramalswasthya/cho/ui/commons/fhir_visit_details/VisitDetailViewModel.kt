@@ -15,6 +15,8 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
+import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
@@ -101,42 +103,69 @@ class VisitDetailViewModel @Inject constructor(
     val boolCall: LiveData<Boolean>
         get() = _boolCall
 
+    var lastAncVisitNumber = MutableLiveData<Int?>(null)
+
+    var allActiveAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
+
+    var activePwrRecord = MutableLiveData<PregnantWomanRegistrationCache?>(null)
+
+    var lastPncVisitNumber = MutableLiveData<Int?>(null)
+
+    var allActivePncRecords = MutableLiveData<List<PNCVisitCache>?>()
+
+    var activeDeliveryRecord = MutableLiveData<DeliveryOutcomeCache?>(null)
+
+
     init {
         _subCatVisitList = MutableLiveData()
         _chiefComplaintMaster = MutableStateFlow(emptyList())
         getSubCatVisitList()
         getChiefMasterComplaintList()
     }
-        fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
-                              patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
-            viewModelScope.launch {
-                try {
-                    saveVisitDbToCatche(visitDB)
-                    chiefComplaints.forEach {
-                        saveChiefComplaintDbToCatche(it)
-                    }
-                    savePatientVitalInfoToCache(patientVitals)
-                    savePatientVisitInfoSync(patientVisitInfoSync)
-                    _isDataSaved.value = true
-                } catch (e: Exception){
-                    _isDataSaved.value = false
+
+    fun init(patientID: String){
+        viewModelScope.launch {
+            lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
+            allActiveAncRecords.value = getAllActiveAncRecords(patientID)
+            activePwrRecord.value = getSavedActiveRecordObserve(patientID)
+
+            lastPncVisitNumber.value = getLastPncVisitNumber(patientID)
+            allActivePncRecords.value = getAllPNCsByPatId(patientID)
+            activeDeliveryRecord.value = getDeliveryOutcome(patientID)
+        }
+    }
+
+    fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
+                          patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
+        viewModelScope.launch {
+            try {
+                saveVisitDbToCatche(visitDB)
+                chiefComplaints.forEach {
+                    saveChiefComplaintDbToCatche(it)
                 }
+                savePatientVitalInfoToCache(patientVitals)
+                savePatientVisitInfoSync(patientVisitInfoSync)
+                _isDataSaved.value = true
+            } catch (e: Exception){
+                _isDataSaved.value = false
             }
         }
+    }
+
     suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
     }
 
-    fun getLastVisitNumber(benId: String): LiveData<Int?> {
+    suspend fun getLastAncVisitNumber(benId: String): Int? {
         return maternalHealthRepo.getLastVisitNumber(benId)
     }
 
-    fun getLastPncVisitNumber(benId: String): LiveData<Int?> {
+    suspend fun getLastPncVisitNumber(benId: String): Int? {
         return pncRepo.getLastVisitNumber(benId)
     }
 
-    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
-        return maternalHealthRepo.getSavedActiveRecordObserve(benId)
+    suspend fun getSavedActiveRecordObserve(benId: String): PregnantWomanRegistrationCache? {
+        return maternalHealthRepo.getSavedRegistrationRecord(benId)
     }
 
     fun savePregnantWomanRegistration(benId: String, lmpDate: Date) {
@@ -154,8 +183,8 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
-    fun getDeliveryOutcomeObserve(benId: String): LiveData<DeliveryOutcomeCache?> {
-        return deliveryOutcomeRepo.getDeliveryOutcomeObserve(benId)
+    suspend fun getDeliveryOutcome(benId: String): DeliveryOutcomeCache? {
+        return deliveryOutcomeRepo.getDeliveryOutcome(benId)
     }
 
     fun saveDeliveryOutcome(benId: String, deliveryDate: Date) {
@@ -174,8 +203,12 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
-    fun getAllActiveAncRecordsObserve(benId: String): LiveData<List<PregnantWomanAncCache>> {
-        return maternalHealthRepo.getAllActiveAncRecordsObserve(benId)
+    suspend fun getAllActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
+        return maternalHealthRepo.getAllActiveAncRecords(benId)
+    }
+
+    fun getAllPNCsByPatId(benId: String): List<PNCVisitCache> {
+        return pncRepo.getAllPNCsByPatId(benId)
     }
 
     suspend fun savePatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync){

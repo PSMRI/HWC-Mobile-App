@@ -38,7 +38,7 @@ class PncRepo @Inject constructor(
         }
     }
 
-    fun getLastVisitNumber(patientID: String): LiveData<Int?> {
+    suspend fun getLastVisitNumber(patientID: String): Int? {
         return pncDao.getLastVisitNumber(patientID)
     }
 
@@ -47,6 +47,10 @@ class PncRepo @Inject constructor(
             pncDao.insert(pncCache)
         }
 
+    }
+
+    fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>{
+        return pncDao.getAllPNCsByPatId(patientID)
     }
 
     suspend fun processPncVisits(): Boolean {
