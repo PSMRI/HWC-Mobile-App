@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
@@ -22,7 +23,17 @@ class CHOApplication : Application(), Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 
+    val activityList = mutableListOf<Activity>()
 
+    fun addActivity(activity: Activity) {
+        activityList.add(activity)
+    }
+
+    fun closeAllActivities() {
+        for (activity in activityList) {
+            activity.finish()
+        }
+    }
 //    private var dataCaptureConfig: DataCaptureConfig? = DataCaptureConfig(xFhirQueryResolver = {fhirEngine.search(it) })
 
     override fun onCreate() {

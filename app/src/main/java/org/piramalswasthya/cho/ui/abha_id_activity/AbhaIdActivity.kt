@@ -15,6 +15,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityAbhaIdBinding
@@ -64,6 +65,7 @@ class AbhaIdActivity : AppCompatActivity() {
         _binding = ActivityAbhaIdBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpActionBar()
+        (application as CHOApplication).addActivity(this)
 
         mainViewModel.state.observe(this) { state ->
             when (state) {
@@ -169,6 +171,7 @@ class AbhaIdActivity : AppCompatActivity() {
         intent.removeExtra("benId")
         intent.removeExtra("benRegId")
         countDownTimer?.cancel()
+        (application as CHOApplication).activityList.remove(this)
     }
     fun formatMilliseconds(milliseconds: Long): String {
         val seconds = milliseconds / 1000

@@ -17,12 +17,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.util.*
 import javax.inject.Inject
@@ -67,23 +69,24 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
         print("app started")
         setUpActionBar()
-
-
+        (application as CHOApplication).addActivity(this)
         lifecycleScope.launch {
             try {
-//                val isLoggedIn = userRepo.isUserLoggedIn() // Assuming this function returns 1 or 0
                 if (userRepo.getLoggedInUser()!=null) {
                     showDashboard = true
                     val intent = Intent(this@LoginActivity, HomeActivity::class.java)
                     intent.putExtra("showDashboard", showDashboard)
                     startActivity(intent)
-//                    WorkerUtils.scheduleAutoLogoutWorker(this@LoginActivity)
                     finish()
                 }
             }catch (e:Exception){
                 Log.d("Failed to get Login flag","${e}")
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        (application as CHOApplication).activityList.remove(this)
     }
 
     private fun setUpActionBar() {
