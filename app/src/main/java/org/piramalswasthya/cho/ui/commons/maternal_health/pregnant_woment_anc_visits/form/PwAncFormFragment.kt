@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -37,6 +38,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     val jsonFile = "patient-visit-details-paginated.json"
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -47,10 +49,15 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if(viewModel.isOldVisit){
+            val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+            btnSubmit?.visibility = View.GONE
+        }
+
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
                 binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
+//                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
@@ -74,9 +81,9 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
-        binding.btnSubmit.setOnClickListener {
-            submitAncForm()
-        }
+//        binding.btnSubmit.setOnClickListener {
+//            submitAncForm()
+//        }
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }

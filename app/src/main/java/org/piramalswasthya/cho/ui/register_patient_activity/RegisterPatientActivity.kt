@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
@@ -52,6 +53,7 @@ class RegisterPatientActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityRegisterPatientBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        (application as CHOApplication).addActivity(this)
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
 
@@ -94,5 +96,8 @@ class RegisterPatientActivity : AppCompatActivity() {
     override fun onBackPressed() {
         finish()
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        (application as CHOApplication).activityList.remove(this)
+    }
 }

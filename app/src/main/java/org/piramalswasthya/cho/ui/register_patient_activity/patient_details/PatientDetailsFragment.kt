@@ -284,6 +284,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             }
                         }
                     }
+                    if(!userData.mobileNumber.isNullOrEmpty()){
+                        binding.phoneNo.setText(userData.mobileNumber)
+                    }
                 }
             }
         }
@@ -300,6 +303,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         var name = ""
         var gender = ""
         var dateOfBirth = ""
+        var mobileNumber = ""
         try {
             while (xml.eventType != XmlPullParser.END_DOCUMENT) {
                 when (xml.eventType) {
@@ -308,6 +312,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             "QPDB" -> {
                                 name = xml.getAttributeValue(null, "n")
                                 gender = xml.getAttributeValue(null, "g")
+                                mobileNumber = xml.getAttributeValue(null, "m")
                                 dateOfBirth = xml.getAttributeValue(null, "d")
                             }
 
@@ -327,7 +332,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }catch (e:Exception){
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
-            return PatientAadhaarDetails(name, gender, dateOfBirth)
+            return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
@@ -491,7 +496,26 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setFirstName(isDobFilled) // Update LiveData
+                val upperCaseText = s.toString().toUpperCase()
+                binding.firstName.removeTextChangedListener(this)
+                binding.firstName.setText(upperCaseText)
+                binding.firstName.setSelection(upperCaseText.length)
+                binding.firstName.addTextChangedListener(this)
+                viewModel.setFirstName(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.fatherNameEditText.addTextChangedListener (object :TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
+                val upperCaseText = s.toString().toUpperCase()
+                binding.fatherNameEditText.removeTextChangedListener(this)
+                binding.fatherNameEditText.setText(upperCaseText)
+                binding.fatherNameEditText.setSelection(upperCaseText.length)
+                binding.fatherNameEditText.addTextChangedListener(this)
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -500,8 +524,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setLastName(isDobFilled) // Update LiveData
+                val isDobFilled = s?.isNotEmpty() == true
+                val upperCaseText = s.toString().toUpperCase()
+                binding.lastName.removeTextChangedListener(this)
+                binding.lastName.setText(upperCaseText)
+                binding.lastName.setSelection(upperCaseText.length)
+                binding.lastName.addTextChangedListener(this)
+                viewModel.setLastName(isDobFilled)
             }
 
             override fun afterTextChanged(s: Editable?) {}

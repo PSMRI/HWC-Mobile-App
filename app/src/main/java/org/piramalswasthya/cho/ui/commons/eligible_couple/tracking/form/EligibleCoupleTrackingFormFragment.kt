@@ -56,7 +56,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         hardCodedListUpdate(formId)
                     }, isEnabled = !recordExists
                 )
-                binding.btnSubmit.isEnabled = !recordExists
+//                binding.btnSubmit.isEnabled = !recordExists
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {
                     viewModel.formList.collect {
@@ -73,9 +73,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
-        binding.btnSubmit.setOnClickListener {
-            submitEligibleTrackingForm()
-        }
+//        binding.btnSubmit.setOnClickListener {
+//            submitEligibleTrackingForm()
+//        }
 
         viewModel.state.observe(viewLifecycleOwner) {
             when (it) {

@@ -91,15 +91,15 @@ class PncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-//            val outcomeRecord = deliveryOutcomeRepo.getDeliveryOutcome(patientID)!!
-            val outcomeRecord = DeliveryOutcomeCache(
-                patientID = patientID,
-                isActive = false,
-                createdBy = asha.userName,
-                updatedBy = asha.userName,
-                dateOfDelivery = millis,
-                syncState = SyncState.UNSYNCED
-            )
+            val outcomeRecord = deliveryOutcomeRepo.getDeliveryOutcome(patientID)!!
+//            val outcomeRecord = DeliveryOutcomeCache(
+//                patientID = patientID,
+//                isActive = false,
+//                createdBy = asha.userName,
+//                updatedBy = asha.userName,
+//                dateOfDelivery = millis,
+//                syncState = SyncState.UNSYNCED
+//            )
             pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
                 pncCache = it
                 _recordExists.value = true

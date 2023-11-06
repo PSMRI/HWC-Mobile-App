@@ -59,9 +59,9 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
-        binding.btnSubmit.setOnClickListener {
-            submitImmForm()
-        }
+//        binding.btnSubmit.setOnClickListener {
+//            submitImmForm()
+//        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -100,7 +100,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
+//                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
                 binding.fabEdit.visibility = if (recordExists) View.VISIBLE else View.GONE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->

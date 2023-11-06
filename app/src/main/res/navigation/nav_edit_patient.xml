@@ -122,6 +122,9 @@
         <argument
             android:name="visitNumber"
             app:argType="integer" />
+        <argument
+            android:name="isOldVisit"
+            app:argType="boolean" />
     </fragment>
 
     <fragment

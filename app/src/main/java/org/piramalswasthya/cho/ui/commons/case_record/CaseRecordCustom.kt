@@ -3,7 +3,9 @@ package org.piramalswasthya.cho.ui.commons.case_record
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +56,7 @@ import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
+import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.frequencyMap
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicationFrequencyList
@@ -151,7 +154,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
                 var  nameVal = ""
                 var resultVal = ""
-               if (labReports.size>0){
+                for (labReport in labReports) {
+                    val procedureType = labReport.procedure.procedureName
+                    procedureType?.let { viewModel.labReportProcedureTypes.add(it) }
+                }
+
+                if (labReports.size>0){
                    binding.scrollview.visibility = View.VISIBLE
                    binding.resultHeading.visibility = View.VISIBLE
                    binding.dateOption.visibility = View.VISIBLE
@@ -181,6 +189,28 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         }
+        binding.inputTestName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed, but must be implemented
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Not needed, but must be implemented
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (!s.isNullOrBlank()) {
+                    val text = s.toString()
+                    val capitalizedText = text.substring(0, 1).toUpperCase() + text.substring(1)
+                    if (text != capitalizedText) {
+                        binding.inputTestName.removeTextChangedListener(this) // Avoid infinite loop
+                        binding.inputTestName.setText(capitalizedText)
+                        binding.inputTestName.setSelection(capitalizedText.length) // Set cursor position to the end
+                        binding.inputTestName.addTextChangedListener(this) // Add the listener back
+                    }
+                }
+            }
+        })
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }
@@ -276,11 +306,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         val tempAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         val uniqueTemplateNames = HashSet<String?>()
-
         binding.inputUseTempForFields.setAdapter(tempAdapter)
 
         viewModel.tempDB.observe(viewLifecycleOwner) { vc ->
             uniqueTemplateNames.clear()
+            uniqueTemplateNames.add("None")
             vc.mapTo(uniqueTemplateNames) { it?.templateName }
             tempAdapter.clear()
             tempAdapter.addAll(uniqueTemplateNames)
@@ -291,12 +321,20 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             itemListP.clear()
             pAdapter.notifyDataSetChanged()
             val selectedString = parent.getItemAtPosition(position) as String
-          lifecycleScope.launch {
-              val selectedTemplates = viewModel.getTemplatesByTemplateName(selectedString)
-              convertToPrescriptionValues(selectedTemplates)
-          }
-            val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
-            inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
+            if (selectedString == "None") {
+                itemListP.clear()
+                itemListP.add(PrescriptionValues())
+                pAdapter.notifyDataSetChanged()
+                val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
+                inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
+            } else {
+                itemListP.clear()
+                pAdapter.notifyDataSetChanged()
+                lifecycleScope.launch {
+                    val selectedTemplates = viewModel.getTemplatesByTemplateName(selectedString)
+                    convertToPrescriptionValues(selectedTemplates)
+                }
+            }
         }
 
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
@@ -308,15 +346,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             procedureDropdown.clear()
             procedureDropdown.addAll(f)
             familyM!!.setOnClickListener {
-                showDialogWithFamilyMembers(procedureDropdown)
+                showDialogWithFamilyMembers(procedureDropdown, viewModel.labReportProcedureTypes)
             }
         }
         binding.saveTemplate.setOnClickListener {
-            saveTemp()
-            binding.saveTemplate.isEnabled = false
-            binding.saveTemplate.alpha = 0.5f
+            saveTemp(uniqueTemplateNames)
         }
         binding.deleteTemp.setOnClickListener {
+
             tempAdapter.notifyDataSetChanged()
             openBottomSheet(uniqueTemplateNames)
         }
@@ -435,6 +472,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     itemListP.add(prescriptionValue)
                 }
             }
+            val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
+            inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
     }
     private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
     private fun openBottomSheet(str: HashSet<String?>) {
@@ -615,8 +654,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
 
-    private fun showDialogWithFamilyMembers(proceduresMasterData: List<ProceduresMasterData>) {
+    private fun showDialogWithFamilyMembers(
+        proceduresMasterData: List<ProceduresMasterData>,
+        labReportProcedureTypes: List<String>
+    ) {
         val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
+
+        val disabledItems = labReportProcedureTypes.map { type ->
+            proceduresMasterData.indexOfFirst { it.procedureName == type }
+        }.toSet().toTypedArray()
 
         val builder = AlertDialog.Builder(requireContext())
             .setTitle("Select Test Name")
@@ -626,7 +672,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 selectedItems
             ) { _, which, isChecked ->
                 if (isChecked) {
-                    selectedTestName.add(which)
+                    if (!disabledItems.contains(which)) {
+                        selectedTestName.add(which)
+                    } else {
+                        Toast.makeText(requireContext(), "Test with result cannot be selected", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     selectedTestName.remove(which)
                 }
@@ -650,6 +700,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val alertDialog = builder.create()
         alertDialog.show()
     }
+
+
     fun isAnyItemEmptyD(): Boolean {
         for (item in itemListD) {
             if (item.diagnosis.isEmpty()) {
@@ -761,7 +813,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             benVisitNo = benVisitNo
         )
 
-
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
         for (i in 0 until itemListP.size) {
             val prescriptionData = itemListP[i]
@@ -771,11 +822,17 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
 
+
             if (formVal != null) {
+                val frequencyDescription = frequencyMap[freqVal]
+                var mappedFrequency: String? = null
+                if (frequencyDescription != null) {
+                    mappedFrequency = frequencyDescription
+                }
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
                     itemId = formVal,
-                    frequency = freqVal,
+                    frequency = mappedFrequency,
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
@@ -857,15 +914,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
             var instruction = prescriptionData.instruction.nullIfEmpty()
-
             if (formVal != null) {
+                val frequencyDescription = frequencyMap[freqVal]
+                var mappedFrequency: String? = null
+                if (frequencyDescription != null) {
+                    mappedFrequency = frequencyDescription
+                }
                 var pres = PrescriptionCaseRecord(
                     prescriptionCaseRecordId = generateUuid(),
                     itemId = formVal,
-                    frequency = freqVal,
+                    frequency = mappedFrequency,
                     duration = durVal,
                     instruciton = instruction,
-                    unit = unitVal?:"Days",
+                    unit = unitVal?:"Day(s)",
                     patientID =patId,
                     benVisitNo = benVisitNo
                 )
@@ -882,15 +943,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         viewModel.saveDoctorData(diagnosisList, investigation, prescriptionList, benVisitInfo, doctorFlag)
 
     }
-    fun saveTemp(){
+    fun saveTemp(uniqueTemplateNames: HashSet<String?>) {
         var tempNameVal = binding.inputTestName.text.toString()
         if(tempNameVal==null || tempNameVal.equals("null")|| tempNameVal.equals("")){
             requireActivity().runOnUiThread {
             Toast.makeText(requireContext(), resources.getString(R.string.template_null), Toast.LENGTH_SHORT).show()
             }
         }else {
-            val isNameExists = tempDBVal.any { it?.templateName == tempNameVal }
-            if (isNameExists) {
+            if (uniqueTemplateNames.contains(binding.inputTestName.text.toString())) {
                 requireActivity().runOnUiThread {
                     Toast.makeText(
                         requireContext(),
@@ -899,47 +959,64 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     ).show()
                 }
             } else {
-                val tempId = generateIntFromUuid()
-                val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
-                for (i in 0 until itemListP.size) {
-                    val prescriptionTemp = itemListP[i]
-                    var formName = prescriptionTemp.form
-                    var formVal = prescriptionTemp.id
-                    var freqVal = prescriptionTemp.frequency.nullIfEmpty()
-                    var unitVal = prescriptionTemp.unit.nullIfEmpty()
-                    var durVal = prescriptionTemp.duration.nullIfEmpty()
-                    var instruction = prescriptionTemp.instruction.nullIfEmpty()
+                val isNameExists = tempDBVal.any { it?.templateName == tempNameVal }
+                if (isNameExists) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.templte_exists),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    val tempId = generateIntFromUuid()
+                    val prescriptionTempList = mutableListOf<PrescriptionTemplateDB>();
+                    for (i in 0 until itemListP.size) {
+                        val prescriptionTemp = itemListP[i]
+                        var formName = prescriptionTemp.form
+                        var formVal = prescriptionTemp.id
+                        var freqVal = prescriptionTemp.frequency.nullIfEmpty()
+                        var unitVal = prescriptionTemp.unit.nullIfEmpty()
+                        var durVal = prescriptionTemp.duration.nullIfEmpty()
+                        var instruction = prescriptionTemp.instruction.nullIfEmpty()
 
-                    if (formVal != null) {
-                        var pres = viewModel.userIDVAl?.let {
-                            PrescriptionTemplateDB(
-                                id = generateUuid(),
-                                tempID = tempId,
-                                templateName = tempNameVal,
-                                userID = it,
-                                drugName = formName,
-                                drugId = formVal,
-                                frequency = freqVal,
-                                duration = durVal,
-                                unit = unitVal?:"Days",
-                                instruction = instruction,
-                                deleteStatus = 0
-                            )
-                        }
-                        if (pres != null) {
-                            prescriptionTempList.add(pres)
-                        }
-                        Timber.tag("arr").i("${pres}")
-                        if (pres != null) {
-                            viewModel.savePrescriptionTemp(pres)
+                        if (formVal != null) {
+                            var pres = viewModel.userIDVAl?.let {
+                                PrescriptionTemplateDB(
+                                    id = generateUuid(),
+                                    tempID = tempId,
+                                    templateName = tempNameVal,
+                                    userID = it,
+                                    drugName = formName,
+                                    drugId = formVal,
+                                    frequency = freqVal,
+                                    duration = durVal,
+                                    unit = unitVal ?: "Days",
+                                    instruction = instruction,
+                                    deleteStatus = 0
+                                )
+                            }
+                            if (pres != null) {
+                                prescriptionTempList.add(pres)
+                            }
+                            Timber.tag("arr").i("${pres}")
+                            if (pres != null) {
+                                viewModel.savePrescriptionTemp(pres)
+                            }
                         }
                     }
-                }
-                if (prescriptionTempList != null) {
-                    viewModel.savePrescriptionTempToServer(prescriptionTempList)
-                }
-                requireActivity().runOnUiThread {
-                    Toast.makeText(requireContext(), resources.getString(R.string.template_save), Toast.LENGTH_SHORT).show()
+                    if (prescriptionTempList != null) {
+                        viewModel.savePrescriptionTempToServer(prescriptionTempList)
+                    }
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.template_save),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    binding.saveTemplate.isEnabled = false
+                    binding.saveTemplate.alpha = 0.5f
                 }
             }
         }
