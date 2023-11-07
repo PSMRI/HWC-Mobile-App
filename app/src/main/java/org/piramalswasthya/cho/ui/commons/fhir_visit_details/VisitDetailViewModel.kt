@@ -15,6 +15,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -25,6 +26,7 @@ import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
+import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
@@ -49,6 +51,7 @@ class VisitDetailViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val pncRepo: PncRepo,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
+    private val ecrRepo: EcrRepo,
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -115,6 +118,7 @@ class VisitDetailViewModel @Inject constructor(
 
     var activeDeliveryRecord = MutableLiveData<DeliveryOutcomeCache?>(null)
 
+    var allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
 
     init {
         _subCatVisitList = MutableLiveData()
@@ -132,6 +136,8 @@ class VisitDetailViewModel @Inject constructor(
             lastPncVisitNumber.value = getLastPncVisitNumber(patientID)
             allActivePncRecords.value = getAllPNCsByPatId(patientID)
             activeDeliveryRecord.value = getDeliveryOutcome(patientID)
+
+            allEctRecords.value = getAllECT(patientID)
         }
     }
 
@@ -187,6 +193,10 @@ class VisitDetailViewModel @Inject constructor(
         return deliveryOutcomeRepo.getDeliveryOutcome(benId)
     }
 
+    suspend fun getAllECT(benId: String): List<EligibleCoupleTrackingCache> {
+        return ecrRepo.getAllECT(benId)
+    }
+
     fun saveDeliveryOutcome(benId: String, deliveryDate: Date) {
         viewModelScope.launch {
             val user = userRepo.getLoggedInUser()!!
@@ -207,7 +217,7 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getAllActiveAncRecords(benId)
     }
 
-    fun getAllPNCsByPatId(benId: String): List<PNCVisitCache> {
+    suspend fun getAllPNCsByPatId(benId: String): List<PNCVisitCache> {
         return pncRepo.getAllPNCsByPatId(benId)
     }
 

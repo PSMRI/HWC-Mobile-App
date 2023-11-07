@@ -14,6 +14,10 @@ interface EcrDao {
 //
     @Query("SELECT * FROM ELIGIBLE_COUPLE_TRACKING WHERE processed in ('N','U')")
     suspend fun getAllUnprocessedECT(): List<EligibleCoupleTrackingCache>
+
+    @Query("SELECT * FROM ELIGIBLE_COUPLE_TRACKING WHERE patientID = :benId")
+    suspend fun getAllECT(benId: String): List<EligibleCoupleTrackingCache>
+
 //
 //    @Query("select count(*) from ELIGIBLE_COUPLE_REG")
 //    suspend fun ecrCount(): Int
@@ -27,9 +31,9 @@ interface EcrDao {
     @Update
     suspend fun updateEligibleCoupleTracking(it: EligibleCoupleTrackingCache)
 
-    @Query("select * from eligible_couple_tracking where patientID = :patientID and createdDate =:createdDate limit 1")
+    @Query("select * from eligible_couple_tracking where patientID = :patientID and visitDate =:visitDate limit 1")
 //    @Query("select * from eligible_couple_tracking where benId = :benId and CAST((strftime('%s','now') - visitDate/1000)/60/60/24 AS INTEGER) < 30 order by visitDate limit 1")
-    fun getEct(patientID: String, createdDate : Long): EligibleCoupleTrackingCache?
+    fun getEct(patientID: String, visitDate : Long): EligibleCoupleTrackingCache?
 
     @Query("select * from eligible_couple_tracking where patientID = :patientID order by visitDate desc limit 1")
     suspend fun getLatestEct(patientID: String) : EligibleCoupleTrackingCache?

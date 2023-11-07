@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AncVisitAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
+import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.adapter.PncVisitAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.SyncState
@@ -265,6 +266,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.deliveryDate.visibility = View.GONE
         binding.rvAnc.visibility = View.GONE
         binding.rvPnc.visibility = View.GONE
+        binding.rvEct.visibility = View.GONE
     }
 
     fun setVisibility(){
@@ -274,12 +276,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.deliveryDate.visibility = View.GONE
             binding.rvAnc.visibility = View.VISIBLE
             binding.rvPnc.visibility = View.GONE
+            binding.rvEct.visibility = View.GONE
         }
         else if(reasonForVisit == DropdownConst.pnc){
             binding.lmpDate.visibility = View.GONE
             binding.deliveryDate.visibility = View.VISIBLE
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.VISIBLE
+            binding.rvEct.visibility = View.GONE
+
+        }
+        else if(reasonForVisit == DropdownConst.fpAndCs){
+            binding.lmpDate.visibility = View.GONE
+            binding.deliveryDate.visibility = View.GONE
+            binding.rvAnc.visibility = View.GONE
+            binding.rvPnc.visibility = View.GONE
+            binding.rvEct.visibility = View.VISIBLE
         }
     }
 
@@ -383,6 +395,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     }
                 }
             }
+            else if(subCat == DropdownConst.fpAndCs){
+                binding.rvEct.visibility = View.VISIBLE
+//                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+//                    if(it == null && deliveryDate == null){
+//                        binding.deliveryDate.visibility = View.VISIBLE
+//                    }
+//                }
+            }
         }
 
 
@@ -432,6 +452,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
         }
 
+        viewModel.allEctRecords.observe(viewLifecycleOwner){
+            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
+        }
+
         viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
             lastAncVisit = it ?: 0
         }
@@ -450,6 +474,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
                         benId, visitNumber
+                    )
+                )
+            })
+
+        binding.rvEct.adapter =
+            ECTrackingAdapter(ECTrackingAdapter.ECTrackViewClickListener { benId, createdDate ->
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+                        patientID = benId, createdDate = createdDate
                     )
                 )
             })

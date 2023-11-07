@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -52,6 +53,10 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
                 binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
+                if(recordExists){
+                    val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+                    btnSubmit?.visibility = View.GONE
+                }
 //                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->

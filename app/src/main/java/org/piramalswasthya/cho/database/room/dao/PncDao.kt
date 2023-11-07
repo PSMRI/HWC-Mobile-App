@@ -33,7 +33,7 @@ interface PncDao {
     suspend fun getAllPNCs(eligBenIds: Set<String>): List<PNCVisitCache>
 
     @Query("select * from pnc_visit where patientID = :patientID and isActive = 1")
-    fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
+    suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
 
 
 }

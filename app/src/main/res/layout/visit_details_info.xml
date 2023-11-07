@@ -205,14 +205,24 @@
             tools:itemCount="4"
             tools:listitem="@layout/rv_item_pregnancy_anc" />
 
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_ect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="@+id/layyy"
+            app:layout_constraintStart_toStartOf="@+id/layyy"
+            app:layout_constraintTop_toBottomOf="@+id/rv_pnc"
+            tools:itemCount="4"
+            tools:listitem="@layout/rv_item_pregnancy_anc" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layyy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="6dp"
-            app:layout_constraintTop_toBottomOf="@+id/rv_pnc">
+            app:layout_constraintTop_toBottomOf="@+id/rv_ect">
 
             <LinearLayout
                 android:id="@+id/chiefComplaintExtra"

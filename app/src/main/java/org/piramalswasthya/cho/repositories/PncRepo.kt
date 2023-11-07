@@ -49,7 +49,7 @@ class PncRepo @Inject constructor(
 
     }
 
-    fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>{
+    suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>{
         return pncDao.getAllPNCsByPatId(patientID)
     }
 

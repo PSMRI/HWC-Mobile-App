@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -95,6 +96,9 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
             val pastTrack = ecrRepo.getLatestEctByBenId(patientID)
 
+            Log.d("patient Id is ", patientID)
+            Log.d("createdDate is ", createdDate.toString())
+
             ecrRepo.getEct(patientID, createdDate)?.let {
                 eligibleCoupleTracking = it
                 _recordExists.value = true
@@ -102,12 +106,14 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                 _recordExists.value = false
             }
 
+
             dataset.setUpPage(
                 ben,
-                0,
+                pastTrack?.visitDate ?: 0,
                 pastTrack,
                 if (recordExists.value == true) eligibleCoupleTracking else null
             )
+
 
 //            ecrRepo.getSavedRecord(patientID)?.let {
 //                dataset.setUpPage(
