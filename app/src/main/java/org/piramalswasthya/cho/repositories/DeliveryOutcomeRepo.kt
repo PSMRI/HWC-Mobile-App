@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,12 +36,16 @@ class DeliveryOutcomeRepo @Inject constructor(
             deliveryOutcomeDao.getDeliveryOutcome(patientID)
         }
     }
-//
-//    suspend fun saveDeliveryOutcome(deliveryOutcomeCache: DeliveryOutcomeCache) {
-//        withContext(Dispatchers.IO) {
-//            deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
-//        }
-//    }
+
+    fun getDeliveryOutcomeObserve(patientID: String): LiveData<DeliveryOutcomeCache?> {
+        return deliveryOutcomeDao.getDeliveryOutcomeObserve(patientID)
+    }
+
+    suspend fun saveDeliveryOutcome(deliveryOutcomeCache: DeliveryOutcomeCache) {
+        withContext(Dispatchers.IO) {
+            deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
+        }
+    }
 //
 //    suspend fun processNewDeliveryOutcome(): Boolean {
 //        return withContext(Dispatchers.IO) {
