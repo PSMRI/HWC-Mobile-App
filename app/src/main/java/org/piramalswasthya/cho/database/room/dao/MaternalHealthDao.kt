@@ -19,6 +19,9 @@ interface MaternalHealthDao {
 //    @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
 //    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?>
 
+    @Query("select * from pregnancy_anc where patientID = :patientID order by ancDate desc limit 1")
+    suspend fun getLastAnc(patientID: String): PregnantWomanAncCache?
+
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
     suspend fun getLastVisitNumber(patientID: String): Int?
 

@@ -83,6 +83,10 @@ class MaternalHealthRepo @Inject constructor(
          return maternalHealthDao.getAllActiveAncRecords(benId)
     }
 
+    suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthDao.getLastAnc(benId)
+    }
+
     suspend fun persistRegisterRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache) {
         withContext(Dispatchers.IO) {
             maternalHealthDao.saveRecord(pregnancyRegistrationForm)

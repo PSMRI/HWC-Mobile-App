@@ -120,6 +120,10 @@ class VisitDetailViewModel @Inject constructor(
 
     var allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
 
+    var lastAnc = MutableLiveData<PregnantWomanAncCache?>()
+
+    var lastEct = MutableLiveData<EligibleCoupleTrackingCache?>()
+
     init {
         _subCatVisitList = MutableLiveData()
         _chiefComplaintMaster = MutableStateFlow(emptyList())
@@ -138,6 +142,8 @@ class VisitDetailViewModel @Inject constructor(
             activeDeliveryRecord.value = getDeliveryOutcome(patientID)
 
             allEctRecords.value = getAllECT(patientID)
+            lastAnc.value = getLastAnc(patientID)
+            lastEct.value = getLastEct(patientID)
         }
     }
 
@@ -195,6 +201,14 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getAllECT(benId: String): List<EligibleCoupleTrackingCache> {
         return ecrRepo.getAllECT(benId)
+    }
+
+    suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthRepo.getLastAnc(benId)
+    }
+
+    suspend fun getLastEct(benId: String): EligibleCoupleTrackingCache? {
+        return ecrRepo.getLatestEctByBenId(benId)
     }
 
     fun saveDeliveryOutcome(benId: String, deliveryDate: Date) {

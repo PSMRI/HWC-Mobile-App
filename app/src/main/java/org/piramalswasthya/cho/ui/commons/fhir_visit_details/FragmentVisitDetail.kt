@@ -35,6 +35,7 @@ import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -56,8 +57,12 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -1064,20 +1069,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
                         viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                             if(it2){
-                                findNavController().navigate(
-                                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                                    )
-                                )
+                                checkAndNavigateAnc()
                             }
                         }
                     }
                     else{
-                        findNavController().navigate(
-                            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                            )
-                        )
+                        checkAndNavigateAnc()
                     }
                 }
             }
@@ -1123,11 +1120,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     bottomSheet.show(childFragmentManager, "ImM")
             }
             else if(reasonForVisit == DropdownConst.fpAndCs){
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, 0
-                    )
-                )
+                checkAndNavigateEct()
             }
         }
         else {
@@ -1184,6 +1177,62 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
+        }
+    }
+
+    private fun checkAndNavigateAnc(){
+        val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
+        viewModel.lastAnc.observe(viewLifecycleOwner){
+            if(it != null && System.currentTimeMillis() - it.ancDate < minGap){
+                Toast.makeText(
+                    requireContext(),
+                    "ANC found within 28 days",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else{
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
+                    )
+                )
+            }
+        }
+    }
+
+    fun getYearAndMonthFromEpoch(epochMillis: Long): Pair<Int, Int> {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = epochMillis
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is zero-based
+        return Pair(year, month)
+    }
+
+    fun checkValid(lastEct: EligibleCoupleTrackingCache): Boolean{
+        val lastEctPair = getYearAndMonthFromEpoch(lastEct.visitDate)
+        val currDatePair = getYearAndMonthFromEpoch(System.currentTimeMillis())
+        if(currDatePair.first == lastEctPair.first && currDatePair.second == lastEctPair.second){
+            return true;
+        }
+        return false;
+    }
+
+    private fun checkAndNavigateEct(){
+        viewModel.lastEct.observe(viewLifecycleOwner){
+            if(it != null && checkValid(it)){
+                Toast.makeText(
+                    requireContext(),
+                    "Eligible Couple tracking is done for this month",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else{
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+                        benVisitInfo.patient.patientID, System.currentTimeMillis()
+                    )
+                )
             }
         }
     }
