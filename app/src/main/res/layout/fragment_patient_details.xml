@@ -172,8 +172,6 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:textColorHint="#888888"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_mic"
             android:hint="@string/age">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -205,6 +203,7 @@
                 android:layout_weight="1"
                 android:textSize="18sp"
                 android:editable="false"
+                android:focusable="false"
                 android:layout_height="match_parent"
                 android:inputType="none"
                 android:textColorHint="#888888" />

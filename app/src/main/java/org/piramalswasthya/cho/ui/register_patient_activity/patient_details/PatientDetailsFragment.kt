@@ -197,9 +197,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.lastNameText.setEndIconOnClickListener {
             speechToTextLauncherForLastName.launch(Unit)
         }
-        binding.ageText.setEndIconOnClickListener {
-            speechToTextLauncherForAge.launch(Unit)
-        }
+//        binding.ageText.setEndIconOnClickListener {
+//            speechToTextLauncherForAge.launch(Unit)
+//        }
         binding.phoneNoText.setEndIconOnClickListener {
             speechToTextLauncherForPhoneNumber.launch(Unit)
         }
@@ -223,26 +223,20 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val ageAlertDialog by lazy {
         val alertBinding = AlertAgePickerBinding.inflate(layoutInflater,binding.root,false)
         alertBinding.dialogNumberPickerYears.minValue = 0
-        alertBinding.dialogNumberPickerYears.maxValue = 100
+        alertBinding.dialogNumberPickerYears.maxValue = 200
 
         alertBinding.dialogNumberPickerMonths.minValue = 0
         alertBinding.dialogNumberPickerMonths.maxValue = 11
 
         alertBinding.dialogNumberPickerWeeks.minValue = 0
-        alertBinding.dialogNumberPickerWeeks.maxValue = 3       // Assuming a maximum of 3 weeks in a month
+        alertBinding.dialogNumberPickerWeeks.maxValue = 4       // Assuming a maximum of 4 weeks in a month
 
         alertBinding.dialogNumberPickerDays.minValue = 0
         alertBinding.dialogNumberPickerDays.maxValue = 6
 
-//        alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
-//        alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
-//        alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
-//        alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
-
-        val alert = MaterialAlertDialogBuilder(requireContext()).setView(alertBinding.root)
-                    .create()
-
-
+        val alert = MaterialAlertDialogBuilder(requireContext())
+            .setView(alertBinding.root)
+            .create()
 
         alertBinding.btnOk.setOnClickListener {
             viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
@@ -272,6 +266,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         alertBinding.btnCancel.setOnClickListener {
             alert.cancel()
+        }
+        alert.setOnShowListener {
+            alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
+            alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
+            alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
+            alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
         }
         alert
     }
