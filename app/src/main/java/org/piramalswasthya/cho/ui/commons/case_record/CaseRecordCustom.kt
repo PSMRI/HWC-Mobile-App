@@ -97,6 +97,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var pAdapter : PrescriptionAdapter
 //    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int,String>()
+    private lateinit var investigationBD : InvestigationCaseRecord
     private var referNameMap = emptyMap<Int,String>()
     private val selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
@@ -213,6 +214,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         })
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
+//            viewModel.getPreviousTest(benVisitInfo)!!
+//            Timber.tag("arr").i("${investigationBD}")
         }
 
         lifecycleScope.launch {
@@ -805,7 +808,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val referId = findKeyByValue(referNameMap,referVal)
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            testIds = idString.nullIfEmpty(),
+            previousTestIds = null,
+            newTestIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
@@ -897,7 +901,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val referId = findKeyByValue(referNameMap,referVal)
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            testIds = idString.nullIfEmpty(),
+            previousTestIds = null,
+            newTestIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,

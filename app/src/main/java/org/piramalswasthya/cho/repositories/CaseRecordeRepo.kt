@@ -3,12 +3,14 @@ package org.piramalswasthya.cho.repositories
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecordWithHigherHealthCenter
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.VisitDB
@@ -17,7 +19,8 @@ import java.lang.Exception
 import javax.inject.Inject
 
 class CaseRecordeRepo @Inject constructor(
-    private val caseRecordDao: CaseRecordeDao
+    private val caseRecordDao: CaseRecordeDao,
+    private val benFlowDao: BenFlowDao,
 ) {
     suspend fun saveInvestigationToCatche(investigationCaseRecord: InvestigationCaseRecord) {
         try{
@@ -64,6 +67,15 @@ class CaseRecordeRepo @Inject constructor(
     }
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
+    }
+
+    suspend fun getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord? {
+        val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
+        var resp: InvestigationCaseRecord? = null
+        if (benFlow != null) {
+            resp = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow.benVisitNo!!, benFlow.benFlowID)
+        }
+        return resp
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){

@@ -32,7 +32,8 @@ import org.piramalswasthya.cho.utils.nullIfEmpty
 data class InvestigationCaseRecord(
     @PrimaryKey
     var investigationCaseRecordId:String,
-    @ColumnInfo(name = "testIds") val testIds: String?,
+    @ColumnInfo(name = "previousTestIds") val previousTestIds: String?,
+    @ColumnInfo(name = "newTestIds") val newTestIds: String?,
     @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?,
     @ColumnInfo(name = "CounsellingTypes") val counsellingTypes: String?,
     @ColumnInfo(name = "institutionId") val institutionId: Int? = null,
@@ -45,7 +46,7 @@ data class InvestigationCaseRecord(
         docData.investigation?.laboratoryList?.map {
             it.procedureID
         }?.joinToString(",").nullIfEmpty(),
-        null,
+        null, null,
         null,
         docData.Refer?.referredToInstituteID,
         patient.patientID,

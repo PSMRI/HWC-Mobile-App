@@ -33,6 +33,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
+import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
@@ -74,6 +75,7 @@ class CaseRecordViewModel @Inject constructor(
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
 
+    private var _previousTests = MutableLiveData<InvestigationCaseRecord>(null)
 
     private val _isDataSaved = MutableLiveData<Boolean>(false)
     val isDataSaved: MutableLiveData<Boolean>
@@ -359,6 +361,16 @@ class CaseRecordViewModel @Inject constructor(
             emptyMap()
         }
     }
+
+    suspend fun getPreviousTest(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord?{
+        return try {
+            caseRecordeRepo.getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo)
+        } catch (e: Exception){
+            Timber.d("fetched procedures")
+            null
+        }
+    }
+
     suspend fun getReferNameTypeMap(): Map<Int, String> {
         return try {
             doctorMasterDataMaleRepo.getHigherHealthTypeByNameMap()
