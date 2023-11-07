@@ -662,7 +662,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         labReportProcedureTypes: List<String>
     ) {
         val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
-
+        viewModel.previousTests.observe(viewLifecycleOwner) {
+            viewModel.previousTests?.value
+        }
         val disabledItems = labReportProcedureTypes.map { type ->
             proceduresMasterData.indexOfFirst { it.procedureName == type }
         }.toSet().toTypedArray()

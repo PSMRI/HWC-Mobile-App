@@ -17,6 +17,8 @@ import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
@@ -86,17 +88,20 @@ class CaseRecordeRepo @Inject constructor(
         val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
         return withContext(Dispatchers.IO) {
             try {
-                val investigation = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow.benVisitNo!!, benFlow.benFlowID)
+                val investigation = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow?.benVisitNo!!, benFlow.benFlowID)
                 investigation?.let { investigation ->
-                    val investigationCaseRecord = InvestigationCaseRecord(
+                    val investigation = InvestigationCaseRecord(
+                        investigationCaseRecordId = investigation.investigationCaseRecordId,
                         previousTestIds = investigation.previousTestIds,
                         newTestIds = investigation.newTestIds,
-                        externalInvestigation = investigation.prescriptionID,
-                        visitCode = investigation.visitCode,
-                        itemList = investigation
+                        externalInvestigation = investigation.externalInvestigation,
+                        counsellingTypes = investigation.counsellingTypes,
+                        patientID = investigation.patientID,
+                        institutionId = investigation.institutionId,
+                        benVisitNo = investigation.benVisitNo
                     )
-                    prescriptionDTO.itemList = prescriptionItemList
-                    dtos += prescriptionDTO
+
+                    dtos += investigation
                 }
                 dtos
             } catch (e: Exception) {
