@@ -211,10 +211,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.age.setOnClickListener {
-            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_years)?.value = viewModel.enteredAgeYears!!
-            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_months)?.value = viewModel.enteredAgeMonths!!
-            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_weeks)?.value = viewModel.enteredAgeWeeks!!
-            ageAlertDialog.findViewById<NumberPicker>(R.id.dialog_number_picker_days)?.value = viewModel.enteredAgeDays!!
             ageAlertDialog.show()
         }
 
@@ -239,6 +235,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             .create()
 
         alertBinding.btnOk.setOnClickListener {
+            alertBinding.dialogNumberPickerYears.clearFocus();
+            alertBinding.dialogNumberPickerMonths.clearFocus();
+            alertBinding.dialogNumberPickerWeeks.clearFocus();
+            alertBinding.dialogNumberPickerDays.clearFocus();
+
             viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
             viewModel.enteredAgeMonths = alertBinding.dialogNumberPickerMonths.value
             viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
@@ -833,7 +834,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
-        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
+//        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
 //        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
 //            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
             viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
