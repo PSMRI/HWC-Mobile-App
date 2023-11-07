@@ -214,7 +214,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         })
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
-//            viewModel.getPreviousTest(benVisitInfo)!!
+            viewModel.getPreviousTest(benVisitInfo)!!
 //            Timber.tag("arr").i("${investigationBD}")
         }
 
