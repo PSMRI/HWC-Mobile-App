@@ -155,6 +155,8 @@ data class UserCache(
     var assignVillageNames : String,
     @ColumnInfo(name="lastLogoutTime")
     var lastLogoutTime : Date?,
+    @ColumnInfo(name="lastLogInTime")
+    var lastLogInTime : Date?,
 ){
     fun asDomainModel() : UserDomain{
         return UserDomain(
@@ -338,7 +340,8 @@ data class UserNetwork(
     var emergencyContactNo: String? = null,
     var userType: String? = null,
     var loggedIn : Boolean? = false,
-    var lastLogoutTime: Date? = null
+    var lastLogoutTime: Date? = null,
+    var lastLogInTime: Date? = null
 ) {
     fun asCacheModel() : UserCache{
         return UserCache(
@@ -395,6 +398,7 @@ data class UserNetwork(
             assignVillageIds = assignVillageIds ?: "",
             assignVillageNames = assignVillageNames ?: "",
             lastLogoutTime = lastLogoutTime,
+            lastLogInTime = lastLogInTime,
             masterVillageID = masterVillageID,
             masterBlockID = masterBlockID,
         )

@@ -51,6 +51,7 @@ import timber.log.Timber
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.Date
 import javax.inject.Inject
 
 class UserRepo @Inject constructor(
@@ -139,6 +140,7 @@ class UserRepo @Inject constructor(
                     )
                     it.userName = userName
                     it.loggedIn = true
+                    it.lastLogInTime = Date()
                     userDao.update(loggedInUser)
 //                    if(!isBiometric!!) {
 //                        setOutreachProgram(
@@ -166,6 +168,7 @@ class UserRepo @Inject constructor(
                 if (user != null) {
                     Timber.d("User Auth Complete!!!!")
                     user?.loggedIn = true
+                    user?.lastLogInTime = Date()
                     preferenceDao.setUserRoles(user!!.roles);
                     if (userDao.getUser(userName, password)?.userName == userName) {
                         userDao.update(user!!.asCacheModel())

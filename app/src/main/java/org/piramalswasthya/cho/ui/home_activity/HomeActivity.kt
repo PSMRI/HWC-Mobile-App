@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.ui.home_activity
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -39,6 +41,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ViewPagerAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -50,6 +53,8 @@ import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.util.Calendar
@@ -132,7 +137,7 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        (application as CHOApplication).addActivity(this)
         viewModel.init(this)
 
         binding.refreshButton.setOnClickListener {
@@ -259,25 +264,22 @@ class HomeActivity : AppCompatActivity() {
         // Create an ArrayAdapter to bind the data to the ListView
         var adapter = PatientListAdapter(this, benificiaryList)
 
+        triggerAlarmManager()
 
-        // Set the desired time (hour and minute) when you want the method to run
-        val desiredHour = 21 // Change this to your desired hour (0-23)
-        val desiredMinute = 0 // Change this to your desired minute (0-59)
+//        val desiredHour = 21 // Change this to your desired hour (0-23)
+//        val desiredMinute = 0 // Change this to your desired minute (0-59)
+//
+//        val currentTime = Calendar.getInstance()
+//        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+//        val currentMinute = currentTime.get(Calendar.MINUTE)
+//
+//        val delayMillis = calculateDelayMillis(currentHour, currentMinute, desiredHour, desiredMinute)
 
-        // Get the current time
-        val currentTime = Calendar.getInstance()
-        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
-        val currentMinute = currentTime.get(Calendar.MINUTE)
-
-        // Calculate the delay until the desired time
-        val delayMillis = calculateDelayMillis(currentHour, currentMinute, desiredHour, desiredMinute)
-
-        // Schedule the method to run after the delay
-        handler.postDelayed({
-            // Call your method here
-            myMethodToRunAtSpecificTime()
-
-        }, delayMillis)
+//        handler.postDelayed({
+//            // Call your method here
+////            myMethodToRunAtSpecificTime()
+//
+//        }, delayMillis)
         currentLanguage = prefDao.getCurrentLanguage()
         currentRoleSelected = if (prefDao.getCHOSecondRole()!=null){
             prefDao.getCHOSecondRole()!!
@@ -308,7 +310,28 @@ class HomeActivity : AppCompatActivity() {
                 dialog.dismiss()
             }.create()
     }
+private fun triggerAlarmManager(){
+    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
+    alarmIntent.putExtra("alarmMgrLatitude", myLocation?.latitude)
+    alarmIntent.putExtra("alarmMgrLongitude", myLocation?.longitude)
+    alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+    val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
 
+    // Set the alarm to trigger at 5 PM
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+
+    // Schedule the alarm to repeat daily
+    alarmManager.setRepeating(
+        AlarmManager.RTC,
+        calendar.timeInMillis,
+        AlarmManager.INTERVAL_DAY,
+        pendingIntent
+    )
+}
     override fun onBackPressed() {
 //        super.onBackPressed()
         if (!exitAlert.isShowing)
@@ -584,7 +607,10 @@ class HomeActivity : AppCompatActivity() {
         private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        (application as CHOApplication).activityList.remove(this)
+    }
 
 
 private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
@@ -608,6 +634,6 @@ private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHo
 
 private fun myMethodToRunAtSpecificTime() {
     // Your method code here
-    viewModel.logout(myLocation,"By System")
+//    viewModel.logout(myLocation,"By System")
 }
 }
