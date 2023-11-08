@@ -139,7 +139,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                                resources.getString(R.string.submit_to_doctor_text)
                        }
                    }
-                   R.id.fragment_anc -> {
+                   R.id.pwAncFormFragment -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
@@ -153,14 +153,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
-                   R.id.fragment_immunization -> {
+                   R.id.immunizationFormFragment -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.immunization)
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
-                   R.id.fragment_fp -> {
+                   R.id.eligibleCoupleTrackingFormFragment -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.eligible_couple_tracking)

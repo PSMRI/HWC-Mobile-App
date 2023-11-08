@@ -217,8 +217,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    fun ageCheckForChild(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 0L
+        val maxAge = 366L*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap > minAge) && (ageGap <= maxAge)
+    }
+
+    fun ageCheckForFemale(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 366L*24*60*60*1000
+        val maxAge = 365L*60*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap > minAge) && (ageGap <= maxAge)
+    }
+
     private fun setSubCategoryDropdown(){
-        if(benVisitInfo.ageUnit?.lowercase() != "years" || (benVisitInfo.patient.age != null && benVisitInfo.patient.age!! <= 1)){
+        if( ageCheckForChild(benVisitInfo.patient.dob) ){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -226,7 +250,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 DropdownConst.age_0_to_1)
             binding.subCatInput.setAdapter(subCatAdapter)
         }
-        else if(benVisitInfo.patient.age != null && benVisitInfo.patient.age!! > 1 && benVisitInfo.ageUnit?.lowercase() == "years" && benVisitInfo.genderName?.lowercase() == "female"){
+        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
