@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -20,12 +21,14 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.VillageDropdownAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
 import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.AlertAgePickerBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
@@ -49,6 +52,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @AndroidEntryPoint
 class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
@@ -88,7 +92,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun checkAndRequestCameraPermission() {
         if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )  == PackageManager.PERMISSION_GRANTED
+            )  == PackageManager.PERMISSION_GRANTED
         ) {
             // Camera permission is granted, proceed to take a picture
             takePicture()
@@ -98,8 +102,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
     private fun requestCameraPermission() {
-            val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
-            requestPermissions(permission, 112)
+        val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
+        requestPermissions(permission, 112)
     }
 
     private val takePictureLauncher =
@@ -124,7 +128,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         photoFile?.also {
-             photoURI = FileProvider.getUriForFile(
+            photoURI = FileProvider.getUriForFile(
                 requireContext(),
                 "org.piramalswasthya.cho.provider",
                 it
@@ -193,9 +197,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.lastNameText.setEndIconOnClickListener {
             speechToTextLauncherForLastName.launch(Unit)
         }
-        binding.ageText.setEndIconOnClickListener {
-            speechToTextLauncherForAge.launch(Unit)
-        }
+//        binding.ageText.setEndIconOnClickListener {
+//            speechToTextLauncherForAge.launch(Unit)
+//        }
         binding.phoneNoText.setEndIconOnClickListener {
             speechToTextLauncherForPhoneNumber.launch(Unit)
         }
@@ -205,9 +209,73 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.fatherNameText.setEndIconOnClickListener {
             speechToTextLauncherForFatherName.launch(Unit)
         }
+
+        binding.age.setOnClickListener {
+            ageAlertDialog.show()
+        }
+
     }
 
+    private val ageAlertDialog by lazy {
+        val alertBinding = AlertAgePickerBinding.inflate(layoutInflater,binding.root,false)
+        alertBinding.dialogNumberPickerYears.minValue = 0
+        alertBinding.dialogNumberPickerYears.maxValue = 200
 
+        alertBinding.dialogNumberPickerMonths.minValue = 0
+        alertBinding.dialogNumberPickerMonths.maxValue = 11
+
+        alertBinding.dialogNumberPickerWeeks.minValue = 0
+        alertBinding.dialogNumberPickerWeeks.maxValue = 4       // Assuming a maximum of 4 weeks in a month
+
+        alertBinding.dialogNumberPickerDays.minValue = 0
+        alertBinding.dialogNumberPickerDays.maxValue = 6
+
+        val alert = MaterialAlertDialogBuilder(requireContext())
+            .setView(alertBinding.root)
+            .create()
+
+        alertBinding.btnOk.setOnClickListener {
+            alertBinding.dialogNumberPickerYears.clearFocus();
+            alertBinding.dialogNumberPickerMonths.clearFocus();
+            alertBinding.dialogNumberPickerWeeks.clearFocus();
+            alertBinding.dialogNumberPickerDays.clearFocus();
+
+            viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
+            viewModel.enteredAgeMonths = alertBinding.dialogNumberPickerMonths.value
+            viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
+            viewModel.enteredAgeDays = alertBinding.dialogNumberPickerDays.value
+
+            setAgeToDateOfBirth()
+
+            if(viewModel.enteredAgeYears != 0){
+                viewModel.enteredAge = viewModel.enteredAgeYears
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+            }else if(viewModel.enteredAgeMonths != 0){
+                viewModel.enteredAge = viewModel.enteredAgeMonths
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+            }else if(viewModel.enteredAgeWeeks != 0){
+                viewModel.enteredAge = viewModel.enteredAgeWeeks
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+            }else{
+                viewModel.enteredAge = viewModel.enteredAgeDays
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+            }
+            binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+            binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
+            alert.dismiss()
+        }
+        alertBinding.btnCancel.setOnClickListener {
+            alert.cancel()
+        }
+        alert.setOnShowListener {
+            alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
+            alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
+            alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
+            alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
+        }
+        alert
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     private fun scanCode() {
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -234,7 +302,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     if (!userData.dateOfBirth.isNullOrEmpty()) {
                         var date: Date? = null
                         if(userData.dateOfBirth[2].toString()=="/") {
-                             date =
+                            date =
                                 userData.dateOfBirth.let { inputDateFormat1.parse(it) } as Date
                         }else if(userData.dateOfBirth[2].toString()=="-"){
                             date = userData.dateOfBirth.let { inputDateFormat2.parse(it) } as Date
@@ -332,12 +400,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }catch (e:Exception){
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
-            return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
+        return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
-             binding.firstName.setText(result)
+            binding.firstName.setText(result)
         }
     }
     private val speechToTextLauncherForLastName = registerForActivityResult(SpeechToTextContract()) { result ->
@@ -351,12 +419,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
     private val speechToTextLauncherForAge = registerForActivityResult(SpeechToTextContract()) { result ->
-            if (result.isNotBlank() && result.isNumeric()) {
-                val pattern = "\\d{2}".toRegex()
-                val match = pattern.find(result)
-                val firstTwoDigits = match?.value
-                if(result.toInt() > 0) binding.age.setText(result)
-            }
+        if (result.isNotBlank() && result.isNumeric()) {
+            val pattern = "\\d{2}".toRegex()
+            val match = pattern.find(result)
+            val firstTwoDigits = match?.value
+            if(result.toInt() > 0) binding.age.setText(result)
+        }
     }
     private val speechToTextLauncherForFatherName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
@@ -448,12 +516,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
-        binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
-            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
-            binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
-            setAgeToDateOfBirth()
-        }
+//        binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
+//            viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
+//            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+//            binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
+//            setAgeToDateOfBirth()
+//        }
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
@@ -535,7 +603,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
             override fun afterTextChanged(s: Editable?) {}
         })
-       binding.dateOfBirth.addTextChangedListener (object :TextWatcher{
+        binding.dateOfBirth.addTextChangedListener (object :TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -650,24 +718,24 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
 
 
-        private fun isValidPhoneNumber(phoneNumber: String) {
-            var char = phoneNumber.get(0)
+    private fun isValidPhoneNumber(phoneNumber: String) {
+        var char = phoneNumber.get(0)
 
-             if(char.equals('9') || char.equals('8') || char.equals('7') || char.equals('6')) {
-                 Log.d("aryan","${char}")
-                 if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
-                         if (isNotRepeatableNumber(phoneNumber)) {
-                             viewModel.setPhoneN(true, "null")
-                         } else {
-                             viewModel.setPhoneN(false, resources.getString(R.string.enter_a_valid_phone_number))
-                         }
-                 } else {
-                     viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
-                 }
-             }else{
-                 viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
-             }
+        if(char.equals('9') || char.equals('8') || char.equals('7') || char.equals('6')) {
+            Log.d("aryan","${char}")
+            if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
+                if (isNotRepeatableNumber(phoneNumber)) {
+                    viewModel.setPhoneN(true, "null")
+                } else {
+                    viewModel.setPhoneN(false, resources.getString(R.string.enter_a_valid_phone_number))
+                }
+            } else {
+                viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
+            }
+        }else{
+            viewModel.setPhoneN(false,  resources.getString(R.string.enter_a_valid_phone_number))
         }
+    }
     fun isNotRepeatableNumber(input: String): Boolean {
 
         val digits = input.toCharArray()
@@ -697,25 +765,25 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setAdapters(){
-        viewModel.ageUnit.observe(viewLifecycleOwner) { state ->
-            when (state!!){
-                PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
-                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
-                    binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
-                    binding.ageInUnitDropdown.setText("Years",false)
-                }
-                else -> {
-
-                }
-            }
-        }
+//        viewModel.ageUnit.observe(viewLifecycleOwner) { state ->
+//            when (state!!){
+//                PatientDetailsViewModel.NetworkState.SUCCESS -> {
+//                    val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
+//                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
+//                    binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
+//                    binding.ageInUnitDropdown.setText("Years",false)
+//                }
+//                else -> {
+//
+//                }
+//            }
+//        }
         viewModel.villageVal.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
 //                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
 //                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
-                  villageAdapter = VillageDropdownAdapter(
+                    villageAdapter = VillageDropdownAdapter(
                         requireContext(),
                         R.layout.drop_down,
                         viewModel.villageList,
@@ -766,27 +834,67 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
-        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
-        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
-            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
+//        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
+//        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
+//            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
+            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
+                viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
             binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
 //            setMarriedFieldsVisibility()
-        }
+//        }
         doAgeToDob = true;
     }
 
 
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun setDateOfBirthToAge(date: Date){
+//        val age = DateTimeUtil.calculateAge(date);
+//        viewModel.enteredAge = age.value
+//        viewModel.selectedDateOfBirth = date
+//        viewModel.selectedAgeUnitEnum = age.unit
+//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
+//        doAgeToDob = false;
+//        binding.age.setText(age.value.toString())
+//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+//        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
+//    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
-        val age = DateTimeUtil.calculateAge(date);
-        viewModel.enteredAge = age.value
+        val age = DateTimeUtil.calculateAgePicker(date);
+//        viewModel.enteredAge = age.value
+        viewModel.enteredAgeYears = age.years
+        viewModel.enteredAgeMonths = age.months
+        viewModel.enteredAgeWeeks = age.weeks
+        viewModel.enteredAgeDays = age.days
+
+
+
+        if(viewModel.enteredAgeYears != 0){
+            viewModel.enteredAge = viewModel.enteredAgeYears
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+        }else if(viewModel.enteredAgeMonths != 0){
+            viewModel.enteredAge = viewModel.enteredAgeMonths
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+        }else if(viewModel.enteredAgeWeeks != 0){
+            viewModel.enteredAge = viewModel.enteredAgeWeeks
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+        }else{
+            viewModel.enteredAge = viewModel.enteredAgeDays
+            viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+        }
+        binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+        viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
+        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
+
         viewModel.selectedDateOfBirth = date
-        viewModel.selectedAgeUnitEnum = age.unit
-        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
+//        viewModel.selectedAgeUnitEnum = age.unit
+//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
         doAgeToDob = false;
-        binding.age.setText(age.value.toString())
-        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+//        binding.age.setText(age.value.toString())
+//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -865,7 +973,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
                 }
             }
-       }
+        }
     }
 
     override fun onCancelAction() {
@@ -873,3 +981,4 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
 }
+

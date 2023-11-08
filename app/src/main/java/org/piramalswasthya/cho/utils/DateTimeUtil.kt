@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.utils
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
@@ -137,17 +138,50 @@ class DateTimeUtil {
             val period = Period.between(birthLocalDate, currentDate)
 
             if(period.years > 0){
-                return Age(AgeUnitEnum.YEARS, period.years);
+                return Age(AgeUnitEnum.YEARS, period.years)
             }
             else if(period.months > 0){
-                return Age(AgeUnitEnum.MONTHS, period.months);
+                return Age(AgeUnitEnum.MONTHS, period.months)
             }
             else if(period.days > 7){
-                return Age(AgeUnitEnum.WEEKS, period.days/7);
+                return Age(AgeUnitEnum.WEEKS, period.days/7)
             }
-            return Age(AgeUnitEnum.DAYS, period.days);
+            return Age(AgeUnitEnum.DAYS, period.days)
+        }
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateAgePicker(dateOfBirth: Date): AgePicker {
+            val birthLocalDate =
+                dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val currentDate = LocalDate.now()
+            val period = Period.between(birthLocalDate, currentDate)
+            if (period.days > 6) {
+                val weeks = period.days / 7
+                val days = period.days % 7
+                return AgePicker(period.years, period.months, weeks, days)
+            } else {
+                return AgePicker(period.years, period.months, 0, period.days)
+            }
         }
 
+
+//            val today = Calendar.getInstance()
+//            val birthDate = Calendar.getInstance().apply { time = dateOfBirth }
+//
+//            var years = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+//            var months = today.get(Calendar.MONTH) - birthDate.get(Calendar.MONTH)
+//            val days = today.get(Calendar.DAY_OF_MONTH) - birthDate.get(Calendar.DAY_OF_MONTH)
+//
+//            // Check if the birthdate hasn't occurred yet this year
+//            if (months < 0 || (months == 0 && days < 0)) {
+//                years--
+//                today.add(Calendar.YEAR, -1)
+//                months += 12
+//            }
+//
+//            val weeks = (today.timeInMillis - birthDate.timeInMillis) / (7 * 24 * 60 * 60 * 1000)
+
+//            return AgePicker(years, months, weeks.toInt(), days)
+//        }
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateDateOfBirth(value: Int, unit: AgeUnitEnum): Date {
             val days = when(unit){
@@ -159,6 +193,26 @@ class DateTimeUtil {
 
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_YEAR, -days)
+            return calendar.time
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateDateOfBirth(years: Int, months: Int, weeks: Int, days: Int): Date {
+//            val days = when(unit){
+//                AgeUnitEnum.DAYS -> value
+//                AgeUnitEnum.WEEKS -> value*7
+//                AgeUnitEnum.MONTHS -> value*30
+//                AgeUnitEnum.YEARS -> value*365
+//            }
+//
+            val calendar = Calendar.getInstance()
+//            calendar.add(Calendar.DAY_OF_YEAR, -days)
+            calendar.add(Calendar.YEAR, -years)
+            calendar.add(Calendar.MONTH, -months)
+
+            // Subtract weeks and days
+            val totalDaysToSubtract = (weeks * 7) + days
+            calendar.add(Calendar.DAY_OF_YEAR, -totalDaysToSubtract)
             return calendar.time
         }
 
@@ -199,6 +253,8 @@ class DateTimeUtil {
     }
 
 }
+    data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
+
 
 data class Age(
     val unit: AgeUnitEnum,
