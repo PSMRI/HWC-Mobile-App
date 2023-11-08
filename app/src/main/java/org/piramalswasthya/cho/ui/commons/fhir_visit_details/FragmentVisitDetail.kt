@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -201,6 +202,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.v("tag on", "on create view")
         addCount = 0
         deleteCount = 0
         _binding = VisitDetailsInfoBinding.inflate(inflater, container, false)
@@ -255,7 +257,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
-        else{
+        else if(subCat == DropdownConst.neonatalAndInfant){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -277,7 +279,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     fun setVisibility(){
         val reasonForVisit = binding.reasonForVisitInput.text.toString()
         if(reasonForVisit == DropdownConst.anc){
-            binding.lmpDate.visibility = View.VISIBLE
+            viewModel.activePwrRecord.observe(viewLifecycleOwner){
+                if(it == null && lmpDate == null){
+                    binding.lmpDate.visibility = View.VISIBLE
+                }
+            }
             binding.deliveryDate.visibility = View.GONE
             binding.rvAnc.visibility = View.VISIBLE
             binding.rvPnc.visibility = View.GONE
@@ -285,7 +291,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
         else if(reasonForVisit == DropdownConst.pnc){
             binding.lmpDate.visibility = View.GONE
-            binding.deliveryDate.visibility = View.VISIBLE
+            viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+                if(it == null && deliveryDate == null){
+                    binding.deliveryDate.visibility = View.VISIBLE
+                }
+            }
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.VISIBLE
             binding.rvEct.visibility = View.GONE
@@ -300,8 +310,40 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?){
+        Log.v("tag on", "onViewStateRestored")
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+    override fun onStart(){
+        Log.v("tag on", "onStart")
+        super.onStart()
+    }
+
+    override fun onResume(){
+        Log.v("tag on", "onResume")
+        super.onResume()
+    }
+
+    override fun onPause(){
+        Log.v("tag on", "onPause")
+        super.onPause()
+    }
+
+    override fun onStop(){
+        Log.v("tag on", "onStop")
+        super.onStop()
+    }
+
+    override fun onDestroyView(){
+        Log.v("tag on", "onDestroyView")
+        super.onDestroyView()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        Log.v("tag on", "on view created")
         removeVisibility()
 
         if (preferenceDao.isLoginTypeOutReach()) {
@@ -368,11 +410,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        }
 
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
-            var subCat = parent.getItemAtPosition(position)
-            binding.subCatInput.setText(subCat.toString(), false)
-            binding.reasonForVisitInput.setText("", false)
+            viewModel.selectedSubCat = parent.getItemAtPosition(position) as String
+            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             removeVisibility()
-            setReasonForVisitDropdown(subCat.toString())
+            setReasonForVisitDropdown(viewModel.selectedSubCat)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
                 hintTextColor = defaultHintTextColor
@@ -381,10 +424,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
 
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
-            var subCat = parent.getItemAtPosition(position)
-            binding.reasonForVisitInput.setText(subCat.toString(), false)
+            viewModel.selectedReasonForVisit = parent.getItemAtPosition(position) as String
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             removeVisibility()
-            if(subCat == DropdownConst.anc){
+            if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
                 viewModel.activePwrRecord.observe(viewLifecycleOwner){
                     if(it == null && lmpDate == null){
@@ -392,7 +435,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     }
                 }
             }
-            else if(subCat == DropdownConst.pnc){
+            else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
                 viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
                     if(it == null && deliveryDate == null){
@@ -400,7 +443,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     }
                 }
             }
-            else if(subCat == DropdownConst.fpAndCs){
+            else if(viewModel.selectedReasonForVisit == DropdownConst.fpAndCs){
                 binding.rvEct.visibility = View.VISIBLE
 //                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
 //                    if(it == null && deliveryDate == null){
@@ -446,6 +489,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
         setSubCategoryDropdown()
+        setReasonForVisitDropdown(viewModel.selectedSubCat)
+
 
         viewModel.init(benVisitInfo.patient.patientID)
 

@@ -78,6 +78,10 @@ class VisitDetailViewModel @Inject constructor(
     val isDeliveryDateSaved: MutableLiveData<Boolean>
         get() = _isDeliveryDateSaved
 
+    var selectedSubCat = ""
+
+    var selectedReasonForVisit = ""
+
 
     private val _idPatientId = MutableLiveData<String?>(null)
 
