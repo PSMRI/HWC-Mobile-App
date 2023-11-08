@@ -214,15 +214,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         })
+
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
-            viewModel.getPreviousTest(benVisitInfo)!!
+            if(benVisitInfo.benVisitNo != null){
+                viewModel.getPreviousTest(benVisitInfo)
+            }
         }
 
         lifecycleScope.launch {
             referNameMap = viewModel.getReferNameTypeMap()
         }
-        var chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
+
+        val chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
         if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
             (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
@@ -665,7 +669,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         viewModel.previousTests.observe(viewLifecycleOwner) {
             val selectedItems = BooleanArray(procedureDropdown.size){selectedTestName.contains(it) }
-            investigationBD = viewModel.previousTests?.value
+            investigationBD = viewModel.previousTests.value
             val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
             if (resp != null) {
                 val previousTestList = resp.toMutableList()

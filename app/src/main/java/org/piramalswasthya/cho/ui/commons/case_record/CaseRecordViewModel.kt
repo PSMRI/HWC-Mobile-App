@@ -76,8 +76,8 @@ class CaseRecordViewModel @Inject constructor(
     val isDataDeleted: MutableLiveData<Boolean>
         get() = _isDataDeleted
 
-    private var _previousTests = MutableLiveData<InvestigationCaseRecord>(null)
-    val previousTests: LiveData<InvestigationCaseRecord>
+    private var _previousTests = MutableLiveData<InvestigationCaseRecord?>(null)
+    val previousTests: LiveData<InvestigationCaseRecord?>
         get() = _previousTests
 
     private val _isDataSaved = MutableLiveData<Boolean>(false)
@@ -367,18 +367,8 @@ class CaseRecordViewModel @Inject constructor(
 
     suspend fun getPreviousTest(benVisitInfo: PatientDisplayWithVisitInfo){
         withContext(Dispatchers.IO) {
-            val listInvestigations = caseRecordeRepo.getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo)
-            if(listInvestigations!=null && listInvestigations.size>0){
-                _previousTests.postValue(listInvestigations.get(0) ?: null)
-            }
+            _previousTests.postValue(caseRecordeRepo.getInvestigationCasesRecordByPatientIDAndVisitNumber(benVisitInfo))
         }
-
-//        return try {
-//            caseRecordeRepo.getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo)
-//        } catch (e: Exception){
-//            Timber.d("fetched procedures")
-//            null
-//        }
     }
 
     suspend fun getReferNameTypeMap(): Map<Int, String> {
