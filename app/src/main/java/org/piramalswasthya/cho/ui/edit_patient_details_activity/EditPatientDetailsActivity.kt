@@ -146,7 +146,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                        binding.btnSubmit.text = resources.getString(R.string.submit)
                        binding.btnCancel.text = resources.getString(R.string.cancel)
                    }
-                   R.id.fragment_pnc -> {
+                   R.id.pncFormFragment -> {
 //                       binding.headerTextEditPatient.text =
 //                           resources.getString(R.string.case_record_text)
                        binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
