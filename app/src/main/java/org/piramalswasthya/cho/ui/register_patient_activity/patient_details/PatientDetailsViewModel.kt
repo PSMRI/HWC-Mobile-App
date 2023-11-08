@@ -63,6 +63,22 @@ class PatientDetailsViewModel @Inject constructor(
     val dobVal: MutableLiveData<Boolean>
         get() = _dobVal
 
+    private val _ageYearsVal =MutableLiveData<Boolean>(false)
+    val ageYearsVal: MutableLiveData<Boolean>
+        get() = _ageYearsVal
+
+    private val _ageMonthsVal =MutableLiveData<Boolean>(false)
+    val ageMonthsVal: MutableLiveData<Boolean>
+        get() = _ageMonthsVal
+
+    private val _ageWeeksVal =MutableLiveData<Boolean>(false)
+    val ageWeeksVal: MutableLiveData<Boolean>
+        get() = _ageWeeksVal
+
+    private val _ageDaysVal =MutableLiveData<Boolean>(false)
+    val ageDaysVal: MutableLiveData<Boolean>
+        get() = _ageDaysVal
+
     private val _ageVal =MutableLiveData<Boolean>(false)
     val ageVal: MutableLiveData<Boolean>
         get() = _ageVal
@@ -128,6 +144,10 @@ class PatientDetailsViewModel @Inject constructor(
 
     var selectedAgeUnitEnum: AgeUnitEnum? = AgeUnitEnum.YEARS
     var enteredAge: Int?  = null
+    var enteredAgeYears: Int?  = 0
+    var enteredAgeMonths: Int?  = 0
+    var enteredAgeWeeks: Int?  = 0
+    var enteredAgeDays: Int?  = 0
     var selectedDateOfBirth: Date?  = null
     var selectedAgeUnit : AgeUnit? = AgeUnit(3,"Years");
     var selectedMaritalStatus : MaritalStatusMaster? = null;
