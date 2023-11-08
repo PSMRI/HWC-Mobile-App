@@ -189,28 +189,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         }
-        binding.inputTestName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Not needed, but must be implemented
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Not needed, but must be implemented
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                if (!s.isNullOrBlank()) {
-                    val text = s.toString()
-                    val capitalizedText = text.substring(0, 1).toUpperCase() + text.substring(1)
-                    if (text != capitalizedText) {
-                        binding.inputTestName.removeTextChangedListener(this) // Avoid infinite loop
-                        binding.inputTestName.setText(capitalizedText)
-                        binding.inputTestName.setSelection(capitalizedText.length) // Set cursor position to the end
-                        binding.inputTestName.addTextChangedListener(this) // Add the listener back
-                    }
-                }
-            }
-        })
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
         }

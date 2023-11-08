@@ -439,7 +439,6 @@
                     android:paddingBottom="4dp"
                     android:paddingTop="6dp"
                     android:textColorHint="#888888"
-                    android:inputType="textCapSentences"
                     android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra">
 
@@ -447,7 +446,7 @@
                         android:id="@+id/inputTestName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
+                        android:inputType="textCapSentences"
                         android:textColorHint="#888888"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
