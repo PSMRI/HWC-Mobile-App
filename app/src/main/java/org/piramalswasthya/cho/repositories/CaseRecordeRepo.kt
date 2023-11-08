@@ -3,21 +3,29 @@ package org.piramalswasthya.cho.repositories
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.model.AssociateAilmentsHistory
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.InvestigationCaseRecordWithHigherHealthCenter
 import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 
 class CaseRecordeRepo @Inject constructor(
-    private val caseRecordDao: CaseRecordeDao
+    private val caseRecordDao: CaseRecordeDao,
+    private val benFlowDao: BenFlowDao,
 ) {
     suspend fun saveInvestigationToCatche(investigationCaseRecord: InvestigationCaseRecord) {
         try{
@@ -64,6 +72,43 @@ class CaseRecordeRepo @Inject constructor(
     }
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
+    }
+
+    suspend fun getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo: PatientDisplayWithVisitInfo): List<InvestigationCaseRecord>? {
+//        val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
+//        var resp: InvestigationCaseRecord? = null
+//        if (benFlow != null) {
+//            resp = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow.benVisitNo!!, benFlow.benFlowID)
+//        }
+//        else{
+//            Timber.d("Error in saving Diagnosis $resp")
+//        }
+//        return resp
+        val dtos: MutableList<InvestigationCaseRecord> = mutableListOf()
+        val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
+        return withContext(Dispatchers.IO) {
+            try {
+                val investigation = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow?.benVisitNo!!, benFlow.benFlowID)
+                investigation?.let { investigation ->
+                    val investigation = InvestigationCaseRecord(
+                        investigationCaseRecordId = investigation.investigationCaseRecordId,
+                        previousTestIds = investigation.previousTestIds,
+                        newTestIds = investigation.newTestIds,
+                        externalInvestigation = investigation.externalInvestigation,
+                        counsellingTypes = investigation.counsellingTypes,
+                        patientID = investigation.patientID,
+                        institutionId = investigation.institutionId,
+                        benVisitNo = investigation.benVisitNo
+                    )
+
+                    dtos += investigation
+                }
+                dtos
+            } catch (e: Exception) {
+                Timber.d("get failed due to $e")
+                null
+            }
+        }
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){

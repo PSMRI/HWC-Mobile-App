@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
+//import org.piramalswasthya.cho.adapter.ReportAdapter
+//import org.piramalswasthya.cho.adapter.ReportAdapter
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -34,8 +37,6 @@ import org.piramalswasthya.cho.adapter.PrescriptionAdapter
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenerD
 import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 import org.piramalswasthya.cho.adapter.TempDropdownAdapter
-//import org.piramalswasthya.cho.adapter.ReportAdapter
-//import org.piramalswasthya.cho.adapter.ReportAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -74,6 +75,7 @@ import java.util.Arrays
 import java.util.Date
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
     private var _binding: CaseRecordCustomLayoutBinding? = null
@@ -97,8 +99,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private lateinit var pAdapter : PrescriptionAdapter
 //    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int,String>()
+    private var investigationBD : InvestigationCaseRecord? = null
     private var referNameMap = emptyMap<Int,String>()
-    private val selectedTestName = mutableListOf<Int>()
+    private var selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
     private val instructionDropdown= instructionDropdownList
@@ -213,6 +216,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         })
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
+            viewModel.getPreviousTest(benVisitInfo)!!
         }
 
         lifecycleScope.launch {
@@ -658,47 +662,76 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         proceduresMasterData: List<ProceduresMasterData>,
         labReportProcedureTypes: List<String>
     ) {
-        val selectedItems = BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
 
-        val disabledItems = labReportProcedureTypes.map { type ->
-            proceduresMasterData.indexOfFirst { it.procedureName == type }
-        }.toSet().toTypedArray()
-
-        val builder = AlertDialog.Builder(requireContext())
-            .setTitle("Select Test Name")
-            .setCancelable(false)
-            .setMultiChoiceItems(
-                procedureDropdown.map { it.procedureName }.toTypedArray(),
-                selectedItems
-            ) { _, which, isChecked ->
-                if (isChecked) {
-                    if (!disabledItems.contains(which)) {
-                        selectedTestName.add(which)
-                    } else {
-                        Toast.makeText(requireContext(), "Test with result cannot be selected", Toast.LENGTH_SHORT).show()
+        viewModel.previousTests.observe(viewLifecycleOwner) {
+            val selectedItems = BooleanArray(procedureDropdown.size){selectedTestName.contains(it) }
+            investigationBD = viewModel.previousTests?.value
+            val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
+            if (resp != null) {
+                val previousTestList = resp.toMutableList()
+                for (index in selectedItems.indices){
+                    if(previousTestList.contains(procedureDropdown!!.get(index).procedureID)){
+                        selectedItems[index] = true
                     }
-                } else {
-                    selectedTestName.remove(which)
                 }
             }
-            .setPositiveButton("Ok") { dialog, which ->
-                val selectedRelationTypes = selectedTestName.map { proceduresMasterData[it].procedureName }
-                val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
-                binding.selectF.text = selectedRelationTypesString
-                binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
-            }
-            .setNeutralButton("Clear all") { dialog, which ->
-                selectedTestName.clear()
-                Arrays.fill(selectedItems, false)
-                val listView = (dialog as? AlertDialog)?.listView
-                listView?.clearChoices()
-                listView?.requestLayout()
-                binding.selectF.text = resources.getString(R.string.select_test_name)
-                binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.defaultInput))
-            }
 
-        val alertDialog = builder.create()
-        alertDialog.show()
+            val disabledItems = labReportProcedureTypes.map { type ->
+                proceduresMasterData.indexOfFirst { it.procedureName == type }
+            }.toSet().toTypedArray()
+
+            val builder = AlertDialog.Builder(requireContext())
+                .setTitle("Select Test Name")
+                .setCancelable(false)
+                .setMultiChoiceItems(
+                    procedureDropdown.map { it.procedureName }.toTypedArray(),
+                    selectedItems
+                ) { _, which, isChecked ->
+                    if (isChecked) {
+                        if (!disabledItems.contains(which)) {
+                            selectedTestName.add(which)
+                        } else {
+                            Toast.makeText(requireContext(), "Test with result cannot be selected", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        selectedTestName.remove(which)
+                    }
+
+                }
+                .setPositiveButton("Ok") { dialog, which ->
+                    val selectedRelationTypes = selectedTestName.map { proceduresMasterData[it].procedureName }
+                    val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
+                    binding.selectF.text = selectedRelationTypesString
+                    binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+                }
+                .setNeutralButton("Clear all") { dialog, which ->
+                    selectedTestName.clear()
+                    Arrays.fill(selectedItems, false)
+                    val listView = (dialog as? AlertDialog)?.listView
+                    listView?.clearChoices()
+                    listView?.requestLayout()
+                    binding.selectF.text = resources.getString(R.string.select_test_name)
+                    binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.defaultInput))
+                }
+
+            val alertDialog = builder.create()
+            alertDialog.setOnShowListener {
+                if (resp != null) {
+                    val previousTestList = resp.toMutableList()
+                    for (index in selectedItems.indices){
+                        if(previousTestList.contains(procedureDropdown!!.get(index).procedureID)){
+                            alertDialog.listView.get(index).isEnabled = false
+                            alertDialog.listView.get(index).setOnClickListener(){
+                                alertDialog.listView.get(index).isEnabled = false
+                            }
+                        }
+                    }
+                }
+            }
+            alertDialog.show()
+
+        }
+
     }
 
 
@@ -803,9 +836,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
+        val previousTestIdsTmp = if(investigationBD!=null && investigationBD?.previousTestIds!=null){
+            investigationBD?.previousTestIds?.trim()?.plus(","+idString.nullIfEmpty())?.replace("null,", "")
+        } else {
+            idString.nullIfEmpty()
+        }
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            testIds = idString.nullIfEmpty(),
+            previousTestIds = previousTestIdsTmp,
+            newTestIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
@@ -895,15 +934,23 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
+        val previousTestIdsTmp = if(investigationBD!=null && investigationBD?.previousTestIds!=null){
+            investigationBD?.previousTestIds?.trim()?.plus(","+idString.nullIfEmpty())?.replace("null,", "")
+        } else {
+            idString.nullIfEmpty()
+        }
+
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
-            testIds = idString.nullIfEmpty(),
+            previousTestIds = previousTestIdsTmp,
+            newTestIds = idString.nullIfEmpty(),
             externalInvestigation = externalInvestigation,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
             benVisitNo = benVisitNo
         )
+
 
 
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
