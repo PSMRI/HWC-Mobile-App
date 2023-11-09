@@ -54,6 +54,8 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
 //        binding.btnNext.visibility = View.INVISIBLE
 //        binding.btnPrev.visibility = View.INVISIBLE
 //        binding.btnSubmitForm.visibility = View.VISIBLE
+        binding.vaccineNameText.visibility = View.VISIBLE
+        binding.vaccineName.isEnabled = false
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it
         }
@@ -98,6 +100,13 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
             viewModel.updateRecordExists(false)
         }
 
+        viewModel.vaccineExists.observe(viewLifecycleOwner){
+            it?.let {
+                if(it){
+                    binding.vaccineName.setText(viewModel.vaccine.vaccineName)
+                }
+            }
+        }
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
