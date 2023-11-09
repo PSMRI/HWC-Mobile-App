@@ -159,7 +159,7 @@ class HomeFragment : Fragment() {
             (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
             binding.registration.isEnabled = true
         }
-        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && preferenceDao.isUserRegistrar()
+        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && (preferenceDao.isUserRegistrar() || preferenceDao.isUserStaffNurseOrNurse())
 
 //
 
@@ -187,10 +187,6 @@ class HomeFragment : Fragment() {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
 //                    binding.registration.isEnabled = preferenceDao.isUserRegistrar()
-                    if(preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse"))){
-                        binding.registration.isEnabled = true
-                    }
-                    else binding.registration.isEnabled = !preferenceDao.isCHO() && preferenceDao.isUserRegistrar()
                 }
 
                 HomeActivityViewModel.State.SAVE_FAILED -> {

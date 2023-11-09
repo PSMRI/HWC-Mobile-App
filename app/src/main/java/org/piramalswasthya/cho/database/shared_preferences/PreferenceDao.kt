@@ -112,6 +112,14 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
          return false;
      }
 
+    fun isUserStaffNurseOrNurse():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Staff Nurse") || rolesArray.contains("Nurse")
+        }
+        return false;
+    }
+
     fun isUserRegistrarOnly():Boolean{
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
@@ -146,7 +154,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
             if (rolesArray.contains("Doctor")||rolesArray.contains("MO")){
                 return false
             }else {
-                return rolesArray.contains("Nurse")||rolesArray.contains("CHO")
+                return rolesArray.contains("Nurse") || rolesArray.contains("Staff Nurse") || rolesArray.contains("CHO")
             }
         }
         return false;
@@ -155,7 +163,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     fun isUserNurseOrCHOAndDoctorOrMo(): Boolean {
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            if((rolesArray.contains("Doctor")||rolesArray.contains("MO"))&& rolesArray.contains("Nurse")||rolesArray.contains("CHO")) {
+            if((rolesArray.contains("Doctor")||rolesArray.contains("MO"))&& (rolesArray.contains("Nurse") || rolesArray.contains("Staff Nurse") || rolesArray.contains("CHO"))) {
                 return true
             }
         }
