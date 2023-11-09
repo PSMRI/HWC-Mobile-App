@@ -5,11 +5,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -38,6 +41,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -90,7 +94,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private var units = mutualVisitUnitsVal
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
-    private lateinit var subCatAdapter: SubCategoryAdapter
+//    private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
@@ -138,6 +142,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private val childImmunizationListViewModel: ChildImmunizationListViewModel by viewModels()
 
     private val bottomSheet: ChildImmunizationVaccineBottomSheetFragment by lazy { ChildImmunizationVaccineBottomSheetFragment() }
+
+    private var pncList = mutableListOf<PNCVisitCache>()
 
     private val binding: VisitDetailsInfoBinding
         get() {
@@ -242,53 +248,72 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun setSubCategoryDropdown(){
+        viewModel.selectedSubCat = ""
+        binding.subCatInput.setText(viewModel.selectedSubCat, false)
         if( ageCheckForChild(benVisitInfo.patient.dob) ){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.age_0_to_1)
             binding.subCatInput.setAdapter(subCatAdapter)
+//            viewModel.selectedSubCat = DropdownConst.age_0_to_1[0]
+//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
         else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.female_1_to_59)
             binding.subCatInput.setAdapter(subCatAdapter)
+//            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
+//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
+
     }
 
     private fun setReasonForVisitDropdown(subCat: String){
 
         Log.d("Reason for visit is ", "Working " + subCat)
         if(subCat == DropdownConst.careAndPreg){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.anc, DropdownConst.pnc)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.anc
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.fpAndOtherRep){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.fpAndCs)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.neonatalAndInfant){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.immunization)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.immunization
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+        }
+        else{
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
     }
 
@@ -332,6 +357,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.VISIBLE
         }
+        else{
+            removeVisibility()
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?){
@@ -347,6 +375,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onResume(){
         Log.v("tag on", "onResume")
         super.onResume()
+        setSubCategoryDropdown()
+        setReasonForVisitDropdown(viewModel.selectedSubCat)
     }
 
     override fun onPause(){
@@ -368,7 +398,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         Log.v("tag on", "on view created")
-        removeVisibility()
+        setVisibility()
+//        viewModel.selectedSubCat = "";
+//        viewModel.selectedReasonForVisit = ""
+//        binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//        binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+
 
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -438,7 +473,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.subCatInput.setText(viewModel.selectedSubCat, false)
             viewModel.selectedReasonForVisit = ""
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-            removeVisibility()
+            setVisibility()
             setReasonForVisitDropdown(viewModel.selectedSubCat)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
@@ -450,7 +485,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedReasonForVisit = parent.getItemAtPosition(position) as String
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-            removeVisibility()
+            setVisibility()
             if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
                 viewModel.activePwrRecord.observe(viewLifecycleOwner){
@@ -512,9 +547,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         viewModel.setPatientId(benVisitInfo.patient.patientID)
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
+
         setSubCategoryDropdown()
         setReasonForVisitDropdown(viewModel.selectedSubCat)
-
 
         viewModel.init(benVisitInfo.patient.patientID)
 
@@ -1299,7 +1334,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else{
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, System.currentTimeMillis()
+                        benVisitInfo.patient.patientID, 0L
                     )
                 )
             }
@@ -1515,5 +1550,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onEndIconChiefClick(position: Int) {
         speechToTextLauncherForChiefMaster.launch(Unit)
         currChiefPos = position
+    }
+
+}
+
+fun AutoCompleteTextView.showDropdown(adapter: ArrayAdapter<String>?) {
+    if(!TextUtils.isEmpty(this.text.toString())){
+        adapter?.filter?.filter(null)
     }
 }
