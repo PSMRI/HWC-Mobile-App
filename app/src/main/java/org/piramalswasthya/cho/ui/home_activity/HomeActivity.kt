@@ -293,8 +293,15 @@ class HomeActivity : AppCompatActivity() {
                 currentSwitchRoleSelected = prefDao.getSwitchRole()!!
             }
             else{
+                prefDao.getFirstUserRole()
                 currentSwitchRoleSelected = prefDao.getFirstUserRole()
-                prefDao.setSwitchRoles(prefDao.getFirstUserRole())
+//                prefDao.setSwitchRoles(prefDao.getFirstUserRole())
+                if(prefDao.getFirstUserRole() == "Staff Nurse"){
+                    prefDao.setSwitchRoles("Nurse")
+                }
+                else{
+                  prefDao.setSwitchRoles(prefDao.getFirstUserRole())
+                }
             }
         }
 
@@ -457,7 +464,6 @@ private fun triggerAlarmManager(){
             .setTitle("Choose Role")
 
             .setPositiveButton("Apply") { dialog, _ ->
-                Toast.makeText(this, "Test role Selected", Toast.LENGTH_SHORT).show()
                 if(currentSwitchRoleSelected!=null){
                     prefDao.setSwitchRoles(currentSwitchRoleSelected)
 //                    WorkerUtils.triggerDownSyncWorker(this)
@@ -491,7 +497,7 @@ private fun triggerAlarmManager(){
                     registrarRadioButton.setVisibilityOfLayout(true)
                 }
 
-                if(prefDao.isContainsRole("Nurse")){
+                if(prefDao.isContainsRole("Nurse") || prefDao.isContainsRole("Staff Nurse")){
                     nurseRadioButton.setVisibilityOfLayout(true)
                 }
 
@@ -510,6 +516,7 @@ private fun triggerAlarmManager(){
                 when (prefDao.getSwitchRole()) {
                     "Registrar" -> radioGroup.check(registrarRadioButton.id)
                     "Nurse" -> radioGroup.check(nurseRadioButton.id)
+                    "Staff Nurse" -> radioGroup.check(nurseRadioButton.id)
                     "Doctor" -> radioGroup.check(doctorRadioButton.id)
                     "MO" -> radioGroup.check(doctorRadioButton.id)
                     "Pharmacist" -> radioGroup.check(pharmacistRadioButton.id)
