@@ -183,10 +183,16 @@ class PrescriptionAdapter(
         holder.formOptions.setAdapter(formItemAdapter)
 
         holder.formOptions.setOnItemClickListener { parent, _, position, _ ->
-            var form = formMD[position]
-            holder.formOptions.setText(form?.dropdownForMed,false)
-            itemData.id = form.itemID
+            val selectedName = parent.getItemAtPosition(position).toString()
+
+            val selectedItem = formMD.find { it.dropdownForMed.equals(selectedName) }
+
+            selectedItem?.let {
+                holder.formOptions.setText(selectedName)
+                itemData.id = it.itemID
+            }
         }
+
 
         val frequencyAdapter =
             ArrayAdapter(holder.itemView.context, R.layout.drop_down, frequencyDropDown)

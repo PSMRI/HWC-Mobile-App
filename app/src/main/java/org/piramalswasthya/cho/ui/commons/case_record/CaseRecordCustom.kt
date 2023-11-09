@@ -1042,7 +1042,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                     drugId = formVal,
                                     frequency = freqVal,
                                     duration = durVal,
-                                    unit = unitVal ?: "Days",
+                                    unit = unitVal ?: "Day(s)",
                                     instruction = instruction,
                                     deleteStatus = 0
                                 )
