@@ -8,28 +8,31 @@ import org.piramalswasthya.cho.model.*
 @Dao
 interface MaternalHealthDao {
     @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
-    fun getSavedRecord(patientID: String): PregnantWomanRegistrationCache?
+    suspend fun getSavedRecord(patientID: String): PregnantWomanRegistrationCache?
 
-    @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
-    fun getSavedRecordObserve(patientID: String): LiveData<PregnantWomanRegistrationCache?>
-
-    @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
-    fun getSavedActiveRecord(benId: String): PregnantWomanRegistrationCache?
+//    @Query("select * from pregnancy_register where patientID = :patientID and active = 1 limit 1")
+//    fun getSavedRecordObserve(patientID: String): LiveData<PregnantWomanRegistrationCache?>
 
     @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
-    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?>
+    suspend fun getSavedActiveRecord(benId: String): PregnantWomanRegistrationCache?
+
+//    @Query("select * from pregnancy_register where patientID = :benId and active = 1 order by createdDate limit 1")
+//    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?>
+
+    @Query("select * from pregnancy_anc where patientID = :patientID order by ancDate desc limit 1")
+    suspend fun getLastAnc(patientID: String): PregnantWomanAncCache?
 
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
-    fun getLastVisitNumber(patientID: String): LiveData<Int?>
+    suspend fun getLastVisitNumber(patientID: String): Int?
 
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
-    fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
+    suspend fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
 
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
-    fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
+    suspend fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
-    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
-    fun getAllActiveAncRecordsObserve(patientID: String): LiveData<List<PregnantWomanAncCache>>
+//    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
+//    fun getAllActiveAncRecordsObserve(patientID: String): LiveData<List<PregnantWomanAncCache>>
 //    @Query("select * from pregnancy_anc where benId in (:benId) and isActive = 1")
 //    fun getAllActiveAncRecords(benId: Set<Long>): List<PregnantWomanAncCache>
 //

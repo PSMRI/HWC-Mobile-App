@@ -495,6 +495,7 @@
     <string name="radio_title_ds">%s<span> **</span></string>
     <string name="radio_title">%s<span> *</span></string>
     <string name="anc_visit_number">ANC Visit %1d</string>
+    <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
     <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
     <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>

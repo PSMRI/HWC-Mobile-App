@@ -49,14 +49,13 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(viewModel.isOldVisit){
-            val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
-            btnSubmit?.visibility = View.GONE
-        }
-
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
                 binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
+                if(recordExists){
+                    val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+                    btnSubmit?.visibility = View.GONE
+                }
 //                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->

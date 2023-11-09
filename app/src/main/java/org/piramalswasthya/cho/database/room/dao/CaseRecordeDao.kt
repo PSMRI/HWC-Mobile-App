@@ -60,4 +60,7 @@ interface CaseRecordeDao {
     @Insert
     suspend fun insertAll(diagnosisCaseRecord: List<DiagnosisCaseRecord>)
 
+    @Query("SELECT * FROM Investigation_Case_Record WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun getPrescriptionCasesRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo:Int): InvestigationCaseRecord?
+
 }
