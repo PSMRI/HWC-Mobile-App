@@ -140,6 +140,7 @@ class PwAncFormViewModel @Inject constructor(
 //                            benRepo.updateRecord(it)
 //                        }
                     } else if (ancCache.isAborted) {
+
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
                             it.active = false
                             if (it.processed != "N") it.processed = "U"

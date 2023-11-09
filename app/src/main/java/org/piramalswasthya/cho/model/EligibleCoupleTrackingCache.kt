@@ -45,6 +45,14 @@ data class EligibleCoupleTrackingCache(
     var syncState: SyncState
 ) : FormDataModel {
 
+    companion object {
+        private val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault())
+
+        fun getECTFilledDateFromLong(long: Long): String {
+            return "Visited on ${dateFormat.format(long)}"
+        }
+    }
+
     fun asNetworkModel(benId: Long): ECTNetwork {
         return ECTNetwork(
             benId = benId,

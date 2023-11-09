@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,6 +27,8 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AncVisitAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
+import org.piramalswasthya.cho.adapter.ECTrackingAdapter
+import org.piramalswasthya.cho.adapter.PncVisitAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -33,6 +36,7 @@ import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -54,8 +58,12 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -194,6 +202,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.v("tag on", "on create view")
         addCount = 0
         deleteCount = 0
         _binding = VisitDetailsInfoBinding.inflate(inflater, container, false)
@@ -208,8 +217,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    fun ageCheckForChild(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 0L
+        val maxAge = 366L*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap > minAge) && (ageGap <= maxAge)
+    }
+
+    fun ageCheckForFemale(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 366L*24*60*60*1000
+        val maxAge = 365L*60*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap > minAge) && (ageGap <= maxAge)
+    }
+
     private fun setSubCategoryDropdown(){
-        if(benVisitInfo.ageUnit?.lowercase() != "years" || (benVisitInfo.patient.age != null && benVisitInfo.patient.age!! <= 1)){
+        if( ageCheckForChild(benVisitInfo.patient.dob) ){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -217,7 +250,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 DropdownConst.age_0_to_1)
             binding.subCatInput.setAdapter(subCatAdapter)
         }
-        else if(benVisitInfo.patient.age != null && benVisitInfo.patient.age!! > 1 && benVisitInfo.ageUnit?.lowercase() == "years" && benVisitInfo.genderName?.lowercase() == "female"){
+        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -248,7 +281,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
-        else{
+        else if(subCat == DropdownConst.neonatalAndInfant){
             subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
@@ -263,27 +296,79 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.lmpDate.visibility = View.GONE
         binding.deliveryDate.visibility = View.GONE
         binding.rvAnc.visibility = View.GONE
+        binding.rvPnc.visibility = View.GONE
+        binding.rvEct.visibility = View.GONE
     }
 
     fun setVisibility(){
         val reasonForVisit = binding.reasonForVisitInput.text.toString()
         if(reasonForVisit == DropdownConst.anc){
-            binding.lmpDate.visibility = View.VISIBLE
+            viewModel.activePwrRecord.observe(viewLifecycleOwner){
+                if(it == null && lmpDate == null){
+                    binding.lmpDate.visibility = View.VISIBLE
+                }
+            }
             binding.deliveryDate.visibility = View.GONE
             binding.rvAnc.visibility = View.VISIBLE
+            binding.rvPnc.visibility = View.GONE
+            binding.rvEct.visibility = View.GONE
         }
         else if(reasonForVisit == DropdownConst.pnc){
             binding.lmpDate.visibility = View.GONE
-            binding.deliveryDate.visibility = View.VISIBLE
+            viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+                if(it == null && deliveryDate == null){
+                    binding.deliveryDate.visibility = View.VISIBLE
+                }
+            }
             binding.rvAnc.visibility = View.GONE
+            binding.rvPnc.visibility = View.VISIBLE
+            binding.rvEct.visibility = View.GONE
+
         }
+        else if(reasonForVisit == DropdownConst.fpAndCs){
+            binding.lmpDate.visibility = View.GONE
+            binding.deliveryDate.visibility = View.GONE
+            binding.rvAnc.visibility = View.GONE
+            binding.rvPnc.visibility = View.GONE
+            binding.rvEct.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?){
+        Log.v("tag on", "onViewStateRestored")
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+    override fun onStart(){
+        Log.v("tag on", "onStart")
+        super.onStart()
+    }
+
+    override fun onResume(){
+        Log.v("tag on", "onResume")
+        super.onResume()
+    }
+
+    override fun onPause(){
+        Log.v("tag on", "onPause")
+        super.onPause()
+    }
+
+    override fun onStop(){
+        Log.v("tag on", "onStop")
+        super.onStop()
+    }
+
+    override fun onDestroyView(){
+        Log.v("tag on", "onDestroyView")
+        super.onDestroyView()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.lmpDate.visibility = View.GONE
-        binding.deliveryDate.visibility = View.GONE
-        binding.rvAnc.visibility = View.GONE
+
+        Log.v("tag on", "on view created")
+        removeVisibility()
 
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -349,11 +434,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        }
 
         binding.subCatInput.setOnItemClickListener { parent, _, position, _ ->
-            var subCat = parent.getItemAtPosition(position)
-            binding.subCatInput.setText(subCat.toString(), false)
-            binding.reasonForVisitInput.setText("", false)
+            viewModel.selectedSubCat = parent.getItemAtPosition(position) as String
+            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             removeVisibility()
-            setReasonForVisitDropdown(subCat.toString())
+            setReasonForVisitDropdown(viewModel.selectedSubCat)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
                 hintTextColor = defaultHintTextColor
@@ -362,23 +448,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
 
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
-            var subCat = parent.getItemAtPosition(position)
-            binding.reasonForVisitInput.setText(subCat.toString(), false)
+            viewModel.selectedReasonForVisit = parent.getItemAtPosition(position) as String
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             removeVisibility()
-            if(subCat == DropdownConst.anc){
+            if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
-                viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+                viewModel.activePwrRecord.observe(viewLifecycleOwner){
                     if(it == null && lmpDate == null){
                         binding.lmpDate.visibility = View.VISIBLE
                     }
                 }
             }
-            else if(subCat == DropdownConst.pnc){
-                viewModel.getDeliveryOutcomeObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+            else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
+                binding.rvPnc.visibility = View.VISIBLE
+                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
                     if(it == null && deliveryDate == null){
                         binding.deliveryDate.visibility = View.VISIBLE
                     }
                 }
+            }
+            else if(viewModel.selectedReasonForVisit == DropdownConst.fpAndCs){
+                binding.rvEct.visibility = View.VISIBLE
+//                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+//                    if(it == null && deliveryDate == null){
+//                        binding.deliveryDate.visibility = View.VISIBLE
+//                    }
+//                }
             }
         }
 
@@ -418,12 +513,24 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
         setSubCategoryDropdown()
+        setReasonForVisitDropdown(viewModel.selectedSubCat)
 
-        viewModel.getAllActiveAncRecordsObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+
+        viewModel.init(benVisitInfo.patient.patientID)
+
+        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
             (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
         }
 
-        viewModel.getLastVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+        viewModel.allActivePncRecords.observe(viewLifecycleOwner){
+            (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
+        }
+
+        viewModel.allEctRecords.observe(viewLifecycleOwner){
+            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
+        }
+
+        viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
             lastAncVisit = it ?: 0
         }
 
@@ -432,6 +539,24 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
                         benId, visitNumber, true
+                    )
+                )
+            })
+
+        binding.rvPnc.adapter =
+            PncVisitAdapter(PncVisitAdapter.PncVisitClickListener { benId, visitNumber ->
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                        benId, visitNumber
+                    )
+                )
+            })
+
+        binding.rvEct.adapter =
+            ECTrackingAdapter(ECTrackingAdapter.ECTrackViewClickListener { benId, createdDate ->
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+                        patientID = benId, createdDate = createdDate
                     )
                 )
             })
@@ -1001,7 +1126,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.anc){
 
-                viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
+                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
                     if(it1 == null && lmpDate == null){
                         Toast.makeText(
                             requireContext(),
@@ -1013,59 +1138,19 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
                         viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                             if(it2){
-                                findNavController().navigate(
-                                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                                    )
-                                )
+                                checkAndNavigateAnc()
                             }
                         }
                     }
                     else{
-                        findNavController().navigate(
-                            FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                                benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                            )
-                        )
+                        checkAndNavigateAnc()
                     }
                 }
-
-//                viewModel.getLastActiveAncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
-//                    val visitNumber = (it ?: 0) + 1
-//                    viewModel.getSavedActiveRecordObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
-//                        if(it1 == null && lmpDate == null){
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "Select LMP Date",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//                        else if(it1 == null){
-//                            viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
-//                            viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
-//                                if(it2){
-//                                    findNavController().navigate(
-//                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-//                                            benVisitInfo.patient.patientID, visitNumber, false
-//                                        )
-//                                    )
-//                                }
-//                            }
-//                        }
-//                        else{
-//                            findNavController().navigate(
-//                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-//                                    benVisitInfo.patient.patientID, visitNumber, false
-//                                )
-//                            )
-//                        }
-//                    }
-//                }
             }
             else if(reasonForVisit == DropdownConst.pnc){
-                viewModel.getLastPncVisitNumber(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){
+                viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
                     val visitNumber = (it ?: 0) + 1
-                    viewModel.getDeliveryOutcomeObserve(benVisitInfo.patient.patientID).observe(viewLifecycleOwner){it1->
+                    viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){it1->
                         if(it1 == null && deliveryDate == null){
                             Toast.makeText(
                                 requireContext(),
@@ -1104,11 +1189,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     bottomSheet.show(childFragmentManager, "ImM")
             }
             else if(reasonForVisit == DropdownConst.fpAndCs){
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, 0
-                    )
-                )
+                checkAndNavigateEct()
             }
         }
         else {
@@ -1165,6 +1246,62 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
+        }
+    }
+
+    private fun checkAndNavigateAnc(){
+        val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
+        viewModel.lastAnc.observe(viewLifecycleOwner){
+            if(it != null && System.currentTimeMillis() - it.ancDate < minGap){
+                Toast.makeText(
+                    requireContext(),
+                    "ANC found within 28 days",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else{
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
+                    )
+                )
+            }
+        }
+    }
+
+    fun getYearAndMonthFromEpoch(epochMillis: Long): Pair<Int, Int> {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = epochMillis
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is zero-based
+        return Pair(year, month)
+    }
+
+    fun checkValid(lastEct: EligibleCoupleTrackingCache): Boolean{
+        val lastEctPair = getYearAndMonthFromEpoch(lastEct.visitDate)
+        val currDatePair = getYearAndMonthFromEpoch(System.currentTimeMillis())
+        if(currDatePair.first == lastEctPair.first && currDatePair.second == lastEctPair.second){
+            return true;
+        }
+        return false;
+    }
+
+    private fun checkAndNavigateEct(){
+        viewModel.lastEct.observe(viewLifecycleOwner){
+            if(it != null && checkValid(it)){
+                Toast.makeText(
+                    requireContext(),
+                    "Eligible Couple tracking is done for this month",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else{
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+                        benVisitInfo.patient.patientID, System.currentTimeMillis()
+                    )
+                )
             }
         }
     }

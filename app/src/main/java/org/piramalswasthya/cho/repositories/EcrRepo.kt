@@ -56,6 +56,12 @@ class EcrRepo @Inject constructor(
 //        }
 //    }
 //
+    suspend fun getAllECT(patientID: String): List<EligibleCoupleTrackingCache> {
+        return withContext(Dispatchers.IO) {
+            database.ecrDao.getAllECT(patientID)
+        }
+    }
+
     suspend fun getEct(patientID: String, createdDate: Long): EligibleCoupleTrackingCache? {
         return withContext(Dispatchers.IO) {
             database.ecrDao.getEct(patientID, createdDate)

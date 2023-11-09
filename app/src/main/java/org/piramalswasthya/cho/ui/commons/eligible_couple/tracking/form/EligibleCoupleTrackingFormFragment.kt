@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -56,6 +57,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         hardCodedListUpdate(formId)
                     }, isEnabled = !recordExists
                 )
+                if(recordExists){
+                    val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+                    btnSubmit?.visibility = View.GONE
+                }
 //                binding.btnSubmit.isEnabled = !recordExists
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {

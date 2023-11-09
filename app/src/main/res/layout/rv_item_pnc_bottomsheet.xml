@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="visit"
+            type="org.piramalswasthya.cho.model.PNCVisitCache" />
+
+        <variable
+            name="clickListener"
+            type="org.piramalswasthya.cho.adapter.PncVisitAdapter.PncVisitClickListener" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true"
+        app:cardBackgroundColor="@android:color/white"
+        android:layout_margin="8dp">
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="@dimen/padding_normal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_normal"
+                android:text="@{@string/pnc_visit_number(visit.pncPeriod)}"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                tools:text="ANc VISIT 4" />
+            <!--                <TextView-->
+            <!--            android:id="@+id/tv_filled_on"-->
+            <!--            android:layout_width="wrap_content"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:padding="@dimen/padding_normal"-->
+            <!--            android:text="@string/filled_on"-->
+            <!--            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"-->
+            <!--            tools:text="ANc VISIT 4" />-->
+
+            <androidx.legacy.widget.Space
+                android:layout_width="30dp"
+                android:layout_height="match_parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="?attr/colorPrimary"
+                android:onClick="@{()-> clickListener.onClickedVisit(visit)}"
+                android:text="@string/view"
+                android:textColor="?attr/colorOnPrimary" />
+
+            <androidx.legacy.widget.Space
+                android:layout_width="30dp"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/iv_sync_state"
+                syncState="@{visit.syncState}"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginHorizontal="@dimen/padding_small"
+                android:contentDescription="@string/iv_sync_state_tv"
+                tools:src="@drawable/ic_synced" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</layout>

@@ -37,10 +37,6 @@ class DeliveryOutcomeRepo @Inject constructor(
         }
     }
 
-    fun getDeliveryOutcomeObserve(patientID: String): LiveData<DeliveryOutcomeCache?> {
-        return deliveryOutcomeDao.getDeliveryOutcomeObserve(patientID)
-    }
-
     suspend fun saveDeliveryOutcome(deliveryOutcomeCache: DeliveryOutcomeCache) {
         withContext(Dispatchers.IO) {
             deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)

@@ -43,18 +43,16 @@ class MaternalHealthRepo @Inject constructor(
 ) {
 
     suspend fun getSavedRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
-        return withContext(Dispatchers.IO) {
-            maternalHealthDao.getSavedRecord(benId)
-        }
+        return maternalHealthDao.getSavedRecord(benId)
     }
 
-    suspend fun getSavedRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
-        return  maternalHealthDao.getSavedRecordObserve(benId)
-    }
-
-    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
-        return maternalHealthDao.getSavedActiveRecordObserve(benId)
-    }
+//    suspend fun getSavedRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
+//        return  maternalHealthDao.getSavedRecordObserve(benId)
+//    }
+//
+//    fun getSavedActiveRecordObserve(benId: String): LiveData<PregnantWomanRegistrationCache?> {
+//        return maternalHealthDao.getSavedActiveRecordObserve(benId)
+//    }
 
     suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
         return withContext(Dispatchers.IO) {
@@ -63,7 +61,7 @@ class MaternalHealthRepo @Inject constructor(
     }
 //
 
-    fun getLastVisitNumber(benId: String): LiveData<Int?> {
+    suspend fun getLastVisitNumber(benId: String): Int? {
         return maternalHealthDao.getLastVisitNumber(benId)
     }
 
@@ -82,34 +80,25 @@ class MaternalHealthRepo @Inject constructor(
 //    }
 //
     suspend fun getAllActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
-        return withContext(Dispatchers.IO) {
-            maternalHealthDao.getAllActiveAncRecords(benId)
-        }
+         return maternalHealthDao.getAllActiveAncRecords(benId)
     }
 
-    fun getAllActiveAncRecordsObserve(benId: String): LiveData<List<PregnantWomanAncCache>> {
-        return maternalHealthDao.getAllActiveAncRecordsObserve(benId)
+    suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthDao.getLastAnc(benId)
     }
-//
-//    suspend fun getBenFromId(benId: Long): BenRegCache? {
-//        return withContext(Dispatchers.IO) {
-//            benDao.getBen(benId)
-//        }
-//    }
-//
+
     suspend fun persistRegisterRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache) {
         withContext(Dispatchers.IO) {
             maternalHealthDao.saveRecord(pregnancyRegistrationForm)
         }
     }
-//
-//
+
 //    suspend fun getAllAncRecords(benId: Long): List<AncStatus> {
 //        return withContext(Dispatchers.IO) {
 //            maternalHealthDao.getAllAncRecordsFor(benId)
 //        }
 //    }
-//
+
     suspend fun persistAncRecord(ancCache: PregnantWomanAncCache) {
         withContext(Dispatchers.IO) {
             maternalHealthDao.saveRecord(ancCache)

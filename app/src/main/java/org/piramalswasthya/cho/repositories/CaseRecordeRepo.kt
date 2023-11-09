@@ -74,41 +74,8 @@ class CaseRecordeRepo @Inject constructor(
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
     }
 
-    suspend fun getInvestigationCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo: PatientDisplayWithVisitInfo): List<InvestigationCaseRecord>? {
-//        val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
-//        var resp: InvestigationCaseRecord? = null
-//        if (benFlow != null) {
-//            resp = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow.benVisitNo!!, benFlow.benFlowID)
-//        }
-//        else{
-//            Timber.d("Error in saving Diagnosis $resp")
-//        }
-//        return resp
-        val dtos: MutableList<InvestigationCaseRecord> = mutableListOf()
-        val benFlow = benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(benVisitInfo.patient.beneficiaryRegID!!, benVisitInfo.benVisitNo!!)
-        return withContext(Dispatchers.IO) {
-            try {
-                val investigation = caseRecordDao.getPrescriptionCasesRecordByPatientIDAndVisitCodeAndBenFlowID(benVisitInfo.patient.patientID, benFlow?.benVisitNo!!, benFlow.benFlowID)
-                investigation?.let { investigation ->
-                    val investigation = InvestigationCaseRecord(
-                        investigationCaseRecordId = investigation.investigationCaseRecordId,
-                        previousTestIds = investigation.previousTestIds,
-                        newTestIds = investigation.newTestIds,
-                        externalInvestigation = investigation.externalInvestigation,
-                        counsellingTypes = investigation.counsellingTypes,
-                        patientID = investigation.patientID,
-                        institutionId = investigation.institutionId,
-                        benVisitNo = investigation.benVisitNo
-                    )
-
-                    dtos += investigation
-                }
-                dtos
-            } catch (e: Exception) {
-                Timber.d("get failed due to $e")
-                null
-            }
-        }
+    suspend fun getInvestigationCasesRecordByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord? {
+        return caseRecordDao.getPrescriptionCasesRecordByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
     }
 
     suspend fun updateBenIdAndBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String){
