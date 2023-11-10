@@ -1015,7 +1015,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     requireActivity().runOnUiThread {
                         Toast.makeText(
                             requireContext(),
-                            resources.getString(R.string.templte_exists),
+                             resources.getString(R.string.templte_exists),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
