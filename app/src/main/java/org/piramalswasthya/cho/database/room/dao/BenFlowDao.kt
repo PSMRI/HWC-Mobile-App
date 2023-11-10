@@ -16,6 +16,19 @@ interface BenFlowDao {
     suspend fun insertBenFlow(benFlow: BenFlow)
     @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getOpdCount(genderID: Int, periodParam: String) : Int?
+
+    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'ANC') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    suspend fun getAncCount(periodParam: String) : Int?
+
+    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'PNC') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    suspend fun getPncCount(periodParam: String) : Int?
+
+    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'Neonatal and Infant Health Care Services') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    suspend fun getImmunizationCount(periodParam: String) : Int?
+
+    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'FP & Contraceptive Services') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    suspend fun getEctCount(periodParam: String) : Int?
+
     @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
      fun getOpdCountLive(genderID: Int, periodParam: String) : LiveData<Int?>?
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")

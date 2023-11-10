@@ -804,6 +804,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
 
     }
+
     fun goToEnd(){
         extractFormValues()
         setVisitMasterDataAndVitalsForFollow()

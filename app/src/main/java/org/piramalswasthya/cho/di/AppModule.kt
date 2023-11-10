@@ -84,6 +84,8 @@ object AppModule {
 
     private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
+//    private const val sanjeevaniApi = "https://api.esanjeevani.in/prod/"
+
     private val baseClient =
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

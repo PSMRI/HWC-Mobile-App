@@ -30,6 +30,12 @@ class DashboardFragment : Fragment() {
     private var femaleOpdCount : Int? = 0
     private var othersOpdCount : Int? = 0
     private var totalOpdCount : Int? = 0
+
+    private var ancCount : Int? = 0
+    private var pncCount : Int? = 0
+    private var immunizationCount : Int? = 0
+    private var ectCount : Int? = 0
+
     private val binding: FragmentDashboardBinding
         get() = _binding!!
     lateinit var viewModel: DashboardViewModel
@@ -76,10 +82,23 @@ class DashboardFragment : Fragment() {
         femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!) ?: 0
         othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!) ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
+
         binding.opdMaleValue.text = maleOpdCount.toString()
         binding.opdFemaleValue.text = femaleOpdCount.toString()
         binding.opdOtherValue.text = othersOpdCount.toString()
         binding.opdTotalValue.text = totalOpdCount.toString()
+
+        ancCount = benFlowDao.getAncCount(periodParam!!) ?: 0
+        pncCount = benFlowDao.getPncCount(periodParam!!) ?: 0
+        immunizationCount = benFlowDao.getImmunizationCount(periodParam!!) ?: 0
+        ectCount = benFlowDao.getEctCount(periodParam!!) ?: 0
+
+        binding.tvAncValue.text = ancCount.toString()
+        binding.tvPncValue.text = pncCount.toString()
+        binding.tvImmValue.text = immunizationCount.toString()
+        binding.tvFamValue.text = ectCount.toString()
+
+
     }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

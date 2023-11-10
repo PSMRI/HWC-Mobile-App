@@ -12,14 +12,25 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @AndroidEntryPoint
 class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
@@ -29,6 +40,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         get() = _binding!!
 
     val viewModel: EligibleCoupleTrackingFormViewModel by viewModels()
+
+    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+
+    val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
     var fragmentContainerId: Int = 0
 
@@ -48,6 +63,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
 //                binding.fabEdit.visibility = if(recordExists) View.VISIBLE else View.GONE
@@ -85,11 +103,14 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         viewModel.state.observe(viewLifecycleOwner) {
             when (it) {
                 EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS -> {
-                    navigateToNextScreen()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.tracking_form_filled_successfully),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    saveNurseData()
+//                    navigateToNextScreen()
+//                    saveNurseData()
                 }
 
                 else -> {}
@@ -114,6 +135,73 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             ).show()
             viewModel.resetState()
         }
+    }
+
+    private fun saveNurseData(){
+        CoroutineScope(Dispatchers.Main).launch {
+            var benVisitNo = 0;
+            var createNewBenflow = false;
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+                if(it == null){
+                    benVisitNo = 1;
+                }
+                else if(it.nurseFlag == 1) {
+                    benVisitNo = it.benVisitNo
+                }
+                else {
+                    benVisitNo = it.benVisitNo + 1
+                    createNewBenflow = true;
+                }
+            }
+
+            saveNurseData(benVisitNo, createNewBenflow)
+
+            CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
+                when(it!!){
+                    true ->{
+                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
+                    }
+                    else ->{
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+
+        val visitDB = VisitDB(
+            visitId = generateUuid(),
+            category = "FP & Contraceptive Services",
+            reasonForVisit = "New Chief Complaint",
+            subCategory = "FP & Contraceptive Services",
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+        )
+
+        val patientVitals = PatientVitalsModel(
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+        )
+
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+            createNewBenFlow = createNewBenflow,
+            nurseDataSynced = SyncState.UNSYNCED,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = 9,
+            doctorFlag = 1
+        )
+
+        CPHCviewModel.saveNurseDataToDb(visitDB, patientVitals, patientVisitInfoSync)
+
     }
 
     private fun submitEligibleTrackingForm() {

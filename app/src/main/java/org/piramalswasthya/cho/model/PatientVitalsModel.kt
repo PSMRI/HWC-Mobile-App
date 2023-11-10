@@ -61,4 +61,24 @@ data class PatientVitalsModel (
         benFlow.benFlowID,
         benFlow.benVisitNo
     )
+
+    constructor(patientID :String, benVisitNo :Int,) : this(
+        generateUuid(),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        patientID,
+        null,
+        benVisitNo
+    )
+
+
 }
