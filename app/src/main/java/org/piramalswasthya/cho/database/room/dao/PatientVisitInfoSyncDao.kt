@@ -12,6 +12,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
+import org.piramalswasthya.cho.model.SyncStatusCache
 
 @Dao
 interface PatientVisitInfoSyncDao {
@@ -22,6 +23,14 @@ interface PatientVisitInfoSyncDao {
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag, labtechFlag = :labtechFlag, doctorDataSynced = :unSynced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :unSynced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePharmacistDataUnsynced(patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :synced AND pharmacist_flag = 9 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePharmacistDataSynced(patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED, )
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET createNewBenFlow = :createNewBenFlow WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
@@ -132,5 +141,44 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
             "WHERE vis.doctorFlag = 9 AND vis.pharmacist_flag = 1")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
+
+    @Transaction
+    @Query("SELECT " +
+        "1 as id,
+        ""'Patient' as name,
+        "COUNT(CASE WHEN syncState = 2 THEN 1 END) AS synced,
+        "COUNT(CASE WHEN syncState = 1 THEN 1 END) AS syncing,
+        "COUNT(CASE WHEN syncState = 0 THEN 1 END) AS notSynced
+                FROM PATIENT
+                UNION SELECT
+        "2 as id,
+        "'Nurse' as name,
+        "COUNT(CASE WHEN nurseDataSynced = 2 THEN 1 END) AS synced,
+        "COUNT(CASE WHEN nurseDataSynced = 1 THEN 1 END) AS syncing,
+        "COUNT(CASE WHEN nurseDataSynced = 0 THEN 1 END) AS notSynced
+                "FROM PATIENT_VISIT_INFO_SYNC
+                UNION SELECT
+        "3 as id,
+        ""'Doctor' as name,
+        "COUNT(CASE WHEN doctorDataSynced = 2 THEN 1 END) AS synced,
+        "COUNT(CASE WHEN doctorDataSynced = 1 THEN 1 END) AS syncing,
+        "COUNT(CASE WHEN doctorDataSynced = 0 THEN 1 END) AS notSynced
+                FROM PATIENT_VISIT_INFO_SYNC
+                UNION SELECT
+        "4 as id,
+        ""'Lab Technician' as name,
+        "COUNT(CASE WHEN labDataSynced = 2 THEN 1 END) AS synced,
+        COUNT(CASE WHEN labDataSynced = 1 THEN 1 END) AS syncing,
+        COUNT(CASE WHEN labDataSynced = 0 THEN 1 END) AS notSynced
+                FROM PATIENT_VISIT_INFO_SYNC
+                UNION SELECT
+        5 as id,
+        'Pharmacist' as name,
+        COUNT(CASE WHEN pharmacistDataSynced = 2 THEN 1 END) AS synced,
+        COUNT(CASE WHEN pharmacistDataSynced = 1 THEN 1 END) AS syncing,
+        COUNT(CASE WHEN pharmacistDataSynced = 0 THEN 1 END) AS notSynced
+                FROM PATIENT_VISIT_INFO_SYNC ORDER BY id)
+    fun getSyncStatus(): Flow<List<SyncStatusCache>>
+
 
 }

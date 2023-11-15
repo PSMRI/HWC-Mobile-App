@@ -518,6 +518,7 @@
     <string name="pnc_remarks">Remarks</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
     <string name="tracking_date">Date of Visit</string>
+    <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
         <item>1st Day</item>
         <item>3rd Day</item>

@@ -79,6 +79,8 @@ data class PatientVisitInfoSync(
 //        pharmacist_flag = benFlow.pharmacist_flag,
         nurseDataSynced = SyncState.SYNCED,
         doctorDataSynced = SyncState.SYNCED,
+        labDataSynced = SyncState.SYNCED,
+        pharmacistDataSynced = SyncState.SYNCED,
     )
 
 }

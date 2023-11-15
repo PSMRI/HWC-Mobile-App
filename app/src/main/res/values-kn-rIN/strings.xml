@@ -53,6 +53,7 @@
     <string name="gender">ಲಿಂಗ <font color="#FF0000">*</font></string>
     <string name="age">ವಯಸ್ಸು <font color="#FF0000">*</font></string>
     <string name="select_subcategory">Select Subcategory</string>
+    <string name="long_to_string">%d</string>
     <string-array name="subcategories_array">
         <item>Management of Common Communicable Diseases</item>
         <item>Outpatient Care for Acute Simple Illnesses &amp; Minor Ailments</item>

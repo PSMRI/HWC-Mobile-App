@@ -436,9 +436,9 @@ class BenFlowRepo @Inject constructor(
                             }
                         }
 
-                        val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)!!
-                        patientVisitInfoSync.labDataSynced = SyncState.NOT_ADDED
-                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                        val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)!!
+//                        patientVisitInfoSync.labDataSynced = SyncState.NOT_ADDED
+//                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
                     }
 

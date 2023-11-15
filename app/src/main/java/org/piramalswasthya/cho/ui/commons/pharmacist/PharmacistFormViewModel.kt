@@ -152,20 +152,24 @@ class PharmacistFormViewModel @Inject constructor(
 
 //                patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
 //                WorkerUtils.pharmacistPushWorker(context)
+
+                patientVisitInfoSyncRepo.updatePharmacistDataUnsynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+
                 val resp = benVisitRepo.savePharmacistData(dtos, benVisitInfo)
                 if(resp){
-                    val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                        benVisitInfo.patient.patientID,
-                        benVisitInfo.benVisitNo!!
-                    )!!
-                    patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
-                    patientVisitInfoSync.pharmacist_flag = 9
-
-                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
-
+//                    val patientVisitInfoSync = patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+//                        benVisitInfo.patient.patientID,
+//                        benVisitInfo.benVisitNo!!
+//                    )!!
+//                    patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
+//                    patientVisitInfoSync.pharmacist_flag = 9
+//
+//                    patientVisitInfoSyncRepo.insertPatientVisitInfoSync(patientVisitInfoSync)
+                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
                     Toast.makeText(context, "Item Dispensed", Toast.LENGTH_SHORT).show()
                 }
                 else{
+                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
                     Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
                 }
 
