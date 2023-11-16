@@ -72,7 +72,7 @@ class BenFlowRepo @Inject constructor(
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
     private val procedureDao: ProcedureDao,
-    private val caseRecordeDao: CaseRecordeDao
+    private val caseRecordeDao: CaseRecordeDao,
 ) {
 
 
@@ -183,9 +183,14 @@ class BenFlowRepo @Inject constructor(
             caseRecordeDao.insertAll(it)
         }
 
-        patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
-        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
-        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        patientVisitInfoSyncDao.updateAfterDoctorDataDownSync(patientVisitInfoSync.doctorFlag!!, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+        if(docData.diagnosis?.prescriptionID != null){
+            patientVisitInfoSyncDao.updatePrescriptionID(docData.diagnosis?.prescriptionID, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+        }
+
+//        patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
+//        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
+//        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
 
@@ -261,8 +266,9 @@ class BenFlowRepo @Inject constructor(
         vitalsDao.deletePatientVitalsByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         vitalsDao.insertPatientVitals(vitals)
 
-        patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
-        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        patientVisitInfoSyncDao.updateAfterNurseDataDownSync(patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+//        patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
+//        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
 

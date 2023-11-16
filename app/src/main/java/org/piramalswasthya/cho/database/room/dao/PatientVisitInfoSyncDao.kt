@@ -21,6 +21,18 @@ interface PatientVisitInfoSyncDao {
     suspend fun insertPatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = 9, doctorFlag = 1, nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateAfterNurseDataDownSync(patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorFlag = :doctorFlag, doctorDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateAfterDoctorDataDownSync(doctorFlag : Int, patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET prescriptionID = :prescriptionID WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePrescriptionID(prescriptionID : Int, patientID: String, benVisitNo: Int)
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = :nurseFlag, doctorFlag = :doctorFlag, labtechFlag = :labtechFlag, doctorDataSynced = :unSynced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
 
@@ -33,7 +45,7 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePharmacistDataSyncing(patientID: String, benVisitNo: Int, syncing: SyncState? = SyncState.SYNCING, )
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :synced AND pharmacist_flag = 9 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :synced, pharmacist_flag = 9 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePharmacistDataSynced(patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED, )
 
     @Transaction

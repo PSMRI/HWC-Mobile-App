@@ -169,7 +169,7 @@ class PharmacistFormViewModel @Inject constructor(
                     Toast.makeText(context, "Item Dispensed", Toast.LENGTH_SHORT).show()
                 }
                 else{
-                    patientVisitInfoSyncRepo.updatePharmacistDataUnsynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
+                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
                     Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
                 }
 
