@@ -52,6 +52,7 @@ import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.home.SyncBottomSheetOverallFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
@@ -118,6 +119,10 @@ class HomeActivity : AppCompatActivity() {
     var runnable: Runnable? = null
     var delay = 30000
 
+    private val syncBottomSheet: SyncBottomSheetOverallFragment by lazy {
+        SyncBottomSheetOverallFragment()
+    }
+
     override fun onResume() {
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
@@ -139,6 +144,14 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         (application as CHOApplication).addActivity(this)
         viewModel.init(this)
+
+        binding.syncButton.setOnClickListener {
+            if (!syncBottomSheet.isVisible)
+                syncBottomSheet.show(
+                    supportFragmentManager,
+                    resources.getString(R.string.sync)
+                )
+        }
 
         binding.refreshButton.setOnClickListener {
             Log.d("triggering down outside", "down trigger")

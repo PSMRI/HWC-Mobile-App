@@ -29,6 +29,10 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePharmacistDataUnsynced(patientID: String, benVisitNo: Int, unSynced: SyncState? = SyncState.UNSYNCED)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePharmacistDataSyncing(patientID: String, benVisitNo: Int, syncing: SyncState? = SyncState.SYNCING, )
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacistDataSynced = :synced AND pharmacist_flag = 9 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePharmacistDataSynced(patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED, )
 
@@ -144,40 +148,31 @@ interface PatientVisitInfoSyncDao {
 
     @Transaction
     @Query("SELECT " +
-        "1 as id,
-        ""'Patient' as name,
-        "COUNT(CASE WHEN syncState = 2 THEN 1 END) AS synced,
-        "COUNT(CASE WHEN syncState = 1 THEN 1 END) AS syncing,
-        "COUNT(CASE WHEN syncState = 0 THEN 1 END) AS notSynced
-                FROM PATIENT
-                UNION SELECT
-        "2 as id,
-        "'Nurse' as name,
-        "COUNT(CASE WHEN nurseDataSynced = 2 THEN 1 END) AS synced,
-        "COUNT(CASE WHEN nurseDataSynced = 1 THEN 1 END) AS syncing,
-        "COUNT(CASE WHEN nurseDataSynced = 0 THEN 1 END) AS notSynced
-                "FROM PATIENT_VISIT_INFO_SYNC
-                UNION SELECT
-        "3 as id,
-        ""'Doctor' as name,
-        "COUNT(CASE WHEN doctorDataSynced = 2 THEN 1 END) AS synced,
-        "COUNT(CASE WHEN doctorDataSynced = 1 THEN 1 END) AS syncing,
-        "COUNT(CASE WHEN doctorDataSynced = 0 THEN 1 END) AS notSynced
-                FROM PATIENT_VISIT_INFO_SYNC
-                UNION SELECT
-        "4 as id,
-        ""'Lab Technician' as name,
-        "COUNT(CASE WHEN labDataSynced = 2 THEN 1 END) AS synced,
-        COUNT(CASE WHEN labDataSynced = 1 THEN 1 END) AS syncing,
-        COUNT(CASE WHEN labDataSynced = 0 THEN 1 END) AS notSynced
-                FROM PATIENT_VISIT_INFO_SYNC
-                UNION SELECT
-        5 as id,
-        'Pharmacist' as name,
-        COUNT(CASE WHEN pharmacistDataSynced = 2 THEN 1 END) AS synced,
-        COUNT(CASE WHEN pharmacistDataSynced = 1 THEN 1 END) AS syncing,
-        COUNT(CASE WHEN pharmacistDataSynced = 0 THEN 1 END) AS notSynced
-                FROM PATIENT_VISIT_INFO_SYNC ORDER BY id)
+        "1 as id,'Patient' as name," +
+        "COUNT(CASE WHEN syncState = 2 THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN syncState = 1 THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN syncState = 0 THEN 1 END) AS notSynced" +
+        " FROM PATIENT UNION SELECT " +
+        "2 as id,'Nurse' as name," +
+        "COUNT(CASE WHEN nurseDataSynced = 2 THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN nurseDataSynced = 1 THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN nurseDataSynced = 0 THEN 1 END) AS notSynced" +
+        " FROM PATIENT_VISIT_INFO_SYNC WHERE nurseFlag = 9 UNION SELECT " +
+        "3 as id,'Doctor' as name," +
+        "COUNT(CASE WHEN doctorDataSynced = 2 THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN doctorDataSynced = 1 THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN doctorDataSynced = 0 THEN 1 END) AS notSynced" +
+        " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag > 1 UNION SELECT " +
+        "4 as id,'Lab Technician' as name," +
+        "COUNT(CASE WHEN labDataSynced = 2 THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN labDataSynced = 1 THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN labDataSynced = 0 THEN 1 END) AS notSynced" +
+        " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag = 3 UNION SELECT " +
+        "5 as id,'Pharmacist' as name," +
+        "COUNT(CASE WHEN pharmacistDataSynced = 2 THEN 1 END) AS synced," +
+        "COUNT(CASE WHEN pharmacistDataSynced = 1 THEN 1 END) AS syncing," +
+        "COUNT(CASE WHEN pharmacistDataSynced = 0 THEN 1 END) AS notSynced" +
+        " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag = 9 AND pharmacist_flag = 9 ORDER BY id")
     fun getSyncStatus(): Flow<List<SyncStatusCache>>
 
 

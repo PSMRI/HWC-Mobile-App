@@ -27,6 +27,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePharmacistDataUnsynced(patientID, benVisitNo)
     }
 
+    suspend fun updatePharmacistDataSyncing(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePharmacistDataSyncing(patientID, benVisitNo)
+    }
+
     suspend fun updatePharmacistDataSynced(patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updatePharmacistDataSynced(patientID, benVisitNo)
     }

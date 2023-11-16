@@ -43,6 +43,16 @@
                     android:background="?attr/colorPrimary"/>
 
                 <ImageButton
+                    android:id="@+id/sync_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="10dp"
+                    android:contentDescription="Refresh"
+                    android:src="@drawable/ic_synced"
+                    android:background="?attr/colorPrimary"/>
+
+                <ImageButton
                     android:id="@+id/refresh_button"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
