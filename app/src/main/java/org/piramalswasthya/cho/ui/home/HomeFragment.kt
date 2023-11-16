@@ -218,7 +218,8 @@ class HomeFragment : Fragment() {
     }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.bottom_menu_nav, menu)
-        menu.findItem(R.id.nur)?.isChecked = true
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+        nurseItem?.isChecked = true
 //        if(preferenceDao.isCHO()) {
 //            binding.bottomNavigation.getMenu().removeItem(R.id.regis)
 ////            binding.bottomNavigation.getMenu().removeItem(R.id.nur)
