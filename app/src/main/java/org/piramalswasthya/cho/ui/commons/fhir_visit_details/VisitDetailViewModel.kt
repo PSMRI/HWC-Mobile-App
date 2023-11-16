@@ -247,6 +247,7 @@ class VisitDetailViewModel @Inject constructor(
             existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{

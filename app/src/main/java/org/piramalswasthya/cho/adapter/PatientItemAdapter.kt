@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import timber.log.Timber
 import java.security.MessageDigest
 
@@ -97,6 +98,9 @@ class PatientItemAdapter(
                 binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
             }else{
                 binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            }
+            if(item.visitDate != null){
+                binding.visitDate.text = DateTimeUtil.formatDate(item.visitDate)
             }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
             binding.village.text = item.villageName ?: ""

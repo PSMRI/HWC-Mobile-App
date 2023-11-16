@@ -182,7 +182,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             nurseDataSynced = SyncState.UNSYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
-            doctorFlag = 1
+            doctorFlag = 1,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)

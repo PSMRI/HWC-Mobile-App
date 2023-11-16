@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
 import org.piramalswasthya.cho.model.SyncStatusCache
+import java.util.Date
 
 @Dao
 interface PatientVisitInfoSyncDao {
@@ -21,8 +22,8 @@ interface PatientVisitInfoSyncDao {
     suspend fun insertPatientVisitInfoSync(patientVisitInfoSync: PatientVisitInfoSync)
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = 9, doctorFlag = 1, nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
-    suspend fun updateAfterNurseDataDownSync(patientID: String, benVisitNo: Int, synced: SyncState? = SyncState.SYNCED)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseFlag = 9, doctorFlag = 1, visitDate = :visitDate, nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateAfterNurseDataDownSync(patientID: String, benVisitNo: Int, visitDate: Date?, synced: SyncState? = SyncState.SYNCED)
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorFlag = :doctorFlag, doctorDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")

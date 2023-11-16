@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.utils
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
@@ -77,17 +76,10 @@ class DateTimeUtil {
 
         const val format = "yyyy-MM-dd HH:mm:ss"
 
-        fun timestampToDate(timestamp: String?): Date? {
-            if(timestamp == null){
-                return null
-            }
-            try {
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                return dateFormat.parse(timestamp)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return null
-            }
+        fun formatDate(date: Date): String {
+            val pattern = "dd-MM-yyyy"
+            val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+            return sdf.format(date)
         }
 
         fun getDateTimeStringFromLong(dateLong: Long?): String? {
@@ -246,6 +238,16 @@ class DateTimeUtil {
                 val date = inputDateFormat.parse(dateString)
                 return outputDateFormat.format(date);
             } catch (e: Exception){
+                return null;
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun formatVisitDate(dateString: String?): Date? {
+            try {
+                val inputDateFormat = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a")
+                return inputDateFormat.parse(dateString);
+            } catch (e: Exception) {
                 return null;
             }
         }

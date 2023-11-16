@@ -103,6 +103,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{

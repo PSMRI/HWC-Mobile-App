@@ -798,7 +798,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             nurseDataSynced = SyncState.UNSYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
-            doctorFlag = 1
+            doctorFlag = 1,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)

@@ -233,6 +233,7 @@ data class PatientDisplayWithVisitInfo(
     val doctorFlag: Int?,
     val labtechFlag: Int?,
     val pharmacist_flag: Int?,
+    val visitDate: Date?,
 ) : Serializable
 
 

@@ -898,6 +898,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             createNewBenFlow = createNewBenflow,
             nurseFlag = 9,
             doctorFlag = doctorFlag,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseAndDoctorData(visitDB, chiefComplaints, patientVitals, diagnosisList, investigation, prescriptionList, patientVisitInfoSync)

@@ -171,53 +171,26 @@ class PersonalDetailsFragment : Fragment() {
                             clickListener = PatientItemAdapter.BenClickListener(
                             {
                                 benVisitInfo ->
-                                    if((benVisitInfo.nurseFlag == null && !preferenceDao.isUserRegistrarOnly() && !preferenceDao.isCHO() && preferenceDao.getSwitchRole() != "Registrar") ||
-                                        (benVisitInfo.nurseFlag == null && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() != "Registrar")){
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
-                                    }
-                                    else if((benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isPharmacist()) ||
-                                        (benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist") ||
-                                        (benVisitInfo.pharmacist_flag == 1 && benVisitInfo.doctorFlag == 9 && preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Pharmacist")){
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
-                                    }
-                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1) ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
-                                    }
-                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isStartingLabTechnician()) ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician") ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Lab Technician")){
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
-                                    }
-                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2) ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
+                                    if(
+                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2) &&
+                                        (
+                                            (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
+                                            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Lab Technician")
+                                        )
+                                    ){
                                          Toast.makeText(
                                             requireContext(),
                                             resources.getString(R.string.pendingForLabtech),
                                             Toast.LENGTH_SHORT
                                          ).show()
                                     }
-                                    else if((benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3) ||
-                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")){
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
-                                    }
-                                    else if(benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9){
+                                    else if(
+                                        (benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9) &&
+                                        (
+                                            (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
+                                            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Lab Technician")
+                                        )
+                                    ){
                                         Toast.makeText(
                                             requireContext(),
                                             resources.getString(R.string.flowCompleted),
@@ -225,9 +198,11 @@ class PersonalDetailsFragment : Fragment() {
                                         ).show()
                                     }
                                     else{
-//                                        Timber.d("*******************Babs DTO************** ", Gson().toJson(benVisitInfo))
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        startActivity(intent)
+                                        requireActivity().finish()
                                     }
-
                             },
                             {
                                 benVisitInfo ->

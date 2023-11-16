@@ -55,6 +55,7 @@ import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -266,7 +267,7 @@ class BenFlowRepo @Inject constructor(
         vitalsDao.deletePatientVitalsByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         vitalsDao.insertPatientVitals(vitals)
 
-        patientVisitInfoSyncDao.updateAfterNurseDataDownSync(patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+        patientVisitInfoSyncDao.updateAfterNurseDataDownSync(patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo, DateTimeUtil.formatVisitDate(benFlow.visitDate))
 //        patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
 //        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
