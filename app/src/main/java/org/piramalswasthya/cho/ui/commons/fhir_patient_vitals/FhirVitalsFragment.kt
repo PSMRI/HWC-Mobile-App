@@ -104,6 +104,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             }
         }
     }
+    private fun validateTemperature(temperature: String) {
+        val isValid = temperature.matches(Regex("^\\d{2,3}$"))
+
+        if (isValid) {
+            temperatureInputLayout.error = null
+        } else {
+            temperatureInputLayout.error = "Invalid temperature. Please enter a 2 or 3 digit number."
+        }
+    }
+
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
