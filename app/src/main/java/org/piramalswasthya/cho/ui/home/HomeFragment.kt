@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -40,6 +41,7 @@ import java.lang.Exception
 import androidx.appcompat.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 import javax.inject.Inject
 
@@ -216,8 +218,150 @@ class HomeFragment : Fragment() {
 //
 //        }
     }
+
+
+    fun setItemVisibility(){
+
+        if(!preferenceDao.isUserRegistrar() || preferenceDao.isUserCHO()){
+            binding.bottomNavigation.menu.removeItem(R.id.regis)
+        }
+        if(!preferenceDao.isUserStaffNurseOrNurse() && !preferenceDao.isUserCHO()){
+            binding.bottomNavigation.menu.removeItem(R.id.nur)
+        }
+        if(!preferenceDao.isUserDoctorOrMO() || preferenceDao.isUserCHO()){
+            binding.bottomNavigation.menu.removeItem(R.id.doc)
+        }
+        if(!preferenceDao.isUserLabTechnician() && !preferenceDao.isCHO()){
+            binding.bottomNavigation.menu.removeItem(R.id.lab)
+        }
+        if(!preferenceDao.isUserPharmacist() && !preferenceDao.isCHO()){
+            binding.bottomNavigation.menu.removeItem(R.id.ph)
+        }
+        if(preferenceDao.isUserCHO()){
+            val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+            nurseItem?.title = "CHO"
+        }
+
+    }
+
+    fun setItemSelected(){
+
+        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.regis)
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+        val docItem = binding.bottomNavigation.menu.findItem(R.id.doc)
+        val labItem = binding.bottomNavigation.menu.findItem(R.id.lab)
+        val phItem = binding.bottomNavigation.menu.findItem(R.id.ph)
+
+        when(preferenceDao.getSwitchRole()){
+
+            "Registrar" -> {
+                registrarItem?.isChecked = true
+            }
+            "Nurse" -> {
+                nurseItem?.isChecked = true
+            }
+            "Doctor" -> {
+                docItem?.isChecked = true
+            }
+            "Lab Technician" -> {
+                labItem?.isChecked = true
+            }
+            "Pharmacist" -> {
+                phItem?.isChecked = true
+            }
+            else -> {
+                checkRoleAndSetItem()
+            }
+
+        }
+
+    }
+
+    fun checkRoleAndSetItem(){
+
+        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.regis)
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+        val docItem = binding.bottomNavigation.menu.findItem(R.id.doc)
+        val labItem = binding.bottomNavigation.menu.findItem(R.id.lab)
+        val phItem = binding.bottomNavigation.menu.findItem(R.id.ph)
+
+        if(preferenceDao.isUserCHO()){
+            nurseItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Nurse")
+        }
+        else if(preferenceDao.isUserRegistrar()){
+            registrarItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Registrar")
+        }
+        else if(preferenceDao.isUserStaffNurseOrNurse()){
+            nurseItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Nurse")
+        }
+        else if(preferenceDao.isUserDoctorOrMO()){
+            docItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Doctor")
+        }
+        else if(preferenceDao.isUserLabTechnician()){
+            labItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Lab Technician")
+        }
+        else if(preferenceDao.isUserPharmacist()){
+            phItem?.isChecked = true
+            preferenceDao.setSwitchRoles("Pharmacist")
+        }
+
+        val refresh = Intent(requireContext(), HomeActivity::class.java)
+        startActivity(refresh)
+
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.bottom_menu_nav, menu)
+
+        setItemVisibility()
+
+        setItemSelected()
+
+        binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.regis -> {
+                    preferenceDao.setSwitchRoles("Registrar")
+                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+                    startActivity(refresh)
+                    Log.d("regis clicked", "")
+                    true
+                }
+                R.id.nur -> {
+                    preferenceDao.setSwitchRoles("Nurse")
+                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+                    startActivity(refresh)
+                    Log.d("nurse clicked", "")
+                    true
+                }
+                R.id.doc -> {
+                    preferenceDao.setSwitchRoles("Doctor")
+                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+                    startActivity(refresh)
+                    true
+                }
+                R.id.lab -> {
+                    preferenceDao.setSwitchRoles("Lab Technician")
+                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+                    startActivity(refresh)
+                    true
+                }
+                R.id.ph -> {
+                    preferenceDao.setSwitchRoles("Pharmacist")
+                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+                    startActivity(refresh)
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+        }
+
         val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
         nurseItem?.isChecked = true
 //        if(preferenceDao.isCHO()) {

@@ -104,6 +104,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         }
         return false;
     }
+
      fun isUserRegistrar():Boolean{
          val rolesArray = getUserRoles()?.split(",")
          if(rolesArray != null){
@@ -120,6 +121,38 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return false;
     }
 
+    fun isUserDoctorOrMO():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Doctor") || rolesArray.contains("MO")
+        }
+        return false;
+    }
+
+    fun isUserLabTechnician():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Lab Technician")
+        }
+        return false;
+    }
+
+    fun isUserPharmacist():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Pharmacist")
+        }
+        return false;
+    }
+
+    fun isUserCHO():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("CHO")
+        }
+        return false;
+    }
+
     fun isUserRegistrarOnly():Boolean{
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
@@ -127,6 +160,8 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         }
         return false;
     }
+
+
 
     fun getFirstUserRole():String{
         val rolesArray = getUserRoles()?.split(",")
@@ -211,6 +246,27 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.SWITCH_USER_ROLES)
         return pref.getString(prefKey, null)
     }
+
+    fun isRegistrarSelected(): Boolean {
+        return getSwitchRole() == "Registrar"
+    }
+
+    fun isNurseSelected(): Boolean {
+        return getSwitchRole() == "Nurse"
+    }
+
+    fun isDoctorSelected(): Boolean {
+        return getSwitchRole() == "Doctor"
+    }
+
+    fun isLabSelected(): Boolean {
+        return getSwitchRole() == "Lab Technician"
+    }
+
+    fun isPharmaSelected(): Boolean {
+        return getSwitchRole() == "Pharmacist"
+    }
+
 
     fun isContainsRole(role: String):Boolean{
         val rolesArray = getUserRoles()?.split(",")
