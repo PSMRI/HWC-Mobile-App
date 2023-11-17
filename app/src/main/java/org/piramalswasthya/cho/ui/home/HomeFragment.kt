@@ -37,6 +37,10 @@ import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActiv
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.lang.Exception
+import androidx.appcompat.view.menu.MenuBuilder
+import android.view.Menu
+import android.view.MenuInflater
+
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -77,6 +81,7 @@ class HomeFragment : Fragment() {
             .create()
     }
 
+
     private lateinit var viewModel: HomeViewModel
 
     private val onBackPressedCallback by lazy {
@@ -109,6 +114,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -210,4 +216,32 @@ class HomeFragment : Fragment() {
 //
 //        }
     }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.bottom_menu_nav, menu)
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+        nurseItem?.isChecked = true
+//        if(preferenceDao.isCHO()) {
+//            binding.bottomNavigation.getMenu().removeItem(R.id.regis)
+////            binding.bottomNavigation.getMenu().removeItem(R.id.nur)
+//            binding.bottomNavigation.getMenu().removeItem(R.id.doc)
+//            val nurseItem = binding.bottomNavigation.getMenu().findItem(R.id.nur)
+//            nurseItem?.setTitle("CHO") // Change title to "CHO"
+//            nurseItem?.setIcon(R.drawable.cho)
+//        }
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.your_dynamic_item_id -> {
+//                // Handle the click on the dynamically added item
+//                // Add your logic here
+//                return true
+//            }
+//            // Handle other menu items as needed
+//            // ...
+//
+//            else -> return super.onOptionsItemSelected(item)
+//        }
+//    }
 }
