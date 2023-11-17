@@ -26,9 +26,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AncVisitAdapter
+import org.piramalswasthya.cho.adapter.CHOCaseRecordItemAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.adapter.PncVisitAdapter
@@ -553,21 +555,36 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
         viewModel.init(benVisitInfo.patient.patientID)
 
-        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
-            (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
-        }
+        binding.patientList.adapter =
+            CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener{
 
-        viewModel.allActivePncRecords.observe(viewLifecycleOwner){
-            (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
-        }
+                if(it.doctorFlag == 2){
+                    Toast.makeText(
+                        requireContext(),
+                        "Pending for Lab Technician",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else if(it.doctorFlag == 9){
+                    Toast.makeText(
+                        requireContext(),
+                        "Flow completed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else{
+                    val submitDoctorData = Bundle()
+                    submitDoctorData.putBoolean("submitDoctorData", true)
+                    val visitInfo = PatientDisplayWithVisitInfo(benVisitInfo.patient, it)
+                    submitDoctorData.putSerializable("benVisitInfo", visitInfo)
 
-        viewModel.allEctRecords.observe(viewLifecycleOwner){
-            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
-        }
+                    findNavController().navigate(
+                        R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+                    )
 
-        viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
-            lastAncVisit = it ?: 0
-        }
+                }
+
+            })
 
         binding.rvAnc.adapter =
             AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
@@ -595,6 +612,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             })
+
+
+        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
+            (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
+        }
+
+        viewModel.allActivePncRecords.observe(viewLifecycleOwner){
+            (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
+        }
+
+        viewModel.allEctRecords.observe(viewLifecycleOwner){
+            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
+        }
+
+        viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
+            lastAncVisit = it ?: 0
+        }
+
+        lifecycleScope.launch {
+            viewModel.getPatientVisitInfoSyncForDoctor(benVisitInfo.patient.patientID).collect{
+                (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+            }
+        }
 
 
         try {

@@ -126,6 +126,9 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND nurseFlag = 9 AND doctorFlag = 1 ORDER BY benVisitNo ASC LIMIT 1")
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?
 
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND nurseFlag = 9 ORDER BY benVisitNo ASC")
+    fun getPatientVisitInfoSyncForDoctor(patientID: String) : Flow<List<PatientVisitInfoSync>>
+
     @Transaction
     @Query("SELECT pat.*, vis.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus " +
             "FROM PATIENT_VISIT_INFO_SYNC vis " +

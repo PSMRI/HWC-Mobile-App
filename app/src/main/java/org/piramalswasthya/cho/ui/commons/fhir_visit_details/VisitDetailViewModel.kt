@@ -151,6 +151,10 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
+    fun getPatientVisitInfoSyncForDoctor(patientID: String) : Flow<List<PatientVisitInfoSync>> {
+        return patientVisitInfoSyncRepo.getPatientVisitInfoSyncForDoctor(patientID)
+    }
+
     fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
                           patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {

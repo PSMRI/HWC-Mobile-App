@@ -121,6 +121,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
+    private var submitDoctorData: Boolean? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,10 +144,19 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         val tableLayout = binding.tableLayout
+
+        submitDoctorData = arguments?.getBoolean("submitDoctorData")
+
+        if(submitDoctorData == true){
+            benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+        }
+        else{
+            benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        }
+
         if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
             patientId = benVisitInfo.patient.patientID
             patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -166,7 +176,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                    binding.scrollview.visibility = View.VISIBLE
                    binding.resultHeading.visibility = View.VISIBLE
                    binding.dateOption.visibility = View.VISIBLE
-               }
+                }
                 for (labReport in labReports) {
                     val procedureName = labReport.procedure.procedureName
                     binding.inputDate.setText(labReport.procedure.createdDate)
@@ -229,7 +239,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
         if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
             viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
                 // Clear the existing data in chiefComplaintDB
                 chiefComplaintDB.clear()
@@ -435,7 +445,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = false
         }
         if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
+            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true){
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
                     var vitalDb2 = VitalsMasterDb(
@@ -1094,7 +1104,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
     fun navigateNext() {
         if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {
