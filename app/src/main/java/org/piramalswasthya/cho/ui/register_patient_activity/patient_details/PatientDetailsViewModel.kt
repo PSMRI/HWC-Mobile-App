@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -153,6 +154,7 @@ class PatientDetailsViewModel @Inject constructor(
     var selectedMaritalStatus : MaritalStatusMaster? = null;
     var selectedGenderMaster : GenderMaster? = null;
     var selectedVillage : VillageLocationData? = null;
+    lateinit var benVisitInfo: PatientDisplayWithVisitInfo
 
     init {
         viewModelScope.launch {
@@ -272,6 +274,7 @@ class PatientDetailsViewModel @Inject constructor(
     fun insertPatient(patient: Patient){
         viewModelScope.launch {
             patientRepo.insertPatient(patient)
+            benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(patient.patientID)
             _isDataSaved.value = true
         }
     }

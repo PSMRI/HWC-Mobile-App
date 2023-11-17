@@ -163,12 +163,13 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        if((preferenceDao.isUserSwitchRole() && (preferenceDao.getSwitchRole().equals("Registrar") || preferenceDao.getSwitchRole().equals("Nurse"))) ||
-            (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
-            binding.registration.isEnabled = true
-        }
-        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && (preferenceDao.isUserRegistrar() || preferenceDao.isUserStaffNurseOrNurse())
+        binding.registration.isEnabled = preferenceDao.isUserCHO() || preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
 
+//        if((preferenceDao.isUserSwitchRole() && (preferenceDao.getSwitchRole().equals("Registrar") || preferenceDao.getSwitchRole().equals("Nurse"))) ||
+//            (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
+//            binding.registration.isEnabled = true
+//        }
+//        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && (preferenceDao.isUserRegistrar() || preferenceDao.isUserStaffNurseOrNurse())
 //
 
         binding.registration.setOnClickListener {
@@ -231,10 +232,10 @@ class HomeFragment : Fragment() {
         if(!preferenceDao.isUserDoctorOrMO() || preferenceDao.isUserCHO()){
             binding.bottomNavigation.menu.removeItem(R.id.doc)
         }
-        if(!preferenceDao.isUserLabTechnician() && !preferenceDao.isCHO()){
+        if(!preferenceDao.isUserLabTechnician() && !preferenceDao.isUserCHO()){
             binding.bottomNavigation.menu.removeItem(R.id.lab)
         }
-        if(!preferenceDao.isUserPharmacist() && !preferenceDao.isCHO()){
+        if(!preferenceDao.isUserPharmacist() && !preferenceDao.isUserCHO()){
             binding.bottomNavigation.menu.removeItem(R.id.ph)
         }
         if(preferenceDao.isUserCHO()){
@@ -319,7 +320,6 @@ class HomeFragment : Fragment() {
         inflater.inflate(R.menu.bottom_menu_nav, menu)
 
         setItemVisibility()
-
         setItemSelected()
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
@@ -328,14 +328,12 @@ class HomeFragment : Fragment() {
                     preferenceDao.setSwitchRoles("Registrar")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
-                    Log.d("regis clicked", "")
                     true
                 }
                 R.id.nur -> {
                     preferenceDao.setSwitchRoles("Nurse")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
-                    Log.d("nurse clicked", "")
                     true
                 }
                 R.id.doc -> {
@@ -362,16 +360,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
-        nurseItem?.isChecked = true
-//        if(preferenceDao.isCHO()) {
-//            binding.bottomNavigation.getMenu().removeItem(R.id.regis)
-////            binding.bottomNavigation.getMenu().removeItem(R.id.nur)
-//            binding.bottomNavigation.getMenu().removeItem(R.id.doc)
-//            val nurseItem = binding.bottomNavigation.getMenu().findItem(R.id.nur)
-//            nurseItem?.setTitle("CHO") // Change title to "CHO"
-//            nurseItem?.setIcon(R.drawable.cho)
-//        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -388,4 +376,5 @@ class HomeFragment : Fragment() {
 //            else -> return super.onOptionsItemSelected(item)
 //        }
 //    }
+
 }

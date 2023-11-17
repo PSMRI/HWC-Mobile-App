@@ -357,6 +357,10 @@ class PatientRepo @Inject constructor(
             }
     }
 
+    suspend fun getPatientDisplayListForNurseByPatient(patientID: String): PatientDisplayWithVisitInfo{
+        return patientDao.getPatientDisplayListForNurseByPatient(patientID)
+    }
+
     suspend fun processUnsyncedData() : Boolean{
 
 //        Log.d("hey", "ya")

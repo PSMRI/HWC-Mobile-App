@@ -82,6 +82,19 @@ interface PatientDao {
             "WHERE latestVisit.patientID IS NULL")
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
+            "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate " +
+            "FROM PATIENT pat " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+            "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
+            "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
+            "WHERE pat.patientID = :patientID AND latestVisit.patientID IS NULL")
+    suspend fun getPatientDisplayListForNurseByPatient(patientID: String): PatientDisplayWithVisitInfo
+
     @Transaction
     @Query("SELECT * FROM PATIENT WHERE syncState =:unsynced ")
     suspend fun getPatientListUnsynced(unsynced: SyncState = SyncState.UNSYNCED) : List<PatientDisplay>

@@ -240,7 +240,7 @@ class BenFlowRepo @Inject constructor(
                     } ?: emptyList()
 
                     refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync, docData = docData)
-                    if(benFlow.doctorFlag == 3 && !docData.LabReport.isNullOrEmpty()){
+                    if(!docData.LabReport.isNullOrEmpty()){
                         refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
                     }
                     NetworkResult.Success(NetworkResponse())

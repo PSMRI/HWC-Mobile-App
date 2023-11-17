@@ -15,17 +15,17 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class CHOCaseRecordItemAdapter (
     private val clickListener: BenClickListener,
-): ListAdapter<PatientVisitInfoSync, CHOCaseRecordItemAdapter.BenViewHolder>(
+): ListAdapter<PatientDisplayWithVisitInfo, CHOCaseRecordItemAdapter.BenViewHolder>(
     BenDiffUtilCallBack
 ) {
 
-    private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientVisitInfoSync>() {
+    private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
-            oldItem: PatientVisitInfoSync, newItem: PatientVisitInfoSync
+            oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
         ) = oldItem.benVisitNo == newItem.benVisitNo
 
         override fun areContentsTheSame(
-            oldItem: PatientVisitInfoSync, newItem: PatientVisitInfoSync
+            oldItem: PatientDisplayWithVisitInfo, newItem: PatientDisplayWithVisitInfo
         ) = oldItem == newItem
 
     }
@@ -42,7 +42,7 @@ class CHOCaseRecordItemAdapter (
         }
 
         fun bind(
-            item:PatientVisitInfoSync,
+            item:PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
         ) {
             binding.benVisitInfo = item
@@ -66,10 +66,10 @@ class CHOCaseRecordItemAdapter (
     }
 
     class BenClickListener(
-        private val clickedBen: (benVisitInfo: PatientVisitInfoSync) -> Unit,
+        private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
 
     ) {
-        fun onClickedBen(item: PatientVisitInfoSync) = clickedBen(
+        fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
         )
     }

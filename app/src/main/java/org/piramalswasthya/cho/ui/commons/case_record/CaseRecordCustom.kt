@@ -155,8 +155,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         }
 
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
+        if( preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             patientId = benVisitInfo.patient.patientID
             patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -238,8 +237,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         val chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
-        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
                 // Clear the existing data in chiefComplaintDB
                 chiefComplaintDB.clear()
@@ -444,8 +442,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true){
+        if(preferenceDao.isDoctorSelected() || submitDoctorData == true){
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
                     var vitalDb2 = VitalsMasterDb(
@@ -1092,8 +1089,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
     override fun onCancelAction() {
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
+        if(preferenceDao.isDoctorSelected()){
             val intent = Intent(context, HomeActivity::class.java)
             startActivity(intent)
             requireActivity().finish()
@@ -1103,8 +1099,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
     }
     fun navigateNext() {
-        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {

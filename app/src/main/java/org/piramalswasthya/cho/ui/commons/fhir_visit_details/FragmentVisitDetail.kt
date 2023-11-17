@@ -575,14 +575,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 else{
                     val submitDoctorData = Bundle()
                     submitDoctorData.putBoolean("submitDoctorData", true)
-                    val visitInfo = PatientDisplayWithVisitInfo(benVisitInfo.patient, it)
-                    submitDoctorData.putSerializable("benVisitInfo", visitInfo)
+                    submitDoctorData.putSerializable("benVisitInfo", it)
 
                     findNavController().navigate(
                         R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
                     )
 
                 }
+
+//                val submitDoctorData = Bundle()
+//                submitDoctorData.putBoolean("submitDoctorData", true)
+//                submitDoctorData.putSerializable("benVisitInfo", it)
+//
+//                findNavController().navigate(
+//                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+//                )
 
             })
 
@@ -631,7 +638,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
 
         lifecycleScope.launch {
-            viewModel.getPatientVisitInfoSyncForDoctor(benVisitInfo.patient.patientID).collect{
+            viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect{
                 (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
             }
         }
@@ -849,7 +856,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     fun goToEnd(){
         extractFormValues()
         setVisitMasterDataAndVitalsForFollow()
-        if(preferenceDao.isUserOnlyNurseOrCHO()){
+        if(!preferenceDao.isUserCHO()){
             CoroutineScope(Dispatchers.Main).launch {
                 var benVisitNo = 0;
                 var createNewBenflow = false;

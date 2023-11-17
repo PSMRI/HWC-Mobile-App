@@ -120,8 +120,8 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
     }
 
-    fun getPatientVisitInfoSyncForDoctor(patientID: String) : Flow<List<PatientVisitInfoSync>> {
-        return patientVisitInfoSyncDao.getPatientVisitInfoSyncForDoctor(patientID)
+    fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncDao.getPatientDisplayListForDoctorByPatient(patientID)
     }
 
     fun getPatientDisplayListForDoctor() : Flow<List<PatientDisplayWithVisitInfo>> {

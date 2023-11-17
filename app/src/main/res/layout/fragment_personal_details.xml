@@ -24,6 +24,7 @@
             app:boxStrokeWidth="2dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
+            android:layout_marginTop="10dp"
             app:endIconDrawable="@drawable/ic_mic"
             android:textColorHint="#888888"
             app:layout_constraintTop_toTopOf="parent"

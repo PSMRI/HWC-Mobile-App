@@ -35,6 +35,7 @@ import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
@@ -936,7 +937,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 when(state!!){
                     true -> {
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        requireActivity().finish()
+                        if(preferenceDao.isUserCHO()){
+                            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo);
+                            startActivity(intent)
+                        }
+                        else{
+                            requireActivity().finish()
+                        }
                         Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
                     }
                     else -> {

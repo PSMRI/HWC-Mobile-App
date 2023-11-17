@@ -7,7 +7,7 @@
 
         <variable
             name="benVisitInfo"
-            type="org.piramalswasthya.cho.model.PatientVisitInfoSync" />
+            type="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
 
         <variable
             name="clickListener"
