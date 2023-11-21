@@ -16,6 +16,9 @@ import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.util.Date
 import java.sql.Timestamp
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 
 @HiltWorker
@@ -41,10 +44,16 @@ class PullPatientsFromServer @AssistedInject constructor(
 //            else{
                 Log.d("Patient In Progress", "Patient In Progress")
 
+                val currentInstant = Instant.now()
+                val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+                val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+                val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
+
                 WorkerUtils.isDownloadInProgress = true
                 val workerResult = patientRepo.downloadAndSyncPatientRecords()
                 if (workerResult) {
-                    preferenceDao.setLastPatientSyncTime()
+                    preferenceDao.setLastPatientSyncTime(currTimeStamp)
                 }
                 WorkerUtils.isDownloadInProgress = false
                 Timber.d("Patient Download Worker completed")

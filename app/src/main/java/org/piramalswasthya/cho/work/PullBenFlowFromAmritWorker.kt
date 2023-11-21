@@ -20,6 +20,9 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 
 @HiltWorker
@@ -47,12 +50,18 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
 //            else{
                 Log.d("Benflow In Progress", "Benflow In Progress")
 
+                val currentInstant = Instant.now()
+                val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+                val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+                val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
                 WorkerUtils.isDownloadInProgress = true
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
                 if (workerResult) {
-                    preferenceDao.setLastBenflowSyncTime()
+                    preferenceDao.setLastBenflowSyncTime(currTimeStamp)
                 }
                 WorkerUtils.isDownloadInProgress = false
+
                 Timber.d("Benflow Download Worker completed")
                 Result.success()
 //            }

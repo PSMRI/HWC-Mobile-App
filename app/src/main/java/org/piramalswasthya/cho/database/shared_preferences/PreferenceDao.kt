@@ -203,7 +203,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastBenflowSyncTime(){
+    fun setLastBenflowSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_benflow_sync_time)
         val editor = pref.edit()
 
@@ -212,8 +212,8 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
 //        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
 
-        val currDate = LocalDate.now()
-        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+//        val currDate = LocalDate.now()
+//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
@@ -225,7 +225,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastPatientSyncTime(){
+    fun setLastPatientSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_patient_sync_time)
         val editor = pref.edit()
 
@@ -234,8 +234,8 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
 //        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
 //        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
 
-        val currDate = LocalDate.now()
-        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+//        val currDate = LocalDate.now()
+//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
