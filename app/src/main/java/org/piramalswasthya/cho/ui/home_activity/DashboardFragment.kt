@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.databinding.FragmentDashboardBinding
+import org.piramalswasthya.cho.repositories.UserRepo
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -26,10 +27,18 @@ class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     @Inject
     lateinit var benFlowDao: BenFlowDao
+    @Inject
+    lateinit var userRepo: UserRepo
     private var maleOpdCount : Int? = 0
     private var femaleOpdCount : Int? = 0
     private var othersOpdCount : Int? = 0
     private var totalOpdCount : Int? = 0
+
+    private var ancCount : Int? = 0
+    private var pncCount : Int? = 0
+    private var immunizationCount : Int? = 0
+    private var ectCount : Int? = 0
+
     private val binding: FragmentDashboardBinding
         get() = _binding!!
     lateinit var viewModel: DashboardViewModel
@@ -72,14 +81,31 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
     private suspend fun fetchAndDisplayCount(){
-        maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!) ?: 0
-        femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!) ?: 0
-        othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!) ?: 0
+        val user = userRepo.getLoggedInUser()
+        if(user?.userName == null){
+            return
+        }
+        maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!, user.userName) ?: 0
+        femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!, user.userName) ?: 0
+        othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!, user.userName) ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
+
         binding.opdMaleValue.text = maleOpdCount.toString()
         binding.opdFemaleValue.text = femaleOpdCount.toString()
         binding.opdOtherValue.text = othersOpdCount.toString()
         binding.opdTotalValue.text = totalOpdCount.toString()
+
+        ancCount = benFlowDao.getAncCount(periodParam!!, user.userName) ?: 0
+        pncCount = benFlowDao.getPncCount(periodParam!!, user.userName) ?: 0
+        immunizationCount = benFlowDao.getImmunizationCount(periodParam!!, user.userName) ?: 0
+        ectCount = benFlowDao.getEctCount(periodParam!!, user.userName) ?: 0
+
+        binding.tvAncValue.text = ancCount.toString()
+        binding.tvPncValue.text = pncCount.toString()
+        binding.tvImmValue.text = immunizationCount.toString()
+        binding.tvFamValue.text = ectCount.toString()
+
+
     }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

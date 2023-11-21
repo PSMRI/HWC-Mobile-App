@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.model
 
+import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -8,6 +9,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.database.room.SyncState
+import java.util.Date
 
 @Entity(
     tableName = "PATIENT_VISIT_INFO_SYNC",
@@ -69,6 +71,9 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name = "pharmacist_flag")
     var pharmacist_flag: Int? = 0,
 
+    @ColumnInfo(name = "visitDate")
+    var visitDate: Date? = null
+
 ){
     constructor(benFlow: BenFlow, patient: Patient) : this(
         patientID = patient.patientID,
@@ -79,6 +84,8 @@ data class PatientVisitInfoSync(
 //        pharmacist_flag = benFlow.pharmacist_flag,
         nurseDataSynced = SyncState.SYNCED,
         doctorDataSynced = SyncState.SYNCED,
+        labDataSynced = SyncState.SYNCED,
+        pharmacistDataSynced = SyncState.SYNCED,
     )
 
 }

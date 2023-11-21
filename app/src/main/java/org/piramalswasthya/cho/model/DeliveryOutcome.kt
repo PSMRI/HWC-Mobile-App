@@ -50,7 +50,7 @@ data class DeliveryOutcomeCache (
     var syncState: SyncState
 ) : FormDataModel {
 
-    private fun getDateStringFromLong(dateLong: Long?): String? {
+    fun getDateStringFromLong(dateLong: Long?): String? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
 
         dateLong?.let {

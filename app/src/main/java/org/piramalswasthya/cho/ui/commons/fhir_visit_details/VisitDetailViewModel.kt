@@ -151,6 +151,10 @@ class VisitDetailViewModel @Inject constructor(
         }
     }
 
+    fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncRepo.getPatientDisplayListForDoctorByPatient(patientID)
+    }
+
     fun saveNurseDataToDb(visitDB: VisitDB, chiefComplaints: List<ChiefComplaintDB>,
                           patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync){
         viewModelScope.launch {
@@ -247,6 +251,7 @@ class VisitDetailViewModel @Inject constructor(
             existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{

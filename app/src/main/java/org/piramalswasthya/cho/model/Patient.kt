@@ -233,7 +233,27 @@ data class PatientDisplayWithVisitInfo(
     val doctorFlag: Int?,
     val labtechFlag: Int?,
     val pharmacist_flag: Int?,
-) : Serializable
+    val visitDate: Date?,
+) : Serializable{
+    constructor(pat: Patient, vis: PatientVisitInfoSync) : this(
+        pat,
+        null,
+        null,
+        null,
+        null,
+        vis.nurseDataSynced,
+        vis.doctorDataSynced,
+        vis.createNewBenFlow,
+        vis.prescriptionID,
+        vis.benVisitNo,
+        vis.benFlowID,
+        vis.nurseFlag,
+        vis.doctorFlag,
+        vis.labtechFlag,
+        vis.pharmacist_flag,
+        vis.visitDate
+    )
+}
 
 
 @JsonClass(generateAdapter = true)

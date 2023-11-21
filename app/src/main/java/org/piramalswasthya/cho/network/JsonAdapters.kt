@@ -395,6 +395,11 @@ data class BenificiarySaveResponse(
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)
+data class CountDownSync(
+    val response: String,
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
 data class NurseDataResponse(
     val response: String?,
     val visitCode: String?,

@@ -54,9 +54,11 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.frequencyMap
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
@@ -85,6 +87,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val viewModel: CaseRecordViewModel by viewModels()
     @Inject
     lateinit var preferenceDao: PreferenceDao
+    @Inject
+    lateinit var userRepo: UserRepo
     @Inject
     lateinit var prescriptionTemplateRepo: PrescriptionTemplateRepo
 
@@ -121,6 +125,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
+    private var submitDoctorData: Boolean? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,10 +148,18 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         val tableLayout = binding.tableLayout
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+
+        submitDoctorData = arguments?.getBoolean("submitDoctorData")
+
+        if(submitDoctorData == true){
+            benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+        }
+        else{
+            benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        }
+
+        if( preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             patientId = benVisitInfo.patient.patientID
             patId= benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -166,7 +179,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                    binding.scrollview.visibility = View.VISIBLE
                    binding.resultHeading.visibility = View.VISIBLE
                    binding.dateOption.visibility = View.VISIBLE
-               }
+                }
                 for (labReport in labReports) {
                     val procedureName = labReport.procedure.procedureName
                     binding.inputDate.setText(labReport.procedure.createdDate)
@@ -228,8 +241,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         val chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
-        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
                 // Clear the existing data in chiefComplaintDB
                 chiefComplaintDB.clear()
@@ -434,8 +446,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
+        if(preferenceDao.isDoctorSelected() || submitDoctorData == true){
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
                     var vitalDb2 = VitalsMasterDb(
@@ -759,7 +770,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         return map.entries.find { it.value == value }?.key
     }
 
-    private fun saveNurseAndDoctorData(benVisitNo: Int, createNewBenflow: Boolean){
+    private fun saveNurseAndDoctorData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
 
         val visitDB = VisitDB(
             visitId = generateUuid(),
@@ -768,7 +779,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = patId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
 
@@ -898,6 +910,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             createNewBenFlow = createNewBenflow,
             nurseFlag = 9,
             doctorFlag = doctorFlag,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseAndDoctorData(visitDB, chiefComplaints, patientVitals, diagnosisList, investigation, prescriptionList, patientVisitInfoSync)
@@ -1081,8 +1094,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
     override fun onCancelAction() {
-        if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")){
+        if(preferenceDao.isDoctorSelected()){
             val intent = Intent(context, HomeActivity::class.java)
             startActivity(intent)
             requireActivity().finish()
@@ -1092,8 +1104,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
     }
     fun navigateNext() {
-        if (preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor") ||
-            (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor")) {
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {
@@ -1161,7 +1172,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         }
                     }
 
-                    saveNurseAndDoctorData(benVisitNo, createNewBenflow)
+                    val user = userRepo.getLoggedInUser()
+
+                    saveNurseAndDoctorData(benVisitNo, createNewBenflow, user)
 
                     viewModel.isDataSaved.observe(viewLifecycleOwner){ state->
                         when(state!!){

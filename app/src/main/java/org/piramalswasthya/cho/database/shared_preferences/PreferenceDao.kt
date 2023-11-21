@@ -77,12 +77,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return pref.getString(prefKey, null)
     }
 
-    fun setSecondRolesForCHO(roles: String) {
-        val editor = pref.edit()
-        val prefKey = context.getString(R.string.SECOND_USER_ROLES)
-        editor.putString(prefKey, roles)
-        editor.apply()
-    }
 
     fun setSwitchRoles(roles: String) {
         val editor = pref.edit()
@@ -91,19 +85,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
-    fun isUserOnlyDoctorOrMo(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            if(rolesArray.contains("Nurse")||rolesArray.contains("CHO")){
-                return false
-            }
-            else {
-                if(rolesArray.contains("Doctor")||rolesArray.contains("MO"))
-                return true
-            }
-        }
-        return false;
-    }
      fun isUserRegistrar():Boolean{
          val rolesArray = getUserRoles()?.split(",")
          if(rolesArray != null){
@@ -120,97 +101,77 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         return false;
     }
 
-    fun isUserRegistrarOnly():Boolean{
+    fun isUserDoctorOrMO():Boolean{
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            return rolesArray.size == 1 && rolesArray.contains("Registrar")
+            return rolesArray.contains("Doctor") || rolesArray.contains("MO")
         }
         return false;
     }
 
-    fun getFirstUserRole():String{
+    fun isUserLabTechnician():Boolean{
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            return rolesArray[0]
+            return rolesArray.contains("Lab Technician")
         }
-        return "";
+        return false;
     }
 
-        fun setUserLoginType(str:String?){
-            val editor = pref.edit()
-            val prefKey = context.getString(R.string.User_Login_Type)
-            editor.putString(prefKey, str)
-            editor.apply()
+    fun isUserPharmacist():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("Pharmacist")
         }
+        return false;
+    }
+
+    fun isUserCHO():Boolean{
+        val rolesArray = getUserRoles()?.split(",")
+        if(rolesArray != null){
+            return rolesArray.contains("CHO")
+        }
+        return false;
+    }
+
+    fun setUserLoginType(str:String?){
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.User_Login_Type)
+        editor.putString(prefKey, str)
+        editor.apply()
+    }
+
     fun isLoginTypeOutReach():Boolean{
         val type = getLoginType()
         if(type != null)
             return type.contains("OUTREACH")
       return false
     }
-    fun isUserOnlyNurseOrCHO(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            if (rolesArray.contains("Doctor")||rolesArray.contains("MO")){
-                return false
-            }else {
-                return rolesArray.contains("Nurse") || rolesArray.contains("Staff Nurse") || rolesArray.contains("CHO")
-            }
-        }
-        return false;
-    }
-
-    fun isUserNurseOrCHOAndDoctorOrMo(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            if((rolesArray.contains("Doctor")||rolesArray.contains("MO"))&& (rolesArray.contains("Nurse") || rolesArray.contains("Staff Nurse") || rolesArray.contains("CHO"))) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun isStartingLabTechnician(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.size == 1 && rolesArray.contains("Lab Technician")
-        }
-        return false;
-    }
-
-    fun isPharmacist(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.size == 1 && rolesArray.contains("Pharmacist")
-        }
-        return false;
-    }
-
-    fun isCHO(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.size == 5
-        }
-        return false;
-    }
-
-    fun isUserSwitchRole(): Boolean {
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.size in 2..4
-        }
-        return false;
-    }
-
-    fun getCHOSecondRole(): String? {
-        val prefKey = context.getString(R.string.SECOND_USER_ROLES)
-        return pref.getString(prefKey, null)
-    }
 
     fun getSwitchRole(): String? {
         val prefKey = context.getString(R.string.SWITCH_USER_ROLES)
         return pref.getString(prefKey, null)
     }
+
+    fun isRegistrarSelected(): Boolean {
+        return getSwitchRole() == "Registrar"
+    }
+
+    fun isNurseSelected(): Boolean {
+        return getSwitchRole() == "Nurse"
+    }
+
+    fun isDoctorSelected(): Boolean {
+        return getSwitchRole() == "Doctor"
+    }
+
+    fun isLabSelected(): Boolean {
+        return getSwitchRole() == "Lab Technician"
+    }
+
+    fun isPharmaSelected(): Boolean {
+        return getSwitchRole() == "Pharmacist"
+    }
+
 
     fun isContainsRole(role: String):Boolean{
         val rolesArray = getUserRoles()?.split(",")

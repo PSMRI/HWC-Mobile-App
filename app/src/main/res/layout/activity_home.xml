@@ -43,6 +43,16 @@
                     android:background="?attr/colorPrimary"/>
 
                 <ImageButton
+                    android:id="@+id/sync_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="10dp"
+                    android:contentDescription="Refresh"
+                    android:src="@drawable/ic_synced"
+                    android:background="?attr/colorPrimary"/>
+
+                <ImageButton
                     android:id="@+id/refresh_button"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
@@ -123,7 +133,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_margin="@dimen/margin_normal"
             android:padding="@dimen/padding_normal"
-            android:text="Version 1.0.0"
+            android:text="Version 5.0.0"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
 
     </com.google.android.material.navigation.NavigationView>

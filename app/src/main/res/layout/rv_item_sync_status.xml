@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingDefaultResource">
+
+    <data>
+
+        <variable
+            name="sync"
+            type="org.piramalswasthya.cho.model.SyncStatusCache" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_normal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:padding="@dimen/padding_normal"
+            android:text="@{sync.name}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            tools:text="1232354" />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="@dimen/padding_normal"
+            android:text="@{@string/long_to_string(sync.synced)}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+
+            android:textColor="@android:color/holo_green_dark" />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="@dimen/padding_normal"
+
+            android:text="@{@string/long_to_string(sync.notSynced)}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="@android:color/holo_red_dark" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="@dimen/padding_normal"
+
+            android:text="@{@string/long_to_string(sync.syncing)}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="@android:color/holo_orange_dark" />
+
+
+    </LinearLayout>
+</layout>

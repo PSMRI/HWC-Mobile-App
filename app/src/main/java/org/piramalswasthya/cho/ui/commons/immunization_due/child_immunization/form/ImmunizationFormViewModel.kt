@@ -54,6 +54,10 @@ class ImmunizationFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
+    private val _vaccineExists = MutableLiveData<Boolean>()
+    val vaccineExists: LiveData<Boolean>
+        get() = _vaccineExists
+
     private val _benName = MutableLiveData<String>()
     val benName: LiveData<String>
         get() = _benName
@@ -63,13 +67,17 @@ class ImmunizationFormViewModel @Inject constructor(
 
     private val dataset = ImmunizationDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
-    private lateinit var immCache: ImmunizationCache
+    lateinit var immCache: ImmunizationCache
+
+    lateinit var vaccine: Vaccine
+
+    var savedRecord: ImmunizationCache? = null
 
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val asha  = userRepo.getLoggedInUser()!!
-                val savedRecord = vaccineDao.getImmunizationRecord(patientID, vaccineId)
+                savedRecord = vaccineDao.getImmunizationRecord(patientID, vaccineId)
                 immCache = savedRecord?.also { _recordExists.postValue(true) } ?: run {
                     ImmunizationCache(
                         patID = patientID,
@@ -94,9 +102,13 @@ class ImmunizationFormViewModel @Inject constructor(
 //                )
 //                vaccineDao.addVaccine(saveVaccine)
 
-                val vaccine = vaccineDao.getVaccineById(vaccineId)
+                vaccine = vaccineDao.getVaccineById(vaccineId)
                     ?: throw IllegalStateException("Unknown Vaccine Injected, contact HAZMAT team!")
+                _vaccineExists.postValue(true)
+
                 dataset.setFirstPage(ben, vaccine, savedRecord)
+
+
             }
         }
 

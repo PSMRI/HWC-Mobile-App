@@ -12,15 +12,29 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.UserDomain
+import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.commons.maternal_health.pnc.form.PncFormViewModel.State
+import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PncFormFragment() : Fragment(), NavigationAdapter{
@@ -29,7 +43,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     private val binding: FragmentNewFormBinding
         get() = _binding!!
 
+    @Inject
+    lateinit var userRepo: UserRepo
+
     val viewModel: PncFormViewModel by viewModels()
+
+    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+
+    val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
     var fragmentContainerId: Int = 0
 
@@ -49,6 +70,8 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
@@ -99,15 +122,11 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    val intent = Intent(context, HomeActivity::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
+                    saveNurseData()
                 }
 
                 State.SAVE_FAILED -> {
                     Toast.makeText(
-
                         context, "Something wend wong! Contact testing!", Toast.LENGTH_LONG
                     ).show()
                     binding.llContent.visibility = View.VISIBLE
@@ -115,6 +134,76 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                 }
             }
         }
+    }
+
+    private fun saveNurseData(){
+        CoroutineScope(Dispatchers.Main).launch {
+            var benVisitNo = 0;
+            var createNewBenflow = false;
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+                if(it == null){
+                    benVisitNo = 1;
+                }
+                else if(it.nurseFlag == 1) {
+                    benVisitNo = it.benVisitNo
+                }
+                else {
+                    benVisitNo = it.benVisitNo + 1
+                    createNewBenflow = true;
+                }
+            }
+
+            val user = userRepo.getLoggedInUser()
+
+            saveNurseData(benVisitNo, createNewBenflow, user)
+
+            CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
+                when(it!!){
+                    true ->{
+                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        val intent = Intent(context, HomeActivity::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
+                    }
+                    else ->{
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
+
+        val visitDB = VisitDB(
+            visitId = generateUuid(),
+            category = "PNC",
+            reasonForVisit = "New Chief Complaint",
+            subCategory = "PNC",
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
+        )
+
+        val patientVitals = PatientVitalsModel(
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+        )
+
+        val patientVisitInfoSync = PatientVisitInfoSync(
+            patientID = benVisitInfo.patient.patientID,
+            benVisitNo = benVisitNo,
+            createNewBenFlow = createNewBenflow,
+            nurseDataSynced = SyncState.UNSYNCED,
+            doctorDataSynced = SyncState.SYNCED,
+            nurseFlag = 9,
+            doctorFlag = 1
+        )
+
+        CPHCviewModel.saveNurseDataToDb(visitDB, patientVitals, patientVisitInfoSync)
+
     }
 
     private fun submitAncForm() {

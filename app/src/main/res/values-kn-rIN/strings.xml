@@ -53,6 +53,7 @@
     <string name="gender">ಲಿಂಗ <font color="#FF0000">*</font></string>
     <string name="age">ವಯಸ್ಸು <font color="#FF0000">*</font></string>
     <string name="select_subcategory">Select Subcategory</string>
+    <string name="long_to_string">%d</string>
     <string-array name="subcategories_array">
         <item>Management of Common Communicable Diseases</item>
         <item>Outpatient Care for Acute Simple Illnesses &amp; Minor Ailments</item>
@@ -148,6 +149,7 @@
     <string name="confirm_go_back">Do you want to go back?</string>
     <string name="downloading_abha_card">Downloading abha card</string>
     <string name="downloading">Downloading</string>
+    <string name="downloading_percentage">Downloading %d%</string>
     <string name="download_failed_retry">Failed to download , Please retry</string>
     <string name="otp_was_resent">OTP was resent.</string>
     <string name="please_confirm_to_logout">Please confirm to logout.</string>

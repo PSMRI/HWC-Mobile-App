@@ -17,6 +17,10 @@ object WorkerUtils {
     const val syncPeriodicDownSyncWorker = "PERIODIC-DOWN-SYNC"
     const val syncOneTimeDownSyncWorker = "ONE-TIME-DOWN-SYNC"
 
+    var totalRecordsToDownload = 0;
+    var totalPercentageCompleted = MutableLiveData<Int>(0)
+    var isDownloadInProgress = false
+
     private val networkOnlyConstraint = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -26,6 +30,7 @@ object WorkerUtils {
         val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
+
         val pullPatientFromAmritWorker = OneTimeWorkRequestBuilder<PullPatientsFromServer>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -38,6 +43,7 @@ object WorkerUtils {
     }
 
     fun triggerAmritSyncWorker(context : Context){
+
         val pullBenFlowFromAmritWorker = OneTimeWorkRequestBuilder<PullBenFlowFromAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()

@@ -157,6 +157,14 @@ class PncFormDataset(
         hasDependants = false
     )
 
+    private val deliveryDate = FormElement(
+        id = 16,
+        inputType = InputType.TEXT_VIEW,
+        title = "Delivery Date",
+        required = false,
+        hasDependants = false
+    )
+
     suspend fun setUpPage(
         visitNumber: Int,
         ben: PatientDisplay?,
@@ -165,6 +173,7 @@ class PncFormDataset(
         saved: PNCVisitCache?
     ) {
         val list = mutableListOf(
+            deliveryDate,
             pncPeriod,
             visitDate,
             ifaTabsGiven,
@@ -175,6 +184,7 @@ class PncFormDataset(
             remarks
         )
         dateOfDelivery = deliveryOutcomeCache.dateOfDelivery!!
+        deliveryDate.value = deliveryOutcomeCache.getDateStringFromLong(dateOfDelivery)
         deathDate.min = dateOfDelivery
         deathDate.max = System.currentTimeMillis()
         motherDeath.value = motherDeath.entries!!.last()

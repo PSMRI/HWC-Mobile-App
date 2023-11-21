@@ -26,8 +26,10 @@ import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
@@ -50,6 +52,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         get() {
             return _binding!!
         }
+
+    @Inject
+    lateinit var userRepo: UserRepo
 
     val viewModel: FhirVitalsViewModel by viewModels()
 
@@ -354,7 +359,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
 
-    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
 
         val visitDB = VisitDB(
             visitId = generateUuid(),
@@ -363,7 +368,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = masterDb!!.patientId.toString(),
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
         var chiefComplaints = mutableListOf<ChiefComplaintDB>()
@@ -407,7 +413,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             nurseDataSynced = SyncState.UNSYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
-            doctorFlag = 1
+            doctorFlag = 1,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
@@ -480,7 +487,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     fun navigateNext() {
-        if (preferenceDao.isUserNurseOrCHOAndDoctorOrMo() && !preferenceDao.isCHO()){
+        if (preferenceDao.isUserCHO()){
             extractFormValues()
             if (!isNull) {
 //                viewModel.saveObservationResource(observation)
@@ -513,7 +520,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 //                addVisitRecordDataToCache(benVisitNo)
 //                addVitalsDataToCache(benVisitNo)
 //                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                    saveNurseData(benVisitNo, createNewBenflow)
+
+                val user = userRepo.getLoggedInUser()
+
+                saveNurseData(benVisitNo, createNewBenflow, user)
 
                     viewModel.isDataSaved.observe(viewLifecycleOwner) {
                         when (it!!) {
