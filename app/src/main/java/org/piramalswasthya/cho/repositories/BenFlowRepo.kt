@@ -3,6 +3,8 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
@@ -46,6 +48,7 @@ import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
 import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -55,6 +58,8 @@ import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -72,7 +77,7 @@ class BenFlowRepo @Inject constructor(
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
     private val procedureDao: ProcedureDao,
-    private val caseRecordeDao: CaseRecordeDao
+    private val caseRecordeDao: CaseRecordeDao,
 ) {
 
 
@@ -149,6 +154,18 @@ class BenFlowRepo @Inject constructor(
             preferenceDao.getLastBenflowSyncTime()
         )
 
+        when(val response = getBenFlowCountToDownload(villageList)){
+            is NetworkResult.Success -> {
+
+            }
+            is NetworkResult.Error -> {
+                if(response.code == socketTimeoutException){
+                    throw SocketTimeoutException("This is an example exception message")
+                }
+            }
+            else -> {}
+        }
+
         when(val response = syncFlowIds(villageList)){
             is NetworkResult.Success -> {
                 return true
@@ -183,9 +200,14 @@ class BenFlowRepo @Inject constructor(
             caseRecordeDao.insertAll(it)
         }
 
-        patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
-        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
-        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        patientVisitInfoSyncDao.updateAfterDoctorDataDownSync(patientVisitInfoSync.doctorFlag!!, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+        if(docData.diagnosis?.prescriptionID != null){
+            patientVisitInfoSyncDao.updatePrescriptionID(docData.diagnosis?.prescriptionID, patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo)
+        }
+
+//        patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
+//        patientVisitInfoSync.prescriptionID = docData.diagnosis?.prescriptionID
+//        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
 
@@ -234,7 +256,7 @@ class BenFlowRepo @Inject constructor(
                     } ?: emptyList()
 
                     refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync, docData = docData)
-                    if(benFlow.doctorFlag == 3 && !docData.LabReport.isNullOrEmpty()){
+                    if(!docData.LabReport.isNullOrEmpty()){
                         refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
                     }
                     NetworkResult.Success(NetworkResponse())
@@ -261,8 +283,9 @@ class BenFlowRepo @Inject constructor(
         vitalsDao.deletePatientVitalsByPatientIdAndBenVisitNo(patient.patientID, benFlow.benVisitNo!!)
         vitalsDao.insertPatientVitals(vitals)
 
-        patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
-        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        patientVisitInfoSyncDao.updateAfterNurseDataDownSync(patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo, DateTimeUtil.formatVisitDate(benFlow.visitDate))
+//        patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
+//        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
     }
 
@@ -350,7 +373,18 @@ class BenFlowRepo @Inject constructor(
                 onSuccess = {
                     val benflowArray = responseBody.let { JSONObject(it).getJSONArray("data") }
                     var isSuccess = true
+
+                    var totalDownloaded = 0
+
                     for (i in 0 until benflowArray.length()) {
+
+                        totalDownloaded++
+                        if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
+                            withContext(Dispatchers.Main) {
+                                WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                            }
+                        }
+
                         try {
                             val data = benflowArray.getString(i)
                             val benFlow = Gson().fromJson(data, BenFlow::class.java)
@@ -376,6 +410,26 @@ class BenFlowRepo @Inject constructor(
             )
         }
 
+    }
+
+    private suspend fun getBenFlowCountToDownload(villageList: VillageIdList): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+            val response = apiService.getBeneficiariesCount(villageList)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    val result = Gson().fromJson(data, CountDownSync::class.java)
+                    WorkerUtils.totalRecordsToDownload = result.response.toInt()
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getBenFlowCountToDownload(villageList)
+                })
+        }
     }
 
     private suspend fun getAndSaveLabTechnicianDataToDb(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo): NetworkResult<NetworkResponse> {
@@ -436,9 +490,9 @@ class BenFlowRepo @Inject constructor(
                             }
                         }
 
-                        val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)!!
-                        patientVisitInfoSync.labDataSynced = SyncState.NOT_ADDED
-                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+//                        val patientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)!!
+//                        patientVisitInfoSync.labDataSynced = SyncState.NOT_ADDED
+//                        patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
 
                     }
 

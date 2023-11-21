@@ -20,4 +20,5 @@
     <color name="default_button">#296292</color>
     <color name="grey">#8BC34A</color>
     <color name="read_only">#D8D8D8</color>
+        <color name="transparent">#00FFFFFF</color>
 </resources>

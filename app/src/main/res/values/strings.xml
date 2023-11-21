@@ -145,6 +145,7 @@
     <string name="confirm_go_back">Do you want to go back?</string>
     <string name="downloading_abha_card">Downloading abha card</string>
     <string name="downloading">Downloading</string>
+    <string name="downloading_percentage">Downloading %d%</string>
     <string name="download_failed_retry">Failed to download , Please retry</string>
     <string name="otp_was_resent">OTP was resent.</string>
     <string name="please_confirm_to_logout">Please confirm to logout.</string>
@@ -518,6 +519,7 @@
     <string name="pnc_remarks">Remarks</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
     <string name="tracking_date">Date of Visit</string>
+    <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
         <item>1st Day</item>
         <item>3rd Day</item>

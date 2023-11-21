@@ -23,6 +23,18 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
     }
 
+    suspend fun updatePharmacistDataUnsynced(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePharmacistDataUnsynced(patientID, benVisitNo)
+    }
+
+    suspend fun updatePharmacistDataSyncing(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePharmacistDataSyncing(patientID, benVisitNo)
+    }
+
+    suspend fun updatePharmacistDataSynced(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePharmacistDataSynced(patientID, benVisitNo)
+    }
+
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updateOnlyDoctorDataSubmitted(nurseFlag, doctorFlag, labtechFlag, patientID, benVisitNo)
     }
@@ -106,6 +118,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync? {
         return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
+    }
+
+    fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncDao.getPatientDisplayListForDoctorByPatient(patientID)
     }
 
     fun getPatientDisplayListForDoctor() : Flow<List<PatientDisplayWithVisitInfo>> {

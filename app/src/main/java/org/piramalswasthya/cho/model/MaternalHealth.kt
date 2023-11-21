@@ -136,6 +136,17 @@ data class PregnantWomanRegistrationCache(
     var updatedDate: Long = System.currentTimeMillis(),
     var syncState: SyncState
 ) : FormDataModel {
+
+    fun getDateStringFromLong(dateLong: Long?): String? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+
+        dateLong?.let {
+            return dateFormat.format(dateLong)
+        } ?: run {
+            return null
+        }
+    }
+
     fun asPwrPost(): PwrPost {
         return PwrPost(
 //            benId = benId,

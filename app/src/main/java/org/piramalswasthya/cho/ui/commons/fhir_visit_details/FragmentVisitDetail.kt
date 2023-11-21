@@ -5,11 +5,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -23,9 +26,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AncVisitAdapter
+import org.piramalswasthya.cho.adapter.CHOCaseRecordItemAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.adapter.PncVisitAdapter
@@ -38,14 +43,17 @@ import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
+import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -76,6 +84,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private lateinit var patientId: String
 
     val fragment = this
+
+    @Inject
+    lateinit var userRepo: UserRepo
+
     val viewModel: VisitDetailViewModel by viewModels()
 
     val jsonFile = "patient-visit-details-paginated.json"
@@ -90,7 +102,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private var units = mutualVisitUnitsVal
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
-    private lateinit var subCatAdapter: SubCategoryAdapter
+//    private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
@@ -138,6 +150,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private val childImmunizationListViewModel: ChildImmunizationListViewModel by viewModels()
 
     private val bottomSheet: ChildImmunizationVaccineBottomSheetFragment by lazy { ChildImmunizationVaccineBottomSheetFragment() }
+
+    private var pncList = mutableListOf<PNCVisitCache>()
 
     private val binding: VisitDetailsInfoBinding
         get() {
@@ -242,53 +256,72 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun setSubCategoryDropdown(){
+        viewModel.selectedSubCat = ""
+        binding.subCatInput.setText(viewModel.selectedSubCat, false)
         if( ageCheckForChild(benVisitInfo.patient.dob) ){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.age_0_to_1)
             binding.subCatInput.setAdapter(subCatAdapter)
+//            viewModel.selectedSubCat = DropdownConst.age_0_to_1[0]
+//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
         else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.female_1_to_59)
             binding.subCatInput.setAdapter(subCatAdapter)
+//            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
+//            binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
+
     }
 
     private fun setReasonForVisitDropdown(subCat: String){
 
         Log.d("Reason for visit is ", "Working " + subCat)
         if(subCat == DropdownConst.careAndPreg){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.anc, DropdownConst.pnc)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.anc
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.fpAndOtherRep){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.fpAndCs)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.neonatalAndInfant){
-            subCatAdapter = SubCategoryAdapter(
+            val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 listOf(DropdownConst.immunization)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+//            viewModel.selectedReasonForVisit = DropdownConst.immunization
+//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+        }
+        else{
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
     }
 
@@ -332,6 +365,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.VISIBLE
         }
+        else{
+            removeVisibility()
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?){
@@ -347,6 +383,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onResume(){
         Log.v("tag on", "onResume")
         super.onResume()
+        setSubCategoryDropdown()
+        setReasonForVisitDropdown(viewModel.selectedSubCat)
     }
 
     override fun onPause(){
@@ -368,7 +406,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         Log.v("tag on", "on view created")
-        removeVisibility()
+        setVisibility()
+//        viewModel.selectedSubCat = "";
+//        viewModel.selectedReasonForVisit = ""
+//        binding.subCatInput.setText(viewModel.selectedSubCat, false)
+//        binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+
+        if(!preferenceDao.isUserCHO()){
+            binding.patientList.visibility = View.GONE
+        }
 
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -438,7 +484,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.subCatInput.setText(viewModel.selectedSubCat, false)
             viewModel.selectedReasonForVisit = ""
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-            removeVisibility()
+            setVisibility()
             setReasonForVisitDropdown(viewModel.selectedSubCat)
             binding.subCatDropDown.apply {
                 boxStrokeColor = resources.getColor(R.color.purple)
@@ -450,7 +496,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.reasonForVisitInput.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedReasonForVisit = parent.getItemAtPosition(position) as String
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-            removeVisibility()
+            setVisibility()
             if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
                 viewModel.activePwrRecord.observe(viewLifecycleOwner){
@@ -512,27 +558,49 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         viewModel.setPatientId(benVisitInfo.patient.patientID)
         masterDb?.patientId = benVisitInfo.patient.patientID
         patientId = benVisitInfo.patient.patientID
+
         setSubCategoryDropdown()
         setReasonForVisitDropdown(viewModel.selectedSubCat)
 
-
         viewModel.init(benVisitInfo.patient.patientID)
 
-        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
-            (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
-        }
+        binding.patientList.adapter =
+            CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener{
 
-        viewModel.allActivePncRecords.observe(viewLifecycleOwner){
-            (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
-        }
+                if(it.doctorFlag == 2){
+                    Toast.makeText(
+                        requireContext(),
+                        "Pending for Lab Technician",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else if(it.doctorFlag == 9){
+                    Toast.makeText(
+                        requireContext(),
+                        "Flow completed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else{
+                    val submitDoctorData = Bundle()
+                    submitDoctorData.putBoolean("submitDoctorData", true)
+                    submitDoctorData.putSerializable("benVisitInfo", it)
 
-        viewModel.allEctRecords.observe(viewLifecycleOwner){
-            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
-        }
+                    findNavController().navigate(
+                        R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+                    )
 
-        viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
-            lastAncVisit = it ?: 0
-        }
+                }
+
+//                val submitDoctorData = Bundle()
+//                submitDoctorData.putBoolean("submitDoctorData", true)
+//                submitDoctorData.putSerializable("benVisitInfo", it)
+//
+//                findNavController().navigate(
+//                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+//                )
+
+            })
 
         binding.rvAnc.adapter =
             AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
@@ -560,6 +628,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             })
+
+
+        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
+            (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
+        }
+
+        viewModel.allActivePncRecords.observe(viewLifecycleOwner){
+            (binding.rvPnc.adapter as PncVisitAdapter).submitList(it)
+        }
+
+        viewModel.allEctRecords.observe(viewLifecycleOwner){
+            (binding.rvEct.adapter as ECTrackingAdapter).submitList(it)
+        }
+
+        viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
+            lastAncVisit = it ?: 0
+        }
+
+        lifecycleScope.launch {
+            viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect{
+                (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+            }
+        }
 
 
         try {
@@ -704,7 +795,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         rbsValue = binding.inputRBS.text?.toString()?.trim().nullIfEmpty()
     }
 
-    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
         val selectedCategoryRadioButton =
@@ -718,7 +809,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             subCategory = subCategory.nullIfEmpty(),
             patientID = patientId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
         var chiefComplaints = mutableListOf<ChiefComplaintDB>()
@@ -763,16 +855,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             nurseDataSynced = SyncState.UNSYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
-            doctorFlag = 1
+            doctorFlag = 1,
+            visitDate = Date(),
         )
 
         viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
 
     }
+
     fun goToEnd(){
         extractFormValues()
         setVisitMasterDataAndVitalsForFollow()
-        if(preferenceDao.isUserOnlyNurseOrCHO()){
+        if(!preferenceDao.isUserCHO()){
             CoroutineScope(Dispatchers.Main).launch {
                 var benVisitNo = 0;
                 var createNewBenflow = false;
@@ -790,7 +884,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
                 extractFormValues()
                 setVitalsMasterData()
-                saveNurseData(benVisitNo, createNewBenflow)
+
+                val user = userRepo.getLoggedInUser()
+
+                saveNurseData(benVisitNo, createNewBenflow, user)
 
                 viewModel.isDataSaved.observe(viewLifecycleOwner){
                     when(it!!){
@@ -1299,7 +1396,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else{
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, System.currentTimeMillis()
+                        benVisitInfo.patient.patientID, 0L
                     )
                 )
             }
@@ -1515,5 +1612,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onEndIconChiefClick(position: Int) {
         speechToTextLauncherForChiefMaster.launch(Unit)
         currChiefPos = position
+    }
+
+}
+
+fun AutoCompleteTextView.showDropdown(adapter: ArrayAdapter<String>?) {
+    if(!TextUtils.isEmpty(this.text.toString())){
+        adapter?.filter?.filter(null)
     }
 }

@@ -33,12 +33,20 @@ class PullPatientsFromServer @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            val workerResult = patientRepo.downloadAndSyncPatientRecords()
-            if (workerResult) {
-                preferenceDao.setLastPatientSyncTime()
+            if( WorkerUtils.isDownloadInProgress ){
+                Timber.d("Patient Download Worker in progress")
+                Result.retry()
             }
-            Timber.d("Patient Download Worker completed")
-            Result.success()
+            else{
+                WorkerUtils.isDownloadInProgress = true
+                val workerResult = patientRepo.downloadAndSyncPatientRecords()
+                if (workerResult) {
+                    preferenceDao.setLastPatientSyncTime()
+                }
+                WorkerUtils.isDownloadInProgress = false
+                Timber.d("Patient Download Worker completed")
+                Result.success()
+            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()

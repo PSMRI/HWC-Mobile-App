@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.util.Date
@@ -38,12 +39,20 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
-            if (workerResult) {
-                preferenceDao.setLastBenflowSyncTime()
+            if( WorkerUtils.isDownloadInProgress ){
+                Timber.d("Benflow Download Worker in progress")
+                Result.retry()
             }
-            Timber.d("Benflow Download Worker completed")
-            Result.success()
+            else{
+                WorkerUtils.isDownloadInProgress = true
+                val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
+                if (workerResult) {
+                    preferenceDao.setLastBenflowSyncTime()
+                }
+                WorkerUtils.isDownloadInProgress = false
+                Timber.d("Benflow Download Worker completed")
+                Result.success()
+            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()

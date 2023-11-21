@@ -36,6 +36,7 @@ class CaseRecordeRepo @Inject constructor(
             Timber.d("Error in saving Investigation $e")
         }
     }
+
     suspend fun saveDiagnosisToCatche(diagnosisCaseRecord: DiagnosisCaseRecord) {
         try{
             withContext(Dispatchers.IO){
@@ -45,6 +46,7 @@ class CaseRecordeRepo @Inject constructor(
             Timber.d("Error in saving Diagnosis $e")
         }
     }
+
     suspend fun getDiagnosisCaseRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo: Int) : List<DiagnosisCaseRecord>?{
         return caseRecordDao.getDiagnosisCaseRecordeByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }

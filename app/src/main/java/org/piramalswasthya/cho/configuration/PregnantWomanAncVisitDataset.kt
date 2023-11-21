@@ -305,6 +305,14 @@ class PregnantWomanAncVisitDataset(
         required = false,
     )
 
+    private val lmpDate = FormElement(
+        id = 32,
+        inputType = InputType.TEXT_VIEW,
+        title = "LMP Date",
+        required = false,
+        hasDependants = false
+    )
+
     private var toggleBp = false
 
     fun resetBpToggle() {
@@ -323,6 +331,7 @@ class PregnantWomanAncVisitDataset(
     ) {
         this.regis = regis
         val list = mutableListOf(
+            lmpDate,
             ancDate,
             weekOfPregnancy,
             ancVisit,
@@ -345,6 +354,7 @@ class PregnantWomanAncVisitDataset(
             maternalDeath
 
         )
+        lmpDate.value = this.regis.getDateStringFromLong(this.regis.lmpDate)
         abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
         dateOfTTOrTd1.min = abortionDate.min
         dateOfTTOrTdBooster.min = abortionDate.min

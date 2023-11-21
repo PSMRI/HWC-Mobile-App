@@ -163,7 +163,7 @@ data class VisitDetailsNetwork(
         null,
         visit?.subCategory,
         user?.vanId,
-        "General OPD",
+        visit?.category,
         null,
         visit?.reasonForVisit,
     )
