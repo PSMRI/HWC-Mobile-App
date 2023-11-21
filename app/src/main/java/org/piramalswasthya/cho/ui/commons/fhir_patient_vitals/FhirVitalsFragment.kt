@@ -106,7 +106,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             }
         }
         if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
-            binding.temperatureEditTxt.helperText = "Required"
+            binding.temperatureEditTxt.helperText = "Temprature Required"
         } else {
             binding.temperatureEditTxt.helperText = null
         }
@@ -242,7 +242,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.bpSystolicEditTxt.helperText = null
         } else {
             binding.bpSystolicEditTxt.helperText =
-                "Invalid value. Please enter value between 50 and 300."
+                "Please enter value between 50 and 300."
         }
     }
 
@@ -253,7 +253,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.bpDiastolicEditTxt.helperText = null
         } else {
             binding.bpDiastolicEditTxt.helperText =
-                "Invalid value. Please enter value between 30 and 200."
+                "Please enter value between 30 and 200."
         }
     }
 
@@ -310,7 +310,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.spo2EditTxt.helperText = null
         } else {
             binding.spo2EditTxt.helperText =
-                "Invalid Spo2. Please enter a numeric value between 30 and 100."
+                "Please enter a numeric value between 30 and 100."
         }
     }
 
@@ -323,7 +323,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.respiratoryEditTxt.helperText = null
         } else {
             binding.respiratoryEditTxt.helperText =
-                "Invalid Respiratory rate. Please enter a numeric value between 10 and 40."
+                "Please enter a numeric value between 10 and 40."
         }
     }
 
