@@ -240,97 +240,146 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
     }
     private fun validateBPSystolic(bpSystolic: String) {
-        val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
-                bpSystolic.toInt() in 50..300
+        try {
+            val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
+                    bpSystolic.toInt() in 50..300
 
-        if (isValid) {
-            binding.bpSystolicEditTxt.helperText = null
-        } else {
+            if (isValid) {
+                binding.bpSystolicEditTxt.helperText = null
+            } else {
+                binding.bpSystolicEditTxt.helperText =
+                    "Please enter value between 50 and 300."
+            }
+        } catch (e: NumberFormatException) {
             binding.bpSystolicEditTxt.helperText =
-                "Please enter value between 50 and 300."
+                "Please enter a valid numeric value."
         }
     }
 
     private fun validateBPD(bpD: String) {
-        val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
-                bpD.toInt() in 30..200
-        if (isValid) {
-            binding.bpDiastolicEditTxt.helperText = null
-        } else {
+        try {
+            val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
+                    bpD.toInt() in 30..200
+            if (isValid) {
+                binding.bpDiastolicEditTxt.helperText = null
+            } else {
+                binding.bpDiastolicEditTxt.helperText =
+                    "Please enter value between 30 and 200."
+            }
+        } catch (e: NumberFormatException) {
             binding.bpDiastolicEditTxt.helperText =
-                "Please enter value between 30 and 200."
+                "Please enter a valid numeric value."
         }
     }
-
     private fun validateTemperature(temperature: String) {
-        val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-        if (isValid) {
-            binding.temperatureEditTxt.helperText = null
-        } else {
+        try {
+            val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.temperatureEditTxt.helperText = null
+            } else {
+                binding.temperatureEditTxt.helperText =
+                    "Invalid temperature."
+            }
+        } catch (e: NumberFormatException) {
             binding.temperatureEditTxt.helperText =
-                "Invalid temperature."
+                "Please enter a valid numeric value."
         }
     }
+
     private fun validateHeight(hei: String) {
-        val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-        if (isValid) {
-            binding.heightEditTxt.helperText = null
-        } else {
+        try {
+            val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.heightEditTxt.helperText = null
+            } else {
+                binding.heightEditTxt.helperText =
+                    "Invalid Height."
+            }
+        } catch (e: NumberFormatException) {
             binding.heightEditTxt.helperText =
-                "Invalid Height."
+                "Please enter a valid numeric value."
         }
     }
+
     private fun validateWeight(w: String) {
-        val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
-        if (isValid) {
-            binding.weightEditTxt.helperText = null
-        } else {
+        try {
+            val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.weightEditTxt.helperText = null
+            } else {
+                binding.weightEditTxt.helperText =
+                    "Invalid Weight."
+            }
+        } catch (e: NumberFormatException) {
             binding.weightEditTxt.helperText =
-                "Invalid Weight."
+                "Please enter a valid numeric value."
         }
     }
+
     private fun validatePulse(pul: String) {
-        val isValid = pul.matches(Regex("^\\d{2,3}$"))
-        if (isValid) {
-            binding.pulseRateEditTxt.helperText = null
-        } else {
+        try {
+            val isValid = pul.matches(Regex("^\\d{2,3}$"))
+            if (isValid) {
+                binding.pulseRateEditTxt.helperText = null
+            } else {
+                binding.pulseRateEditTxt.helperText =
+                    "Invalid Pulse Rate."
+            }
+        } catch (e: NumberFormatException) {
             binding.pulseRateEditTxt.helperText =
-                "Invalid Pulse Rate."
+                "Please enter a valid numeric value."
         }
     }
-    private fun validateRBS(rbs: String) {
-        val isValid = rbs.matches(Regex("^\\d{2,3}$"))
-        if (isValid) {
-            binding.rbsEditTxt.helperText = null
-        } else {
-            binding.rbsEditTxt.helperText =
-                "Invalid RBS."
-        }
-    }
-    private fun validateSpo2(spo2: String) {
-        val isValid = spo2.matches(Regex("^\\d+$")) &&
-                spo2.toInt() in 30..100
 
-        if (isValid) {
-            binding.spo2EditTxt.helperText = null
-        } else {
+    private fun validateSpo2(spo: String) {
+        try {
+            val isValid = spo.matches(Regex("^\\d+$")) &&
+                    spo.toInt() in 30..100
+
+            if (isValid) {
+                binding.spo2EditTxt.helperText = null
+            } else {
+                binding.spo2EditTxt.helperText =
+                    "Please enter a numeric value between 30 and 100."
+            }
+        } catch (e: NumberFormatException) {
             binding.spo2EditTxt.helperText =
-                "Please enter a numeric value between 30 and 100."
+                "Please enter a valid numeric value."
         }
     }
 
+    private fun validateRBS(rbs: String) {
+        try {
+            val isValid = rbs.matches(Regex("^\\d{2,3}$"))
+            if (isValid) {
+                binding.rbsEditTxt.helperText = null
+            } else {
+                binding.rbsEditTxt.helperText =
+                    "Invalid RBS."
+            }
+        } catch (e: NumberFormatException) {
+            binding.rbsEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
 
     private fun validateResp(resp: String) {
-        val isValid = resp.matches(Regex("^\\d+$")) &&
-                resp.toInt() in 10..40
+        try {
+            val isValid = resp.matches(Regex("^\\d+$")) &&
+                    resp.toInt() in 10..40
 
-        if (isValid) {
-            binding.respiratoryEditTxt.helperText = null
-        } else {
+            if (isValid) {
+                binding.respiratoryEditTxt.helperText = null
+            } else {
+                binding.respiratoryEditTxt.helperText =
+                    "Please enter a numeric value between 10 and 40."
+            }
+        } catch (e: NumberFormatException) {
             binding.respiratoryEditTxt.helperText =
-                "Please enter a numeric value between 10 and 40."
+                "Please enter a valid numeric value."
         }
     }
+
 
 
 

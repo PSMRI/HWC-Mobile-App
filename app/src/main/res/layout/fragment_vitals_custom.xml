@@ -16,6 +16,7 @@
             android:layout_margin="10dp"
             android:textColorHint="#888888"
             app:helperText="@string/required"
+            app:counterMaxLength="6"
             app:helperTextTextColor="@color/red"
             app:layout_constraintStart_toStartOf="parent"
             android:hint="@string/temperature_f"
