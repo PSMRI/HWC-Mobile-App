@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -536,17 +537,25 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     fun navigateNext() {
+        val emptyFields = isHelperTrue()
         if (preferenceDao.isUserCHO()){
             extractFormValues()
             if (!isNull) {
 //                viewModel.saveObservationResource(observation)
                 isNull = true
             }
-            if(isHelperTrue()){
+            if(emptyFields.isEmpty()){
                 setVitalsMasterData()
                 findNavController().navigate(
                     R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
                 )
+            }else {
+                val message: String = if (emptyFields.size == 1) {
+                    "Please fill the ${emptyFields[0]}"
+                } else {
+                    "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }else{
             CoroutineScope(Dispatchers.Main).launch {
@@ -563,7 +572,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         createNewBenflow = true;
                     }
                 }
-                if (isHelperTrue()) {
+                if (emptyFields.isEmpty()) {
                     extractFormValues()
                     setVitalsMasterData()
 //                addVisitRecordDataToCache(benVisitNo)
@@ -591,18 +600,49 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                         }
                     }
 
+                }else {
+                    val message: String = if (emptyFields.size == 1) {
+                        "Please fill the ${emptyFields[0]}"
+                    } else {
+                        "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
     }
 
-    private fun isHelperTrue(): Boolean {
-        if(binding.temperatureEditTxt.helperText==null && binding.bpDiastolicEditTxt.helperText==null&& binding.bpSystolicEditTxt.helperText==null
-            && binding.respiratoryEditTxt.helperText==null&& binding.pulseRateEditTxt.helperText==null&& binding.spo2EditTxt.helperText==null
-            && binding.rbsEditTxt.helperText==null&& binding.heightEditTxt.helperText==null&& binding.weightEditTxt.helperText==null)
-            return true
-        return false
+    private fun isHelperTrue(): List<String> {
+        val emptyFields = mutableListOf<String>()
+
+        if (binding.temperatureEditTxt.helperText != null) {
+            emptyFields.add("Temperature")
+        }
+        if (binding.bpDiastolicEditTxt.helperText != null) {
+            emptyFields.add("BP Diastolic")
+        }
+        if (binding.bpSystolicEditTxt.helperText != null) {
+            emptyFields.add("BP Systolic")
+        }
+        if (binding.respiratoryEditTxt.helperText != null) {
+            emptyFields.add("Respiratory Rate")
+        }
+        if (binding.pulseRateEditTxt.helperText != null) {
+            emptyFields.add("Pulse Rate")
+        }
+        if (binding.spo2EditTxt.helperText != null) {
+            emptyFields.add("Spo2")
+        }
+        if (binding.rbsEditTxt.helperText != null) {
+            emptyFields.add("RBS")
+        }
+        if (binding.heightEditTxt.helperText != null) {
+            emptyFields.add("Height")
+        }
+        if (binding.weightEditTxt.helperText != null) {
+            emptyFields.add("Weight")
+        }
+        return emptyFields
     }
 
     private fun setVitalsMasterData(){
