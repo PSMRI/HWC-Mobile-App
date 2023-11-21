@@ -32,6 +32,7 @@ import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
+import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PhoneNumberValidation
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
@@ -57,6 +58,9 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
     val loggedInUser: UserCache?
         get() = _loggedInUser
     private var _boolCall = MutableLiveData(false)
+    private val _tempR=MutableLiveData<PhoneNumberValidation>()
+    val tempR: MutableLiveData<PhoneNumberValidation>
+        get() = _tempR
     val boolCall: LiveData<Boolean>
         get() = _boolCall
     var questionnaireJson: String? = null
@@ -86,7 +90,10 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
     suspend fun savePatientVitalInfoToCache(patientVitalsModel: PatientVitalsModel){
         vitalsRepo.saveVitalsInfoToCache(patientVitalsModel)
     }
-
+    fun setTempR(boolean: Boolean, string: String){
+        val phoneNumberValidation = PhoneNumberValidation(boolean, string)
+        _tempR.value = phoneNumberValidation
+    }
     suspend fun saveVisitDbToCatche(visitDB: VisitDB){
         visitRepo.saveVisitDbToCache(visitDB)
     }

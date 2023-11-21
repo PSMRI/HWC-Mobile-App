@@ -32,7 +32,9 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import timber.log.Timber
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -103,14 +105,36 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 viewModel.resetBool()
             }
         }
+        binding.inputTemperature.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed in this case
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateTemperature(s.toString())
+                }
+                else{
+                    viewModel.setTempR(true, "null")
+                }
+                binding.temperatureEditTxt.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
+                viewModel.tempR.observe(viewLifecycleOwner) {
+                    Timber.d("phone nimber ${it?.reason}")
+                    binding.temperatureEditTxt.setBoxColor(it.boolean,it.reason)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
     }
     private fun validateTemperature(temperature: String) {
         val isValid = temperature.matches(Regex("^\\d{2,3}$"))
-
         if (isValid) {
-            temperatureInputLayout.error = null
+            viewModel.setTempR(true, "null")
         } else {
-            temperatureInputLayout.error = "Invalid temperature. Please enter a 2 or 3 digit number."
+            viewModel.setTempR(true,"Invalid temperature. Please enter a 2 or 3 digit number.")
         }
     }
 
