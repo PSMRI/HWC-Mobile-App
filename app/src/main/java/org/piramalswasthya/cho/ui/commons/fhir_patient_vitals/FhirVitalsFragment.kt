@@ -105,6 +105,11 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 viewModel.resetBool()
             }
         }
+        binding.temperatureEditTxt.helperText=null
+        textwatchers()
+    }
+
+    private fun textwatchers() {
         binding.inputTemperature.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Not needed in this case
@@ -129,14 +134,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             }
         })
     }
+
     private fun validateTemperature(temperature: String) {
-        val isValid = temperature.matches(Regex("^\\d{2,3}$"))
+        val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
         if (isValid) {
             viewModel.setTempR(true, "null")
+            binding.temperatureEditTxt.helperText = null
         } else {
-            viewModel.setTempR(true,"Invalid temperature. Please enter a 2 or 3 digit number.")
+            binding.temperatureEditTxt.helperText =
+                "Invalid temperature."
+            viewModel.setTempR(true, "Invalid temperature.")
         }
     }
+
 
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -295,53 +305,62 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 //                viewModel.saveObservationResource(observation)
                 isNull = true
             }
-            setVitalsMasterData()
-            findNavController().navigate(
-                R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-            )
+            if(isHelperTrue()){
+                setVitalsMasterData()
+                findNavController().navigate(
+                    R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                )
+            }
         }else{
             CoroutineScope(Dispatchers.Main).launch {
 
                 var benVisitNo = 0;
                 var createNewBenflow = false;
                 viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                    if(it == null){
+                    if (it == null) {
                         benVisitNo = 1;
-                    }
-                    else if(it.nurseFlag == 1) {
+                    } else if (it.nurseFlag == 1) {
                         benVisitNo = it.benVisitNo
-                    }
-                    else {
+                    } else {
                         benVisitNo = it.benVisitNo + 1
                         createNewBenflow = true;
                     }
                 }
-                extractFormValues()
-                setVitalsMasterData()
+                if (isHelperTrue()) {
+                    extractFormValues()
+                    setVitalsMasterData()
 //                addVisitRecordDataToCache(benVisitNo)
 //                addVitalsDataToCache(benVisitNo)
 //                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-                saveNurseData(benVisitNo, createNewBenflow)
+                    saveNurseData(benVisitNo, createNewBenflow)
 
-                viewModel.isDataSaved.observe(viewLifecycleOwner){
-                    when(it!!){
-                        true ->{
-                            WorkerUtils.triggerAmritSyncWorker(requireContext())
-                            val intent = Intent(context, HomeActivity::class.java)
-                            startActivity(intent)
-                            requireActivity().finish()
-                        }
-                        else ->{
+                    viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                        when (it!!) {
+                            true -> {
+                                WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                val intent = Intent(context, HomeActivity::class.java)
+                                startActivity(intent)
+                                requireActivity().finish()
+                            }
+
+                            else -> {
 //                            requireActivity().runOnUiThread {
 //                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
 //                            }
+                            }
                         }
                     }
-                }
 
+                }
             }
 
         }
+    }
+
+    private fun isHelperTrue(): Boolean {
+        if(binding.temperatureEditTxt.helperText==null)
+            return true
+        return false
     }
 
     private fun setVitalsMasterData(){

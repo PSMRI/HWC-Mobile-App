@@ -597,4 +597,5 @@
     <string name="delete_temp">Delete Template</string>
     <string name="temp_name">Template Name</string>
     <string name="villageName">Village Name:</string>
+    <string name="required">Required</string>
 </resources>
