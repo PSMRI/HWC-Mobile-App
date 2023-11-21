@@ -111,7 +111,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             }
         }
         if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
-            binding.temperatureEditTxt.helperText = "Temprature Required"
+            binding.temperatureEditTxt.helperText = "Temperature Required"
         } else {
             binding.temperatureEditTxt.helperText = null
         }
