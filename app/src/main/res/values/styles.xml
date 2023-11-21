@@ -92,4 +92,12 @@
         <!-- Customize dialog styles here if needed -->
         <item name="android:windowBackground">@color/green</item>
     </style>
+
+    <style name="BottomNavigationTextStyle">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="BottomNavigationTextStyle2">
+        <item name="android:textSize">20sp</item>
+    </style>
+
 </resources>

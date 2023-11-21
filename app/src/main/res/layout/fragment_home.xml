@@ -91,8 +91,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:itemBackground="@color/bottom_navigation_item_background"
         app:itemTextColor="@color/bottom_navigation_text_color"
+        app:itemTextAppearanceActive="@style/BottomNavigationTextStyle2"
+        app:itemTextAppearanceInactive="@style/BottomNavigationTextStyle"
         app:menu="@menu/bottom_menu_nav"/>
 
     <Button
