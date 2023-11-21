@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.work
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -38,6 +39,8 @@ class PullPatientsFromServer @AssistedInject constructor(
 //                Result.retry()
 //            }
 //            else{
+                Log.d("Patient In Progress", "Patient In Progress")
+
                 WorkerUtils.isDownloadInProgress = true
                 val workerResult = patientRepo.downloadAndSyncPatientRecords()
                 if (workerResult) {
