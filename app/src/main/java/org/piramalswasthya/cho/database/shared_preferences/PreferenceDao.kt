@@ -24,7 +24,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     private val pref = PreferenceManager.getInstance(context)
 
     @RequiresApi(Build.VERSION_CODES.O)
-    val date = LocalDate.of(2023, 11, 15)
+    val date = LocalDate.of(2023, 11, 1)
 
     @RequiresApi(Build.VERSION_CODES.O)
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()

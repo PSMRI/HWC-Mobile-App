@@ -49,9 +49,11 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitMasterDb
 import org.piramalswasthya.cho.model.VitalsMasterDb
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -82,6 +84,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private lateinit var patientId: String
 
     val fragment = this
+
+    @Inject
+    lateinit var userRepo: UserRepo
+
     val viewModel: VisitDetailViewModel by viewModels()
 
     val jsonFile = "patient-visit-details-paginated.json"
@@ -406,6 +412,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //        binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //        binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
 
+        if(!preferenceDao.isUserCHO()){
+            binding.patientList.visibility = View.GONE
+        }
 
         if (preferenceDao.isLoginTypeOutReach()) {
             binding.radioButton1.isChecked = false
@@ -786,7 +795,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         rbsValue = binding.inputRBS.text?.toString()?.trim().nullIfEmpty()
     }
 
-    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
         val selectedCategoryRadioButton =
@@ -800,7 +809,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             subCategory = subCategory.nullIfEmpty(),
             patientID = patientId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
         var chiefComplaints = mutableListOf<ChiefComplaintDB>()
@@ -874,7 +884,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
                 extractFormValues()
                 setVitalsMasterData()
-                saveNurseData(benVisitNo, createNewBenflow)
+
+                val user = userRepo.getLoggedInUser()
+
+                saveNurseData(benVisitNo, createNewBenflow, user)
 
                 viewModel.isDataSaved.observe(viewLifecycleOwner){
                     when(it!!){

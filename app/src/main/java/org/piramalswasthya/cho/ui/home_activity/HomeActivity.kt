@@ -241,14 +241,6 @@ class HomeActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
-                R.id.roles_list -> {
-//                    startActivity(Intent(this, MasterLocationSettingsActivity::class.java))
-//                    drawerLayout.closeDrawers()
-                    true
-                }
-                R.id.roles_switch -> {
-                    true
-                }
                 R.id.menu_logout -> {
                     logoutAlert.show()
                     true

@@ -30,17 +30,18 @@
             android:icon="@drawable/ic_completed_tasks"
             android:title="Create ABHA Number" />
 
-        <item
-            android:id="@+id/roles_list"
-            android:checkable="false"
-            android:icon="@drawable/change_role"
-            android:title="@string/change_role" />
+<!--        <item-->
+<!--            android:id="@+id/roles_list"-->
+<!--            android:checkable="false"-->
+<!--            android:icon="@drawable/change_role"-->
+<!--            android:title="@string/change_role" />-->
 
-        <item
-            android:id="@+id/roles_switch"
-            android:checkable="false"
-            android:icon="@drawable/change_role"
-            android:title="@string/change_role" />
+<!--        <item-->
+<!--            android:id="@+id/roles_switch"-->
+<!--            android:checkable="false"-->
+<!--            android:icon="@drawable/change_role"-->
+<!--            android:title="@string/change_role" />-->
+
 <!--        <item-->
 <!--            android:id="@+id/master_location_settings"-->
 <!--            android:checkable="false"-->

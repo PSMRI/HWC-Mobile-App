@@ -174,7 +174,7 @@ class PersonalDetailsFragment : Fragment() {
                                     if(preferenceDao.isRegistrarSelected()){
 
                                     }
-                                    if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() ){
+                                    else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() ){
                                          Toast.makeText(
                                             requireContext(),
                                             resources.getString(R.string.pendingForLabtech),

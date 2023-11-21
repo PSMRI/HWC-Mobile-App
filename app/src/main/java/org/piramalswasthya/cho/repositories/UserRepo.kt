@@ -454,6 +454,9 @@ class UserRepo @Inject constructor(
 //    }
 
     fun extractRoles(privilegesObject : JSONObject) : String{
+//        return "Lab Technician,MO,Pharmacist,Registrar,Staff Nurse"
+//        return "Lab Technician,MO,Pharmacist"
+
         val rolesObjectArray = privilegesObject.getJSONArray("roles")
         var roles = ""
         for (i in 0 until rolesObjectArray.length()) {

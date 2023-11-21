@@ -218,15 +218,22 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/registrar/registrarMasterData?apiKey=undefined")
     suspend fun getRegistrarMasterData(@Body spID: TmcLocationDetailsRequest) : Response<ResponseBody>
+
     @POST("hwc-facility-service//sync/userActivityLogsToServer")
     suspend fun saveUpsyncDetails(@Body selectedOutreachProgramList: List<SelectedOutreachProgram>) : Response<ResponseBody>
+
     @POST("hwc-facility-service/sync/beneficiariesToServer")
     suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/beneficiariesToAppCount")
+    suspend fun getBeneficiariesCount(@Body villageList: VillageIdList): Response<ResponseBody>
+
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
 
     @POST("hwc-facility-service/sync/prescriptionTemplatesToServer")
     suspend fun sendTemplateToServer(@Body prescriptionTemplateDB: List<PrescriptionTemplateDB>): Response<ResponseBody>
+
     @DELETE("hwc-facility-service/sync/{userID}/prescriptionTemplates/{tempID}/delete")
     suspend fun deleteTemplateFromServer(
         @Path("userID") userID: Int,
@@ -271,6 +278,9 @@ interface AmritApiService {
 
     @GET("/flw-0.0.1/user/getUserDetail")
     suspend fun getUserDetail(@Query("userId") userId: Int) : Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/benFlowStatusRecordsCount")
+    suspend fun getBenFlowRecordCount(@Body villageList : VillageIdList) : Response<ResponseBody>
 
     @POST("hwc-facility-service/sync/benFlowStatusRecordsToApp")
     suspend fun getBenFlowRecords(@Body villageList : VillageIdList) : Response<ResponseBody>

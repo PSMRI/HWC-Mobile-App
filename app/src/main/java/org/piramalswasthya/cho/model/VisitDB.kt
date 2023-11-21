@@ -39,7 +39,8 @@ data class VisitDB(
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
-    @ColumnInfo(name = "benVisitDate") var benVisitDate: String? = null
+    @ColumnInfo(name = "benVisitDate") var benVisitDate: String? = null,
+    @ColumnInfo(name = "createdBy") var createdBy: String? = null,
 ){
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
@@ -49,6 +50,7 @@ data class VisitDB(
         patient.patientID,
         benFlow.benFlowID,
         benFlow.benVisitNo,
-        DateTimeUtil.formatBenVisitDate(benFlow.registrationDate)
+        DateTimeUtil.formatBenVisitDate(benFlow.registrationDate),
+        benFlow.agentId
     )
 }

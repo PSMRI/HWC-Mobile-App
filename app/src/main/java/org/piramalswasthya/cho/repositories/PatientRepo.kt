@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -18,14 +19,14 @@ import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.Address
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.BeneficiariesDTO
-import org.piramalswasthya.cho.model.Address
-import org.piramalswasthya.cho.model.ComponentDetailDTO
-import org.piramalswasthya.cho.model.ComponentOptionDTO
 import org.piramalswasthya.cho.model.BlockMaster
-import org.piramalswasthya.cho.model.DistrictMaster
+import org.piramalswasthya.cho.model.ComponentDetailDTO
 import org.piramalswasthya.cho.model.ComponentDetails
+import org.piramalswasthya.cho.model.ComponentOptionDTO
+import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
@@ -42,6 +43,7 @@ import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
+import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -52,6 +54,7 @@ import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -184,6 +187,18 @@ class PatientRepo @Inject constructor(
             preferenceDao.getLastPatientSyncTime()
         )
 
+        when(val response = getPatientsCountToDownload(villageList)){
+            is NetworkResult.Success -> {
+
+            }
+            is NetworkResult.Error -> {
+                if(response.code == socketTimeoutException){
+                    throw SocketTimeoutException("This is an example exception message")
+                }
+            }
+            else -> {}
+        }
+
         when(val response = downloadRegisterPatientFromServer(villageList)){
             is NetworkResult.Success -> {
                 return true
@@ -199,6 +214,8 @@ class PatientRepo @Inject constructor(
         }
         return true
     }
+
+
     private fun convertStringToIntList(villageIds : String) : List<Int>{
         return villageIds.split(",").map {
             it.trim().toInt()
@@ -295,10 +312,19 @@ class PatientRepo @Inject constructor(
                         val gson = Gson()
                         val dataListType = object : TypeToken<List<BeneficiariesDTO>>() {}.type
                         val beneficiariesDTO : List<BeneficiariesDTO> = gson.fromJson(data, dataListType)
-
                         var isSuccess = true
 
+                        var totalDownloaded = 0
+
                         for(beneficiary in beneficiariesDTO){
+
+                            totalDownloaded++
+                            if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
+                                withContext(Dispatchers.Main) {
+                                    WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                                }
+                            }
+
                             try{
                                 var benHealthIdDetails: BenHealthIdDetails? = null
                                 if(beneficiary.abhaDetails != null){
@@ -355,6 +381,26 @@ class PatientRepo @Inject constructor(
                         downloadRegisterPatientFromServer(villageList)
                 })
             }
+    }
+
+    private suspend fun getPatientsCountToDownload(villageList: VillageIdList): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+            val response = apiService.getBeneficiariesCount(villageList)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    val result = Gson().fromJson(data, CountDownSync::class.java)
+                    WorkerUtils.totalRecordsToDownload = result.response.toInt()
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getPatientsCountToDownload(villageList)
+                })
+        }
     }
 
     suspend fun getPatientDisplayListForNurseByPatient(patientID: String): PatientDisplayWithVisitInfo{

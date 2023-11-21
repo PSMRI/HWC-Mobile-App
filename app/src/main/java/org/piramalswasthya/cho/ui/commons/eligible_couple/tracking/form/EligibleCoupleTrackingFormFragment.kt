@@ -22,7 +22,9 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -31,6 +33,7 @@ import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
@@ -40,6 +43,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         get() = _binding!!
 
     val viewModel: EligibleCoupleTrackingFormViewModel by viewModels()
+
+    @Inject
+    lateinit var userRepo: UserRepo
 
     private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
 
@@ -154,7 +160,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
 
-            saveNurseData(benVisitNo, createNewBenflow)
+            val user = userRepo.getLoggedInUser()
+
+            saveNurseData(benVisitNo, createNewBenflow, user)
 
             CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it!!){
@@ -173,7 +181,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
     }
 
-    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean){
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
 
         val visitDB = VisitDB(
             visitId = generateUuid(),
@@ -182,7 +190,8 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             subCategory = "FP & Contraceptive Services",
             patientID = benVisitInfo.patient.patientID,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
         val patientVitals = PatientVitalsModel(

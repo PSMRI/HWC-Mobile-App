@@ -3,6 +3,8 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
@@ -46,6 +48,7 @@ import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
 import org.piramalswasthya.cho.network.LabProceduresDataRequest
 import org.piramalswasthya.cho.network.NetworkResponse
@@ -56,6 +59,7 @@ import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -149,6 +153,18 @@ class BenFlowRepo @Inject constructor(
             convertStringToIntList(user?.assignVillageIds ?: ""),
             preferenceDao.getLastBenflowSyncTime()
         )
+
+        when(val response = getBenFlowCountToDownload(villageList)){
+            is NetworkResult.Success -> {
+
+            }
+            is NetworkResult.Error -> {
+                if(response.code == socketTimeoutException){
+                    throw SocketTimeoutException("This is an example exception message")
+                }
+            }
+            else -> {}
+        }
 
         when(val response = syncFlowIds(villageList)){
             is NetworkResult.Success -> {
@@ -357,7 +373,18 @@ class BenFlowRepo @Inject constructor(
                 onSuccess = {
                     val benflowArray = responseBody.let { JSONObject(it).getJSONArray("data") }
                     var isSuccess = true
+
+                    var totalDownloaded = 0
+
                     for (i in 0 until benflowArray.length()) {
+
+                        totalDownloaded++
+                        if(WorkerUtils.totalRecordsToDownload > 0 && totalDownloaded <= WorkerUtils.totalRecordsToDownload){
+                            withContext(Dispatchers.Main) {
+                                WorkerUtils.totalPercentageCompleted.value = ((totalDownloaded.toDouble() / WorkerUtils.totalRecordsToDownload.toDouble())*100).toInt()
+                            }
+                        }
+
                         try {
                             val data = benflowArray.getString(i)
                             val benFlow = Gson().fromJson(data, BenFlow::class.java)
@@ -383,6 +410,26 @@ class BenFlowRepo @Inject constructor(
             )
         }
 
+    }
+
+    private suspend fun getBenFlowCountToDownload(villageList: VillageIdList): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+            val response = apiService.getBeneficiariesCount(villageList)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+                    val result = Gson().fromJson(data, CountDownSync::class.java)
+                    WorkerUtils.totalRecordsToDownload = result.response.toInt()
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getBenFlowCountToDownload(villageList)
+                })
+        }
     }
 
     private suspend fun getAndSaveLabTechnicianDataToDb(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo): NetworkResult<NetworkResponse> {

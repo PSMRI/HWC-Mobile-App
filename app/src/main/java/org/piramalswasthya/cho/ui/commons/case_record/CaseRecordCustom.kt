@@ -54,9 +54,11 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VitalsMasterDb
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.frequencyMap
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.instructionDropdownList
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.medicalReferDropdownVal
@@ -85,6 +87,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val viewModel: CaseRecordViewModel by viewModels()
     @Inject
     lateinit var preferenceDao: PreferenceDao
+    @Inject
+    lateinit var userRepo: UserRepo
     @Inject
     lateinit var prescriptionTemplateRepo: PrescriptionTemplateRepo
 
@@ -766,7 +770,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         return map.entries.find { it.value == value }?.key
     }
 
-    private fun saveNurseAndDoctorData(benVisitNo: Int, createNewBenflow: Boolean){
+    private fun saveNurseAndDoctorData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
 
         val visitDB = VisitDB(
             visitId = generateUuid(),
@@ -775,7 +779,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = patId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            createdBy = user?.userName
         )
 
 
@@ -1167,7 +1172,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         }
                     }
 
-                    saveNurseAndDoctorData(benVisitNo, createNewBenflow)
+                    val user = userRepo.getLoggedInUser()
+
+                    saveNurseAndDoctorData(benVisitNo, createNewBenflow, user)
 
                     viewModel.isDataSaved.observe(viewLifecycleOwner){ state->
                         when(state!!){

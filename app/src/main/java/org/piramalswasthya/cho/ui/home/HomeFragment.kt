@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -163,14 +164,19 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        binding.registration.isEnabled = preferenceDao.isUserCHO() || preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
+        binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
+
+        WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
+            if(it > 0){
+                binding.tvLoadProgress.text = getString(R.string.downloading) + " " + it.toString() + "%"
+            }
+        }
 
 //        if((preferenceDao.isUserSwitchRole() && (preferenceDao.getSwitchRole().equals("Registrar") || preferenceDao.getSwitchRole().equals("Nurse"))) ||
 //            (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
 //            binding.registration.isEnabled = true
 //        }
 //        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && (preferenceDao.isUserRegistrar() || preferenceDao.isUserStaffNurseOrNurse())
-//
 
         binding.registration.setOnClickListener {
             searchPrompt.show()
@@ -195,7 +201,7 @@ class HomeFragment : Fragment() {
                 HomeActivityViewModel.State.SAVE_SUCCESS -> {
                     binding.patientListFragment.visibility = View.VISIBLE
                     binding.rlSaving.visibility = View.GONE
-//                    binding.registration.isEnabled = preferenceDao.isUserRegistrar()
+                    binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
                 }
 
                 HomeActivityViewModel.State.SAVE_FAILED -> {
