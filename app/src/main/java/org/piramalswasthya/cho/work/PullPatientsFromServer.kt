@@ -33,11 +33,11 @@ class PullPatientsFromServer @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            if( WorkerUtils.isDownloadInProgress ){
-                Timber.d("Patient Download Worker in progress")
-                Result.retry()
-            }
-            else{
+//            if( WorkerUtils.isDownloadInProgress ){
+//                Timber.d("Patient Download Worker in progress")
+//                Result.retry()
+//            }
+//            else{
                 WorkerUtils.isDownloadInProgress = true
                 val workerResult = patientRepo.downloadAndSyncPatientRecords()
                 if (workerResult) {
@@ -46,7 +46,7 @@ class PullPatientsFromServer @AssistedInject constructor(
                 WorkerUtils.isDownloadInProgress = false
                 Timber.d("Patient Download Worker completed")
                 Result.success()
-            }
+//            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()

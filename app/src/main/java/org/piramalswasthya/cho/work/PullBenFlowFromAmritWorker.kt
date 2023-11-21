@@ -39,11 +39,11 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            if( WorkerUtils.isDownloadInProgress ){
-                Timber.d("Benflow Download Worker in progress")
-                Result.retry()
-            }
-            else{
+//            if( WorkerUtils.isDownloadInProgress ){
+//                Timber.d("Benflow Download Worker in progress")
+//                Result.retry()
+//            }
+//            else{
                 WorkerUtils.isDownloadInProgress = true
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
                 if (workerResult) {
@@ -52,7 +52,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 WorkerUtils.isDownloadInProgress = false
                 Timber.d("Benflow Download Worker completed")
                 Result.success()
-            }
+//            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()
