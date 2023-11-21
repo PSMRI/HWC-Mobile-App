@@ -105,47 +105,228 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 viewModel.resetBool()
             }
         }
-        binding.temperatureEditTxt.helperText=null
+        if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
+            binding.temperatureEditTxt.helperText = "Required"
+        } else {
+            binding.temperatureEditTxt.helperText = null
+        }
+
+        binding.bpSystolicEditTxt.helperText=null
+        binding.bpDiastolicEditTxt.helperText=null
+        binding.pulseRateEditTxt.helperText=null
+        binding.spo2EditTxt.helperText=null
+        binding.respiratoryEditTxt.helperText=null
+        binding.rbsEditTxt.helperText=null
+        binding.heightEditTxt.helperText=null
+        binding.weightEditTxt.helperText=null
         textwatchers()
     }
 
     private fun textwatchers() {
         binding.inputTemperature.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Not needed in this case
-            }
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
                     validateTemperature(s.toString())
-                }
-                else{
-                    viewModel.setTempR(true, "null")
-                }
-                binding.temperatureEditTxt.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
-                viewModel.tempR.observe(viewLifecycleOwner) {
-                    Timber.d("phone nimber ${it?.reason}")
-                    binding.temperatureEditTxt.setBoxColor(it.boolean,it.reason)
+                }else{
+                    binding.temperatureEditTxt.helperText=null
                 }
             }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
+            override fun afterTextChanged(s: Editable?) {}
         })
+        binding.inputBpSystolic.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateBPSystolic(s.toString())
+                }else{
+                    binding.bpSystolicEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputBpDiastolic.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateBPD(s.toString())
+                }else{
+                    binding.bpDiastolicEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputPulseRate.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validatePulse(s.toString())
+                }else{
+                    binding.pulseRateEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputSpo2.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateSpo2(s.toString())
+                }else{
+                    binding.spo2EditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputRespiratoryPerMin.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateResp(s.toString())
+                }else{
+                    binding.respiratoryEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputRBS.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateRBS(s.toString())
+                }else{
+                    binding.rbsEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputHeight.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateHeight(s.toString())
+                }else{
+                    binding.heightEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputWeight.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateWeight(s.toString())
+                }else{
+                    binding.weightEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+    }
+    private fun validateBPSystolic(bpSystolic: String) {
+        val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
+                bpSystolic.toInt() in 50..300
+
+        if (isValid) {
+            binding.bpSystolicEditTxt.helperText = null
+        } else {
+            binding.bpSystolicEditTxt.helperText =
+                "Invalid value. Please enter value between 50 and 300."
+        }
+    }
+
+    private fun validateBPD(bpD: String) {
+        val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
+                bpD.toInt() in 30..200
+        if (isValid) {
+            binding.bpDiastolicEditTxt.helperText = null
+        } else {
+            binding.bpDiastolicEditTxt.helperText =
+                "Invalid value. Please enter value between 30 and 200."
+        }
     }
 
     private fun validateTemperature(temperature: String) {
         val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
         if (isValid) {
-            viewModel.setTempR(true, "null")
             binding.temperatureEditTxt.helperText = null
         } else {
             binding.temperatureEditTxt.helperText =
                 "Invalid temperature."
-            viewModel.setTempR(true, "Invalid temperature.")
         }
     }
+    private fun validateHeight(hei: String) {
+        val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+        if (isValid) {
+            binding.heightEditTxt.helperText = null
+        } else {
+            binding.heightEditTxt.helperText =
+                "Invalid Height."
+        }
+    }
+    private fun validateWeight(w: String) {
+        val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+        if (isValid) {
+            binding.weightEditTxt.helperText = null
+        } else {
+            binding.weightEditTxt.helperText =
+                "Invalid Weight."
+        }
+    }
+    private fun validatePulse(pul: String) {
+        val isValid = pul.matches(Regex("^\\d{2,3}$"))
+        if (isValid) {
+            binding.pulseRateEditTxt.helperText = null
+        } else {
+            binding.pulseRateEditTxt.helperText =
+                "Invalid Pulse Rate."
+        }
+    }
+    private fun validateRBS(rbs: String) {
+        val isValid = rbs.matches(Regex("^\\d{2,3}$"))
+        if (isValid) {
+            binding.rbsEditTxt.helperText = null
+        } else {
+            binding.rbsEditTxt.helperText =
+                "Invalid RBS."
+        }
+    }
+    private fun validateSpo2(spo2: String) {
+        val isValid = spo2.matches(Regex("^\\d+$")) &&
+                spo2.toInt() in 30..100
+
+        if (isValid) {
+            binding.spo2EditTxt.helperText = null
+        } else {
+            binding.spo2EditTxt.helperText =
+                "Invalid Spo2. Please enter a numeric value between 30 and 100."
+        }
+    }
+
+
+    private fun validateResp(resp: String) {
+        val isValid = resp.matches(Regex("^\\d+$")) &&
+                resp.toInt() in 10..40
+
+        if (isValid) {
+            binding.respiratoryEditTxt.helperText = null
+        } else {
+            binding.respiratoryEditTxt.helperText =
+                "Invalid Respiratory rate. Please enter a numeric value between 10 and 40."
+        }
+    }
+
 
 
     private val textWatcher = object : TextWatcher {
@@ -358,7 +539,9 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     private fun isHelperTrue(): Boolean {
-        if(binding.temperatureEditTxt.helperText==null)
+        if(binding.temperatureEditTxt.helperText==null && binding.bpDiastolicEditTxt.helperText==null&& binding.bpSystolicEditTxt.helperText==null
+            && binding.respiratoryEditTxt.helperText==null&& binding.pulseRateEditTxt.helperText==null&& binding.spo2EditTxt.helperText==null
+            && binding.rbsEditTxt.helperText==null&& binding.heightEditTxt.helperText==null&& binding.weightEditTxt.helperText==null)
             return true
         return false
     }
