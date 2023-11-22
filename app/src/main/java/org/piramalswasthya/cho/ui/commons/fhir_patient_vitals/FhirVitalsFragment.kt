@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -34,7 +35,9 @@ import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import org.piramalswasthya.cho.utils.setBoxColor
 import org.piramalswasthya.cho.work.WorkerUtils
+import timber.log.Timber
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -108,7 +111,279 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 viewModel.resetBool()
             }
         }
+        if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
+            binding.temperatureEditTxt.helperText = "Temperature Required"
+        } else {
+            binding.temperatureEditTxt.helperText = null
+        }
+
+        binding.bpSystolicEditTxt.helperText=null
+        binding.bpDiastolicEditTxt.helperText=null
+        binding.pulseRateEditTxt.helperText=null
+        binding.spo2EditTxt.helperText=null
+        binding.respiratoryEditTxt.helperText=null
+        binding.rbsEditTxt.helperText=null
+        binding.heightEditTxt.helperText=null
+        binding.weightEditTxt.helperText=null
+        textwatchers()
     }
+
+    private fun textwatchers() {
+        binding.inputTemperature.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateTemperature(s.toString())
+                }else{
+                    binding.temperatureEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputBpSystolic.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateBPSystolic(s.toString())
+                }else{
+                    binding.bpSystolicEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputBpDiastolic.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateBPD(s.toString())
+                }else{
+                    binding.bpDiastolicEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputPulseRate.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validatePulse(s.toString())
+                }else{
+                    binding.pulseRateEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputSpo2.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateSpo2(s.toString())
+                }else{
+                    binding.spo2EditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputRespiratoryPerMin.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateResp(s.toString())
+                }else{
+                    binding.respiratoryEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputRBS.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateRBS(s.toString())
+                }else{
+                    binding.rbsEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputHeight.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateHeight(s.toString())
+                }else{
+                    binding.heightEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.inputWeight.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTemp = s?.isNotEmpty() == true
+                if(isTemp){
+                    validateWeight(s.toString())
+                }else{
+                    binding.weightEditTxt.helperText=null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+    }
+    private fun validateBPSystolic(bpSystolic: String) {
+        try {
+            val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
+                    bpSystolic.toInt() in 50..300
+
+            if (isValid) {
+                binding.bpSystolicEditTxt.helperText = null
+            } else {
+                binding.bpSystolicEditTxt.helperText =
+                    "Please enter value between 50 and 300."
+            }
+        } catch (e: NumberFormatException) {
+            binding.bpSystolicEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateBPD(bpD: String) {
+        try {
+            val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
+                    bpD.toInt() in 30..200
+            if (isValid) {
+                binding.bpDiastolicEditTxt.helperText = null
+            } else {
+                binding.bpDiastolicEditTxt.helperText =
+                    "Please enter value between 30 and 200."
+            }
+        } catch (e: NumberFormatException) {
+            binding.bpDiastolicEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+    private fun validateTemperature(temperature: String) {
+        try {
+            val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.temperatureEditTxt.helperText = null
+            } else {
+                binding.temperatureEditTxt.helperText =
+                    "Invalid temperature."
+            }
+        } catch (e: NumberFormatException) {
+            binding.temperatureEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateHeight(hei: String) {
+        try {
+            val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.heightEditTxt.helperText = null
+            } else {
+                binding.heightEditTxt.helperText =
+                    "Invalid Height."
+            }
+        } catch (e: NumberFormatException) {
+            binding.heightEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateWeight(w: String) {
+        try {
+            val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (isValid) {
+                binding.weightEditTxt.helperText = null
+            } else {
+                binding.weightEditTxt.helperText =
+                    "Invalid Weight."
+            }
+        } catch (e: NumberFormatException) {
+            binding.weightEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validatePulse(pul: String) {
+        try {
+            val isValid = pul.matches(Regex("^\\d{2,3}$"))
+            if (isValid) {
+                binding.pulseRateEditTxt.helperText = null
+            } else {
+                binding.pulseRateEditTxt.helperText =
+                    "Invalid Pulse Rate."
+            }
+        } catch (e: NumberFormatException) {
+            binding.pulseRateEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateSpo2(spo: String) {
+        try {
+            val isValid = spo.matches(Regex("^\\d+$")) &&
+                    spo.toInt() in 30..100
+
+            if (isValid) {
+                binding.spo2EditTxt.helperText = null
+            } else {
+                binding.spo2EditTxt.helperText =
+                    "Please enter a numeric value between 30 and 100."
+            }
+        } catch (e: NumberFormatException) {
+            binding.spo2EditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateRBS(rbs: String) {
+        try {
+            val isValid = rbs.matches(Regex("^\\d{2,3}$"))
+            if (isValid) {
+                binding.rbsEditTxt.helperText = null
+            } else {
+                binding.rbsEditTxt.helperText =
+                    "Invalid RBS."
+            }
+        } catch (e: NumberFormatException) {
+            binding.rbsEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+    private fun validateResp(resp: String) {
+        try {
+            val isValid = resp.matches(Regex("^\\d+$")) &&
+                    resp.toInt() in 10..40
+
+            if (isValid) {
+                binding.respiratoryEditTxt.helperText = null
+            } else {
+                binding.respiratoryEditTxt.helperText =
+                    "Please enter a numeric value between 10 and 40."
+            }
+        } catch (e: NumberFormatException) {
+            binding.respiratoryEditTxt.helperText =
+                "Please enter a valid numeric value."
+        }
+    }
+
+
+
+
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -262,35 +537,44 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     fun navigateNext() {
+        val emptyFields = isHelperTrue()
         if (preferenceDao.isUserCHO()){
             extractFormValues()
             if (!isNull) {
 //                viewModel.saveObservationResource(observation)
                 isNull = true
             }
-            setVitalsMasterData()
-            findNavController().navigate(
-                R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-            )
+            if(emptyFields.isEmpty()){
+                setVitalsMasterData()
+                findNavController().navigate(
+                    R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                )
+            }else {
+                val message: String = if (emptyFields.size == 1) {
+                    "Please fill the ${emptyFields[0]}"
+                } else {
+                    "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
         }else{
             CoroutineScope(Dispatchers.Main).launch {
 
                 var benVisitNo = 0;
                 var createNewBenflow = false;
                 viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                    if(it == null){
+                    if (it == null) {
                         benVisitNo = 1;
-                    }
-                    else if(it.nurseFlag == 1) {
+                    } else if (it.nurseFlag == 1) {
                         benVisitNo = it.benVisitNo
-                    }
-                    else {
+                    } else {
                         benVisitNo = it.benVisitNo + 1
                         createNewBenflow = true;
                     }
                 }
-                extractFormValues()
-                setVitalsMasterData()
+                if (emptyFields.isEmpty()) {
+                    extractFormValues()
+                    setVitalsMasterData()
 //                addVisitRecordDataToCache(benVisitNo)
 //                addVitalsDataToCache(benVisitNo)
 //                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
@@ -299,25 +583,66 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
                 saveNurseData(benVisitNo, createNewBenflow, user)
 
-                viewModel.isDataSaved.observe(viewLifecycleOwner){
-                    when(it!!){
-                        true ->{
-                            WorkerUtils.triggerAmritSyncWorker(requireContext())
-                            val intent = Intent(context, HomeActivity::class.java)
-                            startActivity(intent)
-                            requireActivity().finish()
-                        }
-                        else ->{
+                    viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                        when (it!!) {
+                            true -> {
+                                WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                val intent = Intent(context, HomeActivity::class.java)
+                                startActivity(intent)
+                                requireActivity().finish()
+                            }
+
+                            else -> {
 //                            requireActivity().runOnUiThread {
 //                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
 //                            }
+                            }
                         }
                     }
+
+                }else {
+                    val message: String = if (emptyFields.size == 1) {
+                        "Please fill the ${emptyFields[0]}"
+                    } else {
+                        "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
-
             }
-
         }
+    }
+
+    private fun isHelperTrue(): List<String> {
+        val emptyFields = mutableListOf<String>()
+
+        if (binding.temperatureEditTxt.helperText != null) {
+            emptyFields.add("Temperature")
+        }
+        if (binding.bpDiastolicEditTxt.helperText != null) {
+            emptyFields.add("BP Diastolic")
+        }
+        if (binding.bpSystolicEditTxt.helperText != null) {
+            emptyFields.add("BP Systolic")
+        }
+        if (binding.respiratoryEditTxt.helperText != null) {
+            emptyFields.add("Respiratory Rate")
+        }
+        if (binding.pulseRateEditTxt.helperText != null) {
+            emptyFields.add("Pulse Rate")
+        }
+        if (binding.spo2EditTxt.helperText != null) {
+            emptyFields.add("Spo2")
+        }
+        if (binding.rbsEditTxt.helperText != null) {
+            emptyFields.add("RBS")
+        }
+        if (binding.heightEditTxt.helperText != null) {
+            emptyFields.add("Height")
+        }
+        if (binding.weightEditTxt.helperText != null) {
+            emptyFields.add("Weight")
+        }
+        return emptyFields
     }
 
     private fun setVitalsMasterData(){
