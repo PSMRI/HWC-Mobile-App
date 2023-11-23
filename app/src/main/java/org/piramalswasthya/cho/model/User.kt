@@ -420,7 +420,8 @@ data class NetworkBody(
     val userName: String,
     val password : String,
     val salt : String,
-    val Source : String
+    val Source : String,
+    val LoginType : Int = 1
 )
 
 data class ModelObject(

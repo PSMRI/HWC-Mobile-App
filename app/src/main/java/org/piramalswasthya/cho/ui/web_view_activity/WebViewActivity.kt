@@ -75,7 +75,7 @@ class WebViewActivity : AppCompatActivity() {
 //                        val url =
 //                            getString(R.string.url_uat_esanjeevani) + referenceId
                         val url =
-                            "https://esanjeevani.mohfw.gov.in/external-provider-signin/" + referenceId
+                            "https://esanjeevani.mohfw.gov.in/#/external-provider-signin/" + referenceId
                         val fragmentWebView = WebViewFragment(url);
                         supportFragmentManager.beginTransaction()
                             .replace(binding.webView.id, fragmentWebView).commit()

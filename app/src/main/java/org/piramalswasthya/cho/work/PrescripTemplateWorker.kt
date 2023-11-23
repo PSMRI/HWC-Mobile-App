@@ -35,7 +35,6 @@ class PrescripTemplateWorker @AssistedInject constructor(
         return try {
             val workerResult = patientRepo.downloadAndSyncPatientRecords()
             if (workerResult) {
-                preferenceDao.setLastPatientSyncTime()
                 Timber.d("Patient Download Worker completed")
                 Result.success()
             } else {

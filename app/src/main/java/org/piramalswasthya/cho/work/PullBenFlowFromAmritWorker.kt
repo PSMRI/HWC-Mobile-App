@@ -55,12 +55,10 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
                 val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
 
-                WorkerUtils.isDownloadInProgress = true
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
                 if (workerResult) {
                     preferenceDao.setLastBenflowSyncTime(currTimeStamp)
                 }
-                WorkerUtils.isDownloadInProgress = false
 
                 Timber.d("Benflow Download Worker completed")
                 Result.success()
