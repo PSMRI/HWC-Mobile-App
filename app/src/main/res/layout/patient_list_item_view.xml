@@ -270,12 +270,17 @@
 
         </LinearLayout>
 
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          android:paddingTop="@dimen/padding_normal">
         <LinearLayout
             android:layout_width="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:orientation="horizontal">
 
           <TextView
@@ -293,7 +298,8 @@
               android:layout_marginStart="8dp" />
 
         </LinearLayout>
-      </androidx.constraintlayout.widget.ConstraintLayout>
+
+      </LinearLayout>
 
       <androidx.constraintlayout.widget.ConstraintLayout
           android:id="@+id/ll_row_5"
