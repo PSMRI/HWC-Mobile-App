@@ -252,6 +252,32 @@ class DateTimeUtil {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateAgeString(dateOfBirth: Date): String {
+            val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val currentDate = LocalDate.now()
+
+            val period = Period.between(birthDate, currentDate)
+
+            val years = period.years
+            val months = period.months % 12
+            val days = period.days % 30
+
+            var ageString = "";
+            if(years > 0){
+                ageString += "$years years"
+            }
+            if(months > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += "$months months"
+            }
+            if(days > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += "$days days"
+            }
+            return ageString
+        }
+
     }
 
 }

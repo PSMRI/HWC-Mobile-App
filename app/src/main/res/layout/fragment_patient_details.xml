@@ -204,11 +204,9 @@
                 android:layout_width="match_parent"
                 android:textSize="18sp"
                 android:focusable="false"
-                android:maxEms="2"
-                android:maxLength="2"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
-                android:inputType="number"
+                android:inputType="text"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -220,6 +218,7 @@
             android:textSize="18sp"
             android:textColorHint="#888888"
             android:hint="@string/age_in_unit"
+            android:visibility="gone"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
