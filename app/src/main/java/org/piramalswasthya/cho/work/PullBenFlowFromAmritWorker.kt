@@ -18,6 +18,8 @@ import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
+import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.time.Instant
@@ -60,6 +62,9 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                     preferenceDao.setLastBenflowSyncTime(currTimeStamp)
                 }
 
+//                amritSyncInProgress = false
+//                downloadSyncInProgress = false
+
                 Timber.d("Benflow Download Worker completed")
                 Result.success()
 //            }
@@ -67,6 +72,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()
         }
+
     }
 
     private fun init() {

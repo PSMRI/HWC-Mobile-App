@@ -220,7 +220,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val ageAlertDialog by lazy {
         val alertBinding = AlertAgePickerBinding.inflate(layoutInflater,binding.root,false)
         alertBinding.dialogNumberPickerYears.minValue = 0
-        alertBinding.dialogNumberPickerYears.maxValue = 200
+        alertBinding.dialogNumberPickerYears.maxValue = 99
 
         alertBinding.dialogNumberPickerMonths.minValue = 0
         alertBinding.dialogNumberPickerMonths.maxValue = 11
@@ -335,7 +335,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             dobUtil.showDatePickerDialog(
                                 requireContext(),
-                                viewModel.selectedDateOfBirth
+                                viewModel.selectedDateOfBirth,
+                                maxDays = 0,
+                                minDays = -(99*365 + 25)
                             )
                         }
 
@@ -554,7 +556,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth).show()
+            dobUtil.showDatePickerDialog(
+                requireContext(),
+                viewModel.selectedDateOfBirth,
+                maxDays = 0,
+                minDays = -(99*365 + 25)
+            ).show()
         }
 
         binding.age.addTextChangedListener(ageTextWatcher)

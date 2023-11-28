@@ -161,6 +161,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         }
 
+        val lala = benVisitInfo
+
         if( preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             patientId = benVisitInfo.patient.patientID
             patId= benVisitInfo.patient.patientID

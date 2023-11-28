@@ -189,8 +189,12 @@ class PersonalDetailsFragment : Fragment() {
                                         ).show()
                                     }
                                     else{
+                                        var modifiedInfo = benVisitInfo
+                                        if(preferenceDao.isNurseSelected()){
+                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
+                                        }
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", benVisitInfo);
+                                        intent.putExtra("benVisitInfo", modifiedInfo);
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
