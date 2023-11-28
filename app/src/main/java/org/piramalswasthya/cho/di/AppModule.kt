@@ -74,9 +74,9 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val  baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
+//    private const val  baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
-//    private const val  baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
+    private const val  baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
 
     private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 

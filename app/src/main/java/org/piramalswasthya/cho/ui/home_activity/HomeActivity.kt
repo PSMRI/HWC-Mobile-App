@@ -59,6 +59,8 @@ import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSetting
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
+import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -128,7 +130,10 @@ class HomeActivity : AppCompatActivity() {
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
             Log.v("resuming activitiy", "resume")
-            viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
+            if( !amritSyncInProgress && !downloadSyncInProgress ){
+//                downloadSyncInProgress = true
+                viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
+            }
         }.also { runnable = it }, delay.toLong())
         super.onResume()
     }
@@ -156,6 +161,7 @@ class HomeActivity : AppCompatActivity() {
 
         binding.refreshButton.setOnClickListener {
             Log.d("triggering down outside", "down trigger")
+//            downloadSyncInProgress = true
             viewModel.triggerDownSyncWorker(this, WorkerUtils.syncOneTimeDownSyncWorker)
         }
 

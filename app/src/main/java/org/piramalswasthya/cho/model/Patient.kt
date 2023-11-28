@@ -253,6 +253,25 @@ data class PatientDisplayWithVisitInfo(
         vis.pharmacist_flag,
         vis.visitDate
     )
+
+    constructor(dis: PatientDisplayWithVisitInfo) : this(
+        dis.patient,
+        dis.genderName,
+        dis.villageName,
+        dis.ageUnit,
+        dis.maritalStatus,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
 }
 
 

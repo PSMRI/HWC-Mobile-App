@@ -130,9 +130,27 @@ class HomeFragment : Fragment() {
                         workInfoMutableList1.filter { it.state == WorkInfo.State.RUNNING }.takeIf {
                             it.isNotEmpty()
                         }?.first()?.let {
+                            WorkerUtils.amritSyncInProgress = true
                             binding.llFullLoadProgress.visibility = View.VISIBLE
                         } ?: run {
+                            WorkerUtils.amritSyncInProgress = false
                             binding.llFullLoadProgress.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+
+        WorkManager.getInstance(requireContext())
+            .getWorkInfosLiveData(WorkQuery.fromUniqueWorkNames(WorkerUtils.syncPeriodicDownSyncWorker))
+            .observe(viewLifecycleOwner) { workInfoMutableList ->
+                workInfoMutableList?.let { list ->
+                    list.takeIf { it.isNotEmpty() }?.let { workInfoMutableList1 ->
+                        workInfoMutableList1.filter { it.state == WorkInfo.State.RUNNING }.takeIf {
+                            it.isNotEmpty()
+                        }?.first()?.let {
+                            WorkerUtils.downloadSyncInProgress = true
+                        } ?: run {
+                            WorkerUtils.downloadSyncInProgress = false
                         }
                     }
                 }
@@ -146,8 +164,10 @@ class HomeFragment : Fragment() {
                         workInfoMutableList1.filter { it.state == WorkInfo.State.RUNNING }.takeIf {
                             it.isNotEmpty()
                         }?.first()?.let {
+                            WorkerUtils.downloadSyncInProgress = true
                             binding.llFullLoadProgress.visibility = View.VISIBLE
                         } ?: run {
+                            WorkerUtils.downloadSyncInProgress = false
                             binding.llFullLoadProgress.visibility = View.GONE
                         }
                     }

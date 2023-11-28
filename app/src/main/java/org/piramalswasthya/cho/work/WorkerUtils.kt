@@ -19,7 +19,9 @@ object WorkerUtils {
 
     var totalRecordsToDownload = 0;
     var totalPercentageCompleted = MutableLiveData<Int>(0)
-    var isDownloadInProgress = false
+
+    var amritSyncInProgress = false
+    var downloadSyncInProgress = false
 
     private val networkOnlyConstraint = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
