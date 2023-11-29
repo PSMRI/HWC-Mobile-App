@@ -56,6 +56,7 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.home.SyncBottomSheetOverallFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
@@ -244,6 +245,12 @@ class HomeActivity : AppCompatActivity() {
                 R.id.abha_id_activity -> {
                     // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.outreach_activity -> {
+                    // Start the DestinationActivity
+                    startActivity(Intent(this, OutreachActivity::class.java))
                     drawerLayout.closeDrawers()
                     true
                 }
