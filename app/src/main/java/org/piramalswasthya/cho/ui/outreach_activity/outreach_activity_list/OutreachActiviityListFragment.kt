@@ -2,16 +2,28 @@ package org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_list
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.databinding.FragmentOutreachActiviityListBinding
+import org.piramalswasthya.cho.databinding.FragmentOutreachActivityFormBinding
+import org.piramalswasthya.cho.ui.abha_id_activity.verify_mobile_otp.VerifyMobileOtpFragmentDirections
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
-class OutreachActiviityListFragment : Fragment() {
+@AndroidEntryPoint
+class OutreachActiviityListFragment : Fragment(), NavigationAdapter {
 
     companion object {
         fun newInstance() = OutreachActiviityListFragment()
+    }
+
+    private val binding by lazy{
+        FragmentOutreachActiviityListBinding.inflate(layoutInflater)
     }
 
     private lateinit var viewModel: OutreachActiviityListViewModel
@@ -20,13 +32,27 @@ class OutreachActiviityListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_outreach_activiity_list, container, false)
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(OutreachActiviityListViewModel::class.java)
         // TODO: Use the ViewModel
+    }
+
+    override fun getFragmentId(): Int {
+        return R.id.fragment_outreach_activity_list
+    }
+
+    override fun onSubmitAction() {
+        findNavController().navigate(
+            OutreachActiviityListFragmentDirections.actionOutreachActiviityListFragmentToOutreachActivityFormFragment()
+        )
+    }
+
+    override fun onCancelAction() {
+        findNavController().navigateUp()
     }
 
 }

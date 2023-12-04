@@ -11,6 +11,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/fragment_outreach_activity_list"
         tools:context=".ui.outreach_activity.outreach_activity_list.OutreachActiviityListFragment">
 
         <TextView

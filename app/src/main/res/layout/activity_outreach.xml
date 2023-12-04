@@ -17,7 +17,7 @@
             android:id="@+id/header_text_register_patient"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Previous Activity"
+            android:text="tyutyutyut"
             android:gravity="start"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/white"
@@ -33,6 +33,7 @@
             android:layout_marginRight="10dp"
             android:contentDescription="Home"
             android:src="@drawable/home"
+            android:onClick="navigateToFormScreen"
             android:background="?attr/colorPrimary"/>
 
     </androidx.appcompat.widget.Toolbar>
