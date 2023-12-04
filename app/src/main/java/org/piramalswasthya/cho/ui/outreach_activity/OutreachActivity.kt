@@ -2,12 +2,19 @@ package org.piramalswasthya.cho.ui.outreach_activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.ActivityEditPatientDetailsBinding
 import org.piramalswasthya.cho.databinding.ActivityOutreachBinding
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_list.OutreachActiviityListFragmentDirections
+import org.piramalswasthya.cho.utils.DateTimeUtil
 
+@AndroidEntryPoint
 class OutreachActivity : AppCompatActivity() {
 
     private var _binding : ActivityOutreachBinding? = null
@@ -15,11 +22,14 @@ class OutreachActivity : AppCompatActivity() {
     private val binding  : ActivityOutreachBinding
         get() = _binding!!
 
+    private lateinit var navHostFragment: NavHostFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_outreach)
+        _binding = ActivityOutreachBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(binding.outreachActivity.id) as NavHostFragment
+        navHostFragment = supportFragmentManager.findFragmentById(binding.outreachActivity.id) as NavHostFragment
 
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
@@ -38,6 +48,12 @@ class OutreachActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    fun navigateToFormScreen(view: View) {
+        navHostFragment.navController.navigate(
+            OutreachActiviityListFragmentDirections.actionOutreachActiviityListFragmentToOutreachActivityFormFragment()
+        )
     }
 
 

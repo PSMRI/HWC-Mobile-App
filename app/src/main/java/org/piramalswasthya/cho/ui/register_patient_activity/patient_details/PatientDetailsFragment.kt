@@ -540,7 +540,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //            setAgeToDateOfBirth()
 //        }
 
-        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
+        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
 //            setMarriedFieldsVisibility()

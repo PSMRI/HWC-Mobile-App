@@ -8,10 +8,10 @@
             type="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsViewModel" />
     </data>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/fragment_outreach_activity_details"
         tools:context=".ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsFragment">
 
         <TextView
