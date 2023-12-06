@@ -57,6 +57,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     @Inject
     lateinit var userRepo: UserRepo
 
+
+
     val viewModel: FhirVitalsViewModel by viewModels()
 
     var fragment: Fragment = this;
@@ -113,8 +115,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         }
         if (masterDb?.visitMasterDb?.chiefComplaint?.any { it.chiefComplaint?.equals("fever", ignoreCase = true) == true } == true) {
             binding.temperatureEditTxt.helperText = "Temperature Required"
+            viewModel.boolTemp = true
         } else {
             binding.temperatureEditTxt.helperText = null
+            viewModel.boolTemp = false
         }
 
         binding.bpSystolicEditTxt.helperText=null
@@ -134,8 +138,10 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isTemp = s?.isNotEmpty() == true
                 if(isTemp){
+                    viewModel.tempNull = false
                     validateTemperature(s.toString())
                 }else{
+                    viewModel.tempNull = true
                     binding.temperatureEditTxt.helperText=null
                 }
             }
@@ -537,70 +543,21 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     fun navigateNext() {
-        val emptyFields = isHelperTrue()
-        if (preferenceDao.isUserCHO()){
-            extractFormValues()
-            if (!isNull) {
+        val tempField = isTempFieldFilledForFever()
+        if (tempField) {
+            val emptyFields = isHelperTrue()
+            if (preferenceDao.isUserCHO()) {
+                extractFormValues()
+                if (!isNull) {
 //                viewModel.saveObservationResource(observation)
-                isNull = true
-            }
-            if(emptyFields.isEmpty()){
-                setVitalsMasterData()
-                findNavController().navigate(
-                    R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
-                )
-            }else {
-                val message: String = if (emptyFields.size == 1) {
-                    "Please fill the ${emptyFields[0]}"
-                } else {
-                    "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
-                }
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-            }
-        }else{
-            CoroutineScope(Dispatchers.Main).launch {
-
-                var benVisitNo = 0;
-                var createNewBenflow = false;
-                viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                    if (it == null) {
-                        benVisitNo = 1;
-                    } else if (it.nurseFlag == 1) {
-                        benVisitNo = it.benVisitNo
-                    } else {
-                        benVisitNo = it.benVisitNo + 1
-                        createNewBenflow = true;
-                    }
+                    isNull = true
                 }
                 if (emptyFields.isEmpty()) {
-                    extractFormValues()
                     setVitalsMasterData()
-//                addVisitRecordDataToCache(benVisitNo)
-//                addVitalsDataToCache(benVisitNo)
-//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
-
-                val user = userRepo.getLoggedInUser()
-
-                saveNurseData(benVisitNo, createNewBenflow, user)
-
-                    viewModel.isDataSaved.observe(viewLifecycleOwner) {
-                        when (it!!) {
-                            true -> {
-                                WorkerUtils.triggerAmritSyncWorker(requireContext())
-                                val intent = Intent(context, HomeActivity::class.java)
-                                startActivity(intent)
-                                requireActivity().finish()
-                            }
-
-                            else -> {
-//                            requireActivity().runOnUiThread {
-//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
-//                            }
-                            }
-                        }
-                    }
-
-                }else {
+                    findNavController().navigate(
+                        R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                    )
+                } else {
                     val message: String = if (emptyFields.size == 1) {
                         "Please fill the ${emptyFields[0]}"
                     } else {
@@ -608,8 +565,70 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     }
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                CoroutineScope(Dispatchers.Main).launch {
+
+                    var benVisitNo = 0;
+                    var createNewBenflow = false;
+                    viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                        if (it == null) {
+                            benVisitNo = 1;
+                        } else if (it.nurseFlag == 1) {
+                            benVisitNo = it.benVisitNo
+                        } else {
+                            benVisitNo = it.benVisitNo + 1
+                            createNewBenflow = true;
+                        }
+                    }
+                    if (emptyFields.isEmpty()) {
+                        extractFormValues()
+                        setVitalsMasterData()
+//                addVisitRecordDataToCache(benVisitNo)
+//                addVitalsDataToCache(benVisitNo)
+//                addPatientVisitInfoSyncToCache(benVisitNo, createNewBenflow)
+
+                        val user = userRepo.getLoggedInUser()
+
+                        saveNurseData(benVisitNo, createNewBenflow, user)
+
+                        viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                            when (it!!) {
+                                true -> {
+                                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                                    val intent = Intent(context, HomeActivity::class.java)
+                                    startActivity(intent)
+                                    requireActivity().finish()
+                                }
+
+                                else -> {
+//                            requireActivity().runOnUiThread {
+//                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+//                            }
+                                }
+                            }
+                        }
+
+                    } else {
+                        val message: String = if (emptyFields.size == 1) {
+                            "Please fill the ${emptyFields[0]}"
+                        } else {
+                            "Please fill the following fields:\n${emptyFields.joinToString(", ")}"
+                        }
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
+        }else{
+            val message = "Temprature field is mandatory"
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun isTempFieldFilledForFever(): Boolean {
+       if (viewModel.boolTemp && viewModel.tempNull){
+           return false
+       }
+        return true
     }
 
     private fun isHelperTrue(): List<String> {
@@ -662,6 +681,5 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         masterDb?.vitalsMasterDb = vitalDb
         bundle.putSerializable("MasterDb", masterDb)
     }
-
 
 }
