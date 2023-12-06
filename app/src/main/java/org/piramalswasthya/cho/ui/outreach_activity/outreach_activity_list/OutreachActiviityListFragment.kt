@@ -49,7 +49,7 @@ class OutreachActiviityListFragment : Fragment(), NavigationAdapter {
             ActivityItemAdapter(ActivityItemAdapter.ActivityClickListener { activity ->
                 findNavController().navigate(
                     OutreachActiviityListFragmentDirections.actionOutreachActiviityListFragmentToOutreachActivityDetailsFragment(
-//                        activity
+                        activity
                     )
                 )
             })

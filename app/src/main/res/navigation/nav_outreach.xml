@@ -22,6 +22,9 @@
         android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsFragment"
         android:label="fragment_outreach_activity_details"
         tools:layout="@layout/fragment_outreach_activity_details">
+        <argument
+            android:name="activityDetails"
+            app:argType="org.piramalswasthya.cho.model.OutreachActivityNetworkModel"/>
     </fragment>
     <fragment
         android:id="@+id/outreachActivityFormFragment"
