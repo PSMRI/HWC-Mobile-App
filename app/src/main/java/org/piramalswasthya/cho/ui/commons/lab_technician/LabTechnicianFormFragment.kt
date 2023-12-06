@@ -88,6 +88,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         // Create the ComposeView
         composeView = ComposeView(requireContext())
 

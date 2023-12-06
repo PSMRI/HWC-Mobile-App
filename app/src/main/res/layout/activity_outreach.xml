@@ -25,16 +25,14 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="0dp" />
 
-        <ImageButton
-            android:id="@+id/home_button"
+        <Button
+            android:id="@+id/plusButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginRight="10dp"
-            android:contentDescription="Home"
-            android:src="@drawable/home"
+            android:text="+"
             android:onClick="navigateToFormScreen"
-            android:background="?attr/colorPrimary"/>
+            android:textSize="24sp"/>
 
     </androidx.appcompat.widget.Toolbar>
 

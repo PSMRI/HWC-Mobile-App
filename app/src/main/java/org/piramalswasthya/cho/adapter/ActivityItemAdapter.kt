@@ -49,6 +49,8 @@ class ActivityItemAdapter (
         ) {
             binding.activity = item
             binding.clickListener = clickListener
+            binding.activityName.text = item.activityName
+            binding.createDate.text = DateTimeUtil.formatActivityDate(item.activityDate)
 
 //            binding.visitNumber.text = item.benVisitNo.toString() ?: ""
 //            if(item.visitDate != null){

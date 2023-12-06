@@ -35,15 +35,15 @@ class OutreachActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.outreachActiviityListFragment -> {
                     binding.headerTextRegisterPatient.text = "Previous Activity"
-                    binding.homeButton.visibility = View.VISIBLE
+                    binding.plusButton.visibility = View.VISIBLE
                 }
                 R.id.outreachActivityDetailsFragment -> {
                     binding.headerTextRegisterPatient.text = "Activity Details"
-                    binding.homeButton.visibility = View.GONE
+                    binding.plusButton.visibility = View.GONE
                 }
                 R.id.outreachActivityFormFragment -> {
                     binding.headerTextRegisterPatient.text = "Activity Form"
-                    binding.homeButton.visibility = View.GONE
+                    binding.plusButton.visibility = View.GONE
                 }
             }
         }
