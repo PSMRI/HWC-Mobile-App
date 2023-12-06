@@ -21,7 +21,8 @@
         android:id="@+id/outreachActivityDetailsFragment"
         android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsFragment"
         android:label="fragment_outreach_activity_details"
-        tools:layout="@layout/fragment_outreach_activity_details" />
+        tools:layout="@layout/fragment_outreach_activity_details">
+    </fragment>
     <fragment
         android:id="@+id/outreachActivityFormFragment"
         android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_form.OutreachActivityFormFragment"

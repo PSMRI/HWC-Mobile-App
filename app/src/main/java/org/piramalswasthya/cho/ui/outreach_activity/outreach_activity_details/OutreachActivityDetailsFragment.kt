@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.databinding.FragmentOutreachActivityDetailsBinding
+import org.piramalswasthya.cho.databinding.FragmentOutreachActivityFormBinding
+import org.piramalswasthya.cho.utils.DateTimeUtil
 
 @AndroidEntryPoint
 class OutreachActivityDetailsFragment : Fragment() {
@@ -29,6 +32,13 @@ class OutreachActivityDetailsFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(OutreachActivityDetailsViewModel::class.java)
         // TODO: Use the ViewModel
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        viewModel.activity.activityDate = DateTimeUtil.formatActivityDate(viewModel.activity.activityDate)
+//        binding.outreachActivityModel = viewModel.activity
+//        binding.outreachActivityModel.activityDate = DateTimeUtil.formatActivityDate(binding.outreachActivityModel.activityDate)
+//        binding.outreachActivityDetailsViewModel =
     }
 
 }
