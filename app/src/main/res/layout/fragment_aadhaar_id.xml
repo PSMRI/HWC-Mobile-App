@@ -19,33 +19,34 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="@dimen/padding_normal">
+            android:paddingTop="4dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_content_aadhar_id"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="@dimen/padding_normal">
+
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHeight_percent=".75"
-                    >
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_aadhaar_verify_dropdown"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        app:layout_constraintTop_toTopOf="@id/cl_content_aadhar_id"
-                        app:layout_constraintStart_toStartOf="parent"
+                        android:hint="Aadhaar"
                         app:layout_constraintEnd_toEndOf="parent"
-                        android:hint="Aadhaar">
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/cl_content_aadhar_id">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actv_aadhar_verification_dropdown"
@@ -58,11 +59,11 @@
 
                     <RadioGroup
                         android:id="@+id/rg_gov_asha"
-                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:visibility="visible"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/til_aadhaar_verify_dropdown">
@@ -70,17 +71,17 @@
                         <RadioButton
                             android:id="@+id/rb_asha"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:checked="true"
-                            android:text="ASHA" />
+                            android:text="With OTP" />
 
                         <RadioButton
                             android:id="@+id/rb_gov"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="GOV" />
+                            android:layout_weight="1"
+                            android:text="Without OTP" />
                     </RadioGroup>
 
                     <androidx.fragment.app.FragmentContainerView

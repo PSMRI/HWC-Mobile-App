@@ -33,6 +33,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentCreateAbhaBinding
+import org.piramalswasthya.cho.network.CreateHIDResponse
 import org.piramalswasthya.cho.ui.abha_id_activity.create_abha_id.CreateAbhaViewModel.State
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -102,6 +103,34 @@ class CreateAbhaFragment : Fragment() {
         _binding = FragmentCreateAbhaBinding.inflate(layoutInflater)
         return binding.root
     }
+    fun createHIDResponseFromStrings(name: String, healthIdNumber: String): CreateHIDResponse {
+        return CreateHIDResponse(
+            hID = 0, // Set the appropriate value for hID, as it's not present in the CreateAbhaIdResponse
+            healthIdNumber = healthIdNumber,
+            name = name,
+            gender = null,
+            yearOfBirth = null,
+            monthOfBirth = null,
+            dayOfBirth = null,
+            firstName = null,
+            healthId = null,
+            lastName = null,
+            middleName = null,
+            stateCode = null,
+            districtCode = null,
+            stateName = null,
+            districtName = null,
+            email = null,
+            kycPhoto = null,
+            mobile = null,
+            authMethod = null,
+            authMethods = null,
+            deleted = false, // Set the appropriate value for deleted
+            processed = null, // Set the appropriate value for processed
+            createdBy = null, // Set the appropriate value for createdBy
+            txnId = ""
+        )
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -115,9 +144,12 @@ class CreateAbhaFragment : Fragment() {
 
         val benId = intent.getLongExtra("benId", 0)
         val benRegId = intent.getLongExtra("benRegId", 0)
-
-        viewModel.createHID(benId, benRegId)
-
+        if(viewModel.userType!="GOV"){
+            viewModel.createHID(benId, benRegId)
+        } else {
+            viewModel.setStateCom()
+            viewModel.hidResponse.value = createHIDResponseFromStrings(viewModel.nameType,viewModel.aType)
+        }
         viewModel.benMapped.observe(viewLifecycleOwner) {
             it?.let {
                 binding.abhBenMappedTxt.text = String.format("%s%s%s", resources.getString(R.string.linked_to_beneficiary), " ",it)
@@ -128,7 +160,6 @@ class CreateAbhaFragment : Fragment() {
         binding.tietAadhaarOtp.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
-
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
@@ -227,6 +258,7 @@ class CreateAbhaFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        timer.cancel()
         onBackPressedCallback.remove()
         _binding = null
     }
@@ -344,4 +376,5 @@ class CreateAbhaFragment : Fragment() {
             }
         }
     }
+
 }

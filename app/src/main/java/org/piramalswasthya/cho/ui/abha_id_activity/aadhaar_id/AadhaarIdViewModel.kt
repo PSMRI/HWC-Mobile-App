@@ -2,7 +2,16 @@ package org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.network.CreateAbhaIdGovRequest
+import org.piramalswasthya.cho.network.CreateAbhaIdResponse
+import org.piramalswasthya.cho.network.DistrictCodeResponse
+import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.StateCodeResponse
+import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.repositories.AbhaIdRepo
 import timber.log.Timber
 import java.util.*
@@ -46,6 +55,9 @@ AadhaarIdViewModel @Inject constructor(
         get() = _verificationType
 
     private var _abhaResponse: String? = null
+
+    var abha = MutableLiveData<CreateAbhaIdResponse?>(null)
+
     val abhaResponse: String
         get() = _abhaResponse!!
 
@@ -56,6 +68,10 @@ AadhaarIdViewModel @Inject constructor(
     private var _mobileNumber: String? = null
     val mobileNumber: String
         get() = _mobileNumber!!
+
+    var activeState: StateCodeResponse? = null
+
+    var activeDistrict: DistrictCodeResponse? = null
 
     private val _errorMessage = MutableLiveData<String?>(null)
     val errorMessage: LiveData<String?>
@@ -73,8 +89,54 @@ AadhaarIdViewModel @Inject constructor(
         _abhaResponse = abha
     }
 
+    fun setState(s:StateCodeResponse){
+        activeState = s
+    }
+
+    fun setD(s:DistrictCodeResponse){
+        activeDistrict = s
+    }
+
     fun setState(state: State) {
         _state.value = state
+    }
+
+    fun generateAbhaCard(aadhaarNumber: String, fullName: String, dateOfBirth: String, gender: String): String {
+        _state.value = AadhaarIdViewModel.State.LOADING
+        viewModelScope.launch {
+
+            val result: NetworkResult<CreateAbhaIdResponse>?
+
+            val createRequest = CreateAbhaIdGovRequest(
+                aadhaarNumber.toLong(),
+                "GoK HWC",
+                true,
+                dateOfBirth,
+                gender,
+                fullName,
+                activeState?.code?.toInt()?: 0,
+                activeDistrict?.code?.toInt()?: 0
+            )
+            result = abhaIdRepo.generateAbhaIdGov(createRequest)
+
+
+            when (result) {
+                is NetworkResult.Success -> {
+                    TokenInsertAbhaInterceptor.setXToken(result.data.token)
+                    abha.value = result.data
+                    _state.value = State.ABHA_GENERATED_SUCCESS
+                }
+                is NetworkResult.Error -> {
+                    _errorMessage.value = result.message
+                    _state.value = State.ERROR_SERVER
+                }
+                is NetworkResult.NetworkError -> {
+                    _state.value = State.ERROR_NETWORK
+                }
+            }
+
+        }
+        return Gson().toJson(abha.value)
     }
 
     fun setMobileNumber(mobileNumber: String) {

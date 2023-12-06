@@ -77,5 +77,14 @@
         <argument
             android:name="txnId"
             app:argType="string" />
+        <argument
+            android:name="userType"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="aNum"
+            app:argType="string" />
     </fragment>
 </navigation>

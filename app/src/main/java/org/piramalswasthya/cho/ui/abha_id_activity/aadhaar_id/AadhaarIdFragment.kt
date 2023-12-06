@@ -129,7 +129,10 @@ class AadhaarIdFragment : Fragment() {
                 State.ABHA_GENERATED_SUCCESS -> {
                     findNavController().navigate(
                         AadhaarIdFragmentDirections.actionAadhaarIdFragmentToCreateAbhaFragment(
-                            viewModel.txnId
+                            viewModel.txnId,
+                            viewModel.userType.value!!,
+                            viewModel.abha.value!!.name,
+                            viewModel.abha.value!!.healthIdNumber,
                         )
                     )
                 }
