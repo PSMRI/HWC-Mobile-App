@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -181,6 +182,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+
 //        villageAdapter = VillageDropdownAdapter(
 //            context = requireContext(),
 //           resource = R.layout.drop_down,

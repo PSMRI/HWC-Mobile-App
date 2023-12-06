@@ -6,6 +6,7 @@ import android.os.Build
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import org.piramalswasthya.cho.model.FormattedDate
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -85,6 +86,35 @@ class DateTimeUtil {
             val pattern = "dd-MM-yyyy"
             val sdf = SimpleDateFormat(pattern, Locale.getDefault())
             return sdf.format(date)
+        }
+
+        fun formatActivityDate(inputDateString: String?): String? {
+            if (inputDateString == null) {
+                return null
+            }
+
+            // Parse the input date string
+            val inputFormat = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.US)
+            val inputDate = inputFormat.parse(inputDateString)
+
+            // Format the date into the desired format
+            val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+            return outputFormat.format(inputDate)
+        }
+
+        fun getFormattedDate(date: Date): FormattedDate {
+
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+            // Format the Date object to a string
+            val formattedDate = dateFormat.format(date)
+
+            // Extract day, month, and year from the formatted date string
+            val day = formattedDate.substring(0, 2).toInt()
+            val month = formattedDate.substring(3, 5).toInt()
+            val year = formattedDate.substring(6).toInt()
+
+            return FormattedDate(day, month, year)
         }
 
         fun getDateTimeStringFromLong(dateLong: Long?): String? {

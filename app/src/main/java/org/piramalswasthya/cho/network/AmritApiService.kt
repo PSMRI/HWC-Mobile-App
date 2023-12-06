@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
 import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PatientDoctorFormUpsync
 import org.piramalswasthya.cho.model.PatientNetwork
@@ -230,6 +231,15 @@ interface AmritApiService {
 
     @POST("hwc-facility-service/sync/beneficiariesToApp")
     suspend fun downloadBeneficiariesFromServer(@Body villageList: VillageIdList): Response<ResponseBody>
+
+    @POST("hwc-facility-service/sync/activity/create")
+    suspend fun createNewActivity(@Body networkModel: OutreachActivityNetworkModel): Response<ResponseBody>
+
+    @GET("hwc-facility-service/sync/activity/{userID}/getAllByUser")
+    suspend fun getActivityByUser(@Path("userID") userID: Int): Response<ResponseBody>
+
+    @GET("hwc-facility-service/sync/activity/{activityId}/getById")
+    suspend fun getActivityById(@Path("activityId") activityId: Int): Response<ResponseBody>
 
     @POST("hwc-facility-service/sync/prescriptionTemplatesToServer")
     suspend fun sendTemplateToServer(@Body prescriptionTemplateDB: List<PrescriptionTemplateDB>): Response<ResponseBody>
