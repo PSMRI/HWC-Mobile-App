@@ -132,6 +132,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         savedInstanceState: Bundle?
     ): View? {
         _binding = CaseRecordCustomLayoutBinding.inflate(inflater, container, false)
+        val editText = binding.externalI
+        editText.requestFocus()
         return binding.root
     }
     private val onBackPressedCallback by lazy {
