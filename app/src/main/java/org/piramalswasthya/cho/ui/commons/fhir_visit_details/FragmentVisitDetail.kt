@@ -698,7 +698,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.subCatDropDown.visibility = View.GONE
                     binding.reasonForVisitDropDown.visibility = View.GONE
                     binding.layyy.visibility = View.VISIBLE
-                    binding.usePrevious.visibility = View.VISIBLE
+//                    binding.usePrevious.visibility = View.VISIBLE
 //                    category = binding.radioButton1.text.toString()
                     category = binding.radioButton1.tag.toString()
                 }
@@ -1044,7 +1044,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.chiefComplaintExtra2.visibility = View.VISIBLE
         binding.vitalsHeading.visibility = View.VISIBLE
         binding.vitalsLayout.visibility = View.VISIBLE
-        binding.usePrevious.visibility = View.VISIBLE
+//        binding.usePrevious.visibility = View.VISIBLE
         viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
             chiefComplaintDB2.clear()
             for (chiefComplaintItem in chiefComplaintList) {
