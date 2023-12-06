@@ -119,9 +119,11 @@
                 android:layout_width="match_parent"
                 android:textSize="18sp"
                 android:inputType="textCapCharacters"
+                android:capitalize="characters"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -142,7 +144,9 @@
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
-                android:inputType="textCapCharacters"/>
+                android:capitalize="characters"
+                android:inputType="textCapCharacters"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -162,8 +166,10 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
+                android:capitalize="characters"
                 android:drawableEnd="@null"
-                android:inputType="textCapCharacters" />
+                android:inputType="textCapCharacters"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

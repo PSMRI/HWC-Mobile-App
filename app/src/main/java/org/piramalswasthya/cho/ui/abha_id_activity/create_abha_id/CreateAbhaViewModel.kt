@@ -36,6 +36,12 @@ class CreateAbhaViewModel @Inject constructor(
     private val txnId =
         CreateAbhaFragmentArgs.fromSavedStateHandle(savedStateHandle).txnId
 
+    val userType = CreateAbhaFragmentArgs.fromSavedStateHandle(savedStateHandle).userType
+
+    val nameType = CreateAbhaFragmentArgs.fromSavedStateHandle(savedStateHandle).name
+    val aType = CreateAbhaFragmentArgs.fromSavedStateHandle(savedStateHandle).aNum
+
+
     val otpTxnID = MutableLiveData<String?>(null)
 
     val cardBase64 = MutableLiveData<String>(null)
@@ -47,7 +53,9 @@ class CreateAbhaViewModel @Inject constructor(
     init {
         _state.value = State.LOADING
     }
-
+    fun setStateCom(){
+        _state.value = State.ABHA_GENERATE_SUCCESS
+    }
     fun createHID(benId: Long, benRegId: Long) {
         viewModelScope.launch {
             when (val result =

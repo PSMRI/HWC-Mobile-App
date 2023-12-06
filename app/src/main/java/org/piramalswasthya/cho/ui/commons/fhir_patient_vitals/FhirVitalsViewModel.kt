@@ -55,6 +55,10 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
         get() = _isDataSaved
 
     private var _loggedInUser: UserCache? = null
+
+     var boolTemp:Boolean = false
+
+    var tempNull:Boolean = true
     val loggedInUser: UserCache?
         get() = _loggedInUser
     private var _boolCall = MutableLiveData(false)

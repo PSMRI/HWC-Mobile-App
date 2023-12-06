@@ -20,10 +20,10 @@ class ViewPagerAdapter(supportFragmentManager: FragmentManager, lifecycle: Lifec
 
     override fun createFragment(position: Int): Fragment {
        return if(position==0){
-            DashboardFragment()
+            HomeFragment()
         }
         else{
-            HomeFragment()
+            DashboardFragment()
         }
     }
 }

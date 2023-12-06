@@ -37,6 +37,7 @@ class AadhaarNumberGovViewModel @Inject constructor(
     var fullName: String = ""
 
     var gender: String = ""
+    var hidResponse = MutableLiveData<CreateHIDResponse?>(null)
 
     var dateOfBirth: String = ""
 
@@ -83,7 +84,7 @@ class AadhaarNumberGovViewModel @Inject constructor(
 
             val createRequest = CreateAbhaIdGovRequest(
                 aadhaarNumber.toLong(),
-                "healthid api",
+                "GoK HWC",
                 true,
                 dateOfBirth,
                 gender,

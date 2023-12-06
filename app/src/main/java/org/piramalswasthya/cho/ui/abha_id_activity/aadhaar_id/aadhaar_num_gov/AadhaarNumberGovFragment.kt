@@ -37,7 +37,7 @@ class AadhaarNumberGovFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        parentViewModel.setTxnId("")
         binding.tietAadhaarNumber.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -78,6 +78,7 @@ class AadhaarNumberGovFragment : Fragment() {
         // setting district code dropdown values
         binding.actvStateDn.setOnItemClickListener { _, _, index, _ ->
             viewModel.activeState = viewModel.stateCodes.value?.get(index)
+            parentViewModel.activeState = viewModel.activeState
             viewModel.activeState?.districts?.map { dt -> dt.name }?.toTypedArray()?.let {
                 val adapterDistrictCodes = ArrayAdapter(
                     requireContext(), android.R.layout.simple_spinner_dropdown_item, it
@@ -90,6 +91,7 @@ class AadhaarNumberGovFragment : Fragment() {
         // observing district dropdown
         binding.actvDistrictDn.setOnItemClickListener { _, _, index, _ ->
             viewModel.activeDistrict = viewModel.activeState?.districts?.get(index)
+            parentViewModel.activeDistrict = viewModel.activeDistrict
             checkValidity()
         }
 
@@ -127,7 +129,7 @@ class AadhaarNumberGovFragment : Fragment() {
     }
 
     private fun generateAbhaCard() {
-        viewModel.generateAbhaCard(
+        parentViewModel.generateAbhaCard(
             aadhaarNumber = binding.tietAadhaarNumber.text.toString(),
             fullName = binding.tietFullName.text.toString(),
             dateOfBirth = binding.dateEt.text.toString(),
