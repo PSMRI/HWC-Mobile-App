@@ -48,6 +48,8 @@ class OutreachActivityFormViewModel @Inject constructor(
         get() = _isDataSaved
 
     fun saveNewActivity(activity: OutreachActivityModel){
+        val act = activity
+        var st = act.img1
         viewModelScope.launch {
             when(val result = activityRepo.saveNewActivity(activity)){
                 is NetworkResult.Success -> {
