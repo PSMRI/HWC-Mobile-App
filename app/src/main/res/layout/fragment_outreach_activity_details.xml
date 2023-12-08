@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/fragment_outreach_activity_details"
@@ -26,17 +26,26 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_weight="1"
+                    android:layout_weight="5"
                     android:layout_marginEnd="10dp"
                     android:gravity="end"
-                    android:text="Create Date: "/>
+                    android:text="Create Date"/>
+
+                <TextView
+                    android:id="@+id/date_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
 
                 <TextView
                     android:id="@+id/create_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_weight="2"
+                    android:layout_weight="10"
                     android:text="" />
 
             </LinearLayout>
@@ -54,17 +63,26 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_weight="1"
+                    android:layout_weight="5"
                     android:layout_marginEnd="10dp"
                     android:gravity="end"
-                    android:text="Activity Name: "/>
+                    android:text="Activity Name"/>
+
+                <TextView
+                    android:id="@+id/activity_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
 
                 <TextView
                     android:id="@+id/activity_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_weight="2"
+                    android:layout_weight="10"
                     android:text="" />
             </LinearLayout>
 
@@ -82,17 +100,26 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_weight="1"
+                    android:layout_weight="5"
                     android:layout_marginEnd="10dp"
                     android:gravity="end"
-                    android:text="Event Description: "/>
+                    android:text="Event Description"/>
+
+                <TextView
+                    android:id="@+id/events_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
 
                 <TextView
                     android:id="@+id/event_desc"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_weight="2"
+                    android:layout_weight="10"
                     android:text="" />
             </LinearLayout>
 
@@ -109,22 +136,48 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:layout_weight="1"
+                    android:layout_weight="5"
                     android:layout_marginEnd="10dp"
                     android:gravity="end"
-                    android:text="No of Participants: "/>
+                    android:text="No of Participants"/>
+
+                <TextView
+                    android:id="@+id/paricipants_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
 
                 <TextView
                     android:id="@+id/paricipants"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_weight="2"
+                    android:layout_weight="10"
                     android:text="" />
             </LinearLayout>
 
+            <ImageView
+                android:id="@+id/iv_1"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:visibility="gone"
+                android:src="@drawable/ic_person" />
+
+            <ImageView
+                android:id="@+id/iv_2"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:src="@drawable/ic_person" />
+
+
         </LinearLayout>
 
-    </FrameLayout>
+    </ScrollView>
 
 </layout>

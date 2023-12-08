@@ -119,8 +119,8 @@ class OutreachActivityFormFragment : Fragment() {
         }
 
         binding.saveEvent.setOnClickListener {
-            viewModel.outreachActivityModel.img1 = ImgUtils.getEncodedStringForBenImage(requireContext(), viewModel.outreachActivityModel.img1)
-            viewModel.outreachActivityModel.img2 = ImgUtils.getEncodedStringForBenImage(requireContext(), viewModel.outreachActivityModel.img2)
+            viewModel.outreachActivityModel.img1 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
+            viewModel.outreachActivityModel.img2 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
             viewModel.saveNewActivity(viewModel.outreachActivityModel)
             viewModel.isDataSaved.observe(viewLifecycleOwner){
                 when(it){
@@ -171,13 +171,13 @@ class OutreachActivityFormFragment : Fragment() {
 //                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 else {
                     if(viewModel.outreachActivityModel.img1.isNullOrEmpty()){
-                        viewModel.outreachActivityModel.img1 = currentFileName!!
+                        viewModel.outreachActivityModel.img1 = currentPhotoPath!!
                         binding.iv1.visibility = View.VISIBLE
                         Glide.with(this).load(photoURI)
                             .into(binding.iv1)
                     }
                     else {
-                        viewModel.outreachActivityModel.img2 = currentFileName!!
+                        viewModel.outreachActivityModel.img2 = currentPhotoPath!!
                         binding.iv2.visibility = View.VISIBLE
                         binding.addPhotos.visibility = View.GONE
                         Glide.with(this).load(photoURI)

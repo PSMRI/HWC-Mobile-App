@@ -14,6 +14,7 @@ import org.piramalswasthya.cho.network.ActivityResponse
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.NurseDataResponse
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import javax.inject.Inject
@@ -76,16 +77,14 @@ class ActivityRepo @Inject constructor(
         val user = userRepo.getLoggedInUser()!!
 
         return networkResultInterceptor {
-            val response = amritApiService.getActivityByUser(user.userId)
+            val response = amritApiService.getActivityById(activityId)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
                     val data = responseBody.let { JSONObject(it).getString("data") }
-                    val gson = Gson()
-                    val dataListType = object : TypeToken<List<OutreachActivityNetworkModel>>() {}.type
-                    val activities : List<OutreachActivityNetworkModel> = gson.fromJson(data, dataListType)
-                    NetworkResult.Success(ActivityResponse(activities))
+                    val result = Gson().fromJson(data, OutreachActivityNetworkModel::class.java)
+                    NetworkResult.Success(result)
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!

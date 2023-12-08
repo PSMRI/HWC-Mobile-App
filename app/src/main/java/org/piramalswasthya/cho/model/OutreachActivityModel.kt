@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.model
 
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.utils.formattedDate
 import java.io.Serializable
 import java.util.Date
@@ -23,7 +24,7 @@ data class OutreachActivityNetworkModel(
     var noOfParticipants: Int? = null,
     var img1: String? = null,
     var img2: String? = null,
-) : Serializable{
+) : Serializable, NetworkResponse(){
     constructor(user: UserDomain, outreachActivityModel: OutreachActivityModel) : this(
         null,
         user.userId,
