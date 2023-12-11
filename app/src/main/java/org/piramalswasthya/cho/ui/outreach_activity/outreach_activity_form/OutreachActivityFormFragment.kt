@@ -62,7 +62,7 @@ class OutreachActivityFormFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
 
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(OutreachActivityFormViewModel::class.java)
@@ -119,6 +119,25 @@ class OutreachActivityFormFragment : Fragment() {
         }
 
         binding.saveEvent.setOnClickListener {
+            if(viewModel.outreachActivityModel.dateOfActivity == null){
+                binding.dateOfEvent.setError("Date of event cannot be empty")
+                return@setOnClickListener;
+            }
+
+            if(viewModel.outreachActivityModel.activityName == null){
+                binding.activityDropdown.setError("Activity name cannot be empty")
+                return@setOnClickListener;
+            }
+
+            if(viewModel.outreachActivityModel.eventDesc == null){
+                binding.eventDescription.setError("Event description cannot be empty")
+                return@setOnClickListener;
+            }
+
+            if(viewModel.outreachActivityModel.noOfParticipant == null){
+                binding.noOfParticipant.setError("Number of participants cannot be empty")
+                return@setOnClickListener;
+            }
             viewModel.outreachActivityModel.img1 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
             viewModel.outreachActivityModel.img2 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
             viewModel.saveNewActivity(viewModel.outreachActivityModel)
