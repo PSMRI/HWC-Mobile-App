@@ -42,6 +42,7 @@ import java.lang.Exception
 import androidx.appcompat.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
+import androidx.core.content.ContextCompat
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 import javax.inject.Inject
@@ -267,6 +268,10 @@ class HomeFragment : Fragment() {
         if(preferenceDao.isUserCHO()){
             val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
             nurseItem?.title = "CHO"
+            val choDrawable = context?.let { ContextCompat.getDrawable(it, R.drawable.cho) }
+
+            // Set the icon using the retrieved Drawable
+            nurseItem?.icon = choDrawable
         }
 
     }
