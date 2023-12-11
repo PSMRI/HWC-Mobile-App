@@ -259,6 +259,14 @@ class DateTimeUtil {
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
+        fun formatCustDate(timestamp: Long): String {
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            return Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
+                .format(formatter)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
         fun formatUTCToDate(dateString: String): Date? {
             val instant = Instant.parse(dateString)
             val date = Date.from(instant)
