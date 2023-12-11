@@ -138,6 +138,7 @@ class OutreachActivityFormFragment : Fragment() {
                 binding.noOfParticipant.setError("Number of participants cannot be empty")
                 return@setOnClickListener;
             }
+
             viewModel.outreachActivityModel.img1 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
             viewModel.outreachActivityModel.img2 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
             viewModel.saveNewActivity(viewModel.outreachActivityModel)

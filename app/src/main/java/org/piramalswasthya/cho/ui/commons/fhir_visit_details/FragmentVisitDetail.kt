@@ -134,13 +134,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     var rbsValue: String? = null
     var lmpDate: Date?  = null
     var deliveryDate: Date?  = null
+    var lmpDateDisablity = false
+
 
     private val lmpDateUtil : DateTimeUtil = DateTimeUtil()
     private val deliveryDateUtil : DateTimeUtil = DateTimeUtil()
 
     private lateinit var adapter: VisitDetailAdapter
 
-    private var lastAncVisit by Delegates.notNull<Int>()
+    private var lastAncVisit: Int = 0
 
     private val initialItem = ChiefComplaintValues()
     private val itemList = mutableListOf(initialItem)
@@ -237,7 +239,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
 
         val minAge = 0L
-        val maxAge = 366L*24*60*60*1000
+        val maxAge = 365L*24*60*60*1000
         val ageGap = System.currentTimeMillis() - dob.time
 
         return (ageGap > minAge) && (ageGap <= maxAge)
@@ -336,11 +338,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     fun setVisibility(){
         val reasonForVisit = binding.reasonForVisitInput.text.toString()
         if(reasonForVisit == DropdownConst.anc){
-            viewModel.activePwrRecord.observe(viewLifecycleOwner){
-                if(it == null && lmpDate == null){
-                    binding.lmpDate.visibility = View.VISIBLE
-                }
+//            viewModel.activePwrRecord.observe(viewLifecycleOwner){
+            if(viewModel.activePwrRecord == null && lmpDate == null){
+                binding.lmpDate.visibility = View.VISIBLE
             }
+//            }
             binding.deliveryDate.visibility = View.GONE
             binding.rvAnc.visibility = View.VISIBLE
             binding.rvPnc.visibility = View.GONE
@@ -499,11 +501,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             setVisibility()
             if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
-                viewModel.activePwrRecord.observe(viewLifecycleOwner){
-                    if(it == null && lmpDate == null){
+//                viewModel.activePwrRecord.observe(viewLifecycleOwner){
+                    if(viewModel.activePwrRecord == null && lmpDate == null){
                         binding.lmpDate.visibility = View.VISIBLE
                     }
-                }
+//                }
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
@@ -523,11 +525,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
 
-
         binding.lmpDate.setOnClickListener {
             lmpDateUtil.showDatePickerDialog(
                 requireContext(), lmpDate,
-                maxDays = -(6*30), minDays = -(2*365),
+                maxDays = 0, minDays = -280,
             ).show()
         }
 
@@ -541,7 +542,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.deliveryDate.setOnClickListener {
             deliveryDateUtil.showDatePickerDialog(
                 requireContext(), deliveryDate,
-                maxDays = -(6*30), minDays = -(1*365),
+                maxDays = 0, minDays = -365,
             ).show()
         }
 
@@ -1214,6 +1215,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun navigateNext() {
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedCategoryRadioButton =
@@ -1223,16 +1225,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.anc){
 
-                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
-                    if(it1 == null && lmpDate == null){
+//                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
+                    if(viewModel.activePwrRecord == null && lmpDate == null){
                         Toast.makeText(
                             requireContext(),
                             "Select LMP Date",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    else if(it1 == null){
+                    else if(viewModel.activePwrRecord == null){
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
+//                        lmpDateDisablity = true
+                        binding.lmpDate.setOnClickListener {}
                         viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                             if(it2){
                                 checkAndNavigateAnc()
@@ -1242,7 +1246,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     else{
                         checkAndNavigateAnc()
                     }
-                }
+//                }
             }
             else if(reasonForVisit == DropdownConst.pnc){
                 viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
@@ -1349,22 +1353,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
-        viewModel.lastAnc.observe(viewLifecycleOwner){
-            if(it != null && System.currentTimeMillis() - it.ancDate < minGap){
+        val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
+//        viewModel.lastAnc.observe(viewLifecycleOwner){
+            if(viewModel.lastAnc != null && System.currentTimeMillis() - viewModel.lastAnc!!.ancDate < minGap){
                 Toast.makeText(
                     requireContext(),
                     "ANC found within 28 days",
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            else if(viewModel.lastAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
+                Toast.makeText(
+                    requireContext(),
+                    "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             else{
+                Log.d("sdfsdfsd", "adasdas")
+                Log.d("sdfsdfsd", "adasdas")
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
                         benVisitInfo.patient.patientID, lastAncVisit + 1, false
                     )
                 )
             }
-        }
+//        }
     }
 
     fun getYearAndMonthFromEpoch(epochMillis: Long): Pair<Int, Int> {
