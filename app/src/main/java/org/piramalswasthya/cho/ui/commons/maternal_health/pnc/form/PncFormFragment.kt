@@ -140,7 +140,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID, "PNC").let {
                 if(it == null){
                     benVisitNo = 1;
                 }
