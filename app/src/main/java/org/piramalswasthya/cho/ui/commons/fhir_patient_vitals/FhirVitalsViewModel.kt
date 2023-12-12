@@ -138,7 +138,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
     }
 
     suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
-        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId, "General OPD");
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
 
 }

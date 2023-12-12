@@ -12,7 +12,6 @@ import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
-import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.network.AmritApiService
 import javax.inject.Inject
 
@@ -117,8 +116,8 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         return (syncState != null && syncState == SyncState.UNSYNCED);
     }
 
-    suspend fun getLastVisitInfoSync(patientID: String, visitCategory: String) : PatientVisitInfoSync? {
-        return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID, visitCategory)
+    suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync? {
+        return patientVisitInfoSyncDao.getLastVisitInfoSync(patientID)
     }
 
     fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {

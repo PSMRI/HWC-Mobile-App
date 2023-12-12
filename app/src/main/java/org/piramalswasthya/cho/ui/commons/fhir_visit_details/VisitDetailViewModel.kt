@@ -327,7 +327,7 @@ class VisitDetailViewModel @Inject constructor(
     }
 
     suspend fun getLastVisitInfoSync(patientId: String): PatientVisitInfoSync? {
-        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId, "General OPD");
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
     }
 
     suspend fun getChiefMap(): Map<Int, String> {
