@@ -13,7 +13,7 @@ import java.util.Date
 
 @Entity(
     tableName = "PATIENT_VISIT_INFO_SYNC",
-    primaryKeys = ["patientID", "benVisitNo", "visitCategory"],
+    primaryKeys = ["patientID", "benVisitNo"],
     foreignKeys = [
         ForeignKey(
             entity = Patient::class,

@@ -145,7 +145,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID, "ANC").let {
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
                 if(it == null){
                     benVisitNo = 1;
                 }
@@ -204,7 +204,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             nurseDataSynced = SyncState.UNSYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
-            doctorFlag = 1
+            doctorFlag = 1,
+            visitCategory = "ANC"
         )
 
         CPHCviewModel.saveNurseDataToDb(visitDB, patientVitals, patientVisitInfoSync)

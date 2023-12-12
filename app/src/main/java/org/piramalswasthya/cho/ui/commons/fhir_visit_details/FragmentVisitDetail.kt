@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -1352,7 +1351,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
-    @SuppressLint("SuspiciousIndentation")
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
