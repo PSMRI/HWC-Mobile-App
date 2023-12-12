@@ -30,8 +30,8 @@ class OtherCPHCServicesViewModel @Inject constructor(
     val isDataSaved: MutableLiveData<Boolean>
         get() = _isDataSaved
 
-    suspend fun getLastVisitInfoSync(patientId: String): PatientVisitInfoSync? {
-        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
+    suspend fun getLastVisitInfoSync(patientId: String, visitCategory: String): PatientVisitInfoSync? {
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId, visitCategory);
     }
 
     fun saveNurseDataToDb(visitDB: VisitDB, patientVitals: PatientVitalsModel, patientVisitInfoSync: PatientVisitInfoSync

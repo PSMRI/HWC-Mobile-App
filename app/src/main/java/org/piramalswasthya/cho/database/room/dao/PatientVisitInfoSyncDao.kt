@@ -120,8 +120,8 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT nurseDataSynced FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID")
     suspend fun getNurseDataSyncStatus(patientID: String) : SyncState?
 
-    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID ORDER BY benVisitNo DESC LIMIT 1")
-    suspend fun getLastVisitInfoSync(patientID: String) : PatientVisitInfoSync?
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND visitCategory = :visitCategory ORDER BY benVisitNo DESC LIMIT 1")
+    suspend fun getLastVisitInfoSync(patientID: String, visitCategory: String) : PatientVisitInfoSync?
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE patientID = :patientID AND nurseFlag = 9 AND doctorFlag = 1 ORDER BY benVisitNo ASC LIMIT 1")
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientID: String) : PatientVisitInfoSync?

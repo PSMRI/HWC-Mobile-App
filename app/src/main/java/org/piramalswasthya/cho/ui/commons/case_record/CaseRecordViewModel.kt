@@ -350,7 +350,7 @@ class CaseRecordViewModel @Inject constructor(
     }
 
     suspend fun getLastVisitInfoSync(patientId : String) : PatientVisitInfoSync?{
-        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId);
+        return patientVisitInfoSyncRepo.getLastVisitInfoSync(patientId, "General OPD");
     }
 
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientId : String) : PatientVisitInfoSync?{

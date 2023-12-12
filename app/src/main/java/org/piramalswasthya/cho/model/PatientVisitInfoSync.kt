@@ -13,7 +13,7 @@ import java.util.Date
 
 @Entity(
     tableName = "PATIENT_VISIT_INFO_SYNC",
-    primaryKeys = ["patientID", "benVisitNo"],
+    primaryKeys = ["patientID", "benVisitNo", "visitCategory"],
     foreignKeys = [
         ForeignKey(
             entity = Patient::class,
@@ -72,7 +72,10 @@ data class PatientVisitInfoSync(
     var pharmacist_flag: Int? = 0,
 
     @ColumnInfo(name = "visitDate")
-    var visitDate: Date? = null
+    var visitDate: Date? = null,
+
+    @ColumnInfo(name = "visitCategory")
+    var visitCategory: String = "General OPD"
 
 ){
     constructor(benFlow: BenFlow, patient: Patient) : this(
@@ -86,6 +89,7 @@ data class PatientVisitInfoSync(
         doctorDataSynced = SyncState.SYNCED,
         labDataSynced = SyncState.SYNCED,
         pharmacistDataSynced = SyncState.SYNCED,
+        visitCategory = benFlow.VisitCategory ?: ""
     )
 
 }

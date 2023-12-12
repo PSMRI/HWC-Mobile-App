@@ -147,7 +147,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID, "FP & Contraceptive Services").let {
                 if(it == null){
                     benVisitNo = 1;
                 }

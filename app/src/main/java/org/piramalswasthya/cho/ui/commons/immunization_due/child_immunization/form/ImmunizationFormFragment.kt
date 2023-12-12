@@ -146,7 +146,7 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID, "Neonatal and Infant Health Care Services").let {
                 if(it == null){
                     benVisitNo = 1;
                 }
