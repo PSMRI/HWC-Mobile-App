@@ -56,7 +56,7 @@ class AadhaarNumberGovViewModel @Inject constructor(
     /**
      * getting state and district codes from api's
      */
-    private suspend fun getStates() {
+     suspend fun getStates() {
         _state.value = AadhaarIdViewModel.State.LOADING
         viewModelScope.launch {
             when (val result =
