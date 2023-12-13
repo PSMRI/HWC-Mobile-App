@@ -109,6 +109,7 @@ class FhirVitalsViewModel @Inject constructor(@ApplicationContext private val ap
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
             existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
+            existingPatientVisitInfoSync.visitCategory = "General OPD"
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{

@@ -57,8 +57,8 @@ interface PatientVisitInfoSyncDao {
     suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVisitInfoSync?
 
     @Transaction
-    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET benFlowId = :benFlowId, pharmacist_flag= :pharmacistFlag WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
-    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(benFlowId: Long, pharmacistFlag:Int, patientID: String, benVisitNo: Int)
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET benFlowId = :benFlowId, pharmacist_flag= :pharmacistFlag, visitCategory = :visitCategory WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updateBenFlowIdByPatientIdAndBenVisitNo(benFlowId: Long, pharmacistFlag:Int, patientID: String, benVisitNo: Int, visitCategory: String)
 
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE createNewBenFlow = :createNewBenFlow AND benVisitNo > 1 ORDER BY benVisitNo ASC")
     suspend fun getUnsyncedRevisitRecords(createNewBenFlow: Boolean? = true): List<PatientVisitInfoSync>
@@ -134,7 +134,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.patientID = :patientID ORDER BY vis.benVisitNo ASC")
+            "WHERE vis.nurseFlag = 9 AND vis.patientID = :patientID AND vis.visitCategory = 'General OPD' ORDER BY vis.benVisitNo ASC")
     fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -145,7 +145,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 ORDER BY pat.registrationDate DESC")
+            "WHERE vis.nurseFlag = 9 AND vis.visitCategory = 'General OPD' ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -156,7 +156,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 ORDER BY pat.registrationDate DESC")
+            "WHERE vis.nurseFlag = 9 AND vis.doctorFlag = 2 AND vis.visitCategory = 'General OPD' ORDER BY pat.registrationDate DESC")
     fun getPatientDisplayListForLab(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction
@@ -167,7 +167,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.doctorFlag = 9 AND vis.pharmacist_flag = 1")
+            "WHERE vis.doctorFlag = 9 AND vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

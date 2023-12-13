@@ -253,6 +253,7 @@ class VisitDetailViewModel @Inject constructor(
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
             existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
+            existingPatientVisitInfoSync.visitCategory = "General OPD"
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{
