@@ -48,13 +48,15 @@ class AadhaarNumberGovViewModel @Inject constructor(
     var abha = MutableLiveData<CreateAbhaIdResponse?>(null)
 
     init {
-        getStates()
+        viewModelScope.launch {
+            getStates()
+        }
     }
 
     /**
      * getting state and district codes from api's
      */
-    private fun getStates() {
+     suspend fun getStates() {
         _state.value = AadhaarIdViewModel.State.LOADING
         viewModelScope.launch {
             when (val result =
