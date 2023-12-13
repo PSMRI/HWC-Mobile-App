@@ -201,8 +201,8 @@ class ImmunizationFormFragment : Fragment(), NavigationAdapter{
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = benVisitInfo.patient.patientID,
             benVisitNo = benVisitNo,
-            createNewBenFlow = createNewBenflow,
-            nurseDataSynced = SyncState.UNSYNCED,
+            createNewBenFlow = false,
+            nurseDataSynced = SyncState.SYNCED,
             doctorDataSynced = SyncState.SYNCED,
             nurseFlag = 9,
             doctorFlag = 1,
