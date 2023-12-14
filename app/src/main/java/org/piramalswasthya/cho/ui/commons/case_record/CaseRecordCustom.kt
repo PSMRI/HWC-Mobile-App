@@ -327,13 +327,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //        }
 
         val tempAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
-        val uniqueTemplateNames = HashSet<String?>()
+        val uniqueTemplateNames = LinkedHashSet<String>()
         binding.inputUseTempForFields.setAdapter(tempAdapter)
 
         viewModel.tempDB.observe(viewLifecycleOwner) { vc ->
             uniqueTemplateNames.clear()
+            vc.mapNotNullTo(uniqueTemplateNames) { it?.templateName }
+
+            // Add "None" to the HashSet
             uniqueTemplateNames.add("None")
-            vc.mapTo(uniqueTemplateNames) { it?.templateName }
+
             tempAdapter.clear()
             tempAdapter.addAll(uniqueTemplateNames)
             tempAdapter.notifyDataSetChanged()
@@ -358,6 +361,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         }
+
 
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
