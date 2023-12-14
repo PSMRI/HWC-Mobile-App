@@ -59,6 +59,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.register_patient_activity.RegisterPatientActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity"
