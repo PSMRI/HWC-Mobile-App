@@ -36,12 +36,12 @@ data class ReferUpsync(
 //    "createdBy": "Sanjay",
 //    "isSpecialist": false
 ){
-    constructor(user: UserDomain?, benFlow: BenFlow?, higherHealthCenter: HigherHealthCenter?) : this(
+    constructor(user: UserDomain?, benFlow: BenFlow?, higherHealthCenter: HigherHealthCenter?,referR:String?) : this(
         higherHealthCenter?.institutionID,
         arrayListOf("HWC"),
         higherHealthCenter?.institutionName,
         null,
-        "Check",
+        referR,
         null,
         null,
         null,

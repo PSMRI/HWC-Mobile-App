@@ -37,21 +37,24 @@ data class InvestigationCaseRecord(
     @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?,
     @ColumnInfo(name = "CounsellingTypes") val counsellingTypes: String?,
     @ColumnInfo(name = "institutionId") val institutionId: Int? = null,
+    @ColumnInfo(name = "referReson") val referReson: String? = null,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
 ) {
     constructor(docData: DoctorDataDownSync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
-        docData.investigation?.laboratoryList?.map {
+        previousTestIds = docData.investigation?.laboratoryList?.map {
             it.procedureID
         }?.joinToString(",").nullIfEmpty(),
-        null, null,
-        null,
-        docData.Refer?.referredToInstituteID,
-        patient.patientID,
-        benFlow.benFlowID,
-        benFlow.benVisitNo
+        newTestIds = null,
+        externalInvestigation = null,
+        counsellingTypes = null,
+        institutionId = docData.Refer?.referredToInstituteID,
+        referReson = docData.Refer?.referralReason,
+        patientID = patient.patientID,
+        benFlowID = benFlow.benFlowID,
+        benVisitNo = benFlow.benVisitNo
     )
 }
 
