@@ -855,6 +855,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
@@ -871,6 +872,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
+            referReson = referR,
             benVisitNo = benVisitNo
         )
 
@@ -954,6 +956,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
@@ -971,6 +974,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
+            referReson = referR,
             benVisitNo = benVisitNo
         )
 

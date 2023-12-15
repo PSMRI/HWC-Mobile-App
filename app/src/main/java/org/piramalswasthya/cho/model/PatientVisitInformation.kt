@@ -101,7 +101,7 @@ data class PatientDoctorFormUpsync(
             PrescriptionUpsync(user, it)
         } ?: emptyList(),
         null,
-        ReferUpsync(user, benFlow, investigation?.higherHealthCenter),
+        ReferUpsync(user, benFlow, investigation?.higherHealthCenter,investigation?.investigationCaseRecord?.referReson),
         benFlow?.benFlowID.toString(),
         benFlow?.beneficiaryID.toString(),
         benFlow?.doctorFlag.toString(),
