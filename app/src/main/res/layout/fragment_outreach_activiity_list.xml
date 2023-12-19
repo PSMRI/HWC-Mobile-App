@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="outreachActiviityListViewModel"
+            type="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_list.OutreachActiviityListViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_outreach_activity_list"
+        tools:context=".ui.outreach_activity.outreach_activity_list.OutreachActiviityListFragment">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activity_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="2"
+            tools:listitem="@layout/activity_outreach_item" />
+
+    </FrameLayout>
+</layout>

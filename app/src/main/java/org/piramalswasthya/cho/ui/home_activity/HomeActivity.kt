@@ -56,9 +56,12 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.home.SyncBottomSheetOverallFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
+import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -128,7 +131,10 @@ class HomeActivity : AppCompatActivity() {
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
             Log.v("resuming activitiy", "resume")
-            viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
+            if( !amritSyncInProgress && !downloadSyncInProgress ){
+//                downloadSyncInProgress = true
+                viewModel.triggerDownSyncWorker(this, WorkerUtils.syncPeriodicDownSyncWorker)
+            }
         }.also { runnable = it }, delay.toLong())
         super.onResume()
     }
@@ -156,6 +162,7 @@ class HomeActivity : AppCompatActivity() {
 
         binding.refreshButton.setOnClickListener {
             Log.d("triggering down outside", "down trigger")
+//            downloadSyncInProgress = true
             viewModel.triggerDownSyncWorker(this, WorkerUtils.syncOneTimeDownSyncWorker)
         }
 
@@ -238,6 +245,12 @@ class HomeActivity : AppCompatActivity() {
                 R.id.abha_id_activity -> {
                     // Start the DestinationActivity
                     startActivity(Intent(this, AbhaIdActivity::class.java))
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.outreach_activity -> {
+                    // Start the DestinationActivity
+                    startActivity(Intent(this, OutreachActivity::class.java))
                     drawerLayout.closeDrawers()
                     true
                 }

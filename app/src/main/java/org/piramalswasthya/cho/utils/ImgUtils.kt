@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import java.util.Base64
+import android.util.Base64 as base64
 import androidx.annotation.RequiresApi
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -51,4 +52,27 @@ object ImgUtils {
             return null
         }
     }
+
+    fun base64ConvertedString(path: String?) : String?{
+        if(path == null) return null
+        try {
+            val imageBytes = File(path).readBytes()
+            return encodeToBase64(imageBytes);
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+            return null;
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun encodeToBase64(bytes: ByteArray): String {
+        val encoder = Base64.getEncoder()
+        return encoder.encodeToString(bytes)
+    }
+
+    fun decodeBase64ToBitmap(base64String: String): Bitmap? {
+        val decodedBytes = base64.decode(base64String, base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+    }
+
 }

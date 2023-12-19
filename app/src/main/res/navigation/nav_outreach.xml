@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_outreach"
+    app:startDestination="@id/outreachActiviityListFragment">
+
+    <fragment
+        android:id="@+id/outreachActiviityListFragment"
+        android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_list.OutreachActiviityListFragment"
+        android:label="fragment_outreach_activiity_list"
+        tools:layout="@layout/fragment_outreach_activiity_list" >
+        <action
+            android:id="@+id/action_outreachActiviityListFragment_to_outreachActivityFormFragment"
+            app:destination="@id/outreachActivityFormFragment" />
+        <action
+            android:id="@+id/action_outreachActiviityListFragment_to_outreachActivityDetailsFragment"
+            app:destination="@id/outreachActivityDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/outreachActivityDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsFragment"
+        android:label="fragment_outreach_activity_details"
+        tools:layout="@layout/fragment_outreach_activity_details">
+        <argument
+            android:name="activityDetails"
+            app:argType="org.piramalswasthya.cho.model.OutreachActivityNetworkModel"/>
+    </fragment>
+    <fragment
+        android:id="@+id/outreachActivityFormFragment"
+        android:name="org.piramalswasthya.cho.ui.outreach_activity.outreach_activity_form.OutreachActivityFormFragment"
+        android:label="fragment_outreach_activity_form"
+        tools:layout="@layout/fragment_outreach_activity_form" />
+</navigation>

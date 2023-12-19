@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.network
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaClientConstants
 import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.VillageLocationData
 import java.text.SimpleDateFormat
@@ -484,6 +485,11 @@ data class VillageIdList(
 @JsonClass(generateAdapter = true)
 data class BenflowResponse(
     val benflowList: MutableList<BenFlow>,
+) : NetworkResponse()
+
+@JsonClass(generateAdapter = true)
+data class ActivityResponse(
+    val activityList: List<OutreachActivityNetworkModel>,
 ) : NetworkResponse()
 
 @JsonClass(generateAdapter = true)

@@ -268,6 +268,7 @@ class CaseRecordViewModel @Inject constructor(
             existingPatientVisitInfoSync.nurseFlag = 9
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
             existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
+            existingPatientVisitInfoSync.visitCategory = "General OPD"
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{
@@ -373,6 +374,7 @@ class CaseRecordViewModel @Inject constructor(
     }
 
     suspend fun getReferNameTypeMap(): Map<Int, String> {
+
         return try {
             doctorMasterDataMaleRepo.getHigherHealthTypeByNameMap()
         } catch (e: Exception) {

@@ -30,6 +30,12 @@
             android:icon="@drawable/ic_completed_tasks"
             android:title="Create ABHA Number" />
 
+        <item
+            android:id="@+id/outreach_activity"
+            android:checkable="false"
+            android:icon="@drawable/ic_completed_tasks"
+            android:title="Outreach Activity" />
+
 <!--        <item-->
 <!--            android:id="@+id/roles_list"-->
 <!--            android:checkable="false"-->

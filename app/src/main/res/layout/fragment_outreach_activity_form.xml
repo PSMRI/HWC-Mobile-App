@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:id="@+id/fragment_outreach_activity_form"
+    tools:context=".ui.outreach_activity.outreach_activity_form.OutreachActivityFormFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/date_of_event_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:hint="Date of Event"
+            android:textColorHint="#888888"
+            android:textSize="18sp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/date_of_event"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/ic_calendar"
+                android:focusable="false"
+                android:inputType="none"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/activity_dropdown_text"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:hint="Activity Name"
+            android:textColorHint="#888888"
+            android:textSize="18sp">
+
+            <AutoCompleteTextView
+                android:id="@+id/activity_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textColorHint="#888888"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/event_description_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="Event description">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/event_description"
+                android:layout_width="match_parent"
+                android:textSize="18sp"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/no_of_participant_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:textSize="18sp"
+            android:textColorHint="#888888"
+            android:hint="Number of participants">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/no_of_participant"
+                android:layout_width="match_parent"
+                android:textSize="18sp"
+                android:imeOptions="actionDone"
+                android:drawableEnd="@null"
+                android:inputType="number"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/iv_1"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:visibility="gone"
+            android:src="@drawable/ic_person" />
+
+        <ImageView
+            android:id="@+id/iv_2"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:src="@drawable/ic_person" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_normal">
+
+            <Button
+                android:id="@+id/add_photos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Photos"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/save_event"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Event"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/add_photos" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+
+</ScrollView>

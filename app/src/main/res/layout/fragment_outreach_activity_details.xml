@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_outreach_activity_details"
+        tools:context=".ui.outreach_activity.outreach_activity_details.OutreachActivityDetailsFragment">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:id="@+id/linear_create_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/create_date_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="5"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="end"
+                    android:text="Create Date"/>
+
+                <TextView
+                    android:id="@+id/date_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
+
+                <TextView
+                    android:id="@+id/create_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="10"
+                    android:text="" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linear_activity_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/activity_name_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="5"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="end"
+                    android:text="Activity Name"/>
+
+                <TextView
+                    android:id="@+id/activity_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
+
+                <TextView
+                    android:id="@+id/activity_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="10"
+                    android:text="" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linear_event_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/event_desc_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="5"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="end"
+                    android:text="Event Description"/>
+
+                <TextView
+                    android:id="@+id/events_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
+
+                <TextView
+                    android:id="@+id/event_desc"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="10"
+                    android:text="" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linear_paricipants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/paricipants_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="5"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="end"
+                    android:text="No of Participants"/>
+
+                <TextView
+                    android:id="@+id/paricipants_col"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:text=":" />
+
+                <TextView
+                    android:id="@+id/paricipants"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="10"
+                    android:text="" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_1"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:visibility="gone"
+                android:src="@drawable/ic_person" />
+
+            <ImageView
+                android:id="@+id/iv_2"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:src="@drawable/ic_person" />
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</layout>

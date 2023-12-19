@@ -93,12 +93,15 @@ class PatientItemAdapter(
             val fullName = "$capitalizedFirstName $capitalizedLastName"
             binding.patientName.text = fullName
             binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            if(!item.patient.age?.toString().isNullOrEmpty() && item.patient.age!! <= 1){
-                val unit = item.ageUnit?.dropLast(1)
-                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
-            }else{
-                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+            if(item.patient.dob != null){
+                binding.patientAge.text = DateTimeUtil.calculateAgeString(item.patient.dob!!)
             }
+//            if(!item.patient.age?.toString().isNullOrEmpty() && item.patient.age!! <= 1){
+//                val unit = item.ageUnit?.dropLast(1)
+//                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
+//            }else{
+//                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
+//            }
             if(item.visitDate != null){
                 binding.visitDate.text = DateTimeUtil.formatDate(item.visitDate)
             }

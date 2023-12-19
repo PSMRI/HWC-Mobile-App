@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -181,6 +182,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+
 //        villageAdapter = VillageDropdownAdapter(
 //            context = requireContext(),
 //           resource = R.layout.drop_down,
@@ -220,16 +222,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private val ageAlertDialog by lazy {
         val alertBinding = AlertAgePickerBinding.inflate(layoutInflater,binding.root,false)
         alertBinding.dialogNumberPickerYears.minValue = 0
-        alertBinding.dialogNumberPickerYears.maxValue = 200
+        alertBinding.dialogNumberPickerYears.maxValue = 99
 
         alertBinding.dialogNumberPickerMonths.minValue = 0
         alertBinding.dialogNumberPickerMonths.maxValue = 11
 
-        alertBinding.dialogNumberPickerWeeks.minValue = 0
-        alertBinding.dialogNumberPickerWeeks.maxValue = 4       // Assuming a maximum of 4 weeks in a month
+//        alertBinding.dialogNumberPickerWeeks.minValue = 0
+//        alertBinding.dialogNumberPickerWeeks.maxValue = 4       // Assuming a maximum of 4 weeks in a month
 
         alertBinding.dialogNumberPickerDays.minValue = 0
-        alertBinding.dialogNumberPickerDays.maxValue = 6
+        alertBinding.dialogNumberPickerDays.maxValue = 29
 
         val alert = MaterialAlertDialogBuilder(requireContext())
             .setView(alertBinding.root)
@@ -238,12 +240,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         alertBinding.btnOk.setOnClickListener {
             alertBinding.dialogNumberPickerYears.clearFocus();
             alertBinding.dialogNumberPickerMonths.clearFocus();
-            alertBinding.dialogNumberPickerWeeks.clearFocus();
+//            alertBinding.dialogNumberPickerWeeks.clearFocus();
             alertBinding.dialogNumberPickerDays.clearFocus();
 
             viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
             viewModel.enteredAgeMonths = alertBinding.dialogNumberPickerMonths.value
-            viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
+//            viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
             viewModel.enteredAgeDays = alertBinding.dialogNumberPickerDays.value
 
             setAgeToDateOfBirth()
@@ -261,7 +263,21 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 viewModel.enteredAge = viewModel.enteredAgeDays
                 viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
             }
-            binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+
+            var ageString = ""
+            if(viewModel.enteredAgeYears!! > 0){
+                ageString += viewModel.enteredAgeYears!!.toString() + " years"
+            }
+            if(viewModel.enteredAgeMonths!! > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += viewModel.enteredAgeMonths!!.toString() + " months"
+            }
+            if(viewModel.enteredAgeDays!! > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += viewModel.enteredAgeDays!!.toString() + " days"
+            }
+
+            binding.age.setText(ageString)
             viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
             binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
             alert.dismiss()
@@ -272,7 +288,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         alert.setOnShowListener {
             alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
             alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
-            alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
+//            alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
             alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
         }
         alert
@@ -321,7 +337,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             dobUtil.showDatePickerDialog(
                                 requireContext(),
-                                viewModel.selectedDateOfBirth
+                                viewModel.selectedDateOfBirth,
+                                maxDays = 0,
+                                minDays = -(99*365 + 25)
                             )
                         }
 
@@ -524,7 +542,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //            setAgeToDateOfBirth()
 //        }
 
-        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
+        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
 //            setMarriedFieldsVisibility()
@@ -540,7 +558,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.dateOfBirth.setOnClickListener {
-            dobUtil.showDatePickerDialog(requireContext(), viewModel.selectedDateOfBirth).show()
+            dobUtil.showDatePickerDialog(
+                requireContext(),
+                viewModel.selectedDateOfBirth,
+                maxDays = 0,
+                minDays = -(99*365 + 25)
+            ).show()
         }
 
         binding.age.addTextChangedListener(ageTextWatcher)
@@ -857,7 +880,21 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.enteredAge = viewModel.enteredAgeDays
             viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
         }
-        binding.age.text = Editable.Factory.getInstance().newEditable(viewModel.enteredAge!!.toString())
+
+        var ageString = ""
+        if(viewModel.enteredAgeYears!! > 0){
+            ageString += viewModel.enteredAgeYears!!.toString() + " years"
+        }
+        if(viewModel.enteredAgeMonths!! > 0){
+            if(ageString.isNotEmpty()) ageString += ", "
+            ageString += viewModel.enteredAgeMonths!!.toString() + " months"
+        }
+        if(viewModel.enteredAgeDays!! > 0){
+            if(ageString.isNotEmpty()) ageString += ", "
+            ageString += viewModel.enteredAgeDays!!.toString() + " days"
+        }
+
+        binding.age.setText(ageString)
         viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
         binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
 

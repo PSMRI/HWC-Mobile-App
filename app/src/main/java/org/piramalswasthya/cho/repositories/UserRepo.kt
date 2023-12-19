@@ -1,15 +1,19 @@
 package org.piramalswasthya.cho.repositories
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -66,6 +70,10 @@ class UserRepo @Inject constructor(
 
 
     private var user: UserNetwork? = null
+
+//    @SuppressLint("StaticFieldLeak")
+//    val context: Context = application.applicationContext
+
 
     suspend fun getLoggedInUser(): UserDomain? {
         return withContext(Dispatchers.IO) {
@@ -218,7 +226,7 @@ class UserRepo @Inject constructor(
         }
     }
 
-    private suspend fun getUserVanSpDetails(): Boolean {
+    private suspend fun getUserVanSpDetails(context: Context): Boolean {
         return withContext(Dispatchers.IO) {
             val response = tmcNetworkApiService.getUserVanSpDetails(
                 TmcUserVanSpDetailsRequest(
@@ -243,6 +251,10 @@ class UserRepo @Inject constructor(
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
+                    if (!vanSp.has("facilityID")) {
+                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        delay(3000)
+                    }
                     val facilityId = vanSp.getInt("facilityID")
                     user?.facilityID = facilityId
                     user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
@@ -333,7 +345,7 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    getUserVanSpDetails()
+                    getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
 //                    getUserAssignedVillageIds()
