@@ -6,6 +6,7 @@ import android.os.Build
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import org.piramalswasthya.cho.model.FormattedDate
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -28,7 +29,7 @@ class DateTimeUtil {
         get() = _selectedDate
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun showDatePickerDialog(context: Context, initialDate: Date?, maxDays: Int = 0, minDays: Int = -(99*365)) : DatePickerDialog {
+    fun showDatePickerDialog(context: Context, initialDate: Date?, maxDays: Int?, minDays: Int?) : DatePickerDialog {
         val calendar = Calendar.getInstance()
         initialDate?.let {
             calendar.time = it
@@ -51,15 +52,20 @@ class DateTimeUtil {
             }, year, month, day
         )
 
-        // Set max date to the current date
-        val maxCalendar = Calendar.getInstance()
-        maxCalendar.add(Calendar.DAY_OF_YEAR, maxDays)
-        datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
+        if(maxDays != null){
+            // Set max date to the current date
+            val maxCalendar = Calendar.getInstance()
+            maxCalendar.add(Calendar.DAY_OF_YEAR, maxDays)
+            datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
+        }
 
-        // Set min date to 99 years ago from the current date
-        val minCalendar = Calendar.getInstance()
-        minCalendar.add(Calendar.DAY_OF_YEAR, minDays)
-        datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
+        if(minDays != null){
+            // Set min date to 99 years ago from the current date
+            val minCalendar = Calendar.getInstance()
+            minCalendar.add(Calendar.DAY_OF_YEAR, minDays)
+            datePickerDialog.datePicker.minDate = minCalendar.timeInMillis
+        }
+
         return datePickerDialog
     }
 
@@ -80,6 +86,35 @@ class DateTimeUtil {
             val pattern = "dd-MM-yyyy"
             val sdf = SimpleDateFormat(pattern, Locale.getDefault())
             return sdf.format(date)
+        }
+
+        fun formatActivityDate(inputDateString: String?): String? {
+            if (inputDateString == null) {
+                return null
+            }
+
+            // Parse the input date string
+            val inputFormat = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.US)
+            val inputDate = inputFormat.parse(inputDateString)
+
+            // Format the date into the desired format
+            val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+            return outputFormat.format(inputDate)
+        }
+
+        fun getFormattedDate(date: Date): FormattedDate {
+
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+            // Format the Date object to a string
+            val formattedDate = dateFormat.format(date)
+
+            // Extract day, month, and year from the formatted date string
+            val day = formattedDate.substring(0, 2).toInt()
+            val month = formattedDate.substring(3, 5).toInt()
+            val year = formattedDate.substring(6).toInt()
+
+            return FormattedDate(day, month, year)
         }
 
         fun getDateTimeStringFromLong(dateLong: Long?): String? {
@@ -224,6 +259,14 @@ class DateTimeUtil {
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
+        fun formatCustDate(timestamp: Long): String {
+            val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+            return Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
+                .format(formatter)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
         fun formatUTCToDate(dateString: String): Date? {
             val instant = Instant.parse(dateString)
             val date = Date.from(instant)
@@ -250,6 +293,32 @@ class DateTimeUtil {
             } catch (e: Exception) {
                 return null;
             }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun calculateAgeString(dateOfBirth: Date): String {
+            val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val currentDate = LocalDate.now()
+
+            val period = Period.between(birthDate, currentDate)
+
+            val years = period.years
+            val months = period.months % 12
+            val days = period.days % 30
+
+            var ageString = "";
+            if(years > 0){
+                ageString += "$years years"
+            }
+            if(months > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += "$months months"
+            }
+            if(days > 0){
+                if(ageString.isNotEmpty()) ageString += ", "
+                ageString += "$days days"
+            }
+            return ageString
         }
 
     }

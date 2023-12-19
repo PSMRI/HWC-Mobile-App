@@ -355,7 +355,8 @@ class BenFlowRepo @Inject constructor(
             benFlowId = benFlow.benFlowID!!,
             patientID = patient.patientID,
             benVisitNo = benFlow.benVisitNo!!,
-            pharmacistFlag = benFlow.pharmacist_flag!!
+            pharmacistFlag = benFlow.pharmacist_flag!!,
+            visitCategory = benFlow.VisitCategory ?: ""
         )
     }
 

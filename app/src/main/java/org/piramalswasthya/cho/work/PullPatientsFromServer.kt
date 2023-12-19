@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.work
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -15,6 +16,9 @@ import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.util.Date
 import java.sql.Timestamp
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 
 @HiltWorker
@@ -33,20 +37,26 @@ class PullPatientsFromServer @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            if( WorkerUtils.isDownloadInProgress ){
-                Timber.d("Patient Download Worker in progress")
-                Result.retry()
-            }
-            else{
-                WorkerUtils.isDownloadInProgress = true
+//            if( WorkerUtils.isDownloadInProgress ){
+//                Timber.d("Patient Download Worker in progress")
+//                Result.retry()
+//            }
+//            else{
+                Log.d("Patient In Progress", "Patient In Progress")
+
+                val currentInstant = Instant.now()
+                val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+                val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+                val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
                 val workerResult = patientRepo.downloadAndSyncPatientRecords()
                 if (workerResult) {
-                    preferenceDao.setLastPatientSyncTime()
+                    preferenceDao.setLastPatientSyncTime(currTimeStamp)
                 }
-                WorkerUtils.isDownloadInProgress = false
+
                 Timber.d("Patient Download Worker completed")
                 Result.success()
-            }
+//            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for Patient Download worker $e")
             Result.retry()

@@ -3,6 +3,7 @@ package org.piramalswasthya.sakhi.work
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
@@ -17,8 +18,13 @@ import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
+import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
+import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 
 @HiltWorker
@@ -39,24 +45,34 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-            if( WorkerUtils.isDownloadInProgress ){
-                Timber.d("Benflow Download Worker in progress")
-                Result.retry()
-            }
-            else{
-                WorkerUtils.isDownloadInProgress = true
+//            if( WorkerUtils.isDownloadInProgress ){
+//                Timber.d("Benflow Download Worker in progress")
+//                Result.retry()
+//            }
+//            else{
+                Log.d("Benflow In Progress", "Benflow In Progress")
+
+                val currentInstant = Instant.now()
+                val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+                val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+                val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
                 val workerResult = benFlowRepo.downloadAndSyncFlowRecords()
                 if (workerResult) {
-                    preferenceDao.setLastBenflowSyncTime()
+                    preferenceDao.setLastBenflowSyncTime(currTimeStamp)
                 }
-                WorkerUtils.isDownloadInProgress = false
+
+//                amritSyncInProgress = false
+//                downloadSyncInProgress = false
+
                 Timber.d("Benflow Download Worker completed")
                 Result.success()
-            }
+//            }
         } catch (e: SocketTimeoutException) {
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()
         }
+
     }
 
     private fun init() {

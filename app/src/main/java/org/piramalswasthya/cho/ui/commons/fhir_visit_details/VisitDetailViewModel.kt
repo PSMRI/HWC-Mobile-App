@@ -114,7 +114,7 @@ class VisitDetailViewModel @Inject constructor(
 
     var allActiveAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
 
-    var activePwrRecord = MutableLiveData<PregnantWomanRegistrationCache?>(null)
+    var activePwrRecord : PregnantWomanRegistrationCache? = null
 
     var lastPncVisitNumber = MutableLiveData<Int?>(null)
 
@@ -124,7 +124,7 @@ class VisitDetailViewModel @Inject constructor(
 
     var allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
 
-    var lastAnc = MutableLiveData<PregnantWomanAncCache?>()
+    var lastAnc: PregnantWomanAncCache? = null
 
     var lastEct = MutableLiveData<EligibleCoupleTrackingCache?>()
 
@@ -139,14 +139,14 @@ class VisitDetailViewModel @Inject constructor(
         viewModelScope.launch {
             lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
             allActiveAncRecords.value = getAllActiveAncRecords(patientID)
-            activePwrRecord.value = getSavedActiveRecordObserve(patientID)
+            activePwrRecord = getSavedActiveRecordObserve(patientID)
 
             lastPncVisitNumber.value = getLastPncVisitNumber(patientID)
             allActivePncRecords.value = getAllPNCsByPatId(patientID)
             activeDeliveryRecord.value = getDeliveryOutcome(patientID)
 
             allEctRecords.value = getAllECT(patientID)
-            lastAnc.value = getLastAnc(patientID)
+            lastAnc = getLastAnc(patientID)
             lastEct.value = getLastEct(patientID)
         }
     }
@@ -199,6 +199,7 @@ class VisitDetailViewModel @Inject constructor(
                 updatedBy = user.userName
             )
             maternalHealthRepo.persistRegisterRecord(pwr)
+            activePwrRecord = pwr
             _isLMPDateSaved.value = true
         }
     }
@@ -252,6 +253,7 @@ class VisitDetailViewModel @Inject constructor(
             existingPatientVisitInfoSync.nurseFlag = patientVisitInfoSync.nurseFlag
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
             existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
+            existingPatientVisitInfoSync.visitCategory = "General OPD"
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
         }
         else{

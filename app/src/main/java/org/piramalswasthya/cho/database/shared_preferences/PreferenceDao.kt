@@ -12,7 +12,9 @@ import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.UserNetwork
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 import javax.inject.Inject
@@ -201,11 +203,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastBenflowSyncTime(){
+    fun setLastBenflowSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_benflow_sync_time)
         val editor = pref.edit()
-        val currDate = LocalDate.now()
-        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+//        val currentInstant = Instant.now()
+//        val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+//        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+//        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
+//        val currDate = LocalDate.now()
+//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
     }
@@ -216,12 +225,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setLastPatientSyncTime(){
+    fun setLastPatientSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_patient_sync_time)
         val editor = pref.edit()
-        val currDate = LocalDate.now()
-        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        Log.d("curr date", DateTimeUtil.formatCustDateAndTime(currTimeStamp))
+
+//        val currentInstant = Instant.now()
+//        val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
+//        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
+//        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
+
+//        val currDate = LocalDate.now()
+//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
     }
