@@ -1,6 +1,6 @@
 <!-- res/drawable/item_border_background.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/md_theme_light_onPrimary2" /> <!-- Background color -->
+    <solid android:color="@color/white" /> <!-- Background color -->
     <stroke
         android:width="2dp"
     android:color="#24303C" />
