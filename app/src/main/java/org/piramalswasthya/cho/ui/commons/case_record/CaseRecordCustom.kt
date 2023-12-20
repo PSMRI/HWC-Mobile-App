@@ -327,13 +327,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //        }
 
         val tempAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
-        val uniqueTemplateNames = HashSet<String?>()
+        val uniqueTemplateNames = LinkedHashSet<String>()
         binding.inputUseTempForFields.setAdapter(tempAdapter)
 
         viewModel.tempDB.observe(viewLifecycleOwner) { vc ->
             uniqueTemplateNames.clear()
+            vc.mapNotNullTo(uniqueTemplateNames) { it?.templateName }
+
+            // Add "None" to the HashSet
             uniqueTemplateNames.add("None")
-            vc.mapTo(uniqueTemplateNames) { it?.templateName }
+
             tempAdapter.clear()
             tempAdapter.addAll(uniqueTemplateNames)
             tempAdapter.notifyDataSetChanged()
@@ -358,6 +361,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         }
+
 
         viewModel.counsellingProvided.observe(viewLifecycleOwner) { f ->
             counsellingTypes.clear()
@@ -492,6 +496,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 if (prescriptionValue != null) {
                     itemListP.add(prescriptionValue)
                 }
+            }
+            Timber.tag("Arrr").d("ItemSize: itemListP size: ${itemListP.size}")
+
+            if (itemListP.isNotEmpty()) {
+                pAdapter.notifyDataSetChanged()
             }
             val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
             inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
@@ -851,6 +860,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
@@ -867,6 +877,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
+            referReson = referR,
             benVisitNo = benVisitNo
         )
 
@@ -950,6 +961,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
         val referId = findKeyByValue(referNameMap,referVal)
@@ -967,6 +979,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
+            referReson = referR,
             benVisitNo = benVisitNo
         )
 

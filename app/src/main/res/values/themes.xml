@@ -20,6 +20,10 @@
         <item name="colorPrimary">@color/default_header</item>
     </style>
 
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/default_button</item>
+    </style>
+
     <style name="Theme.CHO.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
