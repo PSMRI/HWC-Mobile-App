@@ -497,6 +497,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     itemListP.add(prescriptionValue)
                 }
             }
+            Timber.tag("Arrr").d("ItemSize: itemListP size: ${itemListP.size}")
+
+            if (itemListP.isNotEmpty()) {
+                pAdapter.notifyDataSetChanged()
+            }
             val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
             inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
     }
