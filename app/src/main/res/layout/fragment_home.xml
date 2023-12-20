@@ -92,9 +92,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:itemTextColor="@color/bottom_navigation_text_color"
-        app:itemTextAppearanceActive="@style/BottomNavigationTextStyle2"
-        app:itemTextAppearanceInactive="@style/BottomNavigationTextStyle"
-        app:menu="@menu/bottom_menu_nav"/>
+        app:menu="@menu/bottom_menu_nav"
+        android:background="@color/white"
+        app:itemIconTint="@color/black"
+        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
+        />
+    
 
     <Button
         android:id="@+id/registration"
