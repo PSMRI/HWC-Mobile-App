@@ -106,6 +106,10 @@ interface PatientDao {
     suspend fun updatePatientSyncing(syncing: SyncState = SyncState.SYNCING, patientID: String) : Int
 
     @Transaction
+    @Query("UPDATE PATIENT SET referDate = :referDate, referTo = :referTo, referralReason = :referralReason WHERE beneficiaryRegID =:benRegId")
+    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, benRegId: Long) : Int
+
+    @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced, beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID =:patientID")
     suspend fun updatePatientSynced(synced: SyncState = SyncState.SYNCED, beneficiaryID: Long, beneficiaryRegID: Long, patientID: String) : Int
 

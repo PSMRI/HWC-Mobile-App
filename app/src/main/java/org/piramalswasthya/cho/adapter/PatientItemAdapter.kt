@@ -124,6 +124,16 @@ class PatientItemAdapter(
                 binding.prescriptionDownloadBtn.visibility = View.GONE
             }
 
+            if(item.patient.referTo != null){
+                binding.referToLl.visibility = View.VISIBLE
+                binding.referTo.text = item.patient.referTo
+            }
+
+            if(item.patient.referDate != null){
+                binding.referDateLl.visibility = View.VISIBLE
+                binding.referDate.text = item.patient.referDate
+            }
+
             binding.executePendingBindings()
 
         }
