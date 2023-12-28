@@ -155,6 +155,15 @@ data class Patient (
     @ColumnInfo(name = "lab_technician_flag")
     val labTechnicianFlag: Int? = 0,
 
+    @ColumnInfo(name = "referDate")
+    var referDate: String? = null,
+
+    @ColumnInfo(name = "referTo")
+    var referTo: String? = null,
+
+    @ColumnInfo(name = "referralReason")
+    var referralReason: String? = null,
+
 //    @ColumnInfo(name = "nurseFlag")
 //    val nurseFlag: Int? = 1,
 //
