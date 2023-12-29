@@ -36,8 +36,8 @@ class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val adapter = TempListAdapter(str,
+        val updatedHashSet = str.filter { it != "None" }.toHashSet()
+        val adapter = TempListAdapter(updatedHashSet,
             object : RecyclerViewItemClickedListener {
                 override fun onItemClicked(string: String?) {
                     string?.let {

@@ -5,6 +5,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="purple">#6434BA</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_onPrimary2">#C1BDBD</color>
+
 <!--    <color name="purple">#296292</color>-->
     <color name="primary">#50AF93</color>
     <color name="green_heading">#50AF93</color>
