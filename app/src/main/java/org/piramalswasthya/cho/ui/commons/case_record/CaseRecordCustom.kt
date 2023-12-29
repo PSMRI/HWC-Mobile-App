@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
@@ -154,11 +155,27 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         submitDoctorData = arguments?.getBoolean("submitDoctorData")
 
+
         if(submitDoctorData == true){
+            val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+            btnSubmit?.visibility = View.GONE
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
         }
         else{
             benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        }
+
+        if(benVisitInfo.referDate != null){
+            binding.referDateLabel.visibility = View.VISIBLE
+            binding.referDate.setText(benVisitInfo.referDate)
+        }
+        if(benVisitInfo.referTo != null){
+            binding.referToLabel.visibility = View.VISIBLE
+            binding.referTo.setText(benVisitInfo.referTo)
+        }
+        if(benVisitInfo.referralReason != null){
+            binding.referalReasonLabel.visibility = View.VISIBLE
+            binding.referalReason.setText(benVisitInfo.referralReason)
         }
 
         if( preferenceDao.isDoctorSelected() || submitDoctorData == true) {

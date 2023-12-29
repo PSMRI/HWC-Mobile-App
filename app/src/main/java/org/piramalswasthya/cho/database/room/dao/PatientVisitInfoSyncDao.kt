@@ -199,5 +199,8 @@ interface PatientVisitInfoSyncDao {
         " FROM PATIENT_VISIT_INFO_SYNC WHERE doctorFlag = 9 AND pharmacist_flag = 9 ORDER BY id")
     fun getSyncStatus(): Flow<List<SyncStatusCache>>
 
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET referDate = :referDate, referTo = :referTo, referralReason = :referralReason WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, patientID: String, benVisitNo: Int) : Int
 
 }

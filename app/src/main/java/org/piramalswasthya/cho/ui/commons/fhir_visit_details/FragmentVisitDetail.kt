@@ -568,21 +568,21 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener{
 
-                if(it.doctorFlag == 2){
-                    Toast.makeText(
-                        requireContext(),
-                        "Pending for Lab Technician",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                else if(it.doctorFlag == 9){
-                    Toast.makeText(
-                        requireContext(),
-                        "Flow completed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                else{
+//                if(it.doctorFlag == 2){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Pending for Lab Technician",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                else if(it.doctorFlag == 9){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Flow completed",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                else{
                     val submitDoctorData = Bundle()
                     submitDoctorData.putBoolean("submitDoctorData", true)
                     submitDoctorData.putSerializable("benVisitInfo", it)
@@ -591,7 +591,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
                     )
 
-                }
+//                }
 
 //                val submitDoctorData = Bundle()
 //                submitDoctorData.putBoolean("submitDoctorData", true)
