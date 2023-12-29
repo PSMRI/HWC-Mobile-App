@@ -155,14 +155,14 @@ data class Patient (
     @ColumnInfo(name = "lab_technician_flag")
     val labTechnicianFlag: Int? = 0,
 
-    @ColumnInfo(name = "referDate")
-    var referDate: String? = null,
-
-    @ColumnInfo(name = "referTo")
-    var referTo: String? = null,
-
-    @ColumnInfo(name = "referralReason")
-    var referralReason: String? = null,
+//    @ColumnInfo(name = "referDate")
+//    var referDate: String? = null,
+//
+//    @ColumnInfo(name = "referTo")
+//    var referTo: String? = null,
+//
+//    @ColumnInfo(name = "referralReason")
+//    var referralReason: String? = null,
 
 //    @ColumnInfo(name = "nurseFlag")
 //    val nurseFlag: Int? = 1,
@@ -243,6 +243,9 @@ data class PatientDisplayWithVisitInfo(
     val labtechFlag: Int?,
     val pharmacist_flag: Int?,
     val visitDate: Date?,
+    val referDate: String?,
+    val referTo: String?,
+    val referralReason: String?,
 ) : Serializable{
     constructor(pat: Patient, vis: PatientVisitInfoSync) : this(
         pat,
@@ -260,7 +263,10 @@ data class PatientDisplayWithVisitInfo(
         vis.doctorFlag,
         vis.labtechFlag,
         vis.pharmacist_flag,
-        vis.visitDate
+        vis.visitDate,
+        vis.referDate,
+        vis.referTo,
+        vis.referralReason
     )
 
     constructor(dis: PatientDisplayWithVisitInfo) : this(
@@ -269,6 +275,9 @@ data class PatientDisplayWithVisitInfo(
         dis.villageName,
         dis.ageUnit,
         dis.maritalStatus,
+        null,
+        null,
+        null,
         null,
         null,
         null,

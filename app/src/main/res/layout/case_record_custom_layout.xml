@@ -290,6 +290,80 @@
 
                 </com.google.android.flexbox.FlexboxLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/referDateLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Refer Date"
+                    android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/referDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/referToLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Referred To"
+                    android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/referTo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/referalReasonLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="Referral Reason"
+                    android:paddingBottom="16dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/referalReason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/testName"
                     android:layout_width="match_parent"
