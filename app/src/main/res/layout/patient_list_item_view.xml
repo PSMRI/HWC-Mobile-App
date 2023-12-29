@@ -350,7 +350,7 @@
               android:id="@+id/refer_to_label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Refer To:"
+              android:text="Referred To:"
               android:textColor="@color/colorAccent"
               android:textStyle="bold" />
 
