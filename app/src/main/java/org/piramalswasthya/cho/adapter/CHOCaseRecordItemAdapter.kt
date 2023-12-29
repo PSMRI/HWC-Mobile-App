@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -51,7 +52,7 @@ class CHOCaseRecordItemAdapter (
             binding.benVisitInfo = item
             binding.clickListener = clickListener
             if(item.referDate != null){
-                binding.itemll.setCardBackgroundColor(R.color.referBackground)
+                binding.itemll.setCardBackgroundColor(ContextCompat.getColor(binding.itemll.context, R.color.referBackground))
             }
             binding.visitNumber.text = item.benVisitNo.toString() ?: ""
             if(item.visitDate != null){
