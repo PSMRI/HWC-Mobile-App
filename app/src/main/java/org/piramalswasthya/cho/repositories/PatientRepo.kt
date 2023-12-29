@@ -95,9 +95,9 @@ class PatientRepo @Inject constructor(
         patientDao.updatePatientSyncing(SyncState.SYNCING, patient.patientID)
     }
 
-    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, benRegId: Long) {
-        patientDao.updatePatientReferData(referDate, referTo, referralReason, benRegId);
-    }
+//    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, benRegId: Long) {
+//        patientDao.updatePatientReferData(referDate, referTo, referralReason, benRegId);
+//    }
 
     suspend fun updatePatientSyncingFailed(patient: Patient) {
         patientDao.updatePatientSyncFailed(SyncState.UNSYNCED, patient.patientID)

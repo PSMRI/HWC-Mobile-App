@@ -319,6 +319,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="Refer Date:"
+              android:textColor="@color/colorAccent"
               android:textStyle="bold" />
 
           <TextView
@@ -350,6 +351,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="Refer To:"
+              android:textColor="@color/colorAccent"
               android:textStyle="bold" />
 
           <TextView

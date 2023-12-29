@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ChoListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
@@ -41,13 +43,16 @@ class CHOCaseRecordItemAdapter (
             }
         }
 
+        @SuppressLint("ResourceAsColor")
         fun bind(
             item:PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
         ) {
             binding.benVisitInfo = item
             binding.clickListener = clickListener
-
+            if(item.referDate != null){
+                binding.itemll.setCardBackgroundColor(R.color.referBackground)
+            }
             binding.visitNumber.text = item.benVisitNo.toString() ?: ""
             if(item.visitDate != null){
                 binding.visitDate.text = DateTimeUtil.formatDate(item.visitDate!!)

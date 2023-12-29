@@ -135,4 +135,8 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
     fun getPatientListFlowForPharmacist() : Flow<List<PatientDisplayWithVisitInfo>> {
         return patientVisitInfoSyncDao.getPatientDisplayListForPharmacist()
     }
+
+    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, patientID: String, benVisitNo: Int) {
+        patientVisitInfoSyncDao.updatePatientReferData(referDate, referTo, referralReason, patientID, benVisitNo);
+    }
 }
