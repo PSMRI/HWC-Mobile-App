@@ -301,6 +301,70 @@
 
       </LinearLayout>
 
+      <LinearLayout
+          android:id="@+id/refer_date_ll"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          android:paddingTop="@dimen/padding_huge"
+          android:visibility="gone">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="horizontal">
+
+          <TextView
+              android:id="@+id/refer_date_label"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Refer Date:"
+              android:textColor="@color/colorAccent"
+              android:textStyle="bold" />
+
+          <TextView
+              android:id="@+id/refer_date"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text=""
+              android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:id="@+id/refer_to_ll"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          android:paddingTop="@dimen/padding_normal"
+          android:visibility="gone">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="horizontal">
+
+          <TextView
+              android:id="@+id/refer_to_label"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Referred To:"
+              android:textColor="@color/colorAccent"
+              android:textStyle="bold" />
+
+          <TextView
+              android:id="@+id/refer_to"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text=""
+              android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+      </LinearLayout>
+
       <androidx.constraintlayout.widget.ConstraintLayout
           android:id="@+id/ll_row_5"
           android:layout_width="match_parent"

@@ -75,7 +75,16 @@ data class PatientVisitInfoSync(
     var visitDate: Date? = null,
 
     @ColumnInfo(name = "visitCategory")
-    var visitCategory: String = "General OPD"
+    var visitCategory: String = "General OPD",
+
+    @ColumnInfo(name = "referDate")
+    var referDate: String? = null,
+
+    @ColumnInfo(name = "referTo")
+    var referTo: String? = null,
+
+    @ColumnInfo(name = "referralReason")
+    var referralReason: String? = null,
 
 ){
     constructor(benFlow: BenFlow, patient: Patient) : this(

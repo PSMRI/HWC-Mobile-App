@@ -296,6 +296,18 @@ class DateTimeUtil {
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
+        fun formatVisitDateString(dateString: String?): String? {
+            try {
+                val inputFormat = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a")
+                val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                val date = inputFormat.parse(dateString)
+                return outputFormat.format(date!!)
+            } catch (e: Exception) {
+                return null;
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgeString(dateOfBirth: Date): String {
             val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val currentDate = LocalDate.now()
