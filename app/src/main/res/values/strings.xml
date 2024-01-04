@@ -300,7 +300,6 @@
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
     <string name="PREF_user_entry">logged-in-user</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
-    <string name="ok">Ok</string>
     <string name="exit">Exit</string>
     <string name="timer">timer</string>
     <string name="yes">Yes</string>
@@ -497,9 +496,6 @@
     <string name="radio_title">%s<span> *</span></string>
     <string name="anc_visit_number">ANC Visit %1d</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
-
-    <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
-    <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
 
     <!--  Post Natal Care  -->
     <string name="pnc_period">PNC Period</string>

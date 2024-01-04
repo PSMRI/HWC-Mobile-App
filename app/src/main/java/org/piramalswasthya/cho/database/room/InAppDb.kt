@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.database.converters.VillageConverter
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
+import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
@@ -134,7 +135,8 @@ import timber.log.Timber
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
         EligibleCoupleTrackingCache::class,
-        PrescriptionTemplateDB::class
+        PrescriptionTemplateDB::class,
+        CbacCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
     version = 101, exportSchema = false
@@ -196,6 +198,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
+    abstract val cbacDao: CbacDao
 
 
     companion object {
