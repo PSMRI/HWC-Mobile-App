@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.CHOCaseRecordItemAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.DiagnosisAdapter
 import org.piramalswasthya.cho.adapter.PrescriptionAdapter
@@ -80,16 +81,19 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
+class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), NavigationAdapter {
     private var _binding: CaseRecordCustomLayoutBinding? = null
     private val binding: CaseRecordCustomLayoutBinding
         get() = _binding!!
 
     private val viewModel: CaseRecordViewModel by viewModels()
+
     @Inject
     lateinit var preferenceDao: PreferenceDao
+
     @Inject
     lateinit var userRepo: UserRepo
+
     @Inject
     lateinit var prescriptionTemplateRepo: PrescriptionTemplateRepo
 
@@ -98,31 +102,32 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     private val initialItemP = PrescriptionValues()
     private val itemListP = mutableListOf(initialItemP)
     private val initialItemTemp = PrescriptionValuesForTemplate()
-    private val tempList  = mutableListOf(initialItemTemp)
-    private lateinit var dAdapter : DiagnosisAdapter
-    private lateinit var chAdapter : ChiefComplaintMultiAdapter
-    private lateinit var pAdapter : PrescriptionAdapter
-//    private lateinit var rAdapter : ReportAdapter
-    private var testNameMap = emptyMap<Int,String>()
-    private var investigationBD : InvestigationCaseRecord? = null
-    private var referNameMap = emptyMap<Int,String>()
+    private val tempList = mutableListOf(initialItemTemp)
+    private lateinit var dAdapter: DiagnosisAdapter
+    private lateinit var chAdapter: ChiefComplaintMultiAdapter
+    private lateinit var pAdapter: PrescriptionAdapter
+
+    //    private lateinit var rAdapter : ReportAdapter
+    private var testNameMap = emptyMap<Int, String>()
+    private var investigationBD: InvestigationCaseRecord? = null
+    private var referNameMap = emptyMap<Int, String>()
     private var selectedTestName = mutableListOf<Int>()
     var familyM: MaterialCardView? = null
     var selectF: TextView? = null
-    private val instructionDropdown= instructionDropdownList
+    private val instructionDropdown = instructionDropdownList
     private val tempDBVal = ArrayList<PrescriptionTemplateDB?>()
     private val formMListVal = ArrayList<ItemMasterList>()
     private var formForFilter = ArrayList<ItemMasterList>()
     private val counsellingTypes = ArrayList<CounsellingProvided>()
     private val procedureDropdown = ArrayList<ProceduresMasterData>()
     private val frequencyListVal = medicationFrequencyList
-    private lateinit var tempDropdownAdapter :TempDropdownAdapter
+    private lateinit var tempDropdownAdapter: TempDropdownAdapter
     private val referDropdownVal = medicalReferDropdownVal
     private val unitListVal = unitVal
     private val dosage = tabletDosageList
     private var masterDb: MasterDb? = null
-    private lateinit var patientId : String
-    private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
+    private lateinit var patientId: String
+    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
@@ -137,6 +142,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         editText.requestFocus()
         return binding.root
     }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -144,6 +150,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         super.onViewCreated(view, savedInstanceState)
@@ -156,48 +163,48 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         submitDoctorData = arguments?.getBoolean("submitDoctorData")
 
 
-        if(submitDoctorData == true){
+        if (submitDoctorData == true) {
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             btnSubmit?.visibility = View.GONE
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
-        }
-        else{
-            benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        } else {
+            benVisitInfo =
+                requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         }
 
-        if(benVisitInfo.referDate != null){
+        if (benVisitInfo.referDate != null) {
             binding.referDateLabel.visibility = View.VISIBLE
             binding.referDate.setText(benVisitInfo.referDate)
         }
-        if(benVisitInfo.referTo != null){
+        if (benVisitInfo.referTo != null) {
             binding.referToLabel.visibility = View.VISIBLE
             binding.referTo.setText(benVisitInfo.referTo)
         }
-        if(benVisitInfo.referralReason != null){
+        if (benVisitInfo.referralReason != null) {
             binding.referalReasonLabel.visibility = View.VISIBLE
             binding.referalReason.setText(benVisitInfo.referralReason)
         }
 
-        if( preferenceDao.isDoctorSelected() || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             patientId = benVisitInfo.patient.patientID
-            patId= benVisitInfo.patient.patientID
+            patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
-            viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID,benVisitInfo.benVisitNo!!)
-            if(benVisitInfo.benVisitNo != null){
-               viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            if (benVisitInfo.benVisitNo != null) {
+                viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             }
             viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
-                var  nameVal = ""
+                var nameVal = ""
                 var resultVal = ""
                 for (labReport in labReports) {
                     val procedureType = labReport.procedure.procedureName
                     procedureType?.let { viewModel.labReportProcedureTypes.add(it) }
                 }
 
-                if (labReports.size>0){
-                   binding.scrollview.visibility = View.VISIBLE
-                   binding.resultHeading.visibility = View.VISIBLE
-                   binding.dateOption.visibility = View.VISIBLE
+                if (labReports.size > 0) {
+                    binding.scrollview.visibility = View.VISIBLE
+                    binding.resultHeading.visibility = View.VISIBLE
+                    binding.dateOption.visibility = View.VISIBLE
                 }
                 for (labReport in labReports) {
                     val procedureName = labReport.procedure.procedureName
@@ -207,14 +214,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     binding.inputDate.isClickable = false
                     for (component in labReport.components) {
 
-                        val tableRowVal = layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                        val tableRowVal =
+                            layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
                         val componentName = component.componentName
                         val resultValue = component.testResultValue
                         val resultUnit = component.testResultUnit
                         nameVal = "$procedureName- $componentName"
-                        if(resultUnit!=null ){
-                        resultVal = "${resultValue} ${resultUnit}"}
-                        else{
+                        if (resultUnit != null) {
+                            resultVal = "${resultValue} ${resultUnit}"
+                        } else {
                             resultVal = "${resultValue}"
                         }
                         tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
@@ -223,7 +231,47 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     }
                 }
             }
+
         }
+        binding.patientList.adapter =
+            CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
+
+//                if(it.doctorFlag == 2){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Pending for Lab Technician",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                else if(it.doctorFlag == 9){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Flow completed",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                else{
+
+
+                findNavController().navigate(
+//                    CaseRecordCustomDirections.actionCaseRecordCustomSelf()
+                    R.id.action_caseRecordCustom_self, Bundle().apply {
+                        putBoolean("submitDoctorData", true)
+                        putSerializable("benVisitInfo", it)
+                    }
+                )
+
+//                }
+
+//                val submitDoctorData = Bundle()
+//                submitDoctorData.putBoolean("submitDoctorData", true)
+//                submitDoctorData.putSerializable("benVisitInfo", it)
+//
+//                findNavController().navigate(
+//                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+//                )
+
+            })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Not needed, but must be implemented
@@ -246,10 +294,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
             }
         })
-
+        lifecycleScope.launch {
+            viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID)
+                .collect {
+                    (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+                }
+        }
         lifecycleScope.launch {
             testNameMap = viewModel.getTestNameTypeMap()
-            if(benVisitInfo.benVisitNo != null){
+            if (benVisitInfo.benVisitNo != null) {
                 viewModel.getPreviousTest(benVisitInfo)
             }
         }
@@ -281,31 +334,30 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 }
                 chAdapter.notifyDataSetChanged()
             }
-            if(chiefComplaintDB.size==0){
+            if (chiefComplaintDB.size == 0) {
                 binding.chiefComplaintHeading.visibility = View.GONE
-            }
-            else{
+            } else {
                 binding.chiefComplaintHeading.visibility = View.VISIBLE
             }
-        }else {
-           masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
+        } else {
+            masterDb = arguments?.getSerializable("MasterDb") as? MasterDb
 
-           for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
-               val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
-               val chiefC = ChiefComplaintDB(
-                   id = "33+${i}",
-                   chiefComplaintId = chiefComplaintItem.id,
-                   chiefComplaint = chiefComplaintItem.chiefComplaint,
-                   duration = chiefComplaintItem.duration,
-                   durationUnit = chiefComplaintItem.durationUnit,
-                   description = chiefComplaintItem.description,
-                   patientID = "",
-                   benFlowID = 0
-               )
-               chiefComplaintDB.add(chiefC) // Add the item to the list
-           }
-       }
-      chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+            for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+                val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+                val chiefC = ChiefComplaintDB(
+                    id = "33+${i}",
+                    chiefComplaintId = chiefComplaintItem.id,
+                    chiefComplaint = chiefComplaintItem.chiefComplaint,
+                    duration = chiefComplaintItem.duration,
+                    durationUnit = chiefComplaintItem.durationUnit,
+                    description = chiefComplaintItem.description,
+                    patientID = "",
+                    benFlowID = 0
+                )
+                chiefComplaintDB.add(chiefC) // Add the item to the list
+            }
+        }
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
@@ -343,7 +395,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 //            convertToPrescriptionValues(form)
 //        }
 
-        val tempAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        val tempAdapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         val uniqueTemplateNames = LinkedHashSet<String>()
         binding.inputUseTempForFields.setAdapter(tempAdapter)
 
@@ -367,8 +420,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                 itemListP.clear()
                 itemListP.add(PrescriptionValues())
                 pAdapter.notifyDataSetChanged()
-                val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
-                inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
+                val inputMethodManager =
+                    requireContext().getSystemService(InputMethodManager::class.java)
+                inputMethodManager.hideSoftInputFromWindow(
+                    binding.inputUseTempForFields.windowToken,
+                    0
+                )
             } else {
                 itemListP.clear()
                 pAdapter.notifyDataSetChanged()
@@ -401,20 +458,22 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             openBottomSheet(uniqueTemplateNames)
         }
 
-        val referAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        val referAdapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         binding.referDropdownText.setAdapter(referAdapter)
-        viewModel.higherHealthCare.observe(viewLifecycleOwner){vc->
+        viewModel.higherHealthCare.observe(viewLifecycleOwner) { vc ->
             referAdapter.clear()
-            referAdapter.addAll(vc.map{it.institutionName})
+            referAdapter.addAll(vc.map { it.institutionName })
             referAdapter.notifyDataSetChanged()
         }
 
-        val counsellingTypesAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        val counsellingTypesAdapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
         binding.routeDropDownVal.setAdapter(counsellingTypesAdapter)
 
-        viewModel.counsellingProvided.observe(viewLifecycleOwner){ c->
+        viewModel.counsellingProvided.observe(viewLifecycleOwner) { c ->
             counsellingTypesAdapter.clear()
-            counsellingTypesAdapter.addAll(c.map{it.name})
+            counsellingTypesAdapter.addAll(c.map { it.name })
             counsellingTypesAdapter.notifyDataSetChanged()
         }
 
@@ -435,7 +494,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val newItem = DiagnosisValue()
             itemListD.add(newItem)
 //            dAdapter.notifyItemInserted(itemListD.size - 1)
-             view.clearFocus()
+            view.clearFocus()
             dAdapter.notifyDataSetChanged()
             binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
             binding.plusButtonD.isEnabled = false
@@ -465,69 +524,71 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             itemListP.add(newItem)
 //            pAdapter.notifyItemInserted(itemListP.size -   1)
             view.clearFocus()
-            pAdapter.notifyItemInserted(itemListP.size -   1)
+            pAdapter.notifyItemInserted(itemListP.size - 1)
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        if(preferenceDao.isDoctorSelected() || submitDoctorData == true){
+        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
-                    var vitalDb2 = VitalsMasterDb(
-                        height = vitalsDB.height,
-                        weight = vitalsDB.weight,
-                        bmi = vitalsDB.bmi,
-                        waistCircumference = vitalsDB.waistCircumference,
-                        temperature = vitalsDB.temperature,
-                        pulseRate = vitalsDB.pulseRate,
-                        spo2 = vitalsDB.spo2,
-                        bpSystolic = vitalsDB.bpSystolic,
-                        bpDiastolic =vitalsDB.bpDiastolic,
-                        respiratoryRate = vitalsDB.respiratoryRate,
-                        rbs = vitalsDB.rbs
-                    )
-                    bool = false
-                    populateVitalsFieldsW(vitalDb2)
+                var vitalDb2 = VitalsMasterDb(
+                    height = vitalsDB.height,
+                    weight = vitalsDB.weight,
+                    bmi = vitalsDB.bmi,
+                    waistCircumference = vitalsDB.waistCircumference,
+                    temperature = vitalsDB.temperature,
+                    pulseRate = vitalsDB.pulseRate,
+                    spo2 = vitalsDB.spo2,
+                    bpSystolic = vitalsDB.bpSystolic,
+                    bpDiastolic = vitalsDB.bpDiastolic,
+                    respiratoryRate = vitalsDB.respiratoryRate,
+                    rbs = vitalsDB.rbs
+                )
+                bool = false
+                populateVitalsFieldsW(vitalDb2)
             }
-            if(bool){
+            if (bool) {
                 populateVitalsFields()
             }
-        }
-        else{
+        } else {
             populateVitalsFields()
         }
     }
-        fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
-            for (templateDB in prescriptionTemplateDB) {
-                val prescriptionValue = templateDB?.let {
-                    it?.drugName?.let { it1 ->
-                        PrescriptionValues(
-                            id =templateDB.drugId,
-                            form = it1,
-                            frequency = templateDB.frequency ?: "",
-                            duration = templateDB.duration ?: "",
-                            instruction = templateDB.instruction ?: "",
-                            unit = templateDB.unit ?: ""
-                        )
-                    }
-                }
-                if (prescriptionValue != null) {
-                    itemListP.add(prescriptionValue)
-                }
-            }
-            Timber.tag("Arrr").d("ItemSize: itemListP size: ${itemListP.size}")
 
-            if (itemListP.isNotEmpty()) {
-                pAdapter.notifyDataSetChanged()
+    fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
+        for (templateDB in prescriptionTemplateDB) {
+            val prescriptionValue = templateDB?.let {
+                it?.drugName?.let { it1 ->
+                    PrescriptionValues(
+                        id = templateDB.drugId,
+                        form = it1,
+                        frequency = templateDB.frequency ?: "",
+                        duration = templateDB.duration ?: "",
+                        instruction = templateDB.instruction ?: "",
+                        unit = templateDB.unit ?: ""
+                    )
+                }
             }
-            val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
-            inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
+            if (prescriptionValue != null) {
+                itemListP.add(prescriptionValue)
+            }
+        }
+        Timber.tag("Arrr").d("ItemSize: itemListP size: ${itemListP.size}")
+
+        if (itemListP.isNotEmpty()) {
+            pAdapter.notifyDataSetChanged()
+        }
+        val inputMethodManager = requireContext().getSystemService(InputMethodManager::class.java)
+        inputMethodManager.hideSoftInputFromWindow(binding.inputUseTempForFields.windowToken, 0)
     }
-    private lateinit var syncBottomSheet : TemplateListBottomSheetFragment
+
+    private lateinit var syncBottomSheet: TemplateListBottomSheetFragment
     private fun openBottomSheet(str: HashSet<String?>) {
         syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
-        if(!syncBottomSheet.isVisible)
+        if (!syncBottomSheet.isVisible)
             syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
     }
+
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
         hideNullFieldsW(vitals)
         binding.inputHeight.setText(vitals?.height.toString())
@@ -542,6 +603,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
         binding.inputRBS.setText(vitals.rbs.toString())
     }
+
     private fun populateVitalsFields() {
         hideNullFields()
         // Check if the masterDb and vitalsMasterDb are not null
@@ -560,7 +622,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             binding.inputRBS.setText(vitals?.rbs.toString())
         }
     }
-    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb){
+
+    private fun hideNullFieldsW(vitalsDB: VitalsMasterDb) {
         val itemH = vitalsDB.height
         val itemW = vitalsDB.weight
         val itemB = vitalsDB.bmi
@@ -639,7 +702,12 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
 
         if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemC.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty()) ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))) {
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemC.equals("null") && itemT.equals(
+                "null"
+            ) && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals(
+                "null"
+            ) && itemRs.equals("null") && itemRb.equals("null"))
+        ) {
             binding.vitalsExtra.visibility = View.GONE
             binding.vitalsLayout.visibility = View.GONE
         } else {
@@ -648,55 +716,60 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
     }
 
-    private fun hideNullFields(){
-        var  itemH = masterDb?.vitalsMasterDb?.height.toString()
-        var  itemW = masterDb?.vitalsMasterDb?.weight.toString()
-        var  itemB = masterDb?.vitalsMasterDb?.bmi.toString()
+    private fun hideNullFields() {
+        var itemH = masterDb?.vitalsMasterDb?.height.toString()
+        var itemW = masterDb?.vitalsMasterDb?.weight.toString()
+        var itemB = masterDb?.vitalsMasterDb?.bmi.toString()
 //        var  itemC = masterDb?.vitalsMasterDb?.waistCircumference.toString()
-        var  itemT = masterDb?.vitalsMasterDb?.temperature.toString()
-        var  itemP = masterDb?.vitalsMasterDb?.pulseRate.toString()
-        var  itemS = masterDb?.vitalsMasterDb?.spo2.toString()
-        var  itemBs = masterDb?.vitalsMasterDb?.bpSystolic.toString()
-        var  itemBd = masterDb?.vitalsMasterDb?.bpDiastolic.toString()
-        var  itemRs = masterDb?.vitalsMasterDb?.respiratoryRate.toString()
-        var  itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
-        if(itemH.isNullOrEmpty()||itemH.equals("null")){
+        var itemT = masterDb?.vitalsMasterDb?.temperature.toString()
+        var itemP = masterDb?.vitalsMasterDb?.pulseRate.toString()
+        var itemS = masterDb?.vitalsMasterDb?.spo2.toString()
+        var itemBs = masterDb?.vitalsMasterDb?.bpSystolic.toString()
+        var itemBd = masterDb?.vitalsMasterDb?.bpDiastolic.toString()
+        var itemRs = masterDb?.vitalsMasterDb?.respiratoryRate.toString()
+        var itemRb = masterDb?.vitalsMasterDb?.rbs.toString()
+        if (itemH.isNullOrEmpty() || itemH.equals("null")) {
             binding.heightEditTxt.visibility = View.GONE
         }
-        if(itemW.isNullOrEmpty()||itemW.equals("null")){
+        if (itemW.isNullOrEmpty() || itemW.equals("null")) {
             binding.weightEditTxt.visibility = View.GONE
         }
-        if(itemB.isNullOrEmpty()||itemB.equals("null")){
+        if (itemB.isNullOrEmpty() || itemB.equals("null")) {
             binding.bmill.visibility = View.GONE
         }
 //        if(itemC.isNullOrEmpty()||itemC.equals("null")){
 //            binding.waistCircumEditTxt.visibility = View.GONE
 //        }
-        if(itemT.isNullOrEmpty()||itemT.equals("null")){
+        if (itemT.isNullOrEmpty() || itemT.equals("null")) {
             binding.temperatureEditTxt.visibility = View.GONE
         }
-        if(itemP.isNullOrEmpty()||itemP.equals("null")){
+        if (itemP.isNullOrEmpty() || itemP.equals("null")) {
             binding.pulseRateEditTxt.visibility = View.GONE
         }
-        if(itemS.isNullOrEmpty()||itemS.equals("null")){
+        if (itemS.isNullOrEmpty() || itemS.equals("null")) {
             binding.spo2EditTxt.visibility = View.GONE
         }
-        if(itemBs.isNullOrEmpty()||itemBs.equals("null")){
+        if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
             binding.bpSystolicEditTxt.visibility = View.GONE
         }
-        if(itemBd.isNullOrEmpty()||itemBd.equals("null")){
+        if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
             binding.bpDiastolicEditTxt.visibility = View.GONE
         }
-        if(itemRs.isNullOrEmpty()||itemRs.equals("null")){
+        if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
             binding.respiratoryEditTxt.visibility = View.GONE
         }
-        if(itemRb.isNullOrEmpty()||itemRb.equals("null")){
+        if (itemRb.isNullOrEmpty() || itemRb.equals("null")) {
             binding.rbsEditTxt.visibility = View.GONE
         }
-        if((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() &&itemRb.isNullOrEmpty() )
-                    ||
-            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemT.equals("null") && itemP.equals("null") && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals("null") && itemRb.equals("null"))){
-            binding.vitalsExtra.visibility= View.INVISIBLE
+        if ((itemH.isNullOrEmpty() && itemW.isNullOrEmpty() && itemB.isNullOrEmpty() && itemT.isNullOrEmpty() && itemP.isNullOrEmpty() && itemS.isNullOrEmpty() && itemBs.isNullOrEmpty() && itemBd.isNullOrEmpty() && itemRs.isNullOrEmpty() && itemRb.isNullOrEmpty())
+            ||
+            (itemH.equals("null") && itemW.equals("null") && itemB.equals("null") && itemT.equals("null") && itemP.equals(
+                "null"
+            ) && itemS.equals("null") && itemBs.equals("null") && itemBd.equals("null") && itemRs.equals(
+                "null"
+            ) && itemRb.equals("null"))
+        ) {
+            binding.vitalsExtra.visibility = View.INVISIBLE
         }
     }
 
@@ -707,13 +780,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     ) {
 
         viewModel.previousTests.observe(viewLifecycleOwner) {
-            val selectedItems = BooleanArray(procedureDropdown.size){selectedTestName.contains(it) }
+            val selectedItems =
+                BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
             investigationBD = viewModel.previousTests.value
             val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
             if (resp != null) {
                 val previousTestList = resp.toMutableList()
-                for (index in selectedItems.indices){
-                    if(previousTestList.contains(procedureDropdown!!.get(index).procedureID)){
+                for (index in selectedItems.indices) {
+                    if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
                         selectedItems[index] = true
                     }
                 }
@@ -734,7 +808,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                         if (!disabledItems.contains(which)) {
                             selectedTestName.add(which)
                         } else {
-                            Toast.makeText(requireContext(), "Test with result cannot be selected", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Test with result cannot be selected",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } else {
                         selectedTestName.remove(which)
@@ -742,10 +820,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
                 }
                 .setPositiveButton("Ok") { dialog, which ->
-                    val selectedRelationTypes = selectedTestName.map { proceduresMasterData[it].procedureName }
+                    val selectedRelationTypes =
+                        selectedTestName.map { proceduresMasterData[it].procedureName }
                     val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
                     binding.selectF.text = selectedRelationTypesString
-                    binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+                    binding.selectF.setTextColor(
+                        ContextCompat.getColor(
+                            binding.root.context,
+                            R.color.black
+                        )
+                    )
                 }
                 .setNeutralButton("Clear all") { dialog, which ->
                     selectedTestName.clear()
@@ -754,17 +838,22 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     listView?.clearChoices()
                     listView?.requestLayout()
                     binding.selectF.text = resources.getString(R.string.select_test_name)
-                    binding.selectF.setTextColor(ContextCompat.getColor(binding.root.context, R.color.defaultInput))
+                    binding.selectF.setTextColor(
+                        ContextCompat.getColor(
+                            binding.root.context,
+                            R.color.defaultInput
+                        )
+                    )
                 }
 
             val alertDialog = builder.create()
             alertDialog.setOnShowListener {
                 if (resp != null) {
                     val previousTestList = resp.toMutableList()
-                    for (index in selectedItems.indices){
-                        if(previousTestList.contains(procedureDropdown!!.get(index).procedureID)){
+                    for (index in selectedItems.indices) {
+                        if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
                             alertDialog.listView.get(index).isEnabled = false
-                            alertDialog.listView.get(index).setOnClickListener(){
+                            alertDialog.listView.get(index).setOnClickListener() {
                                 alertDialog.listView.get(index).isEnabled = false
                             }
                         }
@@ -786,28 +875,34 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         }
         return false
     }
+
     fun isAnyItemEmptyP(): Boolean {
         for (item in itemListP) {
-            if (item.form.isEmpty()||item.frequency.isEmpty()||item.duration.isEmpty()) {
+            if (item.form.isEmpty() || item.frequency.isEmpty() || item.duration.isEmpty()) {
                 return true
             }
         }
         return false
     }
+
     private fun <K, V> findKeyByValue(map: Map<K, V>, value: V): K? {
         return map.entries.find { it.value == value }?.key
     }
 
-    private fun saveNurseAndDoctorData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
+    private fun saveNurseAndDoctorData(
+        benVisitNo: Int,
+        createNewBenflow: Boolean,
+        user: UserDomain?
+    ) {
 
         val visitDB = VisitDB(
             visitId = generateUuid(),
             category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
-            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty() ,
+            reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty(),
             subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
             patientID = patId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            benVisitDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
             createdBy = user?.userName
         )
 
@@ -817,9 +912,9 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
             val chiefC = ChiefComplaintDB(
                 id = generateUuid(),
-                chiefComplaintId=chiefComplaintItem.id,
+                chiefComplaintId = chiefComplaintItem.id,
                 chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
-                duration =  chiefComplaintItem.duration.nullIfEmpty(),
+                duration = chiefComplaintItem.duration.nullIfEmpty(),
                 durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
                 description = chiefComplaintItem.description.nullIfEmpty(),
                 patientID = patId,
@@ -851,13 +946,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         var diagnosisList = mutableListOf<DiagnosisCaseRecord>()
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
-            if(diagnosisData.diagnosis.isNullOrEmpty()){
+            if (diagnosisData.diagnosis.isNullOrEmpty()) {
                 requireActivity().runOnUiThread {
-                    Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.diagnosisCannotBeEmpty),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 return;
-            }
-            else {
+            } else {
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
                     diagnosis = diagnosisData.diagnosis,
@@ -872,7 +970,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val testName = binding.selectF.text.toString()
         val testNamesList = testName.split(",").map { it.trim() }
         val idString = testNamesList.joinToString(",") { testNameS ->
-            val id = findKeyByValue(testNameMap,testNameS) // Replace with your function to get the ID
+            val id =
+                findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
             id?.toString() ?: ""
         }
 
@@ -880,12 +979,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
-        val referId = findKeyByValue(referNameMap,referVal)
-        val previousTestIdsTmp = if(investigationBD!=null && investigationBD?.previousTestIds!=null){
-            investigationBD?.previousTestIds?.trim()?.plus(","+idString.nullIfEmpty())?.replace("null,", "")
-        } else {
-            idString.nullIfEmpty()
-        }
+        val referId = findKeyByValue(referNameMap, referVal)
+        val previousTestIdsTmp =
+            if (investigationBD != null && investigationBD?.previousTestIds != null) {
+                investigationBD?.previousTestIds?.trim()?.plus("," + idString.nullIfEmpty())
+                    ?.replace("null,", "")
+            } else {
+                idString.nullIfEmpty()
+            }
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
@@ -921,17 +1022,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     duration = durVal,
                     instruciton = instruction,
                     unit = unitVal,
-                    patientID =patId,
+                    patientID = patId,
                     benVisitNo = benVisitNo
                 )
                 prescriptionList.add(pres);
             }
         }
 
-        if(idString.nullIfEmpty() == null){
+        if (idString.nullIfEmpty() == null) {
             doctorFlag = 9
-        }
-        else{
+        } else {
             doctorFlag = 2
         }
         val patientVisitInfoSync = PatientVisitInfoSync(
@@ -943,7 +1043,15 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             visitDate = Date(),
         )
 
-        viewModel.saveNurseAndDoctorData(visitDB, chiefComplaints, patientVitals, diagnosisList, investigation, prescriptionList, patientVisitInfoSync)
+        viewModel.saveNurseAndDoctorData(
+            visitDB,
+            chiefComplaints,
+            patientVitals,
+            diagnosisList,
+            investigation,
+            prescriptionList,
+            patientVisitInfoSync
+        )
 
     }
 
@@ -952,13 +1060,16 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         var diagnosisList = mutableListOf<DiagnosisCaseRecord>()
         for (i in 0 until itemListD.size) {
             val diagnosisData = itemListD[i]
-            if(diagnosisData.diagnosis.isNullOrEmpty()){
+            if (diagnosisData.diagnosis.isNullOrEmpty()) {
                 requireActivity().runOnUiThread {
-                    Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.diagnosisCannotBeEmpty),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 return;
-            }
-            else {
+            } else {
                 var diagnosis = DiagnosisCaseRecord(
                     diagnosisCaseRecordId = generateUuid(),
                     diagnosis = diagnosisData.diagnosis,
@@ -973,7 +1084,8 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val testName = binding.selectF.text.toString()
         val testNamesList = testName.split(",").map { it.trim() }
         val idString = testNamesList.joinToString(",") { testNameS ->
-            val id = findKeyByValue(testNameMap,testNameS) // Replace with your function to get the ID
+            val id =
+                findKeyByValue(testNameMap, testNameS) // Replace with your function to get the ID
             id?.toString() ?: ""
         }
 
@@ -981,12 +1093,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
-        val referId = findKeyByValue(referNameMap,referVal)
-        val previousTestIdsTmp = if(investigationBD!=null && investigationBD?.previousTestIds!=null){
-            investigationBD?.previousTestIds?.trim()?.plus(","+idString.nullIfEmpty())?.replace("null,", "")
-        } else {
-            idString.nullIfEmpty()
-        }
+        val referId = findKeyByValue(referNameMap, referVal)
+        val previousTestIdsTmp =
+            if (investigationBD != null && investigationBD?.previousTestIds != null) {
+                investigationBD?.previousTestIds?.trim()?.plus("," + idString.nullIfEmpty())
+                    ?.replace("null,", "")
+            } else {
+                idString.nullIfEmpty()
+            }
 
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
@@ -999,7 +1113,6 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             referReson = referR,
             benVisitNo = benVisitNo
         )
-
 
 
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
@@ -1022,30 +1135,40 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     frequency = mappedFrequency,
                     duration = durVal,
                     instruciton = instruction,
-                    unit = unitVal?:"Day(s)",
-                    patientID =patId,
+                    unit = unitVal ?: "Day(s)",
+                    patientID = patId,
                     benVisitNo = benVisitNo
                 )
                 prescriptionList.add(pres);
             }
         }
-        if(idString.nullIfEmpty() == null){
+        if (idString.nullIfEmpty() == null) {
             doctorFlag = 9
-        }
-        else{
+        } else {
             doctorFlag = 2
         }
 
-        viewModel.saveDoctorData(diagnosisList, investigation, prescriptionList, benVisitInfo, doctorFlag)
+        viewModel.saveDoctorData(
+            diagnosisList,
+            investigation,
+            prescriptionList,
+            benVisitInfo,
+            doctorFlag
+        )
 
     }
+
     fun saveTemp(uniqueTemplateNames: HashSet<String?>) {
         var tempNameVal = binding.inputTestName.text.toString()
-        if(tempNameVal==null || tempNameVal.equals("null")|| tempNameVal.equals("")){
+        if (tempNameVal == null || tempNameVal.equals("null") || tempNameVal.equals("")) {
             requireActivity().runOnUiThread {
-            Toast.makeText(requireContext(), resources.getString(R.string.template_null), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.template_null),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        }else {
+        } else {
             if (uniqueTemplateNames.contains(binding.inputTestName.text.toString())) {
                 requireActivity().runOnUiThread {
                     Toast.makeText(
@@ -1060,7 +1183,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     requireActivity().runOnUiThread {
                         Toast.makeText(
                             requireContext(),
-                             resources.getString(R.string.templte_exists),
+                            resources.getString(R.string.templte_exists),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -1117,6 +1240,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
         }
     }
+
     override fun getFragmentId(): Int {
         return R.id.case_record_custome_layout
     }
@@ -1126,37 +1250,45 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
     }
 
     override fun onCancelAction() {
-        if(preferenceDao.isDoctorSelected()){
+        if (preferenceDao.isDoctorSelected()) {
             val intent = Intent(context, HomeActivity::class.java)
             startActivity(intent)
             requireActivity().finish()
-        }
-        else{
+        } else {
             findNavController().navigateUp()
         }
     }
+
     fun navigateNext() {
         if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {
-                viewModel.deleteOldDoctorData(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                viewModel.deleteOldDoctorData(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )
                 viewModel.isDataDeleted.observe(viewLifecycleOwner) { state ->
                     when (state!!) {
-                        true-> {
+                        true -> {
                             saveDoctorData(benVisitInfo.benVisitNo!!)
-                            viewModel.isDataSaved.observe(viewLifecycleOwner){
-                                when(it!!){
-                                    true ->{
+                            viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                                when (it!!) {
+                                    true -> {
                                         WorkerUtils.triggerAmritSyncWorker(requireContext())
                                         requireActivity().runOnUiThread {
-                                            Toast.makeText(requireContext(), resources.getString(R.string.dataSavedCaseRecord), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                requireContext(),
+                                                resources.getString(R.string.dataSavedCaseRecord),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                         val intent = Intent(context, HomeActivity::class.java)
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    else ->{
+
+                                    else -> {
 
 //                                        requireActivity().runOnUiThread {
 //                                            Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
@@ -1165,6 +1297,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                                 }
                             }
                         }
+
                         else -> {
 //                            requireActivity().runOnUiThread {
 //                                Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
@@ -1183,7 +1316,7 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
         } else {
             CoroutineScope(Dispatchers.Main).launch {
-                if(masterDb!!.patientId.toString()!=null) {
+                if (masterDb!!.patientId.toString() != null) {
                     patId = masterDb!!.patientId.toString()
                 }
 
@@ -1192,13 +1325,11 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
                     var benVisitNo = 0;
                     var createNewBenflow = false;
                     viewModel.getLastVisitInfoSync(patId).let {
-                        if(it == null){
+                        if (it == null) {
                             benVisitNo = 1;
-                        }
-                        else if(it.nurseFlag == 1) {
+                        } else if (it.nurseFlag == 1) {
                             benVisitNo = it.benVisitNo
-                        }
-                        else {
+                        } else {
                             benVisitNo = it.benVisitNo + 1
                             createNewBenflow = true;
                         }
@@ -1208,18 +1339,23 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
 
                     saveNurseAndDoctorData(benVisitNo, createNewBenflow, user)
 
-                    viewModel.isDataSaved.observe(viewLifecycleOwner){ state->
-                        when(state!!){
-                            true ->{
+                    viewModel.isDataSaved.observe(viewLifecycleOwner) { state ->
+                        when (state!!) {
+                            true -> {
                                 WorkerUtils.triggerAmritSyncWorker(requireContext())
                                 requireActivity().runOnUiThread {
-                                    Toast.makeText(requireContext(), resources.getString(R.string.dataSavedCaseRecord), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        requireContext(),
+                                        resources.getString(R.string.dataSavedCaseRecord),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                                 val intent = Intent(context, HomeActivity::class.java)
                                 startActivity(intent)
                                 requireActivity().finish()
                             }
-                            else ->{
+
+                            else -> {
 //                                requireActivity().runOnUiThread {
 //                                    Toast.makeText(requireContext(), resources.getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
 //                                }
@@ -1235,9 +1371,14 @@ class CaseRecordCustom: Fragment(R.layout.case_record_custom_layout), Navigation
             }
         }
     }
-    fun showToast(){
+
+    fun showToast() {
         requireActivity().runOnUiThread {
-            Toast.makeText(requireContext(), resources.getString(R.string.diagnosisCannotBeEmpty), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.diagnosisCannotBeEmpty),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

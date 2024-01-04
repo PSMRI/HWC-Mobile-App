@@ -59,6 +59,9 @@
         <action
             android:id="@+id/action_caseRecordCustom_to_labTechnicianFormFragment"
             app:destination="@id/labTechnicianFormFragment" />
+        <action
+            android:id="@+id/action_caseRecordCustom_self"
+            app:destination="@id/caseRecordCustom" />
     </fragment>
     <fragment
         android:id="@+id/labTechnicianFormFragment"
