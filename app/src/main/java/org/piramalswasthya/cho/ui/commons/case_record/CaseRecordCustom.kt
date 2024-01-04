@@ -166,8 +166,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (submitDoctorData == true) {
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             btnSubmit?.visibility = View.GONE
+            binding.patientList.visibility = View.GONE
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
         } else {
+            binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         }
