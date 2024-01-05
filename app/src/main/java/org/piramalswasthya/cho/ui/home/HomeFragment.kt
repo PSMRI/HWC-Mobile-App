@@ -97,6 +97,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
     private val searchPrompt by lazy {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.note_ben_reg))
