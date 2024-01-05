@@ -15,9 +15,7 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.MenuItem
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -26,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -55,10 +54,8 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.home.SyncBottomSheetOverallFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
-import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
 import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
-import org.piramalswasthya.cho.ui.setVisibilityOfLayout
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
 import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
@@ -68,6 +65,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
+
+    private val MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC = 1001
+
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WrapperEntryPoint {
@@ -146,9 +146,37 @@ class HomeActivity : AppCompatActivity() {
         handler.removeCallbacks(runnable!!)
     }
 
+    private fun checkAndRequestPermissions() {
+        // Check if the permission is not granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+            // Request the permissions
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO), MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC)
+        } else {
+            // Permissions are already granted
+            // You can proceed with using the camera and microphone
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC) {
+            // Check if the permissions are granted
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                // Permissions granted, proceed with using the camera and microphone
+            } else {
+                // Permissions denied, handle accordingly (e.g., show a message, disable features)
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkAndRequestPermissions();
         _binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         (application as CHOApplication).addActivity(this)
