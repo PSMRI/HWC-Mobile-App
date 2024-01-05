@@ -34,55 +34,54 @@ class CbacRepo @Inject constructor(
 //        resources = context.resources
 //    }
 //
-//    suspend fun saveCbacData(cbacCache: CbacCache, ben: BenRegCache): Boolean {
-//        return withContext(Dispatchers.IO) {
+    suspend fun saveCbacData(cbacCache: CbacCache,): Boolean {
+        return withContext(Dispatchers.IO) {
+
+            val user =
+                prefDao.getLoggedInUser()
+                    ?: throw IllegalStateException("No user logged in!!")
+            try {
+                cbacCache.apply {
+                    createdBy = user.userName
+                    createdDate = System.currentTimeMillis()
+                    serverUpdatedStatus = 0
+                    cbac_tracing_all_fm =
+                        if (cbac_sufferingtb_pos == 1 || cbac_antitbdrugs_pos == 1)
+                            "1"
+                        else
+                            "0"
+                    cbac_sputemcollection = if (cbac_tbhistory_pos == 1 ||
+                        cbac_coughing_pos == 1 ||
+                        cbac_bloodsputum_pos == 1 ||
+                        cbac_fivermore_pos == 1 ||
+                        cbac_loseofweight_pos == 1 ||
+                        cbac_nightsweats_pos == 1
+                    )
+                        "1"
+                    else
+                        "0"
+                    Processed = "N"
+//                    ProviderServiceMapID = user.serviceMapId
+//                    VanID = user.vanId
+
+                }
+
+                database.cbacDao.upsert(cbacCache)
+                true
+            } catch (e: java.lang.Exception) {
+                Timber.d("Error : $e raised at saveCbacData")
+                false
+            }
+        }
+    }
 //
-//            val user =
-//                prefDao.getLoggedInUser()
-//                    ?: throw IllegalStateException("No user logged in!!")
-//            try {
-//                cbacCache.apply {
-//                    createdBy = user.userName
-//                    createdDate = System.currentTimeMillis()
-//                    serverUpdatedStatus = 0
-//                    cbac_tracing_all_fm =
-//                        if (cbac_sufferingtb_pos == 1 || cbac_antitbdrugs_pos == 1)
-//                            "1"
-//                        else
-//                            "0"
-//                    cbac_sputemcollection = if (cbac_tbhistory_pos == 1 ||
-//                        cbac_coughing_pos == 1 ||
-//                        cbac_bloodsputum_pos == 1 ||
-//                        cbac_fivermore_pos == 1 ||
-//                        cbac_loseofweight_pos == 1 ||
-//                        cbac_nightsweats_pos == 1
-//                    )
-//                        "1"
-//                    else
-//                        "0"
-//                    Processed = "N"
-////                    ProviderServiceMapID = user.serviceMapId
-////                    VanID = user.vanId
-//
-//                }
-//
-//                database.cbacDao.upsert(cbacCache)
-//                database.benDao.updateBen(ben)
-//                true
-//            } catch (e: java.lang.Exception) {
-//                Timber.d("Error : $e raised at saveCbacData")
-//                false
-//            }
-//        }
-//    }
-//
-//    suspend fun getCbacCacheFromId(cbacId: Int): CbacCache {
-//        return withContext(Dispatchers.IO) {
-//            database.cbacDao.getCbacFromBenId(cbacId)
-//                ?: throw IllegalStateException("No CBAC entry found!")
-//        }
-//
-//    }
+    suspend fun getCbacCacheFromId(cbacId: Int): CbacCache {
+        return withContext(Dispatchers.IO) {
+            database.cbacDao.getCbacFromBenId(cbacId)
+                ?: throw IllegalStateException("No CBAC entry found!")
+        }
+
+    }
 //
 //
 //    suspend fun pullAndPersistCbacRecord(page: Int = 0): Int {
