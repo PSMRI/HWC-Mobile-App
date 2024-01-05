@@ -1,4 +1,4 @@
-package org.piramalswasthya.sakhi.ui.home_activity.non_communicable_diseases.cbac
+package org.piramalswasthya.cho.ui.commons.cbac
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -618,7 +618,7 @@ class CbacViewModel @Inject constructor(
         cbac.cbac_reg_id = ben.patient.beneficiaryRegID ?: 0
 
         viewModelScope.launch {
-            val result = cbacRepo.saveCbacData(cbac, ben)
+            val result = cbacRepo.saveCbacData(cbac)
             if (result)
                 _state.value = State.SAVE_SUCCESS
             else
