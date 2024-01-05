@@ -186,7 +186,12 @@ class HomeFragment : Fragment() {
 
         childFragmentManager.beginTransaction().replace(binding.patientListFragment.id, fragmentVisitDetails).commit()
 
-        binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
+        if(preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()){
+            binding.registration.visibility = View.VISIBLE
+        }
+        else{
+            binding.registration.visibility = View.GONE
+        }
 
         WorkerUtils.totalPercentageCompleted.observe(viewLifecycleOwner){
             if(it > 0){
