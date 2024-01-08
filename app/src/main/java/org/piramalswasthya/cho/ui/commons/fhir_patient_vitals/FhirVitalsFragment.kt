@@ -661,6 +661,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         if (binding.weightEditTxt.helperText != null) {
             emptyFields.add("Weight")
         }
+        extractFormValues()
+        if(bpDiastolicValue != "" && bpSystolicValue == ""){
+            emptyFields.add("Systolic Also")
+        }
+        if( bpSystolicValue != "" && bpDiastolicValue == ""){
+            emptyFields.add("Diastolic Also")
+        }
         return emptyFields
     }
 
