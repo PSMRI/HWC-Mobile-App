@@ -113,13 +113,10 @@ class CbacViewModel @Inject constructor(
         text
     }
 
-    private val patId = "";
-    val cbacId = 0
+    private val patId = CbacFragmentArgs.fromSavedStateHandle(state).patId
+    val cbacId = CbacFragmentArgs.fromSavedStateHandle(state).cbacId
     private val ashaId = 0
 
-//    private val benId = CbacFragmentArgs.fromSavedStateHandle(state).benId
-//    val cbacId = CbacFragmentArgs.fromSavedStateHandle(state).cbacId
-//    private val ashaId = CbacFragmentArgs.fromSavedStateHandle(state).ashaId
     private lateinit var cbac: CbacCache
     private lateinit var ben: PatientDisplay
 
