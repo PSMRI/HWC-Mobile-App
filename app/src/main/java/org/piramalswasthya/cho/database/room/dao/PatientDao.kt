@@ -71,7 +71,7 @@ interface PatientDao {
 //    fun getPatientListFlowForPharmacist(): Flow<List<PatientDisplay>>
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
-            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
@@ -82,9 +82,23 @@ interface PatientDao {
             "WHERE latestVisit.patientID IS NULL")
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
+
     @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
-            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "FROM PATIENT pat " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+            "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
+            "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
+            "WHERE vis.nurseFlag = 9 AND latestVisit.patientID IS NULL")
+    fun getPatientDisplayListForDoctor(): Flow<List<PatientDisplayWithVisitInfo>>
+
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
+            "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
             "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
@@ -104,6 +118,10 @@ interface PatientDao {
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :syncing WHERE patientID =:patientID")
     suspend fun updatePatientSyncing(syncing: SyncState = SyncState.SYNCING, patientID: String) : Int
+
+//    @Transaction
+//    @Query("UPDATE PATIENT SET referDate = :referDate, referTo = :referTo, referralReason = :referralReason WHERE beneficiaryRegID =:benRegId")
+//    suspend fun updatePatientReferData(referDate: String?, referTo: String?, referralReason: String?, benRegId: Long) : Int
 
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced, beneficiaryID = :beneficiaryID, beneficiaryRegID = :beneficiaryRegID WHERE patientID =:patientID")

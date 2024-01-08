@@ -256,6 +256,11 @@ class BenFlowRepo @Inject constructor(
                     } ?: emptyList()
 
                     refreshDoctorData(prescriptionCaseRecord = prescriptionCaseRecords, investigationCaseRecord, diagnosisCaseRecords, patient = patient, benFlow = benFlow, patientVisitInfoSync = patientVisitInfoSync, docData = docData)
+
+                    if(docData.Refer?.referredToInstituteName != null || docData.Refer?.referralReason != null){
+                        patientVisitInfoSyncDao.updatePatientReferData(DateTimeUtil.formatVisitDateString(benFlow.visitDate), docData.Refer?.referredToInstituteName, docData.Refer?.referralReason, patient.patientID, benFlow.benVisitNo!!);
+                    }
+
                     if(!docData.LabReport.isNullOrEmpty()){
                         refreshLabData(labReportData = docData.LabReport, patientVisitInfoSync = patientVisitInfoSync)
                     }

@@ -161,6 +161,9 @@ class CaseRecordViewModel @Inject constructor(
             templateRepo.saveTemplateToServer(prescriptionTemplateDB)
         }
     }
+    fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncRepo.getPatientDisplayListForDoctorByPatient(patientID)
+    }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {
             try {
