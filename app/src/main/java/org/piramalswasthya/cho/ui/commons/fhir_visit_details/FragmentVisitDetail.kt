@@ -1408,10 +1408,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             else{
                 findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, 0L
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
+                        patId = benVisitInfo.patient.patientID, cbacId = 0
                     )
                 )
+//                findNavController().navigate(
+//                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+//                        benVisitInfo.patient.patientID, 0L
+//                    )
+//                )
             }
         }
     }
