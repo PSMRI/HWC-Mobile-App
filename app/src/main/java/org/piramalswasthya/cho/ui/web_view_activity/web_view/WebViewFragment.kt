@@ -1,10 +1,13 @@
 package org.piramalswasthya.cho.ui.web_view_activity.web_view
 
 import android.app.ProgressDialog
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
@@ -38,6 +41,7 @@ class WebViewFragment constructor(
         binding.webview.settings.javaScriptEnabled = true
         binding.webview.settings.domStorageEnabled = true
         binding.webview.settings.loadWithOverviewMode = true
+        binding.webview.settings.mediaPlaybackRequiresUserGesture = false
         binding.webview.settings.useWideViewPort = true
         binding.webview.webViewClient = WebViewClient()
 
@@ -51,6 +55,17 @@ class WebViewFragment constructor(
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
                 progressDialog.dismiss()
+            }
+        }
+
+        binding.webview.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                // Handle file upload (photo capture) here
+                return true
             }
         }
         binding.webview.loadUrl(webUrl)
