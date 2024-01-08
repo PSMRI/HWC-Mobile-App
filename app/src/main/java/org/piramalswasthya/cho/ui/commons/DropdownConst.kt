@@ -59,12 +59,12 @@ class DropdownConst {
             "PHC"
         )
         val frequencyMap = mapOf(
-            "1-0-0" to "Once Daily (OD)",
-            "0-1-0" to "Once Daily (OD)",
-            "0-0-1" to "Once Daily (OD)",
-            "1-1-0" to "Twice Daily (BD)",
-            "1-0-1" to "Twice Daily (BD)",
-            "0-1-1" to "Twice Daily (BD)",
+            "1-0-0" to "Once Daily(OD)",
+            "0-1-0" to "Once Daily(OD)",
+            "0-0-1" to "Once Daily(OD)",
+            "1-1-0" to "Twice Daily(BD)",
+            "1-0-1" to "Twice Daily(BD)",
+            "0-1-1" to "Twice Daily(BD)",
             "1-1-1" to "Thrice Daily (TID)",
             "1-1-1-1" to "Four Times in a Day (QID)"
         )
