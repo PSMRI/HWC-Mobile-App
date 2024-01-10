@@ -63,4 +63,9 @@ interface CaseRecordeDao {
     @Query("SELECT * FROM Investigation_Case_Record WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getPrescriptionCasesRecordByPatientIDAndBenVisitNo(patientID: String, benVisitNo:Int): InvestigationCaseRecord?
 
+    @Query("SELECT * FROM Prescription_Cases_Recorde WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun getPrescriptionByPatientIDAndBenVisitNo(patientID: String, benVisitNo:Int): List<PrescriptionCaseRecord?>
+
+    @Query("SELECT * FROM Diagnosis_Cases_Recorde WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun getDiagnosisByPatientIDAndBenVisitNo(patientID: String, benVisitNo:Int): List<DiagnosisCaseRecord?>
 }

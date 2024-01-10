@@ -72,8 +72,14 @@ class CaseRecordeRepo @Inject constructor(
     fun getPrescription(prescriptionId:String): LiveData<PrescriptionCaseRecord> {
         return caseRecordDao.getPrescriptionCasesRecordId(prescriptionId)
     }
+    suspend fun getPrescriptionByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<PrescriptionCaseRecord?> {
+        return caseRecordDao.getPrescriptionByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+    }
     fun getDiagnosis(diagnosisId:String): LiveData<DiagnosisCaseRecord> {
         return caseRecordDao.getDiagnosisCasesRecordById(diagnosisId)
+    }
+    suspend fun getDiagnosisByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): List<DiagnosisCaseRecord?> {
+        return caseRecordDao.getDiagnosisByPatientIDAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
     }
 
     suspend fun getInvestigationCasesRecordByPatientIDAndVisitNumber(benVisitInfo: PatientDisplayWithVisitInfo): InvestigationCaseRecord? {

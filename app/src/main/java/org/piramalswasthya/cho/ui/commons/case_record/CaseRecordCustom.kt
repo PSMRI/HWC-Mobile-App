@@ -131,7 +131,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
-    private var submitDoctorData: Boolean? = null
+    private var viewRecordFragment: Boolean? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -160,14 +160,25 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val tableLayout = binding.tableLayout
 
-        submitDoctorData = arguments?.getBoolean("submitDoctorData")
+        viewRecordFragment = arguments?.getBoolean("viewRecord")
 
 
-        if (submitDoctorData == true) {
+        if (viewRecordFragment == true) {
+            viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             btnSubmit?.visibility = View.GONE
             binding.patientList.visibility = View.GONE
+            binding.plusButtonD.visibility = View.GONE
+            binding.plusButtonP.visibility = View.GONE
+            binding.tempName.visibility = View.GONE
+            binding.saveTemplate.visibility = View.GONE
+            binding.deleteTemp.visibility = View.GONE
+            binding.useTempForFields.visibility = View.GONE
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+            lifecycleScope.launch {
+                convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
+                convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+            }
         } else {
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
@@ -187,7 +198,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.referalReason.setText(benVisitInfo.referralReason)
         }
 
-        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -258,12 +269,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 findNavController().navigate(
 //                    CaseRecordCustomDirections.actionCaseRecordCustomSelf()
                     R.id.action_caseRecordCustom_self, Bundle().apply {
-                        putBoolean("submitDoctorData", true)
+                        putBoolean("viewRecord", true)
                         putSerializable("benVisitInfo", it)
                     }
                 )
 
-//                }
+//                }aapne ye daala to h boolean to isse mau if condition se show kar sakta hun na saare prescription and all and hide kar dunga baki template
 
 //                val submitDoctorData = Bundle()
 //                submitDoctorData.putBoolean("submitDoctorData", true)
@@ -315,7 +326,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val chiefComplaintDB = mutableListOf<ChiefComplaintDB>()
 
-        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
             viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
                 // Clear the existing data in chiefComplaintDB
                 chiefComplaintDB.clear()
@@ -530,7 +541,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
             binding.plusButtonP.isEnabled = false
         }
-        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
             var bool = true
             viewModel.vitalsDB.observe(viewLifecycleOwner) { vitalsDB ->
                 var vitalDb2 = VitalsMasterDb(
@@ -556,8 +567,51 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             populateVitalsFields()
         }
     }
+        fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
+            itemListP.clear()
+            for (prescriptionCaseRecord in prescriptionCaseRecords) {
+                val prescriptionValue = prescriptionCaseRecord?.let {
+                    PrescriptionValues(
+                        id = prescriptionCaseRecord.itemId,
+                        form = "",  // Set the appropriate value for form (not available in PrescriptionCaseRecord)
+                        frequency = prescriptionCaseRecord.frequency ?: "",
+                        duration = prescriptionCaseRecord.duration ?: "",
+                        instruction = prescriptionCaseRecord.instruciton ?: "",
+                        unit = prescriptionCaseRecord.unit ?: ""
+                    )
+                }
+                if (prescriptionValue != null) {
+                    itemListP.add(prescriptionValue)
+                }
+            }
+            if (itemListP.isNotEmpty()) {
+                pAdapter.notifyDataSetChanged()
+            }
+        }
+    fun convertToDiagnosisValues(diagnosisCaseRecords: List<DiagnosisCaseRecord?>): List<DiagnosisValue> {
+        itemListD.clear()
+        val diagnosisValuesList = mutableListOf<DiagnosisValue>()
 
-    fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
+        for (diagnosisCaseRecord in diagnosisCaseRecords) {
+            val diagnosisValue = diagnosisCaseRecord?.let {
+                DiagnosisValue(
+                    id = -1,  // Set the appropriate value for id if needed
+                    diagnosis = diagnosisCaseRecord.diagnosis
+                )
+            }
+            if (diagnosisValue != null) {
+                itemListD.add(diagnosisValue)
+            }
+        }
+        if (itemListD.isNotEmpty()) {
+            dAdapter.notifyDataSetChanged()
+        }
+
+        return diagnosisValuesList
+    }
+
+
+        fun convertToPrescriptionValues(prescriptionTemplateDB: List<PrescriptionTemplateDB?>) {
         for (templateDB in prescriptionTemplateDB) {
             val prescriptionValue = templateDB?.let {
                 it?.drugName?.let { it1 ->
@@ -1259,7 +1313,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     fun navigateNext() {
-        if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
+        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
 
             val validate = dAdapter.setError()
             if (validate == -1) {
