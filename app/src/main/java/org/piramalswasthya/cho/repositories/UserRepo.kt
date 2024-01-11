@@ -579,6 +579,12 @@ class UserRepo @Inject constructor(
     suspend fun updateVillageCoordinates(masterLocationModel: MasterLocationModel){
         tmcNetworkApiService.updateMasterVillageCoordinates(masterLocationModel)
     }
+
+    suspend fun setUserMasterVillageIdAndName(user: UserCache, masterVillageId: Int?, masterVillageName: String?){
+        user?.masterVillageID = masterVillageId
+        user?.masterVillageName = masterVillageName
+        userDao.update(user)
+    }
      suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
          val response = tmcNetworkApiService.setUserMasterVillage(userMasterVillage)
          val statusCode = response.code()
@@ -603,6 +609,8 @@ class UserRepo @Inject constructor(
                  val masterLongitude = data.getDouble("longitude")
                  user?.masterLongitude = masterLongitude
 
+                 val use = user
+                 use?.masterVillageName
 
                  userDao.update(user)
 

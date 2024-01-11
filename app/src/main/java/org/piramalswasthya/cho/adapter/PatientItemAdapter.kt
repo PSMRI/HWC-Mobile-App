@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
+import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import timber.log.Timber
 import java.security.MessageDigest
@@ -132,6 +133,14 @@ class PatientItemAdapter(
             if(item.referDate != null){
                 binding.referDateLl.visibility = View.VISIBLE
                 binding.referDate.text = item.referDate
+            }
+
+            if(item.referralReason != null){
+                val arr = item.referralReason.split(pattern)
+                if(arr.size > 1){
+                    binding.referFromLl.visibility = View.VISIBLE
+                    binding.referFrom.text = arr[1]
+                }
             }
 
             binding.executePendingBindings()
