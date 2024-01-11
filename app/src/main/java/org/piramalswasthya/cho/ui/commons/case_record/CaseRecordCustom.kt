@@ -69,6 +69,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.tabletDosageLi
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -184,7 +185,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
         if (benVisitInfo.referralReason != null) {
             binding.referalReasonLabel.visibility = View.VISIBLE
-            binding.referalReason.setText(benVisitInfo.referralReason)
+            binding.referalReason.setText(benVisitInfo.referralReason!!.split(pattern)[0])
         }
 
         if (preferenceDao.isDoctorSelected() || submitDoctorData == true) {
@@ -989,6 +990,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             } else {
                 idString.nullIfEmpty()
             }
+
+
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
@@ -1000,6 +1003,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             referReson = referR,
             benVisitNo = benVisitNo
         )
+
+        if(user?.masterVillageName != null && investigation.referReson != null){
+            investigation.referReson += (pattern + user.masterVillageName)
+        }
+
+        if(user?.masterVillageName != null && (investigation.referReson != null || investigation.institutionId != null)){
+            if(investigation.referReson == null){
+                investigation.referReson = (pattern + user.masterVillageName);
+            }
+            else{
+                investigation.referReson += (pattern + user.masterVillageName)
+            }
+        }
 
         val prescriptionList = mutableListOf<PrescriptionCaseRecord>();
         for (i in 0 until itemListP.size) {

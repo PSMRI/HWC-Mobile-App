@@ -96,6 +96,7 @@ class LoginSettingsFragment : Fragment() {
             viewModel.userMasterVillage = viewModel.masterVillageList[position]
             viewModel.updateUserVillageId(viewModel.userMasterVillage?.districtBranchID!!.toInt())
             binding.dropdownPanchayat.setText(viewModel.userMasterVillage?.villageName,false)
+            pancBool = true
         }
 
         viewModel.locationMaster.observe(viewLifecycleOwner) { state ->
@@ -252,6 +253,8 @@ class LoginSettingsFragment : Fragment() {
             pancBool = true
         }
 
+
+
         if(stateBool && distBool && talukBool && pancBool){
             lifecycleScope.launch {
                 try {
@@ -261,6 +264,11 @@ class LoginSettingsFragment : Fragment() {
                             myLocation?.latitude!!, myLocation?.longitude!!,
                             "addressGeo", viewModel.userMasterVillage?.districtBranchID?.toInt()
                         )
+                    )
+                    userRepo.setUserMasterVillageIdAndName(
+                        user!!,
+                        viewModel.userMasterVillage?.districtBranchID?.toInt(),
+                        viewModel.userMasterVillage?.villageName,
                     )
                     userRepo.setUserMasterVillage(
                         user!!, UserMasterVillage(
