@@ -178,7 +178,16 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             lifecycleScope.launch {
                 convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+                testNameMap = viewModel.getTestNameTypeMap()
+                if (benVisitInfo.benVisitNo != null) {
+                    viewModel.getPreviousTest(benVisitInfo)
+                }
             }
+            investigationBD = viewModel.previousTests.value
+            val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
+            val selectedRelationTypes = mapProcedureIdsToNames(procedureDropdown,resp)
+            val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
+            binding.selectF.text = selectedRelationTypesString
         } else {
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
@@ -829,12 +838,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-
+    fun mapProcedureIdsToNames(proceduresMasterData: List<ProceduresMasterData>,procedureIds: List<Int>?): List<String> {
+        if (procedureIds != null) {
+            return procedureIds.mapNotNull { id ->
+                proceduresMasterData.find { it.procedureID == id }?.procedureName
+            }
+        }
+        return emptyList()
+    }
     private fun showDialogWithFamilyMembers(
         proceduresMasterData: List<ProceduresMasterData>,
         labReportProcedureTypes: List<String>
     ) {
-
         viewModel.previousTests.observe(viewLifecycleOwner) {
             val selectedItems =
                 BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
