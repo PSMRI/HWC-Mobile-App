@@ -446,6 +446,98 @@ class PersonalDetailsFragment : Fragment() {
         val columnWidth = 150F
         y+=30
 
+        val chiefComplaintHeader = "Chief Complaints"
+        val chiefComplaintHeaderSize = 25F // Adjust the size as needed
+        val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
+            textSize = chiefComplaintHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
+
+// Move down to the first row of Chief Complaints
+        y += rowHeight
+
+// Define fixed column widths for Chief Complaints
+        val chiefComplaintColumnWidth = 150F
+
+// Draw table header for Chief Complaints
+        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
+
+// Move down to the first row
+        y += rowHeight // Reassign y
+
+// Iterate through the list of Chief Complaints and draw each as a row
+        if (!chiefComplaints.isNullOrEmpty()) {
+            var chiefComplaintCount: Int = 0
+            for (chiefComplaint in chiefComplaints) {
+                // Draw each field with a fixed width
+                if (chiefComplaint != null) {
+                    chiefComplaintCount++
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaintCount.toString(),
+                        xPosition,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.chiefComplaint ?: "",
+                        xPosition + chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.duration ?: "",
+                        xPosition + 2 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.durationUnit ?: "",
+                        xPosition + 3 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.description ?: "",
+                        xPosition + 4 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+
+                    // Move down to the next row
+                    y += rowHeight // Reassign y
+                }
+            }
+        }
+
+        canvas.drawLine(50F, y, pageWidth - 50F, y, subheading)
+        y += spaceAfterLine
+        y+=30
+// Draw heading for the next section
+        val nextSectionHeader = "Prescription" // Replace with your desired heading
+        val nextSectionHeaderSize = 25F // Adjust the size as needed
+        val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
+            textSize = nextSectionHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
+        y += rowHeight
+
+
         // Draw table header
         canvas.drawText("S.No.", xPosition, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
