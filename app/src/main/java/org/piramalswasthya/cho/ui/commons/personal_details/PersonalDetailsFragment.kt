@@ -52,6 +52,7 @@ import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
+import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -85,6 +86,8 @@ class PersonalDetailsFragment : Fragment() {
     lateinit var preferenceDao: PreferenceDao
     @Inject
     lateinit var caseRecordeRepo: CaseRecordeRepo
+    @Inject
+    lateinit var visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount : Int = 0
 
@@ -363,6 +366,8 @@ class PersonalDetailsFragment : Fragment() {
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
         val patientName = (benVisitInfo.patient.firstName?:"") + " " + (benVisitInfo.patient.lastName?:"")
         val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
+        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
+        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID =
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
 
 //        Log.d("prescriptionMsg", prescriptions.toString())
