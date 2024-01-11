@@ -438,7 +438,7 @@ class PersonalDetailsFragment : Fragment() {
 // Draw items on the right side
         val rightMargin = 200F
         canvas.drawText("Date:${benVisitInfo.visitDate}", rightSideX + rightMargin, 180F, subheading)
-        canvas.drawText("Patient ID: ${benVisitInfo.patient.beneficiaryRegID}", rightSideX + rightMargin, 200F, subheading)
+        canvas.drawText("Beneficiary Reg ID: ${benVisitInfo.patient.beneficiaryRegID}", rightSideX + rightMargin, 200F, subheading)
         canvas.drawText("Consultation ID: ${benVisitInfo.benVisitNo}", rightSideX + rightMargin, 220F, subheading)
 
 
