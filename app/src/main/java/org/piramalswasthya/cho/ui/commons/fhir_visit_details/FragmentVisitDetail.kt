@@ -58,6 +58,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
+import org.piramalswasthya.cho.ui.commons.case_record.CaseRecordCustomArgs
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationListViewModel
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationVaccineBottomSheetFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -584,7 +585,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                }
 //                else{
                     val submitDoctorData = Bundle()
-                    submitDoctorData.putBoolean("submitDoctorData", true)
+                    submitDoctorData.putBoolean("viewRecord", true)
                     submitDoctorData.putSerializable("benVisitInfo", it)
 
                     findNavController().navigate(

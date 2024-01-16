@@ -510,6 +510,10 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientDisplayListForNurse()
     }
 
+    fun getPatientDisplayListForDoctor() : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientDao.getPatientDisplayListForDoctor()
+    }
+
     suspend fun getProcedures(benVisitInfo: PatientDisplayWithVisitInfo): List<ProcedureDTO>? {
         val dtos: MutableList<ProcedureDTO> = mutableListOf()
         return withContext(Dispatchers.IO) {

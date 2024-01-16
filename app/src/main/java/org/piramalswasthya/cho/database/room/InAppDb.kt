@@ -137,7 +137,7 @@ import timber.log.Timber
         PrescriptionTemplateDB::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 101, exportSchema = false
+    version = 102, exportSchema = false
 )
 
 

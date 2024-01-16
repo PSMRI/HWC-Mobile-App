@@ -156,10 +156,19 @@ class CaseRecordViewModel @Inject constructor(
             templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)
         }
     }
+    suspend fun getPrescriptionForVisitNumAndPatientId(benVisitInfo: PatientDisplayWithVisitInfo):List<PrescriptionCaseRecord?>{
+            return caseRecordeRepo.getPrescriptionByPatientIDAndVisitNumber(benVisitInfo)
+    }
+    suspend fun getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo: PatientDisplayWithVisitInfo):List<DiagnosisCaseRecord?>{
+        return caseRecordeRepo.getDiagnosisByPatientIDAndVisitNumber(benVisitInfo)
+    }
     fun savePrescriptionTempToServer(prescriptionTemplateDB: List<PrescriptionTemplateDB>){
         viewModelScope.launch {
             templateRepo.saveTemplateToServer(prescriptionTemplateDB)
         }
+    }
+    fun getPatientDisplayListForDoctorByPatient(patientID: String) : Flow<List<PatientDisplayWithVisitInfo>> {
+        return patientVisitInfoSyncRepo.getPatientDisplayListForDoctorByPatient(patientID)
     }
       fun getVitalsDB(patientID:String) {
         viewModelScope.launch {
@@ -197,7 +206,7 @@ class CaseRecordViewModel @Inject constructor(
             Timber.d("Error in getFormMaster $e")
         }
     }
-    private fun getFormMaster(){
+     fun getFormMaster(){
         try{
             _formMedicineDosage  = doctorMasterDataMaleRepo.getAllItemMasterList()
         } catch (e: java.lang.Exception){

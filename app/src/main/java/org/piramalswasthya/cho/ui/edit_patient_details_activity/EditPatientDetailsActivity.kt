@@ -75,9 +75,16 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
         if(preferenceDao.isDoctorSelected()){
-            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
-            binding.patientDetalis.visibility= View.GONE
-            binding.onlyDoctor.visibility=View.VISIBLE
+//            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
+//            binding.patientDetalis.visibility= View.GONE
+//            binding.onlyDoctor.visibility=View.VISIBLE
+            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            navHostFragment.navController
+                .navigate(
+                    R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
+                        putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
+                    }
+                )
         }
         else if(preferenceDao.isLabSelected()){
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
