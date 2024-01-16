@@ -935,10 +935,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             alertDialog.show()
 
         }
-
     }
-
-
     fun isAnyItemEmptyD(): Boolean {
         for (item in itemListD) {
             if (item.diagnosis.isEmpty()) {
