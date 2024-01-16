@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="fieldName"
+            type="String" />
+
+        <variable
+            name="numAsterisk"
+            type="Integer" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_normal">
+
+<!--        <TextView-->
+<!--            style="@style/cbac_ed_asterisk"-->
+<!--            android:text='@{numAsterisk==1 ? "*" : numAsterisk==2 ? "**" : "" }' />-->
+
+        <TextView
+            style="@style/cbac_ed_hint"
+            cbac_name="@{fieldName}"
+            asteriskColor="@{numAsterisk}" />
+
+        <RadioGroup
+            android:id="@+id/cbac_ed_rg"
+            style="@style/cbac_ed_rg">
+
+            <RadioButton
+                android:id="@+id/rb_yes"
+                style="@style/cbac_ed_rb"
+                android:text="@string/cbac_yes" />
+
+
+            <RadioButton
+                android:id="@+id/rb_no"
+                style="@style/cbac_ed_rb"
+                android:text="@string/cbac_no" />
+        </RadioGroup>
+
+    </LinearLayout>
+</layout>
