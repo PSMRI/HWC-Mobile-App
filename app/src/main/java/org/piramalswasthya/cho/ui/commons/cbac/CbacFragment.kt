@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.cbac
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentCbacBinding
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.Gender
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -25,7 +27,7 @@ import java.util.Calendar
 import java.util.Locale
 
 @AndroidEntryPoint
-class CbacFragment : Fragment() {
+class CbacFragment : Fragment() , NavigationAdapter  {
 
 
     private val binding by lazy { FragmentCbacBinding.inflate(layoutInflater) }
@@ -897,6 +899,24 @@ class CbacFragment : Fragment() {
                 "%s%s%s", resources.getString(R.string.total_score_wihout_semi_colon),
                 ": ", cbac.cbac_little_interest_score + cbac.cbac_feeling_down_score
             )
+    }
+
+    fun navigateNext() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
+    override fun getFragmentId(): Int {
+        return R.id.cbacFragment
+    }
+
+    override fun onSubmitAction() {
+        navigateNext()
+    }
+
+    override fun onCancelAction() {
+        findNavController().navigateUp()
     }
 
     override fun onStart() {
