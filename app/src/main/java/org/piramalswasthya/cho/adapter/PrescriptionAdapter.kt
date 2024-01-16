@@ -170,6 +170,10 @@ class PrescriptionAdapter(
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
 
+        if(itemData.id!=null){
+            var st = formMD.find { it.itemID==itemData.id }
+            holder.formOptions.setText(st?.dropdownForMed.toString())
+        }
 
 //       holder.formOptions.setSpinnerItems(formMD.map { it.dropdownForMed }.toTypedArray())
 
