@@ -246,6 +246,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return (ageGap > minAge) && (ageGap <= maxAge)
     }
 
+    fun ageCheckForNCD(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 365L*30*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap >= minAge)
+    }
+
     fun ageCheckForFemale(dob: Date?): Boolean{
         if(dob == null){
             return false
@@ -272,13 +283,31 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
-        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
+        else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                DropdownConst.female_1_to_59)
+                DropdownConst.male_ncd)
             binding.subCatInput.setAdapter(subCatAdapter)
+        }
+        else if( ageCheckForFemale(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
+            if(ageCheckForNCD(benVisitInfo.patient.dob)){
+                val subCatAdapter = SubCategoryAdapter(
+                    requireContext(),
+                    R.layout.dropdown_subcategory,
+                    R.id.tv_dropdown_item_text,
+                    DropdownConst.female_ncd)
+                binding.subCatInput.setAdapter(subCatAdapter)
+            }
+            else{
+                val subCatAdapter = SubCategoryAdapter(
+                    requireContext(),
+                    R.layout.dropdown_subcategory,
+                    R.id.tv_dropdown_item_text,
+                    DropdownConst.female_1_to_59)
+                binding.subCatInput.setAdapter(subCatAdapter)
+            }
 //            viewModel.selectedSubCat = DropdownConst.female_1_to_59[0]
 //            binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
@@ -321,6 +350,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
 //            viewModel.selectedReasonForVisit = DropdownConst.immunization
 //            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
+        }
+        else if(subCat == DropdownConst.ncdScreening){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                listOf(DropdownConst.ncdScreening)
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
         else{
             viewModel.selectedReasonForVisit = ""
@@ -1293,6 +1331,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.fpAndCs){
                 checkAndNavigateEct()
             }
+            else if(reasonForVisit == DropdownConst.ncdScreening){
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
+                        patId = benVisitInfo.patient.patientID, cbacId = 0
+                    )
+                )
+            }
+
         }
         else {
             extractFormValues()
@@ -1408,15 +1454,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             else{
                 findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
-                        patId = benVisitInfo.patient.patientID, cbacId = 0
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
+                        benVisitInfo.patient.patientID, 0L
                     )
                 )
-//                findNavController().navigate(
-//                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-//                        benVisitInfo.patient.patientID, 0L
-//                    )
-//                )
             }
         }
     }

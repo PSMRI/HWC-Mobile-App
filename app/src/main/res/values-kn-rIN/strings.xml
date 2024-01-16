@@ -94,6 +94,7 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
 
+<!--    <string name="cbac">CBAC</string>-->
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>

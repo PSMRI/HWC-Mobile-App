@@ -89,6 +89,7 @@
     <string name="lab_record_text">Lab Record</string>
     <string name="pharmacist_record_text">Pharmacist Record</string>
 
+<!--    <string name="cbac">CBAC</string>-->
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
