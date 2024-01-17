@@ -50,6 +50,7 @@ import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import retrofit2.HttpException
 import timber.log.Timber
 import java.net.ConnectException
@@ -279,20 +280,26 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseJson.getInt("statusCode")
                 if(responseStatusCode == 200) {
                     val data = responseJson.getJSONObject("data")
-                    val masterVillageName = data.getString("villageName")
-                    user?.masterVillageName = masterVillageName
-                    val masterVillageId = data.getInt("districtBranchID")
-                    user?.masterVillageID = masterVillageId
-                    val blockId = data.getInt("blockID")
-                    user?.masterBlockID = blockId
-                    val masterLatitude = data.getDouble("latitude")
-                    user?.masterLatitude = masterLatitude
-                    val masterLongitude = data.getDouble("longitude")
-                    user?.masterLongitude = masterLongitude
-                    val masterLocAddress = data.getString("address")
-                    user?.masterLocationAddress = masterLocAddress
-                    val loginDistance = data.getInt("loginDistance")
-                    user?.loginDistance = loginDistance
+                    val masterVillageName = data.optString("villageName", "")
+                    user?.masterVillageName = masterVillageName.nullIfEmpty()
+
+                    val masterVillageId = data.optInt("districtBranchID", -1)
+                    user?.masterVillageID = if (masterVillageId == -1) null else masterVillageId
+
+                    val blockId = data.optInt("blockID", -1)
+                    user?.masterBlockID = if (blockId == -1) null else blockId
+
+                    val masterLatitude = data.optDouble("latitude", -1.0)
+                    user?.masterLatitude = if (masterLatitude == -1.0) null else masterLatitude
+
+                    val masterLongitude = data.optDouble("longitude", -1.0)
+                    user?.masterLongitude = if (masterLongitude == -1.0) null else masterLongitude
+
+                    val masterLocAddress = data.optString("address", "")
+                    user?.masterLocationAddress = masterLocAddress.nullIfEmpty()
+
+                    val loginDistance = data.optInt("loginDistance", -1)
+                    user?.loginDistance = if (loginDistance == -1) null else loginDistance
                     true
                 }else
                     false
