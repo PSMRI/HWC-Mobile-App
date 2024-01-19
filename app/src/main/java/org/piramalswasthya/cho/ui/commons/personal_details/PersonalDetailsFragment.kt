@@ -47,12 +47,13 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
-import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.NetworkBody
+import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
+import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -62,6 +63,9 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -88,6 +92,8 @@ class PersonalDetailsFragment : Fragment() {
     lateinit var caseRecordeRepo: CaseRecordeRepo
     @Inject
     lateinit var visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo
+    @Inject
+    lateinit var vitalsRepo: VitalsRepo
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount : Int = 0
 
@@ -369,7 +375,8 @@ class PersonalDetailsFragment : Fragment() {
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
         val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID =
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-
+        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID =
+        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
 //        Log.d("prescriptionMsg", prescriptions.toString())
 
         val pdfDocument: PdfDocument = PdfDocument()
@@ -527,6 +534,51 @@ class PersonalDetailsFragment : Fragment() {
         canvas.drawLine(50F, y, pageWidth - 50F, y, subheading)
         y += spaceAfterLine
         y+=30
+
+        // Add a heading for the Vitals section
+        val vitalsSectionHeader = "Vitals"
+        val vitalsSectionHeaderSize = 25F
+        val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
+        canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
+            textSize = vitalsSectionHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
+
+        // Move down to the first row of Vitals
+        y += rowHeight
+
+        // Define fixed column widths for Vitals
+        val vitalsColumnWidth = 200F
+
+        // Draw table header for Vitals
+        canvas.drawText("Vitals Name", xPosition, y, subheading)
+        canvas.drawText("Vitals Value", xPosition + vitalsColumnWidth, y, subheading)
+
+        // Move down to the first row
+        y += rowHeight
+
+        // Function to draw Vitals Name and Value
+        fun drawVitals(vitalsName: String, vitalsValue: String) {
+            drawTextWithWrapping(canvas, vitalsName, xPosition, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(canvas, vitalsValue, xPosition + vitalsColumnWidth, y, vitalsColumnWidth, content)
+            y += rowHeight
+        }
+
+        // Draw Vitals based on the available data
+        with(vitals) {
+            this?.height?.let { drawVitals("Height", it) }
+            this?.weight?.let { drawVitals("Weight", it) }
+            this?.bmi?.let { drawVitals("BMI", it) }
+            this?.waistCircumference?.let { drawVitals("Waist Circumference", it) }
+            this?.temperature?.let { drawVitals("Temperature", it) }
+            this?.pulseRate?.let { drawVitals("Pulse Rate", it) }
+            this?.spo2?.let { drawVitals("SpO2", it) }
+            this?.bpSystolic?.let { drawVitals("BP Systolic", it) }
+            this?.bpDiastolic?.let { drawVitals("BP Diastolic", it) }
+            this?.respiratoryRate?.let { drawVitals("Respiratory Rate", it) }
+            this?.rbs?.let { drawVitals("RBS", it) }
+        }
+
 // Draw heading for the next section
         val nextSectionHeader = "Prescription" // Replace with your desired heading
         val nextSectionHeaderSize = 25F // Adjust the size as needed
@@ -629,14 +681,14 @@ class PersonalDetailsFragment : Fragment() {
         val fileName : String =  "Prescription_$patientName"+"_${timeStamp}_.pdf"
 
         val outputStream: OutputStream
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             outputStream = createPdfForApi33(fileName)
         } else {
-            outputStream = FileOutputStream(
-                File(
-                    Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), fileName)
-            )
+            val downloadsDirectory: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDirectory, fileName)
+
+            outputStream = FileOutputStream(file)
+
         }
 
         try {
