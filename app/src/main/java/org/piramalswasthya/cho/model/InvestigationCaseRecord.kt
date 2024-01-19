@@ -37,7 +37,7 @@ data class InvestigationCaseRecord(
     @ColumnInfo(name = "externalInvestigation") val externalInvestigation: String?,
     @ColumnInfo(name = "CounsellingTypes") val counsellingTypes: String?,
     @ColumnInfo(name = "institutionId") val institutionId: Int? = null,
-    @ColumnInfo(name = "referReson") val referReson: String? = null,
+    @ColumnInfo(name = "referReson") var referReson: String? = null,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,

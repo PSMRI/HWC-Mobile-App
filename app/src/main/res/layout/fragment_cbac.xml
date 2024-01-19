@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorOnSecondary">
+
+            <LinearLayout
+                android:id="@+id/ll_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_patient_information"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:elevation="@dimen/padding_normal"
+                    app:cardCornerRadius="@dimen/padding_normal"
+                    app:cardElevation="@dimen/padding_normal"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tv_ben_name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:padding="@dimen/padding_normal"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                            android:textColor="@android:color/white"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/tv_age_gender"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="Name" />
+
+                        <TextView
+                            android:id="@+id/tv_age_gender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/padding_normal"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                            android:textColor="@android:color/white"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:text="36 Years | Male" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_date"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:background="@android:color/white"
+                    android:hint="@string/date"
+                    android:padding="@dimen/padding_normal">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/ic_calendar"
+                        android:focusable="false"
+                        android:singleLine="true"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_ra"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:backgroundTint="?attr/colorOnPrimary"
+                    android:elevation="@dimen/padding_normal"
+                    app:cardCornerRadius="@dimen/padding_normal"
+                    app:cardElevation="@dimen/padding_normal">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+
+                        <LinearLayout
+                            android:id="@+id/ll_risk_assessment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/padding_normal"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="@string/cbac_risk_assessment_tv"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="@string/cbac_score"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                        </LinearLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_age"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/ll_risk_assessment"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_age"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_age_score"
+                                android:text="@string/cbac_hint_age" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_age_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_age"
+                                android:layout_alignStart="@+id/cbac_tv_age"
+                                android:layout_alignEnd="@+id/cbac_tv_age"
+                                android:layout_marginEnd="@dimen/margin_huge"
+                                android:labelFor="@id/actv_age_dropdown"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/actv_age_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:clickable="false"
+                                    android:focusable="false"
+                                    android:hint="@string/cbac_select"
+                                    android:inputType="none"
+                                    android:singleLine="true"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_age_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_age_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_smoke"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_age"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_smoke"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_smoke_score"
+                                android:text="@string/cbac_hint_smoke" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_smoke_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_smoke"
+                                android:layout_alignStart="@+id/cbac_tv_smoke"
+                                android:layout_alignEnd="@+id/cbac_tv_smoke"
+
+                                android:layout_marginEnd="@dimen/margin_huge"
+                                android:labelFor="@id/actv_smoke_dropdown"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_smoke_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/cbac_select"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_smoke"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_smoke_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_alignBaseline="@+id/til_smoke_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_alcohol"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_smoke"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_alcohol"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_alcohol_score"
+                                android:text="@string/cbac_hint_alcohol" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_alcohol_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_alcohol"
+                                android:layout_alignStart="@+id/cbac_tv_alcohol"
+                                android:layout_alignEnd="@+id/cbac_tv_alcohol"
+                                android:layout_marginEnd="@dimen/margin_huge"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_alcohol_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_alcohol_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_alcohol"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_alcohol_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_alcohol_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_waist"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_alcohol"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_waist"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_waist_score"
+                                android:text="@string/cbac_hint_waist" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_waist_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_waist"
+                                android:layout_alignStart="@+id/cbac_tv_waist"
+                                android:layout_alignEnd="@+id/cbac_tv_waist"
+                                android:layout_marginEnd="@dimen/margin_huge"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_waist_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_waist_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_waist_mes_male"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_waist_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_waist_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_pa"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_waist"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_pa"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_pa_score"
+                                android:text="@string/cbac_hint_pa" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_pa_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_pa"
+                                android:layout_alignStart="@+id/cbac_tv_pa"
+                                android:layout_marginEnd="32dp"
+                                android:layout_toStartOf="@+id/dd_pa_score"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_pa_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_pa_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_pa"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_pa_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_pa_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rl_fh"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_pa"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_fh"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_fh_score"
+                                android:text="@string/cbac_hint_fh" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_fh_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_fh"
+                                android:layout_alignStart="@+id/cbac_tv_fh"
+                                android:layout_alignEnd="@+id/cbac_tv_fh"
+                                android:layout_marginEnd="@dimen/margin_huge"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_fh_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_fh_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_fh"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_fh_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_fh_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+
+                        <TextView
+                            android:id="@+id/cbac_tv_ra_total_score"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/padding_normal"
+                            android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_fh"
+                            tools:text="Total Score : 4" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_ed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:backgroundTint="?attr/colorOnPrimary"
+                    android:elevation="@dimen/padding_normal"
+                    app:cardCornerRadius="@dimen/padding_normal"
+                    app:cardElevation="@dimen/padding_normal">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:id="@+id/ll_ed"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintTop_toTopOf="parent">
+
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/padding_normal"
+                                android:text="@string/cbac_early_detection"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                android:textColor="@android:color/black" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/padding_small"
+                                android:text="@string/cbac_ask_pat"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/padding_small"
+                                android:text="@string/cbac_ask_pat_note"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                                android:textColor="@android:color/holo_red_light" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/padding_small"
+                                android:text="@string/cbac_ast1"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                                android:textColor="@android:color/holo_red_light" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/padding_small"
+                                android:text="@string/cbac_ast2"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                                android:textColor="@android:color/holo_red_light" />
+
+
+                            <include
+                                android:id="@+id/cbac_histb"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_histb}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_coughing"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_coughing}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_blsputum"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_blsputum}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_feverwks"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_feverwks}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_lsweight"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_lsweight}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_ntswets"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_ntswets}"
+                                app:numAsterisk="@{1}" />
+
+                            <include
+                                android:id="@+id/cbac_fh_tb"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_fh_tb}"
+                                app:numAsterisk="@{2}" />
+
+                            <include
+                                android:id="@+id/cbac_taking_tb_drug"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_taking_tb_drug}"
+                                app:numAsterisk="@{2}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_ulceration"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_ulceration}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_tingling"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_tingling}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_cloudy"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_cloudy}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_diffculty_reading"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_diffculty_reading}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_pain_eyes"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_pain_eyes}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_redness_eyes"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_redness_eyes}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_recurrent_diff_hearing"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_recurrent_diff_hearing}"
+                                app:numAsterisk="@{0}" />
+
+
+                            <include
+                                android:id="@+id/cbac_breath"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_breath}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_hifits"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_hifits}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_difmouth"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_difmouth}"
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_heald"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_heald}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_voice"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_voice}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Any_Growth"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Any_Growth}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Any_white"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Any_white}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Pain_while_chewing"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Pain_while_chewing}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Any_hyper_pigmented"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Any_hyper_pigmented}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_any_thickend_skin"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_any_thickend_skin}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_any_nodules_skin"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_any_nodules_skin}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Recurrent_numbness"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Recurrent_numbness}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Clawing_of_fingers"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Clawing_of_fingers}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Tingling_or_Numbness"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Tingling_or_Numbness}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Inability_close_eyelid"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Inability_close_eyelid}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_diff_holding_objects"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_diff_holding_objects}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <include
+                                android:id="@+id/cbac_Weekness_in_feet"
+                                layout="@layout/fragment_cbac_element_radio"
+                                app:fieldName="@{@string/cbac_Weekness_in_feet}"
+
+                                app:numAsterisk="@{0}" />
+
+                            <LinearLayout
+                                android:id="@+id/cbac_ll_ed_women"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/cbac_tv_ed_2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/cbac_early_detection_2"
+                                    android:padding="@dimen/padding_normal"
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+
+
+                                <include
+                                    android:id="@+id/cbac_lumpbrest"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_lumpbrest}"
+
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_nipple"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_nipple}"
+
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_breast"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_breast}"
+
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_blperiods"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_blperiods}"
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_blmenopause"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_blmenopause}"
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_blintercorse"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_blintercorse}"
+
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_fouldis"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_fouldis}"
+
+                                    app:numAsterisk="@{0}" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/cbac_ll_ed_elderly"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/cbac_tv_ed_3"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:padding="@dimen/padding_normal"
+                                    android:text="@string/cbac_early_detection_3"
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+
+
+                                <include
+                                    android:id="@+id/cbac_unsteady"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_unsteady}"
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_pd_rm"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_pd_rm}"
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_nhop"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_nhop}"
+                                    app:numAsterisk="@{0}" />
+
+                                <include
+                                    android:id="@+id/cbac_forget_names"
+                                    layout="@layout/fragment_cbac_element_radio"
+                                    app:fieldName="@{@string/cbac_forget_names}"
+                                    app:numAsterisk="@{0}" />
+
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_rf_copd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:backgroundTint="?attr/colorOnPrimary"
+                    android:elevation="@dimen/padding_normal"
+                    app:cardCornerRadius="@dimen/padding_normal"
+                    app:cardElevation="@dimen/padding_normal">
+
+
+                    <LinearLayout
+                        android:id="@+id/lay_Risk_Factors_COPD"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/padding_normal">
+
+                        <TextView
+                            android:id="@+id/cbac_tv_copd"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cbac_risk_Factors_COPD"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rf_fuel"
+                            style="@style/cbac_rl_risk_assessment">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_fuel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cbac_type_of_fuel"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_fuel_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_fuel"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_alcohol_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_fuel_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_type_Cooking_fuel"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_rf_exposure"
+                            style="@style/cbac_rl_risk_assessment"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_exposure"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cbac_occupational_exposure"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_exposure_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_exposure"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_exposure_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_exposure_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_type_occupational_exposure"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_phq2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:backgroundTint="?attr/colorOnPrimary"
+                    android:elevation="@dimen/padding_normal"
+                    app:cardCornerRadius="@dimen/padding_normal"
+                    app:cardElevation="@dimen/padding_normal">
+
+                    <LinearLayout
+                        android:id="@+id/cbac_ll_phq2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/padding_normal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/cbac_PHQ2"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/padding_normal"
+                            android:text="@string/cbac_last_two_weeks"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+                        <LinearLayout
+                            android:id="@+id/ll_phq2_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="1"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="0.8"
+                                android:text="@string/cbac_Question"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="0.2"
+                                android:gravity="center"
+                                android:text="@string/cbac_score"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                        </LinearLayout>
+
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_phq2_li"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/ll_phq2_title"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_phq2_tv_little_interest"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_li_score"
+                                android:text="@string/cbac_little_interest" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_li_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_phq2_tv_little_interest"
+                                android:layout_alignStart="@+id/cbac_phq2_tv_little_interest"
+                                android:layout_alignEnd="@+id/cbac_phq2_tv_little_interest"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_li_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_li_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_li"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_li_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_li_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/cbac_phq2_fd"
+                            style="@style/cbac_rl_risk_assessment"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_phq2_li"
+                            tools:ignore="MissingConstraints">
+
+                            <TextView
+                                android:id="@+id/cbac_tv_fd"
+                                style="@style/cbac_tv_hint_risk_assessment"
+                                android:layout_toStartOf="@+id/dd_fd_score"
+                                android:text="@string/cbac_feeling_down" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/til_fd_dropdown"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/cbac_tv_fd"
+                                android:layout_alignStart="@+id/cbac_tv_fd"
+                                android:layout_alignEnd="@+id/cbac_tv_fd"
+                                android:hint="@string/cbac_select"
+                                android:labelFor="@id/actv_fd_dropdown"
+                                app:expandedHintEnabled="true">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actv_fd_dropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    app:simpleItems="@array/cbac_fd"
+                                    tools:ignore="SpeakableTextPresentCheck"
+                                    tools:text="ABB" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <TextView
+                                android:id="@+id/dd_fd_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@+id/til_fd_dropdown"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerInParent="true"
+                                android:paddingHorizontal="@dimen/padding_wide"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                tools:text="0" />
+
+
+                        </RelativeLayout>
+
+
+                        <TextView
+                            android:id="@+id/cbac_phq2_total_score"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:padding="@dimen/padding_normal"
+                            android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/cbac_rl_fh"
+                            tools:text="Total Score : 4" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <LinearLayout
+                    android:id="@+id/casesDisplayLl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/cbac_remarks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cbac_remarks"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/hrp_displayTv"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/hrp_sug_valid"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_dia_diaplayTv"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_diab"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_hyper_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_hyper"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_hyper_displaystroke"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_hyperstroke"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_sugested"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/hrp_sug_valid"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_tbcancer"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_tbcancer"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_diam_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_diabm"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_diam_cancer"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_diabcancer"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_thy_cancer"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_cansthyroid"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_tb_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_tb"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_oc_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_oc"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_bc_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_bc"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_mental_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_mentalhealth"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_cc_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_cc"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_lep_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_lep"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_dia_lep_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_dia_lep"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_can_thy_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_can_thy"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_dia_can_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_dia_can"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_can_lep_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_can_lep"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_all_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="@string/ncd_all_display"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_hyper_stk_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:layout_marginTop="0dp"-->
+                    <!--                    android:text="@string/ncd_hyper_stk_display"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_tb_can_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:layout_marginTop="0dp"-->
+                    <!--                    android:text="@string/ncd_tb_can"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/ncd_hyper_only_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:layout_marginTop="0dp"-->
+                    <!--                    android:text="@string/ncd_hyper_only"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+
+                    <TextView
+                        android:id="@+id/ncd_sus_valid_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/ncd_sus_valid"
+                        android:textColor="@android:color/holo_red_light"
+                        android:visibility="gone" />
+
+                    <!--                <TextView-->
+                    <!--                    android:id="@+id/hrpncd_sus_valid_display"-->
+                    <!--                    android:layout_width="match_parent"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:layout_marginTop="0dp"-->
+                    <!--                    android:text="@string/hrpncd_sus_valid"-->
+                    <!--                    android:textColor="@android:color/holo_red_light"-->
+                    <!--                    android:visibility="gone" />-->
+
+
+                    <TextView
+                        android:id="@+id/tb_sus_valid_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/cbac_tbcase"
+                        android:textColor="@android:color/holo_red_light"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_tb_sputum_collect"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/cbac_tb_collect_sputum"
+                        android:textColor="@android:color/holo_red_light"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_tb_moic_visit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/cbac_tv_moic_treat"
+                        android:textColor="@android:color/holo_red_light"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_bl_menopause"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/cbac_tv_bl_menopause"
+                        android:textColor="@android:color/holo_red_light"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_normal"
+                    android:text="@string/save"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="?attr/colorOnPrimary" />
+
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <ProgressBar
+            android:id="@+id/pb_cbac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="?attr/colorPrimary"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</layout>

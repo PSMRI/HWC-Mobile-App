@@ -9,11 +9,14 @@ class DropdownConst {
 
         val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
         val fpAndCs: String = "Eligible couple tracking"
+        val ncdScreening: String = "NCD screening"
 
         val neonatalAndInfant: String = "Neonatal & Infant Health"
         val immunization: String = "Immunization Services"
 
+        val male_ncd: List<String> = listOf(ncdScreening)
         val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
+        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant)
 
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
@@ -59,12 +62,12 @@ class DropdownConst {
             "PHC"
         )
         val frequencyMap = mapOf(
-            "1-0-0" to "Once Daily (OD)",
-            "0-1-0" to "Once Daily (OD)",
-            "0-0-1" to "Once Daily (OD)",
-            "1-1-0" to "Twice Daily (BD)",
-            "1-0-1" to "Twice Daily (BD)",
-            "0-1-1" to "Twice Daily (BD)",
+            "1-0-0" to "Once Daily(OD)",
+            "0-1-0" to "Once Daily(OD)",
+            "0-0-1" to "Once Daily(OD)",
+            "1-1-0" to "Twice Daily(BD)",
+            "1-0-1" to "Twice Daily(BD)",
+            "0-1-1" to "Twice Daily(BD)",
             "1-1-1" to "Thrice Daily (TID)",
             "1-1-1-1" to "Four Times in a Day (QID)"
         )

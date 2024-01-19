@@ -83,7 +83,7 @@ interface PatientDao {
     fun getPatientDisplayListForNurse(): Flow<List<PatientDisplayWithVisitInfo>>
 
 
-    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName,age.age_name as ageUnit, mat.status as maritalStatus, " +
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus, " +
             "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
             "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
             "FROM PATIENT pat " +
