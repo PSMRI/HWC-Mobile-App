@@ -123,6 +123,8 @@ class HomeActivity : AppCompatActivity() {
     var runnable: Runnable? = null
     var delay = 30000
 
+    private val REQUEST_CODE_PERMISSION = 123
+
     private val syncBottomSheet: SyncBottomSheetOverallFragment by lazy {
         SyncBottomSheetOverallFragment()
     }
@@ -151,6 +153,16 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         (application as CHOApplication).addActivity(this)
         viewModel.init(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
+            }
+        }
+
+//        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
+//        }
 
         binding.syncButton.setOnClickListener {
             if (!syncBottomSheet.isVisible)
