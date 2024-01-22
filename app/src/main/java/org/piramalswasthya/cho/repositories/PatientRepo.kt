@@ -54,6 +54,7 @@ import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -221,6 +222,9 @@ class PatientRepo @Inject constructor(
 
 
     private fun convertStringToIntList(villageIds : String) : List<Int>{
+        if(villageIds.trim().nullIfEmpty() == null){
+            return emptyList();
+        }
         return villageIds.split(",").map {
             it.trim().toInt()
         }

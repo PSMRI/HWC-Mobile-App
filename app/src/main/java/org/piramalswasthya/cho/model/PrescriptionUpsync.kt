@@ -29,7 +29,7 @@ data class PrescriptionUpsync(
         "${prescription.strength}${prescription.unitOfMeasurement}",
         prescription.itemFormName,
         prescription.itemFormID,
-        "10 ml", // nullable
+        getDosage(prescription.itemFormName), // nullable
         1, // hard coded
         prescription.frequency,
         prescription.duration?.toInt(),
@@ -57,6 +57,14 @@ data class PrescriptionUpsync(
         user?.parkingPlaceId,
         true
     )
+}
+
+fun getDosage(form: String): String?{
+    if(form == "Tablet")
+        return "One Tab"
+    if(form == "Syrup")
+        return "10 ml"
+    return null;
 }
 
 //"id": null,

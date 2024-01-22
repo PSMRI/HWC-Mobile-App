@@ -32,6 +32,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_eligibleCoupleTrackingFormFragment"
             app:destination="@id/eligibleCoupleTrackingFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
+            app:destination="@id/cbacFragment" />
     </fragment>
 
     <fragment
@@ -166,6 +169,17 @@
         <argument
             android:name="createdDate"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/cbacFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"
+        android:label="CbacFragment">
+        <argument
+            android:name="patId"
+            app:argType="string" />
+        <argument
+            android:name="cbacId"
+            app:argType="integer" />
     </fragment>
 
 

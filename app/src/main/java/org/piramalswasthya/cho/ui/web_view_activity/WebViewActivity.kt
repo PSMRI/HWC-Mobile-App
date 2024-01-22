@@ -1,10 +1,15 @@
 package org.piramalswasthya.cho.ui.web_view_activity
 
+//import android.support.customtabs.CustomTabsIntent
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +48,7 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("QueryPermissionsNeeded")
     @RequiresApi(Build.VERSION_CODES.O)
     fun launchESanjeenvani(){
         var username = intent.getStringExtra("usernameEs")!!
@@ -74,11 +80,18 @@ class WebViewActivity : AppCompatActivity() {
                         val referenceId = response.model.referenceId
 //                        val url =
 //                            getString(R.string.url_uat_esanjeevani) + referenceId
-                        val url =
-                            "https://esanjeevani.mohfw.gov.in/#/external-provider-signin/" + referenceId
-                        val fragmentWebView = WebViewFragment(url);
-                        supportFragmentManager.beginTransaction()
-                            .replace(binding.webView.id, fragmentWebView).commit()
+                        val url = "https://esanjeevani.mohfw.gov.in/#/external-provider-signin/" + referenceId
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+
+                        if (intent.resolveActivity(packageManager) != null) {
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(baseContext, "No browser found", Toast.LENGTH_LONG).show()
+                        }
+
+//                        val fragmentWebView = WebViewFragment(url);
+//                        supportFragmentManager.beginTransaction()
+//                            .replace(binding.webView.id, fragmentWebView).commit()
                     } else {
                         finish()
                         Toast.makeText(baseContext, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT)

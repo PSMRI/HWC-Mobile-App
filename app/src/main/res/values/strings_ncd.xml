@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="date">Date</string>
+    <string name="radio_title_cbac">%1s<![CDATA[<font color="#B00020"> *</font>]]></string>
+    <string name="radio_title_cbac_ds">%1s<![CDATA[<font color="#B00020"> **</font>]]></string>
+    <string name="cbac_ask_pat">Ask if Patient has any of these Symptoms</string>
+    <string name="cbac_early_detection">Part B1: Early Detection</string>
+    <string name="cbac_early_detection_2">Part B2: Women Only</string>
+    <string name="cbac_early_detection_3">Part B3: Elderly Specific</string>
+    <string name="cbac_hint_age">What is your age?</string>
+    <string name="cbac_hint_smoke">Do you smoke or consume smokeless products such as gutka or khaini?</string>
+    <string name="cbac_hint_alcohol">Do you consume alcohol daily?</string>
+    <string name="cbac_hint_waist">Measurement of waist (in cm)</string>
+    <string name="cbac_hint_pa">Do you undertake any physical activities for minimum of 150 minutes in a week?</string>
+    <string name="cbac_hint_fh">Do you have a family history (any one of your parents or siblings) of high blood pressure, diabetes and heart disease?</string>
+
+    <string name="cbac_ask_pat_note">Note :</string>
+    <string name="cbac_ast1">* If “Yes” is selected for any one of the questions below with “*” then show pop up message “Refer to MO and collect the Sputum sample”</string>
+    <string name="cbac_ast2">** If “Yes” is selected for any one of the questions below with “**” then show pop up message “Refer to MO orinform ANM/MPW to tracing of all family members”</string>
+    <string name="cbac_select">Select …</string>
+    <string name="cbac_fh_tb">Anyone in family currently suffering from TB</string>
+    <string name="cbac_taking_tb_drug">Are you currently taking anti-TB drugs</string>
+    <string name="cbac_histb">History of TB</string>
+    <string name="cbac_coughing">Coughing more than 2 weeks</string>
+    <string name="cbac_blsputum">Blood in sputum</string>
+    <string name="cbac_feverwks">Fever for > 2 weeks</string>
+    <string name="cbac_lsweight">Loss of weight</string>
+    <string name="cbac_ntswets">Night Sweats</string>
+    <string name="cbac_recurrent_ulceration">Recurrent ulceration on palm or sole</string>
+    <string name="cbac_recurrent_tingling">Recurrent tingling on palm(s) or sole (s)</string>
+    <string name="cbac_recurrent_cloudy">Cloudy or blurred vision</string>
+    <string name="cbac_recurrent_diffculty_reading">Difficulty in reading</string>
+    <string name="cbac_recurrent_pain_eyes">Pain in eyes lasting for more than a week</string>
+    <string name="cbac_recurrent_redness_eyes">Redness in eyes lasting for more than a week</string>
+    <string name="cbac_recurrent_diff_hearing">Difficulty in hearing</string>
+    <string name="cbac_breath">Shortness of breath</string>
+    <string name="cbac_hifits">History of fits</string>
+    <string name="cbac_difmouth">Difficulty in opening mouth</string>
+    <string name="cbac_heald">Ulcers/patch/growth in mouth that has not healed in two weeks</string>
+    <string name="cbac_voice">Any change in the tone of your voice</string>
+    <string name="cbac_Any_Growth">Any Growth in the mouth that has not healed in 2 weeks</string>
+    <string name="cbac_Any_white">Any white or red patch in the mouth that has not healed in 2 weeks</string>
+    <string name="cbac_Pain_while_chewing">Pain while chewing</string>
+    <string name="cbac_Any_hyper_pigmented">Any hyper pigmented patch or discoloration on skin with loss of sensation</string>
+    <string name="cbac_any_thickend_skin">Any thickend skin</string>
+    <string name="cbac_any_nodules_skin">Any nodules on skin</string>
+    <string name="cbac_Recurrent_numbness">Recurrent numbness on palm(s) or sole(s)</string>
+    <string name="cbac_Clawing_of_fingers">Clawing of fingers in hand(s) or Feet</string>
+    <string name="cbac_Tingling_or_Numbness">Tingling or Numbness in hands and or Feet</string>
+    <string name="cbac_Inability_close_eyelid">Inability to close eyelid</string>
+    <string name="cbac_diff_holding_objects">Difficulty in holding objects with fingers</string>
+    <string name="cbac_Weekness_in_feet">Weakness in feet that causes difficulty in walking</string>
+
+    <string name="cbac_lumpbrest">Lump in the breast</string>
+    <string name="cbac_nipple">Blood stained discharge from the nipple</string>
+    <string name="cbac_breast">Change in shape and size of breast</string>
+    <string name="cbac_blperiods">Bleeding between periods</string>
+    <string name="cbac_blmenopause">Bleeding after menopause</string>
+    <string name="cbac_blintercorse">Bleeding after intercourse</string>
+    <string name="cbac_fouldis">Foul smelling vaginal discharge</string>
+
+
+    <string name="cbac_double_ast" translatable="false">**</string>
+    <string name="cbac_single_ast" translatable="false">* </string>
+    <string name="cbac_yes">Yes</string>
+    <string name="cbac_no">No</string>
+
+    <string name="cbac_risk_Factors_COPD">Part C: Risk factor for COPD</string>
+    <string name="cbac_occupational_exposure">Occupational exposure</string>
+    <string name="cbac_PHQ2">Part D: PHQ2</string>
+    <string name="cbac_last_two_weeks">Over the last two weeks how often have you been bothered by the following problems ?</string>
+    <string name="cbac_little_interest">Little interest or pleasure in doing things ?</string>
+    <string name="cbac_feeling_down">Feeling down, depressed, &amp; hopeless ?</string>
+
+
+    <string name="hrp_valid">HRP Case, Please visit the nearest HWC or call 104.</string>
+    <string name="hrp_sug_valid"> Suspected HRP Case, Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_hyper">Related to NCD (Hypertension, DM), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_diab">Related to NCD (Diabetes), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_diabm">Related to NCD (Diabetes Mellitus), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_tb">Related to NCD (TB), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_oc">Related to NCD (Oral Cancer), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_bc">Related to NCD (Breast Cancer), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_cc">Related to NCD (Cervical Cancer), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_lep">Related to NCD (Leprosy), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_dia_lep">Related to NCD (Diabetes,Leprosy), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_can_thy">Related to NCD (Cancer,thyroid), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_dia_can">Related to NCD (Cancer), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_can_lep">Related to NCD (Cancer,Leprosy), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_all_display">Related to NCD (Oral cancer,TB) , Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_hyper_stk_display">Related to NCD (Hypertension, Stroke), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_tb_can">Related to NCD (TB,cancer), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_hyper_only">Related to NCD (Hypertension), Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_sus_valid"> Suspected NCD Case, Please visit the nearest HWC or call 104.</string>
+    <string name="hrpncd_sus_valid"> Suspected HRP &amp; NCD Case, Please visit the nearest HWC or call 104.</string>
+    <string name="ncd_hyperstroke">Related to NCD (Hypertension, Stroke), Please consult the doctor or Call 104</string>
+    <string name="ncd_tbcancer">Related to NCD (TB, Cancer), Please consult the doctor or Call 104</string>
+    <string name="ncd_cansthyroid">Related to NCD (Cancer,Thyroid), Please consult the doctor or Call 104</string>
+    <string name="ncd_diabcancer">Related to NCD (Diabetes, Cancer), Please consult the doctor or Call 104</string>
+    <string name="ncd_mentalhealth">Related to NCD (Mental Health Disorder), Please consult the doctor or Call 104</string>
+    <string name="cbac_tbcase">Suspected TB case, please collect the sputum sample and send it to nearest TB testing center. Also tracing of all family members need to be done. </string>
+    <string name="cbac_tb_collect_sputum">Suspected TB case, please collect the sputum sample and send it to nearest TB testing center. </string>
+    <string name="cbac_tv_moic_treat">Send the patient to MOIC of nearest health center for treatment </string>
+    <string name="cbac_unsteady">Feeling unsteady while standing or walking</string>
+    <string name="cbac_pd_rm">Suffering from any physical disability that restricts movement</string>
+    <string name="cbac_nhop">Needing help from others to perform everyday activities such as eating, getting dressed, grooming, bathing, walking, or using the toilet</string>
+    <string name="cbac_forget_names">Forgetting the names of your near ones or your own home address </string>
+
+    <string name="cbac_validation_your_age">"Please Select age"</string>
+    <string name="cbac_validation_smoke">"Please select the consumption of smoke and smokeless products"</string>
+    <string name="cbac_validation_consume_alcohol">"Please Select alcohol consumption"</string>
+    <string name="cbac_validation_waist">"Please Select measurement of waist"</string>
+    <string name="cbac_validation_physical_activities">"Please Select physical activities"</string>
+    <string name="cbac_validation_heart_disease">"Please Select family history"</string>
+
+    <string name="cbac_validation_plsst">Please select anyone in family currently suffering from TB</string>
+    <string name="cbac_validation_plsatb">Please select Are you currently taking anti-TB</string>
+    <string name="cbac_validation_plshtb">Please select history of TB</string>
+    <string name="cbac_validation_plscoughh">Please select Coughing more than 2 weeks</string>
+    <string name="cbac_validation_plbls">Please select blood in sputum</string>
+    <string name="cbac_validation_plsfever">Please select fever for >2 weeks</string>
+    <string name="cbac_validation_plslweight">Please select loss of weight</string>
+    <string name="cbac_validation_plsnsw">Please select night sweats</string>
+    <string name="cbac_validation_rul">Please select recurrent ulceration</string>
+    <string name="cbac_validation_rtps">Please select recurrent tingling on palm or sole</string>
+    <string name="cbac_validation_cbv">Please select cloudy or blurred vision</string>
+    <string name="cbac_validation_dr">Please select difficulty in reading</string>
+    <string name="cbac_validation_pie">Please select pain in eyes lasting for more than a week</string>
+    <string name="cbac_validation_rie">Please select redness in eyes lasting for more than a week</string>
+    <string name="cbac_validation_dih">Please select difficulty in hearing</string>
+    <string name="cbac_validation_sob">Please select shortness of breath</string>
+    <string name="cbac_validation_hif">Please select history of fits</string>
+    <string name="cbac_validation_diom">Please select difficulty in opening mouth</string>
+    <string name="cbac_validation_upgm">Please select ulcer/patches/growth in mouth</string>
+    <string name="cbac_validation_tov">Please select change in tone of voice</string>
+    <string name="cbac_validation_gimh">Please select growth in mouth that has not healed in 2 weeks</string>
+    <string name="cbac_validation_wrp">Please select white or red patch in mouth that has not healed in 2 weeks</string>
+    <string name="cbac_validation_pwh">Please select pain while chewing</string>
+    <string name="cbac_validation_hpds">Please select any hyper pigmented patch or discoloration on skin</string>
+    <string name="cbac_validation_ts">Please select any thickened skin</string>
+    <string name="cbac_validation_ns">Please select any nodules on skin</string>
+    <string name="cbac_validation_rnps">Please select recurrent numbness on palm or sole</string>
+    <string name="cbac_validation_cfhf">Please select clawing of fingers in hand or feet</string>
+    <string name="cbac_validation_tnhf">Please select tingling or numbness in hand or feet</string>
+    <string name="cbac_validation_ice">Please select inability to close eyelid</string>
+    <string name="cbac_validation_dhof">Please select difficulty in holding objects with fingers</string>
+    <string name="cbac_validation_wfdw">Please select weakness in feet that causes difficulty in walking</string>
+    <string name="cbac_validation_lb">Please select lump in breast</string>
+    <string name="cbac_validation_bsdfn">Please select blood stained discharge from nipple</string>
+    <string name="cbac_validation_csb">Please select change in breast shape</string>
+    <string name="cbac_validation_bbp">Please select blood between periods</string>
+    <string name="cbac_validation_bam">Please select blood after menopause</string>
+    <string name="cbac_validation_bai">Please select blood after intercourse</string>
+    <string name="cbac_validation_fsvd">Please select foul smelling vaginal discharge</string>
+    <string name="cbac_validation_fuwsw">Please select Feeling unsteady while standing or walking</string>
+    <string name="cbac_validation_sapd">Please select Suffering from any physical disability that restrict movement</string>
+    <string name="cbac_validation_nhpa">Please select Needing help from others to perform every day activities such as eating, getting dressed, grooming, bathing, walking, or using the toilets</string>
+    <string name="cbac_validation_fn">Please select Forgetting names of yours, near ones or your own home address </string>
+    <string name="cbac_validation_fu">Please select fuel used for cooking</string>
+    <string name="cbac_validation_ox">Please select Occupational exposure </string>
+    <string name="cbac_validation_li">Please select Little Interest field! </string>
+    <string name="cbac_validation_fd">Please select Feeling down field! </string>
+    <string name="cbac_Question">Question</string>
+    <string name="cbac_score">Score</string>
+    <string name="cbac_type_of_fuel">Type of fuel used for cooking</string>
+    <string name="cbac_remarks">Remarks</string>
+    <string name="cbac_risk_assessment_tv">Part A: Risk Assessment</string>
+    <string name="cbac_tv_bl_menopause">Inform ASHA Facilitator</string>
+    <string name="cbac_form">CBAC Form</string>
+    <string name="alert">Alert !</string>
+    <string name="missing_field">MISSING FIELD</string>
+    <string name="suspected_hrp_and_ncd_case">SUSPECTED HRP AND NCD CASE!</string>
+    <string name="ok">Ok</string>
+    <string name="suspected_hrp_case">SUSPECTED HRP CASE!</string>
+    <string name="suspected_ncd_case_please_visit_nearest_hwc_or_call">Suspected NCD case, please visit nearest HWC or call\n 104.</string>
+    <string name="refer_to_ncd_screening_day_vhsnd_hwc_for_ncd_screening_priority">Refer to NCD screening day / VHSND/ HWC for NCD screening (Priority)</string>
+    <string name="refer_to_ncd_screening_day_vhsnd_hwc_for_ncd_screening_less_priority">Refer to NCD screening day / VHSND/ HWC for NCD screening (Less Priority)</string>
+    <string name="send_the_patient_to_moic_of_nearest_health_center_for_treatment">Send the patient to MOIC of nearest health center for treatment</string>
+    <string name="refer_to_mo_and_collect_the_sputum_sample">Refer to MO and collect the Sputum sample</string>
+    <string name="inform_asha_facilitator">Inform ASHA Facilitator.</string>
+    <string name="total_score_wihout_semi_colon">"Total Score "</string>
+    <string name="total_score">"Total Score : "</string>
+    <string name="refer_to_mo_or_inform_anm_mpw_to_tracing_of_all_family_members">Refer to MO or inform ANM/MPW to tracing of all family members</string>
+    <string name="cbac">CBAC</string>
+    <string name="tb_screening">TB Screening</string>
+    <string name="tb_screening_submitted">TB Screening submitted</string>
+    <string name="screen">Screen</string>
+    <string name="tb_suspected_sputum_test">TB Suspected Sputum Test</string>
+    <string name="tb_tracking_submitted">TB Tracking submitted</string>
+    <string name="track">Track</string>
+    <string name="filled_on">"Filled on "</string>
+    <string name="save">Save</string>
+    <string name="tb_suspected_alert">Refer to MO and collect the Sputum sample</string>
+    <string name="tb_suspected_alert_positive">Refer to MO</string>
+    <string name="tb_suspected_family_alert">Refer to MO or inform ANM/MPW to tracing of all family members</string>
+    <string name="is_sputum_sample_collected">Is Sputum sample collected?</string>
+    <string name="sputum_sample_submitted_at">Sputum sample submitted at</string>
+    <string name="nikshay_id">Nikshay ID</string>
+    <string name="sputum_test_result">Sputum Test Result</string>
+    <string name="referred_to_facility">Referred to Facility</string>
+    <string name="facility_referral_follow_ups">Facility Referral follow-ups</string>
+    <string-array name="tb_submitted_yet">
+        <item>DMC</item>
+        <item>SC</item>
+        <item>PHC</item>
+    </string-array>
+    <string-array name="tb_test_result">
+        <item>Positive</item>
+        <item>Negative</item>
+    </string-array>
+    <string-array name="cbac_age">
+        <item>0-29 years</item>
+        <item>30-39 years</item>
+        <item>40-49 years</item>
+        <item>50-59 years</item>
+        <item>≥ 60 years</item>
+    </string-array>
+    <string-array name="cbac_smoke">
+        <item>Never</item>
+        <item>Used to consume in the past sometime</item>
+        <item>Daily</item>
+    </string-array>
+    <string-array name="cbac_alcohol">
+        <item>No</item>
+        <item>Yes</item>
+    </string-array>
+    <string-array name="cbac_waist_mes_female">
+        <item>80 cm or less</item>
+        <item>81-90 cm</item>
+        <item>More than 90 cm</item>
+    </string-array>
+    <string-array name="cbac_waist_mes_male">
+        <item>90 cm or less</item>
+        <item>91-100 cm</item>
+        <item>More than 100 cm</item>
+    </string-array>
+    <string-array name="cbac_pa">
+        <item>At least 150 minutes in a week</item>
+        <item>Less than 150 minutes in a week</item>
+    </string-array>
+    <string-array name="cbac_fh">
+        <item>No</item>
+        <item>Yes</item>
+    </string-array>
+
+    <string-array name="cbac_type_Cooking_fuel">
+        <item>Firewood</item>
+        <item>Crop Residue</item>
+        <item>Gobar Gas</item>
+        <item>Coal</item>
+        <item>Kerosene oil</item>
+        <item>LPG</item>
+    </string-array>
+    <string-array name="cbac_type_occupational_exposure">
+        <item>Crop residue burning</item>
+        <item>Burning of garbage – leaves</item>
+        <item>Working in industries with smoke, gas and dust exposure such as brick kilns and glass factories etc.</item>
+    </string-array>
+    <string-array name="cbac_li">
+        <item>Not at all</item>
+        <item>Several Days</item>
+        <item>More than half the days</item>
+        <item>Nearly everyday</item>
+    </string-array>
+    <string-array name="cbac_fd">
+        <item>Not at all</item>
+        <item>Several Days</item>
+        <item>More than half the days</item>
+        <item>Nearly everyday</item>
+    </string-array>
+</resources>
