@@ -354,7 +354,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bottom_menu_nav, menu)
+//        inflater.inflate(R.menu.bottom_menu_nav, menu)
 
         setItemVisibility()
         setItemSelected()
