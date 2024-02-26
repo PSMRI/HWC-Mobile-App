@@ -1,19 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:id="@+id/fragment_outreach_activity_form"
-    tools:context=".ui.outreach_activity.outreach_activity_form.OutreachActivityFormFragment">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/rl_saving"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-        android:orientation="vertical">
+        <ProgressBar
+            android:id="@+id/pb_saving"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pb_saving"
+            android:layout_centerHorizontal="true"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/loading"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:id="@+id/fragment_outreach_activity_form"
+        android:layout_below="@id/rl_saving"
+        tools:context=".ui.outreach_activity.outreach_activity_form.OutreachActivityFormFragment">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:orientation="vertical"
+            android:visibility="visible">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/date_of_event_text"
@@ -133,7 +159,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     </LinearLayout>
 
 </ScrollView>
+</RelativeLayout>

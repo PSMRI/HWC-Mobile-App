@@ -28,6 +28,7 @@ import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.nullIfEmpty
+import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -138,6 +139,7 @@ class OutreachActivityFormFragment : Fragment() {
                 binding.noOfParticipant.setError("Number of participants cannot be empty")
                 return@setOnClickListener;
             }
+            binding.rlSaving.visibility =View.VISIBLE
 
             viewModel.outreachActivityModel.img1 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
             viewModel.outreachActivityModel.img2 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
@@ -147,6 +149,7 @@ class OutreachActivityFormFragment : Fragment() {
                     true -> {
                         requireActivity().finish()
                         startActivity(Intent(requireContext(), OutreachActivity::class.java))
+                        binding.rlSaving.visibility =View.GONE
                     }
                     false -> {
                         Toast.makeText(
@@ -203,7 +206,6 @@ class OutreachActivityFormFragment : Fragment() {
                         Glide.with(this).load(photoURI)
                             .into(binding.iv2)
                     }
-
                 }
             }
         }
