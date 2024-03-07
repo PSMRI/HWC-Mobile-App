@@ -34,60 +34,15 @@ class GovtIdViewModel  @Inject constructor(
     private val govIdEntityMasterRepo: GovIdEntityMasterRepo
 ): ViewModel() {
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-//    ): View {
-//        viewModel = ViewModelProvider(this).get(OutreachViewModel::class.java)
-//        _binding = FragmentOutreachBinding.inflate(layoutInflater, container, false)
-//        val options = FirebaseVisionFaceDetectorOptions.Builder()
-//            .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
-//            .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
-//            .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
-//            .build()
-//
-//        faceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options)
-//
-//        return binding.root
-//    }
 
     init {
         viewModelScope.launch {
-//            languageRepo.saveResponseToCacheLang()
-//            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-//            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-//            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-//            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-//            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-//            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-//            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-//            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-//            stateMasterRepo.saveStateMasterResponseToCache()
-//            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-//            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
+
         }
     }
 
     private suspend fun fetchGovtIds(){
-//        val govtIdMap = govIdEntityMasterRepo.getGovIdtEntityAsMap()
-//        if(govtIdMap != null){
-//            val govtIdNames = govtIdMap.values.toTypedArray()
-//            binding.dropdownGovtIdType.setAdapter(ArrayAdapter(requireContext(), R.layout.drop_down, govtIdNames))
-//            if(govtIdNames.isNotEmpty()) {
-//                selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[0].key, govtIdMap!!.entries.toList()[0].value)
-//                binding.dropdownGovtIdType.setText(selectedGovtIdType!!.identityType, false)
-//            }
-//            binding.dropdownGovtIdType.setOnItemClickListener { parent, _, position, _ ->
-//                selectedGovtIdType = GovIdEntityMaster( govtIdMap!!.entries.toList()[position].key, govtIdMap!!.entries.toList()[position].value)
-//                binding.dropdownGovtIdType.setText(selectedGovtIdType!!.identityType, false)
-//            }
-//        }
+
     }
 
 

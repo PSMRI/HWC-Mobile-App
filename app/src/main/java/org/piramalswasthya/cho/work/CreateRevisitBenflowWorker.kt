@@ -30,11 +30,7 @@ class CreateRevisitBenflowWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         init()
-//        try {
-////                setForeground(createForegroundInfo("Downloading"))
-//        } catch (throwable: Throwable) {
-//            Timber.d("FgLW", "Something bad happened", throwable)
-//        }
+
         try {
             val workerResult = benFlowRepo.createRevisitBenflowRecords()
             return if (workerResult) {

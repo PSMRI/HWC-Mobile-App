@@ -535,34 +535,7 @@ class BenFlowRepo @Inject constructor(
         }
     }
 
-//    private suspend fun getBenDetailsForPharmacist(benFlow: BenFlow): NetworkResult<NetworkResponse> {
-//        return networkResultInterceptor {
-//            val pharmacistPatientDataRequest = PharmacistPatientDataRequest(
-//                benFlowID = benFlow.benFlowID!!,
-//                beneficiaryRegID = benFlow.beneficiaryRegID!!
-//            )
-//
-//            val response = apiService.getPharmacistPatientDetails(pharmacistPatientDataRequest)
-//            val responseBody = response.body()?.string()
-//
-//            refreshTokenInterceptor(
-//                responseBody = responseBody,
-//                onSuccess = {
-//                    val jsonObj = JSONObject(responseBody)
-//                    val data = jsonObj.getJSONObject("data")
-//                        .toString()
-////                    val benFlowDetails = Gson().fromJson(data, Array<ProcedureDTO>::class.java)
-//
-//                    NetworkResult.Success(NetworkResponse())
-//                },
-//                onTokenExpired = {
-//                    val user = userRepo.getLoggedInUser()!!
-//                    userRepo.refreshTokenTmc(user.userName, user.password)
-//                    getBenDetailsForPharmacist(benFlow)
-//                },
-//            )
-//        }
-//    }
+
 
         suspend fun getAllocationItemForPharmacist(prescriptionDTO: PrescriptionDTO): NetworkResult<NetworkResponse> {
             return networkResultInterceptor {
@@ -695,25 +668,6 @@ class BenFlowRepo @Inject constructor(
         }
     }
 
-//    suspend fun getBenDetailsForPharmacist(benFlowID: Long) : BenFlow {
-//        return benFlowDao.getBenFlowByBenFlowID(benFlowID)
-//    }
 
-//    suspend fun getBenDetailsForPharmacist(patientId: String?): BenFlow? {
-//        return try {
-//            var benFlowBD: BenFlow? = null
-//            patientId?.let { patientID ->
-//                val patient = patientRepo.getPatient(patientId)
-//                val benFlow = benFlowDao.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
-//                if (benFlow != null) {
-//                    benFlowBD = benFlowDao.getBenFlowByBenFlowID(benFlow.benFlowID)
-//                }
-//            }
-//            benFlowBD
-//        } catch (e: Exception) {
-//            var benFlowBD: BenFlow? = null
-//            benFlowBD
-//        }
-//    }
 
 }

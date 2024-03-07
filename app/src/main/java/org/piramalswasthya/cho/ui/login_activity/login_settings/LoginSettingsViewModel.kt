@@ -204,28 +204,6 @@ class LoginSettingsViewModel@Inject constructor(
         }
     }
 
-//    fun fetchStates() {
-//        viewModelScope.launch {
-//            _state.value = NetworkState.LOADING
-//            try {
-//                val request = LocationRequest(vanID = 153, spPSMID = "64")
-//                when (val stateData = stateMasterRepo.getStateList(request)){
-//                    is NetworkResult.Success -> {
-//                        stateList = (stateData.data as StateList).stateMaster
-//                        addStatesToDb()
-//                        initializeStateSelection()
-//                        _state.value = NetworkState.SUCCESS
-//                    }
-//                    else -> {
-//
-//                    }
-//                }
-//
-//            } catch (e: Exception) {
-//                Timber.d("Fetching states failed ${e.message}")
-//            }
-//        }
-//    }
 
     fun fetchDistricts(selectedStateId: Int) {
         _district.value = NetworkState.LOADING

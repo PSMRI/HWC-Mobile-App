@@ -317,20 +317,6 @@ class HomeActivity : AppCompatActivity() {
 
         triggerAlarmManager()
 
-//        val desiredHour = 21 // Change this to your desired hour (0-23)
-//        val desiredMinute = 0 // Change this to your desired minute (0-59)
-//
-//        val currentTime = Calendar.getInstance()
-//        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
-//        val currentMinute = currentTime.get(Calendar.MINUTE)
-//
-//        val delayMillis = calculateDelayMillis(currentHour, currentMinute, desiredHour, desiredMinute)
-
-//        handler.postDelayed({
-//            // Call your method here
-////            myMethodToRunAtSpecificTime()
-//
-//        }, delayMillis)
         currentLanguage = prefDao.getCurrentLanguage()
 
     }

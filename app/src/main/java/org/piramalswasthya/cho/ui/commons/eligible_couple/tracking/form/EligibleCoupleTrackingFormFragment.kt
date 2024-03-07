@@ -254,12 +254,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     override fun onStart() {
         super.onStart()
-//        activity?.let {
-//            (it as HomeActivity).updateActionBar(
-//                R.drawable.ic__eligible_couple,
-//                getString(R.string.eligible_couple_tracking_form)
-//            )
-//        }
+
     }
 
     override fun getFragmentId(): Int {

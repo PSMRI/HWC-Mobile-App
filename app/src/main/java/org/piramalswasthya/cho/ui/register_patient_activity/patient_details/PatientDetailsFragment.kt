@@ -183,16 +183,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setChangeListeners()
         setAdapters()
 
-//        villageAdapter = VillageDropdownAdapter(
-//            context = requireContext(),
-//           resource = R.layout.drop_down,
-//            dataList = viewModel.villageList,
-//            autoCompleteTextView = binding.villageDropdown,
-////            dataListConst = viewModel.villageListFilter
-//        )
-//        binding.villageDropdown.setAdapter(villageAdapter)
-
-
 
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
@@ -200,9 +190,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.lastNameText.setEndIconOnClickListener {
             speechToTextLauncherForLastName.launch(Unit)
         }
-//        binding.ageText.setEndIconOnClickListener {
-//            speechToTextLauncherForAge.launch(Unit)
-//        }
         binding.phoneNoText.setEndIconOnClickListener {
             speechToTextLauncherForPhoneNumber.launch(Unit)
         }
@@ -481,20 +468,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.ageInUnitVal.observe(viewLifecycleOwner) {
                 binding.ageInUnitText.setBoxColor(it, resources.getString(R.string.select_age_in_unit))
             }
-//            viewModel.maritalStatusVal.observe(viewLifecycleOwner) {
-//                binding.maritalStatusText.setBoxColor(it,resources.getString(R.string.select_mariital_status))
-//            }
-//            viewModel.spouseNameVal.observe(viewLifecycleOwner) {
-//                binding.spouseNameText.setBoxColor(it, resources.getString(R.string.enter_spouse_name))
-//            }
-//            viewModel.ageAtMarraigeVal.observe(viewLifecycleOwner) {
-//                binding.ageAtMarriageText.setBoxColor(it, resources.getString(R.string.enter_age_at_marriage))
-//            }
-//            binding.phoneNoText.setBoxColor(false, resources.getString(R.string.enter_a_valid_phone_number))
-//            viewModel.phoneN.observe(viewLifecycleOwner) {
-//                Timber.d("phone nimber ${it?.reason}")
-//                    binding.phoneNoText.setBoxColor(it.boolean,it.reason)
-//            }
             viewModel.genderVal.observe(viewLifecycleOwner) {
                 binding.genderText.setBoxColor(it, resources.getString(R.string.select_gender))
             }
@@ -535,12 +508,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
-//        binding.ageInUnitDropdown.setOnItemClickListener { parent, _, position, _ ->
-//            viewModel.selectedAgeUnit = viewModel.ageUnitList[position];
-//            viewModel.selectedAgeUnitEnum = viewModel.ageUnitEnumMap[viewModel.selectedAgeUnit]
-//            binding.ageInUnitDropdown.setText(viewModel.selectedAgeUnit!!.name, false)
-//            setAgeToDateOfBirth()
-//        }
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
@@ -762,19 +729,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setAdapters(){
-//        viewModel.ageUnit.observe(viewLifecycleOwner) { state ->
-//            when (state!!){
-//                PatientDetailsViewModel.NetworkState.SUCCESS -> {
-//                    val dropdownList = viewModel.ageUnitList.map { it -> DropdownList(it.id, it.name) }
-//                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.ageInUnitDropdown)
-//                    binding.ageInUnitDropdown.setAdapter(dropdownAdapter)
-//                    binding.ageInUnitDropdown.setText("Years",false)
-//                }
-//                else -> {
-//
-//                }
-//            }
-//        }
         viewModel.villageVal.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
@@ -843,19 +797,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
 
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    fun setDateOfBirthToAge(date: Date){
-//        val age = DateTimeUtil.calculateAge(date);
-//        viewModel.enteredAge = age.value
-//        viewModel.selectedDateOfBirth = date
-//        viewModel.selectedAgeUnitEnum = age.unit
-//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
-//        doAgeToDob = false;
-//        binding.age.setText(age.value.toString())
-//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
-//        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
-//    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
         val age = DateTimeUtil.calculateAgePicker(date);
@@ -916,16 +857,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.age = viewModel.enteredAge;
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
-//        patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
-//        patient.spouseName = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
-//            "married" -> binding.spouseName.text.toString();
-//            else -> null
-//        }
-//        patient.ageAtMarriage = when(viewModel.selectedMaritalStatus?.status?.lowercase()){
-//            "married" -> binding.ageAtMarriage.text.toString().toIntOrNull();
-//            else -> null
-//        }
-//        patient.phoneNo = binding.phoneNo.text.toString()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null
         } else {
@@ -950,18 +881,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.ageVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
             return false
         }
-//        if(viewModel.ageGreaterThan11.value!!){
-//            if (!viewModel.maritalStatusVal.value!! ){
-//                return false
-//            }
-//            else{
-//                if(viewModel.selectedMaritalStatus!!.status.lowercase() == "married"){
-//                    if(!viewModel.ageAtMarraigeVal.value!! || !viewModel.spouseNameVal.value!!){
-//                        return false
-//                    }
-//                }
-//            }
-//        }
+
         return true
     }
     @RequiresApi(Build.VERSION_CODES.O)

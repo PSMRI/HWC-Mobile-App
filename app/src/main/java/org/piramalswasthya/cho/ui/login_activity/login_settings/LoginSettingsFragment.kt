@@ -121,36 +121,6 @@ class LoginSettingsFragment : Fragment() {
             }
         }
 
-//        binding.continueButton.setOnClickListener{
-//            // Save Login Settings Data with location to preferences
-////            val loginSettingsData = myLocation?.let { it1 ->
-////                LoginSettingsData(selectedState,selectedDistrict,selectedBlock,selectedVillage, myLocation!!.longitude,
-////                    myLocation!!.latitude,
-////                    it1,userName
-////                )
-////            }
-//////            if (loginSettingsData != null) {
-//////                preferenceDao.saveLoginSettingsRecord(loginSettingsData)
-//////                Toast.makeText(context,"Settings Saved to preference",Toast.LENGTH_SHORT).show()
-//////                findNavController().navigate(
-//////                    LoginSettingsFragmentDirections.actionLoginSettingsToLoginActivity()
-//////                )
-//////            }
-////            if (loginSettingsData != null) {
-////                lifecycleScope.launch {
-////                    loginSettingsDataRepository.saveLoginSettingsData(loginSettingsData)
-////                }
-////                Toast.makeText(context,"Settings Saved to Repository",Toast.LENGTH_SHORT).show()
-////                findNavController().navigate(
-//////                    LoginSettingsFragmentDirections.actionLoginSettingsToChoLogin(userName)
-////                    LoginSettingsFragmentDirections.actionLoginSettingsToUsername()
-////                )
-////            }
-////            else{
-////                Toast.makeText(context,"Error!! Check permissions",Toast.LENGTH_SHORT).show()
-////                getCurrentLocation()
-////            }
-//        }
 
         if(myInitialLoc != null){
             Log.i("Current Location is","${myInitialLoc?.longitude}")
@@ -161,15 +131,7 @@ class LoginSettingsFragment : Fragment() {
         binding.getGPSLoc.setOnClickListener {
             getCurrentLocation()
         }
-//        binding.enrollFpScreen.setOnClickListener {
-//            findNavController().navigate(
-//                LoginSettingsFragmentDirections.actionLoginSettingsFragmentToFingerPrintRegisterFragment(userName)
-//            )
-//        }
 
-//        binding.retry.setOnClickListener {
-//            resetData()
-//        }
         binding.submit.setOnClickListener {
             if(!binding.inputMasterLat.text.isNullOrEmpty() && !binding.inputMasterLong.text.isNullOrEmpty()){
                 submitLocationData()
@@ -310,17 +272,8 @@ class LoginSettingsFragment : Fragment() {
                         binding.inputMasterLat.setText(myInitialLoc?.latitude.toString())
                         Log.i("Initial Location","$myInitialLoc")
                     } else if(myInitialLoc != null) {
-//                        val distance = calculateDistance(
-//                            myInitialLoc!!.latitude,
-//                            myInitialLoc!!.longitude,
-//                            location.latitude,
-//                            location.longitude
-//                        )
-
-
                     }
-                    // Stop listening for location updates once you have the current location
-//                    locationManager?.removeUpdates(this)
+
                 }
 
                 override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}

@@ -89,18 +89,6 @@ class ImmunizationFormViewModel @Inject constructor(
                 val ben = patientDao.getPatientById(patientID)!!
                 _benName.postValue("${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}")
                 _benAgeGender.postValue("${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}")
-//                val saveVaccine = Vaccine(
-//                    0,
-//                    "vaccine",
-//                    315569520000,
-//                    788923800000,
-//                    ImmunizationCategory.CHILD,
-//                    ChildImmunizationCategory.BIRTH,
-//                    788923800000,
-//                    0,
-//                    800000
-//                )
-//                vaccineDao.addVaccine(saveVaccine)
 
                 vaccine = vaccineDao.getVaccineById(vaccineId)
                     ?: throw IllegalStateException("Unknown Vaccine Injected, contact HAZMAT team!")

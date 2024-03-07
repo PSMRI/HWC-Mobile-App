@@ -21,22 +21,6 @@ import org.piramalswasthya.cho.model.Patient
 @AndroidEntryPoint
 class LocationFragment : Fragment() , NavigationAdapter {
 
-//    @Inject
-//    lateinit var stateMasterRepo: StateMasterRepo
-//
-//    @Inject
-//    lateinit var districtMasterRepo: DistrictMasterRepo
-//
-//    @Inject
-//    lateinit var blockMasterRepo: BlockMasterRepo
-//
-//    @Inject
-//    lateinit var villageMasterRepo: VillageMasterRepo
-//
-//    @Inject
-//    lateinit var userDao: UserDao
-//
-//    private var userInfo: UserCache? = null
 
     private val binding by lazy{
         FragmentLocationBinding.inflate(layoutInflater)
@@ -176,26 +160,6 @@ class LocationFragment : Fragment() , NavigationAdapter {
     }
 
     private fun addPatientOtherDetalis(){
-
-//        if(userInfo != null){
-//
-//            patient.addExtension( extension.getExtenstion(
-//                extension.getUrl(vanID),
-//                extension.getStringType(userInfo!!.vanId.toString()) ) )
-//
-//            patient.addExtension( extension.getExtenstion(
-//                extension.getUrl(parkingPlaceID),
-//                extension.getStringType(userInfo!!.parkingPlaceId.toString()) ) )
-//
-//            patient.addExtension( extension.getExtenstion(
-//                extension.getUrl(providerServiceMapId),
-//                extension.getStringType(userInfo!!.serviceMapId.toString()) ) )
-//
-//            patient.addExtension( extension.getExtenstion(
-//                extension.getUrl(createdBy),
-//                extension.getStringType(userInfo!!.userName) ) )
-//
-//        }
 
     }
 

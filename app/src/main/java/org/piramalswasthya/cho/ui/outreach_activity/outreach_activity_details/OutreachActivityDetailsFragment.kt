@@ -80,10 +80,6 @@ class OutreachActivityDetailsFragment : Fragment() {
         binding.eventDesc.text = activityDetails.eventDescription
         binding.paricipants.text = activityDetails.noOfParticipants?.toString()
 
-//        viewModel.activity.activityDate = DateTimeUtil.formatActivityDate(viewModel.activity.activityDate)
-//        binding.outreachActivityModel = viewModel.activity
-//        binding.outreachActivityModel.activityDate = DateTimeUtil.formatActivityDate(binding.outreachActivityModel.activityDate)
-//        binding.outreachActivityDetailsViewModel =
     }
 
 }

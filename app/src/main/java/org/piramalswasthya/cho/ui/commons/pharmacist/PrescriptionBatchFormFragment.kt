@@ -46,9 +46,6 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
     private var dtos: List<ProcedureDTO>? = null
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
 
-//    private val args: PharmacistFormFragmentArgs by lazy {
-//        PharmacistFormFragmentArgs.fromBundle(requireArguments())
-//    }
 
     private val bundle = Bundle()
 
@@ -92,41 +89,6 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
 //            requireActivity().finish()
             onCancelAction()
         }
-
-//        viewModel = ViewModelProvider(this).get(PrescriptionBatchFormViewModel::class.java)
-//        viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
-//            when (state!!) {
-//                PrescriptionBatchFormViewModel.NetworkState.SUCCESS -> {
-//                    lifecycleScope.launch {
-//                        viewModel.downloadPrescription(benVisitInfo = benVisitInfo)
-//                        viewModel.getPrescription(benVisitInfo = benVisitInfo)
-//                    }
-//
-//                    viewModel.prescriptions.observe(viewLifecycleOwner) {
-//                        viewModel.prescriptions?.value?.let {it->
-//
-////                            Timber.d("*******************Babs DTO************** ",it)
-//                            binding.consultantValue.text = it.consultantName
-//                            binding.visitCodeValue.text = it.visitCode.toString()
-//                            binding.prescriptionIdValue.text = it.prescriptionID.toString()
-//
-////                            itemAdapter?.submitList(it.itemList)
-//
-//                            it.itemList.let { it ->
-//                            }
-//                        }
-//
-//
-//                    }
-//
-//                }
-//
-//                else -> {
-//
-//                }
-//            }
-////        }
-//        }
     }
 
     fun getResultStr(count:Int?):String{
@@ -142,35 +104,15 @@ class PrescriptionBatchFormFragment : Fragment(R.layout.fragment_prescription_ba
 
     override fun onSubmitAction() {
         var isValidData = true
-//        dtos?.forEach { procedureDTO ->
-//            procedureDTO.compListDetails.forEach { componentDetailDTO ->
-//                if (!componentDetailDTO.testResultValue.isNullOrEmpty() &&
-//                    componentDetailDTO.range_max != null &&
-//                    componentDetailDTO.range_min != null) {
-//                    isValidData = (componentDetailDTO.testResultValue!!.toDouble() > componentDetailDTO.range_min && componentDetailDTO.testResultValue!!.toDouble() < componentDetailDTO.range_max)
-//                }
-//            }
-//        }
-//        if (isValidData) {
-////            viewModel.saveLabData(dtos, args.patientId)
-//            navigateNext()
-//        } else {
-//            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
-//        }
     }
 
     override fun onCancelAction() {
-//        getFragmentManager()?.popBackStack()
-//        requireActivity().finish()
         findNavController().navigate(
             R.id.action_prescriptionBatchFormFragment_to_pharmacistFormFragment, bundle
         )
     }
 
     fun navigateNext() {
-//        findNavController().navigate(
-//            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
-//        )
         requireActivity().finish()
     }
 

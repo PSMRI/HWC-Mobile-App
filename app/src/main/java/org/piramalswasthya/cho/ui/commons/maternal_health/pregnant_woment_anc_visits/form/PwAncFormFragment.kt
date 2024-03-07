@@ -249,31 +249,11 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
                 }
 
-//                9 ->{
-//                    notifyItemChanged(viewModel.getIndexOfDiastolic())
-//                    if(viewModel.triggerBpToggle() ){
-//                        notifyItemChanged(viewModel.getIndexOfSystolic())
-//                        viewModel.resetBpToggle()
-//
-//                    }
-//                }
-//                10 ->{
-//                    notifyItemChanged(viewModel.getIndexOfSystolic())
-//                    if(viewModel.triggerBpToggle()){
-//                        notifyItemChanged(viewModel.getIndexOfDiastolic())
-//                        viewModel.resetBpToggle()
-//
-//                    }
-//                }
-//                19 -> notifyItemChanged(viewModel.getIndexOfPastIllness())
             }
         }
     }
     override fun onStart() {
         super.onStart()
-//        activity?.let {
-//            (it as HomeActivity).updateActionBar(R.drawable.ic__pregnancy, getString(R.string.anc_visit))
-//        }
     }
 
     override fun getFragmentId(): Int {
@@ -283,9 +263,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     fun navigateNext() {
         submitAncForm()
-//        findNavController().navigate(
-//            R.id.action_fhirVisitDetailsFragment_to_pwAncFormFragment, bundle
-//        )
     }
 
     override fun onSubmitAction() {

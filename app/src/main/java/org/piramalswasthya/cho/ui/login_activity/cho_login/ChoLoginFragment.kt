@@ -128,15 +128,6 @@ class ChoLoginFragment : Fragment() {
         }
     }
 
-//    fun setUserName(){
-//        userName = arguments?.getString("userName", "");
-//        if(userName != null) {
-//            Timber.tag("tag").i(userName)
-//        }
-//        else{
-//            Timber.tag("tag").i("null")
-//        }
-//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 //        getCurrentLocation()
@@ -157,35 +148,8 @@ class ChoLoginFragment : Fragment() {
             } catch (e : Exception) {
                 // go back
                 Toast.makeText(context, "Device initialisation failed", Toast.LENGTH_SHORT).show()
-//                if(sgfplib.DeviceInUse()){
-//                    sgfplib.CloseDevice()
-//                }
             }
         }
-
-//        val userName = (arguments?.getString("userName", ""))!!;
-//
-//        lifecycleScope.launch {
-//            loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
-//
-//            if (loginSettingsData==null) {
-//                binding.loginSettings.visibility = View.VISIBLE
-//
-//                binding.loginSettings.setOnClickListener{
-//                    try {
-//                        findNavController().navigate(
-//                            ChoLoginFragmentDirections.actionChoLoginToLoginSettings(userName),
-//                        )
-//                    }catch (e: Exception){
-//                        Timber.d("Failed to navigate"+e.message)
-//                    }
-//
-//                }
-//            } else {
-//                binding.loginSettings.visibility = View.INVISIBLE
-//            }
-//        }
-
 
 
     }
@@ -225,173 +189,13 @@ class ChoLoginFragment : Fragment() {
 
 
     private fun initialiseDevice() {
-//        val pendingFlags: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-//        mPermissionIntent = PendingIntent.getBroadcast(
-//            activity, 0,
-//            Intent(ACTION_USB_PERMISSION), pendingFlags
-//        )
-//        val usbManager: UsbManager = requireContext().getSystemService(Context.USB_SERVICE) as UsbManager
-//        sgfplib = JSGFPLib(this.requireActivity(), usbManager)
-//        sgfplib.Init( SGFDxDeviceName.SG_DEV_AUTO)
-//        val usbDevice: UsbDevice? = sgfplib.GetUsbDevice()
-//        if (usbDevice == null) {
-//            val dlgAlert = AlertDialog.Builder(activity)
-//            dlgAlert.setMessage("USB Device Not Found Please check your Connection")
-//            dlgAlert.setTitle("USB Device Error")
-//            dlgAlert.setPositiveButton("OK",
-//                DialogInterface.OnClickListener { _, _ ->
-//                    binding.scanButton.text = "Scan For Login"
-//                    return@OnClickListener
-//                }
-//            )
-//            dlgAlert.setCancelable(false)
-//            dlgAlert.create().show()
-//        }
-//        else {
-//            var usbPermissionRequested = false
-//            var hasPermission: Boolean = sgfplib.GetUsbManager().hasPermission(usbDevice)
-//            if (!hasPermission) {
-//                if (!usbPermissionRequested) {
-//                    sgfplib.GetUsbManager().requestPermission(usbDevice, mPermissionIntent)
-//                    usbPermissionRequested = true
-//                    Timber.i("value of permission $usbPermissionRequested")
-//                } else {
-//                    //wait up to 20 seconds for the system to grant USB permission
-//                    hasPermission = sgfplib.GetUsbManager().hasPermission(usbDevice)
-//                    var i = 0
-//                    while (!hasPermission && i <= 40) {
-//                        ++i
-//                        hasPermission = sgfplib.GetUsbManager().hasPermission(usbDevice)
-//                        try {
-//                            Thread.sleep(500)
-//                        } catch (e: InterruptedException) {
-//                            e.printStackTrace()
-//                        }
-//                    }
-//                }
-//            }
-//            if(hasPermission){
-//                captureFingerprint()
-//            }
-//        }
-//        sgfplib.AutoOnEnabled()
+
 
     }
-//    private fun captureFingerprint() {
-//        mMaxTemplateSize = IntArray(1)
-//        sgfplib.OpenDevice(0)
-//        val deviceInfo = SGDeviceInfoParam()
-//        sgfplib.GetDeviceInfo(deviceInfo)
-//        val buffer = ByteArray(deviceInfo.imageWidth * deviceInfo.imageHeight)
-//        mImageWidth = deviceInfo.imageWidth
-//        mImageHeight = deviceInfo.imageHeight
-//        val quality: Long = 60
-//        val timeout: Long = 10000
-//        var result = sgfplib.GetImageEx(buffer, timeout, quality)
-//        if (result == SGFDxErrorCode.SGFDX_ERROR_NONE) {
-//            binding.fpImage.setImageBitmap(toGrayscale(buffer,deviceInfo))
-//            binding.scanButton.text = "Re-Scan for Login"
-//            binding.scanButton.isClickable = true
-//            binding.scanButton.isEnabled = true
-//            mScanImage = buffer
-//            //calling method to verify the scanned print
-//            verifyFp()
-//        }
-//    }
 
-//    private fun toGrayscale(mImageBuffer: ByteArray, deviceInfoParam: SGDeviceInfoParam): Bitmap? {
-//        val bits = ByteArray(mImageBuffer.size * 4)
-//        for (i in mImageBuffer.indices) {
-//            bits[i * 4 + 2] = mImageBuffer[i]
-//            bits[i * 4 + 1] = bits[i * 4 + 2]
-//            bits[i * 4] = bits[i * 4 + 1] // Invert the source bits
-//            bits[i * 4 + 3] = -1 // 0xff, that's the alpha.
-//        }
-//
-//        val bmpGrayscale = Bitmap.createBitmap(deviceInfoParam.imageWidth, deviceInfoParam.imageHeight,
-//            Bitmap.Config.ARGB_8888)
-//        bmpGrayscale.copyPixelsFromBuffer(ByteBuffer.wrap(bits))
-//        return bmpGrayscale
-//    }
 
     private fun verifyFp(){
-//        val tempFormat = sgfplib.SetTemplateFormat(SGFDxTemplateFormat.TEMPLATE_FORMAT_ISO19794)
-//        Log.i("Template Format","$tempFormat")
-//        sgfplib.GetMaxTemplateSize(mMaxTemplateSize)
-//        mScanTemplate = ByteArray(mMaxTemplateSize!![0])
-//        mVerifyTemplate = ByteArray(mMaxTemplateSize!![0])
-//
-//        // current scan finger print
-//        val qualityS = IntArray(1)
-//        val getQualityS  = sgfplib.GetImageQuality(mImageWidth.toLong(), mImageHeight.toLong(), mScanImage, qualityS)
-//        Log.i("Scanned Image Quality"," $getQualityS")
-//
-//        val fpInfo = SGFingerInfo()
-//        fpInfo.FingerNumber = 1
-//        fpInfo.ImageQuality = qualityS[0]
-//        fpInfo.ImpressionType = SGImpressionType.SG_IMPTYPE_LP
-//        fpInfo.ViewNumber = 1
-//
-//        for (i in mScanTemplate!!.indices) mScanTemplate!![i] = 0
-//
-//        val scanTemplate = sgfplib.CreateTemplate(fpInfo, mScanImage, mScanTemplate)
-//        Log.i("Scan Template"," $scanTemplate")
-//
-//        var matchBool = false
-//        if(fingerPrintList!!.isNotEmpty()){
-//            for (item in fingerPrintList!!) {
-//                for (i in mVerifyTemplate!!.indices) mVerifyTemplate!![i] = 0
-//                val decodedByteArray = Base64.decode(item.fpVal, Base64.DEFAULT)
-//                val registerDataTemp = sgfplib.CreateTemplate(fpInfo, decodedByteArray, mVerifyTemplate)
-//                Log.i("Register Image Template"," $registerDataTemp")
-//
-//                val matched = BooleanArray(1)
-//                val match = sgfplib.MatchTemplate(mScanTemplate, mVerifyTemplate, SGFDxSecurityLevel.SL_NORMAL, matched)
-//                Log.i("Register Image Matching value"," $match")
-//
-//
-//                if(matched[0]){
-//                    Toast.makeText(activity,"Finger Print Matched !!",Toast.LENGTH_SHORT).show()
-//                    sgfplib.CloseDevice()
-//                    matchBool = true
-//                    val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
-//                    val timeZone = TimeZone.getTimeZone("GMT+0530")
-//                    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
-//                    formatter.timeZone = timeZone
-//
-//                    val loginTimestamp = formatter.format(Date())
-//
-//                    if(myLocation != null){
-//                        latitude = myLocation!!.latitude
-//                        longitude = myLocation!!.longitude
-//                    }
-//                    Log.i("Location From CHOLOg","${myLocation?.longitude}")
-//                    loginType = "HWC"
-//
-//                    viewModel.insertAuditData(loginType,
-//                        "",
-//                        loginTimestamp,
-//                        null,
-//                        latitude,
-//                        longitude,
-//                        null,
-//                        userName)
-//                    // navigate to Main screen
-//                    findNavController().navigate(ChoLoginFragmentDirections.actionSignInToHomeFromCho())
-//                    break
-//                } else {
-//                    binding.scanButton.text = "Re-Scan for Login"
-//                    matchBool = false
-//                }
-//            }
-//            if(!matchBool){
-//                Toast.makeText(activity,"Finger Print Does Not Matched !!",Toast.LENGTH_SHORT).show()
-//            }
-//        } else{
-//            Toast.makeText(activity,"Register Finger Print Data Not Found",Toast.LENGTH_SHORT).show()
-//        }
-//        // closing device after taking the reading
-//        sgfplib.CloseDevice()
+
     }
 
     override fun onDestroy() {
@@ -411,22 +215,6 @@ class ChoLoginFragment : Fragment() {
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
-//                    val distance = calculateDistance(
-//                            myInitialLoc!!.latitude,
-//                            myInitialLoc!!.longitude,
-//                            location.latitude,
-//                            location.longitude
-//                        )
-//
-//                        // Check if the user has moved more than 500 meters
-//                        if (distance > 500) {
-//                            // Show the dialog to ask for an update
-//                            showDialog()
-//                            Toast.makeText(activity,"Value of distance $distance and location is ${location.longitude} and ${location.latitude}",Toast.LENGTH_LONG).show()
-//                        }
-
-                        // Stop listening for location updates once you have the current location
-//                    locationManager?.removeUpdates(this)
                     }
 
                     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}

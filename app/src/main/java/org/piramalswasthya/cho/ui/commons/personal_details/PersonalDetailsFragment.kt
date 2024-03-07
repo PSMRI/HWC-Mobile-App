@@ -107,10 +107,6 @@ class PersonalDetailsFragment : Fragment() {
             .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
-//    private val parentViewModel: HomeViewModel by lazy {
-//        ViewModelProvider(requireActivity()).get(HomeViewModel::class.java)
-//    }
-//private val parentViewModel: HomeViewModel by viewModels({ requireActivity() })
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -125,31 +121,14 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        homeviewModel = ViewModelProvider(requireActivity())[HomeViewModel::class.java]
-//        parentViewModel.searchBool.observe((viewLifecycleOwner)){
         HomeViewModel.searchBool.observe(viewLifecycleOwner){
             bool ->
             when(bool!!) {
                 true ->{
-//                    binding.search.post {
-//                        lifecycleScope.launch {
-//                            withContext(Dispatchers.IO){
-//                                delay(5000)
-//                            }
                             binding.search.requestFocus()
                             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
                         }
-
-//                    }
-//                }
-//                    Handler(Looper.getMainLooper()).postDelayed(
-//                    {
-//                    binding.search.requestFocus()
-//            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-//            imm?.showSoftInput(binding.search, InputMethodManager.SHOW_FORCED);
-//                }
-//            , 100)
                 else -> {}
             }
 
@@ -172,11 +151,6 @@ class PersonalDetailsFragment : Fragment() {
                          PatientItemAdapter(
                             apiService,
                             it,
-//                            onItemClicked = {
-//                                val intent = Intent(context, EditPatientDetailsActivity::class.java)
-//                                intent.putExtra("patientId", it.patient.patientID);
-//                                startActivity(intent)
-//                            },
                             clickListener = PatientItemAdapter.BenClickListener(
                             {
                                 benVisitInfo ->
@@ -273,53 +247,6 @@ class PersonalDetailsFragment : Fragment() {
                             }
                         }
                     }
-
-//                    if(preferenceDao.isUserOnlyDoctorOrMo() || (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Doctor") || (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Doctor")) {
-//
-//                    }
-//                    else if (preferenceDao.isStartingLabTechnician() || (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Lab Technician") ||
-//                        (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Lab Technician")) {
-//                        lifecycleScope.launch {
-//                            viewModel.patientListForLab?.collect { it ->
-//                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-//                                binding.patientListContainer.patientCount.text =
-//                                    it.size.toString() + getResultStr(it.size)
-//                                patientCount = it.size
-//                            }
-//                        }
-//                    }
-//                    else if (preferenceDao.isPharmacist() || (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Pharmacist") ||
-//                        (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Pharmacist")) {
-//                        lifecycleScope.launch {
-//                            viewModel.patientListForPharmacist?.collect { it ->
-//                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-//                                binding.patientListContainer.patientCount.text =
-//                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-//                                patientCount = it.size
-//                            }
-//                        }
-//                    }
-//                    else if (preferenceDao.isUserOnlyNurseOrCHO() || (preferenceDao.isUserSwitchRole() && preferenceDao.getSwitchRole() == "Nurse") ||
-//                        (preferenceDao.isCHO() && preferenceDao.getCHOSecondRole() == "Nurse")){
-//                        lifecycleScope.launch {
-//                            viewModel.patientListForNurse?.collect { it ->
-//                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-//                                binding.patientListContainer.patientCount.text =
-//                                    it.size.toString() + getResultStr(it.size)
-//                                patientCount = it.size
-//                            }
-//                        }
-//                    }
-//                    else {
-//                        lifecycleScope.launch {
-//                            viewModel.patientListForNurse?.collect { it ->
-//                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-//                                binding.patientListContainer.patientCount.text =
-//                                    it.size.toString() + getResultStr(it.size)
-//                                patientCount = it.size
-//                            }
-//                        }
-//                    }
 
                 }
 
@@ -953,16 +880,6 @@ class PersonalDetailsFragment : Fragment() {
         _binding = null
     }
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            android.R.id.home -> {
-//                // hide the soft keyboard when the navigation drawer is shown on the screen.
-//                binding.search.clearFocus()
-//                true
-//            }
-//
-//            else -> false
-//        }
-//    }
+
 
 }

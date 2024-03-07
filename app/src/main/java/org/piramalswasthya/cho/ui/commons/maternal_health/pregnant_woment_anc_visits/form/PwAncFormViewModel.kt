@@ -87,16 +87,6 @@ class PwAncFormViewModel @Inject constructor(
                 )
             }
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
-//            registerRecord = PregnantWomanRegistrationCache(
-//                patientID = patientID,
-//                lmpDate = Calendar.getInstance().apply {
-//                    set(Calendar.MONTH, 0)
-//                    set(Calendar.DAY_OF_MONTH, 1)
-//                }.timeInMillis,
-//                createdBy = "",
-//                updatedBy = "",
-//                syncState = SyncState.SYNCED
-//            )
             maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
                 _recordExists.value = true
@@ -132,13 +122,8 @@ class PwAncFormViewModel @Inject constructor(
                     _state.postValue(State.SAVING)
                     dataset.mapValues(ancCache, 1)
                     maternalHealthRepo.persistAncRecord(ancCache)
-//                    if (registerRecord.syncState == SyncState.UNSYNCED)
-//                        maternalHealthRepo.persistRegisterRecord(registerRecord)
                     if (ancCache.pregnantWomanDelivered == true) {
-//                        maternalHealthRepo.getBenFromId(benId)?.let {
-//                            dataset.updateBenRecordToDelivered(it)
-//                            benRepo.updateRecord(it)
-//                        }
+
                     } else if (ancCache.isAborted) {
 
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
@@ -156,10 +141,7 @@ class PwAncFormViewModel @Inject constructor(
                             }
                             maternalHealthRepo.updateAncRecord(toTypedArray())
                         }
-//                        maternalHealthRepo.getBenFromId(benId)?.let {
-//                            dataset.updateBenRecordToEligibleCouple(it)
-//                            benRepo.updateRecord(it)
-//                        }
+
 
                     } else if (ancCache.maternalDeath == true) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
