@@ -142,15 +142,7 @@ class CaseRecordViewModel @Inject constructor(
         getHigherHealthCareDropdown()
 //        getLoggedInUserDetails()
     }
-//    fun getLoggedInUserDetails():Int {
-//        viewModelScope.launch {
-//            try {
-//               return userRepo.getLoggedInUser()?.userId!!
-//            } catch (e: java.lang.Exception) {
-//                Timber.d("Error in calling getLoggedInUserDetails() $e")
-//            }
-//        }
-//    }
+
     fun savePrescriptionTemp(prescriptionTemplateDB: PrescriptionTemplateDB){
         viewModelScope.launch {
             templateRepo.savePrescriptionTemplateToCache(prescriptionTemplateDB)

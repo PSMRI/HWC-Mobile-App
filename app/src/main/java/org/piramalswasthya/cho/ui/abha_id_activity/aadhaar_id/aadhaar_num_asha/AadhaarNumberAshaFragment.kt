@@ -145,19 +145,5 @@ class AadhaarNumberAshaFragment : Fragment() {
     private fun checkApp() {
 
 
-//        rdServiceDeviceInfoContract.launch(Unit)
-//        val ACTION_RDINIT = "in.secugen.rdservice.INIT"
-//        val RDINIT_REQUEST = 3
-//        val sendIntent = Intent()
-//        sendIntent.action = ACTION_RDINIT
-//
-//
-//        try {
-//            startActivityForResult(sendIntent, RDINIT_REQUEST)
-//        } catch (exception:Exception) {
-//            var a = exception
-//            var b = a
-//        }
-//        rdServiceInitContract.launch(Unit)
     }
 }

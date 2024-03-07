@@ -13,12 +13,4 @@ class SyncViewModel @Inject constructor(
 
     val syncStatus = patientVisitInfoSyncDao.getSyncStatus()
 
-//    val lang = preferenceDao.getCurrentLanguage()
-//    fun getLocalNames(context: Context): Array<String> {
-//        return getLocalizedResources(context, lang).getStringArray(R.array.sync_records)
-//    }
-//
-//    fun getEnglishNames(context: Context): Array<String> {
-//        return getLocalizedResources(context, Languages.ENGLISH).getStringArray(R.array.sync_records)
-//    }
 }

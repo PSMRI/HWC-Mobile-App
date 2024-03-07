@@ -29,13 +29,6 @@ class PrescriptionBatchFormViewModel @Inject constructor(
     private val patientRepo: PatientRepo
 ) : ViewModel() {
 
-//    private var _loggedInUser: UserCache? = null
-//    val loggedInUser: UserCache?
-//        get() = _loggedInUser
-//    private var _boolCall = MutableLiveData(false)
-//    val boolCall: LiveData<Boolean>
-//        get() = _boolCall
-//
     var prescriptionForPharmacist : PrescriptionDTO? = null
 
     private var _prescriptions = MutableLiveData<PrescriptionDTO>(null)
@@ -74,85 +67,4 @@ class PrescriptionBatchFormViewModel @Inject constructor(
             _prescriptions.postValue(patientRepo.getPrescriptions(benVisitInfo)?.get(0) ?: null)
         }
     }
-//
-//    @SuppressLint("StaticFieldLeak")
-//    val context: Context = application.applicationContext
-//
-//    val state = savedStateHandle
-//
-//    val isEntitySaved = MutableLiveData<Boolean>()
-//
-//    suspend fun downloadProcedure(patientId: String) {
-//        withContext(Dispatchers.IO) {
-//            benFlowRepo.pullLabProcedureData(patientId)
-//        }
-//    }
-//    suspend fun getPrescribedProcedures(patientId: String) {
-//        withContext(Dispatchers.IO) {
-//            _procedures.postValue(patientRepo.getProcedures(patientId))
-//            Timber.d("fetched procedures")
-//        }
-//    }
-//
-//    fun saveEntity() {
-//        viewModelScope.launch {
-//            //map entity
-//            isEntitySaved.value = true
-//        }
-//    }
-//
-//    fun getLoggedInUserDetails() {
-//        viewModelScope.launch {
-//            try {
-//                _loggedInUser = userRepo.getUserCacheDetails()
-//                _boolCall.value = true
-//            } catch (e: Exception) {
-//                Timber.d("Error in calling getLoggedInUserDetails() $e")
-//                _boolCall.value = false
-//            }
-//        }
-//    }
-//
-//    fun resetBool() {
-//        _boolCall.value = false
-//    }
-//
-//    fun saveLabData(dtos: List<ProcedureDTO>?, patientId: String) {
-//        try {
-//            dtos?.forEach { procedureDTO ->
-//
-//                viewModelScope.launch {
-//                    var procedure =
-//                        patientRepo.getProcedure(procedureDTO.benRegId, procedureDTO.procedureID)
-//                    procedureDTO.compListDetails.forEach { componentDetailDTO ->
-//                        Timber.d("mjf" + componentDetailDTO.testComponentName + ":" + componentDetailDTO.testResultValue)
-//                        var componentDetails =
-//                            patientRepo.getComponent(procedure.id, componentDetailDTO.testComponentID)
-//                        componentDetails.testResultValue = componentDetailDTO.testResultValue
-//                        componentDetails.remarks = componentDetailDTO.remarks
-//                        patientRepo.updateComponentDetails(componentDetails)
-//                    }
-//
-//                    // update sync state for lab data
-//                    val patient = patientRepo.getPatient(patientId = patientId)
-//                    val benFlow = benFlowRepo.getBenFlowByBenRegId(patient.beneficiaryRegID!!)
-//
-//                    val patientVisitInfoSync = benFlow?.benVisitNo?.let {
-//                        patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientId,
-//                            it
-//                        )
-//                    }
-//                    patientVisitInfoSync?.labDataSynced = SyncState.UNSYNCED
-//
-//                    patientVisitInfoSync?.let {
-//                        patientVisitInfoSyncRepo.insertPatientVisitInfoSync(it)
-//                        WorkerUtils.labPushWorker(context)
-//                    }
-//                }
-//            }
-//
-//        } catch (e: Exception) {
-//            Timber.d("error saving lab records due to $e")
-//        }
-//    }
 }

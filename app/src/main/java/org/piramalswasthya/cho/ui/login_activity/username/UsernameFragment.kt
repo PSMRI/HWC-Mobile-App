@@ -181,36 +181,7 @@ class UsernameFragment() : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 binding.btnNxt.isEnabled = !s.isNullOrBlank()
-//                binding.loginSettings.isEnabled = !s.isNullOrBlank()
-//                val userName = (s.toString())!!;
-//                if(!s.isNullOrBlank()){
-//                    lifecycleScope.launch {
-//                        loginSettingsData =  loginSettingsDataRepository.getLoginSettingsDataByUsername(userName)
-//
-//                        if (loginSettingsData==null) {
-//
-//                            binding.loginSettings.visibility = View.VISIBLE
-//
-//                            binding.loginSettings.setOnClickListener{
-//                                try {
-//                                    findNavController().navigate(
-//                                        UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
-//                                    )
-//                                }catch (e: Exception){
-//                                    Timber.d("Failed to navigate"+e.message)
-//                                }
-//
-//                            }
-//                        } else {
-//                            binding.loginSettings.visibility = View.INVISIBLE
-//                            binding.btnNxt.isEnabled = true
-//                        }
-//                    }
-//                }
-//                else{
-//                    binding.loginSettings.visibility = View.INVISIBLE
-//                    binding.btnNxt.isEnabled = false
-//                }
+
         }
         })
         binding.btnNxt.setOnClickListener {
@@ -227,17 +198,7 @@ class UsernameFragment() : Fragment() {
             else
                 Toast.makeText(requireContext(), getString(R.string.invalid_username_entered), Toast.LENGTH_LONG).show()
         }
-//
-//        binding.loginSettings.setOnClickListener{
-//            try {
-//                findNavController().navigate(
-//                    UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
-//                )
-//            }catch (e: Exception){
-//                Timber.d("Failed to navigate"+e.message)
-//            }
-//
-//        }
+
         when (prefDao.getCurrentLanguage()) {
             Languages.ENGLISH -> binding.rgLangSelect.check(binding.rbEng.id)
             Languages.KANNADA -> binding.rgLangSelect.check(binding.rbKannada.id)
@@ -266,6 +227,4 @@ class UsernameFragment() : Fragment() {
 
 }
 
-//private fun NavController.navigate(putString: Unit) {
-//
-//}
+

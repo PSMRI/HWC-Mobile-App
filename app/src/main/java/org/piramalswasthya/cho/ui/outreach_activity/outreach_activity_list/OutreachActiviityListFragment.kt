@@ -59,7 +59,7 @@ class OutreachActiviityListFragment : Fragment(), NavigationAdapter {
                 (binding.activityList.adapter as ActivityItemAdapter).submitList(viewModel.activityList)
             }
         }
-        // TODO: Use the ViewModel
+
     }
 
     override fun getFragmentId(): Int {

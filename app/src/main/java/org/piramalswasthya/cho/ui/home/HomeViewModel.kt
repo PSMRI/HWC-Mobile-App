@@ -60,64 +60,6 @@ class HomeViewModel @Inject constructor(
             _searchBool.value = false
         }
     }
-
-//    private var providerServiceMapID: Int = -1
-//    private var vanID : Int =-1
-//    private var facilityID : Int =-1
-//    private var visitCategoryID: Int = 6
-//    var gender : String = "Male"
-//
-//    private val _state = MutableLiveData(State.IDLE)
-//
-//    val state: LiveData<State>
-//        get() = _state
-//
-//    fun init(context: Context){
-//        viewModelScope.launch {
-//             extracted(context)
-//        }
-//    }
-
-//    private suspend fun extracted(context: Context) {
-//        try {
-//            _state.postValue(State.SAVING)
-//            if (dataLoadFlagManager.isDataLoaded())
-//                Log.d("syncing started first", "syncing started")
-//                WorkerUtils.triggerAmritSyncWorker(context)
-//            registrarMasterDataRepo.saveGenderMasterResponseToCache()
-//            registrarMasterDataRepo.saveAgeUnitMasterResponseToCache()
-//            registrarMasterDataRepo.saveMaritalStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveCommunityMasterResponseToCache()
-//            registrarMasterDataRepo.saveReligionMasterResponseToCache()
-//            languageRepo.saveResponseToCacheLang()
-//            visitReasonsAndCategoriesRepo.saveVisitReasonResponseToCache()
-//            visitReasonsAndCategoriesRepo.saveVisitCategoriesResponseToCache()
-//            registrarMasterDataRepo.saveIncomeMasterResponseToCache()
-//            registrarMasterDataRepo.saveLiteracyStatusServiceResponseToCache()
-//            registrarMasterDataRepo.saveGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOtherGovIdEntityMasterResponseToCache()
-//            registrarMasterDataRepo.saveOccupationMasterResponseToCache()
-//            registrarMasterDataRepo.saveQualificationMasterResponseToCache()
-//            registrarMasterDataRepo.saveRelationshipMasterResponseToCache()
-//            vaccineAndDoseTypeRepo.saveVaccineTypeResponseToCache()
-//            vaccineAndDoseTypeRepo.saveDoseTypeResponseToCache()
-//            vanID = userDao.getLoggedInUserVanID()
-//            facilityID = userDao.getLoggedInUserFacilityID()
-//            providerServiceMapID = userDao.getLoggedInUserProviderServiceMapId()
-//            doctorMaleMasterDataRepo.getDoctorMasterMaleData(visitCategoryID,providerServiceMapID,gender,facilityID,vanID)
-//            malMasterDataRepo.getMasterDataForNurse(visitCategoryID, providerServiceMapID,gender)
-//            if (!dataLoadFlagManager.isDataLoaded())
-//                Log.d("syncing started second", "syncing started")
-//                WorkerUtils.triggerAmritSyncWorker(context)
-//            dataLoadFlagManager.setDataLoaded(true)
-//            _state.postValue(State.SAVE_SUCCESS)
-//        } catch (_e: Exception) {
-//            Log.d("Exception coming is", _e.toString())
-//            _state.postValue(State.SAVE_FAILED)
-//        }
-//    }
-
-
     val scope: CoroutineScope
         get() = viewModelScope
     private var _unprocessedRecords: Int = 0
@@ -143,14 +85,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getData(){
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val patientDisplayList = patientRepo.getPatientDisplayListForNurse()
-//            val patientVisitInfoList = patientVisitInfoSyncRepo.getPatientDisplayListForDoctor()
-//            Log.d("patientDisplayList is", patientDisplayList.size.toString())
-//            Log.d("patientVisitInfoList is", patientVisitInfoList.size.toString())
-//            val dis = patientDisplayList
-//            val vis = patientVisitInfoList
-//        }
     }
 
 

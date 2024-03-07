@@ -50,6 +50,4 @@ class OutreachActiviityListViewModel @Inject constructor(
             }
         }
     }
-
-    // TODO: Implement the ViewModel
 }

@@ -48,12 +48,5 @@ class VitalsRepo @Inject constructor(
         return vitalsDao.getPatientVitalsByPatientIDAndBenVisitNo(patientID, benVisitNo)
     }
 
-//    suspend fun updateBenFlowId(benFlowId: Long, beneficiaryRegID: Long, benVisitNo: Int) {
-//        vitalsDao.updateBenFlowId(benFlowId, beneficiaryRegID, benVisitNo)
-//    }
-
-//    suspend fun updateBenIdBenRegId(beneficiaryID: Long, beneficiaryRegID: Long, patientID: String) {
-//        vitalsDao.updateBenIdBenRegId(beneficiaryID, beneficiaryRegID, patientID)
-//    }
 
 }

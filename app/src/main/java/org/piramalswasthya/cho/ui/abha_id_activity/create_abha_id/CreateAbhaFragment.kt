@@ -273,32 +273,16 @@ class CreateAbhaFragment : Fragment() {
                 NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(channel)
 
-//            val notification = NotificationCompat.Builder(requireContext(),channelId)
-//                .setContentTitle("Downloading abha card")
-//                .setContentText("Downloading")
-//                .setSmallIcon(R.drawable.ic_download)
-//                .setProgress(100, 0, true)
-//                .build()
-//            notificationManager.notify(0, notification)
+
         }
         val directory =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val file = File(directory, fileName)
-//        val inputStream = fileStr.byteInputStream(Charset.defaultCharset())
-//        val outputStream = FileOutputStream(file)
+
         val data: ByteArray = Base64.decode(fileStr,0)
         FileOutputStream(file).use { stream -> stream.write(data) }
 
-//        val buffer = ByteArray(1024)
-//        var bytesRead = inputStream.read(buffer)
-//        var totalBytesRead = bytesRead.toLong()
-//        while (bytesRead != -1) {
-//            outputStream.write(buffer, 0, bytesRead)
-//            totalBytesRead += bytesRead
-//            bytesRead = inputStream.read(buffer)
-//        }
-//        outputStream.close()
-//        inputStream.close()
+
 
         MediaScannerConnection.scanFile(
             requireContext(),

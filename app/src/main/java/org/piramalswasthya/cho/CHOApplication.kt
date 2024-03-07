@@ -34,7 +34,6 @@ class CHOApplication : Application(), Configuration.Provider {
             activity.finish()
         }
     }
-//    private var dataCaptureConfig: DataCaptureConfig? = DataCaptureConfig(xFhirQueryResolver = {fhirEngine.search(it) })
 
     override fun onCreate() {
 
@@ -42,28 +41,7 @@ class CHOApplication : Application(), Configuration.Provider {
         super.onCreate()
 //        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
-//        }
-//        FhirEngineProvider.init(
-//            FhirEngineConfiguration(
-//                enableEncryptionIfSupported = true,
-//                DatabaseErrorStrategy.RECREATE_AT_OPEN,
-//                ServerConfiguration(
-//                    "https://hapi.fhir.org/baseR4/",
-//                    httpLogger =
-//                        HttpLogger(
-//                            HttpLogger.Configuration(
-//                                if (BuildConfig.DEBUG) HttpLogger.Level.BODY else HttpLogger.Level.BASIC
-//                            )
-//                        ) { Timber.tag("App-HttpLog").d(it) },
-//                    networkConfiguration = NetworkConfiguration()
-//                )
-//            )
-//        )
 
-//         dataCaptureConfig =
-//          DataCaptureConfig().apply {
-//            urlResolver = ReferenceUrlResolver(this@CHOApplication as Context)
-//          }
     }
 
     companion object {

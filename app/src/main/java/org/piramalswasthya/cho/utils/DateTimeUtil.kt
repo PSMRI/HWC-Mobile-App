@@ -191,24 +191,6 @@ class DateTimeUtil {
         }
 
 
-//            val today = Calendar.getInstance()
-//            val birthDate = Calendar.getInstance().apply { time = dateOfBirth }
-//
-//            var years = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
-//            var months = today.get(Calendar.MONTH) - birthDate.get(Calendar.MONTH)
-//            val days = today.get(Calendar.DAY_OF_MONTH) - birthDate.get(Calendar.DAY_OF_MONTH)
-//
-//            // Check if the birthdate hasn't occurred yet this year
-//            if (months < 0 || (months == 0 && days < 0)) {
-//                years--
-//                today.add(Calendar.YEAR, -1)
-//                months += 12
-//            }
-//
-//            val weeks = (today.timeInMillis - birthDate.timeInMillis) / (7 * 24 * 60 * 60 * 1000)
-
-//            return AgePicker(years, months, weeks.toInt(), days)
-//        }
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateDateOfBirth(value: Int, unit: AgeUnitEnum): Date {
             val days = when(unit){
@@ -225,12 +207,7 @@ class DateTimeUtil {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateDateOfBirth(years: Int, months: Int, weeks: Int, days: Int): Date {
-//            val days = when(unit){
-//                AgeUnitEnum.DAYS -> value
-//                AgeUnitEnum.WEEKS -> value*7
-//                AgeUnitEnum.MONTHS -> value*30
-//                AgeUnitEnum.YEARS -> value*365
-//            }
+
 //
             val calendar = Calendar.getInstance()
 //            calendar.add(Calendar.DAY_OF_YEAR, -days)

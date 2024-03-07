@@ -37,11 +37,7 @@ class PullPatientsFromServer @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-//            if( WorkerUtils.isDownloadInProgress ){
-//                Timber.d("Patient Download Worker in progress")
-//                Result.retry()
-//            }
-//            else{
+
                 Log.d("Patient In Progress", "Patient In Progress")
 
                 val currentInstant = Instant.now()

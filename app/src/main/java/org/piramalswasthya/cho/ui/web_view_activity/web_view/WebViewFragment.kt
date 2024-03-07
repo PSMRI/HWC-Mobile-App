@@ -86,19 +86,6 @@ class WebViewFragment constructor(
         }
     }
 
-//    private var filePathCallback: ValueCallback<Array<Uri>>? = null
-//    private var mediaFile: File? = null
-
-//    private val filePickerLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
-//        ActivityResultContracts.StartActivityForResult()
-//    ) { result ->
-//        if (result.resultCode == AppCompatActivity.RESULT_OK) {
-//            handleSelectedFiles(result.resultCode, result.data)
-//        } else {
-//            filePathCallback?.onReceiveValue(null)
-//            filePathCallback = null
-//        }
-//    }
 
     private val mediaCaptureLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -232,15 +219,6 @@ class WebViewFragment constructor(
                 contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE)
                 contentSelectionIntent.type = fileChooserParams?.acceptTypes?.firstOrNull() ?: "*/*"
 
-//                val captureIntent: Intent? =
-//                    if (fileChooserParams?.acceptTypes?.contains("audio/*") == true) {
-//                        createAudioCaptureIntent()
-//                    } else if (fileChooserParams?.acceptTypes?.contains("video/*") == true) {
-//                        createVideoCaptureIntent()
-//                    } else {
-//                        null
-//                    }
-
                 val captureIntent: Intent? = createVideoCaptureIntent()
 
                 val chooserIntent = Intent(Intent.ACTION_CHOOSER)
@@ -267,12 +245,6 @@ class WebViewFragment constructor(
                     }
                 }
             }
-
-//            override fun onPermissionRequest(request: PermissionRequest) {
-//                requireActivity().runOnUiThread {
-//                    request.grant(request.resources)
-//                }
-//            }
 
         }
 

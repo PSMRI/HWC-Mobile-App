@@ -780,20 +780,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
         }
-//        binding.selectFileBtn.setOnClickListener {
-//            openFilePicker()
-//        }
-//        binding.uploadFileBtn.setOnClickListener {
-//            Toast.makeText(requireContext(), resources.getString(R.string.toast_file_uploaded), Toast.LENGTH_SHORT)
-//                .show()
-//            isFileUploaded = true
-//            binding.uploadFileBtn.text = "Uploaded"
-//            binding.uploadFileBtn.isEnabled = false
-//        }
-//        if (viewModel.fileName.isNotEmpty() && viewModel.base64String.isNotEmpty()) {
-//            binding.uploadFileBtn.text = "Uploaded"
-//            binding.selectFileText.setText(viewModel.fileName)
-//        }
         adapter = VisitDetailAdapter(
             itemList,
             units,
@@ -1168,38 +1154,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return false
     }
 
-//    private val filePickerLauncher =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-//            if (result.resultCode == Activity.RESULT_OK) {
-//                val data: Intent? = result.data
-//                data?.data?.let { uri ->
-////                uploadFileToServer(uri)
-//                    val fileSize = getFileSizeFromUri(uri)
-//                    if (fileSize > 5242880) {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            resources.getString(R.string.toast_file_size_max),
-//                            Toast.LENGTH_SHORT
-//                        )
-//                            .show()
-//                        binding.uploadFileBtn.text = "Upload File"
-//                        binding.uploadFileBtn.isEnabled = false
-//                        binding.selectFileText.setTextColor(Color.BLACK)
-//                        isFileSelected = false
-//                        isFileUploaded = false
-//                    } else {
-//                        convertFileToBase64String(uri, fileSize)
-//                        val fileName = getFileNameFromUri(uri)
-//                        binding.selectFileText.setText(fileName)
-//                        binding.uploadFileBtn.isEnabled = true
-//                        binding.uploadFileBtn.text = "Upload File"
-//                        isFileSelected = true
-//                        isFileUploaded = false
-//                        viewModel.setBase64Str(base64String, fileName)
-//                    }
-//                }
-//            }
-//        }
 
     private fun convertFileToBase64String(uri: Uri, fileSize: Long) {
         val contentResolver = requireActivity().contentResolver

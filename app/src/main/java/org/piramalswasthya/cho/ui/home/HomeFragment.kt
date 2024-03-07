@@ -199,12 +199,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-//        if((preferenceDao.isUserSwitchRole() && (preferenceDao.getSwitchRole().equals("Registrar") || preferenceDao.getSwitchRole().equals("Nurse"))) ||
-//            (preferenceDao.isCHO() && (preferenceDao.getCHOSecondRole().equals("Registrar") || preferenceDao.getCHOSecondRole().equals("Nurse")))){
-//            binding.registration.isEnabled = true
-//        }
-//        else binding.registration.isEnabled = !preferenceDao.isCHO() && !preferenceDao.isUserSwitchRole() && (preferenceDao.isUserRegistrar() || preferenceDao.isUserStaffNurseOrNurse())
-
         binding.registration.setOnClickListener {
             searchPrompt.show()
 
@@ -237,20 +231,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-//        binding.advanceSearch.setOnClickListener {
-//
-//        }
-
-//        binding.loginSettings.setOnClickListener{
-//            try {
-//                findNavController().navigate(
-//                    UsernameFragmentDirections.actionUsernameFragmentToLoginSettings(binding.etUsername.text.toString()),
-//                )
-//            }catch (e: Exception){
-//                Timber.d("Failed to navigate"+e.message)
-//            }
-//
-//        }
     }
 
 
@@ -400,18 +380,5 @@ class HomeFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.your_dynamic_item_id -> {
-//                // Handle the click on the dynamically added item
-//                // Add your logic here
-//                return true
-//            }
-//            // Handle other menu items as needed
-//            // ...
-//
-//            else -> return super.onOptionsItemSelected(item)
-//        }
-//    }
 
 }

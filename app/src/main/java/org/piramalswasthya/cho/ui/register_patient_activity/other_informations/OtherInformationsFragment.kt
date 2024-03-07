@@ -98,11 +98,6 @@ class OtherInformationsFragment : Fragment() , NavigationAdapter {
         }
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        viewModel = ViewModelProvider(this).get(OtherInformationsViewModel::class.java)
-//        // TODO: Use the ViewModel
-//    }
 
     override fun getFragmentId(): Int {
         return R.id.fragment_other_informations;

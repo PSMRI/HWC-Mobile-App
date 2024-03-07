@@ -234,31 +234,11 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
                 1 -> notifyItemChanged(1)
 
-//                9 ->{
-//                    notifyItemChanged(viewModel.getIndexOfDiastolic())
-//                    if(viewModel.triggerBpToggle() ){
-//                        notifyItemChanged(viewModel.getIndexOfSystolic())
-//                        viewModel.resetBpToggle()
-//
-//                    }
-//                }
-//                10 ->{
-//                    notifyItemChanged(viewModel.getIndexOfSystolic())
-//                    if(viewModel.triggerBpToggle()){
-//                        notifyItemChanged(viewModel.getIndexOfDiastolic())
-//                        viewModel.resetBpToggle()
-//
-//                    }
-//                }
-//                19 -> notifyItemChanged(viewModel.getIndexOfPastIllness())
             }
         }
     }
     override fun onStart() {
         super.onStart()
-//        activity?.let {
-//            (it as HomeActivity).updateActionBar(R.drawable.ic__pnc, "PNC Form")
-//        }
     }
 
     override fun onDestroy() {
