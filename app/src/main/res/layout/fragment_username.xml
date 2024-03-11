@@ -33,7 +33,6 @@
                         android:layout_width="119dp"
                         android:layout_height="115dp"
                         android:contentDescription="GOK Logo"
-                        android:src="@drawable/ic_logo"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"

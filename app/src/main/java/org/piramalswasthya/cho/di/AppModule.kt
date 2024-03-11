@@ -70,15 +70,11 @@ object AppModule {
 
     private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
-//    private const val baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
-
     private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 
-//    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
-
-    private const val sanjeevaniApi = "https://api.esanjeevani.in/prod/"
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =
         OkHttpClient.Builder()
