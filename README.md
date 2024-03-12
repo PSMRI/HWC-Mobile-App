@@ -11,7 +11,7 @@ And the same patient can be registered with Esanjivni.
 
 To run this project, you need to have Android Studio installed on your machine. Follow these steps:
 
-1. Clone the repository to your local machine using `git clone https://github.com/PSMRI/HWC-Mobile-App/tree/psmri-development`.
+1. Clone the repository to your local machine using `git clone https://github.com/PSMRI/HWC-Mobile-App`.
 2. Open Android Studio.
 3. Click on 'Open an existing Android Studio project'.
 4. Navigate to the directory where you cloned the project and select the root folder.
