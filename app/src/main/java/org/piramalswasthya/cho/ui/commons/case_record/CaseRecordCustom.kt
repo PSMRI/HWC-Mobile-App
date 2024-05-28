@@ -108,7 +108,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private lateinit var chAdapter: ChiefComplaintMultiAdapter
     private lateinit var pAdapter: PrescriptionAdapter
 
-    //    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int, String>()
     private var investigationBD: InvestigationCaseRecord? = null
     private var referNameMap = emptyMap<Int, String>()
