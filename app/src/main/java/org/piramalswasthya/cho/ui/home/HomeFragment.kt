@@ -188,6 +188,7 @@ class HomeFragment : Fragment() {
 
         if(preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()){
             binding.registration.visibility = View.VISIBLE
+            binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
         }
         else{
             binding.registration.visibility = View.GONE
