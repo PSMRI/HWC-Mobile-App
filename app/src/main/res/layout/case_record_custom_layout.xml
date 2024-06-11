@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/case_record_custome_layout"
     android:layout_width="match_parent"
@@ -15,9 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="@dimen/_10sdp"
-            android:background="@drawable/ic_textview_rectangle"
-            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,13 +39,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:background="@color/default_button"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:text="@string/select_chief_complaint_without_astrict"
-                    android:textColor="@color/white"
+                    android:text="@string/chief_complaint2"
                     android:textSize="18sp"
                     android:textStyle="normal|bold"
                     app:layout_constraintTop_toBottomOf="@+id/parent" />
@@ -58,8 +51,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="8dp"
-                    android:layout_margin="@dimen/_10sdp"
-                    android:background="@drawable/ic_textview_rectangle"
                     android:paddingBottom="2dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/chiefComplaintHeading" />
@@ -71,427 +62,220 @@
                     android:layout_marginLeft="4dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="4dp"
-                    android:background="@color/default_button"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:paddingBottom="6dp"
                     android:text="@string/vitals_text"
-                    android:textColor="@color/white"
                     android:textSize="18sp"
+                    android:paddingBottom="6dp"
                     android:textStyle="normal|bold"
                     app:layout_constraintTop_toBottomOf="@+id/parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+
+                <com.google.android.flexbox.FlexboxLayout
                     android:id="@+id/vitalsLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    app:flexWrap="wrap"
                     android:paddingBottom="10dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/vitalsExtra">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/temperatureEditTxt"
-                        style="@style/TextInputLayoutStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:layout_marginEnd="10dp"
-                        android:hint="@string/temperature_f"
-                        android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/verticalGuideline"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                <!-- Field 5: Temperature -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/temperatureEditTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="4dp"
+                    app:layout_flexBasisPercent="50%"
+                    android:hint="@string/temperature_f"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputTemperature"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false"
-                            android:inputType="numberDecimal"
-                            android:paddingStart="@dimen/_20sdp"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageView
-                        android:id="@+id/ivTemparatureBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/temperatureEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/temperatureEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/temperatureEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/temperatureEditTxt"
-                        app:tint="@color/background_primary" />
-
-                    <ImageView
-                        android:id="@+id/ivIconTemperature"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/thermometer_loss_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivTemparatureBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivTemparatureBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivTemparatureBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivTemparatureBg" />
-
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/pulseRateEditTxt"
-                        style="@style/TextInputLayoutStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:hint="@string/pulse_rate_min"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/verticalGuideline"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputPulseRate"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false"
-                            android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageView
-                        android:id="@+id/backgroundImageView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/pulseRateEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/pulseRateEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/pulseRateEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/pulseRateEditTxt" />
-
-                    <ImageView
-                        android:id="@+id/ivIconPulseRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/pulse_alert_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/backgroundImageView"
-                        app:layout_constraintEnd_toEndOf="@+id/backgroundImageView"
-                        app:layout_constraintStart_toStartOf="@+id/backgroundImageView"
-                        app:layout_constraintTop_toTopOf="@+id/backgroundImageView" />
-
-                    <include
-                        android:id="@+id/bpCustomLayout"
-                        layout="@layout/custom_bp_layout"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputTemperature"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/temperatureEditTxt" />
+                        android:inputType="numberDecimal"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-
-                 <!--   <com.google.android.material.textfield.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/bpSystolicEditTxt"
-                        style="@style/TextInputLayoutStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:layout_marginEnd="10dp"
+                        app:layout_flexBasisPercent="50%"
                         android:hint="@string/bp_mmhg_systolic_text"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/verticalGuideline"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/temperatureEditTxt">
+                        app:layout_constraintStart_toEndOf="@+id/spo2EditTxt">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputBpSystolic"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="number"
                             android:editable="false"
                             android:focusable="false"
-                            android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivBpSystolicBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/bpSystolicEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/bpSystolicEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/bpSystolicEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/bpSystolicEditTxt"
-                        app:tint="@color/default_button" />
-
-                    <ImageView
-                        android:id="@+id/ivIconBpSystolic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_blood_pressure"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivBpSystolicBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivBpSystolicBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivBpSystolicBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivBpSystolicBg" />
-
+                    <!-- Field 9: BP Diastolic -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/bpDiastolicEditTxt"
-                        style="@style/TextInputLayoutStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_weight="1"
+                        android:paddingRight="4dp"
+                        app:layout_flexBasisPercent="50%"
                         android:hint="@string/bp_mmhg_diastolic_text"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/verticalGuideline"
-                        app:layout_constraintTop_toTopOf="@+id/bpSystolicEditTxt">
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputBpDiastolic"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="number"
                             android:editable="false"
                             android:focusable="false"
-                            android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
                     </com.google.android.material.textfield.TextInputLayout>
-                    -->
-       <!--             <TextView
-                        android:layout_width="wrap_content"
+
+                <!-- Field 6: Pulse Rate -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/pulseRateEditTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_flexBasisPercent="50%"
+                    android:hint="@string/pulse_rate_min"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toEndOf="@+id/temperatureEditTxt">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPulseRate"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="/"
-                        android:textSize="@dimen/_35sdp"
-                        app:layout_constraintBottom_toBottomOf="@+id/bpDiastolicEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/bpDiastolicEditTxt"
-                        app:layout_constraintStart_toEndOf="@+id/bpSystolicEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/bpDiastolicEditTxt" />-->
+                        android:inputType="number"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <!--   <ImageView
-                            android:id="@+id/ivBpDiastolicBg"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_bg_circular"
-                            app:layout_constraintBottom_toBottomOf="@+id/bpDiastolicEditTxt"
-                            app:layout_constraintEnd_toStartOf="@+id/bpDiastolicEditTxt"
-                            app:layout_constraintStart_toStartOf="@+id/bpDiastolicEditTxt"
-                            app:layout_constraintTop_toTopOf="@+id/bpDiastolicEditTxt"
-                            app:tint="@color/green" />
-    -->
-                    <!-- <ImageView
-                        android:id="@+id/ivIconBpDiastolic"
-                        android:layout_width="wrap_content"
+                <!-- Field 7: Spo2 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/spo2EditTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="4dp"
+                    app:layout_flexBasisPercent="50%"
+                    android:hint="@string/spo2"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputSpo2"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_blood_pressure"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivBpDiastolicBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivBpDiastolicBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivBpDiastolicBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivBpDiastolicBg" />
--->
+                        android:inputType="number"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Field 10: Respiratory Rate -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/respiratoryEditTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_flexBasisPercent="50%"
+                    android:hint="@string/respiratory_per_min"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toEndOf="@+id/bpDiastolicEditTxt">
 
-
-
-
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputRespiratoryPerMin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/respiratoryEditTxt"
-                        style="@style/TextInputLayoutStyle"
+                        android:id="@+id/rbsEditTxt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:layout_marginEnd="10dp"
-                        android:hint="@string/respiratory_per_min"
-                        android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/verticalGuideline"
+                        app:layout_flexBasisPercent="50%"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/bpCustomLayout">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputRespiratoryPerMin"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false"
-                            android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageView
-                        android:id="@+id/ivRespiratoryBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/respiratoryEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/respiratoryEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/respiratoryEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/respiratoryEditTxt"
-                        app:tint="@color/background_secondary" />
-
-                    <ImageView
-                        android:id="@+id/ivIconRespiratory"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/respiratory_rate_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivRespiratoryBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivRespiratoryBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivRespiratoryBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivRespiratoryBg" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/spo2EditTxt"
-                        style="@style/TextInputLayoutStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:hint="@string/spo2"
+                        android:hint="@string/rbs_mg_dl"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/verticalGuideline"
-                        app:layout_constraintTop_toTopOf="@+id/respiratoryEditTxt">
-
+                        app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputSpo2"
+                            android:id="@+id/inputRBS"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false"
                             android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
-
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivspo2Bg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/spo2EditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/spo2EditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/spo2EditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/spo2EditTxt" />
-
-                    <ImageView
-                        android:id="@+id/ivIconspo2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/spo2_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivspo2Bg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivspo2Bg"
-                        app:layout_constraintStart_toStartOf="@+id/ivspo2Bg"
-                        app:layout_constraintTop_toTopOf="@+id/ivspo2Bg" />
-
+                    <!-- Field 2: Height -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/heightEditTxt"
-                        style="@style/TextInputLayoutStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:layout_marginEnd="10dp"
+                        app:layout_flexBasisPercent="50%"
                         android:hint="@string/height_cm"
+                        android:paddingRight="4dp"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/verticalGuideline"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">
+                        app:layout_constraintStart_toEndOf="@+id/weightEditTxt">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputHeight"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
                             android:editable="false"
                             android:focusable="false"
-                            android:inputType="numberDecimal"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivHeightBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/heightEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/heightEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/heightEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/heightEditTxt"
-                        app:tint="@color/defaultInput" />
-
-                    <ImageView
-                        android:id="@+id/ivIconsHeight"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_male_height"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivHeightBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivHeightBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivHeightBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivHeightBg" />
-
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/weightEditTxt"
-                        style="@style/TextInputLayoutStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
                         android:hint="@string/weight_kg_text"
+                        app:layout_flexBasisPercent="50%"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/verticalGuideline"
-                        app:layout_constraintTop_toTopOf="@+id/heightEditTxt">
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputWeight"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
                             android:editable="false"
                             android:focusable="false"
-                            android:inputType="numberDecimal"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivWeightBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/weightEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/weightEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/weightEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/weightEditTxt"
-                        app:tint="@color/background_gradient_start" />
-
-                    <ImageView
-                        android:id="@+id/ivIconsWeight"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/monitor_weight_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivWeightBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivWeightBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivWeightBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivWeightBg" />
-
+                    <!-- Field 3: BMI -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/bmill"
-                        style="@style/TextInputLayoutStyle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="@dimen/_12sdp"
-                        android:layout_marginEnd="10dp"
+                        android:paddingRight="4dp"
+                        app:layout_flexBasisPercent="50%"
                         android:hint="@string/bmi"
+                        android:textColorHint="#888888"
                         android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/verticalGuideline"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/heightEditTxt">
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputBmi"
@@ -499,131 +283,10 @@
                             android:layout_height="wrap_content"
                             android:editable="false"
                             android:focusable="false"
-                            android:paddingStart="@dimen/_20sdp"
                             android:textSize="18sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivBmiBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/bmill"
-                        app:layout_constraintEnd_toStartOf="@+id/bmill"
-                        app:layout_constraintStart_toStartOf="@+id/bmill"
-                        app:layout_constraintTop_toTopOf="@+id/bmill"
-                        app:tint="@color/md_theme_light_onPrimary2" />
-
-                    <ImageView
-                        android:id="@+id/ivIconsBmi"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bmi"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivBmiBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivBmiBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivBmiBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivBmiBg" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/rbsEditTxt"
-                        style="@style/TextInputLayoutStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:hint="@string/rbs_mg_dl"
-                        android:textSize="18sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/verticalGuideline"
-                        app:layout_constraintTop_toTopOf="@+id/bmill">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputRBS"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:editable="false"
-                            android:focusable="false"
-                            android:inputType="number"
-                            android:paddingStart="@dimen/_20sdp"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <ImageView
-                        android:id="@+id/ivRbsBg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bg_circular"
-                        app:layout_constraintBottom_toBottomOf="@+id/rbsEditTxt"
-                        app:layout_constraintEnd_toStartOf="@+id/rbsEditTxt"
-                        app:layout_constraintStart_toStartOf="@+id/rbsEditTxt"
-                        app:layout_constraintTop_toTopOf="@+id/rbsEditTxt"
-                        app:tint="@color/background_gradient_end" />
-
-                    <ImageView
-                        android:id="@+id/ivIconsRbs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/glucose_24px"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivRbsBg"
-                        app:layout_constraintEnd_toEndOf="@+id/ivRbsBg"
-                        app:layout_constraintStart_toStartOf="@+id/ivRbsBg"
-                        app:layout_constraintTop_toTopOf="@+id/ivRbsBg" />
-
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/verticalGuideline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.5" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <TextView
-                    android:id="@+id/tvProvisionalDignosisTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="4dp"
-                    android:background="@color/default_button"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:text="Diagnosis"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="normal|bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/vitalsLayout" />
-
-                <FrameLayout
-                    android:id="@+id/diaF"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvProvisionalDignosisTitle">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/diagnosisExtra"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="10dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tvProvisionalDignosisTitle" />
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/plusButtonD"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|center_horizontal"
-                        android:layout_margin="@dimen/custom_ui_margin"
-                        android:backgroundTint="@color/status_success"
-                        android:src="@drawable/baseline_add_icon"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra" />
-
-                </FrameLayout>
+                </com.google.android.flexbox.FlexboxLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/referDateLabel"
@@ -697,21 +360,21 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/testName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="@dimen/_15sdp"
-                    android:layout_marginRight="4dp"
                     android:minHeight="50dp"
-                    android:paddingBottom="6dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="5dp"
+                    android:paddingBottom="6dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
-                    <!--                    app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra"-->
+                    app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -723,11 +386,11 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:hint="@string/select_test_name"
-                            android:paddingStart="14dp"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
-                            android:textColor="@android:color/black"
-                            android:textColorHint="@color/black"
+                            android:paddingStart="14dp"
+                            android:textColor="@android:color/darker_gray"
+                            android:textColorHint="#888888"
                             android:textSize="18sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@+id/arrowImage"
@@ -747,18 +410,46 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/diaF"
+                    app:layout_constraintTop_toBottomOf="@+id/testName">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/diagnosisExtra"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="10dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/testName" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/plusButtonD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_gravity="bottom|center_horizontal"
+                        android:src="@drawable/baseline_add_icon"
+                        android:layout_margin="@dimen/custom_ui_margin"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra" />
+
+                </FrameLayout>
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/externalI"
-                    style="@style/TextInputLayoutStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
-                    android:layout_marginTop="@dimen/_15sdp"
                     android:layout_marginRight="4dp"
                     android:hint="@string/external_investigation"
                     android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
                     android:textSize="18sp"
-                    app:layout_constraintTop_toBottomOf="@+id/testName">
+                    app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/inputExternalI"
@@ -769,123 +460,27 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/tvPrescriptionTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="@dimen/_15sdp"
-                    android:layout_marginRight="4dp"
-                    android:background="@color/default_button"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
-                    android:text="@string/Prescription"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="normal|bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/externalI" />
-
-                <Button
-                    android:id="@+id/tvAddTemplateTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/_30sdp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:backgroundTint="@color/text_secondary"
-                    android:drawableLeft="@drawable/ic_up_angle"
-                    android:gravity="center_vertical"
-                    android:includeFontPadding="false"
-                    android:paddingStart="@dimen/_5sdp"
-                    android:paddingEnd="@dimen/_5sdp"
-                    android:text="Add Template"
-                    android:textSize="@dimen/_12sdp" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/buttonLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="4dp"
-                    android:visibility="gone"
-                    android:background="@drawable/ic_textview_rectangle"
-                    app:layout_constraintTop_toBottomOf="@+id/tvAddTemplateTitle">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tempName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginRight="4dp"
-                        android:hint="@string/enter_temp_name"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="4dp"
-                        android:textColorHint="#888888"
-                        android:textSize="18sp"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/inputTestName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textCapSentences"
-                            android:textColorHint="#888888"
-                            android:textSize="18sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <Button
-                        android:id="@+id/deleteTemp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/_30sdp"
-                        android:backgroundTint="@color/button_danger"
-                        android:text="@string/delete_temp"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:textColor="@color/white"
-                        android:padding="@dimen/_5sdp"
-                        app:layout_constraintTop_toBottomOf="@+id/tempName"
-                        app:layout_constraintEnd_toStartOf="@+id/saveTemplate"
-                        app:layout_constraintHorizontal_weight="1"
-                        app:layout_constraintStart_toStartOf="parent" />
-
-                    <Button
-                        android:id="@+id/saveTemplate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/_30sdp"
-                        android:layout_marginStart="8dp"
-                        android:backgroundTint="@color/green"
-                        app:layout_constraintTop_toBottomOf="@+id/tempName"
-                        android:text="@string/save_template"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:padding="@dimen/_5sdp"
-                        android:textColor="@color/white"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_weight="1"
-                        app:layout_constraintStart_toEndOf="@+id/deleteTemp" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/useTempForFields"
-                    style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
-                    android:hint="@string/select_temp_to_fill"
-                    android:paddingTop="4dp"
                     android:textSize="18sp"
+                    android:paddingTop="4dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/buttonLayout"> <!-- Set text color hint to black -->
+                    app:layout_constraintTop_toBottomOf="@+id/externalI"
+                    android:hint="@string/select_temp_to_fill"
+                    android:textColorHint="#808080"> <!-- Set text color hint to black -->
 
                     <AutoCompleteTextView
                         android:id="@+id/inputUseTempForFields"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:inputType="text"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <FrameLayout
@@ -894,43 +489,96 @@
                     android:padding="5dp"
                     app:layout_constraintTop_toBottomOf="@+id/useTempForFields">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/prescriptionExtra"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/item_border_background"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="10dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/externalI" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/prescriptionExtra"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:background="@drawable/item_border_background"
+                    app:layout_constraintTop_toBottomOf="@+id/externalI" />
 
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/plusButtonP"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|center_horizontal"
-                        android:layout_margin="@dimen/custom_ui_margin"
-                        android:layout_marginBottom="10dp"
-                        android:backgroundTint="@color/status_success"
-                        android:src="@drawable/baseline_add_icon"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/plusButtonP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:src="@drawable/baseline_add_icon"
+                    android:layout_marginBottom="10dp"
+                    android:layout_margin="@dimen/custom_ui_margin"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra" />
 
                 </FrameLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tempName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:hint="@string/enter_temp_name"
+                    android:paddingBottom="4dp"
+                    android:paddingTop="6dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@+id/prescriptionExtra">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputTestName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapSentences"
+                        android:textColorHint="#888888"
+                        android:textSize="18sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tempName">
+
+                    <Button
+                        android:id="@+id/saveTemplate"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/default_button"
+                        android:text="@string/save_template"
+                        app:layout_constraintEnd_toStartOf="@+id/deleteTemp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintHorizontal_weight="1" />
+
+                    <Button
+                        android:id="@+id/deleteTemp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/default_button"
+                        android:text="@string/delete_temp"
+                        app:layout_constraintStart_toEndOf="@+id/saveTemplate"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_weight="1"
+                        android:layout_marginStart="8dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/routeDropDown"
-                    style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
                     android:layout_marginBottom="8dp"
                     android:hint="@string/councilling_advice"
+                    android:textColorHint="#808080"
                     android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@+id/saveTemplate"> <!-- Set text color hint to black -->
 
@@ -938,8 +586,8 @@
                         android:id="@+id/routeDropDownVal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
                         android:editable="false"
+                        android:layout_weight="1"
                         android:inputType="none"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -952,23 +600,23 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
                     android:text="@string/report"
+                    android:visibility="gone"
                     android:textSize="18sp"
                     android:textStyle="normal|bold"
-                    android:visibility="gone"
                     app:layout_constraintTop_toBottomOf="@+id/routeDropDown" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dateOption"
-                    style="@style/TextInputLayoutStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
-                    android:hint="@string/date_time"
                     android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
-                    android:textSize="18sp"
+                    android:hint="@string/date_time"
                     android:visibility="gone"
+                    android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
+                    android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@+id/diagnosisExtra">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -976,22 +624,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
+                        android:textColorHint="#888888"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+<!--                <androidx.recyclerview.widget.RecyclerView-->
+<!--                    android:id="@+id/reportExtra"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:paddingTop="8dp"-->
+<!--                    android:paddingBottom="10dp"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/dateOption" />-->
                 <ScrollView
                     android:id="@+id/scrollview"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    android:layout_height="wrap_content">
 
                     <TableLayout
                         android:id="@+id/tableLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginTop="10dp"
                         android:layout_marginRight="10dp"
+                        android:layout_marginTop="10dp"
                         android:stretchColumns="*">
 
                         <TableRow
@@ -1002,22 +659,22 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:background="@drawable/header_shape"
-                                android:gravity="center"
                                 android:text="@string/select_test_name"
+                                android:gravity="center"
                                 android:textColor="@color/white"
                                 android:textSize="14sp"
+                                android:background="@drawable/header_shape"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:background="@drawable/header_shape"
-                                android:gravity="center"
                                 android:text="@string/result"
+                                android:gravity="center"
                                 android:textColor="@color/white"
                                 android:textSize="14sp"
+                                android:background="@drawable/header_shape"
                                 android:textStyle="bold" />
 
 
@@ -1027,56 +684,50 @@
 
                 </ScrollView>
 
-
                 <TextView
-                    android:id="@+id/textReferHeading"
+                    android:id="@+id/textPrescriptionHeading"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
-                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="4dp"
-                    android:background="@color/default_button"
-                    android:gravity="center"
-                    android:padding="@dimen/_5sdp"
                     android:text="@string/refer"
-                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="normal|bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/dateOption" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/referDropdown"
-                    style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
                     android:layout_marginBottom="8dp"
                     android:hint="@string/refer"
+                    android:textColorHint="#808080"
                     android:textSize="18sp"
-                    app:layout_constraintTop_toBottomOf="@+id/textReferHeading"> <!-- Set text color hint to black -->
+                    app:layout_constraintTop_toBottomOf="@+id/textPrescriptionHeading"> <!-- Set text color hint to black -->
 
                     <AutoCompleteTextView
                         android:id="@+id/referDropdownText"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
                         android:editable="false"
+                        android:layout_weight="1"
                         android:inputType="none"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/referReason"
-                    style="@style/TextInputLayoutStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
                     android:hint="@string/reason_for_referral"
                     android:paddingBottom="4dp"
+                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@+id/referDropdownr">
 
@@ -1084,8 +735,9 @@
                         android:id="@+id/inputReferReason"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                         android:inputType="text"
+                        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                        android:textColorHint="#888888"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -1102,4 +754,4 @@
             app:layout_constraintTop_toBottomOf="@+id/investigationCard" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.core.widget.NestedScrollView>
+</ScrollView>
