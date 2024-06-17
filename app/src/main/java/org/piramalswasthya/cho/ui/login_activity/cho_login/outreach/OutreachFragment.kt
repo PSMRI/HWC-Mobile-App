@@ -91,7 +91,7 @@ class OutreachFragment(
     private var latitude: Double? = null
     private var longitude: Double? = null
     private var loginType: String = ""
-
+    private var tryAuthUser = false
     private fun requestCameraPermission() {
         requireContext()
         if (ContextCompat.checkSelfPermission(
@@ -295,20 +295,7 @@ class OutreachFragment(
                 longitude = myLocation!!.longitude
             }
             if (!isBiometric) {
-
-                viewModel.authUser(
-                    userName,
-                    binding.etPassword.text.toString(),
-                    "OUTREACH",
-                    outreachVal,
-                    timestamp,
-                    null,
-                    latitude,
-                    longitude,
-                    null,
-                    imageString,
-                    requireContext()
-                )
+                tryAuthUser = true
 
                 viewModel.state.observe(viewLifecycleOwner) { state ->
                     when (state!!) {
@@ -424,6 +411,30 @@ class OutreachFragment(
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     myLocation = location
+                    if (tryAuthUser) {
+                        val outreachVal = binding.outreachText.text.toString()
+                        val selectedOption = findKeyByValue(outreachNameMap, outreachVal)
+                        val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+                        val timeZone = TimeZone.getTimeZone("GMT+0530")
+                        val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+                        formatter.timeZone = timeZone
+
+                        val timestamp = formatter.format(Date())
+                        viewModel.authUser(
+                            userName,
+                            binding.etPassword.text.toString(),
+                            "OUTREACH",
+                            outreachVal,
+                            timestamp,
+                            null,
+                            latitude,
+                            longitude,
+                            null,
+                            imageString,
+                            requireContext()
+                        )
+                    }
+
                 }
 
                 override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
