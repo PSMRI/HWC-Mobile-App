@@ -159,6 +159,19 @@
                     android:text="" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/loading_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <ImageView
                 android:id="@+id/iv_1"
                 android:layout_width="match_parent"

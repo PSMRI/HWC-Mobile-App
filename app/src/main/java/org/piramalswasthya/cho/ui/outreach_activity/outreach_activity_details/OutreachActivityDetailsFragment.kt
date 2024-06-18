@@ -56,6 +56,7 @@ class OutreachActivityDetailsFragment : Fragment() {
 
         viewModel.isDataLoaded.observe(viewLifecycleOwner){
             if(viewModel.isDataLoaded.value == true){
+                binding.loadingImage.visibility = View.GONE
                 if(viewModel.outreachActivityNetworkModel?.img1 != null){
                     val bitmap = ImgUtils.decodeBase64ToBitmap(viewModel.outreachActivityNetworkModel?.img1!!)
                     if(bitmap != null){
@@ -72,6 +73,8 @@ class OutreachActivityDetailsFragment : Fragment() {
                     }
                     Log.d("image 2 is", viewModel.outreachActivityNetworkModel?.img2!!)
                 }
+            } else {
+                binding.loadingImage.visibility = View.VISIBLE
             }
         }
 
