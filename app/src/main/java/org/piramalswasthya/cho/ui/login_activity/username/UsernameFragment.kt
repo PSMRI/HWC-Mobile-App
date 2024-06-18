@@ -1,11 +1,17 @@
 package org.piramalswasthya.cho.ui.login_activity.username
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +19,9 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -27,14 +35,18 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LoginSettingsData
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
-import org.piramalswasthya.cho.repositories.OutreachRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-import timber.log.Timber
+import org.piramalswasthya.cho.utils.DateTimeUtil
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+
+private var locationManager: LocationManager? = null
+private var locationListener: LocationListener? = null
+private var currentLocation: Location? = null
+private var tryAuthUser = false
 
 @AndroidEntryPoint
 class UsernameFragment() : Fragment() {
@@ -64,7 +76,9 @@ class UsernameFragment() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-                lifecycleScope.launch {
+        getCurrentLocation()
+
+        lifecycleScope.launch {
                     if(userRepo.getLoggedInUser() == null){
                     user = userDao.getLastLoggedOutUser()
                     if(user!=null) {
@@ -112,19 +126,8 @@ class UsernameFragment() : Fragment() {
                 val username = user?.userName
                 val password = user?.password
 
-                viewModel.authUser(
-                    username!!,
-                    password!!,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    requireContext()
-                )
-
+                getCurrentLocation()
+                tryAuthUser = true
                 viewModel.state.observe(viewLifecycleOwner) { state ->
                     when (state!!) {
                         OutreachViewModel.State.SUCCESS -> {
@@ -159,6 +162,11 @@ class UsernameFragment() : Fragment() {
         return binding.root
     }
 
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 123
+        private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
+    }
     private fun displayMessage(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
@@ -260,12 +268,78 @@ class UsernameFragment() : Fragment() {
 
 
         }
-
     }
 
+private fun getCurrentLocation() {
+    // Check if location permissions are granted
+    if (ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) ==
+        PackageManager.PERMISSION_GRANTED &&
+        ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) ==
+        PackageManager.PERMISSION_GRANTED
+    ) {
+        locationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        //  Location listener
+        locationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                currentLocation = location
+                if (tryAuthUser) {
+                    viewModel.authUser(
+                        user?.userName ?: "",
+                        user?.password ?: "",
+                        null,
+                        null,
+                        DateTimeUtil.formatDate(Date()),
+                        null,
+                        location.latitude,
+                        location.longitude,
+                        null,
+                        requireContext()
+                    )
+                    tryAuthUser = false
+                }
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+
+            override fun onProviderEnabled(provider: String) {}
+
+            override fun onProviderDisabled(provider: String) {
+                Toast.makeText(
+                    requireContext(), "Location Provider/GPS disabled",
+                    Toast.LENGTH_SHORT
+                ).show()
+                val settingsIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(settingsIntent)
+            }
+        }
+
+        // Request location updates
+        locationManager?.requestLocationUpdates(
+            LocationManager.NETWORK_PROVIDER,
+            0,
+            0f,
+            locationListener!!
+        )
+    } else {
+        // Request location permissions if not granted
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            PERMISSION_REQUEST_CODE
+        )
+    }
+}
 }
 
-//private fun NavController.navigate(putString: Unit) {
-//
-//}
+

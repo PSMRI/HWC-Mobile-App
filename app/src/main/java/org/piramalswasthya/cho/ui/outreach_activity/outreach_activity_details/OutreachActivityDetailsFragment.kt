@@ -56,10 +56,12 @@ class OutreachActivityDetailsFragment : Fragment() {
 
         viewModel.isDataLoaded.observe(viewLifecycleOwner){
             if(viewModel.isDataLoaded.value == true){
+                binding.loadingImage.visibility = View.GONE
                 if(viewModel.outreachActivityNetworkModel?.img1 != null){
                     val bitmap = ImgUtils.decodeBase64ToBitmap(viewModel.outreachActivityNetworkModel?.img1!!)
                     if(bitmap != null){
                         binding.iv1.visibility = View.VISIBLE
+                        binding.noImage.visibility = View.GONE
                         binding.iv1.setImageBitmap(bitmap)
                     }
                     Log.d("image 1 is", viewModel.outreachActivityNetworkModel?.img1!!)
@@ -68,10 +70,19 @@ class OutreachActivityDetailsFragment : Fragment() {
                     val bitmap = ImgUtils.decodeBase64ToBitmap(viewModel.outreachActivityNetworkModel?.img2!!)
                     if(bitmap != null){
                         binding.iv2.visibility = View.VISIBLE
+                        binding.noImage.visibility = View.GONE
                         binding.iv2.setImageBitmap(bitmap)
                     }
                     Log.d("image 2 is", viewModel.outreachActivityNetworkModel?.img2!!)
                 }
+                if (viewModel.outreachActivityNetworkModel?.img1 == null && viewModel.outreachActivityNetworkModel?.img2 == null){
+                    binding.iv1.visibility = View.GONE
+                    binding.iv2.visibility = View.GONE
+                    binding.noImage.visibility = View.VISIBLE
+                }
+            } else {
+                binding.loadingImage.visibility = View.VISIBLE
+                binding.noImage.visibility = View.GONE
             }
         }
 
