@@ -29,20 +29,6 @@ class PullLabDataToAmrit @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
 
-//        return try {
-//            val workerResult = benFlowRepo.pullLabProcedureData(inputData.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
-//            if (workerResult) {
-//                Timber.d("Worker completed")
-//                Result.success()
-//            } else {
-//                Timber.d("Worker Failed as usual!")
-//                Result.failure()
-//            }
-//        } catch (e: SocketTimeoutException) {
-//            Timber.e("Caught Exception for push amrit worker $e")
-//            Result.retry()
-//        }
-
         return Result.success()
     }
 

@@ -88,13 +88,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
         viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PharmacistFormViewModel.NetworkState.SUCCESS -> {
-                    var result = ""
-//                    if(itemAdapter?.itemCount==0||itemAdapter?.itemCount==1) {
-//                        result = "Prescription"
-//                    }
-//                    else {
-//                        result = "Prescriptions"
-//                    }
                     itemAdapter = context?.let { it ->
                         PharmacistItemAdapter(
                             it,
@@ -105,8 +98,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                     bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
 
                                     bundle.putString("prescriptionDTO", Gson().toJson(dtos))
-//                                    Timber.d("*******************Babs DTO************** ",bundle)
-//                                    Log.i("Location From home is", "${test!!}")
                                     val batchFragment = PrescriptionBatchFormFragment()
                                     batchFragment.arguments = bundle
                                     findNavController().navigate(
@@ -116,11 +107,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 else{
                                     Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
                                 }
-//                                requireActivity().supportFragmentManager.beginTransaction().replace(R.id.patient_detalis, batchFragment).commit()
-//                                parentFragmentManager.beginTransaction().apply {
-//                                    replace(R.id.patient_detalis, batchFragment).commit()
-//                                }
-
                             }
                         )
                     }
@@ -134,15 +120,12 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     viewModel.prescriptions.observe(viewLifecycleOwner) {
                         dtos = viewModel.prescriptions?.value
                         viewModel.prescriptions?.value?.let {it->
-//                            Timber.d("*******************Babs DTO************** ",it)
                             binding.consultantValue.text = it.consultantName
                             binding.visitCodeValue.text = it.visitCode.toString()
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
-//                            itemAdapter?.submitList(it.itemList)
 
                             it.itemList.let { it ->
-//                                Timber.d("*******************DAta Prescription DTO************** ",it)
                                 itemAdapter?.submitList(it)
                                 binding.pharmacistListContainer.prescriptionCount.text =
                                     itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
@@ -151,17 +134,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                                 }
                             }
                         }
-
-
-//                        viewModel.prescriptions?.value?.itemList.let { it ->
-//                            Timber.d("*******************DAta Prescription DTO************** ",it)
-//                            itemAdapter?.submitList(it?.sortedByDescending { it.id})
-//                            binding.pharmacistListContainer.prescriptionCount.text =
-//                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-//                            if (it != null) {
-//                                patientCount = it.size
-//                            }
-//                        }
                     }
 
                 }
@@ -196,13 +168,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                 else -> {}
             }
         }
-//        var isValidData = true
-//        if (isValidData) {
-//
-////            navigateNext()
-//        } else {
-//            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
-//        }
     }
 
     override fun onCancelAction() {
@@ -212,9 +177,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
     }
 
     fun navigateNext() {
-//        findNavController().navigate(
-//            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
-//        )
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
         requireActivity().finish()

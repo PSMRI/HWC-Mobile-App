@@ -45,11 +45,7 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         init()
         return try {
-//            if( WorkerUtils.isDownloadInProgress ){
-//                Timber.d("Benflow Download Worker in progress")
-//                Result.retry()
-//            }
-//            else{
+
                 Log.d("Benflow In Progress", "Benflow In Progress")
 
                 val currentInstant = Instant.now()
@@ -61,9 +57,6 @@ class PullBenFlowFromAmritWorker @AssistedInject constructor(
                 if (workerResult) {
                     preferenceDao.setLastBenflowSyncTime(currTimeStamp)
                 }
-
-//                amritSyncInProgress = false
-//                downloadSyncInProgress = false
 
                 Timber.d("Benflow Download Worker completed")
                 Result.success()

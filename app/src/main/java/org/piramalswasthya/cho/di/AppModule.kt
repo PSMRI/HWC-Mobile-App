@@ -1,12 +1,6 @@
 package org.piramalswasthya.cho.di
 
-//import org.piramalswasthya.cho.network.AmritApiService
-//import org.piramalswasthya.sakhi.network.AbhaApiService
-//import org.piramalswasthya.sakhi.network.AmritApiService
-//import org.piramalswasthya.sakhi.network.D2DApiService
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertAbhaInterceptor
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertD2DInterceptor
-//import org.piramalswasthya.sakhi.network.interceptors.TokenInsertTmcInterceptor
+
 import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -76,15 +70,11 @@ object AppModule {
 
     private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
-//    private const val baseAmritUrl = "https://gokhwc.piramalswasthya.org/"
-
     private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 
-//    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
-
-    private const val sanjeevaniApi = "https://api.esanjeevani.in/prod/"
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =
         OkHttpClient.Builder()
@@ -100,18 +90,7 @@ object AppModule {
             .build()
     }
 
-//    @Singleton
-//    @Provides
-//    @Named("logInClient")
-//    fun provideD2DHttpClient(): OkHttpClient {
-//        return baseClient
-//            .newBuilder()
-//            .connectTimeout(30, TimeUnit.SECONDS)
-//            .readTimeout(30, TimeUnit.SECONDS)
-//            .writeTimeout(30, TimeUnit.SECONDS)
-//            .addInterceptor(TokenInsertD2DInterceptor())
-//            .build()
-//    }
+
 
     @Singleton
     @Provides
@@ -151,20 +130,7 @@ object AppModule {
             .build()
     }
 
-//    @Singleton
-//    @Provides
-//    fun provideD2DApiService(
-//        moshi: Moshi,
-//        @Named("logInClient") httpClient: OkHttpClient
-//    ): D2DApiService {
-//        return Retrofit.Builder()
-//            .addConverterFactory(MoshiConverterFactory.create(moshi))
-//            //.addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl(baseD2DUrl)
-//            .client(httpClient)
-//            .build()
-//            .create(D2DApiService::class.java)
-//    }
+
 @Singleton
 @Provides
 fun provideESanjeevaniApiService(
@@ -348,40 +314,6 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
-
-
-//    @Singleton
-//    @Provides
-//    fun provideStateMasterRepo(database : InAppDb) : StateMasterRepo = database.stateMasterRepo
-//
-//    @Singleton
-//    @Provides
-//    fun provideDistrictMasterRepo(database : InAppDb) : DistrictMasterRepo = database.districtMasterRepo
-//
-//    @Singleton
-//    @Provides
-//    fun provideBlockMasterRepo(database : InAppDb) : BlockMasterRepo = database.blockMasterRepo
-//
-//    @Singleton
-//    @Provides
-//    fun provideVillageMasterRepo(database : InAppDb) : VillageMasterRepo = database.villageMasterRepo
-
-
-//    @Singleton
-//    @Provides
-//    fun provideBenIdDao(database : InAppDb) : BeneficiaryIdsAvailDao = database.benIdGenDao
-//
-//    @Singleton
-//    @Provides
-//    fun provideCbacDao(database : InAppDb) : CbacDao = database.cbacDao
-//
-//    @Singleton
-//    @Provides
-//    fun provideVaccineDao(database : InAppDb) : ImmunizationDao = database.vaccineDao
-//
-//    @Singleton
-//    @Provides
-//    fun provideMaternalHealthDao(database : InAppDb) : MaternalHealthDao = database.maternalHealthDao
 
     @Singleton
     @Provides

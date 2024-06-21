@@ -652,9 +652,6 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     fun navigateNext() {
-//        findNavController().navigate(
-//            R.id.action_labTechnicianFormFragment_to_patientHomeFragment, bundle
-//        )
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
         requireActivity().finish()

@@ -18,16 +18,6 @@ fun TextInputLayout.setBoxColor(boolean: Boolean, errorText : String? = null) {
     invalidate()
 }
 
-//fun filterBenList(list: List<PatientVisitInfoSyncWithPatient>, text: String): List<PatientVisitInfoSyncWithPatient> {
-//    if (text == "")
-//        return list
-//    else {
-//        val filterText = text.lowercase()
-//        return list.filter {
-//            filterForBen(it.patient, filterText)
-//        }
-//    }
-//}
 
 fun filterBenList(list: List<PatientDisplayWithVisitInfo>, text: String): List<PatientDisplayWithVisitInfo> {
     if (text == "")

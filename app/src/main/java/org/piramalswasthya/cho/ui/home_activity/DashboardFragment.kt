@@ -66,12 +66,8 @@ class DashboardFragment : Fragment() {
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-//         months = resources.getStringArray(R.array.months)
-        // create an array adapter and pass the required parameter
-        // in our case pass the context, drop down layout , and array.
         val arrayAdapter = ArrayAdapter(requireContext(), R.layout.drop_down,months)
-        // get reference to the autocomplete text view
-        // set adapter to the autocomplete tv to the arrayAdapter
+
         _binding!!.selectPeriod.setAdapter(arrayAdapter)
         _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false);
         periodParam = SimpleDateFormat("yyyy-MM-dd").format(Date())

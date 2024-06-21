@@ -823,22 +823,7 @@ class CbacViewModel @Inject constructor(
                 return false
             }
         }
-//        if (cbac.cbac_fuel_used_posi == 0) {
-//            missingFieldString = context.getString(R.string.cbac_validation_fu)
-//            return false
-//        }
-//        if (cbac.cbac_occupational_exposure_posi == 0) {
-//            missingFieldString = context.getString(R.string.cbac_validation_ox)
-//            return false
-//        }
-//        if (cbac.cbac_little_interest_posi == 0) {
-//            missingFieldString = context.getString(R.string.cbac_validation_li)
-//            return false
-//        }
-//        if (cbac.cbac_feeling_down_posi == 0) {
-//            missingFieldString = context.getString(R.string.cbac_validation_fd)
-//            return false
-//        }
+
         return true
     }
 

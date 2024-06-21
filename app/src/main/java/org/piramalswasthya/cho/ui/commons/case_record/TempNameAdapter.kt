@@ -5,12 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Filter
 import android.widget.TextView
-import org.piramalswasthya.cho.model.ItemMasterList
-import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
-import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 
 class TempNameAdapter(
                       context: Context,
@@ -25,36 +21,6 @@ class TempNameAdapter(
         autoCompleteTextView.setAdapter(this)
     }
 
-//    override fun getFilter(): Filter {
-//        return object : Filter() {
-//            override fun performFiltering(constraint: CharSequence?): FilterResults {
-//                val results = FilterResults()
-//                constraint?.let { query ->
-//                    val filteredData = ArrayList<ItemMasterList>()
-//                    val lowerCaseQuery = query.toString().lowercase()
-//
-//                    for (item in dataListConst) {
-//                        if (item.itemName.lowercase().contains(lowerCaseQuery)) {
-//                            filteredData.add(item)
-//                        }
-//                    }
-//                    results.values = filteredData
-//                    results.count = filteredData.size
-//                }
-//
-//                return results
-//            }
-//            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-//                results?.let { filterResults ->
-//                    clear()
-//                    if (filterResults.count > 0) {
-//                        addAll(filterResults.values as List<ItemMasterList>)
-//                        notifyDataSetChanged()
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)

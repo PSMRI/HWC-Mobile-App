@@ -258,40 +258,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-//                if(it.doctorFlag == 2){
-//                    Toast.makeText(
-//                        requireContext(),
-//                        "Pending for Lab Technician",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//                else if(it.doctorFlag == 9){
-//                    Toast.makeText(
-//                        requireContext(),
-//                        "Flow completed",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//                else{
+
 
 
                 findNavController().navigate(
-//                    CaseRecordCustomDirections.actionCaseRecordCustomSelf()
+
                     R.id.action_caseRecordCustom_self, Bundle().apply {
                         putBoolean("viewRecord", true)
                         putSerializable("benVisitInfo", it)
                     }
                 )
 
-//                }aapne ye daala to h boolean to isse mau if condition se show kar sakta hun na saare prescription and all and hide kar dunga baki template
 
-//                val submitDoctorData = Bundle()
-//                submitDoctorData.putBoolean("submitDoctorData", true)
-//                submitDoctorData.putSerializable("benVisitInfo", it)
-//
-//                findNavController().navigate(
-//                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
-//                )
 
             })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
@@ -394,28 +372,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             pAdapter.notifyDataSetChanged()
         }
 
-//        tempDropdownAdapter = TempDropdownAdapter(
-//            requireContext(),
-//            R.layout.drop_down,
-//            tempDBVal,
-//            binding.inputUseTempForFields
-//        )
-//        binding.inputUseTempForFields.setAdapter(tempDropdownAdapter)
-
-
-//        viewModel.tempDB.observe(viewLifecycleOwner) { f ->
-//            tempDBVal.clear()
-//            tempDBVal.addAll(f)
-//            convertToPrescriptionValues(tempDBVal)
-//            pAdapter.notifyDataSetChanged()
-//        }
-
-//        binding.inputUseTempForFields.setOnItemClickListener { parent, _, position, _ ->
-//            val selectedString = parent.getItemAtPosition(position) as PrescriptionTemplateDB
-//            val form = tempDBVal.filter { it?.templateName == selectedString.templateName }
-//            binding.inputUseTempForFields.setText(form[0]?.templateName,false)
-//            convertToPrescriptionValues(form)
-//        }
 
         val tempAdapter =
             ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)

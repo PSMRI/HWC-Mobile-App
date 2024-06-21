@@ -32,25 +32,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     val epochTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
 
-//    fun getD2DApiToken(): String? {
-//        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
-//        return pref.getString(prefKey, null)
-//    }
-//
-//    fun registerD2DApiToken(token: String) {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_D2D_API_KEY)
-//        editor.putString(prefKey, token)
-//        editor.apply()
-//    }
-//
-//    fun deletePrimaryApiToken() {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_primary_API_KEY)
-//        editor.remove(prefKey)
-//        editor.apply()
-//    }
-
     fun getPrimaryApiToken(): String? {
         val prefKey = context.getString(R.string.PREF_primary_API_KEY)
         return pref.getString(prefKey, null)
@@ -175,27 +156,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     }
 
 
-    fun isContainsRole(role: String):Boolean{
-        val rolesArray = getUserRoles()?.split(",")
-        if(rolesArray != null){
-            return rolesArray.contains(role)
-        }
-        return false;
-    }
 
-    fun saveLoginSettingsRecord(loginSettingsData: LoginSettingsData) {
-        val editor = pref.edit()
-        val prefKey = context.getString(R.string.login_settings)
-        val loginSettingsJson = Gson().toJson(loginSettingsData)
-        editor.putString(prefKey, loginSettingsJson)
-        editor.apply()
-    }
-
-    fun getLoginSettingsRecord(): LoginSettingsData? {
-        val prefKey = context.getString(R.string.login_settings)
-        val json = pref.getString(prefKey, null)
-        return Gson().fromJson(json, LoginSettingsData::class.java)
-    }
 
     fun getLastBenflowSyncTime(): String {
         val prefKey = context.getString(R.string.last_benflow_sync_time)
@@ -206,16 +167,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     fun setLastBenflowSyncTime(currTimeStamp: Long){
         val prefKey = context.getString(R.string.last_benflow_sync_time)
         val editor = pref.edit()
-
-//        val currentInstant = Instant.now()
-//        val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
-//        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
-//        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
-
-//        val currDate = LocalDate.now()
-//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
+       editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
     }
 
@@ -229,13 +181,6 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefKey = context.getString(R.string.last_patient_sync_time)
         val editor = pref.edit()
 
-//        val currentInstant = Instant.now()
-//        val currentDateTime = LocalDateTime.ofInstant(currentInstant, ZoneId.of("Asia/Kolkata"))
-//        val startOfHour = currentDateTime.withMinute(0).withSecond(0).withNano(0)
-//        val currTimeStamp = startOfHour.atZone(ZoneId.of("Asia/Kolkata")).toInstant().toEpochMilli()
-
-//        val currDate = LocalDate.now()
-//        val currTimeStamp = currDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
         editor.apply()
@@ -262,11 +207,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         val prefPasswordKey = context.getString(R.string.password_local_saved)
         return pref.getString(prefPasswordKey, null)
     }
-//
-//    fun deleteForLogout() {
-//        pref.edit().clear().apply()
-//    }
-//
+
 fun registerEsanjeevaniCred(userName: String,password: String) {
     val editor = pref.edit()
     val prefUserKey = context.getString(R.string.esanjeevaniusername_local_saved)
@@ -324,71 +265,7 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, LocationData::class.java)
     }
-//    fun getVillageNameFromDistrictBranchId(districtBranchId: String): String? {
-//        val locationData = getUserLocationData()
-//
-//        locationData?.let { data ->
-//            val villageList = data.villageList
-//            for (village in villageList) {
-//                if (village.districtBranchID == districtBranchId) {
-//                    return village.villageName
-//                }
-//            }
-//        }
-//
-//        return null // District Branch ID not found or error occurred
-//    }
 
-//
-
-//
-//    fun getRememberedPassword(): String? {
-//        val key = context.getString(R.string.PREF_rem_me_pwd)
-//        return pref.getString(key, null)
-//    }
-//    fun getRememberedState(): String? {
-//        val key = context.getString(R.string.PREF_rem_me_state)
-//        return pref.getString(key, null)
-//    }
-//
-//    fun saveLocationRecord(locationRecord: LocationRecord) {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_location_record_entry)
-//        val locationRecordJson = Gson().toJson(locationRecord)
-//        editor.putString(prefKey, locationRecordJson)
-//        editor.apply()
-//    }
-//    fun getLocationRecord(): LocationRecord? {
-//        val prefKey = context.getString(R.string.PREF_location_record_entry)
-//        val json = pref.getString(prefKey, null)
-//        return Gson().fromJson(json, LocationRecord::class.java)
-//    }
-//
-//    fun setLastSyncedTimeStamp(lastSaved: Long) {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_full_load_pull_progress)
-//        editor.putLong(prefKey, lastSaved)
-//        editor.apply()
-//    }
-//
-//    fun getLastSyncedTimeStamp(): Long {
-//        val prefKey = context.getString(R.string.PREF_full_load_pull_progress)
-//        return pref.getLong(prefKey, 1603132200000)
-//    }
-//
-//    fun setFirstSyncLastSyncedPage(page: Int) {
-//        val editor = pref.edit()
-//        val prefKey = context.getString(R.string.PREF_first_pull_amrit_last_synced_page)
-//        editor.putInt(prefKey, page)
-//        editor.apply()
-//    }
-//
-//    fun getFirstSyncLastSyncedPage(): Int {
-//        val prefKey = context.getString(R.string.PREF_first_pull_amrit_last_synced_page)
-//        return pref.getInt(prefKey, 0)
-//    }
-//
-//
     fun saveSetLanguage(language: Languages) {
         val key = context.getString(R.string.PREF_current_saved_language)
         val editor = pref.edit()
@@ -404,22 +281,7 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
             else -> Languages.ENGLISH
         }
     }
-//
-//    fun saveProfilePicUri(uri: Uri) {
-//        val key = context.getString(R.string.PREF_current_dp_uri)
-//
-//        val editor = pref.edit()
-//        editor.putString(key, uri.toString())
-//        editor.apply()
-//        Timber.d("Saving profile pic @ $uri")
-//    }
-//
-//    fun getProfilePicUri(): Uri? {
-//        val key = context.getString(R.string.PREF_current_dp_uri)
-//        val uriString = pref.getString(key, null)
-//        return uriString?.let { Uri.parse(it) }
-//    }
-//
+
     fun savePublicKeyForAbha(publicKey: String) {
         val key = "AUTH_CERT"
         val editor = pref.edit()

@@ -130,19 +130,8 @@ class OutreachFragment(
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-//        //Ensure that there's a camera activity to handle the intent
-//        if (takePictureIntent.resolveActivity(CustomPackageManager()) != null) {
-//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-//        }
-    }
 
-//    private fun dispatchTakePictureIntent() {
-//        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//
-//        if (takePictureIntent.resolveActivity(packageManager) != null) {
-//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-//        }
-//    }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -206,14 +195,6 @@ class OutreachFragment(
                 } else {
                     processDetectedFaces(faces)
                 }
-//                for (face in faces) {
-//                    Timber.d("face found is $face")
-////                    Toast.makeText(context,"Valid Image",Toast.LENGTH_SHORT).show()
-//
-//                    // Access face information (e.g., bounding box, landmarks, etc.)
-//                    val bounds = face.boundingBox
-//                    // ...
-//                }
             }
             .addOnFailureListener { exception ->
                 // Handle any errors
@@ -484,10 +465,6 @@ class OutreachFragment(
         private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        getCurrentLocation()
-//    }
 
 }
 

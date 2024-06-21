@@ -63,9 +63,7 @@ class FhirVisitDetailsFragment : Fragment(R.layout.fragment_fhir_visit_details),
     }
 
     fun navigateNext() {
-//        findNavController().navigate(
-//            FhirVisitDetailsFragmentDirections.actionFhirVisitDetailsFragmentToFhirVitalsFragment()
-//        )
+
     }
 
 }

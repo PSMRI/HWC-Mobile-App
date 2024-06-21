@@ -38,13 +38,6 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     private val userRepo: UserRepo,
 ) : ViewModel() {
 
-
-//    val patientID = ""
-//
-//    private val zero = 0
-//
-//    val createdDate = zero.toLong()
-
     val patientID =
         EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
 
@@ -115,14 +108,6 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             )
 
 
-//            ecrRepo.getSavedRecord(patientID)?.let {
-//                dataset.setUpPage(
-//                    ben,
-//                    it.dateOfReg,
-//                    pastTrack,
-//                    if (recordExists.value == true) eligibleCoupleTracking else null
-//                )
-//            }
 
         }
     }
@@ -134,9 +119,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     }
 
-//    fun getIndexOfEdd(): Int = dataset.getIndexOfEdd()
-//    fun getIndexOfWeeksOfPregnancy(): Int = dataset.getIndexOfWeeksPregnancy()
-//    fun getIndexOfPastIllness(): Int = dataset.getIndexOfPastIllness()
+
 
     fun saveForm() {
         viewModelScope.launch {
@@ -149,10 +132,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                     isPregnant = (eligibleCoupleTracking.isPregnant == "Yes") ||
                             (eligibleCoupleTracking.pregnancyTestResult == "Positive")
                     if (isPregnant) {
-//                        ecrRepo.getBenFromId(benId)?.let {
-//                            dataset.updateBen(it)
-//                            benRepo.updateRecord(it)
-//                        }
+
                     }
 
                     _state.postValue(State.SAVE_SUCCESS)
@@ -168,6 +148,6 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
         _state.value = State.IDLE
     }
 
-    fun getIndexOfIsPregnant() = dataset.getIndexOfIsPregnant()
+
 
 }
