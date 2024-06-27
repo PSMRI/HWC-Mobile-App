@@ -188,6 +188,7 @@ class HomeFragment : Fragment() {
 
         if(preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()){
             binding.registration.visibility = View.VISIBLE
+            binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
         }
         else{
             binding.registration.visibility = View.GONE
@@ -334,7 +335,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bottom_menu_nav, menu)
+//        inflater.inflate(R.menu.bottom_menu_nav, menu)
 
         setItemVisibility()
         setItemSelected()

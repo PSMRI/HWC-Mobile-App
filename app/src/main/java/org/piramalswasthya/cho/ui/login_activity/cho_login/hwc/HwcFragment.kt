@@ -8,28 +8,25 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentHwcBinding
-import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
@@ -39,17 +36,20 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
+
 @AndroidEntryPoint
 class HwcFragment constructor(
     private val userName: String,
     private val rememberUsername: Boolean,
     private val isBiometric: Boolean,
-    ): Fragment() {
+) : Fragment() {
 
     @Inject
     lateinit var prefDao: PreferenceDao
+
     @Inject
     lateinit var userDao: UserDao
+
     @Inject
     lateinit var userRepo: UserRepo
 
@@ -59,17 +59,18 @@ class HwcFragment constructor(
 
     private lateinit var viewModel: HwcViewModel
 
-    var userLatitude :Double? = null
-    var userLongitude :Double? = null
-    var userLoginDistance :Int? = null
-    var currentLatitude :Double? = null
-    var currentLongitude :Double? = null
+    var userLatitude: Double? = null
+    var userLongitude: Double? = null
+    var userLoginDistance: Int? = null
+    var currentLatitude: Double? = null
+    var currentLongitude: Double? = null
 
-    var timestamp: String?=null
+    var timestamp: String? = null
     private var currentLocation: Location? = null
     private var locationManager: LocationManager? = null
     private var locationListener: LocationListener? = null
 
+    private var tryAuthUser: Boolean = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -84,13 +85,14 @@ class HwcFragment constructor(
         } else {
             binding.tilPasswordHwc.visibility = View.VISIBLE
             if (!viewModel.fetchRememberedPassword().isNullOrBlank()) {
-            viewModel.fetchRememberedPassword()?.let {
-                binding.etPasswordHwc.setText(it)
+                viewModel.fetchRememberedPassword()?.let {
+                    binding.etPasswordHwc.setText(it)
+                }
             }
         }
-    }
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
 //        getCurrentLocation()
@@ -101,32 +103,19 @@ class HwcFragment constructor(
         formatter.timeZone = timeZone
         timestamp = formatter.format(Date())
 
-            binding.btnHwcLogin.setOnClickListener {
-                getCurrentLocation()
+        binding.btnHwcLogin.setOnClickListener {
+            getCurrentLocation()
 
-                if (!isBiometric) {
-                    lifecycleScope.launch {
-                        viewModel.authUser(
-                            userName,
-                            binding.etPasswordHwc.text.toString(),
-                            "HWC",
-                            null,
-                            timestamp,
-                            null,
-                            currentLocation?.latitude,
-                            currentLocation?.longitude,
-                            null,
-                            requireContext()
-                        )
-                    }
+            if (!isBiometric) {
+                tryAuthUser = true
 
-                    viewModel.state.observe(viewLifecycleOwner) { state ->
-                        when (state!!) {
+                viewModel.state.observe(viewLifecycleOwner) { state ->
+                    when (state!!) {
 
-                            OutreachViewModel.State.SUCCESS -> {
+                        OutreachViewModel.State.SUCCESS -> {
 
-                                lifecycleScope.launch {
-                                   val user = userDao.getLoggedInUser()
+                            lifecycleScope.launch {
+                                val user = userDao.getLoggedInUser()
                                 binding.patientListFragment.visibility = View.VISIBLE
                                 binding.rlSaving.visibility = View.GONE
 
@@ -230,47 +219,45 @@ class HwcFragment constructor(
                             }
                         }
 
-                            OutreachViewModel.State.SAVING -> {
-                                binding.patientListFragment.visibility = View.GONE
-                                binding.rlSaving.visibility = View.VISIBLE
-                            }
-
-                            OutreachViewModel.State.ERROR_SERVER,
-                            OutreachViewModel.State.ERROR_NETWORK -> {
-                                binding.patientListFragment.visibility = View.VISIBLE
-                                binding.rlSaving.visibility = View.GONE
-
-//                        viewModel.forgetUser()
-                                viewModel.resetState()
-                            }
-
-                            else -> {}
+                        OutreachViewModel.State.SAVING -> {
+                            binding.patientListFragment.visibility = View.GONE
+                            binding.rlSaving.visibility = View.VISIBLE
                         }
 
+                        OutreachViewModel.State.ERROR_SERVER,
+                        OutreachViewModel.State.ERROR_NETWORK -> {
+                            binding.patientListFragment.visibility = View.VISIBLE
+                            binding.rlSaving.visibility = View.GONE
+
+//                        viewModel.forgetUser()
+                            viewModel.resetState()
+                        }
+
+                        else -> {}
                     }
+
                 }
-                else{
-                    //WHEN LOGGED IN THROUGH BIOMETRIC
+            } else {
+                //WHEN LOGGED IN THROUGH BIOMETRIC
                 lifecycleScope.launch {
 
                     val user = userDao.getLoggedInUser()
                     userLatitude = user?.masterLatitude
-                     userLongitude = user?.masterLongitude
-                     userLoginDistance = user?.loginDistance
-                     currentLatitude = currentLocation?.latitude
-                     currentLongitude = currentLocation?.longitude
+                    userLongitude = user?.masterLongitude
+                    userLoginDistance = user?.loginDistance
+                    currentLatitude = currentLocation?.latitude
+                    currentLongitude = currentLocation?.longitude
 
-                    if(user?.masterVillageID != null && userLatitude != null && userLongitude != null){
+                    if (user?.masterVillageID != null && userLatitude != null && userLongitude != null) {
 
-                        if(currentLatitude!=null && currentLongitude!=null) {
+                        if (currentLatitude != null && currentLongitude != null) {
                             val distance = calculateDistance(
                                 userLatitude!!, userLongitude!!,
                                 currentLatitude!!, currentLongitude!!
                             )
                             if (distance > userLoginDistance!!) {
                                 showDialog()
-                            }
-                            else {
+                            } else {
                                 viewModel.setOutreachDetails(
                                     "HWC",
                                     null,
@@ -289,8 +276,7 @@ class HwcFragment constructor(
                                 viewModel.resetState()
                                 activity?.finish()
                             }
-                        }
-                        else {
+                        } else {
                             viewModel.setOutreachDetails(
                                 "HWC",
                                 null,
@@ -320,47 +306,73 @@ class HwcFragment constructor(
 //                    activity?.finish()
                 }
             }
-            }
         }
+    }
+
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (!isBiometric)
                     findNavController().navigateUp()
                 else {
-                        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
-                            .setMessage("Please confirm to logout and exit.")
-                            .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
-                                lifecycleScope.launch {
-                                    val user = userDao.getLoggedInUser()
-                                    userDao.resetAllUsersLoggedInState()
-                                    if (user != null) {
-                                        userDao.updateLogoutTime(user.userId, Date())
-                                    }
+                    MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.logout))
+                        .setMessage("Please confirm to logout and exit.")
+                        .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
+                            lifecycleScope.launch {
+                                val user = userDao.getLoggedInUser()
+                                userDao.resetAllUsersLoggedInState()
+                                if (user != null) {
+                                    userDao.updateLogoutTime(user.userId, Date())
                                 }
-                                requireActivity().finish()
-                                dialog.dismiss()
-                            }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
-                                dialog.dismiss()
-                            }.create()
-                            .show()
+                            }
+                            requireActivity().finish()
+                            dialog.dismiss()
+                        }.setNegativeButton(getString(R.string.select_no)) { dialog, _ ->
+                            dialog.dismiss()
+                        }.create()
+                        .show()
                 }
             }
         }
     }
+
     private fun getCurrentLocation() {
         // Check if location permissions are granted
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) ==
             PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager =
+                requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
             //  Location listener
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     currentLocation = location
+                    if (tryAuthUser) {
+                        lifecycleScope.launch {
+                            viewModel.authUser(
+                                userName,
+                                binding.etPasswordHwc.text.toString(),
+                                "HWC",
+                                null,
+                                timestamp,
+                                null,
+                                location.latitude,
+                                location.longitude,
+                                null,
+                                requireContext()
+                            )
+                            tryAuthUser = false
+                        }
+                    }
                 }
 
                 override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -396,6 +408,7 @@ class HwcFragment constructor(
             )
         }
     }
+
     private fun showDialog() {
         val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
         val timeZone = TimeZone.getTimeZone("GMT+0530")
@@ -407,7 +420,7 @@ class HwcFragment constructor(
         alertDialogBuilder.setMessage("You are trying to Log-in away from your facility. Do you want to retry?")
             .setTitle("Alert!")
             .setCancelable(false)
-            .setPositiveButton("Yes"){d,_->
+            .setPositiveButton("Yes") { d, _ ->
                 lifecycleScope.launch {
                     val user = userDao.getLoggedInUser()
                     userDao.resetAllUsersLoggedInState()
@@ -420,16 +433,16 @@ class HwcFragment constructor(
             }
             .setNegativeButton("No") { d, _ ->
                 lifecycleScope.launch {
-                viewModel.setOutreachDetails(
-                    "HWC",
-                    null,
-                    timestamp,
-                    null,
-                    currentLocation?.latitude,
-                    currentLocation?.longitude,
-                    null,
-                    true
-                )
+                    viewModel.setOutreachDetails(
+                        "HWC",
+                        null,
+                        timestamp,
+                        null,
+                        currentLocation?.latitude,
+                        currentLocation?.longitude,
+                        null,
+                        true
+                    )
                 }
                 d.dismiss()
                 findNavController().navigate(
@@ -440,11 +453,13 @@ class HwcFragment constructor(
             }.create()
             .show()
     }
+
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123
         private const val MIN_TIME_BETWEEN_UPDATES: Long = 1000 // 1 second
         private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 meters
     }
+
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
         val results = FloatArray(1)
         Location.distanceBetween(lat1, lon1, lat2, lon2, results)
