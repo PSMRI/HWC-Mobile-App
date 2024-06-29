@@ -29,6 +29,16 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.gms.nearby.Nearby
+import com.google.android.gms.nearby.connection.AdvertisingOptions
+import com.google.android.gms.nearby.connection.ConnectionInfo
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback
+import com.google.android.gms.nearby.connection.ConnectionResolution
+import com.google.android.gms.nearby.connection.ConnectionsStatusCodes
+import com.google.android.gms.nearby.connection.Payload
+import com.google.android.gms.nearby.connection.PayloadCallback
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate
+import com.google.android.gms.nearby.connection.Strategy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.radiobutton.MaterialRadioButton
@@ -52,10 +62,13 @@ import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.home.OfflineDataSharingBottomSheet
 import org.piramalswasthya.cho.ui.home.SyncBottomSheetOverallFragment
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
+import org.piramalswasthya.cho.utils.Constants
+import org.piramalswasthya.cho.utils.NetworkConnection
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
 import org.piramalswasthya.cho.work.WorkerUtils.downloadSyncInProgress
@@ -129,6 +142,13 @@ class HomeActivity : AppCompatActivity() {
         SyncBottomSheetOverallFragment()
     }
 
+    private val offlineDataShareBottomSheet: OfflineDataSharingBottomSheet by lazy {
+        OfflineDataSharingBottomSheet()
+    }
+
+    val connectionsClient by lazy { Nearby.getConnectionsClient(this) }
+    private lateinit var userName:String
+
     override fun onResume() {
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
@@ -146,29 +166,59 @@ class HomeActivity : AppCompatActivity() {
         handler.removeCallbacks(runnable!!)
     }
 
+    private val REQUIRED_PERMISSIONS = arrayOf(
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.CHANGE_WIFI_STATE,
+        Manifest.permission.BLUETOOTH,
+        Manifest.permission.BLUETOOTH_ADMIN,
+        Manifest.permission.BLUETOOTH_ADVERTISE,
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.BLUETOOTH_SCAN,
+        Manifest.permission.NEARBY_WIFI_DEVICES,
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO
+    )
+
+    private val PERMISSION_REQUEST_CODE = 123
+
     private fun checkAndRequestPermissions() {
         // Check if the permission is not granted
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        val missingPermissions = REQUIRED_PERMISSIONS.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
 
-            // Request the permissions
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO), MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC)
+        if (missingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missingPermissions.toTypedArray(), PERMISSION_REQUEST_CODE)
         } else {
-            // Permissions are already granted
-            // You can proceed with using the camera and microphone
+            // All permissions are already granted
+            // You can proceed with using the required features
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC) {
-            // Check if the permissions are granted
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//        if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA_AND_MIC) {
+//            // Check if the permissions are granted
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+//                grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//
+//                // Permissions granted, proceed with using the camera and microphone
+//            } else {
+//                // Permissions denied, handle accordingly (e.g., show a message, disable features)
+//            }
+//        }
 
-                // Permissions granted, proceed with using the camera and microphone
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            val deniedPermissions = permissions.filterIndexed { index, _ ->
+                grantResults[index] != PackageManager.PERMISSION_GRANTED
+            }
+
+            if (deniedPermissions.isEmpty()) {
+                // All requested permissions are granted
+                // You can proceed with using the required features
             } else {
-                // Permissions denied, handle accordingly (e.g., show a message, disable features)
+                // Some permissions were denied
+                // Handle accordingly (e.g., show a message, disable features)
             }
         }
     }
@@ -197,6 +247,14 @@ class HomeActivity : AppCompatActivity() {
                 syncBottomSheet.show(
                     supportFragmentManager,
                     resources.getString(R.string.sync)
+                )
+        }
+
+        binding.shareButton.setOnClickListener {
+            if(!offlineDataShareBottomSheet.isVisible)
+                offlineDataShareBottomSheet.show(
+                    supportFragmentManager,
+                    "SyncDataBottomSheet"
                 )
         }
 
@@ -319,8 +377,79 @@ class HomeActivity : AppCompatActivity() {
 
         currentLanguage = prefDao.getCurrentLanguage()
 
+        setObservers()
+
     }
-    private val logoutAlert by lazy {
+
+    private fun setObservers() {
+        val networkConnection = NetworkConnection(this)
+        networkConnection.observe(this){
+            if(it){
+                connectionsClient.stopAdvertising()
+            }else{
+                connectionsClient.stopAdvertising()
+                startAdvertising()
+            }
+        }
+    }
+    private fun startAdvertising() {
+        val advertisingOptions =
+            AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build()
+        connectionsClient.startAdvertising(
+            "Nurse-${userName}",
+            Constants.serviceId,
+            connectionLifecycleCallback,
+            advertisingOptions
+        ).addOnSuccessListener {
+            Log.d("Advertising", "Advertiesment started")
+        }.addOnFailureListener {
+            Log.d("Advertising", "Advertiesment Failed ${it.message}")
+        }
+    }
+    private val connectionLifecycleCallback = object : ConnectionLifecycleCallback(){
+        override fun onConnectionInitiated(endpointId: String, p1: ConnectionInfo) {
+            connectionsClient.acceptConnection(endpointId, payloadCallback)
+                .addOnSuccessListener {
+                    Log.d("Advertising", "Accepted connection with $endpointId")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Advertising", "Failed to accept connection with $endpointId", e)
+                }
+        }
+
+        override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
+            when (result.status.statusCode) {
+                ConnectionsStatusCodes.STATUS_OK -> {
+                    Log.d("Advertising","Connected successfully to $endpointId")
+                }
+                ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
+                    Log.d("Advertising","Connection rejected by $endpointId")
+                }
+                ConnectionsStatusCodes.STATUS_ERROR -> {
+                    Log.d("Advertising","Error with connection to $endpointId")
+                }
+            }
+        }
+
+        override fun onDisconnected(p0: String) {
+
+        }
+
+    }
+
+    private val payloadCallback = object : PayloadCallback() {
+        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+
+
+        }
+
+        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
+            // Bytes transferred
+        }
+    }
+
+
+        private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
             .setMessage(getString(R.string.please_confirm_to_logout))
             .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
@@ -430,6 +559,7 @@ private fun triggerAlarmManager(){
                     getString(R.string.nav_item_2_text, user?.userName)
                 headerView.findViewById<TextView>(R.id.tv_nav_id).text =
                     getString(R.string.nav_item_3_text, user?.userId)
+            userName = user?.name.toString()
         }
 
     }
