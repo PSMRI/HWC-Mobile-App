@@ -150,7 +150,10 @@ class UserRepo @Inject constructor(
                     it.userName = userName
                     it.loggedIn = true
                     it.lastLogInTime = Date()
-                    userDao.update(loggedInUser)
+                    it.masterLatitude = lat
+                    it.masterLongitude = long
+                    it.loginDistance = 1000
+                    userDao.update(it)
 //                    if(!isBiometric!!) {
 //                        setOutreachProgram(
 //                            loginType,

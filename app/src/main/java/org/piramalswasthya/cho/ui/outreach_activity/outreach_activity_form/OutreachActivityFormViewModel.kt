@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.model.OutreachActivityModel
+import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
 import org.piramalswasthya.cho.network.ActivityResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.repositories.ActivityRepo
@@ -47,6 +48,29 @@ class OutreachActivityFormViewModel @Inject constructor(
     val isDataSaved: MutableLiveData<Boolean?>
         get() = _isDataSaved
 
+    var activities: List<OutreachActivityNetworkModel> = mutableListOf()
+
+    init {
+        getData()
+    }
+
+    private fun getData(){
+        viewModelScope.launch {
+            when (val result = activityRepo.getActivityByUser()) {
+                is NetworkResult.Success -> {
+                    val data = result.data as ActivityResponse
+                    activities = data.activityList
+                }
+
+                is NetworkResult.Error -> {
+                    activities = emptyList()
+                }
+                NetworkResult.NetworkError -> {
+                    activities = emptyList()
+                }
+            }
+        }
+    }
     fun saveNewActivity(activity: OutreachActivityModel){
         val act = activity
         var st = act.img1
