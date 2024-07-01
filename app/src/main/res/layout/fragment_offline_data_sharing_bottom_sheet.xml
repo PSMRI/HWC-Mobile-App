@@ -29,6 +29,13 @@
             android:text="Share Data Offline"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnPrimary" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
+            android:textColor="@color/primaryTextColor"
+            android:text="Cancel"/>
     </LinearLayout>
 
     <LinearLayout
@@ -58,29 +65,15 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/find_devices_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Find Available Devices"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/default_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="12dp"
-        app:layout_constraintBottom_toTopOf="@id/available_devices"
-        app:layout_constraintTop_toBottomOf="@id/recordsData"/>
-
     <LinearLayout
         android:id="@+id/available_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/find_devices_btn"
+        app:layout_constraintTop_toBottomOf="@id/recordsData"
         android:padding="8dp"
         android:gravity="center_vertical">
 
@@ -115,11 +108,11 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:paddingVertical="60dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/available_devices"
+        app:layout_constraintTop_toBottomOf="@id/available_devices"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView

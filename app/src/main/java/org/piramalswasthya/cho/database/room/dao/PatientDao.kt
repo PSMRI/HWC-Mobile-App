@@ -132,6 +132,11 @@ interface PatientDao {
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
     suspend fun updatePatientSyncFailed(synced: SyncState = SyncState.UNSYNCED, patientID: String) : Int
+
+    @Transaction
+    @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
+    suspend fun updatePatientSyncOffline(synced: SyncState = SyncState.SHARED_OFFLINE, patientID: String) : Int
+
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
 

@@ -43,6 +43,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.tabs.TabLayout
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,6 +61,7 @@ import org.piramalswasthya.cho.databinding.ActivityHomeBinding
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
@@ -68,6 +71,7 @@ import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.utils.Constants
+import org.piramalswasthya.cho.utils.DateJsonAdapter
 import org.piramalswasthya.cho.utils.NetworkConnection
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
@@ -148,6 +152,7 @@ class HomeActivity : AppCompatActivity() {
 
     val connectionsClient by lazy { Nearby.getConnectionsClient(this) }
     private lateinit var userName:String
+    private lateinit var userRole:String
 
     override fun onResume() {
         handler.postDelayed(Runnable {
@@ -396,12 +401,14 @@ class HomeActivity : AppCompatActivity() {
         val advertisingOptions =
             AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build()
         connectionsClient.startAdvertising(
-            "Nurse-${userName}",
+            buildString { append(userRole)
+            append("-")
+            append(userName)},
             Constants.serviceId,
             connectionLifecycleCallback,
             advertisingOptions
         ).addOnSuccessListener {
-            Log.d("Advertising", "Advertiesment started")
+            Log.d("Advertising", "Advertiesment started $userRole")
         }.addOnFailureListener {
             Log.d("Advertising", "Advertiesment Failed ${it.message}")
         }
@@ -410,7 +417,7 @@ class HomeActivity : AppCompatActivity() {
         override fun onConnectionInitiated(endpointId: String, p1: ConnectionInfo) {
             connectionsClient.acceptConnection(endpointId, payloadCallback)
                 .addOnSuccessListener {
-                    Log.d("Advertising", "Accepted connection with $endpointId")
+                    Log.d("Advertising", "Accepted connection with $endpointId ${p1.endpointName}")
                 }
                 .addOnFailureListener { e ->
                     Log.e("Advertising", "Failed to accept connection with $endpointId", e)
@@ -438,8 +445,31 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private val payloadCallback = object : PayloadCallback() {
-        override fun onPayloadReceived(endpointId: String, payload: Payload) {
 
+        val moshi =  Moshi.Builder()
+            .add(DateJsonAdapter())
+            .add(KotlinJsonAdapterFactory())
+            .build()
+        val patientAdapter = moshi.adapter(Patient::class.java)
+
+        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+            if(payload.type == Payload.Type.BYTES){
+                val receivedBytes = payload.asBytes()
+                if(receivedBytes != null){
+                    val jsonString = String(receivedBytes)
+                    try{
+                        val patient = patientAdapter.fromJson(jsonString)
+                        if(patient != null){
+                            Log.d("Advertising", patient.toString())
+                            viewModel.insertPatient(patient)
+                        }else{
+
+                        }
+                    }catch (e: Exception) {
+                        Log.e("Advertising", "Error parsing JSON", e)
+                    }
+                }
+            }
 
         }
 
@@ -560,6 +590,7 @@ private fun triggerAlarmManager(){
                 headerView.findViewById<TextView>(R.id.tv_nav_id).text =
                     getString(R.string.nav_item_3_text, user?.userId)
             userName = user?.name.toString()
+            userRole = user?.roles.toString()
         }
 
     }

@@ -17,14 +17,15 @@ import javax.inject.Inject
 class OfflineSyncViewModel @Inject constructor(
     private val patientDao: PatientDao,
     private val preferenceDao: PreferenceDao,
-   // private val userRepo: UserRepo
+    private val userRepo: UserRepo
 ):ViewModel(){
 
     var patients = emptyList<PatientDisplay>()
     var userRole = ""
-    lateinit var user :UserDomain
+    private lateinit var user :UserDomain
+    var userName = ""
     init{
-      //  getUserDetails()
+        getUserDetails()
         if(preferenceDao.isUserRegistrar()){
             getUnsyncedRegistrarData()
             userRole ="Registrar"
@@ -33,7 +34,8 @@ class OfflineSyncViewModel @Inject constructor(
 
     fun getUserDetails(){
         viewModelScope.launch {
-         //  user = userRepo.getLoggedInUser()!!
+           user = userRepo.getLoggedInUser()!!
+            userName = user.userName
         }
     }
   fun  getUnsyncedRegistrarData(){
