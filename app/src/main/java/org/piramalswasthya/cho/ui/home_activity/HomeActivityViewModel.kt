@@ -14,10 +14,12 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -38,6 +40,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val pref: PreferenceDao,
                                                  private val userRepo: UserRepo,
                                                  private val userDao: UserDao,
+                                                 private val patientRepo: PatientRepo,
                                                  private val registrarMasterDataRepo: RegistrarMasterDataRepo,
                                                  private val languageRepo: LanguageRepo,
                                                  private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
@@ -142,6 +145,12 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             }
             pref.deleteEsanjeevaniCreds()
             _navigateToLoginPage.value = true
+        }
+    }
+
+    fun insertPatient(patient: Patient){
+        viewModelScope.launch {
+            patientRepo.insertPatient(patient)
         }
     }
 
