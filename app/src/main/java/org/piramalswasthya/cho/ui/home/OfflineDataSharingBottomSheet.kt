@@ -64,12 +64,17 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
             discoveredDevices
         )
     }
-    private val progressDialog by lazy { ProgressDialogFragment() }
+    private lateinit var progressDialog: ProgressDialogFragment
 
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         connectionsClient = (requireActivity() as HomeActivity).connectionsClient
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        progressDialog = ProgressDialogFragment()
     }
 
 
@@ -136,6 +141,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                 }
             }
             Log.d("Discovery", " $endpointId $deviceName")
+            progressDialog.show(childFragmentManager, "progressDialog")
             requestConnection(endpointId!!, deviceName)
         }
     }
@@ -148,6 +154,8 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
         }, endpointId, connectionLifecycleCallback)
             .addOnSuccessListener {
                 Log.d("Discovery", "Connection request sent to: $endpointId $deviceName from ${viewModel.userName} of role ${viewModel.userRole}")
+
+                progressDialog.updateUI("Connecting...")
             }.addOnFailureListener {
                 Log.e("Discovery", "Failed to send connection request to: $endpointId $deviceName")
             }
@@ -164,6 +172,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                 ConnectionsStatusCodes.STATUS_OK -> {
                     Log.d("Discovery", "Connected to: $endpointId")
                     //send data
+                    progressDialog.updateUI("Connected!")
                     if(viewModel.patients.isNotEmpty()) {
                         sendPayload(endpointId, viewModel.patients)
                     }else{
@@ -174,10 +183,13 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
 
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                     Log.d("Discovery", "Connection rejected by: $endpointId")
+                    progressDialog.updateUI("Connection rejected!")
+
                 }
 
                 ConnectionsStatusCodes.STATUS_ERROR -> {
                     Log.e("Discovery", "Connection error with: $endpointId")
+                    progressDialog.updateUI("Unable to connect!")
                 }
             }
         }
@@ -195,7 +207,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
             .add(KotlinJsonAdapterFactory())
             .build()
         val patientAdapter = moshi.adapter(Patient::class.java)
-        progressDialog.show(childFragmentManager, "progressDialog")
+       // progressDialog.show(childFragmentManager, "progressDialog")
 
         CoroutineScope(Dispatchers.IO).launch {
             var filesSent = 0
@@ -242,7 +254,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                 // updateProgress(progress)
             } else if (update.status == PayloadTransferUpdate.Status.SUCCESS) {
                 // Handle successful transfer if needed
-                progressDialog.updateUI("Success")
+                progressDialog.updateUI("Data sent successfully!")
                 // Update unsynced records count
                 viewModel.getUnsyncedRegistrarData()
 
@@ -253,7 +265,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
 //                viewModel.getUnsyncedRegistrarData()
             } else if (update.status == PayloadTransferUpdate.Status.FAILURE) {
                 // Handle failed transfer if needed
-                progressDialog.updateUI("Error")
+                progressDialog.updateUI("Failed to send data.")
                 Handler(Looper.getMainLooper()).postDelayed({
                     progressDialog.dismiss()
                 }, 2000)
