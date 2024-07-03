@@ -24,6 +24,14 @@ class ProgressDialogFragment : DialogFragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
     fun updateProgress(filesSent: Int, totalFiles: Int, progress: Int) {
        binding.apply{
             tvRecordsTransferred.text = "Records Transferred: $filesSent/$totalFiles"
@@ -33,11 +41,17 @@ class ProgressDialogFragment : DialogFragment() {
     }
 
     fun updateUI(status: String){
-        if(status == "Success"){
-            binding.statusTv.text = "Files transferred successfully"
-        }else if(status == "Error"){
-            binding.statusTv.text = "Error in transferring files"
-        }
+//        if(status == "Success"){
+//            binding.statusTv.text = "Files transferred successfully"
+//        }else if(status == "Error"){
+//            binding.statusTv.text = "Error in transferring files"
+//        }
+        binding.statusTv.text = status
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
