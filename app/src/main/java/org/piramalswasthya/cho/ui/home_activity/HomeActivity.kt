@@ -63,6 +63,8 @@ import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientListAdapter
+import org.piramalswasthya.cho.model.PatientVisitDataBundle
+import org.piramalswasthya.cho.model.PayloadWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.home.OfflineDataSharingBottomSheet
@@ -451,26 +453,67 @@ class HomeActivity : AppCompatActivity() {
             .add(KotlinJsonAdapterFactory())
             .build()
         val patientAdapter = moshi.adapter(Patient::class.java)
+        val patientVisitDataBundleAdapter = moshi.adapter(PatientVisitDataBundle::class.java)
 
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
-            if(payload.type == Payload.Type.BYTES){
+            if (payload.type == Payload.Type.BYTES){
                 val receivedBytes = payload.asBytes()
-                if(receivedBytes != null){
+                if(receivedBytes != null) {
                     val jsonString = String(receivedBytes)
-                    try{
-                        val patient = patientAdapter.fromJson(jsonString)
-                        if(patient != null){
-                            Log.d("Advertising", patient.toString())
-                            viewModel.insertPatient(patient)
-                        }else{
-
+                    try {
+                        val payloadWrapper = moshi.adapter(PayloadWrapper::class.java).fromJson(jsonString)
+                        if(payloadWrapper != null){
+                            when (payloadWrapper.type) {
+                                "Patient" -> {
+                                    val patient = patientAdapter.fromJson(payloadWrapper.data)
+                                    if (patient != null) {
+                                        Log.d("Advertising", patient.toString())
+                                        viewModel.insertPatient(patient)
+                                    } else {
+                                        Log.e("Advertising", "Received patient is null")
+                                    }
+                                }
+                                "PatientVisitDataBundle" -> {
+                                    val patientVisitDataBundle = patientVisitDataBundleAdapter.fromJson(payloadWrapper.data)
+                                    if (patientVisitDataBundle != null) {
+                                        Log.d("Advertising", "Inside doctor ${patientVisitDataBundle.toString()}")
+                                        processPatientVisitDataBundle(patientVisitDataBundle)
+                                    } else {
+                                        Log.e("Advertising", "Received PatientVisitDataBundle is null")
+                                    }
+                                }
+                                else -> {
+                                    Log.e("Advertising", "Unknown payload type: ${payloadWrapper.type}")
+                                }
+                            }
+                        } else {
+                            Log.e("Advertising", "Received payloadWrapper is null")
                         }
+
+//
+//                        if (userRole.contains("Nurse")) {
+//                            val patient = patientAdapter.fromJson(jsonString)
+//                            if (patient != null) {
+//                                Log.d("Advertising", patient.toString())
+//                                viewModel.insertPatient(patient)
+//                            } else {
+//                                Log.e("Advertising", "Received patient is null")
+//                            }
+//                        }else if(userRole.contains("MO")){
+//                            val patient = patientAdapter.fromJson(jsonString)
+//                            if (patient != null) {
+//                                Log.d("Advertising","Inside docotr ${ patient.toString()}" )
+//                                viewModel.insertPatient(patient)
+//                            }else{
+//                                val patientVisitDataBundle = patientVisitDataBundleAdapter.fromJson(jsonString)
+//                                Log.d("Advertising","Inside docotr ${ patientVisitDataBundle.toString()}" )
+//                            }
+//                        }
                     }catch (e: Exception) {
                         Log.e("Advertising", "Error parsing JSON", e)
                     }
                 }
             }
-
         }
 
         override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
@@ -478,8 +521,12 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private fun processPatientVisitDataBundle(patientVisitDataBundle: PatientVisitDataBundle) {
+        viewModel.processPatientVisitDataBundle(patientVisitDataBundle)
+    }
 
-        private val logoutAlert by lazy {
+
+    private val logoutAlert by lazy {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.logout))
             .setMessage(getString(R.string.please_confirm_to_logout))
             .setPositiveButton(getString(R.string.select_yes)) { dialog, _ ->
@@ -489,7 +536,7 @@ class HomeActivity : AppCompatActivity() {
 
                 dialog.dismiss()
             }.create()
-    }
+        }
 private fun triggerAlarmManager(){
     val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)

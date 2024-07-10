@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.nearby.connection.ConnectionInfo
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback
 import com.google.android.gms.nearby.connection.ConnectionResolution
@@ -25,22 +26,32 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.databinding.FragmentOfflineDataSharingBottomSheetBinding
+import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientVisitDataBundle
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PayloadWrapper
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.Constants
 import org.piramalswasthya.cho.utils.DateJsonAdapter
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 
 @AndroidEntryPoint
@@ -53,7 +64,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
     @Inject
     lateinit var patientDao: PatientDao
 
-    private val viewModel: OfflineSyncViewModel by viewModels({ requireActivity() })
+    private lateinit var  viewModel: OfflineSyncViewModel
     private lateinit var connectionsClient: ConnectionsClient
     private val endpointIdToDeviceNameMap = mutableMapOf<String, String>()
     private val discoveredDevices = mutableListOf<String>()
@@ -74,6 +85,7 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity()).get(OfflineSyncViewModel::class.java)
         progressDialog = ProgressDialogFragment()
     }
 
@@ -120,6 +132,9 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                     if (viewModel.userRole == "Registrar") {
                         binding.unsyncedRecordsCount.text = viewModel.patients.size.toString()
                         Timber.d("count ${viewModel.patients}")
+                    } else if (viewModel.userRole == "Nurse") {
+                        binding.unsyncedRecordsCount.text =
+                            viewModel.patientVisitDataBundle.size.toString()
                     }
                 }
 
@@ -153,10 +168,17 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
             append(viewModel.userName)
         }, endpointId, connectionLifecycleCallback)
             .addOnSuccessListener {
-                Log.d("Discovery", "Connection request sent to: $endpointId $deviceName from ${viewModel.userName} of role ${viewModel.userRole}")
+                Log.d(
+                    "Discovery",
+                    "Connection request sent to: $endpointId $deviceName from ${viewModel.userName} of role ${viewModel.userRole}"
+                )
 
                 progressDialog.updateUI("Connecting...")
             }.addOnFailureListener {
+                progressDialog.updateUI("Failed to send connection request")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    progressDialog.dismiss()
+                }, 2000)
                 Log.e("Discovery", "Failed to send connection request to: $endpointId $deviceName")
             }
     }
@@ -173,11 +195,23 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                     Log.d("Discovery", "Connected to: $endpointId")
                     //send data
                     progressDialog.updateUI("Connected!")
-                    if(viewModel.patients.isNotEmpty()) {
-                        sendPayload(endpointId, viewModel.patients)
-                    }else{
-                        Toast.makeText(requireContext(), "No patients to sync", Toast.LENGTH_SHORT)
-                            .show()
+                    if (viewModel.userRole == "Registrar") {
+                        if (viewModel.patients.isNotEmpty()) {
+                            sendPayload(endpointId, viewModel.patients) { success ->
+                                if (!success) {
+                                    progressDialog.updateUI("Failed to send Registrar Data")
+                                }
+                            }
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "No patients to sync",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    } else if (viewModel.userRole == "Nurse") {
+                        sendNurseToDoctorPayload(endpointId, viewModel.patientVisitDataBundle)
                     }
                 }
 
@@ -200,33 +234,153 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
 
     }
 
-    fun sendPayload(endpointId: String, patients: List<PatientDisplay>) {
+    private fun sendNurseToDoctorPayload(
+        endpointId: String,
+        patientVisitDataBundle: MutableList<PatientVisitDataBundle>
+    ) {
+        progressDialog.updateUI("Sending Registrar data..")
+        Log.d("Discovery", "Sending Registrar data")
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            var success = true
+//            if (viewModel.patients.isNotEmpty()) {
+//                success = suspendCancellableCoroutine<Boolean> { continuation ->
+//                    sendPayload(endpointId, viewModel.patients) { result ->
+//                        Log.d("Discovery", "Registrar data not empty")
+//                        continuation.resume(result)
+//                    }
+//                }
+//            } else {
+//                Log.d("Discovery", "Registrar data empty")
+//
+//                success = true
+//            }
+//
+//            Log.d("Discovery", "Success $success")
+
+
+            if (success) {
+                progressDialog.updateUI("Sending Nurse data..")
+                Log.d("Discovery", "Sending Nurse data")
+
+                val moshi = Moshi.Builder()
+                    .add(DateJsonAdapter())
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+                val patientVisitDataBundleAdapter =
+                    moshi.adapter(PatientVisitDataBundle::class.java)
+                val payloadWrapperAdapter = moshi
+                    .adapter(PayloadWrapper::class.java)
+                var filesSent = 0
+                val totalFiles = patientVisitDataBundle.size
+                for (data in patientVisitDataBundle) {
+                    try {
+                        viewModel.patientVisitInfoSyncRepo.updatePatientNurseDataSyncSyncing(
+                            data.patientVisitInfoSync.patientID,
+                            data.patientVisitInfoSync.benVisitNo
+                        )
+
+                        // Serialize the Patient object to JSON
+
+                        val patientVisitDataBundleJson = patientVisitDataBundleAdapter.toJson(data)
+                        val payloadWrapper = PayloadWrapper(
+                            type = "PatientVisitDataBundle",
+                            data = patientVisitDataBundleJson
+                        )
+                        val payloadWrapperJson = payloadWrapperAdapter.toJson(payloadWrapper)
+
+                        // Create a Payload from the JSON string
+                        val payload = Payload.fromBytes(payloadWrapperJson.toByteArray())
+
+                        // Send the Payload to the specified endpoint
+                        connectionsClient.sendPayload(endpointId, payload)
+                        viewModel.patientVisitInfoSyncRepo.updatePatientNurseDataOfflineSyncSuccess(
+                            data.patientVisitInfoSync.patientID,
+                            data.patientVisitInfoSync.benVisitNo
+                        )
+                        Log.d("Discovery", "Sending Registrar data: $filesSent")
+
+                        withContext(Dispatchers.Main) {
+                            filesSent++
+                            val progress = (filesSent * 100 / totalFiles)
+                            progressDialog.updateProgress(filesSent, totalFiles, progress)
+                            // updateProgress(filesSent, totalFiles)
+                        }
+                    } catch (e: Exception) {
+                        viewModel.patientVisitInfoSyncRepo.updatePatientNurseDataSyncFailed(
+                            data.patientVisitInfoSync.patientID,
+                            data.patientVisitInfoSync.benVisitNo
+                        )
+                        Log.d("Discovery", "Sending Nurse data error: ${e.message}")
+
+                        e.printStackTrace()
+                    }
+
+                }
+                withContext(Dispatchers.Main){
+                    if(filesSent == totalFiles){
+                        progressDialog.updateUI("Nurse data sent Sucessfully")
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            progressDialog.dismiss()
+                        }, 2000)
+                        connectionsClient.stopAllEndpoints()
+                        viewModel.patientVisitDataBundle.clear()
+                        viewModel.getUnsyncedNurseData()
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    progressDialog.updateUI("Failed to send Registrar data.")
+                }
+            }
+
+
+        }
+    }
+
+    fun sendPayload(
+        endpointId: String,
+        patients: List<PatientDisplay>,
+        onComplete: (Boolean) -> Unit
+    ) {
         //for each item in list use moshi to serilaize only the patient and send that to nurse
-        val moshi =  Moshi.Builder()
+        val moshi = Moshi.Builder()
             .add(DateJsonAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
         val patientAdapter = moshi.adapter(Patient::class.java)
-       // progressDialog.show(childFragmentManager, "progressDialog")
+        val payloadWrapperAdapter = moshi.adapter(PayloadWrapper::class.java)
+        // progressDialog.show(childFragmentManager, "progressDialog")
 
         CoroutineScope(Dispatchers.IO).launch {
             var filesSent = 0
             val totalFiles = patients.size
+            var success = true
 
             for (patientDisplay in patients) {
                 try {
-                    patientDao.updatePatientSyncing(SyncState.SYNCING,patientDisplay.patient.patientID)
+                    patientDao.updatePatientSyncing(
+                        SyncState.SYNCING,
+                        patientDisplay.patient.patientID
+                    )
 
                     // Serialize the Patient object to JSON
 
                     val patientJson = patientAdapter.toJson(patientDisplay.patient)
-
+                    val payloadWrapper = PayloadWrapper(type = "Patient", data = patientJson)
+                    val payloadWrapperJson = payloadWrapperAdapter.toJson(payloadWrapper)
                     // Create a Payload from the JSON string
-                    val payload = Payload.fromBytes(patientJson.toByteArray())
+                    val payload = Payload.fromBytes(payloadWrapperJson.toByteArray())
 
                     // Send the Payload to the specified endpoint
                     connectionsClient.sendPayload(endpointId, payload)
-                    patientDao.updatePatientSyncOffline(SyncState.SHARED_OFFLINE,patientDisplay.patient.patientID)
+                    patientDao.updatePatientSyncOffline(
+                        SyncState.SHARED_OFFLINE,
+                        patientDisplay.patient.patientID
+                    )
+                    Log.d("Discovery", "No. of Reg data sent: $filesSent")
+
                     // Update the progress on the main thread
                     withContext(Dispatchers.Main) {
                         filesSent++
@@ -235,10 +389,28 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                         // updateProgress(filesSent, totalFiles)
                     }
                 } catch (e: Exception) {
-                    patientDao.updatePatientSyncFailed(SyncState.UNSYNCED, patientDisplay.patient.patientID)
+                    patientDao.updatePatientSyncFailed(
+                        SyncState.UNSYNCED,
+                        patientDisplay.patient.patientID
+                    )
                     e.printStackTrace()
+                    success = false
+                    break
                     // Handle serialization or sending errors
                 }
+            }
+            withContext(Dispatchers.Main) {
+                if (filesSent == totalFiles) {
+                    progressDialog.updateUI("Registrar Data sent successfully!")
+                    viewModel.getUnsyncedRegistrarData()
+                    if(viewModel.userRole == "Registrar") {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            progressDialog.dismiss()
+                        }, 2000)
+                        connectionsClient.stopAllEndpoints()
+                    }
+                }
+                onComplete(success)
             }
         }
     }
@@ -253,23 +425,14 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                 val progress = (update.bytesTransferred * 100 / update.totalBytes).toInt()
                 // updateProgress(progress)
             } else if (update.status == PayloadTransferUpdate.Status.SUCCESS) {
-                // Handle successful transfer if needed
-                progressDialog.updateUI("Data sent successfully!")
-                // Update unsynced records count
-                viewModel.getUnsyncedRegistrarData()
 
-                Handler(Looper.getMainLooper()).postDelayed({
-                    progressDialog.dismiss()
-                }, 2000)
-//                progressDialog.dismiss()
-//                viewModel.getUnsyncedRegistrarData()
             } else if (update.status == PayloadTransferUpdate.Status.FAILURE) {
                 // Handle failed transfer if needed
                 progressDialog.updateUI("Failed to send data.")
                 Handler(Looper.getMainLooper()).postDelayed({
                     progressDialog.dismiss()
                 }, 2000)
-
+                connectionsClient.stopAllEndpoints()
             }
         }
 
@@ -288,23 +451,53 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
 
     private val endpointDiscoveryCallback = object : EndpointDiscoveryCallback() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+            val roleToDeviceMap = mapOf(
+                "Registrar" to "Nurse",
+                "Nurse" to "MO"
+            )
 
-            if (viewModel.userRole == "Registrar") {
-                if (info.endpointName.contains("Nurse")) {
-                    Log.d("Discovery", "Device found ${info.endpointName}")
-                    if (!discoveredDevices.contains(info.endpointName)) {
-                        discoveredDevices.add(info.endpointName)
-                        endpointIdToDeviceNameMap[endpointId] = info.endpointName
-                        adapter.notifyDataSetChanged()
-                    }
-                    binding.apply {
-                        progressBar.visibility = View.GONE
-                        listViewDevices.visibility = View.VISIBLE
-                    }
+            val targetDeviceName = roleToDeviceMap[viewModel.userRole]
+
+            if (targetDeviceName != null && info.endpointName.contains(targetDeviceName)) {
+                Log.d("Discovery", "Device found ${info.endpointName}")
+                if (!discoveredDevices.contains(info.endpointName)) {
+                    discoveredDevices.add(info.endpointName)
+                    endpointIdToDeviceNameMap[endpointId] = info.endpointName
+                    adapter.notifyDataSetChanged()
                 }
-            } else if (viewModel.userRole == "Nurse") {
-
+                binding.apply {
+                    progressBar.visibility = View.GONE
+                    listViewDevices.visibility = View.VISIBLE
+                }
             }
+//            if (viewModel.userRole == "Registrar") {
+//                if (info.endpointName.contains("Nurse")) {
+//                    Log.d("Discovery", "Device found ${info.endpointName}")
+//                    if (!discoveredDevices.contains(info.endpointName)) {
+//                        discoveredDevices.add(info.endpointName)
+//                        endpointIdToDeviceNameMap[endpointId] = info.endpointName
+//                        adapter.notifyDataSetChanged()
+//                    }
+//                    binding.apply {
+//                        progressBar.visibility = View.GONE
+//                        listViewDevices.visibility = View.VISIBLE
+//                    }
+//                }
+//            } else if (viewModel.userRole == "Nurse") {
+//                if (info.endpointName.contains("Doctor")) {
+//                    Log.d("Discovery", "Device found ${info.endpointName}")
+//                    if (!discoveredDevices.contains(info.endpointName)) {
+//                        discoveredDevices.add(info.endpointName)
+//                        endpointIdToDeviceNameMap[endpointId] = info.endpointName
+//                        adapter.notifyDataSetChanged()
+//                    }
+//                    binding.apply {
+//                        progressBar.visibility = View.GONE
+//                        listViewDevices.visibility = View.VISIBLE
+//                    }
+//                }
+//            }
+
         }
 
         override fun onEndpointLost(endpointId: String) {
