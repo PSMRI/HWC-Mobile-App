@@ -90,6 +90,10 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePatientNurseDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String, benVisitNo: Int)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientNurseDataOfflineSyncSuccess(synced: SyncState? = SyncState.SHARED_OFFLINE, patientID: String, benVisitNo: Int)
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :syncFailed WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientNurseDataSyncFailed(syncFailed: SyncState? = SyncState.UNSYNCED, patientID: String, benVisitNo: Int)
 

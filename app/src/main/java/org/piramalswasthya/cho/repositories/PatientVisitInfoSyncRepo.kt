@@ -83,6 +83,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = patientID, benVisitNo = benVisitNo)
     }
 
+    suspend fun updatePatientNurseDataOfflineSyncSuccess(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientNurseDataOfflineSyncSuccess(patientID = patientID, benVisitNo = benVisitNo)
+    }
+
     suspend fun updatePatientNurseDataSyncFailed(patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updatePatientNurseDataSyncFailed(patientID = patientID, benVisitNo = benVisitNo)
     }
