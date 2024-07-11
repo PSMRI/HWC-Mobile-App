@@ -9,15 +9,27 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
+import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
+import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientVisitDataBundle
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.UserRepo
@@ -38,8 +50,12 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val pref: PreferenceDao,
                                                  private val userRepo: UserRepo,
                                                  private val userDao: UserDao,
+                                                 private val patientRepo: PatientRepo,
                                                  private val registrarMasterDataRepo: RegistrarMasterDataRepo,
                                                  private val languageRepo: LanguageRepo,
+                                                 private val vitalsDao: VitalsDao,
+                                                 private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
+                                                 private val visitReasonsAndCategoriesDao: VisitReasonsAndCategoriesDao,
                                                  private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
                                                  private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
                                                  private val malMasterDataRepo: MaleMasterDataRepository,
@@ -144,6 +160,72 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             _navigateToLoginPage.value = true
         }
     }
+
+    fun insertPatient(patient: Patient){
+        viewModelScope.launch {
+            val existingPatient = patientRepo.getPatient(patientId = patient.patientID)
+            if(existingPatient == null){
+                 patientRepo.insertPatient(patient)
+            }
+        }
+    }
+
+    suspend fun insertPatient1(patient: Patient) {
+        val existingPatient = patientRepo.getPatient(patientId = patient.patientID)
+        if (existingPatient == null) {
+            patientRepo.insertPatient(patient)
+        }
+    }
+
+    suspend fun checkAndAddNewVisitInfoOffline(patientVisitInfoSync: PatientVisitInfoSync) {
+        val existingPatientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+            patientVisitInfoSync.patientID, patientVisitInfoSync.benVisitNo!!
+        )
+        if (existingPatientVisitInfoSync == null) {
+            patientVisitInfoSyncDao.insertPatientVisitInfoSync(patientVisitInfoSync)
+        }
+    }
+
+    suspend fun checkAndOfflineSyncNurseData(
+        visit: VisitDB,
+        chiefComplaints: List<ChiefComplaintDB>,
+        vitals: PatientVitalsModel,
+        patientID: String,
+        benVisitNo: Int
+    ) {
+        withContext(Dispatchers.IO) {
+            visitReasonsAndCategoriesDao.deleteVisitDbByPatientIdAndBenVisitNo(patientID, benVisitNo)
+            visitReasonsAndCategoriesDao.insertVisitDB(visit)
+            visitReasonsAndCategoriesDao.deleteChiefComplaintsByPatientIdAndBenVisitNo(patientID, benVisitNo)
+            chiefComplaints?.let {
+                visitReasonsAndCategoriesDao.insertAll(chiefComplaints)
+            }
+            vitalsDao.insertPatientVitals(vitals)
+        }
+    }
+
+    fun processPatientVisitDataBundle(patientVisitDataBundle: PatientVisitDataBundle) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Insert patient
+                insertPatient1(patientVisitDataBundle.patient)
+
+                // Add new visit info
+                checkAndAddNewVisitInfoOffline(patientVisitDataBundle.patientVisitInfoSync)
+
+                // Sync nurse data
+                checkAndOfflineSyncNurseData(
+                    patientVisitDataBundle.visit,
+                    patientVisitDataBundle.chiefComplaints,
+                    patientVisitDataBundle.vitals,
+                    patientVisitDataBundle.patient.patientID,
+                    patientVisitDataBundle.patientVisitInfoSync.benVisitNo
+                )
+            }
+        }
+    }
+
+
 
     fun navigateToLoginPageComplete() {
         _navigateToLoginPage.value = false
