@@ -1,11 +1,14 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -21,9 +24,18 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.thejas.facerecognitionanddataretrieval.FaceNetModel
+import com.thejas.facerecognitionanddataretrieval.Models
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.VillageDropdownAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
@@ -78,6 +90,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var currentPhotoPath: String? = null
     private lateinit var  photoURI: Uri
 
+    //facenet
+    private val useGpu = true
+    private val useXNNPack = true
+    private val modelInfo = Models.FACENET
+    private lateinit var faceNetModel : FaceNetModel
+    private var embeddings: FloatArray? = null
+    private lateinit var dialog: AlertDialog
+
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -117,6 +138,46 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 else {
                     Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
                         .into(binding.ivImgCapture)
+
+                    val highspeed = FaceDetectorOptions.Builder()
+                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                        .build()
+                    val detector = FaceDetection.getClient(highspeed)
+                    val image = InputImage.fromFilePath(requireContext(), photoURI)
+                    detector.process(image)
+                        .addOnSuccessListener { faces ->
+                            if(faces.isEmpty()){
+                                Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                            }
+                            if(faces.size>1){
+                                Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                            }
+                            else{
+                                val face = faces[0]
+                                val boundingBox = face.boundingBox
+                                val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                    requireContext().contentResolver,
+                                    photoURI
+                                )
+                                val faceBitmap = Bitmap.createBitmap(
+                                    imageBitmap,
+                                    boundingBox.left,
+                                    boundingBox.top,
+                                    boundingBox.width(),
+                                    boundingBox.height()
+                                )
+                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+
+                            }
+
+
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FaceDetection", "Face detection failed", e)
+                            Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
+                        }
+
                 }
             }
         }
@@ -202,6 +263,27 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.age.setOnClickListener {
             ageAlertDialog.show()
+        }
+
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_progress, null)
+        val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
+        imageView?.let {
+            Glide.with(this).load(R.drawable.face).into(it)
+        }
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialogView)
+        builder.setCancelable(false)
+        dialog = builder.create()
+        dialog.show()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+            withContext(Dispatchers.Main) {
+                if (isAdded) {
+                    dialog.dismiss()
+                }
+            }
         }
 
     }

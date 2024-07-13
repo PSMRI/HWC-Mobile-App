@@ -34,3 +34,5 @@ Contributions are welcome! Please follow these steps:
 4. Commit your changes (`git commit -am 'Add some feature'`).
 5. Push to the branch (`git push origin feature/your-feature`).
 6. Create a new Pull Request.
+
+Facenet Model Credits: [https://github.com/davidsandberg/facenet](url)
