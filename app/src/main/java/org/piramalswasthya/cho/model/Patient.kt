@@ -155,6 +155,9 @@ data class Patient (
     @ColumnInfo(name = "lab_technician_flag")
     val labTechnicianFlag: Int? = 0,
 
+    @ColumnInfo(name = "faceEmbedding")
+    var faceEmbedding: List<Float>? = null,
+
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
 //

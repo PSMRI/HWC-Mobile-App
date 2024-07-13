@@ -7,9 +7,13 @@ import com.google.gson.reflect.TypeToken
 class FaceVectorConvertor {
 
     @TypeConverter
-    fun fromString(value: String): List<Float> {
+    fun fromString(value: String?): List<Float> {
         val listType = object : TypeToken<List<Float>>() {}.type
-        return Gson().fromJson(value, listType)
+        return if (value != null) {
+            Gson().fromJson(value, listType)
+        } else {
+            emptyList()
+        }
     }
 
     @TypeConverter
@@ -17,5 +21,4 @@ class FaceVectorConvertor {
         val gson = Gson()
         return gson.toJson(list)
     }
-
 }

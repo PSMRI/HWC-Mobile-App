@@ -97,8 +97,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var faceNetModel : FaceNetModel
     private var embeddings: FloatArray? = null
     private lateinit var dialog: AlertDialog
-
-
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -148,9 +146,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         .addOnSuccessListener { faces ->
                             if(faces.isEmpty()){
                                 Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                return@addOnSuccessListener
                             }
                             if(faces.size>1){
                                 Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                return@addOnSuccessListener
                             }
                             else{
                                 val face = faces[0]
@@ -244,6 +246,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setChangeListeners()
         setAdapters()
 
+        arguments?.getString("imageUri")?.let { imageUriString ->
+            val imageUri = Uri.parse(imageUriString)
+            Glide.with(this).load(imageUri).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)}
+
 
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
@@ -264,6 +270,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.age.setOnClickListener {
             ageAlertDialog.show()
         }
+        //initialise the facenet model
 
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_progress, null)
@@ -870,9 +877,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
 //        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
 //            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
-            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
-                viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
-            binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
+        viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
+            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
+        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
 //            setMarriedFieldsVisibility()
 //        }
         doAgeToDob = true;
@@ -939,6 +946,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.age = viewModel.enteredAge;
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
+        patient.faceEmbedding = embeddings?.toList()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null
         } else {
@@ -956,6 +964,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.blockID = locData?.blockId
         patient.districtBranchID = viewModel.selectedVillage?.districtBranchID!!.toInt()
     }
+
+    private fun checkImageCaptured(): Boolean {
+        if (currentPhotoPath == null) {
+            return false
+        }
+        return true
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_add_patient_location;
     }
