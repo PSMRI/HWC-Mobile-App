@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -43,6 +44,7 @@ import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.AlertAgePickerBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
+import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
@@ -97,6 +99,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var faceNetModel : FaceNetModel
     private var embeddings: FloatArray? = null
     private lateinit var dialog: AlertDialog
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -246,9 +250,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setChangeListeners()
         setAdapters()
 
-        arguments?.getString("imageUri")?.let { imageUriString ->
-            val imageUri = Uri.parse(imageUriString)
-            Glide.with(this).load(imageUri).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)}
+        sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
+            val photoUri = Uri.parse(uriString)
+            Glide.with(this).load(photoUri).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)}
+        sharedViewModel.faceVector.observe(viewLifecycleOwner) { faceVector ->
+            embeddings = faceVector
+        }
 
 
         binding.firstNameText.setEndIconOnClickListener {

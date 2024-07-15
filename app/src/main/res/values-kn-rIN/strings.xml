@@ -372,7 +372,8 @@
     <string name="flowCompleted">Flow Completed</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
-    <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
+    <string name="please_search_for_beneficiary">No matching patient found. Please choose an option from below.</string>
+    <string name="no_patient_found">No matching patient found.Please select an option.</string>
     <string name="pref_location_data">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>

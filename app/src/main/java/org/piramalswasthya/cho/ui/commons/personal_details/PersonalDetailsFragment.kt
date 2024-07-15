@@ -72,6 +72,7 @@ import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
+import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 import timber.log.Timber
 import java.io.File
@@ -165,7 +166,6 @@ class PersonalDetailsFragment : Fragment() {
         }
         binding.cameraIcon.setOnClickListener{
 //            initialise the facenet model
-
             val inflater = layoutInflater
             val dialogView = inflater.inflate(R.layout.dialog_progress, null)
             val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
@@ -478,6 +478,7 @@ class PersonalDetailsFragment : Fragment() {
                                     Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
                                 } else {
                                     Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                                    searchPrompt.show()
                                 }
                             }
                         }
@@ -529,6 +530,26 @@ class PersonalDetailsFragment : Fragment() {
             sum += (x1[i] - x2[i]).pow(2)
         }
         return kotlin.math.sqrt(sum)
+    }
+
+    private val searchPrompt by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.note_ben_reg))
+            .setMessage(getString(R.string.no_patient_found))
+            .setPositiveButton("Search") { dialog, _ ->
+                dialog.dismiss()
+                HomeViewModel.setSearchBool()
+            }
+            .setNegativeButton("Proceed with Registration"){dialog, _->
+                val intent = Intent(context, RegisterPatientActivity::class.java).apply {
+                putExtra("photoUri", photoURI.toString())
+                putExtra("facevector", embeddings)
+            }
+                startActivity(intent)
+                dialog.dismiss()
+                HomeViewModel.resetSearchBool()
+            }
+            .create()
     }
 
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
