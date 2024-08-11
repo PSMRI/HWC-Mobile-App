@@ -93,7 +93,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var  photoURI: Uri
 
     //facenet
-    private val useGpu = true
+    private val useGpu = false
     private val useXNNPack = true
     private val modelInfo = Models.FACENET
     private lateinit var faceNetModel : FaceNetModel

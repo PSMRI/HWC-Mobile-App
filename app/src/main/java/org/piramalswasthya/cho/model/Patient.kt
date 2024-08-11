@@ -335,7 +335,8 @@ data class PatientNetwork(
     val providerServiceMapId: String?,
     val spouseName: String?,
     val titleId: String?,
-    val vanID: Int?
+    val vanID: Int?,
+    val faceEmbedding: List<Float>?
 ){
 
 //    accountNo:null
@@ -406,7 +407,8 @@ data class PatientNetwork(
         user?.serviceMapId.toString(),
         patientDisplay.patient.spouseName,
         null,
-        user?.vanId
+        user?.vanId,
+        patientDisplay.patient.faceEmbedding
     )
 
 }

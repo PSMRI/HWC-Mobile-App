@@ -105,7 +105,7 @@ class PersonalDetailsFragment : Fragment() {
     private lateinit var  photoURI: Uri
     private var currentPhotoPath: String? = null
     //facenet
-    private val useGpu = true
+    private val useGpu = false
     private val useXNNPack = true
     private val modelInfo = Models.FACENET
     private lateinit var faceNetModel : FaceNetModel
