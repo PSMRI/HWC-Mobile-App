@@ -26,6 +26,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -50,6 +51,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                                                  private val pref: PreferenceDao,
                                                  private val userRepo: UserRepo,
                                                  private val userDao: UserDao,
+                                                 private val benFlowRepo: BenFlowRepo,
                                                  private val patientRepo: PatientRepo,
                                                  private val registrarMasterDataRepo: RegistrarMasterDataRepo,
                                                  private val languageRepo: LanguageRepo,
@@ -71,6 +73,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun init(context: Context){
         viewModelScope.launch {
             extracted(context)
+//            getStockDetailsOfSubStore()
         }
     }
 
@@ -112,6 +115,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
             doctorMaleMasterDataRepo.getDoctorMasterMaleData()
 
             malMasterDataRepo.getMasterDataForNurse()
+            getStockDetailsOfSubStore()
             if (!dataLoadFlagManager.isDataLoaded()){
                 Log.d("syncing started second", "syncing started")
                 WorkerUtils.triggerAmritSyncWorker(context)
@@ -225,7 +229,12 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         }
     }
 
-
+    suspend fun getStockDetailsOfSubStore(){
+        withContext(Dispatchers.IO) {
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            benFlowRepo.getStockDetailsOfSubStore(facilityID)
+        }
+    }
 
     fun navigateToLoginPageComplete() {
         _navigateToLoginPage.value = false

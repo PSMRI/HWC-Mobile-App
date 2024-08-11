@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
@@ -18,6 +19,8 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
+import org.piramalswasthya.cho.model.ApiItemStockEntry
+import org.piramalswasthya.cho.model.Batch
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
@@ -45,6 +48,7 @@ import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataDownsync
+import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
@@ -76,6 +80,7 @@ class BenFlowRepo @Inject constructor(
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
+    private val batchDao: BatchDao,
     private val procedureDao: ProcedureDao,
     private val caseRecordeDao: CaseRecordeDao,
 ) {
@@ -569,6 +574,55 @@ class BenFlowRepo @Inject constructor(
                     },
                 )
             }
+    }
+
+     suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+            val request = StockItemRequest(
+                itemName = "%%",
+                facilityID = facilityID.toString()
+            )
+            val response = apiService.getPharmacistStockItemList(request)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    try {
+                        val jsonObj = JSONObject(responseBody)
+                        val dataArray = jsonObj.getJSONArray("data")
+                        val batchList = mutableListOf<Batch>()
+                        for (i in 0 until dataArray.length()) {
+                            val item = dataArray.getJSONObject(i).toString()
+                            val apiItemStockEntry = Gson().fromJson(item, ApiItemStockEntry::class.java)
+
+                            val batch = Batch(
+                                itemID = apiItemStockEntry.itemID,
+                                stockEntityId = apiItemStockEntry.itemStockEntryID.toLong(),
+                                batchNo = apiItemStockEntry.batchNo,
+                                expiryDate = apiItemStockEntry.expiryDate,
+                                quantity = apiItemStockEntry.quantity,
+                                quantityInHand = apiItemStockEntry.quantityInHand
+                            )
+
+                            batchList.add(batch)
+                        }
+                        batchDao.insertAllBatches(batchList)
+
+                        Log.d("Medicine list", "$batchList")
+                        NetworkResult.Success(NetworkResponse())
+                    } catch (e: Exception) {
+                        Log.e("Medicine list", "Error during parsing or deserialization", e)
+                    }
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    Log.d("Token Expired", "Token Expired")
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getStockDetailsOfSubStore(facilityID)
+                }
+            )
+        }
     }
 
     private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo, facilityID: Int): NetworkResult<NetworkResponse> {

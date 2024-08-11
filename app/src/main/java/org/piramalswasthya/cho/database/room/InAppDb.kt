@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.UserMasterLocationConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
@@ -113,6 +114,7 @@ import timber.log.Timber
         PrescriptionCaseRecord::class,
         ChiefComplaintDB::class,
         ItemMasterList::class,
+        Batch::class,
         DrugFrequencyMaster::class,
         CounsellingProvided::class,
         DrugFormMaster::class,
@@ -189,6 +191,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val referRevisitDao: ReferRevisitDao
     abstract val healthCenterDao: HealthCenterDao
     abstract val caseRecordeDao: CaseRecordeDao
+    abstract val batchDao: BatchDao
 
     abstract val patientDao: PatientDao
     abstract val benFlowDao: BenFlowDao

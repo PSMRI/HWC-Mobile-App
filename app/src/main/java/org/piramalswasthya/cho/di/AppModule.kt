@@ -12,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
@@ -35,7 +36,6 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
-import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
@@ -69,11 +69,9 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl ="https://uatamrit.piramalswasthya.org/"
-    //"https://amritdemo.piramalswasthya.org/"
+    private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
-    private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
-        //"https://amritdemo.piramalswasthya.org/"
+    private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 
@@ -337,5 +335,5 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
-    fun provideProcedureMasterDao(database: InAppDb): ProcedureMasterDao = database.procedureMasterDao
+    fun provideBatchDao(database: InAppDb): BatchDao = database.batchDao
 }

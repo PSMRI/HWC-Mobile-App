@@ -186,3 +186,8 @@ data class PharmacistPatientIssueDataRequest(
     val vanID: Int?,
     var itemStockExit: List<PharmacistItemStockExitDataRequest>
 )
+
+data class StockItemRequest(
+    val itemName: String,
+    val facilityID: String
+)
