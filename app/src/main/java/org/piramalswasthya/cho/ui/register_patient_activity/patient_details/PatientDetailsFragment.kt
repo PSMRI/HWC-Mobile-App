@@ -107,7 +107,28 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         savedInstanceState: Bundle?
     ): View {
         binding.ivImgCapture.setOnClickListener {
-            checkAndRequestCameraPermission()
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
+            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
+            imageView?.let {
+                Glide.with(this).load(R.drawable.face).into(it)
+            }
+            val builder = AlertDialog.Builder(context)
+            builder.setView(dialogView)
+            builder.setCancelable(false)
+            dialog = builder.create()
+            dialog.show()
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        dialog.dismiss()
+                        checkAndRequestCameraPermission()
+
+                    }
+                }
+            }
         }
         scanCode()
 
@@ -279,26 +300,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         //initialise the facenet model
 
-        val inflater = layoutInflater
-        val dialogView = inflater.inflate(R.layout.dialog_progress, null)
-        val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
-        imageView?.let {
-            Glide.with(this).load(R.drawable.face).into(it)
-        }
-        val builder = AlertDialog.Builder(context)
-        builder.setView(dialogView)
-        builder.setCancelable(false)
-        dialog = builder.create()
-        dialog.show()
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-            withContext(Dispatchers.Main) {
-                if (isAdded) {
-                    dialog.dismiss()
-                }
-            }
-        }
 
     }
 
