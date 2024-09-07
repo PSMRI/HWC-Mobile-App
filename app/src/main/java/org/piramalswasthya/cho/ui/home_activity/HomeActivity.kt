@@ -62,6 +62,7 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.list.benificiaryList
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientDoctorBundle
 import org.piramalswasthya.cho.model.PatientListAdapter
 import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PayloadWrapper
@@ -454,6 +455,7 @@ class HomeActivity : AppCompatActivity() {
             .build()
         val patientAdapter = moshi.adapter(Patient::class.java)
         val patientVisitDataBundleAdapter = moshi.adapter(PatientVisitDataBundle::class.java)
+        val patientDoctorBundleAdapter = moshi.adapter(PatientDoctorBundle::class.java)
 
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             if (payload.type == Payload.Type.BYTES){
@@ -482,6 +484,13 @@ class HomeActivity : AppCompatActivity() {
                                         Log.e("Advertising", "Received PatientVisitDataBundle is null")
                                     }
                                 }
+                                "PatientDoctorBundle"->{
+                                    val patientDoctorBundle = patientDoctorBundleAdapter.fromJson(payloadWrapper.data)
+                                    if(patientDoctorBundle != null){
+                                        Log.d("Advertising", "Inside Pharmacist ${patientDoctorBundle.toString()}")
+                                        processPatientDoctorBundle(patientDoctorBundle)
+                                    }
+                                }
                                 else -> {
                                     Log.e("Advertising", "Unknown payload type: ${payloadWrapper.type}")
                                 }
@@ -489,26 +498,6 @@ class HomeActivity : AppCompatActivity() {
                         } else {
                             Log.e("Advertising", "Received payloadWrapper is null")
                         }
-
-//
-//                        if (userRole.contains("Nurse")) {
-//                            val patient = patientAdapter.fromJson(jsonString)
-//                            if (patient != null) {
-//                                Log.d("Advertising", patient.toString())
-//                                viewModel.insertPatient(patient)
-//                            } else {
-//                                Log.e("Advertising", "Received patient is null")
-//                            }
-//                        }else if(userRole.contains("MO")){
-//                            val patient = patientAdapter.fromJson(jsonString)
-//                            if (patient != null) {
-//                                Log.d("Advertising","Inside docotr ${ patient.toString()}" )
-//                                viewModel.insertPatient(patient)
-//                            }else{
-//                                val patientVisitDataBundle = patientVisitDataBundleAdapter.fromJson(jsonString)
-//                                Log.d("Advertising","Inside docotr ${ patientVisitDataBundle.toString()}" )
-//                            }
-//                        }
                     }catch (e: Exception) {
                         Log.e("Advertising", "Error parsing JSON", e)
                     }
@@ -523,6 +512,12 @@ class HomeActivity : AppCompatActivity() {
 
     private fun processPatientVisitDataBundle(patientVisitDataBundle: PatientVisitDataBundle) {
         viewModel.processPatientVisitDataBundle(patientVisitDataBundle)
+    }
+
+    private fun processPatientDoctorBundle(patientDoctorBundle: PatientDoctorBundle) {
+        Log.d("Pharmacist", "Patient:in home activity ${patientDoctorBundle.patient}")
+
+        viewModel.processPatientDoctorBundle(patientDoctorBundle)
     }
 
 

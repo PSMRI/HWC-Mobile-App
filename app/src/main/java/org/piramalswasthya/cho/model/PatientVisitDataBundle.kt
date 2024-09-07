@@ -12,6 +12,13 @@ data class PatientVisitDataBundle(
     val vitals : PatientVitalsModel
 ): Serializable
 
+@JsonClass(generateAdapter = true)
+data class PatientDoctorBundle(
+    val patient: Patient,
+    val patientVisitInfoSync: PatientVisitInfoSync,
+    val prescriptionCaseRecordVal: List<PrescriptionWithItemMasterAndDrugFormMaster>?
+): Serializable
+
 data class PayloadWrapper(
     val type:String,
     val data:String
