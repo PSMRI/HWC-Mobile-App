@@ -145,7 +145,7 @@ import timber.log.Timber
         CbacCache::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 103, exportSchema = false
+    version = 106, exportSchema = false
 )
 
 
@@ -154,6 +154,7 @@ import timber.log.Timber
     SyncStateConverter::class,
     StateConverter::class,
     LoginSettingsDataConverter::class,
+
     StateConverter::class,
     DistrictConverter::class,
     DistrictBlockConverter::class,

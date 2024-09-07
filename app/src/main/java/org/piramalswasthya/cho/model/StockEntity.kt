@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
@@ -30,9 +31,11 @@ import com.squareup.moshi.JsonClass
             childColumns = ["itemID"]
         )
     ],
+    indices = [Index(value = ["stockEntityId"], unique = true)]
 )
 @JsonClass(generateAdapter = true)
-data class Batch(
+data class
+Batch(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "itemID") val itemID: Int,
     @ColumnInfo(name = "stockEntityId") val stockEntityId: Long,

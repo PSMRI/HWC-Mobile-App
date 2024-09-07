@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
@@ -47,6 +48,7 @@ class BenVisitRepo @Inject constructor(
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
     private val patientDao: PatientDao,
+    private val benFlowDao: BenFlowDao,
     private val userDao: UserDao,
     private val procedureDao: ProcedureDao,
     private val prescriptionDao: PrescriptionDao
@@ -479,126 +481,151 @@ class BenVisitRepo @Inject constructor(
         val pharmacistDataUnsyncedList = patientVisitInfoSyncRepo.getPatientPharmacistDataUnsynced()
         val user = userRepo.getLoggedInUser()
 
-        pharmacistDataUnsyncedList.forEach {
+        val allBeneficiaryRegIDNotNull = pharmacistDataUnsyncedList.none { it.patient.beneficiaryRegID == null }
+        if (allBeneficiaryRegIDNotNull) {
+            // Continue processing pharmacist data
+            Log.d("WU", "processUnsyncedPharmacistData: success1 ")
+            pharmacistDataUnsyncedList.forEach {
+                Log.d("WU", "processUnsyncedPharmacistData: success11 ")
 
-            if(it.patient.beneficiaryRegID != null){
-                withContext(Dispatchers.IO){
+                if(it.patient.beneficiaryRegID != null){
+                    Log.d("WU", "processUnsyncedPharmacistData: success2 ")
 
-                    val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.patient.beneficiaryRegID!!, it.patientVisitInfoSync.benVisitNo)
-                    if(benFlow != null){
+                    withContext(Dispatchers.IO){
 
-                        val prescriptionResultDTOs : MutableList<PrescriptionDTO> = mutableListOf()
+                        val benFlow = benFlowRepo.getBenFlowByBenRegIdAndBenVisitNo(it.patient.beneficiaryRegID!!, it.patientVisitInfoSync.benVisitNo)
+                        if(benFlow != null){
 
-                        val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
+                            val old_prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
+                            old_prescriptions?.forEach {prescription->
+                                val updatedPrescription = prescription.copy(
+                                    beneficiaryRegID = it.patient.beneficiaryRegID!!,
+                                    benFlowID = it.patientVisitInfoSync.benFlowID,
+                                    visitCode = benFlow.visitCode!!
+                                )
+                                prescriptionDao.updatePharmacistPrescription(updatedPrescription)
+                            }
+
+                            val prescriptionResultDTOs : MutableList<PrescriptionDTO> = mutableListOf()
+
+                            val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(it.patient.patientID, it.patientVisitInfoSync.benVisitNo)
 //                        val patient = patientDao.getPatientByBenRegId(it.patient.beneficiaryRegID!!)
-                        prescriptions?.forEach { prescription ->
-                            val prescriptionItemList: MutableList<PrescriptionItemDTO> = mutableListOf()
-                            val prescriptionDTO = PrescriptionDTO(
-                                beneficiaryRegID = prescription.beneficiaryRegID!!,
-                                consultantName = prescription.consultantName,
-                                prescriptionID = prescription.prescriptionID,
-                                visitCode = prescription.visitCode,
-                                itemList = prescriptionItemList
+                            prescriptions?.forEach { prescription ->
+                                val prescriptionItemList: MutableList<PrescriptionItemDTO> = mutableListOf()
+                                val prescriptionDTO = PrescriptionDTO(
+                                    beneficiaryRegID = prescription.beneficiaryRegID!!,
+                                    consultantName = prescription.consultantName,
+                                    prescriptionID = prescription.prescriptionID,
+                                    visitCode = prescription.visitCode,
+                                    itemList = prescriptionItemList
+                                )
+
+                                val prescribedDrugsList = prescriptionDao.getPrescribedDrugs(prescription.id)
+                                prescribedDrugsList?.forEach { prescribedDrugs ->
+                                    val batchList: MutableList<PrescriptionBatchDTO> = mutableListOf()
+                                    val prescriptionItemDTO = PrescriptionItemDTO(
+                                        id = prescribedDrugs.id,
+                                        drugID = prescribedDrugs.drugID,
+                                        dose = prescribedDrugs.dose,
+                                        drugForm = prescribedDrugs.drugForm,
+                                        duration = prescribedDrugs.duration,
+                                        durationUnit = prescribedDrugs.durationUnit,
+                                        frequency = prescribedDrugs.frequency,
+                                        genericDrugName = prescribedDrugs.genericDrugName,
+                                        drugStrength = prescribedDrugs.drugStrength,
+                                        isEDL = prescribedDrugs.isEDL,
+                                        qtyPrescribed = prescribedDrugs.qtyPrescribed,
+                                        route = prescribedDrugs.route,
+                                        instructions = prescribedDrugs.instructions,
+                                        batchList = batchList
+                                    )
+
+                                    val prescribedDrugsBatchList = prescriptionDao.getPrescribedDrugsBatch(prescribedDrugs.id)
+                                    prescribedDrugsBatchList?.forEach { prescribedDrugsBatch ->
+                                        val prescriptionBatchDTO = PrescriptionBatchDTO(
+                                            expiresIn = prescribedDrugsBatch.expiresIn,
+                                            batchNo = prescribedDrugsBatch.batchNo,
+                                            expiryDate = prescribedDrugsBatch.expiryDate,
+                                            itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
+                                            qty = prescribedDrugsBatch.qty,
+                                        )
+                                        batchList += prescriptionBatchDTO
+                                    }
+                                    prescriptionItemDTO.batchList = batchList
+                                    prescriptionItemList += prescriptionItemDTO
+                                }
+                                prescriptionDTO.itemList = prescriptionItemList
+                                prescriptionResultDTOs += prescriptionDTO
+                            }
+
+                            val itemStockExitList : MutableList<PharmacistItemStockExitDataRequest> = mutableListOf()
+                            prescriptionResultDTOs.get(0)?.itemList?.forEach { prescriptionItemDTO ->
+                                prescriptionItemDTO.batchList.forEach { item ->
+                                    val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
+                                        itemID = prescriptionItemDTO.drugID,
+                                        itemStockEntryID = item.itemStockEntryID,
+                                        quantity = item.qty,
+                                        createdBy = user?.userName!!
+                                    )
+
+                                    itemStockExitList+=pharmacistPatientIssueDataRequest
+                                }
+                            }
+
+
+                            val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
+                                issuedBy = "MMU",
+                                visitCode = benFlow.visitCode,
+                                facilityID = userDao.getLoggedInUserFacilityID(),
+                                age = it.patient.age,
+                                beneficiaryID = it.patient.beneficiaryID,
+                                benRegID = it.patient.beneficiaryRegID!!,
+                                createdBy = user?.userName!!,
+                                providerServiceMapID = benFlow.providerServiceMapId,
+                                doctorName = prescriptionResultDTOs.get(0)?.consultantName,
+                                gender = benFlow.genderName,
+                                issueType = prescriptionResultDTOs[0]?.issueType,
+                                patientName = it.patient.firstName+" "+it.patient.lastName,
+                                prescriptionID = prescriptionResultDTOs?.get(0)?.prescriptionID,
+                                reference = "Prescribed by "+user?.userName!!+" from MMU",
+                                visitID = benFlow.benVisitID,
+                                visitDate = benFlow.visitDate,
+                                parkingPlaceID = benFlow.parkingPlaceID,
+                                vanID = benFlow.vanID,
+                                itemStockExit = itemStockExitList
                             )
 
-                            val prescribedDrugsList = prescriptionDao.getPrescribedDrugs(prescription.id)
-                            prescribedDrugsList?.forEach { prescribedDrugs ->
-                                val batchList: MutableList<PrescriptionBatchDTO> = mutableListOf()
-                                val prescriptionItemDTO = PrescriptionItemDTO(
-                                    id = prescribedDrugs.id,
-                                    drugID = prescribedDrugs.drugID,
-                                    dose = prescribedDrugs.dose,
-                                    drugForm = prescribedDrugs.drugForm,
-                                    duration = prescribedDrugs.duration,
-                                    durationUnit = prescribedDrugs.durationUnit,
-                                    frequency = prescribedDrugs.frequency,
-                                    genericDrugName = prescribedDrugs.genericDrugName,
-                                    drugStrength = prescribedDrugs.drugStrength,
-                                    isEDL = prescribedDrugs.isEDL,
-                                    qtyPrescribed = prescribedDrugs.qtyPrescribed,
-                                    route = prescribedDrugs.route,
-                                    instructions = prescribedDrugs.instructions,
-                                    batchList = batchList
-                                )
+                            if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
+                                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCING)
 
-                                val prescribedDrugsBatchList = prescriptionDao.getPrescribedDrugsBatch(prescribedDrugs.id)
-                                prescribedDrugsBatchList?.forEach { prescribedDrugsBatch ->
-                                    val prescriptionBatchDTO = PrescriptionBatchDTO(
-                                        expiresIn = prescribedDrugsBatch.expiresIn,
-                                        batchNo = prescribedDrugsBatch.batchNo,
-                                        expiryDate = prescribedDrugsBatch.expiryDate,
-                                        itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
-                                        qty = prescribedDrugsBatch.qty,
-                                    )
-                                    batchList += prescriptionBatchDTO
-                                }
-                                prescriptionItemDTO.batchList = batchList
-                                prescriptionItemList += prescriptionItemDTO
-                            }
-                            prescriptionDTO.itemList = prescriptionItemList
-                            prescriptionResultDTOs += prescriptionDTO
-                        }
-
-                        val itemStockExitList : MutableList<PharmacistItemStockExitDataRequest> = mutableListOf()
-                        prescriptionResultDTOs.get(0)?.itemList?.forEach { prescriptionItemDTO ->
-                            prescriptionItemDTO.batchList.forEach { item ->
-                                val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
-                                    itemID = prescriptionItemDTO.drugID,
-                                    itemStockEntryID = item.itemStockEntryID,
-                                    quantity = item.qty,
-                                    createdBy = user?.userName!!
-                                )
-
-                                itemStockExitList+=pharmacistPatientIssueDataRequest
-                            }
-                        }
-
-
-                        val pharmacistPatientIssueDataRequest = PharmacistPatientIssueDataRequest(
-                            issuedBy = "MMU",
-                            visitCode = benFlow.visitCode,
-                            facilityID = userDao.getLoggedInUserFacilityID(),
-                            age = it.patient.age,
-                            beneficiaryID = it.patient.beneficiaryID,
-                            benRegID = it.patient.beneficiaryRegID!!,
-                            createdBy = user?.userName!!,
-                            providerServiceMapID = benFlow.providerServiceMapId,
-                            doctorName = prescriptionResultDTOs.get(0)?.consultantName,
-                            gender = benFlow.genderName,
-                            issueType = prescriptionResultDTOs[0]?.issueType,
-                            patientName = it.patient.firstName+" "+it.patient.lastName,
-                            prescriptionID = prescriptionResultDTOs?.get(0)?.prescriptionID,
-                            reference = "Prescribed by "+user?.userName!!+" from MMU",
-                            visitID = benFlow.benVisitID,
-                            visitDate = benFlow.visitDate,
-                            parkingPlaceID = benFlow.parkingPlaceID,
-                            vanID = benFlow.vanID,
-                            itemStockExit = itemStockExitList
-                        )
-
-                        if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
-                            patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCING)
-
-                            when(val response = registerPharmacistData(pharmacistPatientIssueDataRequest)){
-                                is NetworkResult.Success -> {
-                                    patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
-                                }
-                                is NetworkResult.Error -> {
-                                    patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.UNSYNCED)
-                                    if(response.code == socketTimeoutException){
-                                        throw SocketTimeoutException("caught exception")
+                                when(val response = registerPharmacistData(pharmacistPatientIssueDataRequest)){
+                                    is NetworkResult.Success -> {
+                                        Log.d("WU", "processUnsyncedPharmacistData: success3 ")
+                                        patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
                                     }
-                                    return@withContext false;
+                                    is NetworkResult.Error -> {
+                                        Log.d("WU", "processUnsyncedPharmacistData: success4 ")
+                                        patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.UNSYNCED)
+                                        if(response.code == socketTimeoutException){
+                                            throw SocketTimeoutException("caught exception")
+                                        }
+                                        return@withContext false;
+                                    }
+                                    else -> {}
                                 }
-                                else -> {}
+                            } else {
+                                Log.d("WU", "processUnsyncedPharmacistData: success6")
+                                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
                             }
-                        } else {
-                            patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCED)
-                        }
 
-                    } else { }
+                        } else { }
+                    }
                 }
             }
+        } else {
+            // Handle the case where some or all beneficiaryRegID are null
+            Log.d("WU", "processUnsyncedPharmacistData: success5 ")
+            return false
         }
 
         return true

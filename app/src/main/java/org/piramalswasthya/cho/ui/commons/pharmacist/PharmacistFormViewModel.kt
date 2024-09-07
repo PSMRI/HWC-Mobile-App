@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.commons.pharmacist
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.ProcedureDTO
@@ -33,7 +35,8 @@ class PharmacistFormViewModel @Inject constructor(
     private val benVisitRepo: BenVisitRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
-    private val patientRepo: PatientRepo
+    private val patientRepo: PatientRepo,
+    private val batchDao: BatchDao
 ) : ViewModel() {
 
 
@@ -75,7 +78,9 @@ class PharmacistFormViewModel @Inject constructor(
     suspend fun getPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
             val listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            Log.d("MyPrescription", "Prescription ${listPrescription}")
             if(listPrescription!=null && listPrescription.size>0){
+                Log.d("MyPrescription", "inside")
                 _prescriptions.postValue(listPrescription.get(0) ?: null)
             }
         }
@@ -96,6 +101,32 @@ class PharmacistFormViewModel @Inject constructor(
 
             viewModelScope.launch {
 
+               if(dtos!=null && dtos.itemList!=null){
+                   dtos.itemList.forEach { item->
+                       if(item.batchList!=null && item.batchList.isNotEmpty()){
+                           val firstBatch = item.batchList.first()
+                           Log.d("WU", "Batch1 ${firstBatch} ")
+                           val availableBatch =  batchDao.getBatchByStockEntityId(firstBatch.itemStockEntryID.toLong())
+                           Log.d("WU", "Batch2 ${availableBatch} ")
+                           if(availableBatch!=null) {
+                               val updatedBatch = availableBatch.copy(
+                                   quantityInHand = availableBatch.quantityInHand - item.qtyPrescribed!!
+                               )
+                               Log.d("WU", "Batch3 ${updatedBatch}")
+                               if(updatedBatch.quantityInHand<=0){
+                                   batchDao.deleteBatch(availableBatch)
+                               }else{
+                                   batchDao.updateBatch(updatedBatch)
+                               }
+                           }
+                       }else{
+                           Toast.makeText(context, "Medicine not available", Toast.LENGTH_SHORT).show()
+                       }
+                   }
+               }
+                patientVisitInfoSyncRepo.updatePharmacistFlag(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, SyncState.UNSYNCED)
+
                 dtos?.let { prescriptionDTO ->
                     if(benVisitInfo.benVisitNo!=null){
                         val prescription = patientRepo.getPrescription(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo, prescriptionDTO.prescriptionID)
@@ -103,19 +134,21 @@ class PharmacistFormViewModel @Inject constructor(
                         patientRepo.updatePrescription(prescription)
                     }
                 }
-                patientVisitInfoSyncRepo.updatePharmacistDataSyncing(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                WorkerUtils.pharmacistPushWorker(context)
 
-                val resp = benVisitRepo.savePharmacistData(dtos, benVisitInfo)
-                if(resp){
-                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
-                    Toast.makeText(context, "Item Dispensed", Toast.LENGTH_SHORT).show()
-                }
-                else{
-                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
-                    Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
-                }
+//                patientVisitInfoSyncRepo.updatePharmacistDataSyncing(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+//
+//                val resp = benVisitRepo.savePharmacistData(dtos, benVisitInfo)
+//                if(resp){
+//                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
+//                    Toast.makeText(context, "Item Dispensed", Toast.LENGTH_SHORT).show()
+//                }
+//                else{
+//                    patientVisitInfoSyncRepo.updatePharmacistDataSynced(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo)
+//                    Toast.makeText(context, "Error occured while saving request", Toast.LENGTH_SHORT).show()
+//                }
 
-                _isDataSaved.value = resp
+                _isDataSaved.value = true
 
             }
 

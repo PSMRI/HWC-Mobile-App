@@ -41,6 +41,7 @@ import org.piramalswasthya.cho.databinding.FragmentOfflineDataSharingBottomSheet
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
+import org.piramalswasthya.cho.model.PatientDoctorBundle
 import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -135,6 +136,11 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                     } else if (viewModel.userRole == "Nurse") {
                         binding.unsyncedRecordsCount.text =
                             viewModel.patientVisitDataBundle.size.toString()
+                    }else if(viewModel.userRole == "Doctor"){
+                        binding.unsyncedRecordsCount.text = viewModel.patientDoctorBundle.size.toString()
+                    }else if(viewModel.userRole == "Registrar&Nurse"){
+                        binding.unsyncedRecordsCount.text =
+                            viewModel.patientVisitDataBundle.size.toString()
                     }
                 }
 
@@ -212,6 +218,10 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                         }
                     } else if (viewModel.userRole == "Nurse") {
                         sendNurseToDoctorPayload(endpointId, viewModel.patientVisitDataBundle)
+                    }else if(viewModel.userRole == "Doctor"){
+                        sendDoctorToPharmacistPayload(endpointId, viewModel.patientDoctorBundle)
+                    }else if(viewModel.userRole=="Registrar&Nurse"){
+                        sendNurseToDoctorPayload(endpointId, viewModel.patientVisitDataBundle)
                     }
                 }
 
@@ -232,6 +242,67 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
             Log.d("Discovery", "Disconnected from: $endpointId")
         }
 
+    }
+
+    private fun sendDoctorToPharmacistPayload(
+        endpointId: String,
+        patientDoctorBundle: MutableList<PatientDoctorBundle>
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            progressDialog.updateUI("Sending Doctor data..")
+            Log.d("Discovery", "Sending Doctor data to Pharmacist")
+
+            val moshi = Moshi.Builder()
+                .add(DateJsonAdapter())
+                .add(KotlinJsonAdapterFactory())
+                .build()
+            val patientDoctorBundleAdapter = moshi.adapter(PatientDoctorBundle::class.java)
+            val payloadWrapperAdapter = moshi.adapter(PayloadWrapper::class.java)
+            var filesSent = 0
+            val totalFiles = patientDoctorBundle.size
+            for (data in patientDoctorBundle){
+                try{
+                   // viewModel.patientVisitInfoSyncRepo.updatePatientDoctorDataSyncSyncing(data.patient.patientID, data.patientVisitInfoSync.benVisitNo)
+                    val patientDoctorBundleJson = patientDoctorBundleAdapter.toJson(data)
+                    val payloadWrapper = PayloadWrapper(
+                        type = "PatientDoctorBundle",
+                        data = patientDoctorBundleJson
+                    )
+                    val payloadWrapperJson = payloadWrapperAdapter.toJson(payloadWrapper)
+
+                    // Create a Payload from the JSON string
+                    val payload = Payload.fromBytes(payloadWrapperJson.toByteArray())
+                    // Send the Payload to the specified endpoint
+                    connectionsClient.sendPayload(endpointId, payload)
+                   // viewModel.patientVisitInfoSyncRepo.updatePatientDoctorDataSyncOffline(data.patient.patientID, data.patientVisitInfoSync.benVisitNo)
+
+                    Log.d("Discovery", "Sending Doctor data: $filesSent")
+
+                    withContext(Dispatchers.Main) {
+                        filesSent++
+                        val progress = (filesSent * 100 / totalFiles)
+                        progressDialog.updateProgress(filesSent, totalFiles, progress)
+                        // updateProgress(filesSent, totalFiles)
+                    }
+                } catch (e: Exception) {
+                    viewModel.patientVisitInfoSyncRepo.updatePatientDoctorDataSyncFailed(data.patient.patientID, data.patientVisitInfoSync.benVisitNo)
+                    Log.d("Discovery", "Sending Doctor data error: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+            withContext(Dispatchers.Main){
+                if(filesSent == totalFiles){
+                    progressDialog.updateUI("Doctor data sent Sucessfully")
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        progressDialog.dismiss()
+                    }, 2000)
+                    connectionsClient.stopAllEndpoints()
+                    viewModel.patientDoctorBundle.clear()
+                    viewModel.getUnsyncedDoctorData()
+                }
+            }
+
+        }
     }
 
     private fun sendNurseToDoctorPayload(
@@ -298,6 +369,10 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                         viewModel.patientVisitInfoSyncRepo.updatePatientNurseDataOfflineSyncSuccess(
                             data.patientVisitInfoSync.patientID,
                             data.patientVisitInfoSync.benVisitNo
+                        )
+                        patientDao.updatePatientSyncOffline(
+                            SyncState.SHARED_OFFLINE,
+                            data.patientVisitInfoSync.patientID
                         )
                         Log.d("Discovery", "Sending Registrar data: $filesSent")
 
@@ -429,10 +504,10 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
             } else if (update.status == PayloadTransferUpdate.Status.FAILURE) {
                 // Handle failed transfer if needed
                 progressDialog.updateUI("Failed to send data.")
+                connectionsClient.stopAllEndpoints()
                 Handler(Looper.getMainLooper()).postDelayed({
                     progressDialog.dismiss()
                 }, 2000)
-                connectionsClient.stopAllEndpoints()
             }
         }
 
@@ -453,7 +528,10 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
             val roleToDeviceMap = mapOf(
                 "Registrar" to "Nurse",
-                "Nurse" to "MO"
+                "Nurse" to "MO",
+                "Registrar&Nurse" to "MO",
+                "MO" to "Pharmacist",
+                "Doctor" to "Pharmacist",
             )
 
             val targetDeviceName = roleToDeviceMap[viewModel.userRole]
@@ -470,34 +548,6 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
                     listViewDevices.visibility = View.VISIBLE
                 }
             }
-//            if (viewModel.userRole == "Registrar") {
-//                if (info.endpointName.contains("Nurse")) {
-//                    Log.d("Discovery", "Device found ${info.endpointName}")
-//                    if (!discoveredDevices.contains(info.endpointName)) {
-//                        discoveredDevices.add(info.endpointName)
-//                        endpointIdToDeviceNameMap[endpointId] = info.endpointName
-//                        adapter.notifyDataSetChanged()
-//                    }
-//                    binding.apply {
-//                        progressBar.visibility = View.GONE
-//                        listViewDevices.visibility = View.VISIBLE
-//                    }
-//                }
-//            } else if (viewModel.userRole == "Nurse") {
-//                if (info.endpointName.contains("Doctor")) {
-//                    Log.d("Discovery", "Device found ${info.endpointName}")
-//                    if (!discoveredDevices.contains(info.endpointName)) {
-//                        discoveredDevices.add(info.endpointName)
-//                        endpointIdToDeviceNameMap[endpointId] = info.endpointName
-//                        adapter.notifyDataSetChanged()
-//                    }
-//                    binding.apply {
-//                        progressBar.visibility = View.GONE
-//                        listViewDevices.visibility = View.VISIBLE
-//                    }
-//                }
-//            }
-
         }
 
         override fun onEndpointLost(endpointId: String) {

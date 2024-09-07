@@ -14,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
@@ -21,9 +22,11 @@ import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientDoctorBundle
 import org.piramalswasthya.cho.model.PatientVisitDataBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.BenFlowRepo
@@ -169,6 +172,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         viewModelScope.launch {
             val existingPatient = patientRepo.getPatient(patientId = patient.patientID)
             if(existingPatient == null){
+                patient.syncState = SyncState.SHARED_OFFLINE
                  patientRepo.insertPatient(patient)
             }
         }
@@ -212,9 +216,11 @@ class HomeActivityViewModel @Inject constructor (application: Application,
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Insert patient
+                patientVisitDataBundle.patient.syncState = SyncState.UNSYNCED
                 insertPatient1(patientVisitDataBundle.patient)
 
                 // Add new visit info
+                patientVisitDataBundle.patientVisitInfoSync.nurseDataSynced = SyncState.UNSYNCED
                 checkAndAddNewVisitInfoOffline(patientVisitDataBundle.patientVisitInfoSync)
 
                 // Sync nurse data
@@ -225,6 +231,51 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                     patientVisitDataBundle.patient.patientID,
                     patientVisitDataBundle.patientVisitInfoSync.benVisitNo
                 )
+            }
+        }
+    }
+
+    fun processPatientDoctorBundle(dummyPatientDoctorBundle: PatientDoctorBundle){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                // insertPatient1(patientDoctorBundle.patient)
+                try {
+                   // patientRepo.insertPatientIfNoDuplicate(dummyPatientDoctorBundle.patient)
+                    dummyPatientDoctorBundle.patient.syncState = SyncState.SHARED_OFFLINE
+                    patientRepo.insertPatient(dummyPatientDoctorBundle.patient)
+                    Log.d("Pharmacist", " patient inserted ")
+                }catch (e:Exception){
+                    e.printStackTrace()
+                    Log.d("Pharmacist",e.message.toString())
+                }
+                try {
+                    dummyPatientDoctorBundle.patientVisitInfoSync.pharmacist_flag = 1;
+                   // checkAndAddNewVisitInfoOffline(dummyPatientDoctorBundle.patientVisitInfoSync)
+                    val existingPatientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                        dummyPatientDoctorBundle.patientVisitInfoSync.patientID,  dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
+                    )
+                    if (existingPatientVisitInfoSync == null) {
+                        dummyPatientDoctorBundle.patientVisitInfoSync.nurseDataSynced = SyncState.SYNCED
+                        dummyPatientDoctorBundle.patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
+                        dummyPatientDoctorBundle.patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
+                        patientVisitInfoSyncDao.insertPatientVisitInfoSync( dummyPatientDoctorBundle.patientVisitInfoSync)
+                    }
+                }catch (e:Exception){
+                    e.printStackTrace()
+                    Log.d("Pharmacist",e.message.toString())
+                }
+                val facilityID = userDao.getLoggedInUserFacilityID()
+                try {
+                    benFlowRepo.savePrescriptionListForPharmacist(
+                        dummyPatientDoctorBundle.patient,
+                        facilityID,
+                        dummyPatientDoctorBundle,
+                        dummyPatientDoctorBundle.patientVisitInfoSync
+                    )
+                }catch (e:Exception){
+                    e.printStackTrace()
+                    Log.d("Pharmacist",e.message.toString())
+                }
             }
         }
     }
@@ -246,7 +297,6 @@ class HomeActivityViewModel @Inject constructor (application: Application,
 
         val state: LiveData<State>
             get() = _state
-
     }
 
 }

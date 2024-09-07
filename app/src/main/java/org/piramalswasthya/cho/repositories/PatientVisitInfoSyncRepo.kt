@@ -35,6 +35,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePharmacistDataSynced(patientID, benVisitNo)
     }
 
+    suspend fun updatePharmacistFlag(patientID: String, benVisitNo: Int) {
+        patientVisitInfoSyncDao.updatePharmacistFlag(patientID, benVisitNo)
+    }
+
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updateOnlyDoctorDataSubmitted(nurseFlag, doctorFlag, labtechFlag, patientID, benVisitNo)
     }
@@ -57,6 +61,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun getPatientDoctorDataWithoutTestUnsynced() : List<PatientVisitInfoSyncWithPatient>{
         return patientVisitInfoSyncDao.getPatientDoctorDataWithoutTestUnsynced()
+    }
+
+    suspend fun getPatientDoctorDataUnsyncedForOfflineTransfer() : List<PatientVisitInfoSyncWithPatient>{
+        return patientVisitInfoSyncDao.getPatientDoctorDataUnsyncedForOfflineTransfer()
     }
 
     suspend fun getPatientDoctorDataAfterTestUnsynced() : List<PatientVisitInfoSyncWithPatient>{
@@ -101,6 +109,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
 
     suspend fun updatePatientDoctorDataSyncFailed(patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updatePatientDoctorDataSyncFailed(patientID = patientID, benVisitNo = benVisitNo)
+    }
+
+    suspend fun updatePatientDoctorDataSyncOffline(patientID: String, benVisitNo: Int){
+        patientVisitInfoSyncDao.updatePatientDoctorDataSyncOffline(patientID = patientID, benVisitNo = benVisitNo)
     }
 
     suspend fun updatePatientDoctorDataSyncSyncing(patientID: String, benVisitNo: Int){
