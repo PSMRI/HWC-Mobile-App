@@ -315,22 +315,6 @@ class OfflineDataSharingBottomSheet : BottomSheetDialogFragment() {
         CoroutineScope(Dispatchers.IO).launch {
 
             var success = true
-//            if (viewModel.patients.isNotEmpty()) {
-//                success = suspendCancellableCoroutine<Boolean> { continuation ->
-//                    sendPayload(endpointId, viewModel.patients) { result ->
-//                        Log.d("Discovery", "Registrar data not empty")
-//                        continuation.resume(result)
-//                    }
-//                }
-//            } else {
-//                Log.d("Discovery", "Registrar data empty")
-//
-//                success = true
-//            }
-//
-//            Log.d("Discovery", "Success $success")
-
-
             if (success) {
                 progressDialog.updateUI("Sending Nurse data..")
                 Log.d("Discovery", "Sending Nurse data")

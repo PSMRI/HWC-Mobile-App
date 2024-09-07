@@ -704,7 +704,6 @@ class BenFlowRepo @Inject constructor(
     ) {
         try {
             Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
-
             prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
                 patient.patientID,
                 patientVisitInfoSync.benVisitNo

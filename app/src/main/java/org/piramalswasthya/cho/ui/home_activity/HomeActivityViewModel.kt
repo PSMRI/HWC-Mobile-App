@@ -238,9 +238,7 @@ class HomeActivityViewModel @Inject constructor (application: Application,
     fun processPatientDoctorBundle(dummyPatientDoctorBundle: PatientDoctorBundle){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                // insertPatient1(patientDoctorBundle.patient)
                 try {
-                   // patientRepo.insertPatientIfNoDuplicate(dummyPatientDoctorBundle.patient)
                     dummyPatientDoctorBundle.patient.syncState = SyncState.SHARED_OFFLINE
                     patientRepo.insertPatient(dummyPatientDoctorBundle.patient)
                     Log.d("Pharmacist", " patient inserted ")
@@ -250,7 +248,6 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                 }
                 try {
                     dummyPatientDoctorBundle.patientVisitInfoSync.pharmacist_flag = 1;
-                   // checkAndAddNewVisitInfoOffline(dummyPatientDoctorBundle.patientVisitInfoSync)
                     val existingPatientVisitInfoSync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
                         dummyPatientDoctorBundle.patientVisitInfoSync.patientID,  dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
                     )
