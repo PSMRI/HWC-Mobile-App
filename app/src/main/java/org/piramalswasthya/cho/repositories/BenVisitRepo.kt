@@ -564,7 +564,7 @@ class BenVisitRepo @Inject constructor(
                                     val pharmacistPatientIssueDataRequest = PharmacistItemStockExitDataRequest(
                                         itemID = prescriptionItemDTO.drugID,
                                         itemStockEntryID = item.itemStockEntryID,
-                                        quantity = item.qty,
+                                        quantity = prescriptionItemDTO.qtyPrescribed,
                                         createdBy = user?.userName!!
                                     )
 
@@ -594,7 +594,6 @@ class BenVisitRepo @Inject constructor(
                                 vanID = benFlow.vanID,
                                 itemStockExit = itemStockExitList
                             )
-
                             if (pharmacistPatientIssueDataRequest.itemStockExit.isNotEmpty()) {
                                 patientVisitInfoSyncRepo.updatePharmacistDataSyncState(it.patient.patientID, it.patientVisitInfoSync.benVisitNo, SyncState.SYNCING)
 
