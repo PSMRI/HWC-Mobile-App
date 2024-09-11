@@ -179,7 +179,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(PatientDetailsViewModel::class.java)
-        hideMarriedFields()
+//        hideMarriedFields()
         setChangeListeners()
         setAdapters()
 
@@ -752,7 +752,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.maritalStatus.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.maritalStatusList.map { it -> DropdownList(it.maritalStatusID, it.status) }
+                    val list = viewModel.maritalStatusList.subList(0, 2)
+                    val dropdownList = list.map { it -> DropdownList(it.maritalStatusID, it.status) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.maritalStatusDropdown)
                     binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
                 }
@@ -863,6 +864,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             patient.phoneNo = binding.phoneNo.text.toString()
         }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
+        if (binding.spouseName.text.toString().isNullOrEmpty()) {
+            patient.spouseName = null
+        } else {
+            patient.spouseName = binding.spouseName.text.toString()
+        }
+        if (viewModel.selectedMaritalStatus != null) {
+            patient.maritalStatusID = viewModel.selectedMaritalStatus?.maritalStatusID
+        } else {
+            patient.maritalStatusID = null
+        }
         patient.registrationDate = Date()
         patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
     }

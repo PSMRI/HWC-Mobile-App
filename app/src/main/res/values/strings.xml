@@ -280,8 +280,8 @@
     <string name="age_in_unit">Age in Unit <font color="#FF0000">*</font></string>
     <string name="phone_number">Phone Number</string>
     <string name="registration_date">Registration Date</string>
-    <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
-    <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
+    <string name="marital_status">Marital Status</string>
+    <string name="spouse_name">Spouse Name</string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>
