@@ -513,6 +513,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
 //            setMarriedFieldsVisibility()
+            if (viewModel.selectedMaritalStatus!!.status.equals("married", true)) {
+                binding.fatherNameText.visibility = View.GONE
+                binding.spouseNameText.visibility = View.VISIBLE
+            } else {
+                binding.spouseNameText.visibility = View.GONE
+                binding.fatherNameText.visibility = View.VISIBLE
+            }
         }
 
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
