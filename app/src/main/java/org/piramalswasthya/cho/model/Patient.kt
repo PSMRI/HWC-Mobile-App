@@ -659,7 +659,9 @@ data class BeneficiariesDTO(
     val monthlyFamilyIncome: String?,
     val beneficiaryAge: Int?,
     val sourceOfInformation: String?,
-    val isHIVPos: String?
+    val isHIVPos: String?,
+    val faceEmbedding: List<Float>?
+
 )
 
 @JsonClass(generateAdapter = true)
