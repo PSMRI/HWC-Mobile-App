@@ -85,6 +85,7 @@ class OfflineSyncViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            Log.e("OfflineSyncViewModel", "Error fetching unsynced registrar data", e)
             _state.postValue(State.FAILED)
         }
     }
@@ -127,6 +128,7 @@ class OfflineSyncViewModel @Inject constructor(
                 _state.postValue(State.SUCCESS)
             }
         } catch (e: Exception) {
+            Log.e("OfflineSyncViewModel", "Error fetching unsynced nurse data", e)
             _state.postValue(State.FAILED)
         }
     }
@@ -155,7 +157,7 @@ class OfflineSyncViewModel @Inject constructor(
             }
         }catch (e: Exception){
             _state.postValue(State.FAILED)
-            Log.d("Discovery", "error")
+            Log.e("OfflineSyncViewModel", "Error fetching unsynced doctor data", e)
         }
     }
 
