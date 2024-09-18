@@ -57,6 +57,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
+import java.io.File
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -165,6 +166,10 @@ class PatientRepo @Inject constructor(
         return networkResultInterceptor {
             val patNet = PatientNetwork(patient, user)
             Timber.d("patient register is ", patNet.toString())
+            val gson = Gson()
+            val json = gson.toJson(patNet)
+            val file = File("patient_network.json")
+            println(json)
             val response = apiService.saveBenificiaryDetails(patNet)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
@@ -366,7 +371,7 @@ class PatientRepo @Inject constructor(
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
                                     healthIdDetails = benHealthIdDetails ,
-                                    faceEmbedding = beneficiary.faceEmbedding
+//                                    faceEmbedding = beneficiary.faceEmbedding
                                 )
 
                                 setPatientAge(patient)

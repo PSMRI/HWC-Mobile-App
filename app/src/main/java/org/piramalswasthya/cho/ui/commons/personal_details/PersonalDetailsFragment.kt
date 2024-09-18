@@ -165,28 +165,30 @@ class PersonalDetailsFragment : Fragment() {
 
         }
         binding.cameraIcon.setOnClickListener{
-//            initialise the facenet model
-            val inflater = layoutInflater
-            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
-            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
-            imageView?.let {
-                Glide.with(this).load(R.drawable.face).into(it)
-            }
-            val builder = AlertDialog.Builder(context)
-            builder.setView(dialogView)
-            builder.setCancelable(false)
-            dialog = builder.create()
-            dialog.show()
+                runsearch()
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(Dispatchers.Main) {
-                    if (isAdded) {
-                        dialog.dismiss()
-                        checkAndRequestCameraPermission()
-                    }
-                }
-            }
+//            initialise the facenet model
+//            val inflater = layoutInflater
+//            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
+//            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
+//            imageView?.let {
+//                Glide.with(this).load(R.drawable.face).into(it)
+//            }
+//            val builder = AlertDialog.Builder(context)
+//            builder.setView(dialogView)
+//            builder.setCancelable(false)
+//            dialog = builder.create()
+//            dialog.show()
+//
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+//                withContext(Dispatchers.Main) {
+//                    if (isAdded) {
+//                        dialog.dismiss()
+//                        checkAndRequestCameraPermission()
+//                    }
+//                }
+//            }
 //            lifecycleScope.launch {
 //                // Run database operations in a background thread
 //                val patients = withContext(Dispatchers.IO) {
@@ -354,6 +356,19 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
+
+    private fun runsearch() {
+    lifecycleScope.launch {
+        val patients = withContext(Dispatchers.IO) {
+            patientDao.getAllPatients()
+        }
+        Toast.makeText(requireContext(), patients.size.toString(), Toast.LENGTH_SHORT).show()
+        for (patient in patients) {
+            Toast.makeText(requireContext(), patient.firstName.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
     private lateinit var syncBottomSheet : SyncBottomSheetFragment
     private fun openDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
         syncBottomSheet = SyncBottomSheetFragment(benVisitInfo)
