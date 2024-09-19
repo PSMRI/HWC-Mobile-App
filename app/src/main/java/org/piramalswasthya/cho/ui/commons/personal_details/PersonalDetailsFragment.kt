@@ -165,43 +165,31 @@ class PersonalDetailsFragment : Fragment() {
 
         }
         binding.cameraIcon.setOnClickListener{
-                runsearch()
+//                runsearch()
 
 //            initialise the facenet model
-//            val inflater = layoutInflater
-//            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
-//            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
-//            imageView?.let {
-//                Glide.with(this).load(R.drawable.face).into(it)
-//            }
-//            val builder = AlertDialog.Builder(context)
-//            builder.setView(dialogView)
-//            builder.setCancelable(false)
-//            dialog = builder.create()
-//            dialog.show()
-//
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-//                withContext(Dispatchers.Main) {
-//                    if (isAdded) {
-//                        dialog.dismiss()
-//                        checkAndRequestCameraPermission()
-//                    }
-//                }
-//            }
-//            lifecycleScope.launch {
-//                // Run database operations in a background thread
-//                val patients = withContext(Dispatchers.IO) {
-//                    patientDao.getAllPatients()
-//                }
-//                // Process results on the main thread
-//                for (patient in patients) {
-//                    if(patient.beneficiaryID ==781694645619){
-//                        Toast.makeText(requireContext(), patient.firstName.toString(), Toast.LENGTH_SHORT).show()
-//                        Toast.makeText(requireContext(), patient.faceEmbedding.toString(), Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
+            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
+            imageView?.let {
+                Glide.with(this).load(R.drawable.face).into(it)
+            }
+            val builder = AlertDialog.Builder(context)
+            builder.setView(dialogView)
+            builder.setCancelable(false)
+            dialog = builder.create()
+            dialog.show()
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        dialog.dismiss()
+                        checkAndRequestCameraPermission()
+                    }
+                }
+            }
+
 
         }
 
