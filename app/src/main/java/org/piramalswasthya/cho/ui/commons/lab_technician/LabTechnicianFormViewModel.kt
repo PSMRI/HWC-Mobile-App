@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
+import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
@@ -31,7 +32,8 @@ class LabTechnicianFormViewModel @Inject constructor(
     private val userRepo: UserRepo,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
-    private val patientRepo: PatientRepo
+    private val patientRepo: PatientRepo,
+    private val procedureRepo: ProcedureRepo
 ) : ViewModel() {
 
     private var _loggedInUser: UserCache? = null
@@ -65,6 +67,16 @@ class LabTechnicianFormViewModel @Inject constructor(
     suspend fun downloadProcedure(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
             benFlowRepo.pullLabProcedureData(benVisitInfo)
+        }
+
+        // TODO:get list of procedures and ben visit info here using nearby api
+//        val procedureID = 1L
+//        addProcedure(procedureID, benVisitInfo);
+
+    }
+    private suspend fun addProcedure(procedureID: Long, benVisitInfo: PatientDisplayWithVisitInfo) {
+        withContext(Dispatchers.IO) {
+            procedureRepo.addProcedure(procedureID, benVisitInfo);
         }
     }
     suspend fun getPrescribedProcedures(benVisitInfo : PatientDisplayWithVisitInfo) {
