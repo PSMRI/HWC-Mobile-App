@@ -20,7 +20,7 @@ import com.squareup.moshi.JsonClass
             entity = BenFlow::class,
             parentColumns = ["benFlowID"],
             childColumns = ["benFlowID"],
-            onDelete = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.NO_ACTION,
         ),
     ]
 )
@@ -32,7 +32,7 @@ data class Prescription(
     @ColumnInfo(name = "visitCode") val visitCode: Long,
     @ColumnInfo(name = "consultantName") val consultantName: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
-    @ColumnInfo(name = "benFlowID") var benFlowID: Long,
+    @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
     @ColumnInfo(name = "issueType") var issueType: String? = null,
 )
@@ -82,7 +82,7 @@ data class PrescribedDrugsBatch (
 
 @JsonClass(generateAdapter = true)
 data class PrescriptionDTO(
-    val beneficiaryRegID: Long,
+    val beneficiaryRegID: Long?,
     val consultantName: String?,
     val prescriptionID: Long,
     val visitCode: Long,
@@ -185,4 +185,9 @@ data class PharmacistPatientIssueDataRequest(
     val parkingPlaceID: Int?,
     val vanID: Int?,
     var itemStockExit: List<PharmacistItemStockExitDataRequest>
+)
+
+data class StockItemRequest(
+    val itemName: String,
+    val facilityID: String
 )

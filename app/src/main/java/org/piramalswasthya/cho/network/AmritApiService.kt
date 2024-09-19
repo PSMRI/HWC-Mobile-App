@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
 import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
+import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.utils.Constants
@@ -237,5 +238,11 @@ interface AmritApiService {
 
     @POST("/inventoryapi-v1.0/patientIssue?apiKey=undefined")
     suspend fun savePharmacistData(@Body patientIssue: PharmacistPatientIssueDataRequest) : Response<ResponseBody>
+
+    @POST("/inventoryapi-v1.0/itemBatchPartialSearch")
+    suspend fun getPharmacistStockItemList(
+        @Body request: StockItemRequest
+    ):Response<ResponseBody>
+
 
 }

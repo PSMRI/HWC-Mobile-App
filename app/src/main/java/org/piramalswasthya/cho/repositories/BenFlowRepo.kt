@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
@@ -18,6 +19,8 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
+import org.piramalswasthya.cho.model.ApiItemStockEntry
+import org.piramalswasthya.cho.model.Batch
 import org.piramalswasthya.cho.model.BenDetailsDownsync
 import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.BenNewFlow
@@ -32,6 +35,7 @@ import org.piramalswasthya.cho.model.LabReportData
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.PatientDoctorBundle
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.PrescribedDrugs
@@ -41,10 +45,10 @@ import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionBatchApiDTO
 import org.piramalswasthya.cho.model.PrescriptionCaseRecord
 import org.piramalswasthya.cho.model.PrescriptionDTO
-import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataDownsync
+import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.network.AmritApiService
@@ -59,9 +63,19 @@ import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.utils.DateTimeUtil.Companion.calculateExpiryInDays
+import org.piramalswasthya.cho.utils.DateTimeUtil.Companion.convertDateFormat
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.net.SocketTimeoutException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 class BenFlowRepo @Inject constructor(
@@ -76,6 +90,7 @@ class BenFlowRepo @Inject constructor(
     private val patientVisitInfoSyncDao: PatientVisitInfoSyncDao,
     private val investigationDao: InvestigationDao,
     private val prescriptionDao: PrescriptionDao,
+    private val batchDao: BatchDao,
     private val procedureDao: ProcedureDao,
     private val caseRecordeDao: CaseRecordeDao,
 ) {
@@ -402,6 +417,42 @@ class BenFlowRepo @Inject constructor(
                                 checkAndDownsyncNurseData(benFlow, patient)
                                 checkAndDownsyncDoctorData(benFlow, patient)
                             }
+                            val pvis = patientVisitInfoSyncDao.getPatientVisitInfoByPatientIdAndSyncState(patient!!.patientID, SyncState.SHARED_OFFLINE)
+                            if(pvis!=null){
+                                val chiefComplaints = visitReasonsAndCategoriesDao.getChiefComplaintsByPatientId(patient.patientID, pvis.benVisitNo)
+                                // Iterate through each chief complaint and update the benFlowID
+                                if (chiefComplaints.isNotEmpty()) {
+                                    // Iterate through each chief complaint and update the benFlowID
+                                    chiefComplaints.forEach { complaint ->
+                                        // Update the benFlowID
+                                        val updatedComplaint = complaint.copy(benFlowID = pvis.benFlowID)
+                                        // Save the updated complaint back to the database
+                                        visitReasonsAndCategoriesDao.updateChiefComplaint(updatedComplaint)
+                                    }
+                                } else {
+                                    // Handle the case when chiefComplaints is empty or null
+                                    println("No chief complaints found for patientID: ${patient.patientID} and benVisitNo: ${pvis.benVisitNo}")
+                                }
+                                // Fetch visitDb and update if not null
+                                val visitDb = visitReasonsAndCategoriesDao.getVisitDbByPatientId(pvis.patientID)
+                                if (visitDb != null) {
+                                    val updatedVisitDb = visitDb.copy(benFlowID = pvis.benFlowID)
+                                    visitReasonsAndCategoriesDao.updateVisitDB(updatedVisitDb)
+                                } else {
+                                    // Handle the case when visitDb is null
+                                    println("No visitDb found for patientID: ${pvis.patientID}")
+                                }
+                                // Fetch vitals and update if not null
+                                val vitals = vitalsDao.getPatientVitalsByPatientID(pvis.patientID)
+                                if (vitals != null) {
+                                    val updatedVitals = vitals.copy(benFlowID = pvis.benFlowID)
+                                    vitalsDao.updateVitals(updatedVitals)
+                                } else {
+                                    // Handle the case when vitals is null
+                                    println("No vitals found for patientID: ${pvis.patientID}")
+                                }
+                                patientVisitInfoSyncDao.updatePatientNurseDataSyncSuccess(patientID = pvis.patientID, benVisitNo =  pvis.benVisitNo)
+                            }
                         } catch (e : Exception){
                             isSuccess = false
                         }
@@ -571,6 +622,162 @@ class BenFlowRepo @Inject constructor(
             }
     }
 
+     suspend fun getStockDetailsOfSubStore(facilityID: Int): NetworkResult<NetworkResponse>{
+        return networkResultInterceptor {
+            val request = StockItemRequest(
+                itemName = "%%",
+                facilityID = facilityID.toString()
+            )
+            val response = apiService.getPharmacistStockItemList(request)
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    try {
+                        val jsonObj = JSONObject(responseBody)
+                        val dataArray = jsonObj.getJSONArray("data")
+                        val batchList = mutableListOf<Batch>()
+                        for (i in 0 until dataArray.length()) {
+                            val item = dataArray.getJSONObject(i).toString()
+                            val apiItemStockEntry = Gson().fromJson(item, ApiItemStockEntry::class.java)
+
+                            val batch = Batch(
+                                itemID = apiItemStockEntry.itemID,
+                                stockEntityId = apiItemStockEntry.itemStockEntryID.toLong(),
+                                batchNo = apiItemStockEntry.batchNo,
+                                expiryDate = apiItemStockEntry.expiryDate,
+                                quantity = apiItemStockEntry.quantity,
+                                quantityInHand = apiItemStockEntry.quantityInHand
+                            )
+
+                            batchList.add(batch)
+                        }
+                        batchDao.insertAllBatches(batchList)
+
+                        Log.d("Medicine list", "$batchList")
+                        NetworkResult.Success(NetworkResponse())
+                    } catch (e: Exception) {
+                        Log.e("Medicine list", "Error during parsing or deserialization", e)
+                    }
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    Log.d("Token Expired", "Token Expired")
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getStockDetailsOfSubStore(facilityID)
+                }
+            )
+        }
+    }
+
+    fun calculateQtyPrescribed(duration: String?, durationUnit: String?, frequency: String?): Int {
+        // Convert the duration string to an integer
+        val durationVal = duration?.toIntOrNull() ?: 0
+
+        // Map the frequency string to a frequency per day
+        val frequencyPerDay = when (frequency) {
+            "Once Daily(OD)" -> 1
+            "Twice Daily(BD)" -> 2
+            "Thrice Daily (TID)" -> 3
+            "Four Times in a Day (QID)" -> 4
+            else -> 1 // Default to once daily if unrecognized
+        }
+
+        // Calculate the total duration in days based on the duration unit
+        val totalDays = when (durationUnit) {
+            "Day(s)" -> durationVal
+            "Week(s)" -> durationVal * 7
+            "Month(s)" -> durationVal * 30
+            else -> 0
+        }
+
+        // Calculate the total quantity prescribed
+        return frequencyPerDay * totalDays
+    }
+
+    suspend fun savePrescriptionListForPharmacist(
+        patient: Patient,
+        facilityID: Int,
+        patientDoctorBundle: PatientDoctorBundle,
+        patientVisitInfoSync: PatientVisitInfoSync
+    ) {
+        try {
+            Log.d("Pharmacist","Deleting existing prescriptions for patientID: ${patient.patientID}, visitNo: ${patientVisitInfoSync.benVisitNo}")
+            prescriptionDao.deletePrescriptionByPatientIDAndBenVisitNo(
+                patient.patientID,
+                patientVisitInfoSync.benVisitNo
+            )
+            Log.d("Pharmacist", "patient:in benflowrepo ${patient}")
+
+
+            val prescription = Prescription(
+                prescriptionID = 0, // Placeholder
+                beneficiaryRegID = 0, // Placeholder, adjust as needed
+                visitCode = 0, // Placeholder, adjust as needed
+                consultantName = null, // Or a placeholder name
+                patientID = patient.patientID,
+                benFlowID = null,
+                benVisitNo = patientVisitInfoSync.benVisitNo
+            )
+            Log.d("Pharmacist","Inserting Prescription: $prescription")
+
+            // Insert the Prescription and retrieve the generated ID
+            val prescriptionID = prescriptionDao.insert(prescription)
+
+            patientDoctorBundle.prescriptionCaseRecordVal!!.forEach {
+                val prescribedDrugs = PrescribedDrugs(
+                    drugID = it.itemId.toLong(),
+                    prescriptionID = prescriptionID,
+                    dose = it.strength,
+                    drugForm = it.itemFormName,
+                    drugStrength = it.strength,
+                    duration = it.duration,
+                    durationUnit = it.unit,
+                    frequency = it.frequency,
+                    genericDrugName = it.itemName,
+                    isEDL = it.isEDL,
+                    qtyPrescribed = calculateQtyPrescribed(it.duration, it.unit, it.frequency),
+                    route = it.routeID.toString(),
+                    instructions = it.instruciton
+                )
+                Log.d("Pharmacist","Inserting PrescribedDrug: $prescribedDrugs")
+                val prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)
+
+                val batches = batchDao.getBatchesByItemID(it.itemId)
+                val sortedBatches = batches.sortedBy { parseDate(it.expiryDate) }
+                sortedBatches.forEach { batch ->
+                    Log.d("ExpiryInDays", "Expiry in days: ${batch.expiryDate}")
+                    val calculateExpiryInDays = calculateExpiryInDays(batch.expiryDate)
+                    Log.d("ExpiryInDays", "Expiry in days: $calculateExpiryInDays")
+                    if(calculateExpiryInDays>0) {
+                        Log.d("ExpiryInDays", "Inside")
+                        val prescribedDrugsBatch = PrescribedDrugsBatch(
+                            drugID = prescribedDrugsId,
+                            expiryDate = convertDateFormat(batch.expiryDate),
+                            expiresIn = calculateExpiryInDays,
+                            batchNo = batch.batchNo,
+                            itemStockEntryID = batch.stockEntityId.toInt(),
+                            qty = batch.quantityInHand
+                        )
+                        Log.d("Pharmacist","Inserting PrescribedDrugsBatch: $prescribedDrugsBatch")
+                        prescriptionDao.insert(prescribedDrugsBatch)
+                    }
+                }
+            }
+            } catch (e: Exception){
+                e.printStackTrace()
+                Log.d("Pharmacist",e.toString())
+            }
+
+        }
+
+    fun parseDate(dateString: String): Date {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.parse(dateString)
+    }
+
     private suspend fun getPrescriptionsListForPharmacist(benFlow: BenFlow, benVisitInfo: PatientDisplayWithVisitInfo, facilityID: Int): NetworkResult<NetworkResponse> {
 //        Log.i("Location From home is", "${benFlow!!}")
         return networkResultInterceptor {
@@ -667,7 +874,4 @@ class BenFlowRepo @Inject constructor(
             false
         }
     }
-
-
-
 }

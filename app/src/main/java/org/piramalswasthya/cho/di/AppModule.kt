@@ -12,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
@@ -336,4 +337,6 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideProcedureMasterDao(database: InAppDb): ProcedureMasterDao = database.procedureMasterDao
+
+    fun provideBatchDao(database: InAppDb): BatchDao = database.batchDao
 }

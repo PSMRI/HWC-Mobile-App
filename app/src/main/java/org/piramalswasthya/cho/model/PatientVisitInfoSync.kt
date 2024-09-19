@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.database.room.SyncState
+import java.io.Serializable
 import java.util.Date
 
 @Entity(
@@ -86,7 +87,7 @@ data class PatientVisitInfoSync(
     @ColumnInfo(name = "referralReason")
     var referralReason: String? = null,
 
-){
+):Serializable{
     constructor(benFlow: BenFlow, patient: Patient) : this(
         patientID = patient.patientID,
         benVisitNo = benFlow.benVisitNo!!,
