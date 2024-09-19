@@ -371,7 +371,7 @@ class PatientRepo @Inject constructor(
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
                                     healthIdDetails = benHealthIdDetails ,
-//                                    faceEmbedding = beneficiary.faceEmbedding
+                                    faceEmbedding = beneficiary.beneficiaryDetails?.faceEmbedding
                                 )
 
                                 setPatientAge(patient)
