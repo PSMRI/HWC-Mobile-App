@@ -1,5 +1,4 @@
-package com.thejas.facerecognitionanddataretrieval
-
+package org.piramalswasthya.cho.facenet
 class ModelInfo(
     val name : String ,
     val assetsFilename : String ,

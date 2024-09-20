@@ -47,8 +47,8 @@ import com.google.android.material.textview.MaterialTextView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.thejas.facerecognitionanddataretrieval.FaceNetModel
-import com.thejas.facerecognitionanddataretrieval.Models
+import org.piramalswasthya.cho.facenet.FaceNetModel
+import org.piramalswasthya.cho.facenet.Models
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -421,8 +421,10 @@ class PersonalDetailsFragment : Fragment() {
                     .addOnSuccessListener { faces ->
                         if (faces.isEmpty()) {
                             Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                            return@addOnSuccessListener
                         } else if (faces.size > 1) {
                             Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                            return@addOnSuccessListener
                         } else {
                             val face = faces[0]
                             val boundingBox = face.boundingBox

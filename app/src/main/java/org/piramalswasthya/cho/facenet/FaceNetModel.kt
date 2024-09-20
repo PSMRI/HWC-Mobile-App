@@ -1,6 +1,5 @@
 
-package com.thejas.facerecognitionanddataretrieval
-
+package org.piramalswasthya.cho.facenet
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
@@ -23,7 +22,7 @@ import kotlin.math.sqrt
 class FaceNetModel( context : Context ,
                     var model : ModelInfo ,
                     useGpu : Boolean ,
-                    useXNNPack : Boolean) {
+                    useXNNPack : Boolean) : AutoCloseable {
 
     // Input image size for FaceNet model.
     private val imgSize = model.inputDims
@@ -52,7 +51,7 @@ class FaceNetModel( context : Context ,
                 numThreads = 4
             }
             setUseXNNPACK( useXNNPack )
-            useNNAPI = true
+            useNNAPI = !useGpu
         }
         interpreter = Interpreter(FileUtil.loadMappedFile(context, model.assetsFilename ) , interpreterOptions )
     }
@@ -98,5 +97,7 @@ class FaceNetModel( context : Context ,
         }
 
     }
-
+    override fun close() {
+        interpreter.close()
+    }
 }

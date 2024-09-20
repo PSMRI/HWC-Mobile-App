@@ -31,8 +31,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.thejas.facerecognitionanddataretrieval.FaceNetModel
-import com.thejas.facerecognitionanddataretrieval.Models
+import org.piramalswasthya.cho.facenet.FaceNetModel
+import org.piramalswasthya.cho.facenet.Models
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -113,7 +113,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             imageView?.let {
                 Glide.with(this).load(R.drawable.face).into(it)
             }
-            val builder = AlertDialog.Builder(context)
+            val builder = AlertDialog.Builder(requireContext())
             builder.setView(dialogView)
             builder.setCancelable(false)
             dialog = builder.create()
