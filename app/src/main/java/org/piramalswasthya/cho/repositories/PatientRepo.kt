@@ -348,7 +348,6 @@ class PatientRepo @Inject constructor(
                                 }
 
                                 downloadLocationMasterData(beneficiary.currentAddress)
-
                                 val patient = Patient(
                                     patientID = generateUuid(),
                                     firstName = beneficiary.beneficiaryDetails?.firstName,
@@ -371,7 +370,7 @@ class PatientRepo @Inject constructor(
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
                                     healthIdDetails = benHealthIdDetails ,
-                                    faceEmbedding = beneficiary.beneficiaryDetails?.faceEmbedding
+                                    faceEmbedding = beneficiary.faceEmbedding
                                 )
 
                                 setPatientAge(patient)

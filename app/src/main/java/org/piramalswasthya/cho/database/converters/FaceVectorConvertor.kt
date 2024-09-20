@@ -17,8 +17,12 @@ class FaceVectorConvertor {
     }
 
     @TypeConverter
-    fun fromList(list: List<Float>): String {
+    fun fromList(list: List<Float>?): String {
         val gson = Gson()
-        return gson.toJson(list)
+        return if (list != null) {
+            gson.toJson(list)
+        } else {
+            "[]"
+        }
     }
 }

@@ -165,7 +165,6 @@ class PersonalDetailsFragment : Fragment() {
 
         }
         binding.cameraIcon.setOnClickListener{
-//                runsearch()
 
 //            initialise the facenet model
             val inflater = layoutInflater
@@ -344,18 +343,6 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
     }
-
-    private fun runsearch() {
-    lifecycleScope.launch {
-        val patients = withContext(Dispatchers.IO) {
-            patientDao.getAllPatients()
-        }
-        Toast.makeText(requireContext(), patients.size.toString(), Toast.LENGTH_SHORT).show()
-        for (patient in patients) {
-            Toast.makeText(requireContext(), patient.firstName.toString(), Toast.LENGTH_SHORT).show()
-        }
-    }
-}
 
     private lateinit var syncBottomSheet : SyncBottomSheetFragment
     private fun openDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
