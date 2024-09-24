@@ -1,19 +1,19 @@
 # HWC-Mobile-App
 
 ## Overview
-The HWC Mobile App is designed for healthcare programs to collaborate among the health workers with different roles like Registrar, Nurse, Pharmacist, Lab Technician and Doctor etc.
-Using this application we try to eliminates pen and paperwork by different roles and allows them to enter patient data in a digital process with increased ease and accuracy of data.
+The HWC Mobile App is designed for healthcare programs to facilitate collaboration among health workers with different roles such as Registrar, Nurse, Pharmacist, Lab Technician, and Doctor, etc.
+This application aims to eliminate pen and paperwork for different roles, allowing them to enter patient data digitally with increased ease and accuracy.
 
 
 ## Functional Description
 
-- **A Nurse or Registrar will register a patient (same patient can be registered with Esanjivni.) and Doctor, Lab Technician and Pharmacist will update the details for those patient in the same app.**
-
+- **Patient Registration**: Nurses or Registrars can register patients (the same patient can be registered with Esanjivni).
+- **Patient Updates**: Doctors, Lab Technicians, and Pharmacists can update the details for registered patients within the app.
 
 ## Features
 
 - **User Authentication**: Secure login for different roles like Registrar, Nurse, Doctor, Lab Technician, Pharmacist .
-- **Real-time Data**: Access to up-to-date information about patient.
+- **Real-time Data**: Access to up-to-date information about patients.
 - **User-Friendly Interface**: Intuitive design for easy navigation.
 - **Offline Access**: Ability to use the app without an internet connection.
 - **Multilingual Support**: Ability to use app in different languages like English, Kannada.
@@ -25,7 +25,7 @@ Using this application we try to eliminates pen and paperwork by different roles
 - **Languages**: XML, Kotlin, SQL
 - **Architecture & Architectural Components**: MVVM, Android Architectural Components
 - **SDK**: Android SDK 23-34
-- 
+
 
 ## Installation
 
