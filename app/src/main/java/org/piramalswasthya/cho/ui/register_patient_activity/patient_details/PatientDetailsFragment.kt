@@ -107,6 +107,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         savedInstanceState: Bundle?
     ): View {
         binding.ivImgCapture.setOnClickListener {
+            if (::dialog.isInitialized && dialog.isShowing) {
+                    dialog.dismiss()
+            }
             val inflater = layoutInflater
             val dialogView = inflater.inflate(R.layout.dialog_progress, null)
             val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)

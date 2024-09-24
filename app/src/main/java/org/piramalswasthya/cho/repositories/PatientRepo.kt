@@ -166,10 +166,6 @@ class PatientRepo @Inject constructor(
         return networkResultInterceptor {
             val patNet = PatientNetwork(patient, user)
             Timber.d("patient register is ", patNet.toString())
-            val gson = Gson()
-            val json = gson.toJson(patNet)
-            val file = File("patient_network.json")
-            println(json)
             val response = apiService.saveBenificiaryDetails(patNet)
             val responseBody = response.body()?.string()
             refreshTokenInterceptor(
