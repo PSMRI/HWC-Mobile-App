@@ -12,34 +12,50 @@
         android:layout_marginTop="69dp"
         android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_til"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:endIconMode="custom"
-            app:boxCornerRadiusTopStart="20dp"
-            app:boxCornerRadiusTopEnd="20dp"
-            app:boxCornerRadiusBottomStart="20dp"
-            app:boxCornerRadiusBottomEnd="20dp"
-            app:boxStrokeWidth="2dp"
+            android:orientation="horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="10dp"
-            app:endIconDrawable="@drawable/ic_mic"
-            android:textColorHint="#888888"
-            app:layout_constraintTop_toTopOf="parent"
-            android:hint="@string/query_hint_patient_search">
+            android:gravity="center_vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search"
-                android:layout_width="match_parent"
-                android:inputType="text"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_til"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:endIconMode="custom"
+                app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp"
+                app:boxStrokeWidth="2dp"
+                app:endIconDrawable="@drawable/ic_mic"
+                android:textColorHint="#888888"
+                app:layout_constraintTop_toTopOf="parent"
+                android:hint="@string/query_hint_patient_search">
 
-                android:drawableStart="@drawable/ic_search"
-                android:imeOptions="actionDone"
-                android:singleLine="true"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search"
+                    android:layout_width="match_parent"
+                    android:inputType="text"
+                    android:drawableStart="@drawable/ic_search"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/camera_icon"
+                android:layout_width="30dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginLeft="10dp"
+                android:layout_height="30dp"
+                android:background="@drawable/camera_icon_grey"
+                />
+        </LinearLayout>
 
 
         <include
