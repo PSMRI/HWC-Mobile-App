@@ -357,7 +357,7 @@ class PersonalDetailsFragment : Fragment() {
 
 
     private fun checkAndRequestCameraPermission() {
-        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
             )  == PackageManager.PERMISSION_GRANTED
         ) {
