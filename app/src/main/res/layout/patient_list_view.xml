@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:paddingTop="5dp"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp" />
+        android:paddingBottom="10dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/patient_list"
@@ -23,11 +23,8 @@
         android:name="com.google.fhirengine.example.PatientListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
         tools:context=".PatientListActivity"
-        tools:listitem="@layout/patient_list_item_view"
-        />
+        tools:listitem="@layout/patient_list_item_view"/>
 </RelativeLayout>

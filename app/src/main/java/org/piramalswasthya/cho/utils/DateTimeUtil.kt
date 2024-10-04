@@ -298,15 +298,18 @@ class DateTimeUtil {
             var ageString = "";
             if(years > 0){
                 ageString += "$years years"
+            }else{
+                if(months > 0){
+                    if(ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$months months"
+                }
+                if(days > 0){
+                    if(ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$days days"
+                }
+
             }
-            if(months > 0){
-                if(ageString.isNotEmpty()) ageString += ", "
-                ageString += "$months months"
-            }
-            if(days > 0){
-                if(ageString.isNotEmpty()) ageString += ", "
-                ageString += "$days days"
-            }
+
             return ageString
         }
 

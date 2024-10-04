@@ -103,11 +103,17 @@ class PatientItemAdapter(
 //            }else{
 //                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
 //            }
-            if(item.visitDate != null){
-                binding.visitDate.text = DateTimeUtil.formatDate(item.visitDate)
+           val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
+            if(visitDateText.isNullOrBlank()){
+                binding.visitDate.text ="NA"
+            }else{
+                binding.visitDate.text = visitDateText
             }
-            binding.patientPhoneNo.text = item.patient.phoneNo ?: ""
-            binding.village.text = item.villageName ?: ""
+            binding.patientPhoneNo.text = item.patient.phoneNo ?: "NA"
+            if (item.villageName.isNullOrBlank()){
+                binding.village.text =  "NA"
+            } else  binding.village.text =item.villageName
+
             binding.patientGender.text = item.genderName
             if(item.patient.syncState == SyncState.SYNCED){
                 binding.ivSyncState.visibility = View.VISIBLE
@@ -119,23 +125,31 @@ class PatientItemAdapter(
                 binding.llBenId.visibility = View.GONE
                 binding.ivSyncState.visibility = View.GONE
             }
-            if(item.doctorFlag == 9){
+         /*   Commented as prescription button should not display to user
+
+         if(item.doctorFlag == 9){
                 binding.prescriptionDownloadBtn.visibility = View.VISIBLE
             }else{
                 binding.prescriptionDownloadBtn.visibility = View.GONE
-            }
+            }*/
 
             if(item.referTo != null){
                 binding.referToLl.visibility = View.VISIBLE
                 binding.referTo.text = item.referTo
+            }else{
+                binding.referTo.text = "NA"
             }
 
             if(item.referDate != null){
                 binding.referDateLl.visibility = View.VISIBLE
                 binding.referDate.text = item.referDate
+            }else{
+                binding.referDate.text = "NA"
             }
 
-            if(item.referralReason != null){
+            if(item.referralReason.isNullOrBlank()){
+                binding.referFrom.text ="NA"
+            }else{
                 val arr = item.referralReason.split(pattern)
                 if(arr.size > 1){
                     binding.referFromLl.visibility = View.VISIBLE
