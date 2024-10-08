@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    tools:context=".ui.home.ProgressDialogFragment">
+
+    <TextView
+        android:id="@+id/headerTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sending Files"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="@color/black"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/headerTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvRecordsTransferred"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Records Transferred: 0/0"
+        android:textSize="16sp"
+        android:paddingTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingBottom="4dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerTv"/>
+
+    <TextView
+        android:id="@+id/tvProgressPercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0%"
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerTv"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:indeterminate="false"
+        android:max="100"
+        android:progress="0"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRecordsTransferred"/>
+
+    <TextView
+        android:id="@+id/statusTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:textSize="20sp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

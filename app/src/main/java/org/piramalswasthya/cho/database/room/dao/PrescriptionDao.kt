@@ -1,10 +1,12 @@
 package org.piramalswasthya.cho.database.room.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.ComponentDetails
 import org.piramalswasthya.cho.model.ComponentOption
@@ -43,6 +45,10 @@ interface PrescriptionDao {
 
     @Query("select * from prescription where patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun getPrescriptionsByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): List<Prescription>?
+
+    @Update
+    suspend fun updatePharmacistPrescription(prescription: Prescription)
+
     @Query("select * from prescription where patientID = :patientID and benVisitNo = :benVisitNo and prescriptionID = :prescriptionID limit 1")
     fun getPrescription(patientID: String, benVisitNo: Int, prescriptionID: Long): Prescription
 
@@ -51,6 +57,13 @@ interface PrescriptionDao {
 
     @Query("select * from prescribed_drugs_batch where drugID = :drugID")
     fun getPrescribedDrugsBatch(drugID: Long): List<PrescribedDrugsBatch>?
+
+    @Delete
+    fun deletePrescribedDrugsBatch(prescribedDrugsBatch: PrescribedDrugsBatch)
+
+    // Method to update a single PrescribedDrugsBatch entry
+    @Update
+    fun updatePrescribedDrugsBatch(prescribedDrugsBatch: PrescribedDrugsBatch)
 
     @Transaction
     @Query("UPDATE prescription SET issueType = :issueType WHERE prescriptionID =:prescriptionID")

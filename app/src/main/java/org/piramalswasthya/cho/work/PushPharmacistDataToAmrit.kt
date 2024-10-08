@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.work
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -29,13 +30,16 @@ class PushPharmacistDataToAmrit @AssistedInject constructor(
         return try {
             val workerResult = benVisitRepo.processUnsyncedPharmacistData()
             if (workerResult) {
+                Log.d("WU", "PushPharmacistDataToAmrit: success ")
                 Timber.d("Worker completed")
                 Result.success()
             } else {
+                Log.d("WU", "PushPharmacistDataToAmrit: false")
                 Timber.d("Worker Failed as usual!")
-                Result.failure()
+                Result.retry()
             }
         } catch (e: SocketTimeoutException) {
+            Log.d("WU", "PushPharmacistDataToAmrit:error ")
             Timber.e("Caught Exception for push amrit worker $e")
             Result.retry()
         }

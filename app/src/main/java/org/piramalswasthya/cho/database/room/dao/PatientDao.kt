@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import java.util.Date
 
 @Dao
 interface PatientDao {
@@ -130,6 +131,29 @@ interface PatientDao {
     @Transaction
     @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
     suspend fun updatePatientSyncFailed(synced: SyncState = SyncState.UNSYNCED, patientID: String) : Int
+
+    @Transaction
+    @Query("UPDATE PATIENT SET syncState = :synced WHERE patientID =:patientID")
+    suspend fun updatePatientSyncOffline(synced: SyncState = SyncState.SHARED_OFFLINE, patientID: String) : Int
+
+    @Query("DELETE FROM PATIENT WHERE syncState = :sharedOfflineState")
+    fun deleteAllSharedOfflineRecords(sharedOfflineState: SyncState = SyncState.SHARED_OFFLINE)
+
+    @Query("""
+    SELECT * FROM Patient
+    WHERE syncState = :syncState
+    AND firstName = :firstName
+    AND (lastName = :lastName OR :lastName IS NULL)
+    AND (phoneNo = :phoneNumber OR :phoneNumber IS NULL)
+    LIMIT 1
+""")
+    fun findSharedOfflinePatient(
+        syncState: SyncState,
+        firstName: String?,
+        lastName: String?,
+        phoneNumber: String?
+    ): Patient?
+
     @Query("SELECT * FROM PATIENT WHERE beneficiaryId =:benId LIMIT 1")
     suspend fun getBen(benId: Long): Patient?
 
@@ -143,4 +167,7 @@ interface PatientDao {
 
     @Query("select count(*) from patient where beneficiaryID = :benId")
     suspend fun getCountByBenId(benId:Long): Int
+
+    @Query("SELECT COUNT(*) FROM Patient WHERE registrationDate = :registrationDate")
+    suspend fun countPatientsByRegistrationDate(registrationDate: Date): Int
 }

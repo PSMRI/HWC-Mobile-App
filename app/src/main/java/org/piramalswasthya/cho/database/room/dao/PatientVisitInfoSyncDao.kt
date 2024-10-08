@@ -72,6 +72,10 @@ interface PatientVisitInfoSyncDao {
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND doctorFlag = 9 AND labtechFlag != 1 ORDER BY benVisitNo ASC")
     suspend fun getPatientDoctorDataWithoutTestUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND  doctorFlag = 9  ORDER BY benVisitNo ASC")
+    suspend fun getPatientDoctorDataUnsyncedForOfflineTransfer(unSynced: SyncState? = SyncState.UNSYNCED) : List<PatientVisitInfoSyncWithPatient>
+
+
     @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE doctorDataSynced = :unSynced AND nurseDataSynced = :synced AND labtechFlag = 1 ORDER BY benVisitNo ASC")
     suspend fun getPatientDoctorDataAfterTestUnsynced(unSynced: SyncState? = SyncState.UNSYNCED, synced: SyncState? = SyncState.SYNCED, ) : List<PatientVisitInfoSyncWithPatient>
 
@@ -90,6 +94,10 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePatientNurseDataSyncSuccess(synced: SyncState? = SyncState.SYNCED, patientID: String, benVisitNo: Int)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :synced WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientNurseDataOfflineSyncSuccess(synced: SyncState? = SyncState.SHARED_OFFLINE, patientID: String, benVisitNo: Int)
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET nurseDataSynced = :syncFailed WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientNurseDataSyncFailed(syncFailed: SyncState? = SyncState.UNSYNCED, patientID: String, benVisitNo: Int)
 
@@ -104,6 +112,30 @@ interface PatientVisitInfoSyncDao {
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncFailed WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientDoctorDataSyncFailed(syncFailed: SyncState? = SyncState.UNSYNCED, patientID: String, benVisitNo: Int)
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncOffline  WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePatientDoctorDataSyncOffline(syncOffline: SyncState? = SyncState.SHARED_OFFLINE, patientID: String, benVisitNo: Int)
+
+    @Query("DELETE FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :sharedOfflineState")
+    fun deleteAllSharedOfflineNurseData(sharedOfflineState: SyncState = SyncState.SHARED_OFFLINE)
+
+    @Query("SELECT * FROM PATIENT_VISIT_INFO_SYNC WHERE nurseDataSynced = :sharedOfflineState")
+    fun getAllSharedOfflineNurseData(sharedOfflineState: SyncState = SyncState.SHARED_OFFLINE): List<PatientVisitInfoSync>
+
+    @Query("""
+        SELECT * FROM PATIENT_VISIT_INFO_SYNC
+        WHERE patientID = :patientID
+        AND nurseDataSynced = :syncState 
+    """)
+    fun getPatientVisitInfoByPatientIdAndSyncState(
+        patientID: String,
+        syncState: SyncState
+    ): PatientVisitInfoSync?
+
+    @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacist_flag = 9 WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePharmacistFlag(patientID: String, benVisitNo: Int)
 
     @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")

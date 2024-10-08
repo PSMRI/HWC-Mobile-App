@@ -102,6 +102,37 @@ class DateTimeUtil {
             return outputFormat.format(inputDate)
         }
 
+        fun convertDateFormat(inputDate: String): String {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            val outputFormat = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.US)
+            outputFormat.timeZone = TimeZone.getDefault()
+
+            val date = inputFormat.parse(inputDate)
+            return outputFormat.format(date)
+        }
+
+        fun calculateExpiryInDays(expiryDate: String): Int {
+            // Define the SimpleDateFormat to match the input date format
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
+            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            return try {
+                // Parse the expiryDate string into a Date object
+                val expiry = inputFormat.parse(expiryDate)
+                // Get the current date
+                val today = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
+                // Calculate the difference in milliseconds between the current date and the expiry date
+                val diffInMillis = expiry.time - today.time
+                // Convert the difference from milliseconds to days
+                (diffInMillis / (1000 * 60 * 60 * 24)).toInt()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0 // Return 0 if parsing fails
+            }
+        }
+
         fun getFormattedDate(date: Date): FormattedDate {
 
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())

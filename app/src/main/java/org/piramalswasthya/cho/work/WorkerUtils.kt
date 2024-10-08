@@ -133,9 +133,14 @@ object WorkerUtils {
     }
 
     fun pharmacistPushWorker(context : Context){
-
+        Log.d("WU", "pharmacistPushWorker: ")
         val pushPharmacistDataToAmrit = OneTimeWorkRequestBuilder<PushPharmacistDataToAmrit>()
             .setConstraints(networkOnlyConstraint)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR, // or BackoffPolicy.LINEAR
+                10, // Minimum delay between retries
+                TimeUnit.MINUTES // Time unit for the delay
+            )
             .build()
 
         val workManager = WorkManager.getInstance(context)

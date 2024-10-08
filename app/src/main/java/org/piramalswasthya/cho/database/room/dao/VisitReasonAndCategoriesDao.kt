@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitDB
@@ -33,8 +34,20 @@ interface VisitReasonsAndCategoriesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVisitDB(visitDB: VisitDB)
 
+    @Query("DELETE FROM Visit_DB WHERE patientID = :patientID")
+    fun deleteVisitDetailsByPatientIDSharedOffline(patientID: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChiefComplaintDb(chiefComplaintDB: ChiefComplaintDB)
+
+    @Query("DELETE FROM Chielf_Complaint_DB WHERE patientID = :patientID")
+    fun deleteChiefComplaintsByPatientIDSharedOffline(patientID: String)
+
+    @Update
+    suspend fun updateChiefComplaint(complaint: ChiefComplaintDB)
+
+    @Update
+    suspend fun updateVisitDB(visitDB: VisitDB)
 
     @Insert
     suspend fun insertAll(chiefComplaints: List<ChiefComplaintDB>)

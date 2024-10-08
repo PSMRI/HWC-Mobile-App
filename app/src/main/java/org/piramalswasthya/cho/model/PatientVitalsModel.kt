@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.utils.generateUuid
+import java.io.Serializable
 
 
 @Entity(
@@ -43,7 +44,7 @@ data class PatientVitalsModel (
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
-){
+):Serializable{
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
         nurseData.benAnthropometryDetail?.height_cm?.toString(),
