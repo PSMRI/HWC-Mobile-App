@@ -105,7 +105,7 @@ class PersonalDetailsFragment : Fragment() {
     private lateinit var  photoURI: Uri
     private var currentPhotoPath: String? = null
     //facenet
-    private val useGpu = false
+    private val useGpu = true
     private val useXNNPack = true
     private val modelInfo = Models.FACENET
     private lateinit var faceNetModel : FaceNetModel
@@ -180,14 +180,30 @@ class PersonalDetailsFragment : Fragment() {
             dialog.show()
 
             lifecycleScope.launch(Dispatchers.IO) {
-                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(Dispatchers.Main) {
-                    if (isAdded) {
-                        dialog.dismiss()
-                        checkAndRequestCameraPermission()
+                try {
+                    faceNetModel = try {
+                        FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+                    } catch (e: Exception) {
+                        // Fall back to CPU if GPU initialization fails
+                        FaceNetModel(requireActivity(), modelInfo, useGpu=false, useXNNPack=false)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        if (isAdded) {
+                            dialog.dismiss()
+                            checkAndRequestCameraPermission()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        if (isAdded) {
+                            dialog.dismiss()
+                            Toast.makeText(requireContext(), e.toString(), Toast.LENGTH_SHORT).show()
+                            }
                     }
                 }
             }
+
 
 
         }
@@ -490,7 +506,7 @@ class PersonalDetailsFragment : Fragment() {
         val patients = withContext(Dispatchers.IO) {
             patientDao.getAllPatients()
         }
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.Main) {
             for (patient in patients) {
                 // Ensure that the faceEmbedding is not null and not empty, and convert it to FloatArray
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()

@@ -93,7 +93,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var  photoURI: Uri
 
     //facenet
-    private val useGpu = false
+    private val useGpu = true
     private val useXNNPack = true
     private val modelInfo = Models.FACENET
     private lateinit var faceNetModel : FaceNetModel
@@ -122,13 +122,37 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             dialog = builder.create()
             dialog.show()
 
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+//                withContext(Dispatchers.Main) {
+//                    if (isAdded) {
+//                        dialog.dismiss()
+//                        checkAndRequestCameraPermission()
+//
+//                    }
+//                }
+//            }
             lifecycleScope.launch(Dispatchers.IO) {
-                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(Dispatchers.Main) {
-                    if (isAdded) {
-                        dialog.dismiss()
-                        checkAndRequestCameraPermission()
+                try {
+                    faceNetModel = try {
+                        FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+                    } catch (e: Exception) {
+                        // Fall back to CPU if GPU initialization fails
+                        FaceNetModel(requireActivity(), modelInfo, useGpu=false, useXNNPack=false)
+                    }
 
+                    withContext(Dispatchers.Main) {
+                        if (isAdded) {
+                            dialog.dismiss()
+                            checkAndRequestCameraPermission()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        if (isAdded) {
+                            dialog.dismiss()
+                            Toast.makeText(requireContext(), e.toString(), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
