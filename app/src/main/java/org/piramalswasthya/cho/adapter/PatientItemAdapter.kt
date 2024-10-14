@@ -136,20 +136,27 @@ class PatientItemAdapter(
             if(item.referTo != null){
                 binding.referToLl.visibility = View.VISIBLE
                 binding.referTo.text = item.referTo
-            }else{
+            }/*else{
                 binding.referTo.text = "NA"
-            }
+            }*/
 
             if(item.referDate != null){
                 binding.referDateLl.visibility = View.VISIBLE
                 binding.referDate.text = item.referDate
-            }else{
+            }/*else{
                 binding.referDate.text = "NA"
-            }
+            }*/
 
-            if(item.referralReason.isNullOrBlank()){
+          /*  if(item.referralReason.isNullOrBlank()){
                 binding.referFrom.text ="NA"
             }else{
+                val arr = item.referralReason?.split(pattern)
+                if(arr?.size > 1){
+                    binding.referFromLl.visibility = View.VISIBLE
+                    binding.referFrom.text = arr[1]
+                }
+           }*/
+            if(item.referralReason != null){
                 val arr = item.referralReason.split(pattern)
                 if(arr.size > 1){
                     binding.referFromLl.visibility = View.VISIBLE

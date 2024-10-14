@@ -186,6 +186,8 @@ dependencies {
     //Image compressor
     implementation 'id.zelory:compressor:3.0.1'
 
+    //Dimens Library
+    implementation 'com.intuit.sdp:sdp-android:1.1.0'
     // Fire Base face detection
     implementation 'com.google.mlkit:face-detection:16.1.5'
     implementation 'com.google.firebase:firebase-ml-vision:24.1.0'

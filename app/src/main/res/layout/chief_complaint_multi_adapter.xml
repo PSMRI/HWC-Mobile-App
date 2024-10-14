@@ -1,81 +1,263 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:paddingBottom="20dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingBottom="20dp">
 
-    <!-- Chief Complaint TextInputLayout (1/2 space) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/chiefComplaintOptions"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/oldLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/select_chief_complaint"
-        android:textColorHint="#888888"
-        android:paddingStart="4dp"
-        android:textSize="18sp"
-        android:paddingEnd="4dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/chiefComplaintDropDowns"
-            android:layout_width="match_parent"
-            android:layout_height="61dp"
-            android:inputType="text"
-            android:editable="false"
-            android:focusable="false"
-            android:textSize="18sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Duration TextInputLayout (1/4 space) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/duration"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/duration"
-        android:textColorHint="#888888"
-        android:paddingEnd="4dp"
-        android:paddingStart="4dp"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/durationUnit"
-        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputDuration"
-            android:layout_width="match_parent"
+        <!-- Chief Complaint TextInputLayout (1/2 space) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/chiefComplaintOptions"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxEms="2"
-            android:editable="false"
-            android:focusable="false"
-            android:maxLength="2"
-            android:textSize="18sp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:hint="@string/select_chief_complaint"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textColorHint="#888888"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Duration Unit TextInputLayout (1/4 space) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/durationUnit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/unit_of_duration"
-        android:textColorHint="#888888"
-        android:paddingEnd="4dp"
-        android:textSize="18sp"
-        app:layout_constraintStart_toEndOf="@+id/duration"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/chiefComplaintDropDowns"
+                android:layout_width="match_parent"
+                android:layout_height="61dp"
+                android:editable="false"
+                android:focusable="false"
+                android:inputType="text"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Duration TextInputLayout (1/4 space) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/duration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/duration"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textColorHint="#888888"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/durationUnit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:focusable="false"
+                android:inputType="number"
+                android:maxEms="2"
+                android:maxLength="2"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Duration Unit TextInputLayout (1/4 space) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/durationUnit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/unit_of_duration"
+            android:paddingEnd="4dp"
+            android:textColorHint="#888888"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/duration"
+            app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDurationUnit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:editable="false"
+                android:focusable="false"
+                android:inputType="text"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/newLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/oldLayout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputDurationUnit"
+
+        <TextView
+            android:id="@+id/tvChiefComplaintTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:editable="false"
-            android:focusable="false"
-            android:textSize="18sp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="4dp"
+            android:background="@color/bg_color_blue"
+            android:gravity="center"
+            android:padding="@dimen/_5sdp"
+            android:text="@string/select_chief_complaint"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="normal|bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/_10sdp"
+            android:background="@drawable/ic_textview_rectangle"
+            android:minHeight="@dimen/_50sdp"
+           android:padding="@dimen/_15sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvChiefComplaintTitle">
+
+            <!--<TextView
+                android:id="@+id/tvChiefComplaintTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="@string/select_chief_complaint"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />-->
+
+            <TextView
+                android:id="@+id/tvChiefComplaint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_bold"
+                android:gravity="center"
+                android:text="Abdomen Pain"
+                android:textSize="@dimen/_14sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvDurationTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_medium"
+                android:gravity="end"
+                android:text="Duration:"
+                android:textColor="@color/black_shade_color"
+                android:textSize="@dimen/_10sdp"
+                app:layout_constraintEnd_toStartOf="@+id/tvDurationValue"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvChiefComplaint" />
+
+            <TextView
+                android:id="@+id/tvDurationValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:fontFamily="@font/dm_sans_medium"
+                android:gravity="start"
+                android:text="3 Days"
+                android:textColor="@color/black_shade_color"
+                android:textSize="@dimen/_10sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tvDurationTitle"
+                app:layout_constraintTop_toBottomOf="@+id/tvChiefComplaint" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--<androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--    android:layout_width="match_parent"-->
+    <!--    android:paddingBottom="20dp"-->
+    <!--    android:layout_height="wrap_content">-->
+
+    <!--    &lt;!&ndash; Chief Complaint TextInputLayout (1/2 space) &ndash;&gt;-->
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        android:id="@+id/chiefComplaintOptions"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:hint="@string/select_chief_complaint"-->
+    <!--        android:textColorHint="#888888"-->
+    <!--        android:paddingStart="4dp"-->
+    <!--        android:textSize="18sp"-->
+    <!--        android:paddingEnd="4dp"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:id="@+id/chiefComplaintDropDowns"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="61dp"-->
+    <!--            android:inputType="text"-->
+    <!--            android:editable="false"-->
+    <!--            android:focusable="false"-->
+    <!--            android:textSize="18sp" />-->
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+    <!--    &lt;!&ndash; Duration TextInputLayout (1/4 space) &ndash;&gt;-->
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        android:id="@+id/duration"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:hint="@string/duration"-->
+    <!--        android:textColorHint="#888888"-->
+    <!--        android:paddingEnd="4dp"-->
+    <!--        android:paddingStart="4dp"-->
+    <!--        android:textSize="18sp"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/durationUnit"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">-->
+
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:id="@+id/inputDuration"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:inputType="number"-->
+    <!--            android:maxEms="2"-->
+    <!--            android:editable="false"-->
+    <!--            android:focusable="false"-->
+    <!--            android:maxLength="2"-->
+    <!--            android:textSize="18sp" />-->
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+    <!--    &lt;!&ndash; Duration Unit TextInputLayout (1/4 space) &ndash;&gt;-->
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        android:id="@+id/durationUnit"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:hint="@string/unit_of_duration"-->
+    <!--        android:textColorHint="#888888"-->
+    <!--        android:paddingEnd="4dp"-->
+    <!--        android:textSize="18sp"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/duration"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions">-->
+
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:id="@+id/inputDurationUnit"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:inputType="text"-->
+    <!--            android:editable="false"-->
+    <!--            android:focusable="false"-->
+    <!--            android:textSize="18sp" />-->
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+    <!--</androidx.constraintlayout.widget.ConstraintLayout>-->

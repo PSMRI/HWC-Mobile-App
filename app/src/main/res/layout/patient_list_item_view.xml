@@ -363,7 +363,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:paddingTop="@dimen/padding_normal"
                         app:layout_constraintStart_toEndOf="@+id/abhaLl"
                         app:layout_constraintTop_toTopOf="@+id/abhaLl"
@@ -402,7 +402,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingTop="@dimen/padding_normal"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/refer_date_ll"
                         app:layout_constraintEnd_toStartOf="@+id/refer_to_ll">
@@ -440,7 +440,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingTop="@dimen/padding_normal"
-                        android:visibility="visible"
+                        android:visibility="gone"
                         app:layout_constraintStart_toEndOf="@+id/refer_from_ll"
                         app:layout_constraintTop_toTopOf="@+id/refer_from_ll"
                         app:layout_constraintEnd_toEndOf="parent">

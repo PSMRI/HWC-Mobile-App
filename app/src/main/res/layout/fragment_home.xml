@@ -44,9 +44,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#FFFFFF"
+        android:layout_marginBottom="@dimen/_5sdp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/registration"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         tools:visibility="visible">
+       <!-- app:layout_constraintBottom_toTopOf="@+id/registration"-->
 
         <TextView
             android:id="@+id/tv_load_progress"
@@ -66,24 +68,6 @@
 
     </LinearLayout>
 
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_gravity="center"-->
-<!--        android:paddingStart="@dimen/padding_normal"-->
-<!--        android:paddingEnd="@dimen/padding_normal">-->
-
-<!--        <Button-->
-<!--            android:id="@+id/registration"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="@dimen/btn_height"-->
-<!--            android:layout_marginEnd="@dimen/padding_normal"-->
-<!--            android:layout_weight="1"-->
-<!--            android:backgroundTint="@color/default_button"-->
-<!--            android:enabled="false"-->
-<!--            android:text="@string/registration" />-->
-<!--    </LinearLayout>-->
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
@@ -95,17 +79,17 @@
         app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
         app:menu="@menu/bottom_menu_nav"/>
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/registration"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/btn_height"
-        android:layout_marginStart="@dimen/padding_normal"
-        android:layout_marginEnd="@dimen/padding_normal"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/custom_ui_margin"
+        android:layout_marginBottom="@dimen/_5sdp"
         android:backgroundTint="@color/default_button"
-        android:enabled="false"
-        android:text="@string/registration"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:src="@drawable/ic_add_person"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ll_full_load_progress" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
