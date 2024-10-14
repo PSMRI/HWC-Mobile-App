@@ -122,16 +122,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             dialog = builder.create()
             dialog.show()
 
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-//                withContext(Dispatchers.Main) {
-//                    if (isAdded) {
-//                        dialog.dismiss()
-//                        checkAndRequestCameraPermission()
-//
-//                    }
-//                }
-//            }
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     faceNetModel = try {

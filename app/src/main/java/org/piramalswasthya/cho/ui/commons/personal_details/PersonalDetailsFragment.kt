@@ -506,7 +506,7 @@ class PersonalDetailsFragment : Fragment() {
         val patients = withContext(Dispatchers.IO) {
             patientDao.getAllPatients()
         }
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Default) {
             for (patient in patients) {
                 // Ensure that the faceEmbedding is not null and not empty, and convert it to FloatArray
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()
