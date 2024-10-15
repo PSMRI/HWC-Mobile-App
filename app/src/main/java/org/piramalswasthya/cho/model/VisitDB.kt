@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.generateUuid
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -41,7 +42,7 @@ data class VisitDB(
     @ColumnInfo(name = "benVisitNo") var benVisitNo: Int? = 0,
     @ColumnInfo(name = "benVisitDate") var benVisitDate: String? = null,
     @ColumnInfo(name = "createdBy") var createdBy: String? = null,
-){
+):Serializable{
     constructor(nurseData: BenDetailsDownsync, patient: Patient, benFlow: BenFlow) : this(
         generateUuid(),
         nurseData.GOPDNurseVisitDetail?.visitCategory,

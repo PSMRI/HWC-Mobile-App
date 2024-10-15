@@ -18,6 +18,13 @@ interface VitalsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPatientVitals(patientVitals: PatientVitalsModel)
 
+
+    @Query("DELETE FROM PATIENT_VITALS WHERE patientID = :patientID")
+    fun deleteAllVitalsByPatientIDSharedOffline(patientID: String)
+
+    @Update
+    fun updateVitals(vitals: PatientVitalsModel)
+
 //    @Query("SELECT * FROM PATIENT_VITALS WHERE beneficiaryRegID = :beneficiaryRegID")
 //    suspend fun getPatientVitalsByBenRegId(beneficiaryRegID: Long): PatientVitalsModel?
 
