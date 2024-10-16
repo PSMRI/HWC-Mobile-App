@@ -230,6 +230,7 @@
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">ಉಪ ವರ್ಗ</string>
     <string name="select_chief_complaint">ಮುಖ್ಯ ದೂರುಗಳು  <font color="#FF0000">*</font></string>
+    <string name="select_chief_complaint_without_astrict">ಮುಖ್ಯ ದೂರುಗಳು </string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="upload_file">ಫೈಲ್ ಅನ್ನು ಅಪ್ಲೋಡ್ ಮಾಡಿ</string>
@@ -251,7 +252,7 @@
     <string name="bmi">ಬಿ.ಎಂ.ಐ</string>
     <string name="waist_circumference_cm">ಸೊಂಟದ ಸುತ್ತಳತೆ(ಸೆಂ)</string>
     <string name="temperature_f">ತಾಪಮಾನ(ಎಫ್)</string>
-    <string name="pulse_rate_min">ನಾಡಿ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
+    <string name="pulse_rate_min">ನಾಡಿ ದರ (BPM)</string>
     <string name="spo2">SPO2(%)</string>
     <string name="respiratory_per_min">ಉಸಿರಾಟದ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
     <string name="rbs_mg_dl">RBS ಪರೀಕ್ಷೆ</string>

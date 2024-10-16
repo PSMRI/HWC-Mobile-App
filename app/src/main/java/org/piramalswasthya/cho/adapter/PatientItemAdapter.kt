@@ -1,53 +1,30 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
-import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat.startActivity
-import androidx.databinding.DataBindingUtil
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textview.MaterialTextView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
-import org.piramalswasthya.cho.databinding.PatientListViewBinding
-import org.piramalswasthya.cho.model.NetworkBody
-import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
-import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
-import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
-import org.piramalswasthya.cho.ui.web_view_activity.WebViewActivity
 import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
-import timber.log.Timber
-import java.security.MessageDigest
 
 
 class PatientItemAdapter(
     private val apiService: ESanjeevaniApiService,
-    private val context: Context,
+    var context: Context,
     private val clickListener: BenClickListener,
     private val showAbha: Boolean = false,
-) : ListAdapter<PatientDisplayWithVisitInfo,PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
+) : ListAdapter<PatientDisplayWithVisitInfo, PatientItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
     private object BenDiffUtilCallBack : DiffUtil.ItemCallback<PatientDisplayWithVisitInfo>() {
         override fun areItemsTheSame(
@@ -76,8 +53,9 @@ class PatientItemAdapter(
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun bind(
-            item:PatientDisplayWithVisitInfo,
+            item: PatientDisplayWithVisitInfo,
             clickListener: BenClickListener?,
             showAbha: Boolean,
         ) {
@@ -88,34 +66,46 @@ class PatientItemAdapter(
 
             val firstName = item.patient.firstName ?: ""
             val lastName = item.patient.lastName ?: ""
-            val capitalizedFirstName = firstName.split(" ").joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
-            val capitalizedLastName = lastName.split(" ").joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+            val capitalizedFirstName = firstName.split(" ")
+                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
+            val capitalizedLastName = lastName.split(" ")
+                .joinToString(" ") { it -> it.replaceFirstChar { it.uppercaseChar() } }
 
             val fullName = "$capitalizedFirstName $capitalizedLastName"
             binding.patientName.text = fullName
-            binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?:""
-            if(item.patient.dob != null){
+            binding.patientAbhaNumber.text = item.patient.healthIdDetails?.healthIdNumber ?: ""
+            if (item.patient.dob != null) {
                 binding.patientAge.text = DateTimeUtil.calculateAgeString(item.patient.dob!!)
             }
-//            if(!item.patient.age?.toString().isNullOrEmpty() && item.patient.age!! <= 1){
-//                val unit = item.ageUnit?.dropLast(1)
-//                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + unit
-//            }else{
-//                binding.patientAge.text = (item.patient.age?.toString() ?: "") + " " + item.ageUnit
-//            }
-           val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
-            if(visitDateText.isNullOrBlank()){
-                binding.visitDate.text ="NA"
-            }else{
+
+            val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
+            if (visitDateText.isNullOrBlank()) {
+                binding.visitDate.text = "NA"
+            } else {
                 binding.visitDate.text = visitDateText
             }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: "NA"
-            if (item.villageName.isNullOrBlank()){
-                binding.village.text =  "NA"
-            } else  binding.village.text =item.villageName
+            if (item.villageName.isNullOrBlank()) {
+                binding.village.text = "NA"
+            } else binding.village.text = item.villageName
 
             binding.patientGender.text = item.genderName
-            if(item.patient.syncState == SyncState.SYNCED){
+
+            if (item.genderName == "Male") {
+                binding.ivPatientIcon.setImageResource(R.drawable.ic_male)
+            } else if (item.genderName == "Female") {
+                binding.ivPatientIcon.setImageResource(R.drawable.ic_female)
+
+            }
+
+            if (item.patient.dob != null) {
+                val isChild = DateTimeUtil.calChildAge(item.patient.dob!!)
+                if (isChild) {
+                    binding.ivPatientIcon.setImageResource(R.drawable.ic_child)
+                }
+            }
+
+            if (item.patient.syncState == SyncState.SYNCED) {
                 binding.ivSyncState.visibility = View.VISIBLE
                 binding.patientBenId.text = item.patient.beneficiaryID.toString()
                 binding.llBenId.visibility = View.VISIBLE
@@ -125,40 +115,27 @@ class PatientItemAdapter(
                 binding.llBenId.visibility = View.GONE
                 binding.ivSyncState.visibility = View.GONE
             }
-         /*   Commented as prescription button should not display to user
+            /*   Commented as prescription button should not display to user
 
-         if(item.doctorFlag == 9){
-                binding.prescriptionDownloadBtn.visibility = View.VISIBLE
-            }else{
-                binding.prescriptionDownloadBtn.visibility = View.GONE
-            }*/
+            if(item.doctorFlag == 9){
+                   binding.prescriptionDownloadBtn.visibility = View.VISIBLE
+               }else{
+                   binding.prescriptionDownloadBtn.visibility = View.GONE
+               }*/
 
-            if(item.referTo != null){
+            if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
                 binding.referTo.text = item.referTo
-            }/*else{
-                binding.referTo.text = "NA"
-            }*/
+            }
 
-            if(item.referDate != null){
+            if (item.referDate != null) {
                 binding.referDateLl.visibility = View.VISIBLE
                 binding.referDate.text = item.referDate
-            }/*else{
-                binding.referDate.text = "NA"
-            }*/
+            }
 
-          /*  if(item.referralReason.isNullOrBlank()){
-                binding.referFrom.text ="NA"
-            }else{
-                val arr = item.referralReason?.split(pattern)
-                if(arr?.size > 1){
-                    binding.referFromLl.visibility = View.VISIBLE
-                    binding.referFrom.text = arr[1]
-                }
-           }*/
-            if(item.referralReason != null){
+            if (item.referralReason != null) {
                 val arr = item.referralReason.split(pattern)
-                if(arr.size > 1){
+                if (arr.size > 1) {
                     binding.referFromLl.visibility = View.VISIBLE
                     binding.referFrom.text = arr[1]
                 }
@@ -183,12 +160,13 @@ class PatientItemAdapter(
         private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedDownloadPrescription:(benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val syncIconButton:(benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        ) {
+        private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+    ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
         )
+
         fun onClickABHA(item: PatientDisplayWithVisitInfo) {
             Log.d("ABHA Item Click", "ABHA item clicked")
             clickedABHA(item)
@@ -197,9 +175,11 @@ class PatientItemAdapter(
         fun onClickEsanjeevani(item: PatientDisplayWithVisitInfo) {
             clickedEsanjeevani(item)
         }
+
         fun onClickPrescription(item: PatientDisplayWithVisitInfo) {
             clickedDownloadPrescription(item)
         }
+
         fun onClickSync(item: PatientDisplayWithVisitInfo) {
             syncIconButton(item)
         }

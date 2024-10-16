@@ -125,7 +125,7 @@ class PersonalDetailsFragment : Fragment() {
             bool ->
             when(bool!!) {
                 true ->{
-                            binding.search.requestFocus()
+                            binding.searchView.requestFocus()
                             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
                         }
@@ -133,7 +133,10 @@ class PersonalDetailsFragment : Fragment() {
             }
 
         }
-        binding.searchTil.setEndIconOnClickListener {
+        /*binding.searchTil.setEndIconOnClickListener {
+            speechToTextLauncherForSearchByName.launch(Unit)
+        }*/
+        binding.ibSearch.setOnClickListener {
             speechToTextLauncherForSearchByName.launch(Unit)
         }
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
@@ -275,7 +278,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
             }
 
-            binding.search.setOnFocusChangeListener { searchView, b ->
+            binding.searchView.setOnFocusChangeListener { searchView, b ->
                 if (b)
                     (searchView as EditText).addTextChangedListener(searchTextWatcher)
                 else
@@ -747,8 +750,8 @@ class PersonalDetailsFragment : Fragment() {
     }
     private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
-            binding.search.setText(result)
-            binding.search.addTextChangedListener(searchTextWatcher)
+            binding.searchView.setText(result)
+            binding.searchView.addTextChangedListener(searchTextWatcher)
         }
     }
     private fun encryptSHA512(input: String): String {

@@ -87,7 +87,8 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="@dimen/custom_ui_margin"
         android:layout_marginBottom="@dimen/_5sdp"
-        android:backgroundTint="@color/default_button"
+        android:backgroundTint="@color/bg_color_blue"
+        android:contentDescription="floatingActionButton"
         android:src="@drawable/ic_add_person"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/ll_full_load_progress" />

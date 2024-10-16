@@ -224,6 +224,7 @@
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">Sub Category</string>
     <string name="select_chief_complaint">Chief Complaints  <font color="#FF0000">*</font></string>
+    <string name="select_chief_complaint_without_astrict">Chief Complaints</string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">Select File</string>
     <string name="upload_file">Upload File</string>
@@ -245,7 +246,7 @@
     <string name="bmi">BMI</string>
     <string name="waist_circumference_cm">Waist Circumference(cm)</string>
     <string name="temperature_f">Temperature (F)</string>
-    <string name="pulse_rate_min">Pulse Rate(min)</string>
+    <string name="pulse_rate_min">Pulse Rate (BPM)</string>
     <string name="spo2">SPO2(%)</string>
     <string name="respiratory_per_min">Respiratory Rate(per min)</string>
     <string name="rbs_mg_dl">RBS Result(mg/dl)</string>
