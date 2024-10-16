@@ -77,36 +77,6 @@
 
         </LinearLayout>
 
-       <!-- <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_til"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:endIconMode="custom"
-            app:boxCornerRadiusTopStart="20dp"
-            app:boxCornerRadiusTopEnd="20dp"
-            app:boxCornerRadiusBottomStart="20dp"
-            app:boxCornerRadiusBottomEnd="20dp"
-            app:boxStrokeWidth="2dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="10dp"
-            app:endIconDrawable="@drawable/ic_mic"
-            android:textColorHint="#888888"
-            app:layout_constraintTop_toTopOf="parent"
-            android:hint="@string/query_hint_patient_search">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search"
-                android:layout_width="match_parent"
-                android:inputType="text"
-
-                android:drawableStart="@drawable/ic_search"
-                android:imeOptions="actionDone"
-                android:singleLine="true"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
--->
-
         <include
             android:id="@+id/patient_list_container"
             layout="@layout/patient_list_view" />

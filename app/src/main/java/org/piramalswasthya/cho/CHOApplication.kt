@@ -3,6 +3,7 @@ package org.piramalswasthya.cho
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
@@ -41,6 +42,8 @@ class CHOApplication : Application(), Configuration.Provider {
         super.onCreate()
 //        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
 
     }
 
