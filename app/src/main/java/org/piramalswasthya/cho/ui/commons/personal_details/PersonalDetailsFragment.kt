@@ -164,9 +164,7 @@ class PersonalDetailsFragment : Fragment() {
             }
 
         }
-        /*binding.searchTil.setEndIconOnClickListener {
-            speechToTextLauncherForSearchByName.launch(Unit)
-        }*/
+
         binding.ibSearch.setOnClickListener {
             speechToTextLauncherForSearchByName.launch(Unit)
         }
