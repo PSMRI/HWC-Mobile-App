@@ -1,11 +1,14 @@
 package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -20,10 +23,20 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
+import org.piramalswasthya.cho.facenet.FaceNetModel
+import org.piramalswasthya.cho.facenet.Models
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.VillageDropdownAdapter
 import org.piramalswasthya.cho.adapter.dropdown_adapters.DropdownAdapter
@@ -31,6 +44,7 @@ import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.AlertAgePickerBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
+import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
@@ -78,13 +92,46 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var currentPhotoPath: String? = null
     private lateinit var  photoURI: Uri
 
+    //facenet
+    private val useGpu = false
+    private val useXNNPack = true
+    private val modelInfo = Models.FACENET
+    private lateinit var faceNetModel : FaceNetModel
+    private var embeddings: FloatArray? = null
+    private lateinit var dialog: AlertDialog
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding.ivImgCapture.setOnClickListener {
-            checkAndRequestCameraPermission()
+            if (::dialog.isInitialized && dialog.isShowing) {
+                    dialog.dismiss()
+            }
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.dialog_progress, null)
+            val imageView: ImageView? = dialogView.findViewById(R.id.loading_gif)
+            imageView?.let {
+                Glide.with(this).load(R.drawable.face).into(it)
+            }
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setView(dialogView)
+            builder.setCancelable(false)
+            dialog = builder.create()
+            dialog.show()
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        dialog.dismiss()
+                        checkAndRequestCameraPermission()
+
+                    }
+                }
+            }
         }
         scanCode()
 
@@ -117,6 +164,50 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 else {
                     Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
                         .into(binding.ivImgCapture)
+
+                    val highspeed = FaceDetectorOptions.Builder()
+                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                        .build()
+                    val detector = FaceDetection.getClient(highspeed)
+                    val image = InputImage.fromFilePath(requireContext(), photoURI)
+                    detector.process(image)
+                        .addOnSuccessListener { faces ->
+                            if(faces.isEmpty()){
+                                Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                return@addOnSuccessListener
+                            }
+                            if(faces.size>1){
+                                Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                return@addOnSuccessListener
+                            }
+                            else{
+                                val face = faces[0]
+                                val boundingBox = face.boundingBox
+                                val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                    requireContext().contentResolver,
+                                    photoURI
+                                )
+                                val faceBitmap = Bitmap.createBitmap(
+                                    imageBitmap,
+                                    boundingBox.left,
+                                    boundingBox.top,
+                                    boundingBox.width(),
+                                    boundingBox.height()
+                                )
+                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+
+                            }
+
+
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FaceDetection", "Face detection failed", e)
+                            Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
+                        }
+
                 }
             }
         }
@@ -183,6 +274,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setChangeListeners()
         setAdapters()
 
+        sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
+            val photoUri = Uri.parse(uriString)
+            Glide.with(this).load(photoUri).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)}
+        sharedViewModel.faceVector.observe(viewLifecycleOwner) { faceVector ->
+            embeddings = faceVector
+        }
+
 
         binding.firstNameText.setEndIconOnClickListener {
             speechToTextLauncherForFirstName.launch(Unit)
@@ -203,6 +301,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.age.setOnClickListener {
             ageAlertDialog.show()
         }
+        //initialise the facenet model
+
+
 
     }
 
@@ -788,9 +889,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 //        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
 //        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
 //            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
-            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
-                viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
-            binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
+        viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
+            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
+        binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
 //            setMarriedFieldsVisibility()
 //        }
         doAgeToDob = true;
@@ -857,6 +958,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.age = viewModel.enteredAge;
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
+        patient.faceEmbedding = embeddings?.toList()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null
         } else {
@@ -874,6 +976,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.blockID = locData?.blockId
         patient.districtBranchID = viewModel.selectedVillage?.districtBranchID!!.toInt()
     }
+
+    private fun checkImageCaptured(): Boolean {
+        if (currentPhotoPath == null) {
+            return false
+        }
+        return true
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_add_patient_location;
     }

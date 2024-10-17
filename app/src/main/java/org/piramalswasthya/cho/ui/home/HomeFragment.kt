@@ -199,7 +199,7 @@ class HomeFragment : Fragment() {
                 binding.tvLoadProgress.text = getString(R.string.downloading) + " " + it.toString() + "%"
             }
         }
-
+        binding.registration.bringToFront()
         binding.registration.setOnClickListener {
             searchPrompt.show()
 

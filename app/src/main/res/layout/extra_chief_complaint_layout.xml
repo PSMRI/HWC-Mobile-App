@@ -61,13 +61,15 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/subtractButtonCC"
+        style="@style/Widget.Material3.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
-        android:src="@drawable/baseline_remove_icon"
         android:layout_margin="@dimen/custom_ui_margin"
+        android:layout_marginTop="28dp"
+        android:src="@drawable/baseline_remove_icon"
         app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintHorizontal_bias="0.333"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
 

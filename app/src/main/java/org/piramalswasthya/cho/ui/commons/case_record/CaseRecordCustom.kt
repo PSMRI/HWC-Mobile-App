@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -157,6 +158,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+
+        binding.tvAddTemplateTitle.setOnClickListener {
+            binding.tempName.visibility = View.VISIBLE
+            binding.buttonLayout.visibility = View.VISIBLE
+        }
 
         val tableLayout = binding.tableLayout
 
@@ -357,7 +363,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 chiefComplaintDB.add(chiefC) // Add the item to the list
             }
         }
-        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB,"")
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
@@ -611,36 +617,36 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
-        hideNullFieldsW(vitals)
-        binding.inputHeight.setText(vitals?.height.toString())
-        binding.inputWeight.setText(vitals?.weight.toString())
-        binding.inputBmi.setText(vitals.bmi.toString())
+     //   hideNullFieldsW(vitals)
+        binding.inputHeight.setText(vitals?.height?:"")
+        binding.inputWeight.setText(vitals?.weight?:"")
+        binding.inputBmi.setText(vitals.bmi?:"")
 //        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
-        binding.inputTemperature.setText(vitals.temperature.toString())
-        binding.inputPulseRate.setText(vitals.pulseRate.toString())
-        binding.inputSpo2.setText(vitals.spo2.toString())
-        binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
-        binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
-        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
-        binding.inputRBS.setText(vitals.rbs.toString())
+        binding.inputTemperature.setText(vitals.temperature?:"")
+        binding.inputPulseRate.setText(vitals.pulseRate?:"")
+        binding.inputSpo2.setText(vitals.spo2?:"")
+        binding.inputBpDiastolic.setText(vitals.bpDiastolic?:"")
+        binding.inputBpSystolic.setText(vitals.bpSystolic?:"")
+        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate?:"")
+        binding.inputRBS.setText(vitals.rbs?:"")
     }
 
     private fun populateVitalsFields() {
-        hideNullFields()
+     //   hideNullFields()
         // Check if the masterDb and vitalsMasterDb are not null
         if (masterDb != null && masterDb?.vitalsMasterDb != null) {
             val vitals = masterDb?.vitalsMasterDb
-            binding.inputHeight.setText(vitals?.height.toString())
-            binding.inputWeight.setText(vitals?.weight.toString())
-            binding.inputBmi.setText(vitals?.bmi.toString())
-//            binding.inputWaistCircum.setText(vitals?.waistCircumference.toString())
-            binding.inputTemperature.setText(vitals?.temperature.toString())
-            binding.inputPulseRate.setText(vitals?.pulseRate.toString())
-            binding.inputSpo2.setText(vitals?.spo2.toString())
-            binding.inputBpDiastolic.setText(vitals?.bpDiastolic.toString())
-            binding.inputBpSystolic.setText(vitals?.bpSystolic.toString())
-            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate.toString())
-            binding.inputRBS.setText(vitals?.rbs.toString())
+            binding.inputHeight.setText(vitals?.height?:"")
+            binding.inputWeight.setText(vitals?.weight?:"")
+            binding.inputBmi.setText(vitals?.bmi?:"")
+//            binding.inputWaistCircum.setText(vitals?.waistCircumference?:")
+            binding.inputTemperature.setText(vitals?.temperature?:"")
+            binding.inputPulseRate.setText(vitals?.pulseRate?:"")
+            binding.inputSpo2.setText(vitals?.spo2?:"")
+            binding.inputBpDiastolic.setText(vitals?.bpDiastolic?:"")
+            binding.inputBpSystolic.setText(vitals?.bpSystolic?:"")
+            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate?:"")
+            binding.inputRBS.setText(vitals?.rbs?:"")
         }
     }
 
