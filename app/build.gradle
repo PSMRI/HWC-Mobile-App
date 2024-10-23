@@ -34,6 +34,27 @@ android {
             debuggable true
         }
     }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        staging {
+            applicationIdSuffix ".staging"
+            applicationId "org.piramalswasthya.cho"
+            resValue "string", "app_native_name", "HWC-Stag"
+        }
+        uat {
+            applicationIdSuffix ".uat"
+            applicationId "org.piramalswasthya.cho"
+            resValue "string", "app_native_name", "HWC-Uat"
+        }
+        production {
+            applicationId "org.piramalswasthya.cho"
+        }
+    }
+
+
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
