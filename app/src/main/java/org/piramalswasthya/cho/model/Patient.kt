@@ -155,6 +155,9 @@ data class Patient (
     @ColumnInfo(name = "lab_technician_flag")
     val labTechnicianFlag: Int? = 0,
 
+    @ColumnInfo(name = "faceEmbedding")
+    var faceEmbedding: List<Float>? = null,
+
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
 //
@@ -332,7 +335,8 @@ data class PatientNetwork(
     val providerServiceMapId: String?,
     val spouseName: String?,
     val titleId: String?,
-    val vanID: Int?
+    val vanID: Int?,
+    val faceEmbedding: List<Float>?
 ){
 
 //    accountNo:null
@@ -403,7 +407,8 @@ data class PatientNetwork(
         user?.serviceMapId.toString(),
         patientDisplay.patient.spouseName,
         null,
-        user?.vanId
+        user?.vanId,
+        patientDisplay.patient.faceEmbedding
     )
 
 }
@@ -654,7 +659,10 @@ data class BeneficiariesDTO(
     val monthlyFamilyIncome: String?,
     val beneficiaryAge: Int?,
     val sourceOfInformation: String?,
-    val isHIVPos: String?
+    val isHIVPos: String?,
+    val faceEmbedding: List<Float>?
+
+
 )
 
 @JsonClass(generateAdapter = true)
@@ -742,7 +750,9 @@ data class BenDetailDTO(
     val headOfFamily_RelationID: Int?,
     val familyId: String?,
     val other: String?,
-    val headOfFamily_Relation: String?
+    val headOfFamily_Relation: String?,
+    val faceEmbedding: List<Float>?
+
 )
 
 @JsonClass(generateAdapter = true)

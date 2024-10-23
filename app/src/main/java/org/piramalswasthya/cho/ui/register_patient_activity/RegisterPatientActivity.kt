@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.register_patient_activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.EntryPoint
@@ -14,6 +15,7 @@ import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.ActivityRegisterPatientBinding
+import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -49,11 +51,18 @@ class RegisterPatientActivity : AppCompatActivity() {
 
     private lateinit var navHostFragment: NavHostFragment
 
+    private val sharedViewModel: SharedViewModel by viewModels()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityRegisterPatientBinding.inflate(layoutInflater)
         setContentView(binding.root)
         (application as CHOApplication).addActivity(this)
+        val photoUriString = intent.getStringExtra("photoUri")
+        val faceVector = intent.getFloatArrayExtra("facevector")
+        sharedViewModel.setPhotoUri(photoUriString ?: "")
+        sharedViewModel.setFaceVector(faceVector ?: floatArrayOf())
 
         navHostFragment = supportFragmentManager.findFragmentById(binding.patientRegistration.id) as NavHostFragment
 

@@ -1,24 +1,31 @@
 package org.piramalswasthya.cho.adapter
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 
-class ChiefComplaintMultiAdapter  (private val chiefComplaints: List<ChiefComplaintDB>) :
+class ChiefComplaintMultiAdapter(
+    private val chiefComplaints: List<ChiefComplaintDB>,
+    val layoutType: String? = null
+) :
     RecyclerView.Adapter<ChiefComplaintMultiAdapter.ViewHolder>() {
 
     // ViewHolder class for caching views
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chiefComplaintName: TextInputEditText = itemView.findViewById(R.id.chiefComplaintDropDowns)
+        val chiefComplaintName: TextInputEditText =
+            itemView.findViewById(R.id.chiefComplaintDropDowns)
         val durationInput: TextInputEditText = itemView.findViewById(R.id.inputDuration)
         val durationUnitInput: TextInputEditText = itemView.findViewById(R.id.inputDurationUnit)
+
+        val tvChiefComplaint: TextInputEditText = itemView.findViewById(R.id.inputDurationUnit)
+        val tvDurationValue: TextInputEditText = itemView.findViewById(R.id.inputDurationUnit)
+        val oldLayout: ConstraintLayout = itemView.findViewById(R.id.oldLayout)
+        val newLayout: ConstraintLayout = itemView.findViewById(R.id.newLayout)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,9 +36,26 @@ class ChiefComplaintMultiAdapter  (private val chiefComplaints: List<ChiefCompla
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chiefComplaint = chiefComplaints[position]
+
+        if (layoutType != null) {
+            holder.oldLayout.visibility = View.GONE
+            holder.newLayout.visibility = View.VISIBLE
+        } else {
+            holder.oldLayout.visibility = View.VISIBLE
+            holder.newLayout.visibility = View.GONE
+
+        }
         holder.chiefComplaintName.setText(chiefComplaint.chiefComplaint)
         holder.durationInput.setText(chiefComplaint.duration)
         holder.durationUnitInput.setText(chiefComplaint.durationUnit)
+
+        holder.chiefComplaintName.setText(chiefComplaint.chiefComplaint)
+        holder.durationInput.setText(chiefComplaint.duration)
+        holder.durationUnitInput.setText(chiefComplaint.durationUnit)
+
+        holder.tvChiefComplaint.setText(chiefComplaint.chiefComplaint)
+        // val duration = "${chiefComplaint.duration}${chiefComplaint.durationUnit}"
+        holder.tvDurationValue.setText("${chiefComplaint.duration} ${chiefComplaint.durationUnit}")
 
         // Add a TextWatcher to update the duration property when the EditText changes
 //        holder.durationInput.addTextChangedListener(object : TextWatcher {

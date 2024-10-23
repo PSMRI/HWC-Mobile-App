@@ -26,6 +26,8 @@ interface PatientDao {
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatientDisplay(patientID : String) : PatientDisplay
 
+    @Query("SELECT * FROM Patient")
+    fun getAllPatients(): List<Patient>
 //    @Transaction
 //    @Query("UPDATE PATIENT SET nurseFlag = 9, doctorFlag = 1 WHERE patientID = :patientID")
 //    suspend fun updateNurseSubmitted(patientID : String)
