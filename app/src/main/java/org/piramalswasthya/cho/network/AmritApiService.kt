@@ -153,6 +153,10 @@ interface AmritApiService {
     @POST("/hwc-facility-service/labTechnician/get/prescribedProceduresList?apiKey=undefined")
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
 
+    // TODO: update with final api once developed
+    @POST("/hwc-facility-service/labTechnician/get/masterData?apiKey=undefined")
+    suspend fun getMasterLabProceduresDate() : Response<ResponseBody>
+
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
 

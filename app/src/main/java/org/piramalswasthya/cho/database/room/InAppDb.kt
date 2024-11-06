@@ -45,6 +45,7 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -203,7 +204,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
     abstract val cbacDao: CbacDao
-
+    abstract val procedureMasterDao: ProcedureMasterDao
 
     companion object {
         @Volatile
