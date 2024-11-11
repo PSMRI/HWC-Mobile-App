@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clRectangle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="@dimen/_40sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_15sdp"
+        android:background="@drawable/ic_textview_rectangle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/inputBpSystolic"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="18sp"
+            android:gravity="end"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@color/black"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:layout_constraintEnd_toStartOf="@+id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/divider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="/"
+            android:textSize="@dimen/_35sdp"
+            app:layout_constraintBottom_toBottomOf="@+id/inputBpSystolic"
+            app:layout_constraintEnd_toStartOf="@+id/inputBpDiastolic"
+            app:layout_constraintStart_toEndOf="@+id/inputBpSystolic"
+            app:layout_constraintTop_toTopOf="@+id/inputBpSystolic" />
+
+
+        <TextView
+            android:id="@+id/inputBpDiastolic"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="18sp"
+            android:gravity="start"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@color/black"
+            android:layout_marginStart="@dimen/_10sdp"
+            app:layout_constraintStart_toEndOf="@+id/divider"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/inputBpUnit"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+        <TextView
+            android:id="@+id/inputBpUnit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="mmHg"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:gravity="start"
+            android:layout_marginStart="@dimen/_10sdp"
+            app:layout_constraintStart_toEndOf="@+id/inputBpDiastolic"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/ivBpSystolicBg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_bg_circular"
+        app:layout_constraintBottom_toBottomOf="@+id/clRectangle"
+        app:layout_constraintEnd_toStartOf="@+id/clRectangle"
+        app:layout_constraintStart_toStartOf="@+id/clRectangle"
+        app:layout_constraintTop_toTopOf="@+id/clRectangle"
+        app:tint="@color/default_button" />
+
+    <ImageView
+        android:id="@+id/ivIconBpSystolic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_blood_pressure"
+        app:layout_constraintBottom_toBottomOf="@+id/ivBpSystolicBg"
+        app:layout_constraintEnd_toEndOf="@+id/ivBpSystolicBg"
+        app:layout_constraintStart_toStartOf="@+id/ivBpSystolicBg"
+        app:layout_constraintTop_toTopOf="@+id/ivBpSystolicBg" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

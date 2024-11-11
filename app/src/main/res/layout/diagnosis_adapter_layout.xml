@@ -7,6 +7,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/diagnosis"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
@@ -16,7 +17,6 @@
         android:hint="@string/provisional_diagnosis"
         android:textSize="18sp"
         android:paddingBottom="10dp"
-        android:textColorHint="#888888"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -35,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.Button"
+        android:backgroundTint="@color/status_warning"
         android:layout_gravity="center"
         android:src="@drawable/baseline_refresh_icon"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
+        android:backgroundTint="@color/status_error"
         android:src="@drawable/baseline_cross_line"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintEnd_toEndOf="parent"

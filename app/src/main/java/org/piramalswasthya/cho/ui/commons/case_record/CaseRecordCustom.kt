@@ -108,7 +108,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private lateinit var chAdapter: ChiefComplaintMultiAdapter
     private lateinit var pAdapter: PrescriptionAdapter
 
-    //    private lateinit var rAdapter : ReportAdapter
     private var testNameMap = emptyMap<Int, String>()
     private var investigationBD: InvestigationCaseRecord? = null
     private var referNameMap = emptyMap<Int, String>()
@@ -133,6 +132,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
     private var viewRecordFragment: Boolean? = null
+    var isAddTemplateClicked = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -158,6 +158,24 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         familyM = binding.testName
         selectF = binding.selectF
         referDropdown = binding.referDropdownText
+
+
+        binding.tvAddTemplateTitle.setOnClickListener {
+
+            if(!isAddTemplateClicked){
+                val drawable = resources.getDrawable(org.piramalswasthya.cho.R.drawable.ic_down_angle)
+                binding.tvAddTemplateTitle.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+
+                isAddTemplateClicked = true
+                binding.buttonLayout.visibility = View.VISIBLE
+            }else{
+                val drawable = resources.getDrawable(org.piramalswasthya.cho.R.drawable.ic_up_angle)
+                binding.tvAddTemplateTitle.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+
+                isAddTemplateClicked = false
+                binding.buttonLayout.visibility = View.GONE
+            }
+        }
 
         val tableLayout = binding.tableLayout
 
@@ -259,18 +277,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-
-
-
                 findNavController().navigate(
-
                     R.id.action_caseRecordCustom_self, Bundle().apply {
                         putBoolean("viewRecord", true)
                         putSerializable("benVisitInfo", it)
                     }
                 )
-
-
 
             })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
@@ -298,7 +310,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         lifecycleScope.launch {
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID)
                 .collect {
-                    (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+                    if(it.isNotEmpty()){
+                        (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+                    }else{
+                        binding.patientList.visibility = View.GONE
+                    }
                 }
         }
         lifecycleScope.launch {
@@ -358,7 +374,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 chiefComplaintDB.add(chiefC) // Add the item to the list
             }
         }
-        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB)
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB,"")
         binding.chiefComplaintExtra.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra.layoutManager = layoutManagerC
@@ -500,6 +516,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.plusButtonP.isEnabled = !isAnyItemEmptyP()
         binding.plusButtonP.setOnClickListener {
             val newItem = PrescriptionValues()
+            newItem.title = "Medicine - ${itemListP.size + 1}"
             itemListP.add(newItem)
 //            pAdapter.notifyItemInserted(itemListP.size -   1)
             view.clearFocus()
@@ -587,7 +604,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         frequency = templateDB.frequency ?: "",
                         duration = templateDB.duration ?: "",
                         instruction = templateDB.instruction ?: "",
-                        unit = templateDB.unit ?: ""
+                        unit = templateDB.unit ?: "",
+                        title = "Medicine - ${itemListP.size + 1}"
                     )
                 }
             }
@@ -612,36 +630,36 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun populateVitalsFieldsW(vitals: VitalsMasterDb) {
-        hideNullFieldsW(vitals)
-        binding.inputHeight.setText(vitals?.height.toString())
-        binding.inputWeight.setText(vitals?.weight.toString())
-        binding.inputBmi.setText(vitals.bmi.toString())
+     //   hideNullFieldsW(vitals)
+        binding.inputHeight.setText(vitals?.height?:"")
+        binding.inputWeight.setText(vitals?.weight?:"")
+        binding.inputBmi.setText(vitals.bmi?:"")
 //        binding.inputWaistCircum.setText(vitals.waistCircumference.toString())
-        binding.inputTemperature.setText(vitals.temperature.toString())
-        binding.inputPulseRate.setText(vitals.pulseRate.toString())
-        binding.inputSpo2.setText(vitals.spo2.toString())
-        binding.inputBpDiastolic.setText(vitals.bpDiastolic.toString())
-        binding.inputBpSystolic.setText(vitals.bpSystolic.toString())
-        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate.toString())
-        binding.inputRBS.setText(vitals.rbs.toString())
+        binding.inputTemperature.setText(vitals.temperature?:"")
+        binding.inputPulseRate.setText(vitals.pulseRate?:"")
+        binding.inputSpo2.setText(vitals.spo2?:"")
+        binding.bpCustomLayout.inputBpDiastolic.setText(vitals.bpDiastolic?:"0")
+        binding.bpCustomLayout.inputBpSystolic.setText(vitals.bpSystolic?:"0")
+        binding.inputRespiratoryPerMin.setText(vitals.respiratoryRate?:"")
+        binding.inputRBS.setText(vitals.rbs?:"")
     }
 
     private fun populateVitalsFields() {
-        hideNullFields()
+     //   hideNullFields()
         // Check if the masterDb and vitalsMasterDb are not null
         if (masterDb != null && masterDb?.vitalsMasterDb != null) {
             val vitals = masterDb?.vitalsMasterDb
-            binding.inputHeight.setText(vitals?.height.toString())
-            binding.inputWeight.setText(vitals?.weight.toString())
-            binding.inputBmi.setText(vitals?.bmi.toString())
-//            binding.inputWaistCircum.setText(vitals?.waistCircumference.toString())
-            binding.inputTemperature.setText(vitals?.temperature.toString())
-            binding.inputPulseRate.setText(vitals?.pulseRate.toString())
-            binding.inputSpo2.setText(vitals?.spo2.toString())
-            binding.inputBpDiastolic.setText(vitals?.bpDiastolic.toString())
-            binding.inputBpSystolic.setText(vitals?.bpSystolic.toString())
-            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate.toString())
-            binding.inputRBS.setText(vitals?.rbs.toString())
+            binding.inputHeight.setText(vitals?.height?:"")
+            binding.inputWeight.setText(vitals?.weight?:"")
+            binding.inputBmi.setText(vitals?.bmi?:"")
+//            binding.inputWaistCircum.setText(vitals?.waistCircumference?:")
+            binding.inputTemperature.setText(vitals?.temperature?:"")
+            binding.inputPulseRate.setText(vitals?.pulseRate?:"")
+            binding.inputSpo2.setText(vitals?.spo2?:"")
+            binding.bpCustomLayout.inputBpDiastolic.setText(vitals?.bpDiastolic?:"0")
+            binding.bpCustomLayout.inputBpSystolic.setText(vitals?.bpSystolic?:"0")
+            binding.inputRespiratoryPerMin.setText(vitals?.respiratoryRate?:"")
+            binding.inputRBS.setText(vitals?.rbs?:"")
         }
     }
 
@@ -698,18 +716,20 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         } else {
             binding.spo2EditTxt.visibility = View.VISIBLE
         }
-
+        //Custtomr layout validation not required start
+/*
         if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
             binding.bpSystolicEditTxt.visibility = View.GONE
         } else {
             binding.bpSystolicEditTxt.visibility = View.VISIBLE
-        }
+        }*/
 
-        if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
+       /* if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
             binding.bpDiastolicEditTxt.visibility = View.GONE
         } else {
             binding.bpDiastolicEditTxt.visibility = View.VISIBLE
-        }
+        }*/
+        //Custtomr layout validation not required end
 
         if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
             binding.respiratoryEditTxt.visibility = View.GONE
@@ -771,12 +791,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (itemS.isNullOrEmpty() || itemS.equals("null")) {
             binding.spo2EditTxt.visibility = View.GONE
         }
-        if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
+        //Custtomr layout validation not required start
+      /*  if (itemBs.isNullOrEmpty() || itemBs.equals("null")) {
             binding.bpSystolicEditTxt.visibility = View.GONE
         }
         if (itemBd.isNullOrEmpty() || itemBd.equals("null")) {
             binding.bpDiastolicEditTxt.visibility = View.GONE
-        }
+        }*/
+        //Custtomr layout validation not required end
+
         if (itemRs.isNullOrEmpty() || itemRs.equals("null")) {
             binding.respiratoryEditTxt.visibility = View.GONE
         }

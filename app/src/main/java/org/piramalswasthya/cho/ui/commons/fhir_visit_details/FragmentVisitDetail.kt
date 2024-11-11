@@ -688,7 +688,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
         lifecycleScope.launch {
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect{
-                (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
+                it.takeIf { it.isNotEmpty() }?.also { list -> (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(list) } ?: run { binding.patientList.visibility = View.GONE }
             }
         }
 
@@ -1090,15 +1090,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if (chiefComplaintDB2.size==0){
                 binding.usePrevious.visibility = View.GONE
         }
-        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB2)
+        chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB2,"")
         binding.chiefComplaintExtra2.adapter = chAdapter
         val layoutManagerC = LinearLayoutManager(requireContext())
         binding.chiefComplaintExtra2.layoutManager = layoutManagerC
 
         if (chiefComplaintDB2.size == 0) {
             binding.chiefComplaintHeading.visibility = View.GONE
+            binding.chiefComplaintExtra2.visibility = View.GONE
         } else {
             binding.chiefComplaintHeading.visibility = View.VISIBLE
+            binding.chiefComplaintExtra2.visibility = View.VISIBLE
         }
         var bool = true
         var vitalsDB = viewModel.vitalsDB

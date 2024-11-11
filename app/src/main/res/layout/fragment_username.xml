@@ -32,6 +32,7 @@
                         android:id="@+id/iv_nhm_logo"
                         android:layout_width="119dp"
                         android:layout_height="115dp"
+                        android:src="@drawable/ic_hwc_logo"
                         android:contentDescription="GOK Logo"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
@@ -90,8 +91,8 @@
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_kannada"
                         style="@style/radio_item_lang"
-                        android:text="@string/kannada_lang" />
-
+                        android:text="@string/hindi_lang" />
+<!--                    android:text="@string/kannada_lang"-->
                 </RadioGroup>
 
                 <com.google.android.material.textfield.TextInputLayout
