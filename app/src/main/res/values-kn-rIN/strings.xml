@@ -230,6 +230,7 @@
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">ಉಪ ವರ್ಗ</string>
     <string name="select_chief_complaint">ಮುಖ್ಯ ದೂರುಗಳು  <font color="#FF0000">*</font></string>
+    <string name="select_chief_complaint_without_astrict">ಮುಖ್ಯ ದೂರುಗಳು </string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="upload_file">ಫೈಲ್ ಅನ್ನು ಅಪ್ಲೋಡ್ ಮಾಡಿ</string>
@@ -251,7 +252,7 @@
     <string name="bmi">ಬಿ.ಎಂ.ಐ</string>
     <string name="waist_circumference_cm">ಸೊಂಟದ ಸುತ್ತಳತೆ(ಸೆಂ)</string>
     <string name="temperature_f">ತಾಪಮಾನ(ಎಫ್)</string>
-    <string name="pulse_rate_min">ನಾಡಿ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
+    <string name="pulse_rate_min">ನಾಡಿ ದರ (BPM)</string>
     <string name="spo2">SPO2(%)</string>
     <string name="respiratory_per_min">ಉಸಿರಾಟದ ದರ (ಪ್ರತಿ ನಿಮಿಷಕ್ಕೆ)</string>
     <string name="rbs_mg_dl">RBS ಪರೀಕ್ಷೆ</string>
@@ -372,7 +373,8 @@
     <string name="flowCompleted">Flow Completed</string>
     <string name="diagnosisCannotBeEmpty">Provisional Diagnosis Cannot be empty</string>
     <string name="note_ben_reg">Note!</string>
-    <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
+    <string name="please_search_for_beneficiary">No matching patient found. Please choose an option from below.</string>
+    <string name="no_patient_found">No matching patient found.Please select an option.</string>
     <string name="pref_location_data">pref_location_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">ಫಲಾನುಭವಿ ಹೆಸರು:</string>
@@ -408,13 +410,13 @@
     <string name="female_opd">Female:</string>
     <string name="others_opd">Others:</string>
     <string name="ncd_count">NCD Count:</string>
-    <string name="anc_count">ANC Count:</string>
+    <string name="anc_count">ANC\nCount:</string>
     <string name="pnc_count">PNC Count :</string>
     <string name="family_count">Family Count:</string>
-    <string name="immunization_tv">Immunization</string>
+    <string name="immunization_tv">Immunization\nCount:</string>
     <string name="count_imm">Count:</string>
     <string name="hbnc_count">HBNC Count</string>
-    <string name="hbyc_count">HBYC Count:</string>
+    <string name="hbyc_count">HBYC\nCount:</string>
     <string name="select_menu">Select</string>
     <string name="male_opd">Male:</string>
     <string name="consultant_name">Consultant Name:</string>

@@ -7,6 +7,7 @@ import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import org.piramalswasthya.cho.model.FormattedDate
+import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -15,13 +16,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
-import java.util.TimeZone
-import java.sql.Timestamp
 import java.util.Locale
+import java.util.TimeZone
 
 class DateTimeUtil {
 
-    private val nullDate : Date? = null
+    private val nullDate: Date? = null
 
     val _selectedDate = MutableLiveData(nullDate)
 
@@ -29,7 +29,12 @@ class DateTimeUtil {
         get() = _selectedDate
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun showDatePickerDialog(context: Context, initialDate: Date?, maxDays: Int?, minDays: Int?) : DatePickerDialog {
+    fun showDatePickerDialog(
+        context: Context,
+        initialDate: Date?,
+        maxDays: Int?,
+        minDays: Int?
+    ): DatePickerDialog {
         val calendar = Calendar.getInstance()
         initialDate?.let {
             calendar.time = it
@@ -52,14 +57,14 @@ class DateTimeUtil {
             }, year, month, day
         )
 
-        if(maxDays != null){
+        if (maxDays != null) {
             // Set max date to the current date
             val maxCalendar = Calendar.getInstance()
             maxCalendar.add(Calendar.DAY_OF_YEAR, maxDays)
             datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
         }
 
-        if(minDays != null){
+        if (minDays != null) {
             // Set min date to 99 years ago from the current date
             val minCalendar = Calendar.getInstance()
             minCalendar.add(Calendar.DAY_OF_YEAR, minDays)
@@ -68,7 +73,6 @@ class DateTimeUtil {
 
         return datePickerDialog
     }
-
 
 
     companion object {
@@ -164,17 +168,16 @@ class DateTimeUtil {
 
             val period = Period.between(birthLocalDate, currentDate)
 
-            if(period.years > 0){
+            if (period.years > 0) {
                 return Age(AgeUnitEnum.YEARS, period.years)
-            }
-            else if(period.months > 0){
+            } else if (period.months > 0) {
                 return Age(AgeUnitEnum.MONTHS, period.months)
-            }
-            else if(period.days > 7){
-                return Age(AgeUnitEnum.WEEKS, period.days/7)
+            } else if (period.days > 7) {
+                return Age(AgeUnitEnum.WEEKS, period.days / 7)
             }
             return Age(AgeUnitEnum.DAYS, period.days)
         }
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgePicker(dateOfBirth: Date): AgePicker {
             val birthLocalDate =
@@ -193,11 +196,11 @@ class DateTimeUtil {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateDateOfBirth(value: Int, unit: AgeUnitEnum): Date {
-            val days = when(unit){
+            val days = when (unit) {
                 AgeUnitEnum.DAYS -> value
-                AgeUnitEnum.WEEKS -> value*7
-                AgeUnitEnum.MONTHS -> value*30
-                AgeUnitEnum.YEARS -> value*365
+                AgeUnitEnum.WEEKS -> value * 7
+                AgeUnitEnum.MONTHS -> value * 30
+                AgeUnitEnum.YEARS -> value * 365
             }
 
             val calendar = Calendar.getInstance()
@@ -257,7 +260,7 @@ class DateTimeUtil {
                 val outputDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 val date = inputDateFormat.parse(dateString)
                 return outputDateFormat.format(date);
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 return null;
             }
         }
@@ -296,24 +299,61 @@ class DateTimeUtil {
             val days = period.days % 30
 
             var ageString = "";
-            if(years > 0){
+            if (years > 0) {
                 ageString += "$years years"
+            } else {
+                if (months > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$months months"
+                }
+                if (days > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$days days"
+                }
+
             }
-            if(months > 0){
-                if(ageString.isNotEmpty()) ageString += ", "
-                ageString += "$months months"
-            }
-            if(days > 0){
-                if(ageString.isNotEmpty()) ageString += ", "
-                ageString += "$days days"
-            }
+
             return ageString
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun getPatientTypeByAge(dateOfBirth: Date): String {
+            val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val currentDate = LocalDate.now()
+
+            val period = Period.between(birthDate, currentDate)
+            val years = period.years
+            val months = period.months % 12
+            val days = period.days % 30
+
+            var type= ""
+            if((days <= 30 || months<=1) && years<1 ){
+                type = "new_born_baby"
+            }
+            if((years<1 && months<=12) || (months==0 && days==0 && years==1)){
+                type = "infant"
+            }
+
+            if(years>=1&& years<=12){
+                type ="child"
+            }
+
+            if(years>=12 && years<=18){
+                type = "adolescence"
+            }
+
+            if(years>=18){
+                type = "adult"
+            }
+
+            return type
         }
 
     }
 
 }
-    data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
+
+data class AgePicker(val years: Int, val months: Int, val weeks: Int, val days: Int)
 
 
 data class Age(
@@ -321,7 +361,7 @@ data class Age(
     val value: Int
 )
 
-enum class AgeUnitEnum{
+enum class AgeUnitEnum {
     YEARS,
     MONTHS,
     WEEKS,

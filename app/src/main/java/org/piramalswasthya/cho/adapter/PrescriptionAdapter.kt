@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.adapter
 
-import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -8,25 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.ItemMasterList
-import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.PrescriptionValues
-import org.piramalswasthya.cho.model.PrescriptionValuesForTemplate
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
-import org.piramalswasthya.cho.ui.commons.case_record.TempNameAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
-import org.piramalswasthya.cho.utils.nullIfEmpty
-import timber.log.Timber
 
 class PrescriptionAdapter(
     private val itemList: MutableList<PrescriptionValues>,
@@ -36,8 +27,7 @@ class PrescriptionAdapter(
     private val instructionDropdown: List<String>,
     private val itemMasterForFilter: List<ItemMasterList>,
     private val itemChangeListener: RecyclerViewItemChangeListenersP
-) :
-    RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PrescriptionAdapter.ViewHolder>() {
 
     private var durationCount = 0
     private val maxDuration = 6
@@ -54,8 +44,9 @@ class PrescriptionAdapter(
             itemView.findViewById(R.id.unitDropDownVal)
         val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
         val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
-        val addButton : FloatingActionButton = itemView.findViewById(R.id.addButton)
-        val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButton)
+        val addButton : TextView = itemView.findViewById(R.id.addButton)
+        val subtractButton : TextView = itemView.findViewById(R.id.subtractButton)
+        val textPrescriptionHeading : TextView = itemView.findViewById(R.id.textPrescriptionHeading)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -119,11 +110,7 @@ class PrescriptionAdapter(
         val itemData = itemList[position]
        holder.subtractButton.isEnabled = false
         holder.addButton.setOnClickListener {
-            if(itemData.duration.isNullOrEmpty()){
-                durationCount = 0
-            }else if(itemData.duration!!.toInt() <= maxDuration) {
-                durationCount = itemData.duration!!.toInt()
-            }
+            durationCount = itemData.duration.toIntOrNull()?.takeIf { it <= maxDuration } ?: 0
             if (durationCount < maxDuration) {
                 durationCount++
                 holder.durationInput.setText(durationCount.toString())
@@ -258,6 +245,8 @@ class PrescriptionAdapter(
 
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
+
+        holder.textPrescriptionHeading.text = itemData.title
     }
 
 

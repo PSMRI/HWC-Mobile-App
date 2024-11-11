@@ -1,33 +1,44 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/regis"
+        android:id="@+id/nav_registrar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@drawable/registrar"
+        android:icon="@drawable/ic_register"
+        android:contentDescription="Navigate to Registrar section"
         android:title="Registrar" />
+<!--    android:icon="@drawable/registrar"-->
     <item
-        android:id="@+id/nur"
+        android:id="@+id/nav_nurse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@drawable/nurse"
+        android:icon="@drawable/ic_nurse"
+        android:contentDescription="Navigate to Nurse section"
         android:title="Nurse" />
+<!--    android:icon="@drawable/nurse"-->
     <item
-        android:id="@+id/doc"
+        android:id="@+id/nav_doctor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@drawable/doctor"
+        android:icon="@drawable/ic_doctor"
+        android:contentDescription="Navigate to Doctor section"
         android:title="Doctor" />
+<!--    android:icon="@drawable/doctor"-->
 
     <item
-        android:id="@+id/lab"
+        android:id="@+id/nav_lab_technician"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@drawable/lab"
+        android:icon="@drawable/ic_lab_tech"
+        android:contentDescription="Navigate to Lab Technician section"
         android:title="Lab Technician" />
+<!--    android:icon="@drawable/lab"-->
     <item
-        android:id="@+id/ph"
+        android:id="@+id/nav_pharmacist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@drawable/pharma"
+        android:icon="@drawable/ic_pharmacist"
+        android:contentDescription="Navigate to Pharmacist section"
         android:title="Pharmacist" />
+<!--    android:icon="@drawable/pharma"-->
 </menu>

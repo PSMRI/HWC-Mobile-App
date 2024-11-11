@@ -44,7 +44,7 @@ interface AmritApiService {
         const val authenticate = "authenticateReference"
     }
     @Headers("No-Auth: true")
-    @POST("commonapi-v1.0/user/userAuthenticate/")
+    @POST("commonapi-v1.0/user/userAuthenticate")   // @POST("commonapi-v1.0/user/userAuthenticate/")
     suspend fun getJwtToken(@Body json: TmcAuthUserRequest): Response<ResponseBody>
 
     @Headers("No-Auth: true")

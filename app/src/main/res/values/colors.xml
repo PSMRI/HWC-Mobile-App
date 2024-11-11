@@ -7,23 +7,44 @@
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_onPrimary2">#C1BDBD</color>
 
-<!--    <color name="purple">#296292</color>-->
     <color name="primary">#50AF93</color>
     <color name="green_heading">#50AF93</color>
+    <color name="outline_color">#80CBC4</color>
+
     <color name="red">#FF910000</color>
+    <color name="status_error">#750202</color>
+    <color name="button_danger">#FF1919</color>
+
     <color name="green">#FF009302</color>
     <color name="primaryTextColor">#000000</color>
     <color name="referBackground">#CCDDFF</color>
 
-
+    <color name="color_orange_shade">#FF5722</color>
 
     <color name="secondaryColor">#ffffff</color>
     <color name="colorAccent">#175adf</color>
+
     <color name="defaultInput">#636161</color>
     <color name="icon_color">#FF5722</color>
+
+    <color name="background_primary">#112C5F</color>
+    <color name="background_secondary">#1461A1</color>
+
+    <!-- Orange to yellow gradient for feature X -->
+    <color name="background_gradient_start">#D25F00</color>
+    <color name="background_gradient_middle">#FF9F00</color>
+    <color name="background_gradient_end">#FFD917</color>
+
+
     <color name="default_header">#24303C</color>
     <color name="default_button">#296292</color>
     <color name="grey">#8BC34A</color>
     <color name="read_only">#D8D8D8</color>
-        <color name="transparent">#00FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+
+
+    <color name="text_secondary">#737A86</color>
+    <color name="status_success">#014902</color>
+    <color name="status_warning">#FF5722</color>
+
 </resources>
