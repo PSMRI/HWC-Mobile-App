@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login.hwc
 
 import android.content.Context
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,8 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
+import timber.log.Timber
 import javax.inject.Inject
 @HiltViewModel
 class HwcViewModel @Inject constructor(
@@ -33,6 +36,18 @@ class HwcViewModel @Inject constructor(
     val _state = MutableLiveData(OutreachViewModel.State.IDLE)
     val state: LiveData<OutreachViewModel.State>
         get() = _state
+
+    private val _currentLocation = MutableLiveData<Location>(null)
+    val currentLocation: LiveData<Location?>
+        get() = _currentLocation
+
+    private val _loggedInUser = MutableLiveData<UserCache?>(null)
+    val loggedInUser: LiveData<UserCache?>
+        get() = _loggedInUser
+
+    private val _isLoggedIn = MutableLiveData<Boolean>(null)
+    val isLoggedIn: LiveData<Boolean?>
+        get() = _isLoggedIn
     fun rememberUser(username: String,password: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -72,6 +87,7 @@ class HwcViewModel @Inject constructor(
 //            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
 //            _state.value = State.SUCCESS
         }
+        _isLoggedIn.value = true
     }
     suspend fun setOutreachDetails(
         loginType: String?,
@@ -102,7 +118,28 @@ class HwcViewModel @Inject constructor(
             }
         }
     }
+
+    fun getLoggedInUserDetails(){
+        viewModelScope.launch {
+            try {
+                val user = userRepo.getUserCacheDetails()
+                _loggedInUser.value = user
+                _isLoggedIn.value = user?.loggedIn
+            } catch (e: Exception){
+                Timber.d("Error in calling getLoggedInUserDetails() $e")
+                _isLoggedIn.value = false
+            }
+        }
+    }
     fun resetState() {
         _state.value = OutreachViewModel.State.IDLE
+    }
+
+    fun setLocation(location: Location) {
+        _currentLocation.value = location
+    }
+
+    fun setLogin(b: Boolean) {
+        _isLoggedIn.value = b
     }
 }

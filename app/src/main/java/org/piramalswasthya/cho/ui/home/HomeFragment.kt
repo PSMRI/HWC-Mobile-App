@@ -1,50 +1,33 @@
 package org.piramalswasthya.cho.ui.home
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.viewModels
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.fragment.findNavController
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentHomeBinding
-import org.piramalswasthya.cho.databinding.FragmentRegisterPatientBinding
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
 import org.piramalswasthya.cho.repositories.VaccineAndDoseTypeRepo
 import org.piramalswasthya.cho.ui.commons.personal_details.PersonalDetailsFragment
-import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.home_activity.HomeActivityViewModel
-import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-import org.piramalswasthya.cho.ui.login_activity.username.UsernameFragmentDirections
 import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
 import org.piramalswasthya.cho.work.WorkerUtils
-import timber.log.Timber
-import java.lang.Exception
-import androidx.appcompat.view.menu.MenuBuilder
-import android.view.Menu
-import android.view.MenuInflater
-import androidx.core.content.ContextCompat
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -188,6 +171,7 @@ class HomeFragment : Fragment() {
 
         if(preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()){
             binding.registration.visibility = View.VISIBLE
+            binding.registration.isEnabled = preferenceDao.isNurseSelected() || preferenceDao.isRegistrarSelected()
         }
         else{
             binding.registration.visibility = View.GONE
@@ -198,7 +182,7 @@ class HomeFragment : Fragment() {
                 binding.tvLoadProgress.text = getString(R.string.downloading) + " " + it.toString() + "%"
             }
         }
-
+        binding.registration.bringToFront()
         binding.registration.setOnClickListener {
             searchPrompt.show()
 
@@ -237,24 +221,24 @@ class HomeFragment : Fragment() {
     fun setItemVisibility(){
 
         if(!preferenceDao.isUserRegistrar() || preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.regis)
+            binding.bottomNavigation.menu.removeItem(R.id.nav_registrar)
         }
         if(!preferenceDao.isUserStaffNurseOrNurse() && !preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.nur)
+            binding.bottomNavigation.menu.removeItem(R.id.nav_nurse)
         }
         if(!preferenceDao.isUserDoctorOrMO() || preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.doc)
+            binding.bottomNavigation.menu.removeItem(R.id.nav_doctor)
         }
         if(!preferenceDao.isUserLabTechnician() && !preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.lab)
+            binding.bottomNavigation.menu.removeItem(R.id.nav_lab_technician)
         }
         if(!preferenceDao.isUserPharmacist() && !preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.ph)
+            binding.bottomNavigation.menu.removeItem(R.id.nav_pharmacist)
         }
         if(preferenceDao.isUserCHO()){
-            val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
+            val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
             nurseItem?.title = "CHO"
-            val choDrawable = context?.let { ContextCompat.getDrawable(it, R.drawable.cho) }
+            val choDrawable = context?.let { ContextCompat.getDrawable(it, R.drawable.ic_medical_briefcase) } // R.drawable.cho
 
             // Set the icon using the retrieved Drawable
             nurseItem?.icon = choDrawable
@@ -264,11 +248,11 @@ class HomeFragment : Fragment() {
 
     fun setItemSelected(){
 
-        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.regis)
-        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
-        val docItem = binding.bottomNavigation.menu.findItem(R.id.doc)
-        val labItem = binding.bottomNavigation.menu.findItem(R.id.lab)
-        val phItem = binding.bottomNavigation.menu.findItem(R.id.ph)
+        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
+        val docItem = binding.bottomNavigation.menu.findItem(R.id.nav_doctor)
+        val labItem = binding.bottomNavigation.menu.findItem(R.id.nav_lab_technician)
+        val phItem = binding.bottomNavigation.menu.findItem(R.id.nav_pharmacist)
 
         when(preferenceDao.getSwitchRole()){
 
@@ -297,11 +281,11 @@ class HomeFragment : Fragment() {
 
     fun checkRoleAndSetItem(){
 
-        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.regis)
-        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nur)
-        val docItem = binding.bottomNavigation.menu.findItem(R.id.doc)
-        val labItem = binding.bottomNavigation.menu.findItem(R.id.lab)
-        val phItem = binding.bottomNavigation.menu.findItem(R.id.ph)
+        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
+        val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
+        val docItem = binding.bottomNavigation.menu.findItem(R.id.nav_doctor)
+        val labItem = binding.bottomNavigation.menu.findItem(R.id.nav_lab_technician)
+        val phItem = binding.bottomNavigation.menu.findItem(R.id.nav_pharmacist)
 
         if(preferenceDao.isUserCHO()){
             nurseItem?.isChecked = true
@@ -334,38 +318,38 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bottom_menu_nav, menu)
+//        inflater.inflate(R.menu.bottom_menu_nav, menu)
 
         setItemVisibility()
         setItemSelected()
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.regis -> {
+                R.id.nav_registrar -> {
                     preferenceDao.setSwitchRoles("Registrar")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
                     true
                 }
-                R.id.nur -> {
+                R.id.nav_nurse -> {
                     preferenceDao.setSwitchRoles("Nurse")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
                     true
                 }
-                R.id.doc -> {
+                R.id.nav_doctor -> {
                     preferenceDao.setSwitchRoles("Doctor")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
                     true
                 }
-                R.id.lab -> {
+                R.id.nav_lab_technician -> {
                     preferenceDao.setSwitchRoles("Lab Technician")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)
                     true
                 }
-                R.id.ph -> {
+                R.id.nav_pharmacist -> {
                     preferenceDao.setSwitchRoles("Pharmacist")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
                     startActivity(refresh)

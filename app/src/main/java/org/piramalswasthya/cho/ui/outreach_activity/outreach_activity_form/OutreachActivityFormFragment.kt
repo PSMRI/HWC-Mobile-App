@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,19 +40,19 @@ class OutreachActivityFormFragment : Fragment() {
         fun newInstance() = OutreachActivityFormFragment()
     }
 
-    private val binding by lazy{
+    private val binding by lazy {
         FragmentOutreachActivityFormBinding.inflate(layoutInflater)
     }
 
     private lateinit var viewModel: OutreachActivityFormViewModel
 
-    private lateinit var activityAdapter : ArrayAdapter<String>
+    private lateinit var activityAdapter: ArrayAdapter<String>
 
     private var dateTimeUtil: DateTimeUtil = DateTimeUtil()
 
     private var currentFileName: String? = null
     private var currentPhotoPath: String? = null
-    private lateinit var  photoURI: Uri
+    private lateinit var photoURI: Uri
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,20 +61,29 @@ class OutreachActivityFormFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(OutreachActivityFormViewModel::class.java)
-        activityAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, viewModel.activityList)
+        activityAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            viewModel.activityList
+        )
 
         binding.activityDropdown.setAdapter(activityAdapter)
 
         binding.dateOfEvent.setOnClickListener {
-            dateTimeUtil.showDatePickerDialog(requireContext(), viewModel.outreachActivityModel.dateOfActivity, null, null).show()
+            dateTimeUtil.showDatePickerDialog(
+                requireContext(),
+                viewModel.outreachActivityModel.dateOfActivity,
+                null,
+                null
+            ).show()
         }
 
         binding.activityDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.outreachActivityModel.activityName= viewModel.activityList[position];
+            viewModel.outreachActivityModel.activityName = viewModel.activityList[position];
             binding.activityDropdown.setText(viewModel.activityList[position], false)
         }
 
@@ -89,7 +97,8 @@ class OutreachActivityFormFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                viewModel.outreachActivityModel.noOfParticipant = s.toString().nullIfEmpty()?.toInt()
+                viewModel.outreachActivityModel.noOfParticipant =
+                    s.toString().nullIfEmpty()?.toInt()
             }
         })
 
@@ -107,10 +116,11 @@ class OutreachActivityFormFragment : Fragment() {
             }
         })
 
-        dateTimeUtil.selectedDate.observe(viewLifecycleOwner){
-            if(it != null){
+        dateTimeUtil.selectedDate.observe(viewLifecycleOwner) {
+            if (it != null) {
                 viewModel.outreachActivityModel.dateOfActivity = it
                 binding.dateOfEvent.setText(DateTimeUtil.formatDate(it))
+                binding.dateOfEvent.error = ""
             }
         }
 
@@ -119,35 +129,60 @@ class OutreachActivityFormFragment : Fragment() {
         }
 
         binding.saveEvent.setOnClickListener {
-            if(viewModel.outreachActivityModel.dateOfActivity == null){
+            if (viewModel.outreachActivityModel.dateOfActivity == null) {
                 binding.dateOfEvent.setError("Date of event cannot be empty")
                 return@setOnClickListener;
+            } else {
+                val formatter = SimpleDateFormat("dd-MM-yyyy")
+                val formattedDate = formatter.format(
+                    viewModel.outreachActivityModel.dateOfActivity
+                )
+
+                val isDateExist = viewModel.activities.any {
+                    val inputDateString = it.activityDate
+                    val inputDateFormat = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a")
+                    val outputDateFormat = SimpleDateFormat("dd-MM-yyyy")
+
+                    val date = inputDateString?.let { it1 -> inputDateFormat.parse(it1) }
+                    val inputDate = date?.let { it1 -> outputDateFormat.format(it1) }
+                    inputDate == formattedDate
+                }
+                if (isDateExist) {
+                    Toast.makeText(requireContext(),"Events for this Date already exist",Toast.LENGTH_SHORT ).show()
+                    return@setOnClickListener;
+                }
+
             }
 
-            if(viewModel.outreachActivityModel.activityName == null){
+            if (viewModel.outreachActivityModel.activityName == null) {
                 binding.activityDropdown.setError("Activity name cannot be empty")
                 return@setOnClickListener;
             }
 
-            if(viewModel.outreachActivityModel.eventDesc == null){
+            if (viewModel.outreachActivityModel.eventDesc == null) {
                 binding.eventDescription.setError("Event description cannot be empty")
                 return@setOnClickListener;
             }
 
-            if(viewModel.outreachActivityModel.noOfParticipant == null){
+            if (viewModel.outreachActivityModel.noOfParticipant == null) {
                 binding.noOfParticipant.setError("Number of participants cannot be empty")
                 return@setOnClickListener;
             }
+            binding.rlSaving.visibility = View.VISIBLE
 
-            viewModel.outreachActivityModel.img1 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
-            viewModel.outreachActivityModel.img2 = ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
+            viewModel.outreachActivityModel.img1 =
+                ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img1)
+            viewModel.outreachActivityModel.img2 =
+                ImgUtils.base64ConvertedString(viewModel.outreachActivityModel.img2)
             viewModel.saveNewActivity(viewModel.outreachActivityModel)
-            viewModel.isDataSaved.observe(viewLifecycleOwner){
-                when(it){
+            viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                when (it) {
                     true -> {
                         requireActivity().finish()
                         startActivity(Intent(requireContext(), OutreachActivity::class.java))
+                        binding.rlSaving.visibility = View.GONE
                     }
+
                     false -> {
                         Toast.makeText(
                             requireContext(),
@@ -155,6 +190,7 @@ class OutreachActivityFormFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+
                     else -> {
 
                     }
@@ -166,7 +202,10 @@ class OutreachActivityFormFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
@@ -178,8 +217,10 @@ class OutreachActivityFormFragment : Fragment() {
             requestCameraPermission()
         }
     }
+
     private fun requestCameraPermission() {
-        val permission = arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE )
+        val permission =
+            arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         requestPermissions(permission, 112)
     }
 
@@ -190,20 +231,18 @@ class OutreachActivityFormFragment : Fragment() {
                 if (photoURI == null)
 //                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 else {
-                    if(viewModel.outreachActivityModel.img1.isNullOrEmpty()){
+                    if (viewModel.outreachActivityModel.img1.isNullOrEmpty()) {
                         viewModel.outreachActivityModel.img1 = currentPhotoPath!!
                         binding.iv1.visibility = View.VISIBLE
                         Glide.with(this).load(photoURI)
                             .into(binding.iv1)
-                    }
-                    else {
+                    } else {
                         viewModel.outreachActivityModel.img2 = currentPhotoPath!!
                         binding.iv2.visibility = View.VISIBLE
                         binding.addPhotos.visibility = View.GONE
                         Glide.with(this).load(photoURI)
                             .into(binding.iv2)
                     }
-
                 }
             }
         }
@@ -260,7 +299,11 @@ class OutreachActivityFormFragment : Fragment() {
                 // Permission granted, you can proceed to open the camera
                 takePicture()
             } else {
-                Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.permission_to_access_the_camera_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

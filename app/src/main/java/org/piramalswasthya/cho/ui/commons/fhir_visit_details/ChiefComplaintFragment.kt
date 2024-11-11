@@ -64,12 +64,12 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         binding.resetButton.isEnabled = false
         binding.descInputText.addTextChangedListener(inputTextWatcher)
         binding.dropdownDurUnit.addTextChangedListener(inputTextWatcher)
-        binding.inputDuration.addTextChangedListener(inputTextWatcher)
+        binding.duration.inputDuration.addTextChangedListener(inputTextWatcher)
         binding.chiefComplaintDropDowns.addTextChangedListener(inputTextWatcher)
         binding.resetButton.setOnClickListener {
             binding.descInputText.text?.clear()
             binding.dropdownDurUnit.text?.clear()
-            binding.inputDuration.text?.clear()
+            binding.duration.inputDuration.text?.clear()
             binding.chiefComplaintDropDowns.text?.clear()
         }
     }
@@ -92,14 +92,21 @@ class ChiefComplaintFragment(private var chiefComplaintList: List<ChiefComplaint
         }
     }
     private fun updateResetButtonState() {
-        val description = binding.descInputText.text.toString().trim()
-        val durationUnit = binding.dropdownDurUnit.text.toString().trim()
-        val duration = binding.inputDuration.text.toString().trim()
-        val chiefComplaint = binding.chiefComplaintDropDowns.text.toString().trim()
+        try {
+            val description = binding.descInputText.text.toString().trim()
+            val durationUnit = binding.dropdownDurUnit.text.toString().trim()
+            val duration = binding.duration.inputDuration.text.toString().trim()
+            val chiefComplaint = binding.chiefComplaintDropDowns.text.toString().trim()
 
-        binding.resetButton.isEnabled = description.isNotEmpty() ||
-                durationUnit.isNotEmpty() ||
-                duration.isNotEmpty() ||
-                chiefComplaint.isNotEmpty()
+            binding.resetButton.isEnabled = description.isNotEmpty() ||
+                    durationUnit.isNotEmpty() ||
+                    duration.isNotEmpty() ||
+                    chiefComplaint.isNotEmpty()
+
+        } catch (e: Exception) {
+            // Fallback to safe state
+            binding.resetButton.isEnabled = false
+        }
+
     }
 }

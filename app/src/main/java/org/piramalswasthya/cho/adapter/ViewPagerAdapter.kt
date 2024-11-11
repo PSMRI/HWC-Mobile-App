@@ -2,7 +2,6 @@ package org.piramalswasthya.cho.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.piramalswasthya.cho.ui.home.HomeFragment

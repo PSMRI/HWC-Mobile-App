@@ -28,4 +28,20 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/box_stroke_color</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textColorHint">@color/black</item>
+        <item name="helperTextTextColor">@color/red</item>
+    </style>
+
+    <style name="TextInputLayoutStyle.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/box_stroke_color</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:textColorHint">@color/black</item>
+        <item name="helperTextTextColor">@color/red</item>
+    </style>
 </resources>
