@@ -15,6 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/_10sdp"
+            android:background="@drawable/ic_textview_rectangle"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -24,16 +26,21 @@
 
         <TextView
             android:id="@+id/textCat"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:text="@string/category"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginRight="4dp"
+            android:background="@color/default_button"
+            android:gravity="center"
+            android:padding="@dimen/_5sdp"
+            android:text="Category"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/patient_list" />
-
 
         <RadioGroup
             android:id="@+id/radioGroup"
@@ -47,27 +54,33 @@
                 android:id="@+id/radioButton1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/outpatient_care"
                 android:tag="General OPD"
-                android:textSize="18sp"
-                android:textColor="@drawable/radio_btn_select" />
+                android:text="@string/outpatient_care"
+                android:textColor="@drawable/radio_btn_select"
+                android:textSize="18sp" />
 
             <RadioButton
                 android:id="@+id/radioButton2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:tag="Other CPHC Services"
                 android:text="@string/other_cphc_services"
-                android:textColor="@drawable/radio_btn_select" />
+                android:textColor="@drawable/radio_btn_select"
+                android:textSize="18sp" />
         </RadioGroup>
 
         <TextView
             android:id="@+id/reasonText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="4dp"
+            android:background="@color/default_button"
+            android:gravity="center"
+            android:padding="@dimen/_5sdp"
             android:text="@string/reason_for_visit"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="normal|bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,35 +99,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:textSize="18sp"
-                android:text="@string/new_chief_complaint_str"
                 android:tag="New Chief Complaint"
-                android:textColor="@drawable/radio_btn_select" />
+                android:text="@string/new_chief_complaint_str"
+                android:textColor="@drawable/radio_btn_select"
+                android:textSize="18sp" />
 
             <RadioButton
                 android:id="@+id/radioButton4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/follow_up_str"
                 android:tag="Follow Up"
-                android:textSize="18sp"
-                android:textColor="@drawable/radio_btn_select" />
+                android:text="@string/follow_up_str"
+                android:textColor="@drawable/radio_btn_select"
+                android:textSize="18sp" />
         </RadioGroup>
-
-<!--        <TextView-->
-<!--            android:id="@+id/subCatTxt"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="@dimen/custom_ui_margin"-->
-<!--            android:text="@string/sub_category"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textStyle="normal|bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />-->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/subCatDropDown"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
@@ -127,15 +129,14 @@
                 android:id="@+id/subCatInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="18sp"
                 android:layout_weight="1"
-                android:inputType="none"/>
+                android:inputType="none"
+                android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/reasonForVisitDropDown"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
@@ -148,18 +149,18 @@
                 android:id="@+id/reasonForVisitInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="18sp"
                 android:layout_weight="1"
-                android:inputType="none"/>
+                android:inputType="none"
+                android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/lmp_date_text"
+            style="@style/TextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
             android:hint="LMP Date"
-            android:textColorHint="#888888"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/reasonForVisitDropDown">
 
@@ -175,11 +176,11 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/delivery_date_text"
+            style="@style/TextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/custom_ui_margin"
             android:hint="Delivery Date"
-            android:textColorHint="#888888"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
 
@@ -267,91 +268,25 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|center_horizontal"
                     android:layout_margin="@dimen/custom_ui_margin"
+                    android:backgroundTint="@color/status_success"
                     android:src="@drawable/baseline_add_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/rv" />
             </FrameLayout>
 
-            <!--        <androidx.cardview.widget.CardView-->
-            <!--            android:id="@+id/cardUpload"-->
-            <!--            android:layout_width="match_parent"-->
-            <!--            android:layout_height="wrap_content"-->
-            <!--            android:layout_margin="@dimen/custom_ui_margin"-->
-            <!--            android:elevation="8dp"-->
-            <!--            android:radius="8dp"-->
-            <!--            android:shape="rectangle"-->
-            <!--            app:layout_constraintStart_toStartOf="parent"-->
-            <!--            app:layout_constraintTop_toBottomOf="@+id/chf">-->
-
-            <!--            <LinearLayout-->
-            <!--                android:id="@+id/mainLinear"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_margin="@dimen/custom_ui_margin"-->
-            <!--                android:orientation="vertical">-->
-
-            <!--                <TextView-->
-            <!--                    android:id="@+id/uploadFileHead"-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:text="@string/select_and_upload_file"-->
-            <!--                    android:textSize="18sp"-->
-            <!--                    android:textStyle="normal|bold" />-->
-
-            <!--                <TextView-->
-            <!--                    android:id="@+id/fileType"-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:paddingTop="10dp"-->
-            <!--                    android:textSize="18sp"-->
-            <!--                    android:paddingBottom="10dp"-->
-            <!--                    android:text="@string/file_type"/>-->
-
-            <!--                <LinearLayout-->
-            <!--                    android:id="@+id/layoutUpload"-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:orientation="horizontal">-->
-
-            <!--                    <EditText-->
-            <!--                        android:id="@+id/selectFileText"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_margin="@dimen/custom_ui_margin"-->
-            <!--                        android:layout_weight="1"-->
-            <!--                        android:inputType="none"-->
-            <!--                        android:focusable="false"-->
-            <!--                        android:focusableInTouchMode="false"/>-->
-
-            <!--                    <com.google.android.material.button.MaterialButton-->
-            <!--                        android:id="@+id/selectFileBtn"-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_margin="@dimen/custom_ui_margin"-->
-            <!--                        android:textSize="18sp"-->
-            <!--                        android:text="@string/select_file" />-->
-            <!--                </LinearLayout>-->
-            <!--                <com.google.android.material.button.MaterialButton-->
-            <!--                    android:id="@+id/uploadFileBtn"-->
-            <!--                    android:layout_width="wrap_content"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:enabled="false"-->
-            <!--                    android:layout_margin="@dimen/custom_ui_margin"-->
-            <!--                    android:textSize="18sp"-->
-            <!--                    android:layout_gravity="center"-->
-            <!--                    android:text="@string/upload_file" />-->
-            <!--            </LinearLayout>-->
-            <!--        </androidx.cardview.widget.CardView>-->
-
             <TextView
                 android:id="@+id/chiefComplaintHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="4dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginRight="4dp"
-                android:text="@string/chief_complaint2"
+                android:background="@color/default_button"
+                android:gravity="center"
+                android:padding="@dimen/_5sdp"
+                android:text="@string/select_chief_complaint_without_astrict"
+                android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="normal|bold"
                 android:visibility="gone"
@@ -361,6 +296,8 @@
                 android:id="@+id/chiefComplaintExtra2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_10sdp"
+                android:background="@drawable/ic_textview_rectangle"
                 android:paddingTop="8dp"
                 android:paddingBottom="2dp"
                 android:visibility="gone"
@@ -374,11 +311,15 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginRight="4dp"
-                android:paddingBottom="6dp"
+                android:background="@color/default_button"
+                android:gravity="center"
+                android:padding="@dimen/_5sdp"
                 android:text="@string/vitals_text"
+                android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="normal|bold"
                 android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chiefComplaintExtra2" />
 
             <com.google.android.flexbox.FlexboxLayout
@@ -393,11 +334,11 @@
                 <!-- Field 5: Temperature -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/temperatureEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/temperature_f"
                     android:paddingRight="4dp"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_flexBasisPercent="50%">
@@ -411,13 +352,34 @@
                         android:inputType="numberDecimal"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+                <!--<ImageView
+                    android:id="@+id/ivTemparatureBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/temperatureEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/temperatureEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/temperatureEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/temperatureEditTxt"
+                    app:tint="@color/background_primary" />
 
+                <ImageView
+                    android:id="@+id/ivIconTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/thermometer_loss_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivTemparatureBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivTemparatureBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivTemparatureBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivTemparatureBg" />
+
+-->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/bpSystolicEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/bp_mmhg_systolic_text"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toEndOf="@+id/spo2EditTxt"
                     app:layout_flexBasisPercent="50%">
@@ -432,14 +394,35 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!--<ImageView
+                    android:id="@+id/ivBpSystolicBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/bpSystolicEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/bpSystolicEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/bpSystolicEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/bpSystolicEditTxt"
+                    app:tint="@color/default_button" />
+
+                <ImageView
+                    android:id="@+id/ivIconBpSystolic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_blood_pressure"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivBpSystolicBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivBpSystolicBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivBpSystolicBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivBpSystolicBg" />
+-->
                 <!-- Field 9: BP Diastolic -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/bpDiastolicEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/bp_mmhg_diastolic_text"
                     android:paddingRight="4dp"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_flexBasisPercent="50%">
@@ -453,14 +436,34 @@
                         android:inputType="number"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+               <!-- <ImageView
+                    android:id="@+id/ivBpDiastolicBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/bpDiastolicEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/bpDiastolicEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/bpDiastolicEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/bpDiastolicEditTxt"
+                    app:tint="@color/green" />
 
+                <ImageView
+                    android:id="@+id/ivIconBpDiastolic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_blood_pressure"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivBpDiastolicBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivBpDiastolicBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivBpDiastolicBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivBpDiastolicBg" />
+-->
                 <!-- Field 6: Pulse Rate -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/pulseRateEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/pulse_rate_min"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toEndOf="@+id/temperatureEditTxt"
                     app:layout_flexBasisPercent="50%">
@@ -474,15 +477,34 @@
                         android:inputType="number"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+                <!--<ImageView
+                    android:id="@+id/backgroundImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/pulseRateEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/pulseRateEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/pulseRateEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/pulseRateEditTxt" />
 
+                <ImageView
+                    android:id="@+id/ivIconPulseRate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/pulse_alert_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/backgroundImageView"
+                    app:layout_constraintEnd_toEndOf="@+id/backgroundImageView"
+                    app:layout_constraintStart_toStartOf="@+id/backgroundImageView"
+                    app:layout_constraintTop_toTopOf="@+id/backgroundImageView" />
+-->
                 <!-- Field 7: Spo2 -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/spo2EditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/spo2"
                     android:paddingRight="4dp"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_flexBasisPercent="50%">
@@ -497,13 +519,34 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+              <!--  <ImageView
+                    android:id="@+id/ivspo2Bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/spo2EditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/spo2EditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/spo2EditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/spo2EditTxt"
+                    app:tint="@color/green_heading" />
+
+                <ImageView
+                    android:id="@+id/ivIconspo2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/spo2_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivspo2Bg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivspo2Bg"
+                    app:layout_constraintStart_toStartOf="@+id/ivspo2Bg"
+                    app:layout_constraintTop_toTopOf="@+id/ivspo2Bg" />
+-->
                 <!-- Field 10: Respiratory Rate -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/respiratoryEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/respiratory_per_min"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toEndOf="@+id/bpDiastolicEditTxt"
                     app:layout_flexBasisPercent="50%">
@@ -517,13 +560,33 @@
                         android:inputType="number"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+               <!-- <ImageView
+                    android:id="@+id/ivRespiratoryBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/respiratoryEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/respiratoryEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/respiratoryEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/respiratoryEditTxt"
+                    app:tint="@color/background_secondary" />
 
+                <ImageView
+                    android:id="@+id/ivIconRespiratory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/respiratory_rate_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivRespiratoryBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivRespiratoryBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivRespiratoryBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivRespiratoryBg" />
+-->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/rbsEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/rbs_mg_dl"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt"
@@ -536,15 +599,36 @@
                         android:inputType="number"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+                <!--<ImageView
+                    android:id="@+id/ivRbsBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/rbsEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/rbsEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/rbsEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/rbsEditTxt"
+                    app:tint="@color/background_gradient_end" />
+
+                <ImageView
+                    android:id="@+id/ivIconsRbs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/glucose_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivRbsBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivRbsBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivRbsBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivRbsBg" />-->
+
 
                 <!-- Field 2: Height -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/heightEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/height_cm"
                     android:paddingRight="4dp"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toEndOf="@+id/weightEditTxt"
                     app:layout_flexBasisPercent="50%">
@@ -559,12 +643,35 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+               <!-- <ImageView
+                    android:id="@+id/ivHeightBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/heightEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/heightEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/heightEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/heightEditTxt"
+                    app:tint="@color/defaultInput" />
+
+                <ImageView
+                    android:id="@+id/ivIconsHeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_male_height"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivHeightBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivHeightBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivHeightBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivHeightBg" />
+-->
+
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/weightEditTxt"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/weight_kg_text"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_flexBasisPercent="50%">
@@ -578,15 +685,37 @@
                         android:inputType="numberDecimal"
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
+                <!--<ImageView
+                    android:id="@+id/ivWeightBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/weightEditTxt"
+                    app:layout_constraintEnd_toStartOf="@+id/weightEditTxt"
+                    app:layout_constraintStart_toStartOf="@+id/weightEditTxt"
+                    app:layout_constraintTop_toTopOf="@+id/weightEditTxt"
+                    app:tint="@color/background_gradient_start" />
+
+                <ImageView
+                    android:id="@+id/ivIconsWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/monitor_weight_24px"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivWeightBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivWeightBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivWeightBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivWeightBg" />
+
+-->
 
                 <!-- Field 3: BMI -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/bmill"
+                    style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/bmi"
                     android:paddingRight="4dp"
-                    android:textColorHint="#888888"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_flexBasisPercent="50%">
@@ -600,6 +729,27 @@
                         android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+               <!-- <ImageView
+                    android:id="@+id/ivBmiBg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bg_circular"
+                    app:layout_constraintBottom_toBottomOf="@+id/bmill"
+                    app:layout_constraintEnd_toStartOf="@+id/bmill"
+                    app:layout_constraintStart_toStartOf="@+id/bmill"
+                    app:layout_constraintTop_toTopOf="@+id/bmill"
+                    app:tint="@color/md_theme_light_onPrimary2" />
+
+                <ImageView
+                    android:id="@+id/ivIconsBmi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bmi"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivBmiBg"
+                    app:layout_constraintEnd_toEndOf="@+id/ivBmiBg"
+                    app:layout_constraintStart_toStartOf="@+id/ivBmiBg"
+                    app:layout_constraintTop_toTopOf="@+id/ivBmiBg" />-->
+                
             </com.google.android.flexbox.FlexboxLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -608,14 +758,14 @@
             android:id="@+id/usePrevious"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textColor="@color/white"
             android:backgroundTint="@color/default_button"
-            android:text="@string/Use_Previous_data"
-        android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
             android:padding="12dp"
+            android:text="@string/Use_Previous_data"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layyy"/>
+            app:layout_constraintTop_toBottomOf="@+id/layyy" />
 
         <Space
             android:layout_width="wrap_content"

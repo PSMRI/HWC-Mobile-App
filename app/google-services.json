@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "901856853263",
-    "project_id": "cho-application",
-    "storage_bucket": "cho-application.appspot.com"
+    "project_number": "##",
+    "project_id": "##",
+    "storage_bucket": "##"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:901856853263:android:7438ba6acd9c990c42527a",
+        "mobilesdk_app_id": "##",
         "android_client_info": {
           "package_name": "org.piramalswasthya.cho"
         }
       },
       "oauth_client": [
         {
-          "client_id": "901856853263-h2aspirhk025qfvajlj4vd7r7a0qc10t.apps.googleusercontent.com",
+          "client_id": "##",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDSmzTV2VBSik7UUWLUJBZwS_kbOWT08Ag"
+          "current_key": "##"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "901856853263-h2aspirhk025qfvajlj4vd7r7a0qc10t.apps.googleusercontent.com",
+              "client_id": "##",
               "client_type": 3
             }
           ]

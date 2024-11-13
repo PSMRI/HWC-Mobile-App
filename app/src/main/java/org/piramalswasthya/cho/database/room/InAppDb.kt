@@ -5,11 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.piramalswasthya.cho.database.converters.DateConverter
 import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
 import org.piramalswasthya.cho.database.converters.DistrictConverter
+import org.piramalswasthya.cho.database.converters.FaceVectorConvertor
 import org.piramalswasthya.cho.database.converters.LocationConverter
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
@@ -150,11 +153,11 @@ import timber.log.Timber
 )
 
 
-@TypeConverters(LocationEntityListConverter::class,
+@TypeConverters(FaceVectorConvertor::class,
+    LocationEntityListConverter::class,
     SyncStateConverter::class,
     StateConverter::class,
     LoginSettingsDataConverter::class,
-
     StateConverter::class,
     DistrictConverter::class,
     DistrictBlockConverter::class,
@@ -201,7 +204,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val prescriptionDao: PrescriptionDao
     abstract val outreachDao: OutreachDao
     abstract val procedureDao: ProcedureDao
-   abstract val prescriptionTemplateDao:PrescriptionTemplateDao
+    abstract val prescriptionTemplateDao:PrescriptionTemplateDao
     abstract val maternalHealthDao: MaternalHealthDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
@@ -213,6 +216,11 @@ abstract class InAppDb : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: InAppDb? = null
+        val MIGRATION_102_103 = object : Migration(102, 103) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Patient ADD COLUMN faceEmbedding TEXT")
+            }
+        }
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -225,6 +233,7 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
+                        .addMigrations(MIGRATION_102_103)
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

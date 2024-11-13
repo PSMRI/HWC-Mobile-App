@@ -25,19 +25,21 @@ import javax.inject.Inject
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
+
     @Inject
     lateinit var benFlowDao: BenFlowDao
+
     @Inject
     lateinit var userRepo: UserRepo
-    private var maleOpdCount : Int? = 0
-    private var femaleOpdCount : Int? = 0
-    private var othersOpdCount : Int? = 0
-    private var totalOpdCount : Int? = 0
+    private var maleOpdCount: Int? = 0
+    private var femaleOpdCount: Int? = 0
+    private var othersOpdCount: Int? = 0
+    private var totalOpdCount: Int? = 0
 
-    private var ancCount : Int? = 0
-    private var pncCount : Int? = 0
-    private var immunizationCount : Int? = 0
-    private var ectCount : Int? = 0
+    private var ancCount: Int? = 0
+    private var pncCount: Int? = 0
+    private var immunizationCount: Int? = 0
+    private var ectCount: Int? = 0
 
     private val binding: FragmentDashboardBinding
         get() = _binding!!
@@ -58,15 +60,15 @@ class DashboardFragment : Fragment() {
         "November",
         "December"
     )
-    private var selectedPeriod : String = "Today"
-    private var periodParam : String? = null
+    private var selectedPeriod: String = "Today"
+    private var periodParam: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        val arrayAdapter = ArrayAdapter(requireContext(), R.layout.drop_down,months)
+        val arrayAdapter = ArrayAdapter(requireContext(), R.layout.drop_down, months)
 
         _binding!!.selectPeriod.setAdapter(arrayAdapter)
         _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false);
@@ -76,33 +78,50 @@ class DashboardFragment : Fragment() {
         }
         return binding.root
     }
-    private suspend fun fetchAndDisplayCount(){
+
+    private suspend fun fetchAndDisplayCount() {
         val user = userRepo.getLoggedInUser()
-        if(user?.userName == null){
+        if (user?.userName == null) {
             return
         }
+
         maleOpdCount = benFlowDao.getOpdCount(1, periodParam!!, user.userName) ?: 0
         femaleOpdCount = benFlowDao.getOpdCount(2, periodParam!!, user.userName) ?: 0
         othersOpdCount = benFlowDao.getOpdCount(3, periodParam!!, user.userName) ?: 0
         totalOpdCount = maleOpdCount!! + femaleOpdCount!! + othersOpdCount!!
 
-        binding.opdMaleValue.text = maleOpdCount.toString()
-        binding.opdFemaleValue.text = femaleOpdCount.toString()
-        binding.opdOtherValue.text = othersOpdCount.toString()
-        binding.opdTotalValue.text = totalOpdCount.toString()
+        if (maleOpdCount!! > 0) binding.opdMaleValue.text =
+            maleOpdCount.toString()
+        if (maleOpdCount!! > 0) binding.opdFemaleValue.text =
+            femaleOpdCount.toString()
+        if (othersOpdCount!! > 0) binding.opdOtherValue.text =
+            othersOpdCount.toString()
+        if (totalOpdCount!! > 0) binding.opdTotalValue.text =
+            totalOpdCount.toString()
+
+
+        //Custom Design for Opd
+        if (maleOpdCount!! > 0) binding.tvMaleCount.text =
+            maleOpdCount.toString()
+        if (maleOpdCount!! > 0) binding.tvFemaleCount.text =
+            femaleOpdCount.toString()
+        if (othersOpdCount!! > 0) binding.tvOtherCount.text =
+            othersOpdCount.toString()
+        if (totalOpdCount!! > 0) binding.tvOpdCount.text =
+            totalOpdCount.toString()
 
         ancCount = benFlowDao.getAncCount(periodParam!!, user.userName) ?: 0
         pncCount = benFlowDao.getPncCount(periodParam!!, user.userName) ?: 0
         immunizationCount = benFlowDao.getImmunizationCount(periodParam!!, user.userName) ?: 0
         ectCount = benFlowDao.getEctCount(periodParam!!, user.userName) ?: 0
 
-        binding.tvAncValue.text = ancCount.toString()
-        binding.tvPncValue.text = pncCount.toString()
-        binding.tvImmValue.text = immunizationCount.toString()
-        binding.tvFamValue.text = ectCount.toString()
-
+        if (ancCount!! > 0) binding.tvAncValue.text = ancCount.toString()
+        if (pncCount!! > 0) binding.tvPncValue.text = pncCount.toString()
+        if (immunizationCount!! > 0) binding.tvImmValue.text = immunizationCount.toString()
+        if (ectCount!! > 0) binding.tvFamValue.text = ectCount.toString()
 
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -59,6 +59,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
+import java.io.File
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -346,7 +347,6 @@ class PatientRepo @Inject constructor(
                                 }
 
                                 downloadLocationMasterData(beneficiary.currentAddress)
-
                                 val patient = Patient(
                                     patientID = generateUuid(),
                                     firstName = beneficiary.beneficiaryDetails?.firstName,
@@ -368,7 +368,8 @@ class PatientRepo @Inject constructor(
                                     syncState = SyncState.SYNCED,
                                     beneficiaryID = beneficiary.benId?.toLong(),
                                     beneficiaryRegID = beneficiary.benRegId?.toLong(),
-                                    healthIdDetails = benHealthIdDetails
+                                    healthIdDetails = benHealthIdDetails ,
+                                    faceEmbedding = beneficiary.faceEmbedding
                                 )
 
                                 setPatientAge(patient)
