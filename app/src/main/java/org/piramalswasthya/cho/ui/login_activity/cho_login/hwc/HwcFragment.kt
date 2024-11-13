@@ -140,7 +140,7 @@ class HwcFragment constructor(
                                             userLatitude!!, userLongitude!!,
                                             currentLatitude!!, currentLongitude!!
                                         )
-                                        if (distance > userLoginDistance!!) {
+                                        if (distance > userLoginDistance?:0) {
                                             showDialog()
                                         } else {
 //                                            Toast.makeText(
