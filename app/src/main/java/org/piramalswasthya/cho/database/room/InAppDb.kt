@@ -139,7 +139,11 @@ import timber.log.Timber
         DeliveryOutcomeCache::class,
         EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class,
-        CbacCache::class
+        CbacCache::class,
+        ProcedureMaster::class,
+        ComponentDetailsMaster::class,
+        ComponentOptionsMaster::class
+
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
     version = 106, exportSchema = false

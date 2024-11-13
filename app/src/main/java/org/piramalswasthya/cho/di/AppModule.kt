@@ -337,6 +337,7 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideProcedureMasterDao(database: InAppDb): ProcedureMasterDao = database.procedureMasterDao
-
+    @Singleton
+    @Provides
     fun provideBatchDao(database: InAppDb): BatchDao = database.batchDao
 }
