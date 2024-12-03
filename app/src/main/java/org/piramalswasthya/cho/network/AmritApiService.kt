@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PharmacistPatientDataRequest
 import org.piramalswasthya.cho.model.PharmacistPatientIssueDataRequest
 import org.piramalswasthya.cho.model.PrescribedMedicineDataRequest
 import org.piramalswasthya.cho.model.PrescriptionTemplateDB
+import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.utils.Constants
@@ -152,6 +153,10 @@ interface AmritApiService {
     @POST("/hwc-facility-service/labTechnician/get/prescribedProceduresList?apiKey=undefined")
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
 
+    // TODO: update with final api once developed
+    @POST("/hwc-facility-service/labTechnician/get/masterData?apiKey=undefined")
+    suspend fun getMasterLabProceduresDate() : Response<ResponseBody>
+
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
 
@@ -233,5 +238,11 @@ interface AmritApiService {
 
     @POST("/inventoryapi-v1.0/patientIssue?apiKey=undefined")
     suspend fun savePharmacistData(@Body patientIssue: PharmacistPatientIssueDataRequest) : Response<ResponseBody>
+
+    @POST("/inventoryapi-v1.0/itemBatchPartialSearch")
+    suspend fun getPharmacistStockItemList(
+        @Body request: StockItemRequest
+    ):Response<ResponseBody>
+
 
 }

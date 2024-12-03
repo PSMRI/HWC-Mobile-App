@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.database.converters.MasterDataListConverter
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.UserMasterLocationConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
@@ -47,6 +48,7 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -112,6 +114,7 @@ import timber.log.Timber
         PrescriptionCaseRecord::class,
         ChiefComplaintDB::class,
         ItemMasterList::class,
+        Batch::class,
         DrugFrequencyMaster::class,
         CounsellingProvided::class,
         DrugFormMaster::class,
@@ -139,10 +142,14 @@ import timber.log.Timber
         DeliveryOutcomeCache::class,
         EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class,
-        CbacCache::class
+        CbacCache::class,
+        ProcedureMaster::class,
+        ComponentDetailsMaster::class,
+        ComponentOptionsMaster::class
+
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 103, exportSchema = false
+    version = 107, exportSchema = false
 )
 
 
@@ -188,6 +195,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val referRevisitDao: ReferRevisitDao
     abstract val healthCenterDao: HealthCenterDao
     abstract val caseRecordeDao: CaseRecordeDao
+    abstract val batchDao: BatchDao
 
     abstract val patientDao: PatientDao
     abstract val benFlowDao: BenFlowDao
@@ -203,12 +211,12 @@ abstract class InAppDb : RoomDatabase() {
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
     abstract val cbacDao: CbacDao
-
+    abstract val procedureMasterDao: ProcedureMasterDao
 
     companion object {
         @Volatile
         private var INSTANCE: InAppDb? = null
-        val MIGRATION_102_103 = object : Migration(102, 103) {
+        val MIGRATION_106_107 = object : Migration(106, 107) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE Patient ADD COLUMN faceEmbedding TEXT")
             }
@@ -225,7 +233,7 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_102_103)
+                        .addMigrations(MIGRATION_106_107)
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

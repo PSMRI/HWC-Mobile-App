@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
@@ -31,6 +32,7 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientNetwork
+import org.piramalswasthya.cho.model.PrescribedDrugsBatch
 import org.piramalswasthya.cho.model.Prescription
 import org.piramalswasthya.cho.model.PrescriptionBatchDTO
 import org.piramalswasthya.cho.model.PrescriptionDTO
@@ -76,7 +78,8 @@ class PatientRepo @Inject constructor(
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
     private val prescriptionDao: PrescriptionDao,
-    private val registrarMasterDataDao: RegistrarMasterDataDao
+    private val registrarMasterDataDao: RegistrarMasterDataDao,
+    private val batchDao: BatchDao,
 ) {
 
     suspend fun insertPatient(patient: Patient) {
@@ -370,12 +373,23 @@ class PatientRepo @Inject constructor(
                                 )
 
                                 setPatientAge(patient)
-
-                                // check if patient is present or not
-                                if(patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0){
-                                    patientDao.updatePatient(patient)
-                                } else {
-                                    patientDao.insertPatient(patient)
+                                val matchedPatient = patientDao.findSharedOfflinePatient(
+                                    syncState = SyncState.SHARED_OFFLINE,
+                                    firstName = patient.firstName,
+                                    lastName = patient.lastName ?: null,  // Handle null case
+                                    phoneNumber = patient.phoneNo ?: null  // Handle null case
+                                )
+                                if (matchedPatient != null) {
+                                    patient.patientID = matchedPatient.patientID
+                                    patient.syncState = SyncState.SYNCED
+                                    patientDao.updatePatient(patient)  // Update the matched patient with the new data
+                                }else {
+                                    // check if patient is present or not
+                                    if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
+                                        patientDao.updatePatient(patient)
+                                    } else {
+                                        patientDao.insertPatient(patient)
+                                    }
                                 }
                             } catch (e: Exception){
                                 isSuccess = false
@@ -620,10 +634,11 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val prescriptions = prescriptionDao.getPrescriptionsByPatientIdAndBenVisitNo(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+                Log.d("MyPrescription", "Prescription1 ${prescriptions}")
                 prescriptions?.forEach { prescription ->
                     val prescriptionItemList: MutableList<PrescriptionItemDTO> = mutableListOf()
                     val prescriptionDTO = PrescriptionDTO(
-                        beneficiaryRegID = benVisitInfo.patient.beneficiaryRegID!!,
+                        beneficiaryRegID = benVisitInfo.patient.beneficiaryRegID?:null,
                         consultantName = prescription.consultantName,
                         prescriptionID = prescription.prescriptionID,
                         visitCode = prescription.visitCode,
@@ -631,6 +646,7 @@ class PatientRepo @Inject constructor(
                     )
 
                     val prescribedDrugsList = prescriptionDao.getPrescribedDrugs(prescription.id)
+                    Log.d("MyPrescription", "Prescription11 ${prescribedDrugsList}")
                     prescribedDrugsList?.forEach { prescribedDrugs ->
                         val batchList: MutableList<PrescriptionBatchDTO> = mutableListOf()
                         val prescriptionItemDTO = PrescriptionItemDTO(
@@ -651,7 +667,43 @@ class PatientRepo @Inject constructor(
                         )
 
                         val prescribedDrugsBatchList = prescriptionDao.getPrescribedDrugsBatch(prescribedDrugs.id)
+                        Log.d("MyPrescription", "Prescription2 ${prescribedDrugsBatchList}")
+                        val batches = batchDao.getBatchesByItemID(prescribedDrugs.drugID.toInt())
+                        Log.d("MyPrescription", "Prescription3 ${batches}")
+                        val batchMap = batches.associateBy { it.batchNo }
+
+                        // List to store updated PrescribedDrugsBatch entries
+                        val updatedPrescribedDrugsBatches = mutableListOf<PrescribedDrugsBatch>()
+                        val updatedBatchNumbers = mutableSetOf<String>()
                         prescribedDrugsBatchList?.forEach { prescribedDrugsBatch ->
+                            val correspondingBatch = batchMap[prescribedDrugsBatch.batchNo]
+                            if (correspondingBatch != null) {
+                                // Update existing entry
+                                val updatedPrescribedDrugsBatch = prescribedDrugsBatch.copy(
+                                    qty = correspondingBatch.quantityInHand
+                                )
+                                updatedPrescribedDrugsBatches.add(updatedPrescribedDrugsBatch)
+                                updatedBatchNumbers.add(prescribedDrugsBatch.batchNo)
+                            }
+                            // If correspondingBatch is null, this entry will be omitted (effectively removed)
+                        }
+
+                        val batchesToDelete = prescribedDrugsBatchList?.filter { it.batchNo !in updatedBatchNumbers } ?: emptyList()
+                        Log.d("MyPrescription", "Prescription4 ${batchesToDelete}")
+
+                        batchesToDelete.forEach { batchToDelete ->
+                            prescriptionDao.deletePrescribedDrugsBatch(batchToDelete)
+                        }
+
+                        Log.d("MyPrescription", "Prescription5 ${updatedPrescribedDrugsBatches}")
+
+                        // Perform the update or insert operations
+                        updatedPrescribedDrugsBatches.forEach { updatedBatch ->
+                            prescriptionDao.updatePrescribedDrugsBatch(updatedBatch)
+                        }
+
+
+                        updatedPrescribedDrugsBatches?.forEach { prescribedDrugsBatch ->
                             val prescriptionBatchDTO = PrescriptionBatchDTO(
                                 expiresIn = prescribedDrugsBatch.expiresIn,
                                 batchNo = prescribedDrugsBatch.batchNo,
@@ -670,6 +722,7 @@ class PatientRepo @Inject constructor(
                 dtos
             } catch (e: Exception) {
                 Timber.d("get failed due to $e")
+                Log.d("MyPrescription", "Prescription12 ${e}")
                 null
             }
         }
@@ -680,5 +733,4 @@ class PatientRepo @Inject constructor(
             prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
         }
     }
-
 }
