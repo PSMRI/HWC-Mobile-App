@@ -10,7 +10,17 @@ import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.UserBlockDetails
+import org.piramalswasthya.cho.model.UserBlockDetailsData
+import org.piramalswasthya.cho.model.UserDistrictDetails
+import org.piramalswasthya.cho.model.UserDistrictDetailsData
 import org.piramalswasthya.cho.model.UserNetwork
+import org.piramalswasthya.cho.model.UserStateDetails
+import org.piramalswasthya.cho.model.UserStateDetailsData
+import org.piramalswasthya.cho.model.UserVanSpDetails
+import org.piramalswasthya.cho.model.UserVanSpDetailsData
+import org.piramalswasthya.cho.model.UserVillageDetails
+import org.piramalswasthya.cho.model.UserVillageDetailsData
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.time.Instant
 import java.time.LocalDate
@@ -264,6 +274,149 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         val prefKey = context.getString(R.string.pref_location_data)
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, LocationData::class.java)
+    }
+
+    fun saveVanData(van: UserVanSpDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_van_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getVanData(): UserVanSpDetails? {
+        val prefKey = context.getString(R.string.pref_van_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserVanSpDetails::class.java)
+    }
+
+    fun saveServicePointData(van: UserVanSpDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_service_point_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getServicePointData(): UserVanSpDetails? {
+        val prefKey = context.getString(R.string.pref_service_point_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserVanSpDetails::class.java)
+    }
+
+    fun saveStateData(van: UserStateDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_state_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getStateData(): UserStateDetails? {
+        val prefKey = context.getString(R.string.pref_state_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserStateDetails::class.java)
+    }
+
+    fun saveDistrictData(van: UserDistrictDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_district_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getDistrictData(): UserDistrictDetails? {
+        val prefKey = context.getString(R.string.pref_district_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserDistrictDetails::class.java)
+    }
+
+    fun saveBlockData(van: UserBlockDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_block_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getBlockData(): UserBlockDetails? {
+        val prefKey = context.getString(R.string.pref_block_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserBlockDetails::class.java)
+    }
+
+    fun saveVillageData(van: UserVillageDetails) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_village_data)
+        val locJson = Gson().toJson(van)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getVillageData(): UserVillageDetails? {
+        val prefKey = context.getString(R.string.pref_village_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserVillageDetails::class.java)
+    }
+
+    fun saveUserVanSpDetailsData(userVanSpDetails: UserVanSpDetailsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(userVanSpDetails)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserVanSpDetailsData(): UserVanSpDetailsData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserVanSpDetailsData::class.java)
+    }
+
+    fun saveUserStateDetailsData(userStateDetails: UserStateDetailsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(userStateDetails)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserStateDetailsData(): UserStateDetailsData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserStateDetailsData::class.java)
+    }
+
+    fun saveUserDistrictDetailsData(userDistrictDetails: UserDistrictDetailsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(userDistrictDetails)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserDistrictDetailsData(): UserDistrictDetailsData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserDistrictDetailsData::class.java)
+    }
+
+    fun saveUserBlockDetailsData(userBlockDetails: UserBlockDetailsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(userBlockDetails)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserBlockDetailsData(): UserBlockDetailsData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserBlockDetailsData::class.java)
+    }
+
+    fun saveUserVillageDetailsData(userVillageDetails: UserVillageDetailsData) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.pref_location_data)
+        val locJson = Gson().toJson(userVillageDetails)
+        editor.putString(prefKey, locJson)
+        editor.apply()
+    }
+    fun getUserVillageDetailsData(): UserVillageDetailsData? {
+        val prefKey = context.getString(R.string.pref_location_data)
+        val json = pref.getString(prefKey, null)
+        return Gson().fromJson(json, UserVillageDetailsData::class.java)
     }
 
     fun saveSetLanguage(language: Languages) {

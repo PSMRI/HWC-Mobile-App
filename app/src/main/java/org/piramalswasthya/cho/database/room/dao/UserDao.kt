@@ -55,6 +55,9 @@ interface UserDao {
     @Query("SELECT van_id FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUserVanID(): Int
 
+    @Query("UPDATE USER SET service_map_id = :serviceMapId")
+    suspend fun updateUserServiceMapId(serviceMapId : Int) : Int
+
     @Query("SELECT service_map_id FROM USER WHERE logged_in = 1 LIMIT 1")
     suspend fun getLoggedInUserProviderServiceMapId(): Int
 //    @Delete
@@ -78,6 +81,12 @@ interface UserDao {
 
     @Query("UPDATE USER SET districtBranchID = :districtBranchID")
     suspend fun updateUserVillageId(districtBranchID : Int) : Int
+
+    @Query("UPDATE USER SET van_id = :vanId")
+    suspend fun updateUserVanId(vanId : Int) : Int
+
+    @Query("UPDATE USER SET service_point_id = :servicePointId")
+    suspend fun updateUserServicePointId(servicePointId : Int) : Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFpData(fpVal:FingerPrint)

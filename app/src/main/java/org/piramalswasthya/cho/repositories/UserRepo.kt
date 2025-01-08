@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import org.piramalswasthya.cho.crypt.CryptoUtil
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -32,11 +34,22 @@ import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
+import org.piramalswasthya.cho.model.MmuLocationRequest
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.UserBlockDetails
+import org.piramalswasthya.cho.model.UserBlockDetailsData
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.UserDistrictDetails
+import org.piramalswasthya.cho.model.UserDistrictDetailsData
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.UserNetwork
+import org.piramalswasthya.cho.model.UserStateDetails
+import org.piramalswasthya.cho.model.UserStateDetailsData
+import org.piramalswasthya.cho.model.UserVanSpDetails
+import org.piramalswasthya.cho.model.UserVanSpDetailsData
+import org.piramalswasthya.cho.model.UserVillageDetails
+import org.piramalswasthya.cho.model.UserVillageDetailsData
 import org.piramalswasthya.cho.model.VillageLocationData
 import org.piramalswasthya.cho.model.VillageMaster
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
@@ -176,7 +189,7 @@ class UserRepo @Inject constructor(
                 return@withContext OutreachViewModel.State.ERROR_NETWORK
             }
             try {
-                getTokenTmc(userName, password,context)
+                getTokenTmc(userName, password,context, loginType)
                 if (user != null) {
                     Timber.d("User Auth Complete!!!!")
                     user?.loggedIn = true
@@ -230,14 +243,24 @@ class UserRepo @Inject constructor(
         }
     }
 
-    private suspend fun getUserVanSpDetails(context: Context): Boolean {
+    private suspend fun getUserVanSpDetails(context: Context, loginType: String? = "HWC"): Boolean {
         return withContext(Dispatchers.IO) {
-            val response = tmcNetworkApiService.getUserVanSpDetails(
-                TmcUserVanSpDetailsRequest(
-                    user!!.userId,
-                    user!!.serviceMapId
+            val response = if (loginType != "MMU") {
+                tmcNetworkApiService.getUserVanSpDetails(
+                    TmcUserVanSpDetailsRequest(
+                        user!!.userId,
+                        user!!.serviceMapId
+                    )
                 )
-            )
+            } else {
+                userDao.updateUserServiceMapId(user!!.serviceMapId)
+                tmcNetworkApiService.getMmuUserVanSpDetails(
+                    TmcUserVanSpDetailsRequest(
+                        user!!.userId,
+                        user!!.serviceMapId
+                    )
+                )
+            }
             Timber.d("User Van Sp Details : $response")
             val statusCode = response.code()
             if (statusCode == 200) {
@@ -246,24 +269,232 @@ class UserRepo @Inject constructor(
                 val data = responseJson.getJSONObject("data")
                 val vanSpDetailsArray = data.getJSONArray("UserVanSpDetails")
 
-                for (i in 0 until vanSpDetailsArray.length()) {
-                    val vanSp = vanSpDetailsArray.getJSONObject(i)
-                    val vanId = vanSp.getInt("vanID")
-                    user?.vanId = vanId
-                    //val name = vanSp.getString("vanNoAndType")
-                    val servicePointId = vanSp.getInt("servicePointID")
-                    user?.servicePointId = servicePointId
-                    val servicePointName = vanSp.getString("servicePointName")
-                    user?.servicePointName = servicePointName
-                    if (!vanSp.has("facilityID")) {
-                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
-                        delay(3000)
-                    }
-                    val facilityId = vanSp.getInt("facilityID")
-                    user?.facilityID = facilityId
-                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+                if (loginType != "MMU") {
+                    for (i in 0 until vanSpDetailsArray.length()) {
+                        val vanSp = vanSpDetailsArray.getJSONObject(i)
+                        val vanId = vanSp.getInt("vanID")
+                        user?.vanId = vanId
+                        //val name = vanSp.getString("vanNoAndType")
+                        val servicePointId = vanSp.getInt("servicePointID")
+                        user?.servicePointId = servicePointId
+                        val servicePointName = vanSp.getString("servicePointName")
+                        user?.servicePointName = servicePointName
+                        if (!vanSp.has("facilityID")) {
+                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                            delay(3000)
+                        }
+                        val facilityId = vanSp.getInt("facilityID")
+                        user?.facilityID = facilityId
+                        user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
 
+                    }
+                } else {
+                    var list = mutableListOf<UserVanSpDetails>()
+                    for (i in 0 until vanSpDetailsArray.length()) {
+
+                        val vanSp = vanSpDetailsArray.getJSONObject(i)
+                        val vanId = vanSp.getInt("vanID")
+                        user?.vanId = vanId
+                        //val name = vanSp.getString("vanNoAndType")
+                        val servicePointId = vanSp.getInt("servicePointID")
+                        user?.servicePointId = servicePointId
+                        val servicePointName = vanSp.getString("servicePointName")
+                        user?.servicePointName = servicePointName
+                        if (!vanSp.has("facilityID")) {
+                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                            delay(3000)
+                        }
+                        val facilityId = vanSp.getInt("facilityID")
+                        user?.facilityID = facilityId
+                        user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+
+//                        val vanSp = vanSpDetailsArray.getJSONObject(i)
+                        val id = vanSp.getInt("ID")
+                        val userId = vanSp.getInt("userID")
+//                        val vanId = vanSp.getInt("vanID")
+                        val vanNoAndType = vanSp.getString("vanNoAndType")
+                        val vanSession = vanSp.getInt("vanSession")
+                        val servicePointID = vanSp.getInt("servicePointID")
+//                        val servicePointName = vanSp.getString("servicePointName")
+                        val parkingPlaceID = vanSp.getInt("parkingPlaceID")
+                        val facilityID = vanSp.getInt("facilityID")
+                        val dataModel = UserVanSpDetails(
+                            id,
+                            userId,
+                            vanId,
+                            vanNoAndType,
+                            vanSession,
+                            servicePointID,
+                            servicePointName,
+                            parkingPlaceID,
+                            facilityID
+                        )
+//                        user?.userVanSpDetails?.add(dataModel)
+                        list.add(dataModel)
+                    }
+                    preferenceDao.saveUserVanSpDetailsData(
+                        UserVanSpDetailsData(
+                            list
+                        )
+                    )
                 }
+
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    suspend fun getMmuLocDetailsBasedOnSpIDAndPsmID(servicePointId: Int, serviceMapId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getMmuLocDetailsBasedOnSpIDAndPsmID(
+                MmuLocationRequest(
+                    servicePointId.toString(),
+                    serviceMapId.toString()
+                )
+            )
+
+            val responseBody = JSONObject(
+                response.body()?.string()
+                    ?: throw IllegalStateException("Response success but data missing @ $response")
+            )
+
+            val responseStatusCode = responseBody.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val data = responseBody.getJSONObject("data")
+                val stateList = data.getJSONArray("stateMaster")
+                var list = mutableListOf<UserStateDetails>()
+                for (i in 0 until stateList.length()) {
+                    val state = stateList.getJSONObject(i)
+                    val id = state.getInt("stateID")
+                    val name = state.getString("stateName")
+                    val dataModel = UserStateDetails(
+                        id,
+                        name
+                    )
+//                        user?.userVanSpDetails?.add(dataModel)
+                    list.add(dataModel)
+                }
+                preferenceDao.saveUserStateDetailsData(
+                    UserStateDetailsData(
+                        list
+                    )
+                )
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    suspend fun getMmuDistricts(stateId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getMmuDistricts(
+                stateId
+            )
+
+            val responseBody = JSONObject(
+                response.body()?.string()
+                    ?: throw IllegalStateException("Response success but data missing @ $response")
+            )
+
+            val responseStatusCode = responseBody.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val districtList = responseBody.getJSONArray("data")
+                var list = mutableListOf<UserDistrictDetails>()
+                for (i in 0 until districtList.length()) {
+                    val district = districtList.getJSONObject(i)
+                    val id = district.getInt("districtID")
+                    val name = district.getString("districtName")
+                    val dataModel = UserDistrictDetails(
+                        id,
+                        name
+                    )
+//                        user?.userVanSpDetails?.add(dataModel)
+                    list.add(dataModel)
+                }
+                preferenceDao.saveUserDistrictDetailsData(
+                    UserDistrictDetailsData(
+                        list
+                    )
+                )
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    suspend fun getMmuBlocks(districtId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getMmuBlocks(
+                districtId
+            )
+
+            val responseBody = JSONObject(
+                response.body()?.string()
+                    ?: throw IllegalStateException("Response success but data missing @ $response")
+            )
+
+            val responseStatusCode = responseBody.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val blockList = responseBody.getJSONArray("data")
+                var list = mutableListOf<UserBlockDetails>()
+                for (i in 0 until blockList.length()) {
+                    val block = blockList.getJSONObject(i)
+                    val id = block.getInt("blockID")
+                    val name = block.getString("blockName")
+                    val dataModel = UserBlockDetails(
+                        id,
+                        name
+                    )
+//                        user?.userVanSpDetails?.add(dataModel)
+                    list.add(dataModel)
+                }
+                preferenceDao.saveUserBlockDetailsData(
+                    UserBlockDetailsData(
+                        list
+                    )
+                )
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    suspend fun getMmuVillages(blockId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            val response = tmcNetworkApiService.getMmuVillages(
+                blockId
+            )
+
+            val responseBody = JSONObject(
+                response.body()?.string()
+                    ?: throw IllegalStateException("Response success but data missing @ $response")
+            )
+
+            val responseStatusCode = responseBody.getInt("statusCode")
+            if (responseStatusCode == 200) {
+                val villageList = responseBody.getJSONArray("data")
+                var list = mutableListOf<UserVillageDetails>()
+                for (i in 0 until villageList.length()) {
+                    val village = villageList.getJSONObject(i)
+                    val id = village.getInt("districtBranchID")
+                    val name = village.getString("villageName")
+                    val dataModel = UserVillageDetails(
+                        id,
+                        name
+                    )
+//                        user?.userVanSpDetails?.add(dataModel)
+                    list.add(dataModel)
+                }
+                preferenceDao.saveUserVillageDetailsData(
+                    UserVillageDetailsData(
+                        list
+                    )
+                )
                 true
             } else {
                 false
@@ -314,18 +545,27 @@ class UserRepo @Inject constructor(
         }
 
 
-    private suspend fun getTokenTmc(userName: String, password: String, context: Context) {
+    private suspend fun getTokenTmc(userName: String, password: String, context: Context, loginType: String? = "HWC") {
         withContext(Dispatchers.IO) {
             try {
                 val encryptedPassword = encrypt(password)
 
-                val response =
+                val response = if (loginType != "MMU") {
                     tmcNetworkApiService.getJwtToken(
                         TmcAuthUserRequest(
                             userName,
                             encryptedPassword
                         )
                     )
+                } else {
+                    tmcNetworkApiService.getJwtToken(
+                        TmcAuthUserRequest(
+                            userName = userName,
+                            password = encryptedPassword,
+                            doLogout = true
+                        )
+                    )
+                }
                 Timber.d("msg", response.toString())
                 if (!response.isSuccessful) {
                     return@withContext
@@ -355,9 +595,11 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
-                    getUserVanSpDetails(context)
-                    getLocDetailsBasedOnSpIDAndPsmID()
-                    getUserMasterVillage()
+                    getUserVanSpDetails(context, loginType)
+                    if (loginType != "MMU") {
+                        getLocDetailsBasedOnSpIDAndPsmID()
+                        getUserMasterVillage()
+                    }
 //                    getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")

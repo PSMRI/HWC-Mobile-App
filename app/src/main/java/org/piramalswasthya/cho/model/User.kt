@@ -61,7 +61,7 @@ data class UserCache(
     val serviceId : Int,
 
     @ColumnInfo(name = "service_point_id")
-    val servicePointId : Int,
+    var servicePointId : Int,
 
     @ColumnInfo(name = "service_point_name")
     val servicePointName : String,
@@ -82,7 +82,7 @@ data class UserCache(
     val zoneName : String,
 
     @ColumnInfo(name = "van_id")
-    val vanId : Int,
+    var vanId : Int,
 
     @Embedded(prefix = "country_")
     val country : LocationEntity,

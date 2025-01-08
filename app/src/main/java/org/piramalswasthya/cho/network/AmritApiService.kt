@@ -11,6 +11,7 @@ import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
+import org.piramalswasthya.cho.model.MmuLocationRequest
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.OutreachActivityNetworkModel
@@ -62,6 +63,22 @@ interface AmritApiService {
         @Body vanServiceType: TmcUserVanSpDetailsRequest
     ): Response<ResponseBody>
 
+    @POST("mmuapi-v1.0/user/getUserVanSpDetails?apiKey=undefined")
+    suspend fun getMmuUserVanSpDetails(
+        @Body vanServiceType: TmcUserVanSpDetailsRequest
+    ): Response<ResponseBody>
+
+    @POST("mmuapi-v1.0/location/getLocDetailsBasedOnSpIDAndPsmID?apiKey=undefined")
+    suspend fun getMmuLocDetailsBasedOnSpIDAndPsmID(@Body request: MmuLocationRequest): Response<ResponseBody>
+
+    @GET("mmuapi-v1.0/location/get/districtMaster/{stateId}?apiKey=undefined")
+    suspend fun getMmuDistricts(@Path("stateId") stateId: Int): Response<ResponseBody>
+
+    @GET("mmuapi-v1.0/location/get/districtBlockMaster/{districtId}?apiKey=undefined")
+    suspend fun getMmuBlocks(@Path("districtId") districtId: Int): Response<ResponseBody>
+
+    @GET("mmuapi-v1.0/location/get/villageMasterFromBlockID/{blockId}?apiKey=undefined")
+    suspend fun getMmuVillages(@Path("blockId") blockId: Int): Response<ResponseBody>
 
     @POST("tmapi-v1.0/user/getUserVanSpDetails/")
     suspend fun getTMVanSpDetails(

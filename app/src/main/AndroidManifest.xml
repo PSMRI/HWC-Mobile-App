@@ -25,7 +25,7 @@
 
     <application
         android:name=".CHOApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:configChanges="locale|orientation"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -38,6 +38,9 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.outreach_activity.OutreachActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.service_point_activity.ServicePointActivity"
             android:exported="false" />
         <activity
             android:name=".ui.abha_id_activity.AbhaIdActivity"

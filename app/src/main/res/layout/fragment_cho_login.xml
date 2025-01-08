@@ -41,6 +41,12 @@
                 android:text="@string/outreach"
                 android:value="@string/outreach" />
 
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/btn_mmu"
+                style="@style/radio_item_lang"
+                android:text="@string/mmu"
+                android:value="@string/mmu" />
+
         </RadioGroup>
 
         <LinearLayout

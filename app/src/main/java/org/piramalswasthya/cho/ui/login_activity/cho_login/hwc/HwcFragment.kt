@@ -31,6 +31,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.ChoLoginFragmentDirections
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.ui.master_location_settings.MasterLocationSettingsActivity
+import org.piramalswasthya.cho.ui.service_point_activity.ServicePointActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,6 +43,7 @@ class HwcFragment constructor(
     private val userName: String,
     private val rememberUsername: Boolean,
     private val isBiometric: Boolean,
+    private val isMmuLogin: Boolean
 ) : Fragment() {
 
     @Inject
@@ -65,6 +67,8 @@ class HwcFragment constructor(
     var currentLatitude: Double? = null
     var currentLongitude: Double? = null
 
+    private var loginType: String = "HWC"
+
     var timestamp: String? = null
     private var currentLocation: Location? = null
     private var locationManager: LocationManager? = null
@@ -74,6 +78,11 @@ class HwcFragment constructor(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        loginType = if (isMmuLogin) {
+            "MMU"
+        } else {
+            "HWC"
+        }
         getCurrentLocation()
         viewModel = ViewModelProvider(this).get(HwcViewModel::class.java)
 
@@ -114,108 +123,133 @@ class HwcFragment constructor(
 
                         OutreachViewModel.State.SUCCESS -> {
 
-                            lifecycleScope.launch {
-                                val user = userDao.getLoggedInUser()
-                                binding.patientListFragment.visibility = View.VISIBLE
-                                binding.rlSaving.visibility = View.GONE
+                            if (isMmuLogin) {
 
-                                if (rememberUsername)
-                                    viewModel.rememberUser(
-                                        userName,
-                                        binding.etPasswordHwc.text.toString()
-                                    )
-                                else {
-                                    viewModel.forgetUser()
+                                lifecycleScope.launch {
+                                    if (rememberUsername)
+                                        viewModel.rememberUser(
+                                            userName,
+                                            binding.etPasswordHwc.text.toString()
+                                        )
+                                    else {
+                                        viewModel.forgetUser()
+                                    }
                                 }
 
-                                userLatitude = user?.masterLatitude
-                                userLongitude = user?.masterLongitude
-                                userLoginDistance = user?.loginDistance
-                                currentLatitude = currentLocation?.latitude
-                                currentLongitude = currentLocation?.longitude
+                                startActivity(
+                                    Intent(
+                                        context,
+                                        ServicePointActivity::class.java
+                                    )
+                                )
+                                viewModel.resetState()
+                                activity?.finish()
+                            } else {
 
-                                if (user?.masterVillageID != null && userLatitude != null && userLongitude != null) {
-                                    if (currentLatitude != null && currentLongitude != null) {
-                                        val distance = calculateDistance(
-                                            userLatitude!!, userLongitude!!,
-                                            currentLatitude!!, currentLongitude!!
+                                lifecycleScope.launch {
+                                    val user = userDao.getLoggedInUser()
+                                    binding.patientListFragment.visibility = View.VISIBLE
+                                    binding.rlSaving.visibility = View.GONE
+
+                                    if (rememberUsername)
+                                        viewModel.rememberUser(
+                                            userName,
+                                            binding.etPasswordHwc.text.toString()
                                         )
-                                        if (distance > userLoginDistance!!) {
-                                            showDialog()
-                                        } else {
+                                    else {
+                                        viewModel.forgetUser()
+                                    }
+
+                                    userLatitude = user?.masterLatitude
+                                    userLongitude = user?.masterLongitude
+                                    userLoginDistance = user?.loginDistance
+                                    currentLatitude = currentLocation?.latitude
+                                    currentLongitude = currentLocation?.longitude
+
+                                    if (user?.masterVillageID != null && userLatitude != null && userLongitude != null) {
+                                        if (currentLatitude != null && currentLongitude != null) {
+                                            val distance = calculateDistance(
+                                                userLatitude!!, userLongitude!!,
+                                                currentLatitude!!, currentLongitude!!
+                                            )
+                                            if (distance > userLoginDistance!!) {
+                                                showDialog()
+                                            } else {
 //                                            Toast.makeText(
 //                                                context,
 //                                                "distance $distance",
 //                                                Toast.LENGTH_LONG
 //                                            ).show()
+                                                findNavController().navigate(
+                                                    ChoLoginFragmentDirections.actionSignInToHomeFromCho(
+                                                        true
+                                                    )
+                                                )
+                                                viewModel.setOutreachDetails(
+                                                    loginType,
+                                                    null,
+                                                    timestamp,
+                                                    null,
+                                                    currentLocation?.latitude,
+                                                    currentLocation?.longitude,
+                                                    null,
+                                                    false
+                                                )
+                                                viewModel.resetState()
+                                                activity?.finish()
+                                            }
+
+                                        } else {
+                                            //TODO
+                                            Toast.makeText(
+                                                context,
+                                                "Unable to verify location",
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                             findNavController().navigate(
                                                 ChoLoginFragmentDirections.actionSignInToHomeFromCho(
                                                     true
                                                 )
                                             )
                                             viewModel.setOutreachDetails(
-                                                "HWC",
+                                                loginType,
                                                 null,
                                                 timestamp,
                                                 null,
                                                 currentLocation?.latitude,
                                                 currentLocation?.longitude,
                                                 null,
-                                                false
+                                                null
                                             )
                                             viewModel.resetState()
                                             activity?.finish()
                                         }
 
                                     } else {
-                                        //TODO
-                                        Toast.makeText(
-                                            context,
-                                            "Unable to verify location",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        findNavController().navigate(
-                                            ChoLoginFragmentDirections.actionSignInToHomeFromCho(
-                                                true
-                                            )
-                                        )
                                         viewModel.setOutreachDetails(
-                                            "HWC",
+                                            loginType,
                                             null,
                                             timestamp,
                                             null,
                                             currentLocation?.latitude,
                                             currentLocation?.longitude,
                                             null,
-                                            null
+                                            false
+                                        )
+                                        // OPEN SETTINGS PAGE
+                                        startActivity(
+                                            Intent(
+                                                context,
+                                                MasterLocationSettingsActivity::class.java
+                                            )
                                         )
                                         viewModel.resetState()
                                         activity?.finish()
                                     }
-
-                                } else {
-                                    viewModel.setOutreachDetails(
-                                        "HWC",
-                                        null,
-                                        timestamp,
-                                        null,
-                                        currentLocation?.latitude,
-                                        currentLocation?.longitude,
-                                        null,
-                                        false
-                                    )
-                                    // OPEN SETTINGS PAGE
-                                    startActivity(
-                                        Intent(
-                                            context,
-                                            MasterLocationSettingsActivity::class.java
-                                        )
-                                    )
-                                    viewModel.resetState()
-                                    activity?.finish()
-                                }
 //                                viewModel.resetState()
 //                                activity?.finish()
+                                }
+
                             }
                         }
 
@@ -259,7 +293,7 @@ class HwcFragment constructor(
                                 showDialog()
                             } else {
                                 viewModel.setOutreachDetails(
-                                    "HWC",
+                                    loginType,
                                     null,
                                     timestamp,
                                     null,
@@ -278,7 +312,7 @@ class HwcFragment constructor(
                             }
                         } else {
                             viewModel.setOutreachDetails(
-                                "HWC",
+                                loginType,
                                 null,
                                 timestamp,
                                 null,
@@ -361,7 +395,7 @@ class HwcFragment constructor(
                             viewModel.authUser(
                                 userName,
                                 binding.etPasswordHwc.text.toString(),
-                                "HWC",
+                                loginType,
                                 null,
                                 timestamp,
                                 null,

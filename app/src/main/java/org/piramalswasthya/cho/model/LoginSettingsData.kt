@@ -31,3 +31,5 @@ data class LoginSettingsData(
 
 
 data class LocationRequest(val vanID: Int, val spPSMID: String, val userID: Int)
+
+data class MmuLocationRequest(val spID: String, val spPSMID: String)

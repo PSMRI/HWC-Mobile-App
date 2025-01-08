@@ -68,9 +68,15 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
+    // Staging URL
     private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
+    // Production URL
+//    private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
 
+    // Staging URL
     private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
+    // Production URL
+//    private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
 

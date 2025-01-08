@@ -93,6 +93,8 @@ class ChoLoginFragment : Fragment() {
     private var loginType: String = ""
     private var userName: String = ""
 
+    private var isMmuLogin: Boolean = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -103,13 +105,13 @@ class ChoLoginFragment : Fragment() {
     }
 
     private fun setActivityContainer(programId: Int){
-        userName = (arguments?.getString("userName", ""))!!;
+        userName = (arguments?.getString("userName", ""))!!
         val rememberUsername:Boolean = (arguments?.getBoolean("rememberUsername"))!!
         val isBiometric:Boolean = (arguments?.getBoolean("isBiometric"))!!
         val fragmentManager : FragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction : FragmentTransaction = fragmentManager.beginTransaction()
-        val hwcFragment  = HwcFragment(userName,rememberUsername,isBiometric)
-        val outreachFragment = OutreachFragment(userName,rememberUsername,isBiometric);
+        val hwcFragment  = HwcFragment(userName,rememberUsername,isBiometric, isMmuLogin)
+        val outreachFragment = OutreachFragment(userName,rememberUsername,isBiometric)
         when (programId){
             binding.btnHwc.id -> {
 //                binding.fpLoginLayout.visibility = View.VISIBLE
@@ -119,6 +121,11 @@ class ChoLoginFragment : Fragment() {
             binding.btnOutreach.id -> {
                 binding.fpLoginLayout.visibility = View.GONE
                 fragmentTransaction.replace(binding.selectActivityContainer.id, outreachFragment)
+                fragmentTransaction.commit()
+            }
+            binding.btnMmu.id -> {
+                binding.fpLoginLayout.visibility = View.GONE
+                fragmentTransaction.replace(binding.selectActivityContainer.id, hwcFragment)
                 fragmentTransaction.commit()
             }
             else -> {
@@ -133,6 +140,12 @@ class ChoLoginFragment : Fragment() {
 //        getCurrentLocation()
         setActivityContainer(binding.selectProgram.id)
         binding.selectProgram.setOnCheckedChangeListener { _, programId ->
+            when (programId) {
+                binding.btnMmu.id -> {
+                    isMmuLogin = true
+                }
+                else -> isMmuLogin = false
+            }
             setActivityContainer(programId)
         }
 

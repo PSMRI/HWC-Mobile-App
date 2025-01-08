@@ -370,6 +370,12 @@
     <string name="note_ben_reg">Note!</string>
     <string name="please_search_for_beneficiary">Please search for Beneficiary before registration.</string>
     <string name="pref_location_data">pref_location_data</string>
+    <string name="pref_van_data">pref_van_data</string>
+    <string name="pref_service_point_data">pref_service_point_data</string>
+    <string name="pref_state_data">pref_state_data</string>
+    <string name="pref_district_data">pref_district_data</string>
+    <string name="pref_block_data">pref_block_data</string>
+    <string name="pref_village_data">pref_village_data</string>
     <string name="chief_complaint2">Chief Complaint List</string>
     <string name="beneficiary_name">Beneficiary Name:</string>
     <string name="abha_no">Abha No:</string>
@@ -598,5 +604,8 @@
     <string name="villageName">Village Name:</string>
     <string name="required">Required</string>
     <string name="version">Version 6.0.0</string>
+    <string name="service_type">Service Type:</string>
+    <string name="mmu">MMU</string>
+    <string name="service_point">Service Point</string>
 
 </resources>
