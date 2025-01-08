@@ -101,6 +101,10 @@ class PatientDetailsViewModel @Inject constructor(
     val spouseNameVal: MutableLiveData<Boolean>
         get() = _spouseNameVal
 
+    private val _relationStatusVal=MutableLiveData<Boolean>(false)
+    val relationStatusVal: MutableLiveData<Boolean>
+        get() = _relationStatusVal
+
     private val _ageAtMarraigeVal=MutableLiveData<Boolean>(false)
     val ageAtMarraigeVal: MutableLiveData<Boolean>
         get() = _ageAtMarraigeVal
@@ -127,6 +131,10 @@ class PatientDetailsViewModel @Inject constructor(
     val maritalStatus: MutableLiveData<NetworkState>
         get() = _maritalStatus
 
+    private val _relationStatus = MutableLiveData(NetworkState.IDLE)
+    val relationStatus: MutableLiveData<NetworkState>
+        get() = _relationStatus
+
     private val _genderMaster = MutableLiveData(NetworkState.IDLE)
     val genderMaster: MutableLiveData<NetworkState>
         get() = _genderMaster
@@ -141,6 +149,7 @@ class PatientDetailsViewModel @Inject constructor(
     var villageList  = mutableListOf<VillageLocationData>()
     var villageListFilter  = mutableListOf<VillageLocationData>()
     var maritalStatusList : List<MaritalStatusMaster> = mutableListOf()
+    var relationStatusList : List<MaritalStatusMaster> = mutableListOf()
     var genderMasterList : List<GenderMaster> = mutableListOf()
 
     var selectedAgeUnitEnum: AgeUnitEnum? = AgeUnitEnum.YEARS
@@ -161,6 +170,7 @@ class PatientDetailsViewModel @Inject constructor(
             fetchAgeUnits()
             fetchMaritalStatus()
             fetchGenderMaster()
+            fetchRelationStatus()
             fetchVillages()
         }
     }
@@ -185,6 +195,9 @@ class PatientDetailsViewModel @Inject constructor(
     }
     fun setGender(boolean: Boolean){
         _genderVal.value = boolean
+    }
+    fun setRelation(boolean: Boolean){
+        _relationStatusVal.value = boolean
     }
     fun setVillageBool(boolean: Boolean){
         _villageBoolVal.value = boolean
@@ -258,6 +271,17 @@ class PatientDetailsViewModel @Inject constructor(
         }
         catch (_: Exception){
             _maritalStatus.value = NetworkState.FAILURE
+        }
+    }
+
+    suspend fun fetchRelationStatus(){
+        _relationStatus.value = NetworkState.LOADING
+        try {
+            maritalStatusList = registrarMasterDataRepo.getMaritalStatusMasterCachedResponse()
+            _relationStatus.value = NetworkState.SUCCESS
+        }
+        catch (_: Exception){
+            _relationStatus.value = NetworkState.FAILURE
         }
     }
 

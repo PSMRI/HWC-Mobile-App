@@ -471,6 +471,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.genderVal.observe(viewLifecycleOwner) {
                 binding.genderText.setBoxColor(it, resources.getString(R.string.select_gender))
             }
+            viewModel.relationStatusVal.observe(viewLifecycleOwner) {
+                binding.relationStatusText.setBoxColor(it, resources.getString(R.string.select_relation_status))
+            }
             viewModel.villageBoolVal.observe(viewLifecycleOwner) {
                 binding.villageText.setBoxColor(it, resources.getString(R.string.select_village))
             }
@@ -516,8 +519,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if (viewModel.selectedMaritalStatus!!.status.equals("married", true)) {
                 binding.fatherNameText.visibility = View.GONE
                 binding.spouseNameText.visibility = View.VISIBLE
+                binding.relationStatusText.visibility = View.VISIBLE
             } else {
                 binding.spouseNameText.visibility = View.GONE
+                binding.relationStatusText.visibility = View.GONE
                 binding.fatherNameText.visibility = View.VISIBLE
             }
         }
@@ -525,6 +530,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedGenderMaster = viewModel.genderMasterList[position];
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+        }
+        binding.relationStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedGenderMaster = viewModel.genderMasterList[position];
+            binding.relationStatusDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
         }
         binding.villageDropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedVillage = parent.getItemAtPosition(position) as VillageLocationData
@@ -613,6 +622,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isGenderFilled = s?.isNotEmpty() == true // Check if not empty
                 viewModel.setGender(isGenderFilled) // Update LiveData
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        binding.relationStatusDropdown.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isRelationFilled = s?.isNotEmpty() == true // Check if not empty
+                viewModel.setRelation(isRelationFilled) // Update LiveData
             }
 
             override fun afterTextChanged(s: Editable?) {}

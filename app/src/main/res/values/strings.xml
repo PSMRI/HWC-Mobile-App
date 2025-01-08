@@ -281,6 +281,8 @@
     <string name="phone_number">Phone Number</string>
     <string name="registration_date">Registration Date</string>
     <string name="marital_status">Marital Status</string>
+    <string name="relation_status">Status of Women <font color="#FF0000">*</font></string>
+    <string name="select_relation_status">Select Status of Women</string>
     <string name="spouse_name">Spouse Name</string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
