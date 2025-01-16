@@ -5,5 +5,5 @@
 *.lock
 /app/build/*
 /app/release/*
-**/google-services.json
+google-services.json
 /app/src/staging/google-services.json
