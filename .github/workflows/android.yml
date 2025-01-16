@@ -15,7 +15,7 @@ env:
   date_today: ${{ github.event.head_commit.timestamp }}
 
 jobs:
-  saksham_stag_job:
+  hlw_stag_job:
     uses: ./.github/workflows/build-distribute.yml
     with:
       environment: HLW_STAG
@@ -23,7 +23,7 @@ jobs:
       build_type: debug
     secrets: inherit
 
-  saksham_uat_job:
+  hlw_uat_job:
     uses: ./.github/workflows/build-distribute.yml
     with:
       environment: HLW_UAT
