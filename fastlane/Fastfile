@@ -1,0 +1,61 @@
+
+default_platform(:android)
+platform :android do
+
+  desc "Build and Distribute Debug APK to Firebase"
+  lane :build_and_distribute_debug do |options|
+    # Build the debug variant
+    gradle(
+      task: "assemble#{options[:variant]}Debug"
+    )
+
+    puts "Testers group: #{ENV['TESTER_GROUPS']}"
+
+    # Distribute to Firebase App Distribution for Stag and UAT
+    firebase_app_distribution(
+      app: ENV['FIREBASE_APP_ID'],
+      firebase_cli_token: ENV['FIREBASE_CLI_TOKEN'],
+      groups: "#{ENV['TESTER_GROUPS']}",
+      release_notes: "#{options[:variant]}-Debug version out!",
+      debug: true
+    )
+  end
+
+  desc "Build, Sign, and Distribute Release APK to Play Store"
+  lane :build_and_distribute_release do |options|
+    # Build the release variant
+    gradle(
+      task: "assemble#{options[:variant]}Release"
+    )
+
+    # Sign the APK using the keystore
+    gradle(
+      task: "signingReport",
+      keystore_path: ENV['KEYSTORE_PATH'],
+      keystore_password: ENV['KEYSTORE_PASSWORD'],
+      key_alias: ENV['KEY_ALIAS'],
+      key_password: ENV['KEY_PASSWORD']
+    )
+
+    # Deploy to Google Play for Production
+#     supply(
+#       track: "internal",
+#       aab: "app/build/outputs/bundle/#{options[:variant]}Release/app-#{options[:variant]}-release.aab",
+#       json_key: "./google_play_service_account.json"
+#     )
+  end
+
+
+
+
+#   desc "Increment Build Version in Codebase"
+#   lane :increment_version_staging_debug do
+#     latest_release = firebase_app_distribution_get_latest_release(
+#       app: ""
+#     )
+#     increment_version_code({ version_code: latest_release[:buildVersion].to_i + 1 })
+#   end
+#
+
+
+end
