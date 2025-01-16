@@ -1,0 +1,109 @@
+name: Build and Distribute to Firebase
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      variant:
+        required: true
+        type: string
+      build_type:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@v1.5.0
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v1
+        with:
+          cmake-version: '3.31.1'
+
+      - name: Set up ruby env
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+
+      - name: Verify Ruby installation
+        run: ruby -v
+
+      - name: Decode generic google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_GENERIC }}" | base64 --decode > ./app/google-services.json || exit 1
+      - name: Decode Google Play JSON key
+        run: |
+          echo "${{ secrets.GOOGLE_PLAY_JSON_KEY }}" | base64 --decode > ./fastlane/google_play_service_account.json
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
+      - name: Build and Distribute app to Firebase
+        id: build-and-distribute
+        run: |
+
+          # Set app URLs used in the codebase
+          export ENCRYPTED_PASS_KEY=${{ secrets.ENCRYPTED_PASS_KEY }}
+          export ABHA_CLIENT_ID=${{ secrets.ABHA_CLIENT_ID }}
+          export ABHA_CLIENT_SECRET=${{ secrets.ABHA_CLIENT_SECRET }}
+          export BASE_TMC_URL=${{ secrets.BASE_TMC_URL }}
+          export BASE_ABHA_URL=${{ secrets.BASE_ABHA_URL }}
+          export ABHA_TOKEN_URL=${{ secrets.ABHA_TOKEN_URL }}
+          export ABHA_AUTH_URL=${{ secrets.ABHA_AUTH_URL }}
+
+          # Set app release version signing credentials
+          export KEYSTORE_PATH=${{ secrets.KEYSTORE_PATH }}
+          export KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          export KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          export KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+
+          # Set Firebase App Distribution and Google Play authentication tokens
+          export FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+          export FIREBASE_CLI_TOKEN=${{ secrets.FIREBASE_CLI_TOKEN }}
+          export TESTER_GROUPS=${{ secrets.TESTER_GROUPS }}
+          # export GOOGLE_PLAY_JSON_KEY=$(echo ${{ secrets.GOOGLE_PLAY_JSON_KEY }} | base64 --decode)
+
+          if [ "${{ inputs.build_type }}" == "debug" ]; then
+            bundle exec fastlane build_and_distribute_debug variant:${{ inputs.variant }}
+          else
+            bundle exec fastlane build_and_distribute_release variant:${{ inputs.variant }}
+          fi
+
+
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: FLW-Mobile-App - APK(s) ${{ inputs.variant }} generated
+          path: app/build/outputs/apk/**/${{ inputs.build_type }}/*.apk
+
+      - name: Push to Releases
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "app/build/outputs/apk/**/${{ inputs.build_type }}/*.apk"
+          tag: v${{ env.version }}-${{ inputs.environment }}-${{ github.run_number }}
+          token: ${{secrets.GITHUB_TOKEN}}
+

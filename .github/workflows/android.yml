@@ -1,0 +1,44 @@
+name: Android Build and Distribute
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  main_project_module: app
+  repository_name: HLW-Mobile-App
+  date_today: ${{ github.event.head_commit.timestamp }}
+
+jobs:
+  saksham_stag_job:
+    uses: ./.github/workflows/build-distribute.yml
+    with:
+      environment: HLW_STAG
+      variant: Staging
+      build_type: debug
+    secrets: inherit
+
+  saksham_uat_job:
+    uses: ./.github/workflows/build-distribute.yml
+    with:
+      environment: HLW_UAT
+      variant: Uat
+      build_type: debug
+    secrets: inherit
+
+#  hlw_production_job:
+#    uses: ./.github/workflows/build-distribute.yml
+#    with:
+#      environment: HLW_PRODUCTION
+#      variant: Production
+#      build_type: release
+#    secrets: inherit
+#
+
+
+
