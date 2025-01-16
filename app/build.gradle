@@ -25,6 +25,16 @@ android {
         }
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk true
+        }
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -82,6 +92,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.3.2'
     }
+    externalNativeBuild {
+        cmake {
+            path file("src/main/cpp/CMakeLists.txt")
+        }
+    }
+    ndkVersion "27.2.12479018"
 //    lint {
 //        baseline = file("lint-baseline.xml")
 //    }
