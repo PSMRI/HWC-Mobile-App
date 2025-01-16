@@ -66,13 +66,12 @@ jobs:
         run: |
 
           # Set app URLs used in the codebase
-          export ENCRYPTED_PASS_KEY=${{ secrets.ENCRYPTED_PASS_KEY }}
-          export ABHA_CLIENT_ID=${{ secrets.ABHA_CLIENT_ID }}
-          export ABHA_CLIENT_SECRET=${{ secrets.ABHA_CLIENT_SECRET }}
           export BASE_TMC_URL=${{ secrets.BASE_TMC_URL }}
+          export BASE_AMRIT_URL=${{ secrets.BASE_AMRIT_URL }}
+          export BASE_FLW_URL=${{ secrets.BASE_FLW_URL }}
           export BASE_ABHA_URL=${{ secrets.BASE_ABHA_URL }}
-          export ABHA_TOKEN_URL=${{ secrets.ABHA_TOKEN_URL }}
-          export ABHA_AUTH_URL=${{ secrets.ABHA_AUTH_URL }}
+          export SANJEEVANI_API_URL=${{ secrets.SANJEEVANI_API_URL }}
+        
 
           # Set app release version signing credentials
           export KEYSTORE_PATH=${{ secrets.KEYSTORE_PATH }}
