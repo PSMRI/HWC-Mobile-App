@@ -415,6 +415,8 @@ class PersonalDetailsFragment : Fragment() {
             if (result) {
                 val highspeed = FaceDetectorOptions.Builder()
                     .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)  // Enable landmarks for eye detection
+                    .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)  // Enable classifications for eye open probability
                     .build()
                 val detector = FaceDetection.getClient(highspeed)
                 val image = InputImage.fromFilePath(requireContext(), photoURI)
@@ -428,51 +430,63 @@ class PersonalDetailsFragment : Fragment() {
                             return@addOnSuccessListener
                         } else {
                             val face = faces[0]
-                            val boundingBox = face.boundingBox
-                            val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                requireContext().contentResolver,
-                                photoURI
-                            )
-                            val faceBitmap = Bitmap.createBitmap(
-                                imageBitmap,
-                                boundingBox.left,
-                                boundingBox.top,
-                                boundingBox.width(),
-                                boundingBox.height()
-                            )
-                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                            lifecycleScope.launch {
-                                val matchedPatient = compareFacesL2Norm(embeddings!!)
-                                if (matchedPatient != null) {
-                                    val visitInfo = PatientVisitInfoSync()
-                                    val benVisitInfo = PatientDisplayWithVisitInfo(
-                                        matchedPatient,
-                                        genderName = null,
-                                        villageName = null,
-                                        ageUnit = null,
-                                        maritalStatus = null,
-                                        nurseDataSynced = visitInfo.nurseDataSynced,
-                                        doctorDataSynced = visitInfo.doctorDataSynced,
-                                        createNewBenFlow = visitInfo.createNewBenFlow,
-                                        prescriptionID = visitInfo.prescriptionID,
-                                        benVisitNo = visitInfo.benVisitNo,
-                                        benFlowID = visitInfo.benFlowID,
-                                        nurseFlag = visitInfo.nurseFlag,
-                                        doctorFlag = visitInfo.doctorFlag,
-                                        labtechFlag = visitInfo.labtechFlag,
-                                        pharmacist_flag = visitInfo.pharmacist_flag,
-                                        visitDate = visitInfo.visitDate,
-                                        referDate = visitInfo.referDate,
-                                        referTo = visitInfo.referTo,
-                                        referralReason = visitInfo.referralReason
-                                    )
-                                    itemAdapter?.submitList(listOf(benVisitInfo))
-                                    binding.patientListContainer.patientCount.text = "1 Matched Patient"
-                                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
-                                    searchPrompt.show()
+
+                            // Check if both eyes are open
+                            val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
+                            val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
+
+                            if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
+                                // Continue with face processing as eyes are open
+                                val boundingBox = face.boundingBox
+                                val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                    requireContext().contentResolver,
+                                    photoURI
+                                )
+                                val faceBitmap = Bitmap.createBitmap(
+                                    imageBitmap,
+                                    boundingBox.left,
+                                    boundingBox.top,
+                                    boundingBox.width(),
+                                    boundingBox.height()
+                                )
+                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                                lifecycleScope.launch {
+                                    val matchedPatient = compareFacesL2Norm(embeddings!!)
+                                    if (matchedPatient != null) {
+                                        val visitInfo = PatientVisitInfoSync()
+                                        val benVisitInfo = PatientDisplayWithVisitInfo(
+                                            matchedPatient,
+                                            genderName = null,
+                                            villageName = null,
+                                            ageUnit = null,
+                                            maritalStatus = null,
+                                            nurseDataSynced = visitInfo.nurseDataSynced,
+                                            doctorDataSynced = visitInfo.doctorDataSynced,
+                                            createNewBenFlow = visitInfo.createNewBenFlow,
+                                            prescriptionID = visitInfo.prescriptionID,
+                                            benVisitNo = visitInfo.benVisitNo,
+                                            benFlowID = visitInfo.benFlowID,
+                                            nurseFlag = visitInfo.nurseFlag,
+                                            doctorFlag = visitInfo.doctorFlag,
+                                            labtechFlag = visitInfo.labtechFlag,
+                                            pharmacist_flag = visitInfo.pharmacist_flag,
+                                            visitDate = visitInfo.visitDate,
+                                            referDate = visitInfo.referDate,
+                                            referTo = visitInfo.referTo,
+                                            referralReason = visitInfo.referralReason
+                                        )
+                                        itemAdapter?.submitList(listOf(benVisitInfo))
+                                        binding.patientListContainer.patientCount.text = "1 Matched Patient"
+                                        Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                                        searchPrompt.show()
+                                    }
                                 }
+                            } else {
+                                // Eyes are closed
+                                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT).show()
+                                return@addOnSuccessListener
                             }
                         }
                     }
