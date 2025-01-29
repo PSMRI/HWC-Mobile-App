@@ -20,7 +20,7 @@ object KeyUtils {
             System.loadLibrary(NATIVE_JNI_LIB_NAME)
         } catch (e: UnsatisfiedLinkError) {
             Timber.tag("KeyUtils").e(e, "Failed to load native library")
-            throw RuntimeException("Failed to load native library: $NATIVE_JNI_LIB_NAME")
+            throw RuntimeException("Failed to load native library: $NATIVE_JNI_LIB_NAME", e)
         }
 
     }

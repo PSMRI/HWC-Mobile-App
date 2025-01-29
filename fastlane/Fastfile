@@ -5,9 +5,18 @@ platform :android do
   desc "Build and Distribute Debug APK to Firebase"
     lane :build_and_distribute_debug do |options|
 
+     # Validate required environment variables
+     required_env_vars = ['FIREBASE_APP_ID']
+     required_env_vars.each do |var|
+         UI.user_error!("Missing required environment variable: #{var}") if ENV[var].nil?
+     end
+
      latest_release = firebase_app_distribution_get_latest_release(
         app: ENV['FIREBASE_APP_ID'],
         service_credentials_file: "firebase_credentials.json"
+        ) rescue begin
+               UI.important("Failed to fetch latest release, defaulting to version 1")
+               OpenStruct.new(buildVersion: "0")
      )
      new_version_code = latest_release[:buildVersion].to_i + 1
      current_version_name = android_get_version_name
