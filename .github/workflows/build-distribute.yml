@@ -54,9 +54,19 @@ jobs:
       - name: Decode generic google-services.json
         run: |
           echo "${{ secrets.GOOGLE_SERVICES_JSON_GENERIC }}" | base64 --decode > ./app/google-services.json || exit 1
+
+      - name: Decode Firebase Credentials
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" | base64 --decode > firebase_credentials.json
+
       - name: Decode Google Play JSON key
         run: |
           echo "${{ secrets.GOOGLE_PLAY_JSON_KEY }}" | base64 --decode > ./fastlane/google_play_service_account.json
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
+          echo "Keystore path: ${{ github.workspace }}/keystore.jks"
 
       - name: Create local.properties
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
@@ -81,9 +91,6 @@ jobs:
 
           # Set Firebase App Distribution and Google Play authentication tokens
           export FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
-          export FIREBASE_CLI_TOKEN=${{ secrets.FIREBASE_CLI_TOKEN }}
-          export TESTER_GROUPS=${{ secrets.TESTER_GROUPS }}
-          # export GOOGLE_PLAY_JSON_KEY=$(echo ${{ secrets.GOOGLE_PLAY_JSON_KEY }} | base64 --decode)
 
           if [ "${{ inputs.build_type }}" == "debug" ]; then
             bundle exec fastlane build_and_distribute_debug variant:${{ inputs.variant }}
@@ -93,16 +100,23 @@ jobs:
 
 
 
-      - name: Upload APKs
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: FLW-Mobile-App - APK(s) ${{ inputs.variant }} generated
-          path: app/build/outputs/apk/**/${{ inputs.build_type }}/*.apk
+          name: HLW-Mobile-App - APK(s) ${{ inputs.variant }} generated
+          path: |
+            ${{ inputs.build_type == 'debug' && 'app/build/outputs/apk/**/debug/*.apk' || 'app/build/outputs/bundle/**/*.aab' }}
+          if-no-files-found: warn
+          compression-level: 6
+          overwrite: false
+          include-hidden-files: false
+
 
       - name: Push to Releases
+        if: inputs.variant == 'release'
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "app/build/outputs/apk/**/${{ inputs.build_type }}/*.apk"
+          artifacts: "app/build/outputs/bundle/**/*.aab"
           tag: v${{ env.version }}-${{ inputs.environment }}-${{ github.run_number }}
-          token: ${{secrets.GITHUB_TOKEN}}
+          token: ${{ secrets.GITHUB_TOKEN }}
 

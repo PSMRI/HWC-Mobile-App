@@ -15,30 +15,23 @@ env:
   date_today: ${{ github.event.head_commit.timestamp }}
 
 jobs:
-  hlw_stag_job:
+  build_and_distribute:
+    strategy:
+      matrix:
+        config:
+          - environment: SAKSHAM_STAG
+            variant: sakshamStag
+            build_type: debug
+          - environment: SAKSHAM_UAT
+            variant: sakshamUat
+            build_type: debug
     uses: ./.github/workflows/build-distribute.yml
     with:
-      environment: HLW_STAG
-      variant: Staging
-      build_type: debug
+      environment: ${{ matrix.config.environment }}
+      variant: ${{ matrix.config.variant }}
+      build_type: ${{ matrix.config.build_type }}
     secrets: inherit
 
-  hlw_uat_job:
-    uses: ./.github/workflows/build-distribute.yml
-    with:
-      environment: HLW_UAT
-      variant: Uat
-      build_type: debug
-    secrets: inherit
-
-#  hlw_production_job:
-#    uses: ./.github/workflows/build-distribute.yml
-#    with:
-#      environment: HLW_PRODUCTION
-#      variant: Production
-#      build_type: release
-#    secrets: inherit
-#
 
 
 

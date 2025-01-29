@@ -8,6 +8,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+apply from: rootProject.file('versioning.gradle')
+
 android {
     namespace 'org.piramalswasthya.cho'
     compileSdk 33
@@ -16,8 +18,8 @@ android {
         applicationId "org.piramalswasthya.cho"
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode buildVersionCode()
+        versionName buildVersionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
