@@ -8,8 +8,19 @@ ext {
     }
     buildVersionName = {
         def props = new Properties()
-        rootProject.file("version/version.properties").withInputStream { props.load(it) }
-        return props.getProperty("VERSION")
+        def versionFile = rootProject.file("version/version.properties")
+        if (!versionFile.exists()) {
+            throw new GradleException("version.properties file not found")
+        }
+        versionFile.withInputStream { props.load(it) }
+        def version = props.getProperty("VERSION")
+        if (!version) {
+            throw new GradleException("VERSION property not found in version.properties")
+        }
+        if (!version.matches(/^\d+\.\d+\.\d+$/)) {
+            throw new GradleException("Invalid version format. Expected: major.minor.patch")
+        }
+        return version
     }
 
 }
