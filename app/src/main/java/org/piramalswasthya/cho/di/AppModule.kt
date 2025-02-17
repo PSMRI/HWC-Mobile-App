@@ -56,7 +56,6 @@ import org.piramalswasthya.cho.network.interceptors.ContentTypeInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertAbhaInterceptor
 import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.utils.KeyUtils
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
@@ -66,6 +65,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    private const val baseD2DUrl = "http://d2dapi.piramalswasthya.org:9090/api/"
+
+    private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
+
+    private const val baseAmritUrl ="https://uatamrit.piramalswasthya.org/"
+    //"https://amritdemo.piramalswasthya.org/"
+
+    private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
+        //"https://amritdemo.piramalswasthya.org/"
+
+    private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
+
+    private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
     private val baseClient =
         OkHttpClient.Builder()
@@ -131,7 +144,7 @@ fun provideESanjeevaniApiService(
     return Retrofit.Builder()
         .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl(KeyUtils.sanjeevaniApiUrl())
+        .baseUrl(sanjeevaniApi)
         .client(httpClient)
         .build()
         .create(ESanjeevaniApiService::class.java)
@@ -146,7 +159,7 @@ fun provideESanjeevaniApiService(
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(KeyUtils.baseAmritUrl())
+            .baseUrl(baseAmritUrl)
             .client(httpClient)
             .build()
             .create(AmritApiService::class.java)
@@ -161,7 +174,7 @@ fun provideESanjeevaniApiService(
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(KeyUtils.baseFlwUrl())
+            .baseUrl(baseFlwUrl)
             .client(httpClient)
             .build()
             .create(FlwApiService::class.java)
@@ -176,7 +189,7 @@ fun provideESanjeevaniApiService(
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             //.addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(KeyUtils.baseAbhaUrl())
+            .baseUrl(baseAbhaUrl)
             .client(httpClient)
             .build()
             .create(AbhaApiService::class.java)

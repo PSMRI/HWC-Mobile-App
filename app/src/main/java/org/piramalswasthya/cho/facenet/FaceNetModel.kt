@@ -37,23 +37,17 @@ class FaceNetModel( context : Context ,
         .build()
 
     init {
-        // Initialize TFLiteInterpreter
         val interpreterOptions = Interpreter.Options().apply {
-            // Add the GPU Delegate if supported.
-            // See -> https://www.tensorflow.org/lite/performance/gpu#android
-            if ( useGpu ) {
-                if ( CompatibilityList().isDelegateSupportedOnThisDevice ) {
-                    addDelegate( GpuDelegate( CompatibilityList().bestOptionsForThisDevice ))
-                }
-            }
-            else {
-                // Number of threads for computation
+            if (useGpu && CompatibilityList().isDelegateSupportedOnThisDevice) {
+                addDelegate(GpuDelegate(CompatibilityList().bestOptionsForThisDevice))
+            } else {
                 numThreads = 4
             }
-            setUseXNNPACK( useXNNPack )
-            useNNAPI = !useGpu
+            setUseXNNPACK(useXNNPack)
+            // Disable NNAPI by default since many devices lack proper support
+            useNNAPI = false // Changed from !useGpu
         }
-        interpreter = Interpreter(FileUtil.loadMappedFile(context, model.assetsFilename ) , interpreterOptions )
+        interpreter = Interpreter(FileUtil.loadMappedFile(context, model.assetsFilename), interpreterOptions)
     }
 
 
