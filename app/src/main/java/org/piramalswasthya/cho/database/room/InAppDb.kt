@@ -158,6 +158,7 @@ import timber.log.Timber
     SyncStateConverter::class,
     StateConverter::class,
     LoginSettingsDataConverter::class,
+
     StateConverter::class,
     DistrictConverter::class,
     DistrictBlockConverter::class,
