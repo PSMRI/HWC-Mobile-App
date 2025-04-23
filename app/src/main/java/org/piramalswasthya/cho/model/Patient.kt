@@ -153,7 +153,7 @@ data class Patient (
     var healthIdDetails: BenHealthIdDetails? = null,
 
     @ColumnInfo(name = "lab_technician_flag")
-    val labTechnicianFlag: Int? = 0,
+    var labTechnicianFlag: Int? = 0,
 
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
