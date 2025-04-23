@@ -80,7 +80,6 @@ import com.google.gson.annotations.Expose
 data class Patient (
 
     @PrimaryKey
-    @NonNull
     var patientID: String = "",
 
     @ColumnInfo(name = "firstName")
