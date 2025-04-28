@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -154,8 +155,8 @@ interface AmritApiService {
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
 
     // TODO: update with final api once developed
-    @POST("/hwc-facility-service/labTechnician/get/masterData?apiKey=undefined")
-    suspend fun getMasterLabProceduresDate() : Response<ResponseBody>
+    @POST("/hwc-facility-service/labTechnician/get/fetchProcCompMapMasterData?apiKey=undefined")
+    suspend fun getMasterLabProceduresDate(/*@Body masterLabProceduresRequestModel: MasterLabProceduresRequestModel*/) : Response<ResponseBody>
 
     @POST("/hwc-facility-service/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>
@@ -230,16 +231,16 @@ interface AmritApiService {
     @POST("/hwc-facility-service/registrar/get/benDetailsByRegIDForLeftPanelNew?apiKey=undefined")
     suspend fun getPharmacistPatientDetails(@Body pharmacistPatientDataRequest: PharmacistPatientDataRequest) : Response<ResponseBody>
 
-    @POST("/inventoryapi-v1.0/allocateStockFromItemID//{facilityID}?apiKey=undefined")
+    @POST("/Inventoryapi-v1.0/allocateStockFromItemID//{facilityID}?apiKey=undefined")
     suspend fun getPharmacistAllocationItemList(@Body allocationItemDataRequest: List<AllocationItemDataRequest>, @Path("facilityID") facilityID: Int) : Response<ResponseBody>
 
-    @POST("/inventoryapi-v1.0/RX/getPrescribedMedicines?apiKey=undefined")
+    @POST("/Inventoryapi-v1.0/RX/getPrescribedMedicines?apiKey=undefined")
     suspend fun getPharmacistPrescriptionList(@Body prescribedMedicineDataRequest: PrescribedMedicineDataRequest) : Response<ResponseBody>
 
-    @POST("/inventoryapi-v1.0/patientIssue?apiKey=undefined")
+    @POST("/Inventoryapi-v1.0/patientIssue?apiKey=undefined")
     suspend fun savePharmacistData(@Body patientIssue: PharmacistPatientIssueDataRequest) : Response<ResponseBody>
 
-    @POST("/inventoryapi-v1.0/itemBatchPartialSearch")
+    @POST("/Inventoryapi-v1.0/itemBatchPartialSearch")
     suspend fun getPharmacistStockItemList(
         @Body request: StockItemRequest
     ):Response<ResponseBody>
