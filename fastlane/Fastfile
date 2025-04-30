@@ -1,0 +1,54 @@
+
+default_platform(:android)
+platform :android do
+
+  desc "Build and Distribute Debug APK to Firebase"
+    lane :build_and_distribute_debug do |options|
+
+     latest_release = firebase_app_distribution_get_latest_release(
+         app: ENV['FIREBASE_APP_ID'],
+         service_credentials_file: "firebase_credentials.json"
+    ) rescue begin
+      UI.important("Failed to fetch latest release, defaulting to version 1")
+      OpenStruct.new(buildVersion: "0")
+     end
+     new_version_code = latest_release[:buildVersion].to_i + 1
+     current_version_name = android_get_version_name
+     new_version_name = "#{new_version_code}.0.0"
+
+    # Use file locking to prevent parallel writes
+    require 'fileutils'
+    version_file = "../version/version.properties"
+    lock_file = "#{version_file}.lock"
+    File.open(lock_file, File::RDWR|File::CREAT) do |f|
+      f.flock(File::LOCK_EX)
+      File.open("../version/version.properties", "w") do |file|
+          file.write("VERSION=#{new_version_name}")
+      end
+    end
+    FileUtils.rm_f(lock_file)
+
+      # Build the debug variant
+      gradle(
+        task: "clean assemble#{options[:variant]}Debug",
+        print_command: true,
+        properties: {
+          "org.gradle.jvmargs" => "-Xmx4g -XX:+HeapDumpOnOutOfMemoryError"
+        }
+      )
+
+      # Distribute to Firebase App Distribution for Stag and UAT
+      firebase_app_distribution(
+        app: ENV['FIREBASE_APP_ID'],
+        service_credentials_file: "firebase_credentials.json",
+        release_notes_file: "FirebaseAppDistributionConfig/release_notes.txt",
+        groups_file: "FirebaseAppDistributionConfig/groups.txt",
+        debug: true
+      )
+    end
+
+
+
+
+
+end
