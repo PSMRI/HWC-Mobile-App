@@ -223,11 +223,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
                 requireContext(),
-                "org.piramalswasthya.cho.provider",
+                requireContext().packageName + ".provider",
                 it
             )
             takePictureLauncher.launch(photoURI)
-
         }
     }
     private fun createImageFile(): File {
