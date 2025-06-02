@@ -167,8 +167,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                     val highspeed = FaceDetectorOptions.Builder()
                         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)  // Enable landmarks for eye detection
-                        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)  // Enable classifications for eye open probability
                         .build()
                     val detector = FaceDetection.getClient(highspeed)
                     val image = InputImage.fromFilePath(requireContext(), photoURI)
@@ -186,39 +184,30 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             }
                             else{
                                 val face = faces[0]
+                                val boundingBox = face.boundingBox
+                                val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                    requireContext().contentResolver,
+                                    photoURI
+                                )
+                                val faceBitmap = Bitmap.createBitmap(
+                                    imageBitmap,
+                                    boundingBox.left,
+                                    boundingBox.top,
+                                    boundingBox.width(),
+                                    boundingBox.height()
+                                )
+                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
 
-                                // Check if both eyes are open
-                                val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
-                                val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
-
-                                if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
-                                    // Continue with face processing as eyes are open
-                                    val boundingBox = face.boundingBox
-                                    val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                        requireContext().contentResolver,
-                                        photoURI
-                                    )
-                                    val faceBitmap = Bitmap.createBitmap(
-                                        imageBitmap,
-                                        boundingBox.left,
-                                        boundingBox.top,
-                                        boundingBox.width(),
-                                        boundingBox.height()
-                                    )
-                                    embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                                    Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    // Eyes are closed
-                                    Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT).show()
-                                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                    return@addOnSuccessListener
-                                }
                             }
+
+
                         }
                         .addOnFailureListener { e ->
                             Log.e("FaceDetection", "Face detection failed", e)
                             Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
                         }
+
                 }
             }
         }
@@ -234,11 +223,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
                 requireContext(),
-                "org.piramalswasthya.cho.provider",
+                requireContext().packageName + ".provider",
                 it
             )
             takePictureLauncher.launch(photoURI)
-
         }
     }
     private fun createImageFile(): File {

@@ -156,19 +156,15 @@ class PersonalDetailsFragment : Fragment() {
                 bool ->
             when(bool!!) {
                 true ->{
-                            binding.searchView.requestFocus()
-                            activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                    binding.search.requestFocus()
+                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-                        }
+                }
                 else -> {}
             }
 
         }
-
-        binding.ibSearch.setOnClickListener {
-            speechToTextLauncherForSearchByName.launch(Unit)
-        }
-        binding.ibCamera.setOnClickListener{
+        binding.cameraIcon.setOnClickListener{
 
 //            initialise the facenet model
             val inflater = layoutInflater
@@ -196,6 +192,9 @@ class PersonalDetailsFragment : Fragment() {
 
         }
 
+        binding.searchTil.setEndIconOnClickListener {
+            speechToTextLauncherForSearchByName.launch(Unit)
+        }
         viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -335,7 +334,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
             }
 
-            binding.searchView.setOnFocusChangeListener { searchView, b ->
+            binding.search.setOnFocusChangeListener { searchView, b ->
                 if (b)
                     (searchView as EditText).addTextChangedListener(searchTextWatcher)
                 else
@@ -383,11 +382,10 @@ class PersonalDetailsFragment : Fragment() {
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
                 requireContext(),
-                "org.piramalswasthya.cho.provider",
+                requireContext().packageName + ".provider",
                 it
             )
             takePictureLauncher.launch(photoURI)
-
         }
     }
     private fun createImageFile(): File {
@@ -415,8 +413,6 @@ class PersonalDetailsFragment : Fragment() {
             if (result) {
                 val highspeed = FaceDetectorOptions.Builder()
                     .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)  // Enable landmarks for eye detection
-                    .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)  // Enable classifications for eye open probability
                     .build()
                 val detector = FaceDetection.getClient(highspeed)
                 val image = InputImage.fromFilePath(requireContext(), photoURI)
@@ -430,63 +426,51 @@ class PersonalDetailsFragment : Fragment() {
                             return@addOnSuccessListener
                         } else {
                             val face = faces[0]
-
-                            // Check if both eyes are open
-                            val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
-                            val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
-
-                            if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
-                                // Continue with face processing as eyes are open
-                                val boundingBox = face.boundingBox
-                                val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                    requireContext().contentResolver,
-                                    photoURI
-                                )
-                                val faceBitmap = Bitmap.createBitmap(
-                                    imageBitmap,
-                                    boundingBox.left,
-                                    boundingBox.top,
-                                    boundingBox.width(),
-                                    boundingBox.height()
-                                )
-                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                                lifecycleScope.launch {
-                                    val matchedPatient = compareFacesL2Norm(embeddings!!)
-                                    if (matchedPatient != null) {
-                                        val visitInfo = PatientVisitInfoSync()
-                                        val benVisitInfo = PatientDisplayWithVisitInfo(
-                                            matchedPatient,
-                                            genderName = null,
-                                            villageName = null,
-                                            ageUnit = null,
-                                            maritalStatus = null,
-                                            nurseDataSynced = visitInfo.nurseDataSynced,
-                                            doctorDataSynced = visitInfo.doctorDataSynced,
-                                            createNewBenFlow = visitInfo.createNewBenFlow,
-                                            prescriptionID = visitInfo.prescriptionID,
-                                            benVisitNo = visitInfo.benVisitNo,
-                                            benFlowID = visitInfo.benFlowID,
-                                            nurseFlag = visitInfo.nurseFlag,
-                                            doctorFlag = visitInfo.doctorFlag,
-                                            labtechFlag = visitInfo.labtechFlag,
-                                            pharmacist_flag = visitInfo.pharmacist_flag,
-                                            visitDate = visitInfo.visitDate,
-                                            referDate = visitInfo.referDate,
-                                            referTo = visitInfo.referTo,
-                                            referralReason = visitInfo.referralReason
-                                        )
-                                        itemAdapter?.submitList(listOf(benVisitInfo))
-                                        binding.patientListContainer.patientCount.text = "1 Matched Patient"
-                                        Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
-                                        searchPrompt.show()
-                                    }
+                            val boundingBox = face.boundingBox
+                            val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                requireContext().contentResolver,
+                                photoURI
+                            )
+                            val faceBitmap = Bitmap.createBitmap(
+                                imageBitmap,
+                                boundingBox.left,
+                                boundingBox.top,
+                                boundingBox.width(),
+                                boundingBox.height()
+                            )
+                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                            lifecycleScope.launch {
+                                val matchedPatient = compareFacesL2Norm(embeddings!!)
+                                if (matchedPatient != null) {
+                                    val visitInfo = PatientVisitInfoSync()
+                                    val benVisitInfo = PatientDisplayWithVisitInfo(
+                                        matchedPatient,
+                                        genderName = null,
+                                        villageName = null,
+                                        ageUnit = null,
+                                        maritalStatus = null,
+                                        nurseDataSynced = visitInfo.nurseDataSynced,
+                                        doctorDataSynced = visitInfo.doctorDataSynced,
+                                        createNewBenFlow = visitInfo.createNewBenFlow,
+                                        prescriptionID = visitInfo.prescriptionID,
+                                        benVisitNo = visitInfo.benVisitNo,
+                                        benFlowID = visitInfo.benFlowID,
+                                        nurseFlag = visitInfo.nurseFlag,
+                                        doctorFlag = visitInfo.doctorFlag,
+                                        labtechFlag = visitInfo.labtechFlag,
+                                        pharmacist_flag = visitInfo.pharmacist_flag,
+                                        visitDate = visitInfo.visitDate,
+                                        referDate = visitInfo.referDate,
+                                        referTo = visitInfo.referTo,
+                                        referralReason = visitInfo.referralReason
+                                    )
+                                    itemAdapter?.submitList(listOf(benVisitInfo))
+                                    binding.patientListContainer.patientCount.text = "1 Matched Patient"
+                                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                                    searchPrompt.show()
                                 }
-                            } else {
-                                // Eyes are closed
-                                Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT).show()
-                                return@addOnSuccessListener
                             }
                         }
                     }
@@ -1010,8 +994,8 @@ class PersonalDetailsFragment : Fragment() {
     }
     private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
-            binding.searchView.setText(result)
-            binding.searchView.addTextChangedListener(searchTextWatcher)
+            binding.search.setText(result)
+            binding.search.addTextChangedListener(searchTextWatcher)
         }
     }
     private fun encryptSHA512(input: String): String {
