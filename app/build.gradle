@@ -42,9 +42,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug{
-            debuggable true
-        }
+//        debug{
+//            debuggable true
+//        }
     }
 
     flavorDimensions "default"

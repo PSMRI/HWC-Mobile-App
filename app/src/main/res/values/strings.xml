@@ -3,6 +3,7 @@
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="PREF_primary_JWT_API_KEY" translatable="false">JWT-Token_N</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
     <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="SWITCH_USER_ROLES" translatable="false">Switch_User_Roles</string>

@@ -338,6 +338,8 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     val userId = data.getInt("userID")
                     Timber.d("Token", token.toString())
@@ -510,6 +512,8 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
