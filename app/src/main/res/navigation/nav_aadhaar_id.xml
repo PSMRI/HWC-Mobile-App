@@ -7,9 +7,20 @@
     <fragment
         android:id="@+id/aadhaarNumberAshaFragment"
         android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.aadhaar_num_asha.AadhaarNumberAshaFragment"
-        android:label="AadhaarNumberAshaFragment" />
+        android:label="AadhaarNumberAshaFragment" >
+        <action
+            android:id="@+id/action_aadhaarNumberAshaFragment_to_aadhaarConsentFragment"
+            app:destination="@id/aadhaarConsentFragment" />
+    </fragment>
     <fragment
         android:id="@+id/aadhaarNumberGovFragment"
         android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.aadhaar_num_gov.AadhaarNumberGovFragment"
         android:label="AadhaarNumberGovFragment" />
+
+    <fragment
+        android:id="@+id/aadhaarConsentFragment"
+        android:name="org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.aadhaar_consent.AbhaConsentFragment"
+        android:label="AbhaConsentFragment" />
+
+
 </navigation>

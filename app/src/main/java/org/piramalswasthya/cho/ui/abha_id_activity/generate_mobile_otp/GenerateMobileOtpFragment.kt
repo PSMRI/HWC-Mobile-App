@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentGenerateMobileOtpBinding
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.abha_id_activity.generate_mobile_otp.GenerateMobileOtpViewModel.State
 import timber.log.Timber
 
@@ -37,14 +38,24 @@ class GenerateMobileOtpFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        activity?.let {
+            (it as AbhaIdActivity).updateActionBar(
+                R.drawable.ic__abha_logo_v1_24,
+                getString(R.string.generate_abha)
+            )
+        }
+    }
+
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Exit")
-            .setMessage("Do you want to go back?")
-            .setPositiveButton("Yes") { _, _ ->
+            .setTitle(resources.getString(R.string.exit))
+            .setMessage(resources.getString(R.string.do_you_want_to_go_back))
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                 navController.navigate(R.id.aadhaarIdFragment)
             }
-            .setNegativeButton("No") { d, _ ->
+            .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
             }
             .create()
@@ -56,7 +67,7 @@ class GenerateMobileOtpFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentGenerateMobileOtpBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -99,44 +110,42 @@ class GenerateMobileOtpFragment : Fragment() {
                     binding.progressBarGmotp.visibility = View.VISIBLE
                     binding.clError.visibility = View.INVISIBLE
                 }
+
                 State.SUCCESS -> {
                     if (viewModel.apiResponse.mobileLinked) {
                         navController.navigate(
                             GenerateMobileOtpFragmentDirections.actionGenerateMobileOtpFragmentToCreateAbhaFragment(
-                                viewModel.txnIdFromArgs,
-                                null.toString(),
-                                null.toString(),
-                                null.toString()
+                                viewModel.txnIdFromArgs, "", "", "",""
                             )
                         )
                     } else {
                         navController.navigate(
                             GenerateMobileOtpFragmentDirections.actionGenerateMobileOtpFragmentToVerifyMobileOtpFragment(
                                 viewModel.apiResponse.txnId,
-                                binding.tietMobileNumber.text!!.toString()
+                                binding.tietMobileNumber.text!!.toString(), "", "", "","",""
                             )
                         )
                     }
                     viewModel.resetState()
                 }
+
                 State.ERROR_SERVER -> {
                     binding.progressBarGmotp.visibility = View.INVISIBLE
                     binding.clGenerateMobileOtp.visibility = View.VISIBLE
                     binding.clError.visibility = View.INVISIBLE
                     binding.tvErrorText.visibility = View.VISIBLE
                 }
+
                 State.ERROR_NETWORK -> {
                     binding.progressBarGmotp.visibility = View.INVISIBLE
                     binding.clGenerateMobileOtp.visibility = View.INVISIBLE
                     binding.clError.visibility = View.VISIBLE
                 }
+
                 State.ABHA_GENERATED_SUCCESS -> {
                     navController.navigate(
                         GenerateMobileOtpFragmentDirections.actionGenerateMobileOtpFragmentToCreateAbhaFragment(
-                            viewModel.txnIdFromArgs,
-                            null.toString(),
-                            null.toString(),
-                            null.toString()
+                            viewModel.txnIdFromArgs, "", "", "",""
                         )
                     )
                 }
@@ -150,6 +159,11 @@ class GenerateMobileOtpFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun checkValidity() {
+        val no = binding.tietMobileNumber.text.toString()
+        binding.btnGenerateMobileOtp.isEnabled = no.length == 10 && (no.toLong() >= 6000000000)
     }
 
     override fun onDestroy() {

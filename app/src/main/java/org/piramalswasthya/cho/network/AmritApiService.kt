@@ -206,6 +206,9 @@ interface AmritApiService {
     @POST("fhir-api/healthID/mapHealthIDToBeneficiary")
     suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
 
+    @POST("fhir-api/healthIDRecord/addHealthIdRecord")
+    suspend fun addHealthIdRecord(@Body addHealthIdRecord: AddHealthIdRecord): Response<ResponseBody>
+
     @POST("fhir-api/healthIDCard/generateOTP")
     suspend fun generateOtpHealthId(@Body generateOtpHid: GenerateOtpHid): Response<ResponseBody>
 

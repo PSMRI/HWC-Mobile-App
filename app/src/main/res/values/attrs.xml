@@ -13,4 +13,62 @@
 <!--            <flag name="password" value="5" />-->
         </attr>
     </declare-styleable>
+    <attr name="colorQuartenary" format="color" />
+    <attr name="colorOnQuartenary" format="color" />
+    <attr name="colorQuartenaryContainer" format="color" />
+    <attr name="colorOnQuartenaryContainer" format="color" />
+    <attr name="harmonizeQuartenary" format="boolean" />
+
+
+    <declare-styleable name="PinViewTheme">
+        <attr name="pinViewStyle" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="PinView">
+        <attr name="itemCount" format="integer" />
+        <attr name="itemWidth" format="dimension" />
+        <attr name="itemHeight" format="dimension" />
+        <attr name="itemRadius" format="dimension" />
+        <attr name="itemSpacing" format="dimension" />
+        <attr name="lineWidth" format="dimension" />
+        <attr name="lineColor" format="reference|color" />
+        <attr name="viewType" format="enum">
+            <enum name="rectangle" value="0" />
+            <enum name="line" value="1" />
+            <enum name="none" value="2" />
+        </attr>
+        <attr name="android:cursorVisible" />
+        <attr name="cursorWidth" format="dimension" />
+        <attr name="cursorColor" format="reference|color" />
+        <attr name="android:itemBackground" />
+        <attr name="hideLineWhenFilled" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="BlockEditText">
+        <attr name="numberOfBlock" format="integer" />
+        <attr name="defaultLength" format="integer" />
+        <attr name="separatorPadding" format="dimension" />
+        <attr name="textSize" format="dimension" />
+        <attr name="hintTextSize" format="dimension" />
+        <attr name="separatorTextSize" format="dimension" />
+        <attr name="cardIconSize" format="dimension" />
+        <attr name="hint1" format="string" />
+        <attr name="text" format="string" />
+        <attr name="separatorCharacter" format="string" />
+        <attr name="typefaceFromAsset" format="string" />
+        <attr name="textAppearance" format="reference" />
+        <attr name="hintTextAppearance" format="reference" />
+        <attr name="separatorTextAppearance" format="reference" />
+        <attr name="editTextBackground" format="reference" />
+        <attr name="showCardIcon" format="boolean" />
+        <attr name="shiftPosition" format="boolean" />
+        <attr name="style" format="reference" />
+        <attr name="hintTextColor" format="color" />
+        <attr name="inputTextColor" format="color" />
+
+        <attr name="inputType1" format="enum">
+            <enum name="Text" value="1" />
+            <enum name="Integer" value="2"/>
+        </attr>
+    </declare-styleable>
 </resources>

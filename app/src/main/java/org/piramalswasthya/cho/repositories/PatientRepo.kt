@@ -341,8 +341,8 @@ class PatientRepo @Inject constructor(
                                 var benHealthIdDetails: BenHealthIdDetails? = null
                                 if(beneficiary.abhaDetails != null){
                                     benHealthIdDetails = BenHealthIdDetails(
-                                        healthId = beneficiary.abhaDetails[0].HealthID,
-                                        healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber
+                                        healthId = beneficiary.abhaDetails[0].HealthID!!,
+                                        healthIdNumber = beneficiary.abhaDetails[0].HealthIDNumber!!
                                     )
                                 }
 

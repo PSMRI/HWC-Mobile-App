@@ -6,6 +6,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 
 apply from: rootProject.file('versioning.gradle')

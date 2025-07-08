@@ -149,6 +149,9 @@ data class Patient (
     @ColumnInfo(name="benImageString")
     var benImage: String? = null,
 
+    @ColumnInfo(name="isNewAbha")
+    var isNewAbha: Boolean? = false,
+
     @Embedded(prefix = "abha_")
     var healthIdDetails: BenHealthIdDetails? = null,
 
@@ -295,12 +298,11 @@ data class PatientDisplayWithVisitInfo(
     )
 }
 
-
-@JsonClass(generateAdapter = true)
 data class BenHealthIdDetails(
-    var healthId: String? = null,
-    var healthIdNumber: String? = null
-) : Serializable
+    var healthId: String = "",
+    var healthIdNumber: String = "",
+    var isNewAbha: Boolean= false
+)
 
 @JsonClass(generateAdapter = true)
 data class PatientNetwork(

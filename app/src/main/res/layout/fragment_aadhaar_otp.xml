@@ -15,103 +15,187 @@
             android:padding="@dimen/padding_normal">
 
             <TextView
-                android:id="@+id/tv_otp_msg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_big"
-                android:layout_weight="1"
-                android:textSize="14sp"
-                android:visibility="invisible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-            <TextView
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_normal"
-                android:text="Verify Aadhaar Number"
+                android:text="@string/verify_aadhaar_number"
+                android:fontFamily="@font/roboto_bold"
+                android:layout_marginTop="@dimen/_45sdp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.25" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <TextView
+                android:id="@+id/tv_otp_msg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_normal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.45"
-                tools:layout_editor_absoluteX="16dp">
+                android:layout_marginTop="@dimen/margin_big"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:gravity="center"
+                android:textSize="@dimen/_14sdp"
+                android:fontFamily="@font/roboto_regular"
+                android:visibility="invisible"
+                android:text="@string/otp_sent_to"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiet_aadhaar_otp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="Enter OTP"
-                    android:inputType="number"
-                    android:maxLength="6"
-                    android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+            <TextView
+                android:id="@+id/dummyView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_normal"
+                android:text="@string/verify_aadhaar_otp"
+                android:textAppearance="?attr/textAppearanceHeadline6"                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_otp_msg"/>
+            <TextView
+                android:id="@+id/tvOTPNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_40sdp"
+                android:textSize="@dimen/_12sdp"
+                android:gravity="center_vertical"
+                android:drawablePadding="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:fontFamily="@font/roboto_regular"
+                android:visibility="invisible"
+                android:drawableEnd="@drawable/ic_timer_10"
+                android:text="@string/str_abha_otp_note"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tvLblEnterOtp" />
 
-                <TextView
-                    android:id="@+id/tv_error_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:layout_weight="1"
-                    android:text="TextView"
-                    android:textColor="@color/red"
-                    android:visibility="gone" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/tvLblEnterOtp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:fontFamily="@font/roboto_medium"
+                android:text="@string/str_enter_otp"
+                android:textColor="@color/md_theme_dark_scrim"
+                android:textSize="@dimen/_14sdp"
+                app:layout_constraintBottom_toTopOf="@+id/otpView"
+                app:layout_constraintStart_toStartOf="@+id/otpView" />
+
+            <org.piramalswasthya.sakhi.helpers.otpview.PinView
+                android:id="@+id/otpView"
+                app:itemCount="6"
+                app:itemWidth="50dp"
+                app:itemHeight="50dp"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/_70sdp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:itemBackground="#FFFFFF"
+                android:layout_gravity="center"
+                android:inputType="number"
+                android:cursorVisible="true"
+                app:lineWidth="1dp"
+                app:hideLineWhenFilled="false"
+                app:itemRadius="10dp"
+                style="@style/PinWidget.PinView"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dummyView"  />
+
+            <TextView
+                android:id="@+id/tv_error_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/textview"
+                android:textColor="@android:color/holo_red_light"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@+id/otpView"
+                app:layout_constraintStart_toStartOf="@+id/otpView"
+                app:layout_constraintTop_toBottomOf="@+id/otpView"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_verify_OTP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_margin="@dimen/margin_normal"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/_40sdp"
+                android:layout_marginStart="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_20sdp"
                 android:clickable="false"
                 android:enabled="false"
                 android:padding="@dimen/padding_normal"
-                android:text="Verify OTP"
+                android:text="@string/verify_otp"
+                android:textSize="@dimen/_14sdp"
+                android:fontFamily="@font/roboto_bold"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="@color/secondaryColor"
+                android:textColor="?attr/colorOnPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_error_text" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/resend_otp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_20sdp"
+                android:text="@string/resend_otp"
+                android:textAllCaps="false"
+                android:padding="@dimen/padding_normal"
+                android:textSize="@dimen/_14sdp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="?attr/colorOnPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/timer_resend_otp" />
+
+            <TextView
+                android:id="@+id/timer_resend_otp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_normal"
-                android:layout_marginEnd="16dp"
-                android:text="Resend OTP"
-                android:textAllCaps="false"
-                android:textColor="@color/secondaryColor"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_verify_OTP" />
+                android:textSize="@dimen/_12sdp"
+                android:gravity="center_vertical"
+                android:fontFamily="@font/roboto_medium"
+                android:layout_marginEnd="@dimen/_3sdp"
+                android:layout_marginStart="@dimen/_15sdp"
+                android:text="@string/str_didnt_receive_otp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/timer_count"
+                app:layout_constraintTop_toTopOf="@+id/timer_count"
+                app:layout_constraintBottom_toBottomOf="@+id/timer_count" />
+
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/timer_resend_otp"
+                android:id="@+id/timer_count"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:text="30"
+                android:text="@string/_30"
                 android:padding="0dp"
                 app:cornerRadius="40dp"
-                android:textColor="@color/secondaryColor"
-                android:layout_marginTop="@dimen/margin_normal"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toStartOf="@+id/resend_otp"
+                android:textColor="?attr/colorOnPrimary"
+                app:layout_constraintStart_toEndOf="@+id/timer_resend_otp"
+                app:layout_constraintBottom_toBottomOf="@+id/timer_seconds"
+                app:layout_constraintEnd_toStartOf="@+id/timer_seconds"
+                app:layout_constraintTop_toTopOf="@+id/timer_seconds" />
+
+
+            <TextView
+                android:id="@+id/timer_seconds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_12sdp"
+                android:drawableEnd="@drawable/ic_hourglass"
+                android:gravity="center_vertical"
+                android:drawablePadding="@dimen/_2sdp"
+                android:layout_marginEnd="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:fontFamily="@font/roboto_medium"
+                android:text="@string/str_seconds"
+                app:layout_constraintStart_toEndOf="@+id/timer_count"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btn_verify_OTP"/>
+
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/exit"
                 android:layout_width="wrap_content"
@@ -124,7 +208,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btn_verify_OTP"
                 android:visibility="gone"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ProgressBar
@@ -149,7 +232,8 @@
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="@+id/textView5"
-                app:layout_constraintStart_toStartOf="@+id/textView5" />
+                app:layout_constraintStart_toStartOf="@+id/textView5"
+                android:contentDescription="@string/offline" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -157,7 +241,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="@dimen/padding_normal"
-                android:text="Something went wrong !\nUnable to connect to server !\nTry again later!"
+                android:text="@string/something_went_wrong_nunable_to_connect_to_server_ntry_again_later"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -166,8 +250,5 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.7" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.cardview.widget.CardView>
-
-
 </layout>

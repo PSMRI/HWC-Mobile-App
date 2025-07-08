@@ -76,7 +76,7 @@ object AppModule {
     private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
         //"https://amritdemo.piramalswasthya.org/"
 
-    private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
+    private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
 
     private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 

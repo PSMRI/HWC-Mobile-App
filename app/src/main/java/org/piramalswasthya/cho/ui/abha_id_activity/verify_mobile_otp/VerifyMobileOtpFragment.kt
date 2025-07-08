@@ -17,6 +17,8 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentVerifyMobileOtpBinding
+import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.abha_id_activity.aadhaar_id.AadhaarIdViewModel
 import org.piramalswasthya.cho.ui.abha_id_activity.verify_mobile_otp.VerifyMobileOtpViewModel.State
 
 @AndroidEntryPoint
@@ -30,22 +32,32 @@ class VerifyMobileOtpFragment : Fragment() {
 
     private val viewModel: VerifyMobileOtpViewModel by viewModels()
 
+    private val parentViewModel: AadhaarIdViewModel by viewModels({ requireActivity() })
 
-    private var timer = object : CountDownTimer(30000, 1000) {
+    val args: VerifyMobileOtpFragmentArgs by lazy {
+        VerifyMobileOtpFragmentArgs.fromBundle(requireArguments())
+    }
+
+
+    private var timer = object : CountDownTimer(60000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
             val sec = millisUntilFinished / 1000 % 60
-            binding.timerResendOtp.text = sec.toString()
+            //  binding.timerResendOtp.text = "Didn't receive OTP? Wait 00:$sec seconds"
+            binding.timerCount.text = "$sec"
         }
 
         override fun onFinish() {
             binding.resendOtp.isEnabled = true
             binding.timerResendOtp.visibility = View.INVISIBLE
+            binding.timerCount.visibility = View.INVISIBLE
+            binding.timerSeconds.visibility = View.INVISIBLE
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentVerifyMobileOtpBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -53,10 +65,9 @@ class VerifyMobileOtpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
-
         startResendTimer()
         binding.btnVerifyOTP.setOnClickListener {
-            viewModel.verifyOtpClicked(binding.tietVerifyMobileOtp.text.toString())
+            viewModel.verifyOtpClicked(binding.otpView.text.toString())
         }
 
         binding.resendOtp.setOnClickListener {
@@ -64,7 +75,7 @@ class VerifyMobileOtpFragment : Fragment() {
             startResendTimer()
         }
 
-        binding.tietVerifyMobileOtp.addTextChangedListener(object : TextWatcher {
+        binding.otpView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
@@ -73,21 +84,24 @@ class VerifyMobileOtpFragment : Fragment() {
 
             override fun afterTextChanged(p0: Editable?) {
                 binding.btnVerifyOTP.isEnabled = p0 != null && p0.length == 6
+                binding.tvErrorText.visibility = View.GONE
             }
         })
+
         viewModel.showExit.observe(viewLifecycleOwner) {
             it?.let {
                 if (it) {
-                    binding.exit.visibility =  View.VISIBLE
+                    binding.exit.visibility = View.VISIBLE
                 } else {
-                    binding.exit.visibility =  View.GONE
+                    binding.exit.visibility = View.GONE
                 }
             }
         }
 
-        binding.exit.setOnClickListener{
+        binding.exit.setOnClickListener {
             requireActivity().finish()
         }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {}
@@ -96,42 +110,45 @@ class VerifyMobileOtpFragment : Fragment() {
                     binding.pbVmotp.visibility = View.VISIBLE
                     binding.clError.visibility = View.INVISIBLE
                 }
+
                 State.OTP_VERIFY_SUCCESS -> {
                     findNavController().navigate(
                         VerifyMobileOtpFragmentDirections.actionVerifyMobileOtpFragmentToCreateAbhaFragment(
-                            viewModel.txnID,
-                            null.toString(),
-                            null.toString(),
-                            null.toString()
+                            viewModel.txnID, args.name, args.phrAddress, args.abhaNumber,viewModel.abhaResponse
                         )
                     )
                     viewModel.resetState()
                 }
+
                 State.ERROR_NETWORK -> {
                     binding.clVerifyMobileOtp.visibility = View.INVISIBLE
                     binding.pbVmotp.visibility = View.INVISIBLE
                     binding.clError.visibility = View.VISIBLE
                 }
+
                 State.ERROR_SERVER -> {
                     binding.clVerifyMobileOtp.visibility = View.VISIBLE
                     binding.pbVmotp.visibility = View.INVISIBLE
                     binding.clError.visibility = View.INVISIBLE
                     binding.tvErrorText.visibility = View.VISIBLE
                 }
+
                 State.OTP_GENERATED_SUCCESS -> {
                     binding.clVerifyMobileOtp.visibility = View.VISIBLE
                     binding.pbVmotp.visibility = View.INVISIBLE
                     binding.clError.visibility = View.INVISIBLE
-                    Toast.makeText(activity, getString(R.string.otp_was_resent), Toast.LENGTH_LONG)
+                    Toast.makeText(
+                        activity,
+                        resources.getString(R.string.otp_was_resent),
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 }
+
                 State.ABHA_GENERATED_SUCCESS -> {
                     findNavController().navigate(
                         VerifyMobileOtpFragmentDirections.actionVerifyMobileOtpFragmentToCreateAbhaFragment(
-                            viewModel.txnID,
-                            null.toString(),
-                            null.toString(),
-                            null.toString()
+                            viewModel.txnID, args.name, args.phrAddress, args.abhaNumber,viewModel.abhaResponse
                         )
                     )
                     viewModel.resetState()
@@ -145,11 +162,27 @@ class VerifyMobileOtpFragment : Fragment() {
                 viewModel.resetErrorMessage()
             }
         }
+
+        var string = getMobileNumber(parentViewModel.otpMobileNumberMessage) ?: ""
+        binding.tvOtpMsg.text = getString(R.string.str_otp_number_message).replace("@mobileNumber", string)
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        activity?.let {
+            (it as AbhaIdActivity).updateActionBar(
+                R.drawable.ic__abha_logo_v1_24,
+                getString(R.string.generate_abha)
+            )
+        }
     }
 
     private fun startResendTimer() {
         binding.resendOtp.isEnabled = false
         binding.timerResendOtp.visibility = View.VISIBLE
+        binding.timerCount.visibility = View.VISIBLE
+        binding.timerSeconds.visibility = View.VISIBLE
         timer.start()
     }
 
@@ -157,6 +190,14 @@ class VerifyMobileOtpFragment : Fragment() {
         super.onDestroy()
         timer.cancel()
         _binding = null
+    }
+
+    private fun getMobileNumber(input: String): String? {
+        val regex = Regex("""\*+\d+""")
+        val matches = regex.findAll(input).toList()
+        val lastMatch = matches.lastOrNull()?.value
+        println("Extracted: $lastMatch") // Output: ******0180
+        return lastMatch
     }
 
 }

@@ -76,6 +76,15 @@
     <string name="phone_no">Phone No</string>
     <string name="registration">Registration</string>
     <string name="advance_search">Advance Search</string>
+    <string name="household_search">Search</string>
+
+    <string name="do_you_want_to_go_back">Do you want to go back?</string>
+    <string name="offline">offline</string>
+    <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">Something went wrong !\nUnable to connect to server !\nTry again later!</string>
+    <string name="try_again">Try Again!</string>
+    <string name="go_to_home">Go to Home</string>
+    <string name="tv_ben_name_ph">Beneficiary Name</string>
+    <string name="otp_resent">OTP Resent</string>
 
     <string name="medication_form">Form</string>
     <string name="medicine_text">Medicine</string>

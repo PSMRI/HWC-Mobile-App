@@ -9,16 +9,16 @@ class TokenInsertAbhaInterceptor : Interceptor {
     companion object {
         private var TOKEN: String = ""
         private var XToken: String = ""
-        fun setToken(iToken: String) {
-            TOKEN = iToken
+        fun setToken(iToken: String?) {
+            TOKEN = iToken ?: ""
         }
 
         fun getToken(): String {
             return TOKEN
         }
 
-        fun setXToken(xToken: String) {
-            XToken = xToken
+        fun setXToken(xToken: String?) {
+            XToken = xToken ?: ""
         }
 
         fun getXToken(): String {
@@ -38,15 +38,20 @@ class TokenInsertAbhaInterceptor : Interceptor {
                 .build()
         }
         val url = request.url.toString()
-        if (url.contains("getCard") || url.contains("getPngCard")) {
-            request = request
-                .newBuilder()
-                .addHeader(
-                    "x-token",
-                    "Bearer $XToken"
-                )
-                .build()
+        if (url.contains("getCard") || url.contains("getPngCard") || url.contains("abha-card")) {
+            if (XToken.isNotEmpty()) {
+                request = request
+                    .newBuilder()
+                    .addHeader(
+                        "x-token",
+                        "Bearer $XToken"
+                    )
+                    .build()
+            } else {
+                Timber.w("x-token is empty, not adding x-token header")
+            }
         }
+
         Timber.d("Request : $request")
         return chain.proceed(request)
     }
