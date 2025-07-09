@@ -3,6 +3,7 @@
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="PREF_primary_JWT_API_KEY" translatable="false">JWT-Token_N</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
     <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="SWITCH_USER_ROLES" translatable="false">Switch_User_Roles</string>
@@ -75,6 +76,15 @@
     <string name="phone_no">Phone No</string>
     <string name="registration">Registration</string>
     <string name="advance_search">Advance Search</string>
+    <string name="household_search">Search</string>
+
+    <string name="do_you_want_to_go_back">Do you want to go back?</string>
+    <string name="offline">offline</string>
+    <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">Something went wrong !\nUnable to connect to server !\nTry again later!</string>
+    <string name="try_again">Try Again!</string>
+    <string name="go_to_home">Go to Home</string>
+    <string name="tv_ben_name_ph">Beneficiary Name</string>
+    <string name="otp_resent">OTP Resent</string>
 
     <string name="medication_form">Form</string>
     <string name="medicine_text">Medicine</string>
@@ -224,6 +234,7 @@
     <string name="choose_panchayat">Choose Panchayat</string>
     <string name="select_sub_category">Sub Category</string>
     <string name="select_chief_complaint">Chief Complaints  <font color="#FF0000">*</font></string>
+    <string name="select_chief_complaint_without_astrict">Chief Complaints</string>
     <string name="enter_your_description">Enter description</string>
     <string name="select_file">Select File</string>
     <string name="upload_file">Upload File</string>
@@ -245,7 +256,7 @@
     <string name="bmi">BMI</string>
     <string name="waist_circumference_cm">Waist Circumference(cm)</string>
     <string name="temperature_f">Temperature (F)</string>
-    <string name="pulse_rate_min">Pulse Rate(min)</string>
+    <string name="pulse_rate_min">Pulse Rate (BPM)</string>
     <string name="spo2">SPO2(%)</string>
     <string name="respiratory_per_min">Respiratory Rate(per min)</string>
     <string name="rbs_mg_dl">RBS Result(mg/dl)</string>
@@ -404,6 +415,7 @@
 
     <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
+    <string name="hindi_lang">हिंदी</string>
     <string name="registrar_role">Registrar</string>
     <string name="nurse_role">Nurse</string>
     <string name="doctor_role">Doctor</string>
@@ -419,13 +431,13 @@
     <string name="female_opd">Female:</string>
     <string name="others_opd">Others:</string>
     <string name="ncd_count">NCD Count:</string>
-    <string name="anc_count">ANC Count:</string>
+    <string name="anc_count">ANC\nCount:</string>
     <string name="pnc_count">PNC Count :</string>
-    <string name="family_count">Family Count:</string>
-    <string name="immunization_tv">Immunization</string>
+    <string name="family_count">Family\nCount:</string>
+    <string name="immunization_tv">Immunization\nCount:</string>
     <string name="count_imm">Count:</string>
     <string name="hbnc_count">HBNC Count</string>
-    <string name="hbyc_count">HBYC Count:</string>
+    <string name="hbyc_count">HBYC\nCount:</string>
     <string name="select_menu">Select</string>
     <string name="male_opd">Male:</string>
     <string name="consultant_name">Consultant Name:</string>
@@ -454,7 +466,7 @@
     <string name="result_meas_unit">Result -Measurement Unit</string>
     <string name="date_time">Date and Time</string>
     <string name="Use_Previous_data">Submit Old Chief Complaints and vitals data</string>
-    <string name="save_template">Save this Template</string>
+    <string name="save_template">Save Template</string>
     <string name="enter_temp_name">Enter Template Name</string>
     <string name="select_temp_to_fill">Select Template Name To Fill</string>
     <string name="template_save">Template Name saved </string>
@@ -599,5 +611,6 @@
     <string name="villageName">Village Name:</string>
     <string name="required">Required</string>
     <string name="version">Version 6.0.0</string>
+    <string name="str_duration">Duration:</string>
 
 </resources>

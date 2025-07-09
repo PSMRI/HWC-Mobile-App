@@ -2,11 +2,11 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Selected state -->
     <item android:state_checked="true"
-        android:color="@color/purple" />
+        android:color="@color/background_primary" />
 
     <!-- Pressed state (optional) -->
     <item android:state_pressed="true"
-        android:color="@color/purple" />
+        android:color="@color/background_primary" />
 
     <!-- Default state -->
     <item android:color="@color/primaryTextColor" />

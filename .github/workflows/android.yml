@@ -1,0 +1,37 @@
+name: Android Build and Distribute
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  main_project_module: app
+  repository_name: HLW-Mobile-App
+  date_today: ${{ github.event.head_commit.timestamp }}
+
+jobs:
+  build_and_distribute:
+    strategy:
+      matrix:
+        config:
+          - environment: HWC_STAG
+            variant: staging
+            build_type: debug
+          - environment: HWC_UAT
+            variant: uat
+            build_type: debug
+    uses: ./.github/workflows/build-distribute.yml
+    with:
+      environment: ${{ matrix.config.environment }}
+      variant: ${{ matrix.config.variant }}
+      build_type: ${{ matrix.config.build_type }}
+    secrets: inherit
+
+
+
+

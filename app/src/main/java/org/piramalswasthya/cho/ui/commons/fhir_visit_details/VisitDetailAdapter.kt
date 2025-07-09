@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -39,11 +40,14 @@ class VisitDetailAdapter(
         val descriptionInput: TextInputEditText = itemView.findViewById(R.id.descInputText)
         val resetButton: FloatingActionButton = itemView.findViewById(R.id.resetButton)
         val cancelButton: FloatingActionButton = itemView.findViewById(R.id.deleteButton)
-        val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
+      //  val durationInputLayout: TextInputLayout = itemView.findViewById(R.id.duration)
         val descInputLayout: TextInputLayout = itemView.findViewById(R.id.descriptionText)
         val chiefComplaintOptionInput : TextInputLayout = itemView.findViewById(R.id.chiefComplaintOptions)
-        val addButton : FloatingActionButton = itemView.findViewById(R.id.addButtonCC)
-        val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButtonCC)
+//        val addButton : FloatingActionButton = itemView.findViewById(R.id.addButtonCC)
+//        val subtractButton : FloatingActionButton = itemView.findViewById(R.id.subtractButtonCC)
+
+        val addButton : TextView = itemView.findViewById(R.id.addButton)
+        val subtractButton : TextView = itemView.findViewById(R.id.subtractButton)
         init {
             // Set up click listener for the "Cancel" button
             cancelButton.setOnClickListener {
@@ -167,7 +171,7 @@ class VisitDetailAdapter(
                     holder.updateResetButtonState()
                     itemChangeListener.onItemChanged()
                     holder.chiefComplaintOptionInput.apply {
-                        boxStrokeColor = resources.getColor(R.color.purple)
+                 //       boxStrokeColor = resources.getColor(R.color.purple)
                         hintTextColor = defaultHintTextColor
                     }
                 }else{
@@ -195,7 +199,7 @@ class VisitDetailAdapter(
 
                 itemData.duration = s.toString()
 
-                if (s.isNullOrEmpty()) {
+               /* if (s.isNullOrEmpty()) {
                     holder.subtractButton.isEnabled = false
                     holder.durationInputLayout.apply {
                         requestFocus()
@@ -208,7 +212,7 @@ class VisitDetailAdapter(
                         boxStrokeColor = resources.getColor(R.color.purple)
                         hintTextColor = defaultHintTextColor
                     }
-                }
+                }*/
 
                 holder.updateResetButtonState()
                 itemChangeListener.onItemChanged()

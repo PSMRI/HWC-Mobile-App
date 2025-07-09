@@ -1,0 +1,142 @@
+name: Build and Distribute to Firebase
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      variant:
+        required: true
+        type: string
+      build_type:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache NDK
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/lib/android/sdk/ndk
+          key: ubuntu-latest-ndk-r27c
+
+      - name: Cache CMake
+        uses: actions/cache@v3
+        with:
+          path: ~/.cmake
+          key: ubuntu-latest-cmake-3.31.1
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@v1.5.0
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v1
+        with:
+          cmake-version: '3.31.1'
+
+      - name: Set up ruby env
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+
+      - name: Verify Ruby installation
+        run: ruby -v
+
+      - name: Decode generic google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_GENERIC }}" | base64 --decode > ./app/google-services.json || exit 1
+
+      - name: Decode Firebase Credentials
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" | base64 --decode > firebase_credentials.json
+
+      # Removed credentials print step for security
+
+      - name: Decode Google Play JSON key
+        run: |
+          echo "${{ secrets.GOOGLE_PLAY_JSON_KEY }}" | base64 --decode > ./fastlane/google_play_service_account.json
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
+          echo "Keystore path: ${{ github.workspace }}/keystore.jks"
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
+      - name: Get version from build.gradle
+        id: get-version
+        run: |
+          VERSION_NAME=$(grep 'versionName' app/build.gradle | sed -E "s/.*versionName ['\"]([0-9.]+)['\"].*/\1/") 
+          echo "version=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Verify version
+        run: |
+          if [ -z "$version" ]; then 
+            echo "Version name could not be extracted. Exiting."
+            exit 1 
+          else 
+            echo "Version name is $version" 
+          fi
+
+      - name: Build and Distribute app to Firebase
+        id: build-and-distribute
+        run: |
+          # Set app URLs used in the codebase
+          export BASE_TMC_URL=${{ secrets.BASE_TMC_URL }}
+          export BASE_AMRIT_URL=${{ secrets.BASE_AMRIT_URL }}
+          export BASE_FLW_URL=${{ secrets.BASE_FLW_URL }}
+          export BASE_ABHA_URL=${{ secrets.BASE_ABHA_URL }}
+          export SANJEEVANI_API_URL=${{ secrets.SANJEEVANI_API_URL }}
+          
+          # Correct keystore path using workflow-generated file
+          export KEYSTORE_PATH=${{ github.workspace }}/keystore.jks
+          export KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          export KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          export KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+
+          export FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+
+          if [ "${{ inputs.build_type }}" == "debug" ]; then
+            bundle exec fastlane build_and_distribute_debug variant:${{ inputs.variant }}
+          else
+            bundle exec fastlane build_and_distribute_release variant:${{ inputs.variant }}
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: HLW-Mobile-App - APK(s) ${{ inputs.variant }} generated
+          path: ${{ inputs.build_type == 'debug' && 'app/build/outputs/apk/**/debug/*.apk' || 'app/build/outputs/bundle/**/*.aab' }}
+          if-no-files-found: warn
+          compression-level: 6
+          overwrite: false
+
+      - name: Push to Releases
+        if: inputs.build_type == 'release'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "app/build/outputs/bundle/**/*.aab"
+          tag: v${{ env.version }}-${{ inputs.environment }}-${{ github.run_number }}
+          token: ${{ secrets.GITHUB_TOKEN }}

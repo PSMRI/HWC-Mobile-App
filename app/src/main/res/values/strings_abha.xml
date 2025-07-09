@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="verify_aadhaar_number">Verify Aadhaar Number</string>
+    <string name="verify_aadhaar_otp">Verify Aadhaar OTP</string>
+    <string name="verify_mobile_number">Verify Mobile Number</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="verify_otp">Verify OTP</string>
+    <string name="resend_otp">Resend OTP</string>
+    <!--    <string name="no_records_found_hh">No Household records found. Please start registering households by clicking on the button below.</string>-->
+    <!--    <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">Something went wrong !\nUnable to connect to server !\nTry again later!</string>-->
+    <!--    <string name="try_again">Try Again!</string>-->
+    <string name="full_name">Full Name</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="district">District</string>
+    <string name="aadhaar">Aadhaar</string>
+    <string name="asha">ASHA</string>
+    <string name="ashaname">ASHA Name</string>
+    <string name="gov">GOV</string>
+    <string name="enter_aadhaar_number">Enter Aadhaar Number</string>
+    <string name="aadhaar_number">Aadhaar Number</string>
+    <string name="verified">Verified</string>
+    <string name="generate_otp">Send OTP</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="select_abha">Select Name</string>
+    <string name="pid">PID</string>
+    <string name="generate_abha">ABHA</string><!--Generate ABHA-->
+    <string name="_30">30</string>
+    <string name="abha_number_generated_successfully">ABHA number generated successfully</string>
+    <string name="abha_id">ABHA ID</string>
+    <string name="linked_toO_beneficiary">Linked to Beneficiary</string>
+    <string name="do_you_want_to_download_the_abha_card">Do you want to download the ABHA card?</string>
+    <string name="enter_mobile_number">Enter Mobile Number</string>
+    <string name="enter_number_for_abha">Aadhaar Number for ABHA Registration</string>
+    <string name="aadhaar_linked_mobile">Aadhaar linked mobile number or other mobile number</string>
+    <string name="mobile_number">Mobile Number</string>
+    <string name="check_and_generate_otp">Check and Generate OTP</string>
+    <string name="textview">TextView</string>
+    <string name="download_abha_channel_id">downloading abha card</string>
+    <string name="create_abha_number">Create ABHA Number</string>
+    <string name="d_o_b">D.O.B</string>
+    <string name="check_circle">check circle</string>
+    <string name="name_">Name :</string>
+    <string name="abha_number_">ABHA Number :</string>
+    <string name="aadhaar_linked_mobile_number_or_other_mobile_number">Aadhaar linked mobile number or other mobile number</string>
+    <string name="validate_fp">Validate FP</string>
+    <string name="generating_abha_for">Enter</string>  <!--Creating ABHA for:-->
+    <!--    <string name="otp_sent_to">"OTP sent to "</string>-->
+    <string name="otp_sent_to">"OTP sent to Aadhaar linked mobile number"</string>
+    <string name="str_create_abha">Create ABHA</string>
+    <string name="str_search_abha">Search ABHA</string>
+    <string name="str_invalid_aadhaar_no">Please Enter Valid Aadhaar Number</string>
+    <string name="str_invalid_mobile_no">Please Enter Valid Mobile Number</string>
+    <string name="str_invalid_ben_name">Please Enter Valid Beneficiary name</string>
+    <string name="str_here_abha_no">Here is your ABHA Number!</string>
+    <string name="str_abha_already_exist">This ABHA already exists!</string>
+    <string name="str_abha_successfully_created">ABHA account successfully created!</string>
+    <string name="str_abha_card_downloaded">You can view Abha Card in download folder!!</string>
+
+
+    <string name="str_abha_otp_note">This OTP is valid for 10 minutes only</string>
+    <string name="str_enter_otp">Enter OTP:</string>
+    <string name="str_find_abha">Already have an ABHA?\nFind Out Now!</string>
+    <string name="str_get_your_abha">Get the ABHA number using the Mobile number.</string>
+    <string name="enter_ben_name">Enter Beneficiary Name</string>
+    <string name="str_didnt_receive_otp">Didn\'t receive OTP? Please wait </string>
+
+
+    <string name="str_declaration">I hereby declare that:</string>
+    <string name="str_aadhaar_consent_1">I am voluntarily sharing my Aadhaar Number / Virtual ID issued by the Unique Identification Authority of India (“UIDAI”), and my demographic information for the purpose of
+ creating an Ayushman Bharat Health Account number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”). I authorize NHA to use my
+ Aadhaar number / Virtual ID for performing Aadhaar based authentication with UIDAI as per the provisions of the Aadhaar (Targeted Delivery of Financial and other Subsidies,
+ Benefits and Services) Act, 2016 for the aforesaid purpose. I understand that UIDAI will share my e-KYC details, or response of “Yes” with NHA upon successful authentication.</string>
+    <string name="str_aadhaar_consent_2">I intend to create Ayushman Bharat Health Account Number (“ABHA number”) and Ayushman Bharat Health Account address (“ABHA Address”) using document other than
+ Aadhaar. (Click here to proceed further)</string>
+    <string name="str_aadhaar_consent_3">I consent to usage of my ABHA address and ABHA numberfor linking of my legacy (past) government health records and those which will be generated during this encounter.</string>
+    <string name="str_aadhaar_consent_4">I authorize the sharing of all my health records with healthcare provider(s) for the purpose of providing healthcare services to me during this encounter.</string>
+
+    <string name="str_aadhaar_consent_5">I consent to the anonymization and subsequent use of my government health records for public health purposes.</string>
+    <string name="str_aadhaar_consent_6">I, @ashaName, confirm that I have duly informed and explained the beneficiary of the
+ contents of consent for aforementioned purposes.</string>
+    <string name="str_aadhaar_consent_7">I, @beneficiaryName, have been explained about the consent as stated above and hereby provide my consent for the aforementioned purposes.</string>
+    <string name="str_seconds">" seconds"</string>
+    <string name="str_aadhaar_otp_number">"OTP sent to Aadhaar registered mobile number ending with @mobileNumber"</string>
+    <string name="str_abha_otp_number">"OTP sent to ABHA registered mobile number ending with @mobileNumber"</string>
+    <string name="str_otp_number_message">"An OTP has been sent to the mobile number ending with @mobileNumber."</string>
+
+
+</resources>

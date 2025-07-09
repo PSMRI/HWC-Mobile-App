@@ -74,6 +74,7 @@ class HwcFragment constructor(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        ////Cpmment this Below method as per discussion with madhav
         getCurrentLocation()
         viewModel = ViewModelProvider(this).get(HwcViewModel::class.java)
 
@@ -104,6 +105,7 @@ class HwcFragment constructor(
         timestamp = formatter.format(Date())
 
         binding.btnHwcLogin.setOnClickListener {
+            //Cpmment this Below method as per discussion with madhav
             getCurrentLocation()
 
             if (!isBiometric) {
@@ -127,12 +129,13 @@ class HwcFragment constructor(
                                 else {
                                     viewModel.forgetUser()
                                 }
-
+                            //Cpmment this Below code as per discussion with madhav
                                 userLatitude = user?.masterLatitude
                                 userLongitude = user?.masterLongitude
                                 userLoginDistance = user?.loginDistance
                                 currentLatitude = currentLocation?.latitude
                                 currentLongitude = currentLocation?.longitude
+                                //Cpmment this above code as per discussion with madhav
 
                                 if (user?.masterVillageID != null && userLatitude != null && userLongitude != null) {
                                     if (currentLatitude != null && currentLongitude != null) {
@@ -140,7 +143,7 @@ class HwcFragment constructor(
                                             userLatitude!!, userLongitude!!,
                                             currentLatitude!!, currentLongitude!!
                                         )
-                                        if (distance > userLoginDistance!!) {
+                                        if (distance > userLoginDistance?:0) {
                                             showDialog()
                                         } else {
 //                                            Toast.makeText(

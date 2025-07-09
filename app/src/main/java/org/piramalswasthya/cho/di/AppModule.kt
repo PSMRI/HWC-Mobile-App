@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
@@ -69,11 +70,13 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl = "https://amritdemo.piramalswasthya.org/"
+    private const val baseAmritUrl ="https://uatamrit.piramalswasthya.org/"
+    //"https://amritdemo.piramalswasthya.org/"
 
-    private const val baseFlwUrl = "https://amritdemo.piramalswasthya.org/"
+    private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
+        //"https://amritdemo.piramalswasthya.org/"
 
-    private const val baseAbhaUrl = "https://healthidsbx.abdm.gov.in/api/"
+    private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
 
     private const val sanjeevaniApi = "https://preprod.esanjeevaniopd.xyz/uat/"
 
@@ -333,6 +336,9 @@ fun provideESanjeevaniApiService(
     @Provides
     fun providePrescriptionDao(database: InAppDb): PrescriptionDao = database.prescriptionDao
 
+    @Singleton
+    @Provides
+    fun provideProcedureMasterDao(database: InAppDb): ProcedureMasterDao = database.procedureMasterDao
     @Singleton
     @Provides
     fun provideBatchDao(database: InAppDb): BatchDao = database.batchDao

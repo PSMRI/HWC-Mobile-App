@@ -19,7 +19,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_normal"
-                android:text="Enter Mobile Number"
+                android:text="@string/enter_mobile_number"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +32,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
                 android:src="@drawable/ic_info"
-                android:tooltipText="Aadhaar linked mobile number or other mobile number"
+                android:tooltipText="@string/aadhaar_linked_mobile_number_or_other_mobile_number"
                 app:layout_constraintBottom_toBottomOf="@+id/textView7"
                 app:layout_constraintStart_toEndOf="@+id/textView7"
                 app:layout_constraintTop_toTopOf="@+id/textView7" />
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginStart="8dp"
-                android:hint="Mobile Number"
+                android:hint="@string/mobile_number"
                 android:paddingTop="@dimen/padding_normal"
                 android:paddingBottom="@dimen/padding_normal"
                 app:layout_constraintTop_toBottomOf="@+id/textView7"
@@ -65,8 +65,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_weight="1"
-                    android:text="TextView"
-                    android:textColor="@color/red"
+                    android:text="@string/textview"
+                    android:textColor="@android:color/holo_red_light"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,10 +80,10 @@
                 android:clickable="false"
                 android:enabled="false"
                 android:padding="@dimen/padding_normal"
-                android:text="Check and Generate OTP"
+                android:text="@string/check_and_generate_otp"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="@color/secondaryColor"
+                android:textColor="?attr/colorOnPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/til_mobile_number" />
@@ -111,7 +111,8 @@
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="@+id/textView5"
-                app:layout_constraintStart_toStartOf="@+id/textView5" />
+                app:layout_constraintStart_toStartOf="@+id/textView5"
+                android:contentDescription="@string/offline" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -119,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="@dimen/padding_normal"
-                android:text="Something went wrong !\nUnable to connect to server !\nTry again later!"
+                android:text="@string/something_went_wrong_nunable_to_connect_to_server_ntry_again_later"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintBottom_toBottomOf="parent"

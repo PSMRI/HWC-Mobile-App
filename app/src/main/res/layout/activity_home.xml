@@ -30,7 +30,7 @@
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
                 app:titleTextColor="@color/white"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/default_header">
+                android:background="@color/default_button">
 
                 <ImageButton
                     android:id="@+id/share_button"
@@ -49,8 +49,8 @@
                     android:layout_gravity="end"
                     android:layout_marginRight="15dp"
                     android:contentDescription="Translate"
-                    android:src="@drawable/translate"
-                    android:background="?attr/colorPrimary"/>
+                    android:src="@drawable/ic_translate"
+                    android:background="@color/default_button"/>
 
                 <ImageButton
                     android:id="@+id/sync_button"
@@ -60,7 +60,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/ic_synced"
-                    android:background="?attr/colorPrimary"/>
+                    android:background="@color/default_button"/>
 
                 <ImageButton
                     android:id="@+id/refresh_button"
@@ -70,14 +70,7 @@
                     android:layout_marginRight="10dp"
                     android:contentDescription="Refresh"
                     android:src="@drawable/baseline_refresh_icon"
-                    android:background="?attr/colorPrimary"/>
-
-<!--                <Button-->
-<!--                    android:id="@+id/todayButton"-->
-<!--                    android:layout_width="150dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:gravity="center"-->
-<!--                    android:text="Today's Report" />-->
+                    android:background="@color/default_button"/>
 
             </androidx.appcompat.widget.Toolbar>
 
@@ -85,16 +78,18 @@
                 android:id="@+id/tabs_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 tools:background="@color/white"
                 android:orientation="horizontal">
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabs"
                     app:tabGravity="fill"
+                    app:tabTextColor="@color/read_only"
+                    app:tabSelectedTextColor="@color/white"
+                    app:tabSelectedTextAppearance="@font/roboto_bold"
+                    android:background="@color/default_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
         </com.google.android.material.appbar.AppBarLayout>

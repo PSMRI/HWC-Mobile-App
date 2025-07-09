@@ -4,25 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-<!--    <TextView-->
-<!--        android:id="@+id/chiefComplaint"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="@dimen/custom_ui_margin"-->
-<!--        android:text="@string/chief_complaint"-->
-<!--        android:textSize="16sp"-->
-<!--        android:textStyle="normal|bold"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"/>-->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/chiefComplaintOptions"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/custom_ui_margin"
         android:hint="@string/select_chief_complaint"
-        android:textColorHint="#888888"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -34,64 +23,27 @@
             android:textSize="18sp"
             android:layout_weight="1"
             android:imeOptions="actionDone"
-            android:drawableEnd="@null"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <include
         android:id="@+id/duration"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:hint="@string/duration"
-        android:textColorHint="#808080">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:layout_gravity="center"
-            android:textSize="18sp" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/subtractButtonCC"
+        layout="@layout/cutom_number_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button"
-        android:layout_gravity="center"
-        android:src="@drawable/baseline_remove_icon"
-        android:layout_margin="@dimen/custom_ui_margin"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
+        android:layout_marginTop="@dimen/_5sdp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addButtonCC"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button"
-        android:layout_gravity="center"
-        android:src="@drawable/baseline_add_icon"
-        android:layout_margin="@dimen/custom_ui_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/duration"
-        app:layout_constraintTop_toBottomOf="@+id/chiefComplaintOptions" />
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dropdownDuration"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:hint="@string/duration_unit"
-        android:textColorHint="#888888"
         android:textSize="18sp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/duration">
@@ -109,11 +61,11 @@
     <!-- TextInputLayout for the text area -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/descriptionText"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/custom_ui_margin"
         android:hint="@string/description"
-        android:textColorHint="#888888"
         app:endIconMode="custom"
         android:textSize="18sp"
         app:endIconDrawable="@drawable/ic_mic"
@@ -137,6 +89,7 @@
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
+        android:backgroundTint="@color/status_warning"
         android:src="@drawable/baseline_refresh_icon"
         android:layout_margin="@dimen/custom_ui_margin"
         app:layout_constraintEnd_toStartOf="@+id/deleteButton"
@@ -150,6 +103,7 @@
         style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
         android:src="@drawable/baseline_cross_line"
+        android:backgroundTint="@color/status_error"
         android:layout_margin="@dimen/custom_ui_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/resetButton"

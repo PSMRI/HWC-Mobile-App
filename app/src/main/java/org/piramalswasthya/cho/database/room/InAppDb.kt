@@ -48,6 +48,7 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
@@ -141,10 +142,14 @@ import timber.log.Timber
         DeliveryOutcomeCache::class,
         EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class,
-        CbacCache::class
+        CbacCache::class,
+        ProcedureMaster::class,
+        ComponentDetailsMaster::class,
+        ComponentOptionsMaster::class
+
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 103, exportSchema = false
+    version = 107, exportSchema = false
 )
 
 
@@ -153,6 +158,7 @@ import timber.log.Timber
     SyncStateConverter::class,
     StateConverter::class,
     LoginSettingsDataConverter::class,
+
     StateConverter::class,
     DistrictConverter::class,
     DistrictBlockConverter::class,
@@ -206,12 +212,12 @@ abstract class InAppDb : RoomDatabase() {
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
     abstract val cbacDao: CbacDao
-
+    abstract val procedureMasterDao: ProcedureMasterDao
 
     companion object {
         @Volatile
         private var INSTANCE: InAppDb? = null
-        val MIGRATION_102_103 = object : Migration(102, 103) {
+        val MIGRATION_106_107 = object : Migration(106, 107) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE Patient ADD COLUMN faceEmbedding TEXT")
             }
@@ -228,7 +234,7 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_102_103)
+                        .addMigrations(MIGRATION_106_107)
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

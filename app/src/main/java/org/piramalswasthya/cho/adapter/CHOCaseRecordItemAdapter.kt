@@ -1,10 +1,7 @@
 package org.piramalswasthya.cho.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -13,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.ChoListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
-import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class CHOCaseRecordItemAdapter (
@@ -51,14 +47,24 @@ class CHOCaseRecordItemAdapter (
         ) {
             binding.benVisitInfo = item
             binding.clickListener = clickListener
-            if(item.referDate != null){
-                binding.itemll.setCardBackgroundColor(ContextCompat.getColor(binding.itemll.context, R.color.referBackground))
+            if (position % 2 == 0) {
+                binding.itemll.setBackgroundColor(
+                    ContextCompat.getColor(
+                        binding.itemll.context,
+                        R.color.referBackground
+                    )
+                )
+            } else {
+                binding.itemll.setBackgroundColor(ContextCompat.getColor(binding.itemll.context, R.color.text_secondary))
             }
+
+          /*  if(item.referDate != null){
+                binding.itemll.setCardBackgroundColor(ContextCompat.getColor(binding.itemll.context, R.color.referBackground))
+            }*/
             binding.visitNumber.text = item.benVisitNo.toString() ?: ""
             if(item.visitDate != null){
                 binding.visitDate.text = DateTimeUtil.formatDate(item.visitDate!!)
             }
-
             binding.executePendingBindings()
         }
     }

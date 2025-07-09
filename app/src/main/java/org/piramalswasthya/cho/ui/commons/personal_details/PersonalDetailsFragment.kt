@@ -243,6 +243,7 @@ class PersonalDetailsFragment : Fragment() {
                                 },
                                 {
                                         benVisitInfo ->
+
                                     Log.d("ben click listener", "ben click listener")
                                     checkAndGenerateABHA(benVisitInfo)
                                 },
