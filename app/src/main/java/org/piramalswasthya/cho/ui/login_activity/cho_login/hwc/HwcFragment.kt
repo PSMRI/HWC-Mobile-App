@@ -75,7 +75,7 @@ class HwcFragment constructor(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         ////Cpmment this Below method as per discussion with madhav
-        getCurrentLocation()
+//        getCurrentLocation()
         viewModel = ViewModelProvider(this).get(HwcViewModel::class.java)
 
         _binding = FragmentHwcBinding.inflate(layoutInflater, container, false)
@@ -106,7 +106,9 @@ class HwcFragment constructor(
 
         binding.btnHwcLogin.setOnClickListener {
             //Cpmment this Below method as per discussion with madhav
-            getCurrentLocation()
+//            getCurrentLocation()
+            tryAuthUser = true
+            loginUser()
 
             if (!isBiometric) {
                 tryAuthUser = true
@@ -207,13 +209,20 @@ class HwcFragment constructor(
                                         null,
                                         false
                                     )
-                                    // OPEN SETTINGS PAGE
-                                    startActivity(
-                                        Intent(
-                                            context,
-                                            MasterLocationSettingsActivity::class.java
+
+                                    findNavController().navigate(
+                                        ChoLoginFragmentDirections.actionSignInToHomeFromCho(
+                                            true
                                         )
                                     )
+
+                                    // OPEN SETTINGS PAGE
+//                                    startActivity(
+//                                        Intent(
+//                                            context,
+//                                            MasterLocationSettingsActivity::class.java
+//                                        )
+//                                    )
                                     viewModel.resetState()
                                     activity?.finish()
                                 }
@@ -409,6 +418,28 @@ class HwcFragment constructor(
                 ),
                 PERMISSION_REQUEST_CODE
             )
+        }
+    }
+
+    private fun loginUser() {
+        currentLatitude = 24.43
+        currentLongitude = 67.87
+        if (tryAuthUser) {
+            lifecycleScope.launch {
+                viewModel.authUser(
+                    userName,
+                    binding.etPasswordHwc.text.toString(),
+                    "HWC",
+                    null,
+                    timestamp,
+                    null,
+                    24.43,
+                    67.87,
+                    null,
+                    requireContext()
+                )
+                tryAuthUser = false
+            }
         }
     }
 

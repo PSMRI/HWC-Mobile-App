@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.login_settings
 
+import android.content.Context
 import android.util.Log
 import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
@@ -37,6 +38,7 @@ import org.piramalswasthya.cho.repositories.BlockMasterRepo
 import org.piramalswasthya.cho.repositories.DistrictMasterRepo
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.StateMasterRepo
+import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VillageMasterRepo
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
@@ -46,6 +48,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginSettingsViewModel@Inject constructor(
+    private val userRepo: UserRepo,
     private val loginSettingsDataRepository: LoginSettingsDataRepository,
     private val stateMasterRepo: StateMasterRepo,
     private val districtMasterRepo: DistrictMasterRepo,
@@ -147,6 +150,18 @@ class LoginSettingsViewModel@Inject constructor(
             if(result > 0 && userInfo != null){
                 userInfo!!.districtBranchID = districtBranchId
             }
+        }
+    }
+
+    suspend fun saveMasterLatLong(
+        lat: Double?,
+        long: Double?
+    ) {
+        viewModelScope.launch {
+            userRepo.saveMasterLatLong(
+                lat,
+                long
+            )
         }
     }
 
