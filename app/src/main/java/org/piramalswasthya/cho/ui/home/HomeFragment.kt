@@ -220,9 +220,9 @@ class HomeFragment : Fragment() {
 
     fun setItemVisibility(){
 
-        if(!preferenceDao.isUserRegistrar() || preferenceDao.isUserCHO()){
-            binding.bottomNavigation.menu.removeItem(R.id.nav_registrar)
-        }
+//        if(!preferenceDao.isUserRegistrar() || preferenceDao.isUserCHO()){
+//            binding.bottomNavigation.menu.removeItem(R.id.nav_registrar)
+//        }
         if(!preferenceDao.isUserStaffNurseOrNurse() && !preferenceDao.isUserCHO()){
             binding.bottomNavigation.menu.removeItem(R.id.nav_nurse)
         }
@@ -235,7 +235,7 @@ class HomeFragment : Fragment() {
         if(!preferenceDao.isUserPharmacist() && !preferenceDao.isUserCHO()){
             binding.bottomNavigation.menu.removeItem(R.id.nav_pharmacist)
         }
-        if(preferenceDao.isUserCHO()){
+        if(preferenceDao.isUserCHO() || preferenceDao.isUserRegistrar()){
             val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
             nurseItem?.title = "CHO"
             val choDrawable = context?.let { ContextCompat.getDrawable(it, R.drawable.ic_medical_briefcase) } // R.drawable.cho
@@ -248,7 +248,7 @@ class HomeFragment : Fragment() {
 
     fun setItemSelected(){
 
-        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
+//        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
         val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
         val docItem = binding.bottomNavigation.menu.findItem(R.id.nav_doctor)
         val labItem = binding.bottomNavigation.menu.findItem(R.id.nav_lab_technician)
@@ -256,9 +256,9 @@ class HomeFragment : Fragment() {
 
         when(preferenceDao.getSwitchRole()){
 
-            "Registrar" -> {
-                registrarItem?.isChecked = true
-            }
+//            "Registrar" -> {
+//                registrarItem?.isChecked = true
+//            }
             "Nurse" -> {
                 nurseItem?.isChecked = true
             }
@@ -281,7 +281,7 @@ class HomeFragment : Fragment() {
 
     fun checkRoleAndSetItem(){
 
-        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
+//        val registrarItem = binding.bottomNavigation.menu.findItem(R.id.nav_registrar)
         val nurseItem = binding.bottomNavigation.menu.findItem(R.id.nav_nurse)
         val docItem = binding.bottomNavigation.menu.findItem(R.id.nav_doctor)
         val labItem = binding.bottomNavigation.menu.findItem(R.id.nav_lab_technician)
@@ -291,10 +291,10 @@ class HomeFragment : Fragment() {
             nurseItem?.isChecked = true
             preferenceDao.setSwitchRoles("Nurse")
         }
-        else if(preferenceDao.isUserRegistrar()){
-            registrarItem?.isChecked = true
-            preferenceDao.setSwitchRoles("Registrar")
-        }
+//        else if(preferenceDao.isUserRegistrar()){
+//            registrarItem?.isChecked = true
+//            preferenceDao.setSwitchRoles("Registrar")
+//        }
         else if(preferenceDao.isUserStaffNurseOrNurse()){
             nurseItem?.isChecked = true
             preferenceDao.setSwitchRoles("Nurse")
@@ -325,12 +325,12 @@ class HomeFragment : Fragment() {
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_registrar -> {
-                    preferenceDao.setSwitchRoles("Registrar")
-                    val refresh = Intent(requireContext(), HomeActivity::class.java)
-                    startActivity(refresh)
-                    true
-                }
+//                R.id.nav_registrar -> {
+//                    preferenceDao.setSwitchRoles("Registrar")
+//                    val refresh = Intent(requireContext(), HomeActivity::class.java)
+//                    startActivity(refresh)
+//                    true
+//                }
                 R.id.nav_nurse -> {
                     preferenceDao.setSwitchRoles("Nurse")
                     val refresh = Intent(requireContext(), HomeActivity::class.java)
