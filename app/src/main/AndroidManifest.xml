@@ -35,7 +35,7 @@
 
     <application
         android:name=".CHOApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:configChanges="locale|orientation"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
