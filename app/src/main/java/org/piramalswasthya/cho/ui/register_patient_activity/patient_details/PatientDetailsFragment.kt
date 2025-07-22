@@ -582,6 +582,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun hideMarriedFields(){
         binding.maritalStatusText.visibility = View.GONE
         binding.spouseNameText.visibility = View.GONE
+        binding.fatherNameText.visibility = View.GONE
         binding.ageAtMarriageText.visibility = View.GONE
     }
 
@@ -594,11 +595,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if(bool) {
                 binding.maritalStatusText.visibility = View.VISIBLE
                 if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "married") {
+                    binding.fatherNameText.visibility = View.GONE
                     binding.spouseNameText.visibility = View.VISIBLE
-                    binding.ageAtMarriageText.visibility = View.VISIBLE
+//                    binding.ageAtMarriageText.visibility = View.VISIBLE
+                } else if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "unmarried") {
+                    binding.spouseNameText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.VISIBLE
+//                    binding.ageAtMarriageText.visibility = View.GONE
                 } else {
                     binding.spouseNameText.visibility = View.GONE
-                    binding.ageAtMarriageText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.GONE
                 }
             }
             else
@@ -611,8 +617,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
+            viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
+            viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
         }
 
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
@@ -641,7 +649,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//                setMarriedFieldsVisibility()
+                setMarriedFieldsVisibility()
                 val isAgeInUnitFilled = s?.isNotEmpty() == true
                 viewModel.setAgeUnit(isAgeInUnitFilled)
             }
@@ -823,7 +831,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(s: Editable?) {
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
         }
     }
 
@@ -891,7 +899,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
             viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
 //        }
         doAgeToDob = true;
     }
@@ -955,8 +963,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.lastName = binding.lastName.text.toString().trim()
         patient.dob = viewModel.selectedDateOfBirth;
         patient.age = viewModel.enteredAge;
+        patient.maritalStatusID = viewModel.maritalStatusId
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
+        patient.spouseName = binding.spouseName.text.toString().trim()
         patient.faceEmbedding = embeddings?.toList()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null

@@ -288,7 +288,7 @@
     <string name="phone_number">ದೂರವಾಣಿ ಸಂಖ್ಯೆ </string>
     <string name="registration_date">ನೋಂದಣಿ ದಿನಾಂಕ</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
-    <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
+    <string name="spouse_name">Spouse Name</string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>

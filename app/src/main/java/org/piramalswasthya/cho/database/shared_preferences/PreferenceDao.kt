@@ -99,7 +99,7 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
     fun isUserDoctorOrMO():Boolean{
         val rolesArray = getUserRoles()?.split(",")
         if(rolesArray != null){
-            return rolesArray.contains("Doctor") || rolesArray.contains("MO")
+            return rolesArray.contains("Doctor") || rolesArray.contains("Medical Officer")
         }
         return false;
     }
