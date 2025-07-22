@@ -145,6 +145,8 @@ class PatientDetailsViewModel @Inject constructor(
 
     var selectedAgeUnitEnum: AgeUnitEnum? = AgeUnitEnum.YEARS
     var enteredAge: Int?  = null
+    var maritalStatusId: Int?  = null
+    var maritalStatusName: String?  = null
     var enteredAgeYears: Int?  = 0
     var enteredAgeMonths: Int?  = 0
     var enteredAgeWeeks: Int?  = 0

@@ -241,7 +241,7 @@
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:textColorHint="#888888"
             android:hint="@string/marital_status"
             android:layout_height="wrap_content">
@@ -310,6 +310,7 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             app:endIconMode="custom"
+            android:visibility="gone"
             app:endIconDrawable="@drawable/ic_mic"
             android:textColorHint="#888888"
             android:hint="@string/father_s_name">
