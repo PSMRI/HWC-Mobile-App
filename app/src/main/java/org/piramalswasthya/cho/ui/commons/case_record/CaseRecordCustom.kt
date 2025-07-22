@@ -131,6 +131,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
+    private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
     var isAddTemplateClicked = false
 
@@ -1097,12 +1098,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         } else {
             doctorFlag = 2
         }
+        if (prescriptionList.size == 0) {
+            pharmacistFlag = 0
+        } else {
+            pharmacistFlag = 1
+        }
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = patId,
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
             nurseFlag = 9,
             doctorFlag = doctorFlag,
+            pharmacist_flag = pharmacistFlag,
             visitDate = Date(),
         )
 

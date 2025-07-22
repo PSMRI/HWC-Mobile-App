@@ -82,7 +82,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     var respiratoryValue :String?=null
     var rbsValue :String?=null
     private val bundle = Bundle()
-
+    private var sbpValue: Int? = null
+    private var dbpValue: Int? = null
     private var masterDb: MasterDb? = null
 
     override fun onCreateView(
@@ -252,12 +253,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                     bpSystolic.toInt() in 50..300
 
             if (isValid) {
+                sbpValue = bpSystolic.toInt()
                 binding.bpSystolicEditTxt.helperText = null
             } else {
+                sbpValue = null
                 binding.bpSystolicEditTxt.helperText =
                     "Please enter value between 50 and 300."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            sbpValue = null
             binding.bpSystolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
@@ -268,12 +273,16 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
                     bpD.toInt() in 30..200
             if (isValid) {
+                dbpValue = bpD.toInt()
                 binding.bpDiastolicEditTxt.helperText = null
             } else {
+                dbpValue = null
                 binding.bpDiastolicEditTxt.helperText =
                     "Please enter value between 30 and 200."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            dbpValue = null
             binding.bpDiastolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
@@ -293,6 +302,17 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         }
     }
 
+    private fun validateBPRelation(sbp: Int?, dbp: Int?) {
+        if (sbp != null && dbp != null) {
+            if (sbp <= dbp) {
+                binding.bpSystolicEditTxt.helperText = "Systolic BP must be greater than Diastolic BP"
+                binding.bpDiastolicEditTxt.helperText = "Diastolic BP must be less than Systolic BP"
+            } else {
+                binding.bpSystolicEditTxt.helperText = null
+                binding.bpDiastolicEditTxt.helperText = null
+            }
+        }
+    }
     private fun validateHeight(hei: String) {
         try {
             val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
