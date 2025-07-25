@@ -19,6 +19,8 @@ class TemplateBottomSheetViewModel @Inject constructor(
             templateRepo.callDeleteTemplateFromServer()
         }
     }
+
+
     fun callMarkDel(string: String){
         try {
             viewModelScope.launch {

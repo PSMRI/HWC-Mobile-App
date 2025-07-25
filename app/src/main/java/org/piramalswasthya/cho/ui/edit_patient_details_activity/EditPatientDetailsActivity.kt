@@ -85,7 +85,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             navHostFragment.navController
                 .navigate(
                     R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
-                        putBoolean("viewRecord", true)
+//                        putBoolean("viewRecord", true)
                         putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
                     }
                 )
