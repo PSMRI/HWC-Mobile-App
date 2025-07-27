@@ -42,6 +42,8 @@
         android:hardwareAccelerated="true"
         android:label="@string/app_name"
         android:largeHeap="true"
+        android:icon="@mipmap/ic_hwc_launcher"
+        android:roundIcon="@mipmap/ic_hwc_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CHO"
         android:usesCleartextTraffic="true"
