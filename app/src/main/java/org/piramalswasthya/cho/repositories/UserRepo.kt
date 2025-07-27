@@ -357,6 +357,8 @@ class UserRepo @Inject constructor(
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
+                    val rolesObjectArray = privilegesObject.getJSONArray("roles")
+                    preferenceDao.setWorkingLocationID(rolesObjectArray.getJSONObject(0).getInt("workingLocationID"))
                     val rolesArray = extractRoles(privilegesObject);
 //                    val roles = rolesArray;
 //                    Log.i("roles are ", roles);

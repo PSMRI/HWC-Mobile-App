@@ -463,6 +463,7 @@ class PersonalDetailsFragment : Fragment() {
                                         createNewBenFlow = visitInfo.createNewBenFlow,
                                         prescriptionID = visitInfo.prescriptionID,
                                         benVisitNo = visitInfo.benVisitNo,
+                                        visitCategory = visitInfo.visitCategory,
                                         benFlowID = visitInfo.benFlowID,
                                         nurseFlag = visitInfo.nurseFlag,
                                         doctorFlag = visitInfo.doctorFlag,

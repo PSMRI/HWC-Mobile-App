@@ -56,6 +56,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun getWorkingLocationID(): Int {
+        val prefKey = context.getString(R.string.WORK_LOCATION_ID)
+        return pref.getInt(prefKey, 21)
+    }
+    //
+    fun setWorkingLocationID(workingLocationID: Int) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.WORK_LOCATION_ID)
+        editor.putInt(prefKey, workingLocationID)
+        editor.apply()
+    }
+
     fun setUserRoles(roles: String) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.USER_ROLES)
