@@ -18,6 +18,8 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.ProcedureDTO
+import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -46,6 +48,22 @@ class PharmacistFormViewModel @Inject constructor(
     val prescriptions: LiveData<PrescriptionDTO>
         get() = _prescriptions
 
+    private val _isBenHealthInfoFetched = MutableLiveData(false)
+    val isBenHealthInfoFetched: MutableLiveData<Boolean>
+        get() = _isBenHealthInfoFetched
+
+    private val _isOtpGenerated = MutableLiveData(false)
+    val isOtpGenerated: MutableLiveData<Boolean>
+        get() = _isOtpGenerated
+
+    private val _isOtpVerified = MutableLiveData(false)
+    val isOtpVerified: MutableLiveData<Boolean>
+        get() = _isOtpVerified
+
+    var benHealthInfo: BenHealthDetails? = null
+    var txnId: String? = null
+    var careContext: String? = null
+
     enum class NetworkState {
         IDLE,
         LOADING,
@@ -64,6 +82,27 @@ class PharmacistFormViewModel @Inject constructor(
     fun getNetworkPrescriptionList() {
         viewModelScope.launch {
             _prescriptionObserver.value = NetworkState.SUCCESS
+        }
+    }
+
+    fun getBenHealthId(visitCode: Long?, benId: Long?, benRegId: Long?) {
+        viewModelScope.launch {
+            benHealthInfo = patientRepo.getWorkLocationMappedAbdmFacility(visitCode, benId, benRegId)
+            _isBenHealthInfoFetched.value = benHealthInfo != null
+        }
+    }
+
+    fun generateOTPForCareContext() {
+        viewModelScope.launch {
+            txnId = patientRepo.generateOTPForCareContext(benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!)
+            _isOtpGenerated.value = txnId != null
+        }
+    }
+
+    fun validateOTPAndCreateCareContext(otp: String, beneficiaryID: Long, visitCode: Long, visitCategory: String) {
+        viewModelScope.launch {
+            careContext = patientRepo.validateOTPAndCreateCareContext(otp, txnId!!, beneficiaryID, benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!, visitCode, visitCategory)
+            _isOtpVerified.value = careContext != null
         }
     }
 

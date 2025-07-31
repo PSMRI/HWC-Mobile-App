@@ -12,19 +12,26 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PharmacistItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.AlertAbhaCcMappingBinding
+import org.piramalswasthya.cho.databinding.AlertCcMappingBinding
 import org.piramalswasthya.cho.databinding.FragmentPharmacistFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
+import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
+import org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity
+import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -46,12 +53,18 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
     lateinit var viewModel: PharmacistFormViewModel
 
+    private lateinit var ccMappingAlertBinding: AlertCcMappingBinding
+
+    private lateinit var ccMappingAlertAbhaBinding: AlertAbhaCcMappingBinding
+
     private var dtos: PrescriptionDTO? = null
 
     private var itemAdapter : PharmacistItemAdapter? = null
 
     private lateinit var benVisitInfo : PatientDisplayWithVisitInfo
     private var patientCount : Int = 0
+
+    private var visitCode = 0L
 
     private val args: PharmacistFormFragmentArgs by lazy {
         PharmacistFormFragmentArgs.fromBundle(requireArguments())
@@ -150,6 +163,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                             binding.visitCodeValue.text = it.visitCode.toString()
                             binding.prescriptionIdValue.text = it.prescriptionID.toString()
 
+                            visitCode = it.visitCode
 
                             it.itemList.let { it ->
                                 itemAdapter?.submitList(it)
@@ -170,6 +184,7 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             }
 //        }
         }
+
     }
 
     fun getResultStr(count:Int?):String{
@@ -189,7 +204,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
         viewModel.isDataSaved.observe(viewLifecycleOwner){ state ->
             when (state!!) {
                 true -> {
-                    navigateNext()
+                    careContextPrompt.show()
+//                    navigateNext()
                 }
                 else -> {}
             }
@@ -200,6 +216,140 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
         val intent = Intent(context, HomeActivity::class.java)
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    private val careContextPrompt by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.info))
+            .setMessage(getString(R.string.want_care_context))
+            .setPositiveButton("Yes") { dialog, _ ->
+                dialog.dismiss()
+                viewModel.getBenHealthId(visitCode, benVisitInfo.patient.beneficiaryID, benVisitInfo.patient.beneficiaryRegID)
+
+                viewModel.isBenHealthInfoFetched.observe(viewLifecycleOwner) { state ->
+                    when(state!!) {
+                        true -> {
+                            filterAbhaCcMapping
+                            ccMappingAlertBinding.btnOk.visibility = View.GONE
+                            ccMappingAlertBinding.tvNrf.visibility = View.GONE
+                            ccMappingAlertBinding.btnGenerate.visibility = View.VISIBLE
+                            ccMappingAlertBinding.abhaBox.visibility = View.VISIBLE
+
+                            ccMappingAlertBinding.tvvAbhaNumber.text = viewModel.benHealthInfo?.healthIdNumber
+                            ccMappingAlertBinding.tvvAbha.text = viewModel.benHealthInfo?.healthId
+                            ccMappingAlertBinding.tvvAbhaCreated.text = viewModel.benHealthInfo?.createdDate
+
+                            filterAbhaCcMapping.show()
+
+                        }
+                        else -> {
+                            filterAbhaCcMapping.show()
+//                    Toast.makeText(requireContext(), "There was some error in fetching beneficiary health data, please try again later", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+            }
+            .setNegativeButton("No") {dialog, _->
+                dialog.dismiss()
+                navigateNext()
+            }
+            .setCancelable(false)
+            .create()
+    }
+
+    private val otpSentDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.success))
+            .setMessage(getString(R.string.otp_sent))
+            .setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                val abhaDialog = abhaCcMapping
+                abhaDialog.show()
+            }
+            .setCancelable(false)
+            .create()
+    }
+
+    private val otpVerifiedDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.success))
+            .setMessage(getString(R.string.otp_sent))
+            .setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                navigateNext()
+            }
+            .setCancelable(false)
+            .create()
+    }
+
+    private val filterAbhaCcMapping by lazy {
+        ccMappingAlertBinding = AlertCcMappingBinding.inflate(layoutInflater, binding.root, false)
+
+        val alert = MaterialAlertDialogBuilder(requireContext()).setView(ccMappingAlertBinding.root)
+            .setCancelable(false)
+            .create()
+
+        ccMappingAlertBinding.btnOk.setOnClickListener {
+            alert.dismiss()
+            navigateNext()
+        }
+        ccMappingAlertBinding.btnGenerate.setOnClickListener {
+            alert.dismiss()
+            viewModel.generateOTPForCareContext()
+
+            viewModel.isOtpGenerated.observe(viewLifecycleOwner) { state ->
+                when(state!!) {
+                    true -> {
+                        otpSentDialog.show()
+                    }
+                    else -> {
+                        Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+        }
+
+        alert
+    }
+
+    private val abhaCcMapping by lazy {
+        ccMappingAlertAbhaBinding = AlertAbhaCcMappingBinding.inflate(layoutInflater, binding.root, false)
+
+        val alert = MaterialAlertDialogBuilder(requireContext()).setView(ccMappingAlertAbhaBinding.root)
+            .setCancelable(false)
+            .create()
+
+        ccMappingAlertAbhaBinding.btnSubmit.setOnClickListener {
+            if (ccMappingAlertAbhaBinding.ettOtp.text.isNullOrEmpty()) {
+                ccMappingAlertAbhaBinding.etOtp.error = "Please Enter OTP"
+            } else {
+                alert.dismiss()
+                viewModel.validateOTPAndCreateCareContext(
+                    ccMappingAlertAbhaBinding.ettOtp.text.toString(),
+                    benVisitInfo.patient.beneficiaryID!!,
+                    visitCode,
+                    benVisitInfo.visitCategory!!
+                )
+
+                viewModel.isOtpVerified.observe(viewLifecycleOwner) { state ->
+                    when(state!!) {
+                        true -> {
+                            otpVerifiedDialog
+                            otpVerifiedDialog.setMessage(viewModel.careContext.toString())
+                            otpVerifiedDialog.show()
+                        }
+                        else -> {
+                            Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+            }
+        }
+
+        alert
     }
 
     fun navigateNext() {

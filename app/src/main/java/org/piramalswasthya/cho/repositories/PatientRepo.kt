@@ -47,9 +47,12 @@ import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
+import org.piramalswasthya.cho.network.GenerateOTPForCareContextRequest
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.SaveAbdmFacilityId
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextRequest
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
@@ -81,6 +84,9 @@ class PatientRepo @Inject constructor(
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
 ) {
+
+    private var abdmFacilityId: String = ""
+    private var abdmFacilityName: String = ""
 
     suspend fun insertPatient(patient: Patient) {
         patientDao.insertPatient(patient)
@@ -480,10 +486,96 @@ class PatientRepo @Inject constructor(
 
     }
 
-    suspend fun getBeneficiaryWithId(benRegId: Long): BenHealthDetails? {
+    suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): BenHealthDetails? {
         try {
             val response = apiService
-                .getBenHealthID(GetBenHealthIdRequest(benRegId, null))
+                .getWorkLocationMappedAbdmFacility(preferenceDao.getWorkingLocationID().toString())
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+
+                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+                    200 -> {
+                        val jsonObj = JSONObject(responseBody)
+                        val data = jsonObj.getJSONObject("data")
+                        abdmFacilityId = data.getString("abdmFacilityID")
+                        abdmFacilityName = data.getString("abdmFacilityName")
+                        return saveAbdmFacilityId(visitCode, abdmFacilityId)
+                    }
+
+                    5000, 5002 -> {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")
+                        ) {
+                            val user = userRepo.getLoggedInUser()!!
+                            userRepo.refreshTokenTmc(user.userName, user.password)
+                            return getWorkLocationMappedAbdmFacility(visitCode = visitCode, benId = benId, benRegId = benRegId)
+                        } else {
+                            return null
+//                            NetworkResult.Error(
+//                                0,
+//                                JSONObject(responseBody).getString("errorMessage")
+//                            )
+                        }
+                    }
+
+                    else -> {
+                        return null
+//                        NetworkResult.Error(0, responseBody.toString())
+                    }
+                }
+            } else {
+                return null
+            }
+        } catch (_: java.lang.Exception) {
+            return null
+        }
+    }
+
+    suspend fun saveAbdmFacilityId(visitCode: Long? = 0L, abdmFacilityId: String? = "", benId: Long? = 0L, benRegId: Long? = 0L): BenHealthDetails? {
+        try {
+            val response = apiService
+                .saveAbdmFacilityId(SaveAbdmFacilityId(visitCode, abdmFacilityId))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+
+                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+                    200 -> {
+                        return getBeneficiaryHealthId(benId, benRegId)
+                    }
+
+                    5000, 5002 -> {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")
+                        ) {
+                            val user = userRepo.getLoggedInUser()!!
+                            userRepo.refreshTokenTmc(user.userName, user.password)
+                            return saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
+                        } else {
+                            return null
+//                            NetworkResult.Error(
+//                                0,
+//                                JSONObject(responseBody).getString("errorMessage")
+//                            )
+                        }
+                    }
+
+                    else -> {
+                        return null
+//                        NetworkResult.Error(0, responseBody.toString())
+                    }
+                }
+            } else {
+                return null
+            }
+        } catch (_: java.lang.Exception) {
+            return null
+        }
+    }
+
+    suspend fun getBeneficiaryHealthId(benId: Long? = 0L, benRegId: Long? = 0L): BenHealthDetails? {
+        try {
+            val response = apiService
+                .getBenHealthID(GetBenHealthIdRequest(benRegId, benId))
             if (response.isSuccessful) {
                 val responseBody = response.body()?.string()
 
@@ -506,23 +598,113 @@ class PatientRepo @Inject constructor(
                         ) {
                             val user = userRepo.getLoggedInUser()!!
                             userRepo.refreshTokenTmc(user.userName, user.password)
-                            return getBeneficiaryWithId(benRegId)
+                            return getBeneficiaryHealthId(benId = benId, benRegId = benRegId)
                         } else {
-                            NetworkResult.Error(
-                                0,
-                                JSONObject(responseBody).getString("errorMessage")
-                            )
+                            return null
+//                            NetworkResult.Error(
+//                                0,
+//                                JSONObject(responseBody).getString("errorMessage")
+//                            )
                         }
                     }
 
                     else -> {
-                        NetworkResult.Error(0, responseBody.toString())
+                        return null
+//                        NetworkResult.Error(0, responseBody.toString())
                     }
                 }
+            } else {
+                return null
             }
         } catch (_: java.lang.Exception) {
+            return null
         }
-        return null
+    }
+
+    suspend fun generateOTPForCareContext(healthID: String, healthIdNumber: String): String? {
+        try {
+            val response = apiService
+                .generateOTPForCareContext(GenerateOTPForCareContextRequest(healthID, healthIdNumber, abdmFacilityId, abdmFacilityName))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+
+                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+                    200 -> {
+                        val jsonObj = JSONObject(responseBody)
+                        val txnId = jsonObj.getJSONObject("data").getString("txnId")
+                        return txnId
+                    }
+
+                    5000, 5002 -> {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")
+                        ) {
+                            val user = userRepo.getLoggedInUser()!!
+                            userRepo.refreshTokenTmc(user.userName, user.password)
+                            return generateOTPForCareContext(healthID, healthIdNumber)
+                        } else {
+                            return null
+//                            NetworkResult.Error(
+//                                0,
+//                                JSONObject(responseBody).getString("errorMessage")
+//                            )
+                        }
+                    }
+
+                    else -> {
+                        return null
+//                        NetworkResult.Error(0, responseBody.toString())
+                    }
+                }
+            } else {
+                return null
+            }
+        } catch (_: java.lang.Exception) {
+            return null
+        }
+    }
+
+    suspend fun validateOTPAndCreateCareContext(otp: String, txnId: String, beneficiaryID: Long, healthID: String, healthIdNumber: String, visitCode: Long, visitCategory: String): String? {
+        try {
+            val response = apiService
+                .validateOTPAndCreateCareContext(ValidateOTPAndCreateCareContextRequest(otp, txnId, beneficiaryID, healthID, healthIdNumber, visitCode, visitCategory, abdmFacilityId, abdmFacilityName))
+            if (response.isSuccessful) {
+                val responseBody = response.body()?.string()
+
+                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
+                    200 -> {
+                        val jsonObj = JSONObject(responseBody)
+                        val response = jsonObj.getJSONObject("data").getString("response")
+                        return response
+                    }
+
+                    5000, 5002 -> {
+                        if (JSONObject(responseBody).getString("errorMessage")
+                                .contentEquals("Invalid login key or session is expired")
+                        ) {
+                            val user = userRepo.getLoggedInUser()!!
+                            userRepo.refreshTokenTmc(user.userName, user.password)
+                            return generateOTPForCareContext(healthID, healthIdNumber)
+                        } else {
+                            return null
+//                            NetworkResult.Error(
+//                                0,
+//                                JSONObject(responseBody).getString("errorMessage")
+//                            )
+                        }
+                    }
+
+                    else -> {
+                        return null
+//                        NetworkResult.Error(0, responseBody.toString())
+                    }
+                }
+            } else {
+                return null
+            }
+        } catch (_: java.lang.Exception) {
+            return null
+        }
     }
 
     fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {
