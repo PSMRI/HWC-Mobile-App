@@ -116,6 +116,8 @@ data class PrescriptionBatchDTO(
     val expiryDate: String,
     val itemStockEntryID: Int,
     val qty: Int,
+    var isSelected:Boolean,
+    var dispenseQuantity:Int,
 )
 
 @JsonClass(generateAdapter = true)

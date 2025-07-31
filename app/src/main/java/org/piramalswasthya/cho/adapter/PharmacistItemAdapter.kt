@@ -1,25 +1,25 @@
 package org.piramalswasthya.cho.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
-import org.piramalswasthya.cho.R
+import okhttp3.internal.notifyAll
 import org.piramalswasthya.cho.databinding.PharmacistListItemViewBinding
-import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionItemDTO
 import timber.log.Timber
 
 
 class PharmacistItemAdapter(
     private val context: Context,
+    private var issueType: String,
     private val clickListener: PharmacistClickListener,
 ) : ListAdapter<PrescriptionItemDTO,PharmacistItemAdapter.BenViewHolder>(BenDiffUtilCallBack) {
 
@@ -48,7 +48,8 @@ class PharmacistItemAdapter(
         }
 
         fun bind(
-            item:PrescriptionItemDTO,
+            item: PrescriptionItemDTO,
+            issueType:String,
             clickListener: PharmacistClickListener
         ) {
             Timber.d("*******************DAta Prescription DTO************** ",clickListener)
@@ -66,7 +67,18 @@ class PharmacistItemAdapter(
             binding.routeValue.text = item.route ?: ""
             binding.quantityDispensedValue.text = item.qtyPrescribed.toString() ?: ""
             binding.specialInstructionValue.text = item.dose ?: ""
-
+            binding.btnViewBatch.text = if (issueType == "Manual Issue") {
+                "Select Batch"
+            } else {
+                "View Batch"
+            }
+            binding.btnViewBatch.setOnClickListener {
+                if (issueType == "Manual Issue") {
+                    clickListener.onClickSelectBatch(item)
+                } else {
+                    clickListener.onClickViewBatch(item)
+                }
+            }
             binding.executePendingBindings()
 
         }
@@ -78,7 +90,7 @@ class PharmacistItemAdapter(
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
         drugID = getItem(position).drugID.toString()
-        holder.bind(getItem(position), clickListener)
+        holder.bind(getItem(position), issueType , clickListener)
 
 //        holder.itemView.findViewById<MaterialButton>(R.id.submit_btn).setOnClickListener { // When submit button is clicked
 //            network = isInternetAvailable(context)
@@ -93,10 +105,18 @@ class PharmacistItemAdapter(
 
     class PharmacistClickListener(
         private val clickedViewBatch: (benVisitInfo: PrescriptionItemDTO) -> Unit,
+        private val clickedSelectBatch: (item: PrescriptionItemDTO) -> Unit,
     ) {
         fun onClickViewBatch(item: PrescriptionItemDTO) = clickedViewBatch(
             item,
         )
+
+        fun onClickSelectBatch(item: PrescriptionItemDTO) = clickedSelectBatch(
+            item,
+        )
+
+
+
 //        fun onClickABHA(item: PrescriptionItemDTO) {
 //            Log.i("View batch Button", "")
 ////            Log.d("ABHA Item Click", "ABHA item clicked")
@@ -118,4 +138,10 @@ class PharmacistItemAdapter(
             return networkInfo != null && networkInfo.isConnected
         }
     }
+
+    fun updateIssueType(newIssueType: String) {
+        issueType = newIssueType
+        notifyDataSetChanged()  // Refresh UI with updated label
+    }
+
 }

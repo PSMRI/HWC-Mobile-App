@@ -892,6 +892,8 @@ class PatientRepo @Inject constructor(
                                 expiryDate = prescribedDrugsBatch.expiryDate,
                                 itemStockEntryID = prescribedDrugsBatch.itemStockEntryID,
                                 qty = prescribedDrugsBatch.qty,
+                                isSelected = false,
+                                dispenseQuantity = 0
                             )
                             batchList += prescriptionBatchDTO
                         }

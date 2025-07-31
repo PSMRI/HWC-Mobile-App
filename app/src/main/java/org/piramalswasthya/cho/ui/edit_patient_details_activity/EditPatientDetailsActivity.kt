@@ -168,6 +168,11 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+                R.id.selectBatchFragment -> {
+                    binding.headerTextRegisterPatient.text = "Batch Selection"
+                    binding.btnSubmit.text = resources.getString(R.string.save)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
                 R.id.pharmacistFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.pharmacist_record_text)
