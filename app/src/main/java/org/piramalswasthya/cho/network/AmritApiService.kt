@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.network
 
-import androidx.room.Delete
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.ANCPost
@@ -10,7 +9,6 @@ import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
-import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -26,7 +24,6 @@ import org.piramalswasthya.cho.model.PrescriptionTemplateDB
 import org.piramalswasthya.cho.model.StockItemRequest
 import org.piramalswasthya.cho.model.UserMasterVillage
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
-import org.piramalswasthya.cho.utils.Constants
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

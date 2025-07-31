@@ -75,6 +75,7 @@ import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
 import org.piramalswasthya.cho.utils.AutoLogoutReceiver
 import org.piramalswasthya.cho.utils.Constants
 import org.piramalswasthya.cho.utils.DateJsonAdapter
+import org.piramalswasthya.cho.utils.InAppUpdateHelper
 import org.piramalswasthya.cho.utils.NetworkConnection
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.piramalswasthya.cho.work.WorkerUtils.amritSyncInProgress
@@ -138,6 +139,7 @@ class HomeActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
 
     private var locationListener: LocationListener? = null
+    private lateinit var inAppUpdateHelper: InAppUpdateHelper
 
     var handler: Handler = Handler()
     var runnable: Runnable? = null
@@ -167,6 +169,9 @@ class HomeActivity : AppCompatActivity() {
             }
         }.also { runnable = it }, delay.toLong())
         super.onResume()
+
+        inAppUpdateHelper.resumeUpdateIfNeeded()
+
     }
     override fun onPause() {
         super.onPause()
@@ -345,6 +350,9 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+
+        inAppUpdateHelper = InAppUpdateHelper(this)
+        inAppUpdateHelper.checkForUpdate()
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -695,8 +703,16 @@ private fun triggerAlarmManager(){
     override fun onDestroy() {
         super.onDestroy()
         (application as CHOApplication).activityList.remove(this)
+        inAppUpdateHelper.unregisterListener()
+
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (inAppUpdateHelper.onActivityResult(requestCode, resultCode)) {
+            return
+        }
+    }
 
 private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
     val calendar = Calendar.getInstance()

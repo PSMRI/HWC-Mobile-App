@@ -293,13 +293,14 @@
               android:layout_height="wrap_content"
               android:layout_marginStart="70dp"
               android:backgroundTint="@color/default_button"
-              android:onClick="@{()-> clickListener.onClickViewBatch(prescription)}"
               android:text="@string/view_batch"
               android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
               android:textColor="@color/white"
               app:cornerRadius="@dimen/padding_normal"
               app:layout_constraintBottom_toBottomOf="parent"
               app:layout_constraintStart_toStartOf="parent" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

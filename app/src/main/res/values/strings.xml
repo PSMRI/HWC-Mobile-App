@@ -445,6 +445,7 @@
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
     <string name="prescribed_label">Prescribed: </string>
+    <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
     <string name="exit_application">Exit Application</string>

@@ -18,12 +18,10 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
-import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
-import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
@@ -156,4 +154,74 @@ class PharmacistFormViewModel @Inject constructor(
             Timber.d("error saving lab records due to $e")
         }
     }
+
+    fun savePharmacistDataforManual(dtos: PrescriptionDTO?, benVisitInfo: PatientDisplayWithVisitInfo) {
+        try {
+            viewModelScope.launch {
+
+                dtos?.itemList?.forEach { item ->
+                    val prescribedQty = item.qtyPrescribed ?: 0
+                    var remainingQty = prescribedQty
+
+                    val selectedBatches = item.batchList?.filter { it.isSelected && it.dispenseQuantity > 0 } ?: emptyList()
+
+                    if (selectedBatches.isNotEmpty()) {
+                        selectedBatches.forEach { batch ->
+                            if (remainingQty <= 0) return@forEach
+
+                            val availableBatch = batchDao.getBatchByStockEntityId(batch.itemStockEntryID.toLong())
+                            availableBatch?.let {
+                                val dispenseQty = minOf(batch.dispenseQuantity, remainingQty)
+                                val updatedQty = it.quantityInHand - dispenseQty
+
+                                if (updatedQty <= 0) {
+                                    batchDao.deleteBatch(it)
+                                } else {
+                                    batchDao.updateBatch(it.copy(quantityInHand = updatedQty))
+                                }
+
+                                remainingQty -= dispenseQty
+                            }
+                        }
+
+                        if (remainingQty > 0) {
+                            Toast.makeText(context, "Insufficient stock for ${item.genericDrugName}", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+
+                }
+
+                patientVisitInfoSyncRepo.updatePharmacistFlag(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )
+
+                patientVisitInfoSyncRepo.updatePharmacistDataSyncState(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo,
+                    SyncState.UNSYNCED
+                )
+
+                dtos.let { prescriptionDTO ->
+                    if (benVisitInfo.benVisitNo != null) {
+                        val prescription = patientRepo.getPrescription(
+                            benVisitInfo.patient.patientID,
+                            benVisitInfo.benVisitNo,
+                            prescriptionDTO!!.prescriptionID
+                        )
+                        prescription.issueType = dtos?.issueType
+                        patientRepo.updatePrescription(prescription)
+                    }
+                }
+
+                WorkerUtils.pharmacistPushWorker(context)
+
+                _isDataSaved.value = true
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error saving pharmacist data")
+        }
+    }
+
 }
