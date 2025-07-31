@@ -7,21 +7,19 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.adapter.RecyclerViewItemClickedListener
 import org.piramalswasthya.cho.adapter.TempListAdapter
 import org.piramalswasthya.cho.databinding.TempBottomSheetBinding
 import org.piramalswasthya.cho.repositories.PrescriptionTemplateRepo
-import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
-  private val prescriptionTemplateRepo: PrescriptionTemplateRepo
+class TemplateListBottomSheetFragment(
+    private val str: HashSet<String?>,
+    private val prescriptionTemplateRepo: PrescriptionTemplateRepo,
+    private val listener: OnTemplateDeletedListener
 ) : BottomSheetDialogFragment() {
     private var _binding: TempBottomSheetBinding? = null
     private val binding: TempBottomSheetBinding
@@ -40,12 +38,11 @@ class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
         val adapter = TempListAdapter(updatedHashSet,
             object : RecyclerViewItemClickedListener {
                 override fun onItemClicked(string: String?) {
-                    string?.let {
-                        viewModel.callMarkDel(it)
-                    }
-                    viewModel.callDel()
                     str.remove(string)
+                    val updatedList = str.filterNotNull()
+                    listener.onTemplateDeleted(updatedList,string)
                     showToastAndRefreshList("Template deleted")
+                    dismiss()
                 }
             },
         )
@@ -59,5 +56,9 @@ class TemplateListBottomSheetFragment(private val str: HashSet<String?>,
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    interface OnTemplateDeletedListener {
+        fun onTemplateDeleted(updatedList: List<String>, string: String?)
     }
 }

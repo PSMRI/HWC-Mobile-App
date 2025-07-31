@@ -167,8 +167,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                     val highspeed = FaceDetectorOptions.Builder()
                         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)  // Enable landmarks for eye detection
-                        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)  // Enable classifications for eye open probability
                         .build()
                     val detector = FaceDetection.getClient(highspeed)
                     val image = InputImage.fromFilePath(requireContext(), photoURI)
@@ -186,39 +184,30 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             }
                             else{
                                 val face = faces[0]
+                                val boundingBox = face.boundingBox
+                                val imageBitmap = MediaStore.Images.Media.getBitmap(
+                                    requireContext().contentResolver,
+                                    photoURI
+                                )
+                                val faceBitmap = Bitmap.createBitmap(
+                                    imageBitmap,
+                                    boundingBox.left,
+                                    boundingBox.top,
+                                    boundingBox.width(),
+                                    boundingBox.height()
+                                )
+                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
 
-                                // Check if both eyes are open
-                                val leftEyeOpen = face.leftEyeOpenProbability ?: 0f
-                                val rightEyeOpen = face.rightEyeOpenProbability ?: 0f
-
-                                if (leftEyeOpen > 0.5 && rightEyeOpen > 0.5) {
-                                    // Continue with face processing as eyes are open
-                                    val boundingBox = face.boundingBox
-                                    val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                        requireContext().contentResolver,
-                                        photoURI
-                                    )
-                                    val faceBitmap = Bitmap.createBitmap(
-                                        imageBitmap,
-                                        boundingBox.left,
-                                        boundingBox.top,
-                                        boundingBox.width(),
-                                        boundingBox.height()
-                                    )
-                                    embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                                    Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    // Eyes are closed
-                                    Toast.makeText(requireContext(), "Eyes Closed! Try Again", Toast.LENGTH_SHORT).show()
-                                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                    return@addOnSuccessListener
-                                }
                             }
+
+
                         }
                         .addOnFailureListener { e ->
                             Log.e("FaceDetection", "Face detection failed", e)
                             Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
                         }
+
                 }
             }
         }
@@ -234,11 +223,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
                 requireContext(),
-                "org.piramalswasthya.cho.provider",
+                requireContext().packageName + ".provider",
                 it
             )
             takePictureLauncher.launch(photoURI)
-
         }
     }
     private fun createImageFile(): File {
@@ -594,6 +582,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun hideMarriedFields(){
         binding.maritalStatusText.visibility = View.GONE
         binding.spouseNameText.visibility = View.GONE
+        binding.fatherNameText.visibility = View.GONE
         binding.ageAtMarriageText.visibility = View.GONE
     }
 
@@ -606,11 +595,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if(bool) {
                 binding.maritalStatusText.visibility = View.VISIBLE
                 if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "married") {
+                    binding.fatherNameText.visibility = View.GONE
                     binding.spouseNameText.visibility = View.VISIBLE
-                    binding.ageAtMarriageText.visibility = View.VISIBLE
+//                    binding.ageAtMarriageText.visibility = View.VISIBLE
+                } else if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "unmarried") {
+                    binding.spouseNameText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.VISIBLE
+//                    binding.ageAtMarriageText.visibility = View.GONE
                 } else {
                     binding.spouseNameText.visibility = View.GONE
-                    binding.ageAtMarriageText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.GONE
                 }
             }
             else
@@ -623,8 +617,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
+            viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
+            viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
         }
 
         binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
@@ -653,7 +649,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//                setMarriedFieldsVisibility()
+                setMarriedFieldsVisibility()
                 val isAgeInUnitFilled = s?.isNotEmpty() == true
                 viewModel.setAgeUnit(isAgeInUnitFilled)
             }
@@ -835,7 +831,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(s: Editable?) {
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
         }
     }
 
@@ -903,7 +899,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
             viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
-//            setMarriedFieldsVisibility()
+            setMarriedFieldsVisibility()
 //        }
         doAgeToDob = true;
     }
@@ -967,8 +963,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.lastName = binding.lastName.text.toString().trim()
         patient.dob = viewModel.selectedDateOfBirth;
         patient.age = viewModel.enteredAge;
+        patient.maritalStatusID = viewModel.maritalStatusId
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
+        patient.spouseName = binding.spouseName.text.toString().trim()
         patient.faceEmbedding = embeddings?.toList()
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null

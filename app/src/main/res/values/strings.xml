@@ -3,6 +3,7 @@
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
+    <string name="PREF_primary_JWT_API_KEY" translatable="false">JWT-Token_N</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
     <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="SWITCH_USER_ROLES" translatable="false">Switch_User_Roles</string>
@@ -75,6 +76,15 @@
     <string name="phone_no">Phone No</string>
     <string name="registration">Registration</string>
     <string name="advance_search">Advance Search</string>
+    <string name="household_search">Search</string>
+
+    <string name="do_you_want_to_go_back">Do you want to go back?</string>
+    <string name="offline">offline</string>
+    <string name="something_went_wrong_nunable_to_connect_to_server_ntry_again_later">Something went wrong !\nUnable to connect to server !\nTry again later!</string>
+    <string name="try_again">Try Again!</string>
+    <string name="go_to_home">Go to Home</string>
+    <string name="tv_ben_name_ph">Beneficiary Name</string>
+    <string name="otp_resent">OTP Resent</string>
 
     <string name="medication_form">Form</string>
     <string name="medicine_text">Medicine</string>
@@ -282,7 +292,7 @@
     <string name="phone_number">Phone Number</string>
     <string name="registration_date">Registration Date</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
-    <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
+    <string name="spouse_name">Spouse Name</string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>
@@ -435,6 +445,7 @@
     <string name="prescription_id">Prescription ID:</string>
     <string name="form_label">Form: </string>
     <string name="prescribed_label">Prescribed: </string>
+    <string name="prescribed_label_qt">Prescribed Quantity: </string>
     <string name="patient_registered_successfully">Patient Registered Successfully.</string>
     <string name="father_s_name">Father\'s Name</string>
     <string name="exit_application">Exit Application</string>

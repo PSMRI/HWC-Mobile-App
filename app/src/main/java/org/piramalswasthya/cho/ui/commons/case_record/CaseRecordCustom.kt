@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
-//import org.piramalswasthya.cho.adapter.ReportAdapter
-//import org.piramalswasthya.cho.adapter.ReportAdapter
+
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -89,6 +88,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
     private val viewModel: CaseRecordViewModel by viewModels()
 
+    private val viewModeltemplate: TemplateBottomSheetViewModel by viewModels<TemplateBottomSheetViewModel>()
+
     @Inject
     lateinit var preferenceDao: PreferenceDao
 
@@ -131,6 +132,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var patId = ""
     private lateinit var referDropdown: AutoCompleteTextView
     private var doctorFlag = 2
+    private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
     var isAddTemplateClicked = false
 
@@ -450,7 +452,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.deleteTemp.setOnClickListener {
 
             tempAdapter.notifyDataSetChanged()
-            openBottomSheet(uniqueTemplateNames)
+            openBottomSheet(uniqueTemplateNames,tempAdapter)
         }
 
         val referAdapter =
@@ -623,8 +625,24 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private lateinit var syncBottomSheet: TemplateListBottomSheetFragment
-    private fun openBottomSheet(str: HashSet<String?>) {
-        syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo)
+    private fun openBottomSheet(str: HashSet<String?>, tempAdapter: ArrayAdapter<String>) {
+        syncBottomSheet = TemplateListBottomSheetFragment(str, prescriptionTemplateRepo,
+            object : TemplateListBottomSheetFragment.OnTemplateDeletedListener {
+                override fun onTemplateDeleted(updatedList: List<String>, string: String?) {
+                    tempAdapter.clear()
+                    tempAdapter.addAll(updatedList)
+                    tempAdapter.notifyDataSetChanged()
+                    string?.let {
+                        viewModeltemplate.callMarkDel(it)
+                    }
+                    viewModeltemplate.callDel()
+                    Toast.makeText(requireContext(), "Template deleted", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+            )
+
+
         if (!syncBottomSheet.isVisible)
             syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
     }
@@ -1097,12 +1115,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         } else {
             doctorFlag = 2
         }
+        if (prescriptionList.size == 0) {
+            pharmacistFlag = 0
+        } else {
+            pharmacistFlag = 1
+        }
         val patientVisitInfoSync = PatientVisitInfoSync(
             patientID = patId,
             benVisitNo = benVisitNo,
             createNewBenFlow = createNewBenflow,
             nurseFlag = 9,
             doctorFlag = doctorFlag,
+            pharmacist_flag = pharmacistFlag,
             visitDate = Date(),
         )
 

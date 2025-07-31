@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.utils
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.util.TypedValue
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -28,6 +29,19 @@ object HelperUtil {
         conf = Configuration(conf)
         conf.setLocale(desiredLocale)
         return context.createConfigurationContext(conf)
+    }
+
+    fun convertDpToPixel(dp: Float, context: Context): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            context.resources.displayMetrics
+        )
+    }
+
+    fun isValidName(name: String): Boolean {
+        val regex = Regex("^[a-zA-Z][a-zA-Z\\s'-]*[a-zA-Z]$")
+        return regex.matches(name.trim())
     }
 
     fun formatNumber(number: Int, languages: Languages): Int {

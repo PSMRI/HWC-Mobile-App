@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>latest_version_code</key>
+        <value>1</value>
+    </entry>
+    <entry>
+        <key>force_update</key>
+        <value>false</value>
+    </entry>
+</defaultsMap>

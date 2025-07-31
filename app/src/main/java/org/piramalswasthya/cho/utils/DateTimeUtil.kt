@@ -86,6 +86,17 @@ class DateTimeUtil {
 
         const val format = "yyyy-MM-dd HH:mm:ss"
 
+        fun formatDateStr(input: String): String {
+            val inputFormat = SimpleDateFormat("MMM d, yyyy, hh:mm:ss a", Locale.ENGLISH)
+            val outputFormat = SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH)
+
+            return try {
+                val date = inputFormat.parse(input)
+                outputFormat.format(date!!)
+            } catch (e: Exception) {
+                "Invalid Date"
+            }
+        }
         fun formatDate(date: Date): String {
             val pattern = "dd-MM-yyyy"
             val sdf = SimpleDateFormat(pattern, Locale.getDefault())
@@ -381,6 +392,8 @@ class DateTimeUtil {
         }
 
     }
+
+
 
 }
 

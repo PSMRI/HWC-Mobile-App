@@ -82,7 +82,8 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     var respiratoryValue :String?=null
     var rbsValue :String?=null
     private val bundle = Bundle()
-
+    private var sbpValue: Int? = null
+    private var dbpValue: Int? = null
     private var masterDb: MasterDb? = null
 
     override fun onCreateView(
@@ -249,15 +250,19 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     private fun validateBPSystolic(bpSystolic: String) {
         try {
             val isValid = bpSystolic.matches(Regex("^\\d{2,3}$")) &&
-                    bpSystolic.toInt() in 50..300
+                    bpSystolic.toInt() in 40..320
 
             if (isValid) {
+                sbpValue = bpSystolic.toInt()
                 binding.bpSystolicEditTxt.helperText = null
             } else {
+                sbpValue = null
                 binding.bpSystolicEditTxt.helperText =
-                    "Please enter value between 50 and 300."
+                    "Please enter value between 40 and 320."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            sbpValue = null
             binding.bpSystolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
@@ -266,19 +271,23 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     private fun validateBPD(bpD: String) {
         try {
             val isValid = bpD.matches(Regex("^\\d{2,3}$")) &&
-                    bpD.toInt() in 30..200
+                    bpD.toInt() in 10..180
             if (isValid) {
+                dbpValue = bpD.toInt()
                 binding.bpDiastolicEditTxt.helperText = null
             } else {
+                dbpValue = null
                 binding.bpDiastolicEditTxt.helperText =
-                    "Please enter value between 30 and 200."
+                    "Please enter value between 10 and 180."
             }
+            validateBPRelation(sbpValue, dbpValue)
         } catch (e: NumberFormatException) {
+            dbpValue = null
             binding.bpDiastolicEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
     }
-    private fun validateTemperature(temperature: String) {
+   /* private fun validateTemperature(temperature: String) {
         try {
             val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
             if (isValid) {
@@ -291,9 +300,40 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.temperatureEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
+    }*/
+
+    private fun validateTemperature(temperature: String) {
+        try {
+            val isValidFormat = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            if (!isValidFormat) {
+                binding.temperatureEditTxt.helperText = "Invalid format. Eg: 98.6"
+                return
+            }
+
+            val tempValue = temperature.toFloat()
+            if (tempValue < 90 || tempValue > 110) {
+                binding.temperatureEditTxt.helperText = "Temperature must be between 90°F and 110°F"
+            } else {
+                binding.temperatureEditTxt.helperText = null
+            }
+
+        } catch (e: NumberFormatException) {
+            binding.temperatureEditTxt.helperText = "Please enter a valid numeric value"
+        }
     }
 
-    private fun validateHeight(hei: String) {
+    private fun validateBPRelation(sbp: Int?, dbp: Int?) {
+        if (sbp != null && dbp != null) {
+            if (sbp <= dbp) {
+                binding.bpSystolicEditTxt.helperText = "Systolic BP must be greater than Diastolic BP"
+                binding.bpDiastolicEditTxt.helperText = "Diastolic BP must be less than Systolic BP"
+            } else {
+                binding.bpSystolicEditTxt.helperText = null
+                binding.bpDiastolicEditTxt.helperText = null
+            }
+        }
+    }
+ /*   private fun validateHeight(hei: String) {
         try {
             val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
             if (isValid) {
@@ -306,9 +346,24 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.heightEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
+    }*/
+
+    private fun validateHeight(hei: String) {
+        try {
+            val isValidFormat = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val heightValue = hei.toFloatOrNull()
+
+            if (isValidFormat && heightValue != null && heightValue in 35.0..200.0) {
+                binding.heightEditTxt.helperText = null
+            } else {
+                binding.heightEditTxt.helperText = "Height must be between 35 cm and 200 cm."
+            }
+        } catch (e: Exception) {
+            binding.heightEditTxt.helperText = "Please enter a valid numeric height."
+        }
     }
 
-    private fun validateWeight(w: String) {
+  /*  private fun validateWeight(w: String) {
         try {
             val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
             if (isValid) {
@@ -321,9 +376,30 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.weightEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
+    }*/
+
+    private fun validateWeight(w: String) {
+        try {
+            val isValidFormat = w.matches(Regex("^\\d{1,3}(\\.\\d{1,2})?$"))
+
+            if (!isValidFormat) {
+                binding.weightEditTxt.helperText = "Invalid format. Example: 72 or 72.5"
+                return
+            }
+
+            val weightValue = w.toFloat()
+            if (weightValue < 2 || weightValue > 150) {
+                binding.weightEditTxt.helperText = "Weight must be between 2 kg and 150 kg"
+            } else {
+                binding.weightEditTxt.helperText = null
+            }
+
+        } catch (e: NumberFormatException) {
+            binding.weightEditTxt.helperText = "Please enter a valid numeric value"
+        }
     }
 
-    private fun validatePulse(pul: String) {
+    /*private fun validatePulse(pul: String) {
         try {
             val isValid = pul.matches(Regex("^\\d{2,3}$"))
             if (isValid) {
@@ -336,8 +412,27 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
             binding.pulseRateEditTxt.helperText =
                 "Please enter a valid numeric value."
         }
-    }
+    }*/
 
+    private fun validatePulse(pulse: String) {
+        try {
+            val isValidFormat = pulse.matches(Regex("^\\d{2,3}$"))
+            if (!isValidFormat) {
+                binding.pulseRateEditTxt.helperText = "Invalid format."
+                return
+            }
+
+            val pulseValue = pulse.toInt()
+            if (pulseValue < 50 || pulseValue > 200) {
+                binding.pulseRateEditTxt.helperText = "Pulse rate must be between 50 and 200 BPM"
+            } else {
+                binding.pulseRateEditTxt.helperText = null
+            }
+
+        } catch (e: NumberFormatException) {
+            binding.pulseRateEditTxt.helperText = "Please enter a valid number"
+        }
+    }
     private fun validateSpo2(spo: String) {
         try {
             val isValid = spo.matches(Regex("^\\d+$")) &&

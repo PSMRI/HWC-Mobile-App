@@ -24,17 +24,18 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"/>
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MICROPHONE" />
+
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.usb.host" />
 
     <application
         android:name=".CHOApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:configChanges="locale|orientation"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -52,7 +53,12 @@
             android:name=".ui.abha_id_activity.AbhaIdActivity"
             android:exported="false"
             android:label="@string/title_activity_abha_id"
-            android:theme="@style/Theme.CHO" />
+            android:theme="@style/Theme.CHO"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".ui.web_view_activity.WebViewActivity"
             android:exported="false"
@@ -74,8 +80,8 @@
             android:exported="false" />
         <activity
             android:name=".ui.register_patient_activity.RegisterPatientActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity"
             android:exported="false" />

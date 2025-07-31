@@ -45,8 +45,12 @@ class PushLoginAuditDataWorker @AssistedInject constructor(
 
     private fun init() {
         if (TokenInsertTmcInterceptor.getToken() == "")
-            preferenceDao.getPrimaryApiToken()?.let{
+            preferenceDao.getPrimaryApiToken()?.let {
                 TokenInsertTmcInterceptor.setToken(it)
+            }
+        if (TokenInsertTmcInterceptor.getJwt() == "")
+            preferenceDao.getJWTAmritToken()?.let {
+                TokenInsertTmcInterceptor.setJwt(it)
             }
     }
 

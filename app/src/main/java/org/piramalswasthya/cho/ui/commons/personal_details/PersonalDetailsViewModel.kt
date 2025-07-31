@@ -100,14 +100,15 @@ class PersonalDetailsViewModel @Inject constructor(
         _benId.value = benId
         viewModelScope.launch {
             patientRepo.getBenFromId(benId)?.let {
-                val result = it.beneficiaryRegID?.let { it1 -> patientRepo.getBeneficiaryWithId(it1) }
-                if (result != null) {
-                    _abha.value = result.healthIdNumber
-                    it.healthIdDetails = BenHealthIdDetails(result.healthId, result.healthIdNumber)
-                    patientRepo.updateRecord(it)
-                } else {
-                    _benRegId.value = it.beneficiaryRegID
-                }
+                _benRegId.value = it.beneficiaryRegID
+//                val result = it.beneficiaryRegID?.let { it1 -> patientRepo.getBeneficiaryWithId(it1) }
+//                if (result != null) {
+//                    _abha.value = result.healthIdNumber
+//                    it.healthIdDetails = BenHealthIdDetails(result.healthId, result.healthIdNumber)
+//                    patientRepo.updateRecord(it)
+//                } else {
+//                    _benRegId.value = it.beneficiaryRegID
+//                }
             }
         }
     }

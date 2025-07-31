@@ -74,16 +74,6 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
         super.onViewCreated(view, savedInstanceState)
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         dtos?.issueType = "System Issue"
-        binding.selectProgram.setOnCheckedChangeListener { _, programId ->
-            when (programId){
-                binding.btnManualIssue.id -> {
-                    dtos?.issueType = "Manual Issue"
-                }
-                binding.btnSystemIssue.id -> {
-                    dtos?.issueType = "System Issue"
-                }
-            }
-        }
         viewModel = ViewModelProvider(this).get(PharmacistFormViewModel::class.java)
         viewModel.prescriptionObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
@@ -91,24 +81,60 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     itemAdapter = context?.let { it ->
                         PharmacistItemAdapter(
                             it,
-                            clickListener = PharmacistItemAdapter.PharmacistClickListener { prescription ->
+                            dtos?.issueType ?: "",
+                            clickListener = PharmacistItemAdapter.PharmacistClickListener(clickedSelectBatch = { it
                                 val bundle = Bundle()
-                                bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
-                                if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
-                                    bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
+                                bundle.putString("prescriptionItemDTO", Gson().toJson(it))
+                                if(it.batchList!= null && it.batchList.isNotEmpty()){
+                                    bundle.putString("batchList", Gson().toJson(it.batchList))
 
                                     bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                    bundle.putSerializable("benVisitInfo", benVisitInfo)
+
                                     val batchFragment = PrescriptionBatchFormFragment()
                                     batchFragment.arguments = bundle
                                     findNavController().navigate(
-                                        R.id.action_pharmacistFormFragment_to_prescriptionBatchFormFragment, bundle
+                                        R.id.action_pharmacistFormFragment_to_selectBatchFragment, bundle
                                     )
                                 }
                                 else{
                                     Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
                                 }
-                            }
+
+                            },
+                                clickedViewBatch = { prescription ->
+                                    val bundle = Bundle()
+                                    bundle.putString("prescriptionItemDTO", Gson().toJson(prescription))
+                                    if(prescription.batchList!= null && prescription.batchList.isNotEmpty()){
+                                        bundle.putString("batchList", Gson().toJson(prescription.batchList?.get(0)))
+
+                                        bundle.putString("prescriptionDTO", Gson().toJson(dtos))
+                                        val batchFragment = PrescriptionBatchFormFragment()
+                                        batchFragment.arguments = bundle
+                                        findNavController().navigate(
+                                            R.id.action_pharmacistFormFragment_to_prescriptionBatchFormFragment, bundle
+                                        )
+                                    }
+                                    else{
+                                        Toast.makeText(requireContext(), "Medicine not available", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
                         )
+                    }
+                    binding.selectProgram.setOnCheckedChangeListener { _, programId ->
+                        when (programId){
+                            binding.btnManualIssue.id -> {
+                                dtos?.issueType = "Manual Issue"
+                                itemAdapter?.updateIssueType("Manual Issue")
+
+                            }
+                            binding.btnSystemIssue.id -> {
+                                dtos?.issueType = "System Issue"
+                                itemAdapter?.updateIssueType("System Issue")
+
+                            }
+                        }
                     }
                     binding.pharmacistListContainer.pharmacistList.adapter = itemAdapter
                     lifecycleScope.launch {

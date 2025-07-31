@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
-import android.content.Context
-import android.util.Log
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +46,6 @@ import org.piramalswasthya.cho.repositories.ProcedureRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
-import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.Exception
@@ -102,6 +99,11 @@ class CaseRecordViewModel @Inject constructor(
             emit(templateRepo.getProceduresWithComponent(it) )
         }
     }.asLiveData()
+
+
+
+
+
     val labReportProcedureTypes = mutableListOf<String>()
     private var _counsellingProvided: LiveData<List<CounsellingProvided>>
     val counsellingProvided: LiveData<List<CounsellingProvided>>

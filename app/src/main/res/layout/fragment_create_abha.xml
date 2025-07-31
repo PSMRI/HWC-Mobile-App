@@ -25,11 +25,12 @@
                 android:id="@+id/imageView"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
-                android:layout_marginTop="96dp"
+                android:layout_marginTop="85dp"
                 android:src="@drawable/ic_check_circle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/check_circle" />
 
 
             <TextView
@@ -37,11 +38,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_big"
-                android:text="ABHA number generated successfully"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            <!--           android:text="@{viewModel.abhaResponseLiveData.message}"
+                           android:text="@string/abha_number_generated_successfully"-->
+
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
@@ -50,7 +53,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="@dimen/margin_big"
                 android:layout_marginEnd="16dp"
-                app:cardUseCompatPadding="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textView7">
@@ -58,7 +60,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="@dimen/_5sdp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -68,12 +71,11 @@
 
                         <TextView
                             android:id="@+id/textView1"
-                            android:layout_width="250dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="@dimen/margin_normal"
-                            android:layout_weight="2"
-                            android:gravity="right"
-                            android:text="Name : "
+                            android:gravity="start"
+                            android:text="@string/name_"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -82,7 +84,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@{viewModel.hidResponse.name}"
                             android:textSize="14sp" />
                     </LinearLayout>
 
@@ -94,12 +95,11 @@
 
                         <TextView
                             android:id="@+id/textView3"
-                            android:layout_width="250dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="@dimen/margin_normal"
-                            android:layout_weight="1"
-                            android:gravity="right"
-                            android:text="ABHA Number : "
+                            android:gravity="start"
+                            android:text="@string/abha_number_"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -108,13 +108,13 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@{viewModel.hidResponse.healthIdNumber}"
                             android:textSize="14sp" />
                     </LinearLayout>
 
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
             <LinearLayout
                 android:id="@+id/ll_abha_ben_mapped"
                 android:layout_width="match_parent"
@@ -123,6 +123,11 @@
                 android:padding="@dimen/padding_normal"
                 android:gravity="center_horizontal"
                 android:visibility="gone">
+                <!--                <TextView-->
+                <!--                    android:layout_width="30dp"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:background="@drawable/ic_check_circle">-->
+                <!--                </TextView>-->
                 <TextView
                     android:id="@+id/abh_ben_mapped_txt"
                     android:layout_width="match_parent"
@@ -141,6 +146,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="50dp"
                 android:paddingRight="50dp"
+                android:visibility="visible"
                 app:layout_constraintTop_toBottomOf="@id/ll_abha_ben_mapped">
                 <TextView
                     android:id="@+id/txt_download_abha"
@@ -150,10 +156,9 @@
                     android:textAlignment="center"
                     android:clickable="false"
                     android:padding="@dimen/padding_normal"
-                    android:text="Do you want to download the ABHA card?"
+                    android:text="@string/do_you_want_to_download_the_abha_card"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="@color/primaryTextColor"
                     app:layout_constraintTop_toTopOf="@id/cl_download_abha"
                     tools:layout_editor_absoluteX="0dp">
 
@@ -166,10 +171,10 @@
                     android:layout_margin="@dimen/padding_normal"
                     android:clickable="false"
                     android:padding="@dimen/padding_normal"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="@color/secondaryColor"
+                    android:textColor="?attr/colorOnPrimary"
                     app:layout_constrainedWidth="true"
                     app:layout_constraintEnd_toStartOf="@id/btn_download_abha_no"
                     app:layout_constraintHorizontal_bias="0"
@@ -186,10 +191,10 @@
                     android:layout_margin="@dimen/padding_normal"
                     android:clickable="false"
                     android:padding="@dimen/padding_normal"
-                    android:text="No"
+                    android:text="@string/no"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="@color/secondaryColor"
+                    android:textColor="?attr/colorOnPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -198,6 +203,8 @@
                 android:id="@+id/cl_verify_mobile_otp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="@dimen/padding_normal"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/cl_download_abha">
                 <TextView
                     android:id="@+id/tv_otp_msg"
@@ -220,14 +227,14 @@
                     android:layout_marginHorizontal="@dimen/margin_normal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.45"
+                    app:layout_constraintVertical_bias="0.25"
                     tools:layout_editor_absoluteX="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiet_aadhaar_otp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="Enter OTP"
+                        android:hint="@string/enter_otp"
                         android:inputType="number"
                         android:maxLength="6"
                         android:singleLine="true"
@@ -239,8 +246,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_small"
                         android:layout_weight="1"
-                        android:text="TextView"
-                        android:textColor="@color/red"
+                        android:text="@string/textview"
+                        android:textColor="@android:color/holo_red_light"
                         android:visibility="gone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -254,10 +261,10 @@
                     android:clickable="false"
                     android:enabled="false"
                     android:padding="@dimen/padding_normal"
-                    android:text="Verify OTP"
+                    android:text="@string/verify_otp"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                    android:textColor="@color/secondaryColor"
+                    android:textColor="?attr/colorOnPrimary"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
@@ -268,19 +275,19 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_normal"
                     android:layout_marginEnd="16dp"
-                    android:text="Resend OTP"
+                    android:text="@string/resend_otp"
                     android:textAllCaps="false"
-                    android:textColor="@color/secondaryColor"
+                    android:textColor="?attr/colorOnPrimary"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/btn_verify_OTP" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/timer_resend_otp"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:text="30"
+                    android:text="@string/_30"
                     android:padding="0dp"
                     app:cornerRadius="40dp"
-                    android:textColor="@color/secondaryColor"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="@dimen/margin_normal"
                     android:layout_marginEnd="16dp"
                     app:layout_constraintEnd_toStartOf="@+id/resend_otp"
@@ -312,7 +319,8 @@
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="@+id/textView5"
-                app:layout_constraintStart_toStartOf="@+id/textView5" />
+                app:layout_constraintStart_toStartOf="@+id/textView5"
+                android:contentDescription="@string/offline" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -320,7 +328,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="@dimen/padding_normal"
-                android:text="Something went wrong !\nUnable to connect to server !\nTry again later!"
+                android:text="@string/something_went_wrong_nunable_to_connect_to_server_ntry_again_later"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -336,8 +344,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
             android:layout_weight="1"
-            android:text="TextView"
-            android:textColor="@color/red"
+            android:text="@string/textview"
+            android:textColor="@android:color/holo_red_light"
             android:visibility="gone" />
     </androidx.cardview.widget.CardView>
 

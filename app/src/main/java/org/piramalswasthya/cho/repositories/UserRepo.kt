@@ -119,6 +119,18 @@ class UserRepo @Inject constructor(
         userDao.insertOutreachProgram(selectedOutreachProgram)
     }
 
+    suspend fun saveMasterLatLong(lat: Double?, long: Double?) {
+        withContext(Dispatchers.IO) {
+            val loggedInUser = userDao.getLoggedInUser()
+            Timber.d("user", loggedInUser.toString())
+            loggedInUser?.let {
+                it.masterLatitude = lat
+                it.masterLongitude = long
+                userDao.update(it)
+            }
+        }
+    }
+
     suspend fun authenticateUser(
         userName: String,
         password: String,
@@ -338,6 +350,8 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     val userId = data.getInt("userID")
                     Timber.d("Token", token.toString())
@@ -510,6 +524,8 @@ class UserRepo @Inject constructor(
                 val responseStatusCode = responseBody.getInt("statusCode")
                 if (responseStatusCode == 200) {
                     val data = responseBody.getJSONObject("data")
+                    TokenInsertTmcInterceptor.setJwt(data.getString("jwtToken"))
+                    preferenceDao.registerJWTAmritToken(data.getString("jwtToken"))
                     val token = data.getString("key")
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
