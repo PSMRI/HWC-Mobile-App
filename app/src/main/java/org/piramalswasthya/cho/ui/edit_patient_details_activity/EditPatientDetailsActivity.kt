@@ -78,9 +78,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
 //            binding.patientDetalis.visibility= View.GONE
 //            binding.onlyDoctor.visibility=View.VISIBLE
-            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
-                binding.bottomNavigation.visibility = View.GONE
-            }
+//            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
+//                binding.bottomNavigation.visibility = View.GONE
+//            }
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController
                 .navigate(
