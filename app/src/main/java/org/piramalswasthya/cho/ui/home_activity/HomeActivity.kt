@@ -53,6 +53,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.CHOApplication
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ViewPagerAdapter
@@ -160,6 +161,9 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var userRole:String
 
     override fun onResume() {
+
+        binding.appVersion.text = "Version ${BuildConfig.VERSION_NAME}"
+
         handler.postDelayed(Runnable {
             handler.postDelayed(runnable!!, delay.toLong())
             Log.v("resuming activitiy", "resume")
@@ -250,6 +254,8 @@ class HomeActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
             }
         }
+
+        binding.appVersion.text = "Version ${BuildConfig.VERSION_NAME}"
 
 //        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 //            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
