@@ -305,7 +305,7 @@ data class BenHealthIdDetails(
     var healthId: String = "",
     var healthIdNumber: String = "",
     var isNewAbha: Boolean= false
-)
+): Serializable
 
 @JsonClass(generateAdapter = true)
 data class PatientNetwork(

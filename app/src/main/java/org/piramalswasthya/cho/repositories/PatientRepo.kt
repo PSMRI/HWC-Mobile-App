@@ -499,7 +499,7 @@ class PatientRepo @Inject constructor(
                         val data = jsonObj.getJSONObject("data")
                         abdmFacilityId = data.getString("abdmFacilityID")
                         abdmFacilityName = data.getString("abdmFacilityName")
-                        return saveAbdmFacilityId(visitCode, abdmFacilityId)
+                        return saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
                     }
 
                     5000, 5002 -> {

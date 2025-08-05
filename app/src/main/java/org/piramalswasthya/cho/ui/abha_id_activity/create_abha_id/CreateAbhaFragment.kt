@@ -61,6 +61,7 @@ class CreateAbhaFragment : Fragment() {
     private val channelId = "download abha card"
 
     private var benId: Long = 0
+    private var benRegId: Long = 0
 
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
@@ -135,7 +136,7 @@ class CreateAbhaFragment : Fragment() {
         val intent = requireActivity().intent
 
         benId = intent.getLongExtra("benId", 0)
-        val benRegId = intent.getLongExtra("benRegId", 0)
+        benRegId = intent.getLongExtra("benRegId", 0)
 
         if (parentViewModel.abhaMode.value == AadhaarIdViewModel.Abha.SEARCH) {
             binding.imageView.setImageResource(R.drawable.ic_exclamation_circle_green)
@@ -145,7 +146,7 @@ class CreateAbhaFragment : Fragment() {
         }else{
             val timestamp = System.currentTimeMillis()
             analyticsHelper.logCustomTimestampEvent("map_ben_to_health_id_request",timestamp)
-            viewModel.mapBeneficiaryToHealthId(benId, benRegId)
+//            viewModel.mapBeneficiaryToHealthId(benId, benRegId)
         }
 
 
@@ -160,6 +161,7 @@ class CreateAbhaFragment : Fragment() {
                     binding.imageView.setImageResource(R.drawable.ic_exclamation_circle)
                     binding.textView7.text = getString(R.string.str_abha_already_exist)
                 } else {
+                    viewModel.mapBeneficiaryToHealthId(benId, benRegId)
                     binding.imageView.setImageResource(R.drawable.ic_check_circle)
                     binding.textView7.text = getString(R.string.str_abha_successfully_created)
                 }
