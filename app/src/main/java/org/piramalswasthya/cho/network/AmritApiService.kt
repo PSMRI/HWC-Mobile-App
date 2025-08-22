@@ -213,7 +213,7 @@ interface AmritApiService {
     @POST("fhir-api/careContext/validateOTPAndCreateCareContext")
     suspend fun validateOTPAndCreateCareContext(@Body validateOTPAndCreateCareContextRequest: ValidateOTPAndCreateCareContextRequest): Response<ResponseBody>
 
-    @POST("fhir-api/healthID/mapHealthIDToBeneficiary")
+    @POST("fhir-api/healthIDRecord/mapHealthIDToBeneficiary")
     suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
 
     @POST("fhir-api/healthIDRecord/addHealthIdRecord")

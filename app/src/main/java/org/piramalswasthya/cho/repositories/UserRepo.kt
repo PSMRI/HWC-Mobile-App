@@ -371,6 +371,7 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
+                    preferenceDao.registerUser(user!!)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
