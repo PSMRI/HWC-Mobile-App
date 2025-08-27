@@ -16,7 +16,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.AncVisitAdapter
@@ -58,8 +56,6 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst
 import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.mutualVisitUnitsVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
-import org.piramalswasthya.cho.ui.commons.case_record.CaseRecordCustomArgs
-import org.piramalswasthya.cho.ui.commons.cbac.CbacViewModel
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationListViewModel
 import org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.list.ChildImmunizationVaccineBottomSheetFragment
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -68,14 +64,10 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class FragmentVisitDetail : Fragment(), NavigationAdapter,
