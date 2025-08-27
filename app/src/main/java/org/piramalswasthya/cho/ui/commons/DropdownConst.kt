@@ -16,6 +16,7 @@ class DropdownConst {
 
         val male_ncd: List<String> = listOf(ncdScreening)
         val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
+        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization)
         val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant)
 

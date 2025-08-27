@@ -115,12 +115,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
+                    binding.bottomNavigation.visibility = View.GONE
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.customVitalsFragment -> {
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                     if (preferenceDao.isUserCHO()) {
@@ -133,6 +135,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
                 R.id.cbacFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.cbac)
+                    binding.bottomNavigation.visibility = View.GONE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

@@ -114,7 +114,7 @@ class CbacViewModel @Inject constructor(
     }
 
     private val patId = CbacFragmentArgs.fromSavedStateHandle(state).patId
-    val cbacId = CbacFragmentArgs.fromSavedStateHandle(state).cbacId
+    var cbacId = 0
     private val ashaId = 0
 
     private lateinit var cbac: CbacCache
@@ -157,7 +157,7 @@ class CbacViewModel @Inject constructor(
     private var flagForNcd = false
 
     private val _minDate = MutableLiveData<Long>()
-
+    var isOneYearPassed = false
 
     val minDate: LiveData<Long>
         get() = _minDate
@@ -165,18 +165,22 @@ class CbacViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                cbac = if (cbacId > 0)
-                    cbacRepo.getCbacCacheFromId(cbacId).also { _filledCbac.postValue(it) }
-                else
-                    CbacCache(
-                        patId = patId, ashaId = ashaId,
-                        syncState = SyncState.UNSYNCED,
-                        createdDate = System.currentTimeMillis()
-                    )
+                val cachedCbac = cbacRepo.getLastFilledCbac(patId)
+
+                cbac = cachedCbac?.also {
+                    _filledCbac.postValue(it)
+                    cbacId = it.id
+                } ?: CbacCache(
+                    patId = patId,
+                    ashaId = ashaId,
+                    syncState = SyncState.UNSYNCED,
+                    createdDate = System.currentTimeMillis()
+                )
                 val lastFilledCbac = cbacRepo.getLastFilledCbac(patId)
                 ben = patientRepo.getPatientDisplay(patId)!!
                 _minDate.postValue(lastFilledCbac?.fillDate?.let { it + TimeUnit.DAYS.toMillis(365) }
                     ?: ben.patient.registrationDate?.time ?: 0)
+
             }
             if (ben.ageUnit.name.lowercase() != "years")
                 throw IllegalStateException("Age not in years for CBAC form!!")

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.ChiefComplaintMaster
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
@@ -25,6 +26,7 @@ import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.CbacRepo
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -52,6 +54,8 @@ class VisitDetailViewModel @Inject constructor(
     private val pncRepo: PncRepo,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val ecrRepo: EcrRepo,
+    private val cbacRepo: CbacRepo,
+
     @ApplicationContext private val application: Context
 ) : ViewModel() {
     private var _subCatVisitList: LiveData<List<SubVisitCategory>>
@@ -82,6 +86,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var selectedReasonForVisit = ""
 
+    var cbacId = 0
+    private lateinit var cbac: CbacCache
 
     private val _idPatientId = MutableLiveData<String?>(null)
 
@@ -148,6 +154,18 @@ class VisitDetailViewModel @Inject constructor(
             allEctRecords.value = getAllECT(patientID)
             lastAnc = getLastAnc(patientID)
             lastEct.value = getLastEct(patientID)
+
+
+            val cachedCbac = cbacRepo.getLastFilledCbac(patientID)
+
+            cbac = cachedCbac?.also {
+                cbacId = it.id
+            } ?: CbacCache(
+                patId = patientID,
+                ashaId = 0,
+                syncState = SyncState.UNSYNCED,
+                createdDate = System.currentTimeMillis()
+            )
         }
     }
 
