@@ -243,6 +243,8 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
 
                         }
                         else -> {
+                            filterAbhaCcMapping
+                            ccMappingAlertBinding.tvNrf.visibility = View.VISIBLE
                             filterAbhaCcMapping.show()
 //                    Toast.makeText(requireContext(), "There was some error in fetching beneficiary health data, please try again later", Toast.LENGTH_SHORT).show()
                         }
@@ -298,15 +300,22 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             alert.dismiss()
             viewModel.generateOTPForCareContext()
 
-            viewModel.isOtpGenerated.observe(viewLifecycleOwner) { state ->
-                when(state!!) {
-                    true -> {
-                        otpSentDialog.show()
-                    }
-                    else -> {
-                        Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_SHORT).show()
-                    }
+            viewModel.txnId.observe(viewLifecycleOwner) { txnId ->
+                if (!txnId.isNullOrEmpty()) {
+                    otpSentDialog.show()
+                } else {
+                    Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_LONG).show()
+//                    navigateNext()
                 }
+//                when(state!!) {
+//                    true -> {
+//                        otpSentDialog.show()
+//                    }
+//                    else -> {
+//                        Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_LONG).show()
+////                        navigateNext()
+//                    }
+//                }
             }
 
         }
@@ -333,17 +342,26 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     benVisitInfo.visitCategory!!
                 )
 
-                viewModel.isOtpVerified.observe(viewLifecycleOwner) { state ->
-                    when(state!!) {
-                        true -> {
-                            otpVerifiedDialog
-                            otpVerifiedDialog.setMessage(viewModel.careContext.toString())
-                            otpVerifiedDialog.show()
-                        }
-                        else -> {
-                            Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_SHORT).show()
-                        }
+                viewModel.careContext.observe(viewLifecycleOwner) { careContext ->
+                    if (!careContext.isNullOrEmpty()) {
+                        otpVerifiedDialog
+                        otpVerifiedDialog.setMessage(careContext)
+                        otpVerifiedDialog.show()
+                    } else {
+                        Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_LONG).show()
+//                        navigateNext()
                     }
+//                    when(state!!) {
+//                        true -> {
+//                            otpVerifiedDialog
+//                            otpVerifiedDialog.setMessage(viewModel.careContext.toString())
+//                            otpVerifiedDialog.show()
+//                        }
+//                        else -> {
+//                            Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_LONG).show()
+////                            navigateNext()
+//                        }
+//                    }
                 }
 
             }

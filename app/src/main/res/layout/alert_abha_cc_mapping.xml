@@ -39,9 +39,8 @@
             android:id="@+id/ett_otp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusableInTouchMode="false"
             android:inputType="number"
-            android:maxLength="4"
+            android:maxLength="6"
             android:textColorHint="#888888"
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>

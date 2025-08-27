@@ -61,8 +61,18 @@ class PharmacistFormViewModel @Inject constructor(
         get() = _isOtpVerified
 
     var benHealthInfo: BenHealthDetails? = null
-    var txnId: String? = null
-    var careContext: String? = null
+
+//    var txnId: String? = null
+
+    private val _txnId = MutableLiveData("")
+    val txnId: MutableLiveData<String>
+        get() = _txnId
+
+//    var careContext: String? = null
+
+    private val _careContext = MutableLiveData("")
+    val careContext: MutableLiveData<String>
+        get() = _careContext
 
     enum class NetworkState {
         IDLE,
@@ -94,14 +104,14 @@ class PharmacistFormViewModel @Inject constructor(
 
     fun generateOTPForCareContext() {
         viewModelScope.launch {
-            txnId = patientRepo.generateOTPForCareContext(benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!)
+            _txnId.value = patientRepo.generateOTPForCareContext(benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!)
             _isOtpGenerated.value = txnId != null
         }
     }
 
     fun validateOTPAndCreateCareContext(otp: String, beneficiaryID: Long, visitCode: Long, visitCategory: String) {
         viewModelScope.launch {
-            careContext = patientRepo.validateOTPAndCreateCareContext(otp, txnId!!, beneficiaryID, benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!, visitCode, visitCategory)
+            _careContext.value = patientRepo.validateOTPAndCreateCareContext(otp, _txnId.value!!, beneficiaryID, benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!, visitCode, visitCategory)
             _isOtpVerified.value = careContext != null
         }
     }
