@@ -84,7 +84,14 @@ class CbacFragment : Fragment() , NavigationAdapter  {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Timber.d("Ran into error! Cbac data not saved!${viewModel.cbacId}")
 
+
+
+
+        binding.btnCancel.setOnClickListener {
+            findNavController().navigateUp()
+        }
         viewModel.state.observe(viewLifecycleOwner) {
             when (it) {
 
