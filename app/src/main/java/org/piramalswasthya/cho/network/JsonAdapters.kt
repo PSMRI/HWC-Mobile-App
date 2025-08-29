@@ -540,7 +540,15 @@ data class BenHealthDetails(
     val createdDate: String,
     val lastModDate: String,
     val isNewAbha: Boolean
-)
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class GenerateOTPForCareContext(
+    val txnId: String?
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class ValidateOTPAndCreateCareContextResponse(
+    val response: String
+): NetworkResponse()
 @JsonClass(generateAdapter = true)
 data class MapHIDtoBeneficiary(
     val beneficiaryRegID: Long?,

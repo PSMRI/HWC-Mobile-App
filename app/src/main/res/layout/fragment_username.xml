@@ -78,6 +78,7 @@
                     android:layout_height="wrap_content"
                     android:checkedButton="@id/rb_eng"
                     android:gravity="center"
+                    android:visibility="gone"
                     android:orientation="horizontal"
                     android:paddingStart="@dimen/padding_wide"
                     android:paddingEnd="@dimen/padding_wide"
