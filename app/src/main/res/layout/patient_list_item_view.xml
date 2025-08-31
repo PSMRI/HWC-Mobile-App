@@ -378,9 +378,9 @@
                             android:orientation="horizontal"
                             android:paddingTop="@dimen/padding_normal"
                             android:visibility="gone"
+                            app:layout_constraintStart_toStartOf="@+id/visitDataLl"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/refer_date_ll"
-                            app:layout_constraintTop_toTopOf="@+id/refer_date_ll">
+                            app:layout_constraintTop_toBottomOf="@+id/villageLl">
 
                             <LinearLayout
                                 android:layout_width="0dp"

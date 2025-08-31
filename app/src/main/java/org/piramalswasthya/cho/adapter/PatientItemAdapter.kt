@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
+import org.piramalswasthya.cho.ui.home.HomeViewModel
 import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
 
@@ -76,8 +77,10 @@ class PatientItemAdapter(
             val visitDateText = item.visitDate?.let { DateTimeUtil.formatDate(it) }
             if (visitDateText.isNullOrBlank()) {
                 binding.visitDate.text = "NA"
+                binding.referDate.text = "NA"
             } else {
                 binding.visitDate.text = visitDateText
+                binding.referDate.text = visitDateText
             }
             binding.patientPhoneNo.text = item.patient.phoneNo ?: "NA"
             if (item.villageName.isNullOrBlank()) {
@@ -167,10 +170,13 @@ class PatientItemAdapter(
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
+                binding.referDateLl.visibility = View.VISIBLE
+                binding.referFromLl.visibility = View.VISIBLE
                 binding.referTo.text = item.referTo
+                binding.referFrom.text = HomeViewModel.masterVillageName
             }
 
-            if (item.referDate != null) {
+          /*  if (item.referDate != null) {
                 binding.referDateLl.visibility = View.VISIBLE
                 binding.referDate.text = item.referDate
             }
@@ -181,7 +187,7 @@ class PatientItemAdapter(
                     binding.referFromLl.visibility = View.VISIBLE
                     binding.referFrom.text = arr[1]
                 }
-            }
+            }*/
 
             binding.executePendingBindings()
 
