@@ -176,18 +176,6 @@ class PatientItemAdapter(
                 binding.referFrom.text = HomeViewModel.masterVillageName
             }
 
-          /*  if (item.referDate != null) {
-                binding.referDateLl.visibility = View.VISIBLE
-                binding.referDate.text = item.referDate
-            }
-
-            if (item.referralReason != null) {
-                val arr = item.referralReason.split(pattern)
-                if (arr.size > 1) {
-                    binding.referFromLl.visibility = View.VISIBLE
-                    binding.referFrom.text = arr[1]
-                }
-            }*/
 
             binding.executePendingBindings()
 
