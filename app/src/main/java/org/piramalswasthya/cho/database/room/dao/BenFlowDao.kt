@@ -37,6 +37,9 @@ interface BenFlowDao {
     @Query("SELECT * FROM BENFLOW WHERE benFlowID = :benFlowID LIMIT 1")
     suspend fun getBenFlowByBenFlowID(benFlowID: Long) : BenFlow
 
+    @Query("SELECT * FROM BenFlow")
+    suspend fun getAllBenFlows(): List<BenFlow>
+
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID AND benVisitNo = :benVisitNo")
     suspend fun getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID: Long, benVisitNo: Int) : BenFlow?
 
