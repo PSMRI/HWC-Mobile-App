@@ -149,24 +149,24 @@ class CbacRepo @Inject constructor(
                         val request = CbacRequest(
                             visitDetails = CbacVisitDetails(
                                 beneficiaryRegID = patient.beneficiaryRegID!!,
-                                providerServiceMapID = 1717,
+                                providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId,
                                 visitReason = "New Chief Complaint",
                                 visitCategory = "NCD screening",
                                 IdrsOrCbac = "CBAC",
                                 createdBy = user.userName,
-                                vanID = 293,
-                                parkingPlaceID = 33
+                                vanID = userRepo.getLoggedInUser()!!.vanId,
+                                parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId
                             ),
                             cbac = cbac,
                             benFlowID = patient.beneficiaryRegID!!,
                             beneficiaryID = patient.beneficiaryID!!,
                             sessionID = 3,
-                            parkingPlaceID = 33,
+                            parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
                             createdBy = user.userName,
-                            vanID = cache.VanID,
+                            vanID = userRepo.getLoggedInUser()!!.vanId,
                             beneficiaryRegID = patient.beneficiaryRegID!!,
                             benVisitID = null,
-                            providerServiceMapID = cache.ProviderServiceMapID
+                            providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId
                         )
 
                         try {
@@ -298,7 +298,7 @@ class CbacRepo @Inject constructor(
     private suspend fun getAndSaveCbacDataToDb(benFlow: BenFlow): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
-            val cbacRequest = NurseDataRequest(benRegID = benFlow.beneficiaryRegID!!, visitCode = benFlow.visitCode!!)
+            val cbacRequest = NurseDataRequest(benRegID = 10461128, visitCode = benFlow.visitCode!!)
 
             val response = amritApiService.getCbacData(cbacRequest)
             val responseBody = response.body()?.string()
