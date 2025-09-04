@@ -117,6 +117,7 @@
     <string name="other_info">Other Information</string>
     <string name="info">Info</string>
     <string name="want_care_context">Data saved successfully. Do you want to link Care Context?</string>
+    <string name="cancel_care_context">Do you want to cancel Care Context?</string>
     <string name="abha_care_context">ABHA Care Context Mapping</string>
     <string name="generate_abha_otp">Generate OTP</string>
     <string name="created_date">Created Date</string>
