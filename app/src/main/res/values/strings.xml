@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HWC</string>
+    <string name="app_name">AAM</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
