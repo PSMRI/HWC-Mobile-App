@@ -35,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val database: InAppDb,
-    private val pref: PreferenceDao,
+    val pref: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
     private val patientRepo: PatientRepo,
@@ -59,6 +59,14 @@ class HomeViewModel @Inject constructor(
         fun resetSearchBool(){
             _searchBool.value = false
         }
+
+        var masterVillageName = ""
+
+
+
+    }
+    init {
+      masterVillageName = pref.getLoggedInUser()?.masterVillageName.toString()
     }
     val scope: CoroutineScope
         get() = viewModelScope
