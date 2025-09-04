@@ -12,6 +12,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.repositories.CbacRepo
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -128,8 +129,8 @@ data class CbacCache(
 
 
 ) {
-    fun asPostModel(hhId: Long, benGender: Gender, resources: Resources, benId: Long): CbacPost {
-        return CbacPost(
+   /* fun asPostModel(hhId: Long, benGender: Gender, resources: Resources, benId: Long): CbacPost {
+        return  CbacPost(
             houseoldId = hhId,
             beneficiaryId = benId,
             ashaid = ashaId,
@@ -448,6 +449,107 @@ data class CbacCache(
             cbac_forgetting_names_posi = cbac_forgetting_names_posi,
 
             )
+    }*/
+
+    fun asPostModel(
+        benGender: CbacRepo.Gender,
+        resources: Resources,
+        benId: Long
+    ): CbacPostNew {
+        return CbacPostNew(
+            id = id,
+            beneficiaryId = benId,
+            cbacAge = resources.getStringArray(R.array.cbac_age)[cbac_age_posi - 1],
+            cbacAgeScore = cbac_age_posi,
+            cbacConsumeGutka = resources.getStringArray(R.array.cbac_smoke)[cbac_smoke_posi - 1],
+            cbacConsumeGutkaScore = cbac_smoke_posi,
+            cbacAlcohol = resources.getStringArray(R.array.cbac_alcohol)[cbac_alcohol_posi - 1],
+            cbacAlcoholScore = cbac_alcohol_posi,
+
+            cbacWaistMale = if (benGender == CbacRepo.Gender.MALE)
+                resources.getStringArray(R.array.cbac_waist_mes_male)[cbac_waist_posi - 1]
+            else null,
+            cbacWaistMaleScore = if (benGender == CbacRepo.Gender.MALE) cbac_waist_posi else null,
+
+            cbacWaistFemale = if (benGender == CbacRepo.Gender.FEMALE)
+                resources.getStringArray(R.array.cbac_waist_mes_female)[cbac_waist_posi - 1]
+            else null,
+            cbacWaistFemaleScore = if (benGender == CbacRepo.Gender.FEMALE) cbac_waist_posi else null,
+
+            cbacPhysicalActivity = resources.getStringArray(R.array.cbac_pa)[cbac_pa_posi - 1],
+            cbacPhysicalActivityScore = cbac_pa_posi,
+            cbacFamilyHistoryBpdiabetes = resources.getStringArray(R.array.cbac_fh)[cbac_familyhistory_posi - 1],
+            cbacFamilyHistoryBpdiabetesScore = cbac_familyhistory_posi,
+
+            cbacShortnessBreath = yesNoFromPos(cbac_sortnesofbirth_pos, resources.getString(R.string.cbac_breath)),
+            cbacCough2weeks = yesNoFromPos(cbac_coughing_pos, resources.getString(R.string.cbac_coughing)),
+            cbacBloodsputum = yesNoFromPos(cbac_bloodsputum_pos, resources.getString(R.string.cbac_blsputum)),
+            cbacFever2weeks = yesNoFromPos(cbac_fivermore_pos, resources.getString(R.string.cbac_feverwks)),
+            cbacWeightLoss = yesNoFromPos(cbac_loseofweight_pos, resources.getString(R.string.cbac_lsweight)),
+            cbacNightSweats = yesNoFromPos(cbac_nightsweats_pos, resources.getString(R.string.cbac_ntswets)),
+            cbacAntiTBDrugs = yesNoFromPos(cbac_antitbdrugs_pos, resources.getString(R.string.cbac_taking_tb_drug)),
+            cbacTb = yesNoFromPos(cbac_sufferingtb_pos, resources.getString(R.string.cbac_fh_tb)),
+            cbacTBHistory = yesNoFromPos(cbac_tbhistory_pos, resources.getString(R.string.cbac_histb)),
+
+            cbacUlceration = yesNoFromPos(cbac_uicers_pos, resources.getString(R.string.cbac_recurrent_ulceration)),
+            cbacRecurrentTingling = yesNoFromPos(cbac_tingling_palm_posi, resources.getString(R.string.cbac_recurrent_tingling)),
+            cbacFitsHistory = yesNoFromPos(cbac_historyoffits_pos, resources.getString(R.string.cbac_hifits)),
+            cbacMouthopeningDifficulty = yesNoFromPos(cbac_difficultyinmouth_pos, resources.getString(R.string.cbac_difmouth)),
+            cbacMouthUlcers = yesNoFromPos(cbac_uicers_pos, resources.getString(R.string.cbac_recurrent_ulceration)),
+            cbacMouthUlcersGrowth = yesNoFromPos(cbac_growth_in_mouth_posi, resources.getString(R.string.cbac_Any_Growth)),
+            cbacMouthredpatch = yesNoFromPos(cbac_white_or_red_patch_posi, resources.getString(R.string.cbac_Any_white)),
+            cbacPainchewing = yesNoFromPos(cbac_Pain_while_chewing_posi, resources.getString(R.string.cbac_Pain_while_chewing)),
+            cbacTonechange = yesNoFromPos(cbac_toneofvoice_pos, resources.getString(R.string.cbac_voice)),
+
+            cbacHypopigmentedpatches = yesNoFromPos(cbac_hyper_pigmented_patch_posi, resources.getString(R.string.cbac_Any_hyper_pigmented)),
+            cbacThickenedskin = yesNoFromPos(cbac_any_thickend_skin_posi, resources.getString(R.string.cbac_any_thickend_skin)),
+            cbacNodulesonskin = yesNoFromPos(cbac_nodules_on_skin_posi, resources.getString(R.string.cbac_any_nodules_skin)),
+            cbacRecurrentNumbness = yesNoFromPos(cbac_numbness_on_palm_posi, resources.getString(R.string.cbac_Recurrent_numbness)),
+
+            cbacBlurredVision = yesNoFromPos(cbac_cloudy_posi, resources.getString(R.string.cbac_recurrent_cloudy)),
+            cbacDifficultyreading = yesNoFromPos(cbac_diffreading_posi, resources.getString(R.string.cbac_recurrent_diffculty_reading)),
+            cbacPainineyes = yesNoFromPosNullable(cbac_pain_ineyes_posi, resources.getString(R.string.cbac_recurrent_pain_eyes)),
+            cbacRednessPain = yesNoFromPos(cbac_redness_ineyes_posi, resources.getString(R.string.cbac_recurrent_redness_eyes)),
+            cbacDifficultyHearing = yesNoFromPos(cbac_diff_inhearing_posi, resources.getString(R.string.cbac_recurrent_diff_hearing)),
+
+            cbacClawingfingers = yesNoFromPos(cbac_clawing_of_fingers_posi, resources.getString(R.string.cbac_Clawing_of_fingers)),
+            cbacHandTingling = yesNoFromPos(cbac_tingling_or_numbness_posi, resources.getString(R.string.cbac_Tingling_or_Numbness)),
+            cbacInabilityCloseeyelid = yesNoFromPos(cbac_inability_close_eyelid_posi, resources.getString(R.string.cbac_Inability_close_eyelid)),
+            cbacDifficultHoldingObjects = yesNoFromPos(cbac_diff_holding_obj_posi, resources.getString(R.string.cbac_diff_holding_objects)),
+            cbacFeetweakness = yesNoFromPos(cbac_weekness_in_feet_posi, resources.getString(R.string.cbac_Weekness_in_feet)),
+
+            cbacLumpBreast = yesNoFromPosNullable(cbac_lumpinbreast_pos, resources.getString(R.string.cbac_lumpbrest)),
+            cbacBloodnippleDischarge = yesNoFromPosNullable(cbac_blooddischage_pos, resources.getString(R.string.cbac_nipple)),
+            cbacBreastsizechange = yesNoFromPosNullable(cbac_changeinbreast_pos, resources.getString(R.string.cbac_breast)),
+            cbacBleedingPeriods = yesNoFromPosNullable(cbac_bleedingbtwnperiods_pos, resources.getString(R.string.cbac_blperiods)),
+            cbacBleedingMenopause = yesNoFromPosNullable(cbac_bleedingaftermenopause_pos, resources.getString(R.string.cbac_blmenopause)),
+            cbacBleedingIntercourse = yesNoFromPosNullable(cbac_bleedingafterintercourse_pos, resources.getString(R.string.cbac_blintercorse)),
+            cbacVaginalDischarge = yesNoFromPosNullable(cbac_foulveginaldischarge_pos, resources.getString(R.string.cbac_fouldis)),
+
+            cbacFeelingUnsteady = yesNoFromPosNullable(cbac_feeling_unsteady_posi, resources.getString(R.string.cbac_unsteady)),
+            cbacPhysicalDisabilitySuffering = yesNoFromPosNullable(cbac_suffer_physical_disability_posi, resources.getString(R.string.cbac_pd_rm)),
+            cbacNeedhelpEverydayActivities = yesNoFromPosNullable(cbac_needing_help_posi, resources.getString(R.string.cbac_nhop)),
+            cbacForgetnearones = yesNoFromPosNullable(cbac_forgetting_names_posi, resources.getString(R.string.cbac_forget_names)),
+
+            totalScore = total_score
+        )
+    }
+
+    // Helper methods
+    private fun yesNoFromPos(pos: Int, default: String): String {
+        return when (pos) {
+            1 -> "Yes"
+            2 -> "No"
+            else -> default
+        }
+    }
+
+    private fun yesNoFromPosNullable(pos: Int, default: String): String? {
+        return when (pos) {
+            1 -> "Yes"
+            2 -> "No"
+            else -> null
+        }
     }
 
     fun asDomainModel(): CbacDomain {
@@ -802,3 +904,92 @@ data class CbacPost(
 //        if (savedCbacRecords.map { it.syncState }
 //                .all { it == SyncState.SYNCED }) SyncState.SYNCED else SyncState.UNSYNCED
 //)
+@JsonClass(generateAdapter = true)
+data class CbacPostNew(
+    val id: Int,
+    val beneficiaryId: Long,
+    val cbacAge: String,
+    val cbacAgeScore: Int,
+    val cbacConsumeGutka: String,
+    val cbacConsumeGutkaScore: Int,
+    val cbacAlcohol: String,
+    val cbacAlcoholScore: Int,
+    val cbacWaistMale: String?,
+    val cbacWaistMaleScore: Int?,
+    val cbacWaistFemale: String?,
+    val cbacWaistFemaleScore: Int?,
+    val cbacPhysicalActivity: String,
+    val cbacPhysicalActivityScore: Int,
+    val cbacFamilyHistoryBpdiabetes: String,
+    val cbacFamilyHistoryBpdiabetesScore: Int,
+    val cbacShortnessBreath: String,
+    val cbacCough2weeks: String,
+    val cbacBloodsputum: String,
+    val cbacFever2weeks: String,
+    val cbacWeightLoss: String,
+    val cbacNightSweats: String,
+    val cbacAntiTBDrugs: String,
+    val cbacTb: String,
+    val cbacTBHistory: String,
+    val cbacUlceration: String,
+    val cbacRecurrentTingling: String,
+    val cbacFitsHistory: String,
+    val cbacMouthopeningDifficulty: String,
+    val cbacMouthUlcers: String,
+    val cbacMouthUlcersGrowth: String,
+    val cbacMouthredpatch: String,
+    val cbacPainchewing: String,
+    val cbacTonechange: String,
+    val cbacHypopigmentedpatches: String,
+    val cbacThickenedskin: String,
+    val cbacNodulesonskin: String,
+    val cbacRecurrentNumbness: String,
+    val cbacBlurredVision: String,
+    val cbacDifficultyreading: String,
+    val cbacPainineyes: String?,
+    val cbacRednessPain: String,
+    val cbacDifficultyHearing: String,
+    val cbacClawingfingers: String,
+    val cbacHandTingling: String,
+    val cbacInabilityCloseeyelid: String,
+    val cbacDifficultHoldingObjects: String,
+    val cbacFeetweakness: String,
+    val cbacLumpBreast: String?,
+    val cbacBloodnippleDischarge: String?,
+    val cbacBreastsizechange: String?,
+    val cbacBleedingPeriods: String?,
+    val cbacBleedingMenopause: String?,
+    val cbacBleedingIntercourse: String?,
+    val cbacVaginalDischarge: String?,
+    val cbacFeelingUnsteady: String?,
+    val cbacPhysicalDisabilitySuffering: String?,
+    val cbacNeedhelpEverydayActivities: String?,
+    val cbacForgetnearones: String?,
+    val totalScore: Int
+)
+
+data class CbacRequest(
+    val visitDetails: CbacVisitDetails,
+    val cbac: CbacPostNew,
+    val benFlowID: Long?,
+    val beneficiaryID: Long,
+    val sessionID: Int?,
+    val parkingPlaceID: Int?,
+    val createdBy: String,
+    val vanID: Int?,
+    val beneficiaryRegID: Long,
+    val benVisitID: Long?,
+    val providerServiceMapID: Int?
+)
+
+data class CbacVisitDetails(
+    val beneficiaryRegID: Long,
+    val providerServiceMapID: Int,
+    val visitNo: Int? = null,
+    val visitReason: String,
+    val visitCategory: String,
+    val IdrsOrCbac: String,
+    val createdBy: String,
+    val vanID: Int,
+    val parkingPlaceID: Int
+)

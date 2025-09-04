@@ -195,6 +195,20 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun getLastCbacSyncTime(): String {
+        val prefKey = context.getString(R.string.last_cbac_sync_time)
+        return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setLastCbacSyncTime(currTimeStamp: Long){
+        val prefKey = context.getString(R.string.last_cbac_sync_time)
+        val editor = pref.edit()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
+        editor.apply()
+    }
+
+
     fun getLastPatientSyncTime(): String {
         val prefKey = context.getString(R.string.last_patient_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)

@@ -5,6 +5,8 @@ import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
+import org.piramalswasthya.cho.model.CbacPostNew
+import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
@@ -136,6 +138,10 @@ interface AmritApiService {
     @POST("/flw-api/child-care/vaccination/saveAll")
     suspend fun postChildImmunizationDetails(@Body immunizationList: List<ImmunizationPost>): Response<ResponseBody>
 
+    @POST("/hwc-api/NCD/save/nurseData")
+    suspend fun postCbacData(@Body cbacList: CbacRequest): Response<ResponseBody>
+
+
     @POST("/flw-api/couple/tracking/saveAll")
     suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
 
@@ -147,6 +153,9 @@ interface AmritApiService {
 
     @POST("hwc-api/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
+
+    @POST("/hwc-api/NCD/get/nurseData")
+    suspend fun getCbacData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
     @POST("/hwc-api/labTechnician/get/prescribedProceduresList?apiKey=undefined")
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>

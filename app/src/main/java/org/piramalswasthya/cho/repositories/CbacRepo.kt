@@ -2,38 +2,55 @@ package org.piramalswasthya.cho.repositories
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
+import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.database.room.SyncState
-import org.piramalswasthya.cho.helpers.Konstants
-import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.database.room.dao.BenFlowDao
+import org.piramalswasthya.cho.database.room.dao.CbacDao
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.network.AmritApiService
+
 import org.piramalswasthya.cho.model.CbacCache
-//import org.piramalswasthya.sakhi.network.GetDataPaginatedRequest
-import org.piramalswasthya.cho.network.getLongFromDate
+import org.piramalswasthya.cho.model.CbacPostNew
+import org.piramalswasthya.cho.model.CbacRequest
+import org.piramalswasthya.cho.model.CbacVisitDetails
+import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.DoctorDataDownSync
+import org.piramalswasthya.cho.model.ImmunizationCache
+import org.piramalswasthya.cho.model.ImmunizationPost
+import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.network.NetworkResponse
+import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.NurseDataRequest
+import org.piramalswasthya.cho.network.networkResultInterceptor
+import org.piramalswasthya.cho.network.refreshTokenInterceptor
+import org.piramalswasthya.cho.ui.commons.cbac.CbacViewModel
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import java.net.SocketTimeoutException
 import javax.inject.Inject
+import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Private
 
 class CbacRepo @Inject constructor(
-    @ApplicationContext context: Context,
+    @ApplicationContext var context: Context,
     private val database: InAppDb,
     private val userRepo: UserRepo,
     private val amritApiService: AmritApiService,
-    private val prefDao: PreferenceDao
+    private val prefDao: PreferenceDao,
+    private val cbacDao: CbacDao,
+    private val patientRepo: PatientRepo,
+    private val benFlowDao: BenFlowDao
 ) {
 
-//    private val resources: Resources
-//
-//    init {
-//        resources = context.resources
-//    }
-//
     suspend fun saveCbacData(cbacCache: CbacCache,): Boolean {
         return withContext(Dispatchers.IO) {
 
@@ -88,6 +105,231 @@ class CbacRepo @Inject constructor(
             database.cbacDao.getLastFilledCbacFromBenId(benId = benId)
         }
     }
+    enum class Gender(val id: Int) {
+        MALE(1),
+        FEMALE(2),
+        TRANSGENDER(3);
 
+        companion object {
+            fun fromId(id: Int): Gender {
+                return values().find { it.id == id } ?: MALE
+            }
+        }
+    }
+
+
+    suspend fun pushUnSyncedCbacRecords(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = userRepo.getLoggedInUser()
+                ?: throw IllegalStateException("No user logged in!!")
+
+            val cbacCacheList: List<CbacCache> =
+                cbacDao.getAllUnprocessedCbac(SyncState.UNSYNCED)
+
+            if (cbacCacheList.isEmpty()) return@withContext true
+
+            var allSynced = true
+
+            cbacCacheList.forEach { cache ->
+                val patient = patientRepo.getPatient(cache.patId)
+                val genderEnum = patient.genderID?.let { Gender.fromId(it) }
+
+
+
+                if (patient.beneficiaryID != null) {
+                    val cbacPostNew = genderEnum?.let {
+                        cache.asPostModel(
+                            benGender = it,
+                            resources = context.resources,
+                            benId = patient.beneficiaryID!!
+                        )
+                    }
+
+                    cbacPostNew?.let { cbac ->
+                        val request = CbacRequest(
+                            visitDetails = CbacVisitDetails(
+                                beneficiaryRegID = patient.beneficiaryRegID!!,
+                                providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId,
+                                visitReason = "New Chief Complaint",
+                                visitCategory = "NCD screening",
+                                IdrsOrCbac = "CBAC",
+                                createdBy = user.userName,
+                                vanID = userRepo.getLoggedInUser()!!.vanId,
+                                parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId
+                            ),
+                            cbac = cbac,
+                            benFlowID = patient.beneficiaryRegID!!,
+                            beneficiaryID = patient.beneficiaryID!!,
+                            sessionID = 3,
+                            parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
+                            createdBy = user.userName,
+                            vanID = userRepo.getLoggedInUser()!!.vanId,
+                            beneficiaryRegID = patient.beneficiaryRegID!!,
+                            benVisitID = null,
+                            providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId
+                        )
+
+                        try {
+                            val response = amritApiService.postCbacData(request)
+                            if (response.isSuccessful) {
+                                val responseString = response.body()?.string()
+                                if (responseString != null) {
+                                    val jsonObj = JSONObject(responseString)
+                                    val responseStatusCode = jsonObj.getInt("statusCode")
+
+                                    when (responseStatusCode) {
+                                        200 -> {
+                                            updateSyncStatusCbac(cache) // ✅ ek record sync update
+                                        }
+                                        5002 -> {
+                                            if (userRepo.refreshTokenTmc(user.userName, user.password)) {
+                                                throw SocketTimeoutException("Refreshed Token!")
+                                            } else throw IllegalStateException("User Logged out!!")
+                                        }
+                                        5000 -> {
+                                            val errorMessage = jsonObj.getString("errorMessage")
+                                            Log.d("CBAC sync failed", errorMessage)
+                                            allSynced = false
+                                        }
+                                        else -> {
+                                            allSynced = false
+                                            Timber.d("Unknown response $responseStatusCode")
+                                        }
+                                    }
+                                } else {
+
+                                }
+                            } else {
+                                allSynced = false
+                                Log.d("CBAC sync", "HTTP error: ${response.code()}")
+                            }
+                        } catch (e: Exception) {
+                            allSynced = false
+                            Timber.e(e, "CBAC sync failed for patId=${cache.patId}")
+                        }
+                    }
+                }
+            }
+
+            return@withContext allSynced
+        }
+    }
+
+  /*  suspend fun pushUnSyncedCbacRecords(): Boolean {
+
+        return withContext(Dispatchers.IO) {
+            val user =
+                userRepo.getLoggedInUser()
+                    ?: throw IllegalStateException("No user logged in!!")
+
+            val cbacCacheList: List<CbacCache> = cbacDao.getAllUnprocessedCbac(
+                SyncState.UNSYNCED)
+
+            val cbacDTOs = mutableListOf<CbacPostNew>()
+            cbacCacheList.forEach { cache ->
+                val patient = patientRepo.getPatient(cache.patId)
+                val genderEnum = patient.genderID?.let { Gender.fromId(it) }
+
+                if(patient.beneficiaryID != null){
+                    var cbacDto = genderEnum?.let { cache.asPostModel(it,context.resources,patient.beneficiaryID!!) }
+                    cbacDto?.let { cbacDTOs.add(it) }
+                }
+            }
+            if (cbacDTOs.isEmpty()) return@withContext true
+            try {
+                val response = amritApiService.postCbacData(cbacDTOs)
+                val statusCode = response.code()
+                if (statusCode == 200) {
+                    val responseString = response.body()?.string()
+                    if (responseString != null) {
+                        val jsonObj = JSONObject(responseString)
+
+                        val responseStatusCode = jsonObj.getInt("statusCode")
+                        Timber.d("Push to Amrit Child Immunization data : $responseStatusCode")
+                        when (responseStatusCode) {
+                            200 -> {
+                                try {
+                                    updateSyncStatusCbac(cbacCacheList)
+                                    return@withContext true
+                                } catch (e: Exception) {
+                                    Timber.d("Child Immunization entries not synced $e")
+                                }
+                            }
+
+                            5002 -> {
+                                if (userRepo.refreshTokenTmc(
+                                        user.userName, user.password
+                                    )
+                                ) throw SocketTimeoutException("Refreshed Token!")
+                                else throw IllegalStateException("User Logged out!!")
+                            }
+
+                            5000 -> {
+                                val errorMessage = jsonObj.getString("errorMessage")
+                                Log.d("child immunization fails", errorMessage)
+                                if (errorMessage == "No record found") return@withContext false
+                            }
+
+                            else -> {
+                                throw IllegalStateException("$responseStatusCode received, dont know what todo!?")
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: SocketTimeoutException) {
+                Timber.d("save_child_immunization error : $e")
+                return@withContext false
+
+            } catch (e: java.lang.IllegalStateException) {
+//                Timber.d("save_child_immunization error : $e")
+//                return@withContext false
+            }
+            false
+        }
+    }*/
+
+    private suspend fun updateSyncStatusCbac(cbac: CbacCache) {
+        cbac.syncState = SyncState.SYNCED
+        cbac.Processed = "P"
+        cbacDao.upsert(cbac)
+    }
+
+    private suspend fun getAndSaveCbacDataToDb(benFlow: BenFlow): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val cbacRequest = NurseDataRequest(benRegID = 10461128, visitCode = benFlow.visitCode!!)
+
+            val response = amritApiService.getCbacData(cbacRequest)
+            val responseBody = response.body()?.string()
+
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val data = responseBody.let { JSONObject(it).getString("data") }
+
+                    NetworkResult.Success(NetworkResponse())
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getAndSaveCbacDataToDb(benFlow)
+                }
+            )
+        }
+
+    }
+
+    suspend fun downloadAndSyncCbacRecords(): Boolean {
+        val benFlows = benFlowDao.getAllBenFlows()
+        benFlows.forEach { benFlow ->
+
+            val result = getAndSaveCbacDataToDb(benFlow)
+            if (result is NetworkResult.Error) {
+                return false
+            }
+        }
+        return true
+    }
 
 }
