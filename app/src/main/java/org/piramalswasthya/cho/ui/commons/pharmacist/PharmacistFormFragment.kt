@@ -223,16 +223,18 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             .setTitle(getString(R.string.info))
             .setMessage(getString(R.string.want_care_context))
             .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
+//                dialog.dismiss()
                 viewModel.getBenHealthId(visitCode, benVisitInfo.patient.beneficiaryID, benVisitInfo.patient.beneficiaryRegID)
 
                 viewModel.isBenHealthInfoFetched.observe(viewLifecycleOwner) { state ->
+                    dialog.dismiss()
                     when(state!!) {
                         true -> {
                             filterAbhaCcMapping
                             ccMappingAlertBinding.btnOk.visibility = View.GONE
                             ccMappingAlertBinding.tvNrf.visibility = View.GONE
                             ccMappingAlertBinding.btnGenerate.visibility = View.VISIBLE
+                            ccMappingAlertBinding.btnCancel.visibility = View.VISIBLE
                             ccMappingAlertBinding.abhaBox.visibility = View.VISIBLE
 
                             ccMappingAlertBinding.tvvAbhaNumber.text = viewModel.benHealthInfo?.healthIdNumber
@@ -255,6 +257,20 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             .setNegativeButton("No") {dialog, _->
                 dialog.dismiss()
                 navigateNext()
+            }
+            .setCancelable(false)
+            .create()
+    }
+
+    private val cancelCareContextPrompt by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.info))
+            .setMessage(getString(R.string.cancel_care_context))
+            .setPositiveButton("Yes") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") {dialog, _->
+                dialog.dismiss()
             }
             .setCancelable(false)
             .create()
@@ -296,26 +312,27 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             alert.dismiss()
             navigateNext()
         }
-        ccMappingAlertBinding.btnGenerate.setOnClickListener {
+        ccMappingAlertBinding.btnCancel.setOnClickListener {
             alert.dismiss()
+            navigateNext()
+        }
+        ccMappingAlertBinding.btnGenerate.setOnClickListener {
+            ccMappingAlertBinding.btnGenerate.isEnabled = false
             viewModel.generateOTPForCareContext()
 
-            viewModel.txnId.observe(viewLifecycleOwner) { txnId ->
-                if (!txnId.isNullOrEmpty()) {
-                    otpSentDialog.show()
-                } else {
-                    Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_LONG).show()
-//                    navigateNext()
-                }
-//                when(state!!) {
-//                    true -> {
-//                        otpSentDialog.show()
-//                    }
-//                    else -> {
+            viewModel.isOtpGenerated.observe(viewLifecycleOwner) { state ->
+                ccMappingAlertBinding.btnGenerate.isEnabled = true
+                alert.dismiss()
+                Toast.makeText(requireContext(), "Please Wait...", Toast.LENGTH_SHORT).show()
+                when(state!!) {
+                    true -> {
+                        otpSentDialog.show()
+                    }
+                    else -> {
 //                        Toast.makeText(requireContext(), "There was some error in sending OTP, please try again later", Toast.LENGTH_LONG).show()
-////                        navigateNext()
-//                    }
-//                }
+//                        navigateNext()
+                    }
+                }
             }
 
         }
@@ -330,11 +347,15 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
             .setCancelable(false)
             .create()
 
+        ccMappingAlertAbhaBinding.btnCancel.setOnClickListener {
+            alert.dismiss()
+            navigateNext()
+        }
+
         ccMappingAlertAbhaBinding.btnSubmit.setOnClickListener {
             if (ccMappingAlertAbhaBinding.ettOtp.text.isNullOrEmpty()) {
                 ccMappingAlertAbhaBinding.etOtp.error = "Please Enter OTP"
             } else {
-                alert.dismiss()
                 viewModel.validateOTPAndCreateCareContext(
                     ccMappingAlertAbhaBinding.ettOtp.text.toString(),
                     benVisitInfo.patient.beneficiaryID!!,
@@ -342,26 +363,20 @@ class PharmacistFormFragment : Fragment(R.layout.fragment_pharmacist_form), Navi
                     benVisitInfo.visitCategory!!
                 )
 
-                viewModel.careContext.observe(viewLifecycleOwner) { careContext ->
-                    if (!careContext.isNullOrEmpty()) {
-                        otpVerifiedDialog
-                        otpVerifiedDialog.setMessage(careContext)
-                        otpVerifiedDialog.show()
-                    } else {
-                        Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_LONG).show()
-//                        navigateNext()
-                    }
-//                    when(state!!) {
-//                        true -> {
-//                            otpVerifiedDialog
-//                            otpVerifiedDialog.setMessage(viewModel.careContext.toString())
-//                            otpVerifiedDialog.show()
-//                        }
-//                        else -> {
+                viewModel.isOtpVerified.observe(viewLifecycleOwner) { state ->
+                    alert.dismiss()
+                    Toast.makeText(requireContext(), "Please Wait...", Toast.LENGTH_SHORT).show()
+                    when(state!!) {
+                        true -> {
+                            otpVerifiedDialog
+                            otpVerifiedDialog.setMessage(viewModel.response2?.response)
+                            otpVerifiedDialog.show()
+                        }
+                        else -> {
 //                            Toast.makeText(requireContext(), "There was some error in verifying OTP, please try again later", Toast.LENGTH_LONG).show()
-////                            navigateNext()
-//                        }
-//                    }
+//                        navigateNext()
+                        }
+                    }
                 }
 
             }
