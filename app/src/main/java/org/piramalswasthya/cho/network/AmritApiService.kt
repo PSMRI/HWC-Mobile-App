@@ -154,7 +154,7 @@ interface AmritApiService {
     @POST("hwc-api/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
-    @POST("/hwc-api/NCD/get/nurseData")
+    @POST("/hwc-api/NCD/getBenHistoryDetails")
     suspend fun getCbacData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
     @POST("/hwc-api/labTechnician/get/prescribedProceduresList?apiKey=undefined")

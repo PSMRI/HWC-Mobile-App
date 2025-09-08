@@ -7,7 +7,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.database.room.SyncState
@@ -454,11 +453,8 @@ data class CbacCache(
     fun asPostModel(
         benGender: CbacRepo.Gender,
         resources: Resources,
-        benId: Long
     ): CbacPostNew {
         return CbacPostNew(
-            id = id,
-            beneficiaryId = benId,
             cbacAge = resources.getStringArray(R.array.cbac_age)[cbac_age_posi - 1],
             cbacAgeScore = cbac_age_posi,
             cbacConsumeGutka = resources.getStringArray(R.array.cbac_smoke)[cbac_smoke_posi - 1],
@@ -906,8 +902,6 @@ data class CbacPost(
 //)
 @JsonClass(generateAdapter = true)
 data class CbacPostNew(
-    val id: Int,
-    val beneficiaryId: Long,
     val cbacAge: String,
     val cbacAgeScore: Int,
     val cbacConsumeGutka: String,
@@ -969,7 +963,7 @@ data class CbacPostNew(
 )
 
 data class CbacRequest(
-    val visitDetails: CbacVisitDetails,
+    val visitDetails: VisitDetailsWrapper,
     val cbac: CbacPostNew,
     val benFlowID: Long?,
     val beneficiaryID: Long,
@@ -981,6 +975,9 @@ data class CbacRequest(
     val benVisitID: Long?,
     val providerServiceMapID: Int?
 )
+data class VisitDetailsWrapper(
+    val visitDetails: CbacVisitDetails
+)
 
 data class CbacVisitDetails(
     val beneficiaryRegID: Long,
@@ -988,8 +985,19 @@ data class CbacVisitDetails(
     val visitNo: Int? = null,
     val visitReason: String,
     val visitCategory: String,
+    val subVisitCategory: String?=null,
+    val pregnancyStatus: String?=null,
+    val followUpForFpMethod: String?=null,
+    val otherFollowUpForFpMethod: String?=null,
+    val sideEffects: String?=null,
+    val otherSideEffects: String?=null,
     val IdrsOrCbac: String,
+    val rCHID: String?=null,
+    val healthFacilityType: String?=null,
+    val healthFacilityLocation: String?=null,
+    val reportFilePath: String?=null,
     val createdBy: String,
     val vanID: Int,
-    val parkingPlaceID: Int
+    val parkingPlaceID: Int,
+    val fileIDs:String?=null
 )

@@ -17,28 +17,19 @@ import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.network.AmritApiService
 
 import org.piramalswasthya.cho.model.CbacCache
-import org.piramalswasthya.cho.model.CbacPostNew
 import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.CbacVisitDetails
-import org.piramalswasthya.cho.model.DiagnosisCaseRecord
-import org.piramalswasthya.cho.model.DoctorDataDownSync
-import org.piramalswasthya.cho.model.ImmunizationCache
-import org.piramalswasthya.cho.model.ImmunizationPost
-import org.piramalswasthya.cho.model.InvestigationCaseRecord
-import org.piramalswasthya.cho.model.Patient
-import org.piramalswasthya.cho.model.PatientVisitInfoSync
-import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+
+import org.piramalswasthya.cho.model.VisitDetailsWrapper
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataRequest
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
-import org.piramalswasthya.cho.ui.commons.cbac.CbacViewModel
-import org.piramalswasthya.cho.utils.DateTimeUtil
+
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Private
 
 class CbacRepo @Inject constructor(
     @ApplicationContext var context: Context,
@@ -141,21 +132,33 @@ class CbacRepo @Inject constructor(
                         cache.asPostModel(
                             benGender = it,
                             resources = context.resources,
-                            benId = patient.beneficiaryID!!
                         )
                     }
 
                     cbacPostNew?.let { cbac ->
                         val request = CbacRequest(
+                            visitDetails = VisitDetailsWrapper(
                             visitDetails = CbacVisitDetails(
                                 beneficiaryRegID = patient.beneficiaryRegID!!,
                                 providerServiceMapID = userRepo.getLoggedInUser()!!.serviceMapId,
+                                visitNo = null ,
                                 visitReason = "New Chief Complaint",
                                 visitCategory = "NCD screening",
                                 IdrsOrCbac = "CBAC",
                                 createdBy = user.userName,
                                 vanID = userRepo.getLoggedInUser()!!.vanId,
-                                parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId
+                                parkingPlaceID = userRepo.getLoggedInUser()!!.parkingPlaceId,
+                                subVisitCategory = null,
+                                pregnancyStatus = null,
+                                followUpForFpMethod = null,
+                                sideEffects = null,
+                                otherSideEffects = null,
+                                fileIDs = null,
+                                reportFilePath = null,
+                                otherFollowUpForFpMethod = null,
+                                rCHID = null,
+                                healthFacilityType = null,
+                                healthFacilityLocation = null)
                             ),
                             cbac = cbac,
                             benFlowID = patient.beneficiaryRegID!!,
@@ -298,11 +301,12 @@ class CbacRepo @Inject constructor(
     private suspend fun getAndSaveCbacDataToDb(benFlow: BenFlow): NetworkResult<NetworkResponse> {
 
         return networkResultInterceptor {
-            val cbacRequest = NurseDataRequest(benRegID = 10461128, visitCode = benFlow.visitCode!!)
+            val cbacRequest = NurseDataRequest(benRegID = benFlow.beneficiaryRegID!!, visitCode = benFlow.visitCode!!)
 
             val response = amritApiService.getCbacData(cbacRequest)
             val responseBody = response.body()?.string()
 
+            Timber.tag("API Response CBAC ,${responseBody.toString()}")
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {

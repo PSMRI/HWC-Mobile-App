@@ -196,6 +196,28 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.deleteTemp.visibility = View.GONE
             binding.useTempForFields.visibility = View.GONE
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+             if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+                 btnSubmit?.visibility = View.VISIBLE
+                 binding.plusButtonD.visibility = View.VISIBLE
+                 binding.plusButtonP.visibility = View.VISIBLE
+                 binding.useTempForFields.visibility = View.VISIBLE
+
+             } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+            {
+                 btnSubmit?.visibility = View.VISIBLE
+                binding.plusButtonD.visibility = View.VISIBLE
+                binding.plusButtonP.visibility = View.VISIBLE
+                binding.useTempForFields.visibility = View.VISIBLE
+
+            } else {
+                 btnSubmit?.visibility = View.GONE
+                 binding.plusButtonD.visibility = View.GONE
+                 binding.plusButtonP.visibility = View.GONE
+                 binding.useTempForFields.visibility = View.GONE
+
+             }
+
+
             lifecycleScope.launch {
                 convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
@@ -232,6 +254,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
+            Timber.d("******************* prescriptionCheck************** ","AA")
+
+
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             if (benVisitInfo.benVisitNo != null) {
                 viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
@@ -279,12 +304,21 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-                findNavController().navigate(
-                    R.id.action_caseRecordCustom_self, Bundle().apply {
-                        putBoolean("viewRecord", true)
-                        putSerializable("benVisitInfo", it)
-                    }
-                )
+                if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+
+                    navigatetoCaseCustomRecordSelf(false,it)
+
+                } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+                {
+                    navigatetoCaseCustomRecordSelf(false,it)
+
+
+                } else {
+                    navigatetoCaseCustomRecordSelf(true,it)
+
+                }
+
+
 
             })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
@@ -552,7 +586,18 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             populateVitalsFields()
         }
     }
-        fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
+
+    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+
+        findNavController().navigate(
+            R.id.action_caseRecordCustom_self, Bundle().apply {
+                putBoolean("viewRecord", isVisible)
+                putSerializable("benVisitInfo", it)
+            }
+        )
+    }
+
+    fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
             itemListP.clear()
             for (prescriptionCaseRecord in prescriptionCaseRecords) {
                 val prescriptionValue = prescriptionCaseRecord?.let {
