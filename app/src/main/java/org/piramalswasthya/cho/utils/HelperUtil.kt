@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
+import android.view.View
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 object HelperUtil {
@@ -68,4 +70,21 @@ object HelperUtil {
         }
         return null
     }
+
+    fun View.setCustomOnClickListener(interval: Long = 1000L, onSafeClick: (View) -> Unit) {
+        var lastClickTime = 0L
+        setOnClickListener { v ->
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime >= interval) {
+                lastClickTime = currentTime
+                onSafeClick(v)
+            }
+        }
+    }
+
+    fun getEddDateFromLmpDate(lmpDate: Long): Long =
+        Calendar.getInstance().apply {
+            timeInMillis = lmpDate
+            add(Calendar.WEEK_OF_YEAR, 42)
+        }.timeInMillis
 }
