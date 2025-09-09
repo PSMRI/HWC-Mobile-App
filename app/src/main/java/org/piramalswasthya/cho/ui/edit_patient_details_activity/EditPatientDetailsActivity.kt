@@ -81,14 +81,36 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
 //                binding.bottomNavigation.visibility = View.GONE
 //            }
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            val extra = intent?.getSerializableExtra("benVisitInfo")
+            if (extra is PatientDisplayWithVisitInfo) {
+                 if( extra.nurseFlag == 9 && extra.doctorFlag == 1 && preferenceDao.isDoctorSelected() ){
+                     navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+                     navHostFragment.navController
+                         .navigate(
+                             R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
+                                 putBoolean("viewRecord", false)
+                                 putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
+                             }
+                         )
+                } else {
+                     navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+                     navHostFragment.navController
+                         .navigate(
+                             R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
+                                 putBoolean("viewRecord", true)
+                                 putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
+                             }
+                         )
+                 }
+            }
+          /*  navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController
                 .navigate(
                     R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
-//                        putBoolean("viewRecord", true)
+                        putBoolean("viewRecord", true)
                         putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
                     }
-                )
+                )*/
         }
         else if(preferenceDao.isLabSelected()){
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
@@ -141,21 +163,25 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
                 R.id.pwAncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.pncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.immunizationFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.immunization)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.eligibleCoupleTrackingFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.eligible_couple_tracking)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

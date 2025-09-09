@@ -508,9 +508,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onResume(){
         Log.v("tag on", "onResume")
         super.onResume()
-//        I have commented below line because getting issue application switching time
-//        setSubCategoryDropdown()
-//        setReasonForVisitDropdown(viewModel.selectedSubCat)
+        
+        deliveryDate = null
+        binding.deliveryDate.setText("")
+        setSubCategoryDropdown()
+        setReasonForVisitDropdown(viewModel.selectedSubCat)
     }
 
     override fun onPause(){
@@ -532,12 +534,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         Log.v("tag on", "on view created")
+        deliveryDate = null
+
         setVisibility()
 //        viewModel.selectedSubCat = "";
 //        viewModel.selectedReasonForVisit = ""
 //        binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //        binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
-
         binding.btnCancel.setOnClickListener {
             onCancelCall()
         }
@@ -641,9 +644,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
                 viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
-                    if(it == null && deliveryDate == null){
+                    if(deliveryDate == null){
                         binding.deliveryDateText.visibility = View.VISIBLE
+                        binding.deliveryDate.visibility = View.VISIBLE
+                    } else {
+                        binding.deliveryDateText.visibility = View.GONE
+                        binding.deliveryDate.visibility = View.GONE
                     }
+
                 }
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.fpAndCs){
@@ -1348,7 +1356,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
                     val visitNumber = (it ?: 0) + 1
                     viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){it1->
-                        if(it1 == null && deliveryDate == null){
+                        if(deliveryDate == null){
                             Toast.makeText(
                                 requireContext(),
                                 "Select Delivery Date",

@@ -16,6 +16,7 @@ import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
 import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
+import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
@@ -342,4 +343,8 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideBatchDao(database: InAppDb): BatchDao = database.batchDao
+
+    @Singleton
+    @Provides
+    fun provideCbacDao(database: InAppDb): CbacDao = database.cbacDao
 }

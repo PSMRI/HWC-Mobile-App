@@ -2,16 +2,20 @@ package org.piramalswasthya.cho.ui.commons.cbac
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.RadioGroup
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -25,6 +29,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class CbacFragment : Fragment() , NavigationAdapter  {
@@ -300,15 +305,47 @@ class CbacFragment : Fragment() , NavigationAdapter  {
         }
     }
 
+    fun Long.isOneYearCompleted(): Boolean {
+        val oneYearAfter = this + TimeUnit.DAYS.toMillis(365)
+        return System.currentTimeMillis() >= oneYearAfter
+    }
+
     private fun setUpView() {
-        binding.btnSave.visibility = View.GONE
-        viewModel.filledCbac.observe(viewLifecycleOwner) { cbac ->
-            binding.etDate.setText(getDateFromLong(cbac.fillDate))
-            setupRaView(cbac)
-            setupEdView(cbac)
-            setupRfCopdView(cbac)
-            setupPhq2View(cbac)
+
+        if (viewModel.lastFillDate.isOneYearCompleted()) {
+            binding.btnSave.visibility = View.VISIBLE
+            setupDatePicker(
+                binding.etDate,
+                viewLifecycleOwner,
+                viewModel.minDate,
+                requireContext()
+            )
+            binding.btnSave.setOnClickListener {
+                viewModel.setFillDate(getLongFromDate(binding.etDate.text.toString()))
+                viewModel.submitForm()
+            }
+            setupRaFill()
+            setupEdFill()
+            setupRfCopdFill()
+            setupPhq2Fill()
+            viewModel.filledCbac.observe(viewLifecycleOwner) { cbac ->
+                binding.etDate.setText(getDateFromLong(cbac.fillDate))
+                setupRaViewForOneYear(cbac)
+                setupRfCopdViewforOneYear(cbac)
+                setupEdView(cbac)
+                setupPhq2ViewforOneyear(cbac)
+            }
+        } else {
+            binding.btnSave.visibility = View.GONE
+            viewModel.filledCbac.observe(viewLifecycleOwner) { cbac ->
+                binding.etDate.setText(getDateFromLong(cbac.fillDate))
+                setupRaView(cbac)
+                setupEdView(cbac)
+                setupRfCopdView(cbac)
+                setupPhq2View(cbac)
+            }
         }
+
 
     }
 
@@ -328,33 +365,53 @@ class CbacFragment : Fragment() , NavigationAdapter  {
         return date?.time ?: 0L
     }
 
+    private fun setupDatePicker(
+        editText: EditText,
+        lifecycleOwner: LifecycleOwner,
+        minDateLiveData: LiveData<Long>?,
+        context: Context
+    ) {
+        editText.setText(getDateFromLong(System.currentTimeMillis()))
+
+        editText.setOnClickListener {
+            val today = Calendar.getInstance()
+            val thisYear = today.get(Calendar.YEAR)
+            val thisMonth = today.get(Calendar.MONTH)
+            val thisDay = today.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                context,
+                { _, year, month, day ->
+                    val selectedDate = String.format("%02d-%02d-%d", day, month + 1, year)
+                    editText.setText(selectedDate)
+                },
+                thisYear,
+                thisMonth,
+                thisDay
+            )
+
+            datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+
+            minDateLiveData?.observe(lifecycleOwner) { minDate ->
+                datePickerDialog.datePicker.minDate = minDate
+            }
+
+            datePickerDialog.show()
+        }
+    }
+
     private fun setUpFill() {
         binding.btnSave.setOnClickListener {
             viewModel.setFillDate(getLongFromDate(binding.etDate.text.toString()))
             viewModel.submitForm()
         }
-        binding.etDate.setText(getDateFromLong(System.currentTimeMillis()))
-        val today = Calendar.getInstance()
-        val thisYear = today.get(Calendar.YEAR)
-        val thisMonth = today.get(Calendar.MONTH)
-        val thisDay = today.get(Calendar.DAY_OF_MONTH)
-        binding.etDate.setOnClickListener {
+        setupDatePicker(
+            binding.etDate,
+            viewLifecycleOwner,
+            viewModel.minDate,
+            requireContext()
+        )
 
-            val datePickerDialog = DatePickerDialog(
-                it.context, { _, year, month, day ->
-                    binding.etDate.setText(
-                        "${if (day > 9) day else "0$day"}-${if (month > 8) month + 1 else "0${month + 1}"}-$year"
-                    )
-                }, thisYear, thisMonth, thisDay
-            )
-
-            datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
-            viewModel.minDate.observe(viewLifecycleOwner) {
-                datePickerDialog.datePicker.minDate = it
-
-            }
-            datePickerDialog.show()
-        }
         setupRaFill()
         setupEdFill()
         setupRfCopdFill()
@@ -412,9 +469,53 @@ class CbacFragment : Fragment() , NavigationAdapter  {
             viewModel.setFh(i)
         }
     }
+   private fun setupRaViewForOneYear(cbac: CbacCache) {
+       val ageOptions = resources.getStringArray(R.array.cbac_age)
+       val smokeOptions = resources.getStringArray(R.array.cbac_smoke)
+       val alcoholOptions = resources.getStringArray(R.array.cbac_alcohol)
+       val paOptions = resources.getStringArray(R.array.cbac_pa)
+       val fhOptions = resources.getStringArray(R.array.cbac_fh)
+
+       binding.actvSmokeDropdown.setAdapter(
+           ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, smokeOptions)
+       )
+       binding.actvAlcoholDropdown.setAdapter(
+           ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, alcoholOptions)
+       )
+       binding.actvPaDropdown.setAdapter(
+           ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, paOptions)
+       )
+       binding.actvFhDropdown.setAdapter(
+           ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, fhOptions)
+       )
+
+       binding.actvSmokeDropdown.setText(smokeOptions[cbac.cbac_smoke_posi - 1], false)
+       binding.actvAlcoholDropdown.setText(alcoholOptions[cbac.cbac_alcohol_posi - 1], false)
+       binding.actvPaDropdown.setText(paOptions[cbac.cbac_pa_posi - 1], false)
+       binding.actvFhDropdown.setText(fhOptions[cbac.cbac_familyhistory_posi - 1], false)
+
+       viewModel.gender.observe(viewLifecycleOwner) {
+           if (it == Gender.MALE) {
+               val maleWaistOptions = resources.getStringArray(R.array.cbac_waist_mes_male)
+               binding.actvWaistDropdown.setAdapter(
+                   ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, maleWaistOptions)
+               )
+               binding.actvWaistDropdown.setText(maleWaistOptions[cbac.cbac_waist_posi - 1], false)
+               binding.cbacLlEdWomen.visibility = View.GONE
+           } else {
+               val femaleWaistOptions = resources.getStringArray(R.array.cbac_waist_mes_female)
+               binding.actvWaistDropdown.setAdapter(
+                   ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, femaleWaistOptions)
+               )
+               binding.actvWaistDropdown.setText(femaleWaistOptions[cbac.cbac_waist_posi - 1], false)
+           }
+       }
+       binding.actvAgeDropdown.setText(resources.getStringArray(R.array.cbac_age)[cbac.cbac_age_posi - 1])
+   }
 
     private fun setupRaView(cbac: CbacCache) {
 //        binding.tilAgeDropdown.isEnabled = false
+
         binding.actvAgeDropdown.setText(resources.getStringArray(R.array.cbac_age)[cbac.cbac_age_posi - 1])
         binding.actvSmokeDropdown.setText(resources.getStringArray(R.array.cbac_smoke)[cbac.cbac_smoke_posi - 1])
         binding.actvAlcoholDropdown.setText(resources.getStringArray(R.array.cbac_alcohol)[cbac.cbac_alcohol_posi - 1])
@@ -769,8 +870,15 @@ class CbacFragment : Fragment() , NavigationAdapter  {
                 }
             )
         }
-        rg.children.forEach {
-            it.isClickable = isInFillMode
+
+        if (viewModel.lastFillDate.isOneYearCompleted()) {
+            rg.children.forEach {
+                it.isClickable = true
+            }
+        } else {
+            rg.children.forEach {
+                it.isClickable = isInFillMode
+            }
         }
     }
 
@@ -855,6 +963,22 @@ class CbacFragment : Fragment() , NavigationAdapter  {
             viewModel.setOccExposure(i)
         }
     }
+    private fun setupRfCopdViewforOneYear(cbac: CbacCache) {
+        val fuelOptions = resources.getStringArray(R.array.cbac_type_Cooking_fuel)
+        binding.actvFuelDropdown.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, fuelOptions)
+        )
+        cbac.cbac_fuel_used_posi.takeIf { it > 0 }?.let {
+            binding.actvFuelDropdown.setText(fuelOptions[it - 1], false)
+        }
+        val exposureOptions = resources.getStringArray(R.array.cbac_type_occupational_exposure)
+        binding.actvExposureDropdown.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, exposureOptions)
+        )
+        cbac.cbac_occupational_exposure_posi.takeIf { it > 0 }?.let {
+            binding.actvExposureDropdown.setText(exposureOptions[it - 1], false)
+        }
+    }
 
     private fun setupRfCopdView(cbac: CbacCache) {
         cbac.cbac_fuel_used_posi.takeIf { it > 0 }?.let {
@@ -891,6 +1015,29 @@ class CbacFragment : Fragment() , NavigationAdapter  {
         }
     }
 
+    private fun setupPhq2ViewforOneyear(cbac: CbacCache) {
+        val liOptions = resources.getStringArray(R.array.cbac_li)
+        binding.actvLiDropdown.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, liOptions)
+        )
+        cbac.cbac_little_interest_posi.takeIf { it > 0 }?.let {
+            binding.actvLiDropdown.setText(liOptions[it - 1], false)
+        }
+
+        val fdOptions = resources.getStringArray(R.array.cbac_fd)
+        binding.actvFdDropdown.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, fdOptions)
+        )
+        cbac.cbac_feeling_down_posi.takeIf { it > 0 }?.let {
+            binding.actvFdDropdown.setText(fdOptions[it - 1], false)
+        }
+
+        binding.ddLiScore.text = cbac.cbac_little_interest_score.toString()
+        binding.ddFdScore.text = cbac.cbac_feeling_down_score.toString()
+        binding.cbacPhq2TotalScore.text = getString(
+            R.string.total_score_wihout_semi_colon
+        ) + ": " + (cbac.cbac_little_interest_score + cbac.cbac_feeling_down_score)
+    }
 
     private fun setupPhq2View(cbac: CbacCache) {
         cbac.cbac_little_interest_posi.takeIf { it > 0 }?.let {
