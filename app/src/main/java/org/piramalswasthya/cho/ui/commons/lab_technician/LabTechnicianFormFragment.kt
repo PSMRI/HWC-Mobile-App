@@ -556,16 +556,14 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
-                map.forEach { selectionOption ->
-                    if (selectionOption != null) {
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                selectedOptionText = selectionOption
-                                expanded = false
-                            },
-                        )
-                    }
+                map.filterNotNull().distinct().forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            selectedOptionText = selectionOption
+                            expanded = false
+                        },
+                    )
                 }
             }
         }

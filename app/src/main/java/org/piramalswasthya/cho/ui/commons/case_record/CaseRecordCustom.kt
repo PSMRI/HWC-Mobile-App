@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -259,17 +260,21 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
                         val tableRowVal =
                             layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
-                        val componentName = component.componentName
+                        val componentName = component.remarks
                         val resultValue = component.testResultValue
                         val resultUnit = component.testResultUnit
-                        nameVal = "$procedureName- $componentName"
+                        nameVal = "$procedureName"
                         if (resultUnit != null) {
-                            resultVal = "${resultValue} ${resultUnit}"
+                            resultVal = "$resultValue $resultUnit"
                         } else {
-                            resultVal = "${resultValue}"
+                            resultVal = "$resultValue - <b>$componentName</b>"
                         }
+
+                        tableRowVal.findViewById<TextView>(R.id.numberTextView)
+                            .text = HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
+
+//                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
                         tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
-                        tableRowVal.findViewById<TextView>(R.id.numberTextView).setText(resultVal)
                         tableLayout.addView(tableRowVal)
                     }
                 }
@@ -850,21 +855,22 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     ) {
         viewModel.previousTests.observe(viewLifecycleOwner) {
             val selectedItems =
+//                BooleanArray(procedureDropdown.size) { false }
                 BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
             investigationBD = viewModel.previousTests.value
             val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
-            if (resp != null) {
-                val previousTestList = resp.toMutableList()
-                for (index in selectedItems.indices) {
-                    if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
-                        selectedItems[index] = true
-                    }
-                }
-            }
+//            if (resp != null) {
+//                val previousTestList = resp.toMutableList()
+//                for (index in selectedItems.indices) {
+//                    if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
+//                        selectedItems[index] = true
+//                    }
+//                }
+//            }
 
-            val disabledItems = labReportProcedureTypes.map { type ->
-                proceduresMasterData.indexOfFirst { it.procedureName == type }
-            }.toSet().toTypedArray()
+//            val disabledItems = labReportProcedureTypes.map { type ->
+//                proceduresMasterData.indexOfFirst { it.procedureName == type }
+//            }.toSet().toTypedArray()
 
             val builder = AlertDialog.Builder(requireContext())
                 .setTitle("Select Test Name")
@@ -874,15 +880,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     selectedItems
                 ) { _, which, isChecked ->
                     if (isChecked) {
-                        if (!disabledItems.contains(which)) {
+//                        if (!disabledItems.contains(which)) {
                             selectedTestName.add(which)
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Test with result cannot be selected",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+//                        } else {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Test with result cannot be selected",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
                     } else {
                         selectedTestName.remove(which)
                     }
@@ -921,10 +927,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val previousTestList = resp.toMutableList()
                     for (index in selectedItems.indices) {
                         if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
-                            alertDialog.listView.get(index).isEnabled = false
-                            alertDialog.listView.get(index).setOnClickListener() {
-                                alertDialog.listView.get(index).isEnabled = false
-                            }
+                            alertDialog.listView.get(index).isEnabled = true
+//                            alertDialog.listView.get(index).setOnClickListener() {
+//                                alertDialog.listView.get(index).isEnabled = false
+//                            }
                         }
                     }
                 }
