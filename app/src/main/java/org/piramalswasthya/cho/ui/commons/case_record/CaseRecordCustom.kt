@@ -264,10 +264,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         val resultValue = component.testResultValue
                         val resultUnit = component.testResultUnit
                         nameVal = "$procedureName"
-                        if (resultUnit != null) {
-                            resultVal = "$resultValue $resultUnit"
+                        resultVal = if (resultUnit != null) {
+                            "$resultValue $resultUnit"
                         } else {
-                            resultVal = "$resultValue - <b>$componentName</b>"
+                            "$resultValue - <b>$componentName</b>"
                         }
 
                         tableRowVal.findViewById<TextView>(R.id.numberTextView)
