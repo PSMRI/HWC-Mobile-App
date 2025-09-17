@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.commons.case_record
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -70,6 +71,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.Constants.pattern
+import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -188,7 +190,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (viewRecordFragment == true) {
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+            val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
             btnSubmit?.visibility = View.GONE
+            btnCancel?.text = getString(R.string.close)
             binding.patientList.visibility = View.GONE
             binding.plusButtonD.visibility = View.GONE
             binding.plusButtonP.visibility = View.GONE
@@ -198,7 +202,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.useTempForFields.visibility = View.GONE
 
             binding.tvAddTemplateTitle.visibility = View.GONE
-
+            binding.externalI.visibility = View.GONE
+            binding.testName.visibility = View.GONE
+            binding.referReason.visibility = View.GONE
+            binding.referDropdown.visibility = View.GONE
+            binding.textReferHeading.visibility = View.GONE
 
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
             lifecycleScope.launch {
@@ -227,10 +235,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (benVisitInfo.referTo != null) {
             binding.referToLabel.visibility = View.VISIBLE
             binding.referTo.setText(benVisitInfo.referTo)
+            disableTextInputLayout(binding.referToLabel)
         }
         if (benVisitInfo.referralReason != null) {
             binding.referalReasonLabel.visibility = View.VISIBLE
             binding.referalReason.setText(benVisitInfo.referralReason!!.split(pattern)[0])
+            disableTextInputLayout(binding.referalReasonLabel)
         }
 
         if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
@@ -271,7 +281,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         resultVal = if (resultUnit != null) {
                             "$resultValue $resultUnit"
                         } else {
-                            "$resultValue - <b>$componentName</b>"
+                            "$resultValue <br> <b>Remarks: </b> $componentName"
                         }
 
                         tableRowVal.findViewById<TextView>(R.id.numberTextView)
@@ -484,6 +494,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
         dAdapter = DiagnosisAdapter(
+            requireContext(),
             viewRecordFragment,
             itemListD,
             object : RecyclerViewItemChangeListenerD {

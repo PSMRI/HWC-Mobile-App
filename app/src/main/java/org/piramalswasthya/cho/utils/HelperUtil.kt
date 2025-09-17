@@ -77,10 +77,7 @@ object HelperUtil {
 
     fun disableDropdownField(
         autoCompleteTextView: AutoCompleteTextView,
-        textInputLayout: TextInputLayout,
-        @ColorRes backgroundColorRes: Int = R.color.disable_field_color,
-        @ColorRes hintColorRes: Int = R.color.disable_field_hint_color
-
+        textInputLayout: TextInputLayout
     ) {
         autoCompleteTextView.apply {
             isFocusable = false
@@ -92,14 +89,23 @@ object HelperUtil {
         }
 
         textInputLayout.apply {
-            boxBackgroundColor =
-                ContextCompat.getColor(context, backgroundColorRes)
-            defaultHintTextColor = ColorStateList.valueOf(
-                ContextCompat.getColor(context, hintColorRes)
-            )
+            disableTextInputLayout(textInputLayout)
             isEndIconVisible = false
             setEndIconOnClickListener(null)
             setOnClickListener { }
+        }
+    }
+
+    fun disableTextInputLayout(
+        textInputLayout: TextInputLayout,
+        @ColorRes backgroundColorRes: Int = R.color.disable_field_color,
+        @ColorRes hintColorRes: Int = R.color.disable_field_hint_color
+    ) {
+        textInputLayout.apply {
+            boxBackgroundColor = ContextCompat.getColor(context, backgroundColorRes)
+            defaultHintTextColor = ColorStateList.valueOf(
+                ContextCompat.getColor(context, hintColorRes)
+            )
         }
     }
 
