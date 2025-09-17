@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
+import android.widget.AutoCompleteTextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -68,4 +72,29 @@ object HelperUtil {
         }
         return null
     }
+
+    fun disableDropdownField(
+        autoCompleteTextView: AutoCompleteTextView,
+        textInputLayout: TextInputLayout,
+        @ColorRes backgroundColorRes: Int = android.R.color.darker_gray
+    ) {
+        autoCompleteTextView.apply {
+            isFocusable = false
+            isClickable = false
+            isCursorVisible = false
+            keyListener = null
+            setOnTouchListener { _, _ -> true }
+
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            setBackgroundColor(ContextCompat.getColor(context, backgroundColorRes))
+        }
+
+        textInputLayout.apply {
+            isEndIconVisible = false
+            setEndIconOnClickListener(null)
+            setOnClickListener { }
+        }
+    }
+
+
 }

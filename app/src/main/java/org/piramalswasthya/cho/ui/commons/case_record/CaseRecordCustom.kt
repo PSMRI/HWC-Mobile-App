@@ -504,6 +504,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         pAdapter = PrescriptionAdapter(
 //            tempDBVal,
 //            tempList,
+            viewRecordFragment,
             itemListP,
             formMListVal,
             frequencyListVal,

@@ -9,17 +9,21 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.PrescriptionValues
 import org.piramalswasthya.cho.ui.commons.case_record.FormItemAdapter
 import org.piramalswasthya.cho.ui.setSpinnerItems
+import org.piramalswasthya.cho.utils.HelperUtil
 
 class PrescriptionAdapter(
+    private val isVisitDetail: Boolean? = null,
     private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
@@ -47,6 +51,12 @@ class PrescriptionAdapter(
         val addButton : TextView = itemView.findViewById(R.id.addButton)
         val subtractButton : TextView = itemView.findViewById(R.id.subtractButton)
         val textPrescriptionHeading : TextView = itemView.findViewById(R.id.textPrescriptionHeading)
+
+//        Dropdown Fields
+        val formOptionsDropDown: TextInputLayout = itemView.findViewById(R.id.dosagesDropDown)
+        val frequencyOptionsDropDown: TextInputLayout = itemView.findViewById(R.id.frequencyDropDown)
+        val unitOptionDropDown: TextInputLayout = itemView.findViewById(R.id.unitDropDown)
+        val instructionOptionDropDown: TextInputLayout = itemView.findViewById(R.id.instruction)
 
         init {
             // Set up click listener for the "Cancel" button
@@ -148,6 +158,22 @@ class PrescriptionAdapter(
             }
             // Enable the "Add" button
             holder.addButton.isEnabled = true
+        }
+
+        if (isVisitDetail == true){
+            holder.subtractButton.isEnabled = false
+            holder.addButton.isEnabled = false
+
+            HelperUtil.disableDropdownField(holder.formOptions, holder.formOptionsDropDown)
+            HelperUtil.disableDropdownField(holder.frequencyOptions, holder.frequencyOptionsDropDown)
+            HelperUtil.disableDropdownField(holder.unitOption, holder.unitOptionDropDown)
+            HelperUtil.disableDropdownField(holder.instructionOption, holder.instructionOptionDropDown)
+
+            holder.durationInput.isFocusable = false
+            holder.durationInput.isClickable = false
+
+            holder.resetButton.isVisible = false
+            holder.cancelButton.isVisible = false
         }
 
         // Bind data and set listeners for user interactions
