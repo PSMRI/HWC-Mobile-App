@@ -69,7 +69,6 @@ class PrescriptionAdapter(
 
         fun updateResetButtonState() {
             val isItemFilled = formOptions.text.isNotEmpty() ||
-                    formOptions.text.isNotEmpty() ||
                     frequencyOptions.text.isNotEmpty() ||
                     durationInput.text!!.isNotEmpty() ||
                     instructionOption.text!!.isNotEmpty() ||
@@ -101,6 +100,7 @@ class PrescriptionAdapter(
                 itemData.duration = ""
                 itemData.instruction = ""
                 itemData.unit = ""
+                itemData.id = null
                 notifyItemChanged(position)
                 itemChangeListener.onItemChanged()
             }
@@ -155,7 +155,7 @@ class PrescriptionAdapter(
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
         holder.instructionOption.setText(itemData.instruction)
-        holder.unitOption.setText(unitDropDown[0])
+        holder.unitOption.setText(itemData.unit)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
 
