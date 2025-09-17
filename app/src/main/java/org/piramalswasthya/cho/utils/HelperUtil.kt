@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
@@ -77,7 +78,9 @@ object HelperUtil {
     fun disableDropdownField(
         autoCompleteTextView: AutoCompleteTextView,
         textInputLayout: TextInputLayout,
-        @ColorRes backgroundColorRes: Int = android.R.color.darker_gray
+        @ColorRes backgroundColorRes: Int = R.color.disable_field_color,
+        @ColorRes hintColorRes: Int = R.color.disable_field_hint_color
+
     ) {
         autoCompleteTextView.apply {
             isFocusable = false
@@ -91,6 +94,9 @@ object HelperUtil {
         textInputLayout.apply {
             boxBackgroundColor =
                 ContextCompat.getColor(context, backgroundColorRes)
+            defaultHintTextColor = ColorStateList.valueOf(
+                ContextCompat.getColor(context, hintColorRes)
+            )
             isEndIconVisible = false
             setEndIconOnClickListener(null)
             setOnClickListener { }
