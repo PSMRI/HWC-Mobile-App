@@ -196,6 +196,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.saveTemplate.visibility = View.GONE
             binding.deleteTemp.visibility = View.GONE
             binding.useTempForFields.visibility = View.GONE
+
+            binding.tvAddTemplateTitle.visibility = View.GONE
+
+
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
             lifecycleScope.launch {
                 convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
@@ -480,6 +484,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
         dAdapter = DiagnosisAdapter(
+            viewRecordFragment,
             itemListD,
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {

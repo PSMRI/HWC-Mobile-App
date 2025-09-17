@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import org.piramalswasthya.cho.utils.setBoxColor
 import androidx.compose.ui.res.booleanResource
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,6 +17,7 @@ import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.utils.setBoxColor
 
 class DiagnosisAdapter(
+    private val isVisitDetail: Boolean? = null,
     private val itemList: MutableList<DiagnosisValue>,
     private val itemChangeListener: RecyclerViewItemChangeListenerD
 ) : RecyclerView.Adapter<DiagnosisAdapter.ViewHolder>(){
@@ -97,6 +99,13 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         }
         holder.updateResetButtonState()
         itemChangeListener.onItemChanged()
+    }
+
+
+    if (isVisitDetail == true){
+        holder.resetButton.isVisible = false
+        holder.cancelButton.isVisible = false
+        holder.diagnosisInput.isEnabled = false
     }
 
     // Update the visibility of the "Cancel" button for all items
