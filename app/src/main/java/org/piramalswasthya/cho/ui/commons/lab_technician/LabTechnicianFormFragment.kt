@@ -446,7 +446,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                                         ) {
                                             Column {
                                                 Row {
-                                                    DropDown(it.compOpt.map { c -> c.name })
+                                                    DropDown(it,it.compOpt.map { c -> c.name })
                                                 }
                                             }
 
@@ -535,7 +535,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun DropDown(map: List<String?>) {
+    fun DropDown(dto: ComponentDetailDTO,map: List<String?>) {
         var expanded by remember { mutableStateOf(false) }
         var selectedOptionText by remember { mutableStateOf("") }
 
@@ -561,6 +561,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                         text = { Text(selectionOption) },
                         onClick = {
                             selectedOptionText = selectionOption
+                            dto.testResultValue = selectedOptionText
                             expanded = false
                         },
                     )
