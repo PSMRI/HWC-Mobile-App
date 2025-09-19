@@ -584,7 +584,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         form = "",  // Set the appropriate value for form (not available in PrescriptionCaseRecord)
                         frequency = prescriptionCaseRecord.frequency ?: "",
                         duration = prescriptionCaseRecord.duration ?: "",
-                        instruction = prescriptionCaseRecord.instruciton ?: "",
+                        instructions = prescriptionCaseRecord.instructions ?: "",
                         unit = prescriptionCaseRecord.unit ?: ""
                     )
                 }
@@ -628,7 +628,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         form = it1,
                         frequency = templateDB.frequency ?: "",
                         duration = templateDB.duration ?: "",
-                        instruction = templateDB.instruction ?: "",
+                        instructions = templateDB.instructions ?: "",
                         unit = templateDB.unit ?: "",
                         title = "Medicine - ${itemListP.size + 1}"
                     )
@@ -1111,7 +1111,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
-            var instruction = prescriptionData.instruction.nullIfEmpty()
+            var instructions = prescriptionData.instructions.nullIfEmpty()
 
 
             if (formVal != null) {
@@ -1125,7 +1125,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     itemId = formVal,
                     frequency = mappedFrequency,
                     duration = durVal,
-                    instruciton = instruction,
+                    instructions = instructions,
                     unit = unitVal,
                     patientID = patId,
                     benVisitNo = benVisitNo
@@ -1233,7 +1233,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
-            var instruction = prescriptionData.instruction.nullIfEmpty()
+            var instructions = prescriptionData.instructions.nullIfEmpty()
             if (formVal != null) {
                 val frequencyDescription = frequencyMap[freqVal]
                 var mappedFrequency: String? = null
@@ -1245,7 +1245,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     itemId = formVal,
                     frequency = mappedFrequency,
                     duration = durVal,
-                    instruciton = instruction,
+                    instructions = instructions,
                     unit = unitVal ?: "Day(s)",
                     patientID = patId,
                     benVisitNo = benVisitNo
@@ -1308,7 +1308,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         var freqVal = prescriptionTemp.frequency.nullIfEmpty()
                         var unitVal = prescriptionTemp.unit.nullIfEmpty()
                         var durVal = prescriptionTemp.duration.nullIfEmpty()
-                        var instruction = prescriptionTemp.instruction.nullIfEmpty()
+                        var instructions = prescriptionTemp.instructions.nullIfEmpty()
 
                         if (formVal != null) {
                             var pres = viewModel.userIDVAl?.let {
@@ -1322,7 +1322,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                     frequency = freqVal,
                                     duration = durVal,
                                     unit = unitVal ?: "Day(s)",
-                                    instruction = instruction,
+                                    instructions = instructions,
                                     deleteStatus = 0
                                 )
                             }

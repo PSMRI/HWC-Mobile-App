@@ -108,7 +108,7 @@ class PrescriptionAdapter(
                 itemData.form = ""
                 itemData.frequency = ""
                 itemData.duration = ""
-                itemData.instruction = ""
+                itemData.instructions = ""
                 itemData.unit = ""
                 itemData.id = null
                 notifyItemChanged(position)
@@ -180,7 +180,7 @@ class PrescriptionAdapter(
         holder.formOptions.setText(itemData.form)
         holder.frequencyOptions.setText(itemData.frequency)
         holder.durationInput.setText(itemData.duration)
-        holder.instructionOption.setText(itemData.instruction)
+        holder.instructionOption.setText(itemData.instructions)
         holder.unitOption.setText(itemData.unit)
         holder.cancelButton.isEnabled = itemCount > 1
         holder.resetButton.isEnabled = false
@@ -258,7 +258,7 @@ class PrescriptionAdapter(
         })
 
         holder.instructionOption.addTextChangedListener {
-            itemData.instruction = it.toString()
+            itemData.instructions = it.toString()
             holder.updateResetButtonState()
             itemChangeListener.onItemChanged()
         }

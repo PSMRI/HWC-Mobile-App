@@ -9,7 +9,7 @@ data class PrescriptionValuesForTemplate(
     var frequency: String = "",
     var dosage:String = "",
     var duration: String = "",
-    var instruction: String = "",
+    var instructions: String = "",
     var unit: String = ""
 ): Serializable
 

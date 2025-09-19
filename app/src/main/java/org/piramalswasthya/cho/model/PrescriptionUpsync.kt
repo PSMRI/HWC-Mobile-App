@@ -49,7 +49,7 @@ data class PrescriptionUpsync(
 //        "Oral", // hard coded
 //        "${prescription.prescription.duration?.toInt()} ${prescription.prescription.unit}",
 //        prescription.prescription.unit,
-        null,
+        prescription.instructions,
         null,
         null,
         user?.userName,

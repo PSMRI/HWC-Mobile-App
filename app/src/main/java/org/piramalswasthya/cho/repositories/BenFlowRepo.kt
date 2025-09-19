@@ -747,7 +747,7 @@ class BenFlowRepo @Inject constructor(
                     isEDL = it.isEDL,
                     qtyPrescribed = calculateQtyPrescribed(it.duration, it.unit, it.frequency),
                     route = it.routeID.toString(),
-                    instructions = it.instruciton
+                    instructions = it.instructions
                 )
                 Log.d("Pharmacist","Inserting PrescribedDrug: $prescribedDrugs")
                 val prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)

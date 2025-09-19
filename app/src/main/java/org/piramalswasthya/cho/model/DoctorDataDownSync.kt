@@ -51,7 +51,8 @@ data class PrescriptionData(
     val unit: String,
     val qtyPrescribed: Int,
     val createdDate: String,
-    val isEDL: Boolean
+    val isEDL: Boolean,
+    val instructions: String
 )
 
 @JsonClass(generateAdapter = true)

@@ -149,7 +149,7 @@ import timber.log.Timber
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 107, exportSchema = false
+    version = 108, exportSchema = false
 )
 
 
@@ -223,6 +223,12 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_107_108 = object : Migration(107, 108) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Patient ADD COLUMN instructions TEXT")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -234,7 +240,7 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_106_107)
+                        .addMigrations(MIGRATION_106_107, MIGRATION_107_108)
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

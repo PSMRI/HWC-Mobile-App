@@ -846,7 +846,7 @@ class PersonalDetailsFragment : Fragment() {
 //                    )
                     drawTextWithWrapping(
                         canvas,
-                        prescription.instruciton,
+                        prescription.instructions,
                         xPosition + 4 * columnWidth,
                         y,
                         columnWidth,
