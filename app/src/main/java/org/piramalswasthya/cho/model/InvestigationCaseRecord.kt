@@ -35,7 +35,7 @@ data class InvestigationCaseRecord(
     @ColumnInfo(name = "previousTestIds") val previousTestIds: String?,
     @ColumnInfo(name = "newTestIds") val newTestIds: String?,
     @ColumnInfo(name = "externalInvestigations") val externalInvestigations: String?,
-    @ColumnInfo(name = "counsellingProvidedList") val counsellingProvidedList: String?,
+    @ColumnInfo(name = "counsellingProvidedList") val counsellingProvidedList: List<String>?,
     @ColumnInfo(name = "CounsellingTypes") val counsellingTypes: String?,
     @ColumnInfo(name = "institutionId") val institutionId: Int? = null,
     @ColumnInfo(name = "referReson") var referReson: String? = null,

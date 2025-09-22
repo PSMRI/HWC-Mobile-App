@@ -6,6 +6,6 @@ data class CaseRecordMasterDb(
     var testName:String = "",
     var provisionalDiagnosis: List<String> = listOf(),
     var externalInvestigations: String = "",
-    var counsellingProvidedList: String = "",
+    var counsellingProvidedList: List<String> = listOf(),
     var prescriptionValues: PrescriptionValues = PrescriptionValues()
 ):Serializable
