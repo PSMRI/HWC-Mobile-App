@@ -1065,7 +1065,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             id?.toString() ?: ""
         }
 
-        val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
@@ -1077,13 +1077,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             } else {
                 idString.nullIfEmpty()
             }
-
+        val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
 
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
             newTestIds = idString.nullIfEmpty(),
-            externalInvestigation = externalInvestigation,
+            externalInvestigations = externalInvestigations,
+            counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
@@ -1200,7 +1201,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             id?.toString() ?: ""
         }
 
-        val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
@@ -1213,11 +1214,16 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 idString.nullIfEmpty()
             }
 
+
+        val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
+
+
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
             newTestIds = idString.nullIfEmpty(),
-            externalInvestigation = externalInvestigation,
+            externalInvestigations = externalInvestigations,
+            counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,

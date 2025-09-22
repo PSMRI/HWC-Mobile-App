@@ -135,6 +135,9 @@ data class BenFlow(
     @ColumnInfo(name = "processed")
     val processed: String?,
 
+    @ColumnInfo(name = "externalInvestigation")
+    val externalInvestigation: String?,
+
     @ColumnInfo(name = "benArrivedFlag")
     val benArrivedFlag: Boolean?,
 

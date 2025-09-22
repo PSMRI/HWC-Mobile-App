@@ -25,7 +25,7 @@ data class InvestigationUpsync(
 //    "isSpecialist": false,
 ){
     constructor(user: UserDomain?, benFlow: BenFlow?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, procedureList: List<ProceduresMasterData>) : this(
-        investigation?.investigationCaseRecord?.externalInvestigation,
+        investigation?.investigationCaseRecord?.externalInvestigations,
         user?.vanId,
         user?.parkingPlaceId,
         benFlow?.beneficiaryRegID.toString(),
