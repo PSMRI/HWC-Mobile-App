@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class InvestigationUpsync(
     val externalInvestigations: String?,
+    val counsellingProvidedList: String?,
     val vanID: Int?,
     val parkingPlaceID: Int?,
     val beneficiaryRegID: String?,
@@ -26,6 +27,7 @@ data class InvestigationUpsync(
 ){
     constructor(user: UserDomain?, benFlow: BenFlow?, investigation: InvestigationCaseRecordWithHigherHealthCenter?, procedureList: List<ProceduresMasterData>) : this(
         investigation?.investigationCaseRecord?.externalInvestigations,
+        investigation?.investigationCaseRecord?.counsellingProvidedList,
         user?.vanId,
         user?.parkingPlaceId,
         benFlow?.beneficiaryRegID.toString(),
