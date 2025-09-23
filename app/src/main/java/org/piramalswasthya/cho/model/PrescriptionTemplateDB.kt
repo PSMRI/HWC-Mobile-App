@@ -21,7 +21,7 @@ data class PrescriptionTemplateDB(
     @ColumnInfo(name = "frequency") val frequency: String?,
     @ColumnInfo(name = "duration") val duration: String?,
     @ColumnInfo(name = "unit") val unit: String,
-    @ColumnInfo(name = "instruction") val instruction: String?,
+    @ColumnInfo(name = "instructions") val instructions: String?,
     @Json(ignore = true)
     @ColumnInfo(name = "deleteStatus") var deleteStatus: Int? = 0,
 )

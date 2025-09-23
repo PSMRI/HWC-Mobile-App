@@ -34,7 +34,7 @@ data class PrescriptionCaseRecord(
     @ColumnInfo(name = "itemId") val itemId: Int?,
     @ColumnInfo(name = "frequency") val frequency: String?,
     @ColumnInfo(name = "duration") val duration: String?,
-    @ColumnInfo(name = "instruction") val instruciton: String?,
+    @ColumnInfo(name = "instructions") val instructions: String?,
     @ColumnInfo(name = "unit") val unit: String?,
     @ColumnInfo(name = "patientID") val patientID: String,
     @ColumnInfo(name = "benFlowID") var benFlowID: Long? = null,
@@ -45,7 +45,7 @@ data class PrescriptionCaseRecord(
         prescriptionData.drugID,
         prescriptionData.frequency,
         prescriptionData.duration,
-        instruciton = null,
+        prescriptionData.instructions,
         prescriptionData.unit,
         patient.patientID,
         benFlow.benFlowID,
@@ -56,7 +56,7 @@ data class PrescriptionCaseRecord(
 @DatabaseView(
     viewName = "Prescription_With_ItemMaster_And_DrugFormMaster",
     value = "SELECT p.prescriptionCaseRecordId as prescriptionCaseRecordId, p.itemId as itemId, p.frequency as frequency, p.duration as duration, " +
-            "p.instruction as instruction, p.unit as unit, p.patientID as patientID, p.benFlowID as benFlowID, p.benVisitNo as benVisitNo, " +
+            "p.instructions as instructions, p.unit as unit, p.patientID as patientID, p.benFlowID as benFlowID, p.benVisitNo as benVisitNo, " +
             "i.id as id, i.itemName as itemName, i.DropDownForMed as dropdownForMed, i.strength as strength, i.unitOfMeasurement as unitOfMeasurement, " +
             "i.quantityInHand as quantityInHand, i.itemFormId as itemFormID, i.routeID as routeID, i.facilityID as facilityID, i.isEDL as isEDL, " +
             "d.itemFormName as itemFormName " +
@@ -70,7 +70,7 @@ data class PrescriptionWithItemMasterAndDrugFormMaster(
     val itemId: Int,
     val frequency: String?,
     val duration: String?,
-    val instruciton: String?,
+    val instructions: String?,
     val unit: String?,
     val patientID: String,
     var benFlowID: Long?,

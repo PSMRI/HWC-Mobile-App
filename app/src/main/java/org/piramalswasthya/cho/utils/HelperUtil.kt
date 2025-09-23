@@ -1,9 +1,15 @@
 package org.piramalswasthya.cho.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
+import android.widget.AutoCompleteTextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import com.google.android.material.textfield.TextInputLayout
+import org.piramalswasthya.cho.R
 import android.view.View
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
@@ -69,6 +75,40 @@ object HelperUtil {
             return " on ${dateFormat.format(long)}"
         }
         return null
+    }
+
+    fun disableDropdownField(
+        autoCompleteTextView: AutoCompleteTextView,
+        textInputLayout: TextInputLayout
+    ) {
+        autoCompleteTextView.apply {
+            isFocusable = false
+            isClickable = false
+            isCursorVisible = false
+            keyListener = null
+            setOnTouchListener { _, _ -> true }
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+        }
+
+        textInputLayout.apply {
+            disableTextInputLayout(textInputLayout)
+            isEndIconVisible = false
+            setEndIconOnClickListener(null)
+            setOnClickListener { }
+        }
+    }
+
+    fun disableTextInputLayout(
+        textInputLayout: TextInputLayout,
+        @ColorRes backgroundColorRes: Int = R.color.disable_field_color,
+        @ColorRes hintColorRes: Int = R.color.disable_field_hint_color
+    ) {
+        textInputLayout.apply {
+            boxBackgroundColor = ContextCompat.getColor(context, backgroundColorRes)
+            defaultHintTextColor = ColorStateList.valueOf(
+                ContextCompat.getColor(context, hintColorRes)
+            )
+        }
     }
 
     fun View.setCustomOnClickListener(interval: Long = 1000L, onSafeClick: (View) -> Unit) {

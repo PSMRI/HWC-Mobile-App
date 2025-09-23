@@ -23,6 +23,8 @@
 
     <color name="secondaryColor">#ffffff</color>
     <color name="colorAccent">#175adf</color>
+    <color name="disable_field_color">#d9d9d9</color>
+    <color name="disable_field_hint_color">#777777</color>
 
     <color name="defaultInput">#636161</color>
     <color name="icon_color">#FF5722</color>

@@ -81,6 +81,16 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
 //                binding.bottomNavigation.visibility = View.GONE
 //            }
+
+            val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
+            val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
+            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            navHostFragment.navController
+                .navigate(
+                    R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
+                        putBoolean("viewRecord", viewRecord)
+                        putBoolean("isFlowComplete", isFlowComplete)
+
             val extra = intent?.getSerializableExtra("benVisitInfo")
             if (extra is PatientDisplayWithVisitInfo) {
                  if( extra.nurseFlag == 9 && extra.doctorFlag == 1 && preferenceDao.isDoctorSelected() ){
