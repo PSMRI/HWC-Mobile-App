@@ -10,9 +10,11 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.textfield.TextInputLayout
 import org.piramalswasthya.cho.R
+import android.view.View
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 object HelperUtil {
@@ -109,5 +111,20 @@ object HelperUtil {
         }
     }
 
+    fun View.setCustomOnClickListener(interval: Long = 1000L, onSafeClick: (View) -> Unit) {
+        var lastClickTime = 0L
+        setOnClickListener { v ->
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime >= interval) {
+                lastClickTime = currentTime
+                onSafeClick(v)
+            }
+        }
+    }
 
+    fun getEddDateFromLmpDate(lmpDate: Long): Long =
+        Calendar.getInstance().apply {
+            timeInMillis = lmpDate
+            add(Calendar.WEEK_OF_YEAR, 42)
+        }.timeInMillis
 }

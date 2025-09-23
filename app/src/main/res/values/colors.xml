@@ -28,6 +28,7 @@
 
     <color name="defaultInput">#636161</color>
     <color name="icon_color">#FF5722</color>
+    <color name="lighter_gray">#DDDDDD</color>
 
     <color name="background_primary">#112C5F</color>
     <color name="background_secondary">#1461A1</color>

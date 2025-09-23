@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HWC</string>
+    <string name="app_name">AAM</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
@@ -41,6 +41,7 @@
     <string name="last_sync_time">last_sync_time</string>
     <string name="last_patient_sync_time">last_patient_sync_time</string>
     <string name="last_benflow_sync_time">last_benflow_sync_time</string>
+    <string name="last_cbac_sync_time">last_benflow_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
@@ -117,6 +118,7 @@
     <string name="other_info">Other Information</string>
     <string name="info">Info</string>
     <string name="want_care_context">Data saved successfully. Do you want to link Care Context?</string>
+    <string name="cancel_care_context">Do you want to cancel Care Context?</string>
     <string name="abha_care_context">ABHA Care Context Mapping</string>
     <string name="generate_abha_otp">Generate OTP</string>
     <string name="created_date">Created Date</string>
@@ -622,5 +624,6 @@
     <string name="required">Required</string>
     <string name="version">Version 6.0.0</string>
     <string name="str_duration">Duration:</string>
+    <string name="edd_date">EDD Date</string>
 
 </resources>

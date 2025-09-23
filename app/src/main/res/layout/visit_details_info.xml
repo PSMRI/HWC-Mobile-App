@@ -216,6 +216,27 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edd_date_text"
+            style="@style/TextInputLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:hint="@string/edd_date"
+            android:textSize="18sp"
+            android:enabled="false"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edd_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/delivery_date_text"
             style="@style/TextInputLayoutStyle"
             android:layout_width="match_parent"
@@ -223,7 +244,7 @@
             android:layout_margin="@dimen/custom_ui_margin"
             android:hint="Delivery Date"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
+            app:layout_constraintTop_toBottomOf="@+id/edd_date_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/delivery_date"

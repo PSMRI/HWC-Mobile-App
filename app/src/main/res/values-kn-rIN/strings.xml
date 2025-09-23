@@ -459,4 +459,5 @@
     <string name="form_input_error_invalid_rch">Invalid RCH ID !</string>
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
+    <string name="edd_date">EDD Date</string>
 </resources>

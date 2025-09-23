@@ -78,9 +78,6 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -222,6 +219,7 @@ class PersonalDetailsFragment : Fragment() {
                                             resources.getString(R.string.pendingForLabtech),
                                             Toast.LENGTH_SHORT
                                         ).show()
+
                                     }
                                     else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() ){
 //                                        Toast.makeText(
@@ -241,6 +239,7 @@ class PersonalDetailsFragment : Fragment() {
                                         requireActivity().finish()
                                     }
                                     else{
+
                                         var modifiedInfo = benVisitInfo
                                         if(preferenceDao.isNurseSelected()){
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
@@ -256,7 +255,6 @@ class PersonalDetailsFragment : Fragment() {
                                 {
                                         benVisitInfo ->
 
-                                    Log.d("ben click listener", "ben click listener")
                                     checkAndGenerateABHA(benVisitInfo)
                                 },
                                 {
