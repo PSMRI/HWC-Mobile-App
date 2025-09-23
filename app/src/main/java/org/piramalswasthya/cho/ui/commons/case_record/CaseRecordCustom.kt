@@ -3,11 +3,11 @@ package org.piramalswasthya.cho.ui.commons.case_record
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,6 +71,7 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.Constants.pattern
+import org.piramalswasthya.cho.utils.HelperUtil
 import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
@@ -137,6 +138,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var doctorFlag = 2
     private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
+    private var isFlowComplete: Boolean? = null
     var isAddTemplateClicked = false
 
     override fun onCreateView(
@@ -185,7 +187,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val tableLayout = binding.tableLayout
 
         viewRecordFragment = arguments?.getBoolean("viewRecord")
-
+        isFlowComplete = arguments?.getBoolean("isFlowComplete")
 
         if (viewRecordFragment == true) {
             viewModel.getFormMaster()
@@ -193,7 +195,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
             btnSubmit?.visibility = View.GONE
             btnCancel?.text = getString(R.string.close)
-            binding.patientList.visibility = View.GONE
+
+            if (isFlowComplete == true){
+                binding.patientList.visibility = View.VISIBLE
+            }else{
+                binding.patientList.visibility = View.GONE
+            }
+
             binding.plusButtonD.visibility = View.GONE
             binding.plusButtonP.visibility = View.GONE
             binding.tempName.visibility = View.GONE
@@ -222,6 +230,31 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             val selectedRelationTypes = mapProcedureIdsToNames(procedureDropdown,resp)
             val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
             binding.selectF.text = selectedRelationTypesString
+
+            viewModel.previousTests.observe(viewLifecycleOwner) { record ->
+                val counselling = record?.counsellingProvidedList?.firstOrNull()
+                if (counselling.isNullOrEmpty()) {
+                    binding.routeDropDown.visibility = View.GONE
+                } else {
+                    binding.routeDropDown.visibility = View.VISIBLE
+                    binding.routeDropDownVal.setText(counselling)
+                    HelperUtil.disableDropdownField(binding.routeDropDownVal, binding.routeDropDown)
+                    disableTextInputLayout(binding.routeDropDown)
+                }
+                val externalInv = record?.externalInvestigations
+                if (externalInv.isNullOrEmpty()) {
+                    binding.externalI.visibility = View.GONE
+                } else {
+                    binding.externalI.visibility = View.VISIBLE
+                    binding.inputExternalI.setText(externalInv)
+                    binding.inputExternalI.isFocusable = false
+                    binding.inputExternalI.isFocusableInTouchMode = false
+                    binding.inputExternalI.isClickable = false
+                    binding.inputExternalI.isLongClickable = false
+                    disableTextInputLayout(binding.externalI)
+                }
+            }
+
         } else {
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
@@ -302,6 +335,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 findNavController().navigate(
                     R.id.action_caseRecordCustom_self, Bundle().apply {
                         putBoolean("viewRecord", true)
+                        putBoolean("isFlowComplete", false)
                         putSerializable("benVisitInfo", it)
                     }
                 )

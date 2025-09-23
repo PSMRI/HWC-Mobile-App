@@ -235,6 +235,8 @@ class PersonalDetailsFragment : Fragment() {
                                         }
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", modifiedInfo);
+                                        intent.putExtra("viewRecord", true)
+                                        intent.putExtra("isFlowComplete", true)
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
@@ -245,6 +247,8 @@ class PersonalDetailsFragment : Fragment() {
                                         }
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", modifiedInfo);
+                                        intent.putExtra("viewRecord", false)
+                                        intent.putExtra("isFlowComplete", false)
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
