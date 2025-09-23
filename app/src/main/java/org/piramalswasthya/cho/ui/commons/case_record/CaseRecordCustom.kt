@@ -357,27 +357,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-                findNavController().navigate(
-                    R.id.action_caseRecordCustom_self, Bundle().apply {
-                        putBoolean("viewRecord", true)
-                        putBoolean("isFlowComplete", false)
-                        putSerializable("benVisitInfo", it)
-                    }
-                )
+                 if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
 
-//                 if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+                     navigatetoCaseCustomRecordSelf(false,it)
 
-//                     navigatetoCaseCustomRecordSelf(false,it)
-
-//                 } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
-//                 {
-//                     navigatetoCaseCustomRecordSelf(false,it)
+                 } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+                 {
+                     navigatetoCaseCustomRecordSelf(false,it)
 
 
-//                 } else {
-//                     navigatetoCaseCustomRecordSelf(true,it)
+                 } else {
+                     navigatetoCaseCustomRecordSelf(true,it)
 
-//                 }
+                 }
 
             })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
@@ -654,6 +646,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         findNavController().navigate(
             R.id.action_caseRecordCustom_self, Bundle().apply {
                 putBoolean("viewRecord", isVisible)
+                putBoolean("isFlowComplete", false)
                 putSerializable("benVisitInfo", it)
             }
         )
