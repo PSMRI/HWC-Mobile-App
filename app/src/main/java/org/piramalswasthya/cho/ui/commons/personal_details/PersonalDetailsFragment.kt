@@ -584,6 +584,7 @@ class PersonalDetailsFragment : Fragment() {
         val spaceBetweenNameAndPrescription = 30F
         val leftSideX = 50F
         val rightSideX = 400F
+        val extraSpace = 10F
         val middleX = 220F
         val bottomRightX = 400F
         val yPosition = 270F
@@ -604,7 +605,7 @@ class PersonalDetailsFragment : Fragment() {
         subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
         subheading.textSize = 16F
         subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
-        subheading.textAlign = Paint.Align.CENTER
+        subheading.textAlign = Paint.Align.LEFT
 
         heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         heading.textSize = 40F
@@ -614,29 +615,56 @@ class PersonalDetailsFragment : Fragment() {
         val spaceAfterHeading = 20F
         canvas.drawText("Prescription", 396F, 100F + spaceAfterHeading, heading)
 
+        val leftX = 50F // where labels start
+        var currentY = 180F
+        val lineHeight = 25F
 
-        val leftMargin = 100F
-        canvas.drawText("Name: $patientName", leftMargin+65F, 180F, subheading)
-        canvas.drawText("Age: ${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}", leftMargin, 200F, subheading)
-        canvas.drawText("Gender: ${benVisitInfo.genderName}", leftMargin, 220F, subheading)
+// Left side labels and values
+        val leftLabels = listOf("Name:", "Age:", "Gender:", "Mobile:")
+        val leftValues = listOf(
+            patientName,
+            "${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}",
+            benVisitInfo.genderName,
+            benVisitInfo.patient.phoneNo ?: "N/A"
+        )
 
-// Add mobile number and line break
-        val mobileNumber = "Mobile: ${benVisitInfo.patient.phoneNo ?: "N/A"}"
-        canvas.drawText(mobileNumber, 95F, 240F, subheading)
+        val leftLabelWidth = leftLabels.maxOf { subheading.measureText(it) }
+        val leftValueX = leftX + leftLabelWidth + 10F // 10F padding
+
+        for (i in leftLabels.indices) {
+            canvas.drawText(leftLabels[i], leftX, currentY, subheading)
+            canvas.drawText("${leftValues[i]}", leftValueX, currentY, subheading)
+            currentY += lineHeight
+        }
+
+        canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
+        currentY += lineHeight
+
+        subheading.textAlign = Paint.Align.LEFT
+        val rightX = pageWidth - 300F
+        var rightY = 180F
+
+        val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
+        val rightValues = listOf(
+            benVisitInfo.visitDate ?: "N/A",
+            "${benVisitInfo.patient.beneficiaryRegID}",
+            "${benVisitInfo.benVisitNo}"
+        )
+
+        val rightLabelWidth = rightLabels.maxOf { subheading.measureText(it) }
+        val rightValueX = rightX + rightLabelWidth + 10F // 10F padding
+
+        for (i in rightLabels.indices) {
+            canvas.drawText(rightLabels[i], rightX, rightY, subheading)
+            canvas.drawText("${rightValues[i]}", rightValueX, rightY, subheading)
+            rightY += lineHeight
+        }
 
         val spaceAfterLine = 20F
-        canvas.drawLine(50F, 260F, pageWidth - 50F, 260F, subheading)
-        canvas.drawText(" ", 50F, 260F + spaceAfterLine, subheading)
-
-// Draw items on the right side
-        val rightMargin = 200F
-        canvas.drawText("Date:${benVisitInfo.visitDate}", rightSideX + rightMargin, 180F, subheading)
-        canvas.drawText("Beneficiary Reg ID: ${benVisitInfo.patient.beneficiaryRegID}", rightSideX + rightMargin, 200F, subheading)
-        canvas.drawText("Consultation ID: ${benVisitInfo.benVisitNo}", rightSideX + rightMargin, 220F, subheading)
-
 
         // Define fixed column widths
         val columnWidth = 150F
+        y += spaceAfterLine
         y+=30
 
         val chiefComplaintHeader = "Chief Complaints"
@@ -654,7 +682,7 @@ class PersonalDetailsFragment : Fragment() {
         val chiefComplaintColumnWidth = 150F
 
 // Draw table header for Chief Complaints
-        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("S.No.", xPosition+extraSpace, y, subheading)
         canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
         canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
@@ -717,7 +745,7 @@ class PersonalDetailsFragment : Fragment() {
             }
         }
 
-        canvas.drawLine(50F, y, pageWidth - 50F, y, subheading)
+        canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
         y += spaceAfterLine
         y+=30
 
@@ -737,16 +765,16 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsColumnWidth = 200F
 
         // Draw table header for Vitals
-        canvas.drawText("Vitals Name", xPosition, y, subheading)
-        canvas.drawText("Vitals Value", xPosition + vitalsColumnWidth, y, subheading)
+        canvas.drawText("Vitals Name", xPosition+leftSideX, y, subheading)
+        canvas.drawText("Vitals Value", xPosition+leftSideX + vitalsColumnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight
 
         // Function to draw Vitals Name and Value
         fun drawVitals(vitalsName: String, vitalsValue: String) {
-            drawTextWithWrapping(canvas, vitalsName, xPosition, y, vitalsColumnWidth, content)
-            drawTextWithWrapping(canvas, vitalsValue, xPosition + vitalsColumnWidth, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(canvas, vitalsName, xPosition+leftSideX, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(canvas, vitalsValue, xPosition+leftSideX + vitalsColumnWidth, y, vitalsColumnWidth, content)
             y += rowHeight
         }
 
@@ -777,7 +805,7 @@ class PersonalDetailsFragment : Fragment() {
 
 
         // Draw table header
-        canvas.drawText("S.No.", xPosition, y, subheading)
+        canvas.drawText("S.No.", xPosition+extraSpace, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
         canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)

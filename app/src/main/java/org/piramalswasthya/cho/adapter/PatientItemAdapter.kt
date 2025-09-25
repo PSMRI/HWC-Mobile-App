@@ -160,13 +160,13 @@ class PatientItemAdapter(
                 binding.llBenId.visibility = View.GONE
                 //   binding.ivSyncState.visibility = View.GONE
             }
-            /*   Commented as prescription button should not display to user
+            /*   Commented as prescription button should not display to user*/
 
             if(item.doctorFlag == 9){
                    binding.prescriptionDownloadBtn.visibility = View.VISIBLE
                }else{
                    binding.prescriptionDownloadBtn.visibility = View.GONE
-               }*/
+               }
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
