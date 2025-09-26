@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -37,11 +38,13 @@ class ScanAadhaarActivity : AppCompatActivity(){
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION).apply {
             addAction("com.example.broadcast.MY_NOTIFICATION")
         }
+       
 
         // I have commented this because getting crash and add below condition
 //        registerReceiver(br, filter)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
             registerReceiver(br, filter, RECEIVER_NOT_EXPORTED)
         } else {
             registerReceiver(br, filter)
@@ -77,6 +80,7 @@ class ScanAadhaarActivity : AppCompatActivity(){
     ) { result: ScanIntentResult ->
 
         if (result.contents != null) {
+            Log.e("Tag",result.contents)
             Intent().also { intent ->
                 intent.action = "com.example.broadcast.MY_NOTIFICATION"
                 intent.putExtra("data", result.contents)
