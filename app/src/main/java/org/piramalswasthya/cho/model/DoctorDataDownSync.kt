@@ -51,7 +51,8 @@ data class PrescriptionData(
     val unit: String,
     val qtyPrescribed: Int,
     val createdDate: String,
-    val isEDL: Boolean
+    val isEDL: Boolean,
+    val instructions: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -77,6 +78,8 @@ data class ComponentData(
 
 @JsonClass(generateAdapter = true)
 data class InvestigationData(
+    val externalInvestigations: String,
+    val counsellingProvidedList: List<String>,
     val beneficiaryRegID: Int,
     val benVisitID: Int,
     val visitCode: Long,

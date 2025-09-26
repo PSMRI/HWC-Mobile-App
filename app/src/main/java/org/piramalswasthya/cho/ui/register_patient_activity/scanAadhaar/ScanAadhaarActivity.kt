@@ -38,11 +38,18 @@ class ScanAadhaarActivity : AppCompatActivity(){
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION).apply {
             addAction("com.example.broadcast.MY_NOTIFICATION")
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+       
+
+        // I have commented this because getting crash and add below condition
+//        registerReceiver(br, filter)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
             registerReceiver(br, filter, RECEIVER_NOT_EXPORTED)
         } else {
             registerReceiver(br, filter)
         }
+
 
     }
 

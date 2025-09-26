@@ -222,19 +222,21 @@ class PersonalDetailsFragment : Fragment() {
 
                                     }
                                     else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() ){
-                                        Toast.makeText(
-                                            requireContext(),
-                                            resources.getString(R.string.flowCompleted),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-//                                        var modifiedInfo = benVisitInfo
-//                                        if(preferenceDao.isNurseSelected()){
-//                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
-//                                        }
-//                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-//                                        intent.putExtra("benVisitInfo", modifiedInfo);
-//                                        startActivity(intent)
-//                                        requireActivity().finish()
+//                                        Toast.makeText(
+//                                            requireContext(),
+//                                            resources.getString(R.string.flowCompleted),
+//                                            Toast.LENGTH_SHORT
+//                                        ).show()
+                                        var modifiedInfo = benVisitInfo
+                                        if(preferenceDao.isNurseSelected()){
+                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
+                                        }
+                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                                        intent.putExtra("benVisitInfo", modifiedInfo);
+                                        intent.putExtra("viewRecord", true)
+                                        intent.putExtra("isFlowComplete", true)
+                                        startActivity(intent)
+                                        requireActivity().finish()
                                     }
                                     else{
 
@@ -244,6 +246,8 @@ class PersonalDetailsFragment : Fragment() {
                                         }
                                         val intent = Intent(context, EditPatientDetailsActivity::class.java)
                                         intent.putExtra("benVisitInfo", modifiedInfo);
+                                        intent.putExtra("viewRecord", false)
+                                        intent.putExtra("isFlowComplete", false)
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
@@ -844,7 +848,7 @@ class PersonalDetailsFragment : Fragment() {
 //                    )
                     drawTextWithWrapping(
                         canvas,
-                        prescription.instruciton,
+                        prescription.instructions,
                         xPosition + 4 * columnWidth,
                         y,
                         columnWidth,
