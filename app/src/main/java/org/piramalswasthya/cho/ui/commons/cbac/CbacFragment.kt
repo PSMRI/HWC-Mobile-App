@@ -514,30 +514,35 @@ class CbacFragment : Fragment() , NavigationAdapter  {
    }
 
     private fun setupRaView(cbac: CbacCache) {
-//        binding.tilAgeDropdown.isEnabled = false
 
-        binding.actvAgeDropdown.setText(resources.getStringArray(R.array.cbac_age)[cbac.cbac_age_posi - 1])
-        binding.actvSmokeDropdown.setText(resources.getStringArray(R.array.cbac_smoke)[cbac.cbac_smoke_posi - 1])
-        binding.actvAlcoholDropdown.setText(resources.getStringArray(R.array.cbac_alcohol)[cbac.cbac_alcohol_posi - 1])
-        viewModel.gender.observe(viewLifecycleOwner) {
-            when (it) {
-                Gender.MALE -> {
-                    binding.actvWaistDropdown.setText(resources.getStringArray(R.array.cbac_waist_mes_male)[cbac.cbac_waist_posi - 1])
-                    binding.cbacLlEdWomen.visibility = View.GONE
+        try {
+            binding.actvAgeDropdown.setText(resources.getStringArray(R.array.cbac_age)[cbac.cbac_age_posi - 1])
+            binding.actvSmokeDropdown.setText(resources.getStringArray(R.array.cbac_smoke)[cbac.cbac_smoke_posi - 1])
+            binding.actvAlcoholDropdown.setText(resources.getStringArray(R.array.cbac_alcohol)[cbac.cbac_alcohol_posi - 1])
+            viewModel.gender.observe(viewLifecycleOwner) {
+                when (it) {
+                    Gender.MALE -> {
+                        binding.actvWaistDropdown.setText(resources.getStringArray(R.array.cbac_waist_mes_male)[cbac.cbac_waist_posi - 1])
+                        binding.cbacLlEdWomen.visibility = View.GONE
+                    }
+
+                    else -> binding.actvWaistDropdown.setText(resources.getStringArray(R.array.cbac_waist_mes_female)[cbac.cbac_waist_posi - 1])
+
                 }
-
-                else -> binding.actvWaistDropdown.setText(resources.getStringArray(R.array.cbac_waist_mes_female)[cbac.cbac_waist_posi - 1])
-
             }
-        }
-        binding.actvPaDropdown.setText(resources.getStringArray(R.array.cbac_pa)[cbac.cbac_pa_posi - 1])
-        binding.actvFhDropdown.setText(resources.getStringArray(R.array.cbac_fh)[cbac.cbac_familyhistory_posi - 1])
 
-        viewModel.setSmoke(cbac.cbac_smoke_posi - 1)
-        viewModel.setAlcohol(cbac.cbac_alcohol_posi - 1)
-        viewModel.setWaist(cbac.cbac_waist_posi - 1)
-        viewModel.setPa(cbac.cbac_pa_posi - 1)
-        viewModel.setFh(cbac.cbac_familyhistory_posi - 1)
+            binding.actvPaDropdown.setText(resources.getStringArray(R.array.cbac_pa)[cbac.cbac_pa_posi - 1])
+            binding.actvFhDropdown.setText(resources.getStringArray(R.array.cbac_fh)[cbac.cbac_familyhistory_posi - 1])
+
+            viewModel.setSmoke(cbac.cbac_smoke_posi - 1)
+            viewModel.setAlcohol(cbac.cbac_alcohol_posi - 1)
+            viewModel.setWaist(cbac.cbac_waist_posi - 1)
+            viewModel.setPa(cbac.cbac_pa_posi - 1)
+            viewModel.setFh(cbac.cbac_familyhistory_posi - 1)
+        } catch (e:Exception) {
+            Timber.e("Exception  $e")
+        }
+
     }
 
     private fun setupEdFill() {

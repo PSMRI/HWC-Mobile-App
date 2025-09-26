@@ -10,6 +10,7 @@ import org.piramalswasthya.cho.model.ComponentDetails
 import org.piramalswasthya.cho.model.ComponentDetailsMaster
 import org.piramalswasthya.cho.model.ComponentOption
 import org.piramalswasthya.cho.model.ComponentOptionsMaster
+import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.Procedure
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
@@ -50,13 +51,12 @@ class ProcedureRepo @Inject constructor(
 
     private suspend fun getProcedureMasterData(): NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
-//                val procedureMasterDataRequest = LabProceduresDataRequest(
-//                    beneficiaryRegID = benFlow.beneficiaryRegID!!,
-//                    visitCode = benFlow.visitCode!!,
-//                    benVisitID = benFlow.benVisitID!!,
-//                )
+                val procedureMasterDataRequest = MasterLabProceduresRequestModel(
+                    providerServiceMapID = userRepo.getLoggedInUser()?.serviceMapId
 
-            val response = apiService.getMasterLabProceduresDate()
+                )
+
+            val response = apiService.getMasterLabProceduresDate(procedureMasterDataRequest)
             val responseBody = response.body()?.string()
 
             refreshTokenInterceptor(

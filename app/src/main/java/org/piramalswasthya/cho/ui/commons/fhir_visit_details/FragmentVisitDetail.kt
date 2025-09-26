@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -35,7 +34,6 @@ import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.adapter.PncVisitAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
-import org.piramalswasthya.cho.configuration.Dataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -71,7 +69,6 @@ import org.piramalswasthya.cho.work.WorkerUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 
@@ -558,6 +555,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             category = binding.radioButton2.tag.toString()
             reason = binding.radioButton3.text.toString()
             binding.subCatDropDown.visibility = View.VISIBLE
+
         } else {
             binding.radioButton2.isChecked = false
             binding.radioButton1.isChecked = true
@@ -710,7 +708,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         setSubCategoryDropdown()
         setReasonForVisitDropdown(viewModel.selectedSubCat)
 
-        viewModel.init(benVisitInfo.patient.patientID)
+        viewModel.init(benVisitInfo.patient.patientID,benVisitInfo.patient.beneficiaryID.toString())
 
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener{
@@ -1400,7 +1398,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
-                        patId = benVisitInfo.patient.patientID, cbacId = 0
+                        patId = benVisitInfo.patient.patientID, cbacId = 0 , benId = benVisitInfo.patient.beneficiaryID.toString()
                     )
                 )
             }

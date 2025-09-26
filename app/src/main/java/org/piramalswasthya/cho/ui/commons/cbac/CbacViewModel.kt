@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -107,6 +108,7 @@ class CbacViewModel @Inject constructor(
     }
 
     private val patId = CbacFragmentArgs.fromSavedStateHandle(state).patId
+    private val benId = CbacFragmentArgs.fromSavedStateHandle(state).benId
     var cbacId = 0
     private val ashaId = 0
 
@@ -158,14 +160,14 @@ class CbacViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val cachedCbac = cbacRepo.getLastFilledCbac(patId)
-
+                val cachedCbac = cbacRepo.getLastFilledCbac(benId)
+                Log.e("PatientId","$cachedCbac  $benId")
                 cbac = cachedCbac?.also {
                     _filledCbac.postValue(it)
                     cbacId = it.id
                 } ?: CbacCache(
-                    patId = patId,
-                    ashaId = ashaId,
+                    patId = benId,
+                    patientId = patId,
                     syncState = SyncState.UNSYNCED,
                     createdDate = System.currentTimeMillis(),
                      fillDate = 0L
@@ -173,7 +175,7 @@ class CbacViewModel @Inject constructor(
                 )
                 lastFillDate = cbac.fillDate
 
-                val lastFilledCbac = cbacRepo.getLastFilledCbac(patId)
+                val lastFilledCbac = cbacRepo.getLastFilledCbac(benId)
                 ben = patientRepo.getPatientDisplay(patId)!!
 
                 _minDate.postValue(lastFilledCbac?.fillDate?.let { it + TimeUnit.DAYS.toMillis(365) }

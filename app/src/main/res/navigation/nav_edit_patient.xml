@@ -181,6 +181,9 @@
             android:name="patId"
             app:argType="string" />
         <argument
+            android:name="benId"
+            app:argType="string" />
+        <argument
             android:name="cbacId"
             app:argType="integer" />
     </fragment>

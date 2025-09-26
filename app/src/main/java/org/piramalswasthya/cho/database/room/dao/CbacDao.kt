@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.CbacCache
 
@@ -15,8 +14,8 @@ interface CbacDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg cbacCache: CbacCache)
 
-    @Update
-    suspend fun update(vararg cbacCache: CbacCache)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(cbacCache: List<CbacCache>)
 
     @Query("SELECT * FROM CBAC WHERE id = :cbacId LIMIT 1")
     suspend fun getCbacFromBenId(cbacId: Int): CbacCache?
