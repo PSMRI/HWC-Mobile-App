@@ -713,7 +713,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         viewModel.init(benVisitInfo.patient.patientID)
 
         binding.patientList.adapter =
-            CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener{
+            CHOCaseRecordItemAdapter(null,CHOCaseRecordItemAdapter.BenClickListener{
 
 //                if(it.doctorFlag == 2){
 //                    Toast.makeText(

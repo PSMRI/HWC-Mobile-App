@@ -100,6 +100,9 @@ class BenFlowRepo @Inject constructor(
         return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
     }
 
+    suspend fun getBenFlowByBenFlowID(beneficiaryID: Long) : List<BenFlow>?{
+        return benFlowDao.getBenFlowByBeneficiaryID(beneficiaryID)
+    }
 //    Getting Number Formate Exception
 //    private fun convertStringToIntList(villageIds : String) : List<Int>{
 //        return villageIds.split(",").map {

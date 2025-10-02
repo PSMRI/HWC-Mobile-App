@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.adapter.RecyclerViewItemChangeListenersP
 import org.piramalswasthya.cho.adapter.TempDropdownAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.CaseRecordCustomLayoutBinding
+import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -139,7 +140,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
     private var isFlowComplete: Boolean? = null
+    private var isFollowp: Boolean? = null
     var isAddTemplateClicked = false
+    private val benFlowMap = mutableMapOf<Int, BenFlow>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -186,10 +189,40 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         val tableLayout = binding.tableLayout
 
+
+        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+            if (benFlowList.isNullOrEmpty()) return@observe
+
+            val distinctList = benFlowList.distinctBy { it.benVisitNo }
+
+            benFlowMap.clear()
+            distinctList.forEach { benFlow ->
+                benFlow.benVisitNo?.let { visitNo ->
+                    benFlowMap[visitNo] = benFlow
+                }
+            }
+
+            binding.patientList.adapter =
+                CHOCaseRecordItemAdapter(
+                    benFlowMap.values.toList(),
+                    CHOCaseRecordItemAdapter.BenClickListener { item ->
+                        if (item.nurseFlag == 9 && item.doctorFlag == 3 && preferenceDao.isDoctorSelected()) {
+                            navigatetoCaseCustomRecordSelf(false, item)
+                        } else if (item.nurseFlag == 9 && item.doctorFlag == 1 && preferenceDao.isDoctorSelected()) {
+                            navigatetoCaseCustomRecordSelf(false, item)
+                        } else {
+                            navigatetoCaseCustomRecordSelf(true, item)
+                        }
+                    }
+                )
+        }
+
+
         viewRecordFragment = arguments?.getBoolean("viewRecord")
         isFlowComplete = arguments?.getBoolean("isFlowComplete")
 
-        if (viewRecordFragment == true) {
+        if (viewRecordFragment == true || isFollowp == true) {
+            Log.i("CaseRecordCustomModelOne", "onViewCreated:True 1 ${benFlowMap.size}")
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
@@ -278,6 +311,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
 
         } else {
+            Log.i("CaseRecordCustomModelOne", "onViewCreated:Else ${benFlowMap.size}")
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
@@ -302,8 +336,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
-            Timber.d("******************* prescriptionCheck************** ","AA")
 
+            benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
+                viewModel.getVisitReasonByBenFlowID(beneficiaryID)
+            } ?: Timber.d("benFlowID is null, cannot get VisitReason")
 
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             if (benVisitInfo.benVisitNo != null) {
@@ -354,24 +390,25 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
 
         }
-        binding.patientList.adapter =
-            CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-                 if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
-
-                     navigatetoCaseCustomRecordSelf(false,it)
-
-                 } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
-                 {
-                     navigatetoCaseCustomRecordSelf(false,it)
-
-
-                 } else {
-                     navigatetoCaseCustomRecordSelf(true,it)
-
-                 }
-
-            })
+//        binding.patientList.adapter =
+//            CHOCaseRecordItemAdapter(benFlowMap.values.toList(),CHOCaseRecordItemAdapter.BenClickListener {
+//
+//                 if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+//
+//                     navigatetoCaseCustomRecordSelf(false,it)
+//
+//                 } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+//                 {
+//                     navigatetoCaseCustomRecordSelf(false,it)
+//
+//
+//                 } else {
+//                     navigatetoCaseCustomRecordSelf(true,it)
+//
+//                 }
+//
+//            })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Not needed, but must be implemented
@@ -396,10 +433,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         })
         lifecycleScope.launch {
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID)
-                .collect {
-                    if(it.isNotEmpty()){
-                        (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(it)
-                    }else{
+                .collect { list ->
+                    if (list.isNotEmpty()) {
+                        (binding.patientList.adapter as CHOCaseRecordItemAdapter).submitList(list)
+                        binding.patientList.visibility = View.VISIBLE
+                    } else {
                         binding.patientList.visibility = View.GONE
                     }
                 }
@@ -633,6 +671,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 bool = false
                 populateVitalsFieldsW(vitalDb2)
             }
+
             if (bool) {
                 populateVitalsFields()
             }
