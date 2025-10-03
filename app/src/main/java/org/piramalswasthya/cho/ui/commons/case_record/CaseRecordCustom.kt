@@ -689,7 +689,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             R.id.action_caseRecordCustom_self, Bundle().apply {
                 putBoolean("viewRecord", isVisible)
                 putBoolean("isFlowComplete", false)
-                putBoolean("hasFollowupVisit", hasFollowupVisit)
+                putBoolean("isFollowupVisit", hasFollowupVisit)
                 putSerializable("benVisitInfo", it)
             }
         )
