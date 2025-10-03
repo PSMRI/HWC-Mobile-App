@@ -259,7 +259,6 @@ class PersonalDetailsFragment : Fragment() {
                                             isFollowupVisit =
                                                 benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
 
-                                            Log.i("CaseRecordCustomFragment", "21onViewCreated: $isFollowupVisit")
                                             val intent = Intent(
                                                 context,
                                                 EditPatientDetailsActivity::class.java
@@ -291,7 +290,6 @@ class PersonalDetailsFragment : Fragment() {
                                             isFollowupVisit =
                                                 benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
 
-                                            Log.i("CaseRecordCustomFragment", "201onViewCreated: $isFollowupVisit")
                                         var modifiedInfo = benVisitInfo
                                         if(preferenceDao.isNurseSelected()){
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)

@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -194,8 +193,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         isFlowComplete = arguments?.getBoolean("isFlowComplete")
         isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
 
-        Log.i("CaseRecordCustomFragment", "onViewCreated: $isFollowupVisit == $isFlowComplete == $viewRecordFragment")
-
         if (viewRecordFragment == true) {
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
@@ -224,6 +221,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.textReferHeading.visibility = View.GONE
 
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+            getVisitResObserver(benVisitInfo)
              if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
                  btnSubmit?.visibility = View.VISIBLE
                  binding.plusButtonD.visibility = View.VISIBLE
@@ -247,11 +245,65 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
 
             lifecycleScope.launch {
-                convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
-                convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
-                testNameMap = viewModel.getTestNameTypeMap()
-                if (benVisitInfo.benVisitNo != null) {
-                    viewModel.getPreviousTest(benVisitInfo)
+
+                if (isFollowupVisit == true){
+                    viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+                        if (benFlowList.isNullOrEmpty()) return@observe
+
+                        val distinctList =
+                            benFlowList.distinctBy { it.benVisitNo }
+
+                        benFlowMap.clear()
+                        distinctList.forEach { benFlow ->
+                            benFlow.benVisitNo?.let { visitNo ->
+                                benFlowMap[visitNo] = benFlow
+                            }
+                        }
+
+                        benFlowListCache = benFlowMap.values.toList()
+
+                        val lastNonFollowUp = benFlowMap.values
+                            .sortedBy { it.benVisitNo }
+                            .lastOrNull { it.VisitReason != "Follow Up" }
+
+                        lastNonFollowUp?.let {
+
+                            val benVisitInfo = PatientDisplayWithVisitInfo(
+                                benVisitInfo.patient,
+                                genderName = null,
+                                villageName = null,
+                                ageUnit = null,
+                                maritalStatus = null,
+                                nurseDataSynced =null,
+                                doctorDataSynced = null,
+                                createNewBenFlow = null,
+                                prescriptionID = null,
+                                benVisitNo = it.benVisitNo,
+                                visitCategory = null,
+                                benFlowID = null,
+                                nurseFlag = null,
+                                doctorFlag = null,
+                                labtechFlag = null,
+                                pharmacist_flag = null,
+                                visitDate = null,
+                                referDate = null,
+                                referTo = null,
+                                referralReason = null
+                            )
+
+                            lifecycleScope.launch {
+                                convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
+                                convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+                            }
+                        }
+                    }
+                } else {
+                    convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
+                    convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
+                    testNameMap = viewModel.getTestNameTypeMap()
+                    if (benVisitInfo.benVisitNo != null) {
+                        viewModel.getPreviousTest(benVisitInfo)
+                    }
                 }
             }
             investigationBD = viewModel.previousTests.value
@@ -288,11 +340,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
-        }
 
-        benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
-            viewModel.getVisitReasonByBenFlowID(beneficiaryID)
-        } ?: Timber.d("benFlowID is null, cannot get VisitReason")
+            getVisitResObserver(benVisitInfo)
+        }
 
         if (benVisitInfo.referDate != null) {
             binding.referDateLabel.visibility = View.VISIBLE
@@ -649,11 +699,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
-        it.patient.beneficiaryID?.let { beneficiaryID ->
+    private fun getVisitResObserver(benVisitInfo: PatientDisplayWithVisitInfo){
+        benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
             viewModel.getVisitReasonByBenFlowID(beneficiaryID)
         } ?: Timber.d("benFlowID is null, cannot get VisitReason")
+    }
 
+    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+        getVisitResObserver(it)
         viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
             if (benFlowList.isNullOrEmpty()) return@observe
 
