@@ -83,12 +83,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            }
             val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
             val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
+            val isFollowupVisit = intent?.getBooleanExtra("isFollowupVisit", false) ?: false
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController
                 .navigate(
                     R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
                         putBoolean("viewRecord", viewRecord)
                         putBoolean("isFlowComplete", isFlowComplete)
+                        putBoolean("isFollowupVisit", isFollowupVisit)
                         putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
                     }
                 )

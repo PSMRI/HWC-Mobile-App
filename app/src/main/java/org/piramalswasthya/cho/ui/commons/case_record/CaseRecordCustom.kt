@@ -140,6 +140,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
     private var isFlowComplete: Boolean? = null
+    private var isFollowupVisit: Boolean? = null
     var isAddTemplateClicked = false
     private val benFlowMap = mutableMapOf<Int, BenFlow>()
     private var benFlowListCache: List<BenFlow> = emptyList()
@@ -173,13 +174,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.tvAddTemplateTitle.setOnClickListener {
 
             if(!isAddTemplateClicked){
-                val drawable = resources.getDrawable(org.piramalswasthya.cho.R.drawable.ic_down_angle)
+                val drawable = resources.getDrawable(R.drawable.ic_down_angle)
                 binding.tvAddTemplateTitle.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
 
                 isAddTemplateClicked = true
                 binding.buttonLayout.visibility = View.VISIBLE
             }else{
-                val drawable = resources.getDrawable(org.piramalswasthya.cho.R.drawable.ic_up_angle)
+                val drawable = resources.getDrawable(R.drawable.ic_up_angle)
                 binding.tvAddTemplateTitle.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
 
                 isAddTemplateClicked = false
@@ -191,6 +192,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         viewRecordFragment = arguments?.getBoolean("viewRecord")
         isFlowComplete = arguments?.getBoolean("isFlowComplete")
+        isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
+
+        Log.i("CaseRecordCustomFragment", "onViewCreated: $isFollowupVisit == $isFlowComplete == $viewRecordFragment")
 
         if (viewRecordFragment == true) {
             viewModel.getFormMaster()
@@ -286,6 +290,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         }
 
+        benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
+            viewModel.getVisitReasonByBenFlowID(beneficiaryID)
+        } ?: Timber.d("benFlowID is null, cannot get VisitReason")
+
         if (benVisitInfo.referDate != null) {
             binding.referDateLabel.visibility = View.VISIBLE
             binding.referDate.setText(benVisitInfo.referDate)
@@ -305,10 +313,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
-
-            benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
-                viewModel.getVisitReasonByBenFlowID(beneficiaryID)
-            } ?: Timber.d("benFlowID is null, cannot get VisitReason")
 
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             if (benVisitInfo.benVisitNo != null) {
@@ -646,14 +650,37 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     }
 
     private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+        it.patient.beneficiaryID?.let { beneficiaryID ->
+            viewModel.getVisitReasonByBenFlowID(beneficiaryID)
+        } ?: Timber.d("benFlowID is null, cannot get VisitReason")
 
-        findNavController().navigate(
-            R.id.action_caseRecordCustom_self, Bundle().apply {
-                putBoolean("viewRecord", isVisible)
-                putBoolean("isFlowComplete", false)
-                putSerializable("benVisitInfo", it)
+        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+            if (benFlowList.isNullOrEmpty()) return@observe
+
+            val distinctList =
+                benFlowList.distinctBy { it.benVisitNo }
+
+            benFlowMap.clear()
+            distinctList.forEach { benFlow ->
+                benFlow.benVisitNo?.let { visitNo ->
+                    benFlowMap[visitNo] = benFlow
+                }
             }
-        )
+
+            benFlowListCache = benFlowMap.values.toList()
+
+            val followupVisit =
+                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
+
+            findNavController().navigate(
+                R.id.action_caseRecordCustom_self, Bundle().apply {
+                    putBoolean("viewRecord", isVisible)
+                    putBoolean("isFlowComplete", false)
+                    putBoolean("isFollowupVisit", followupVisit)
+                    putSerializable("benVisitInfo", it)
+                }
+            )
+        }
     }
 
     fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
