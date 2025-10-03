@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.card.MaterialCardView
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -141,9 +141,11 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var viewRecordFragment: Boolean? = null
     private var isFlowComplete: Boolean? = null
     private var isFollowp: Boolean? = null
+    private var isFollowupVisit: Boolean? = null
     var isAddTemplateClicked = false
     private val benFlowMap = mutableMapOf<Int, BenFlow>()
-
+    private var benFlowListCache: List<BenFlow> = emptyList()
+    val gson = Gson()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -202,16 +204,20 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 }
             }
 
+            benFlowListCache = benFlowMap.values.toList()
+
+            val hasFollowupVisit = benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
+
             binding.patientList.adapter =
                 CHOCaseRecordItemAdapter(
                     benFlowMap.values.toList(),
                     CHOCaseRecordItemAdapter.BenClickListener { item ->
                         if (item.nurseFlag == 9 && item.doctorFlag == 3 && preferenceDao.isDoctorSelected()) {
-                            navigatetoCaseCustomRecordSelf(false, item)
+                            navigatetoCaseCustomRecordSelf(false, item, hasFollowupVisit)
                         } else if (item.nurseFlag == 9 && item.doctorFlag == 1 && preferenceDao.isDoctorSelected()) {
-                            navigatetoCaseCustomRecordSelf(false, item)
+                            navigatetoCaseCustomRecordSelf(false, item, hasFollowupVisit)
                         } else {
-                            navigatetoCaseCustomRecordSelf(true, item)
+                            navigatetoCaseCustomRecordSelf(true, item, hasFollowupVisit)
                         }
                     }
                 )
@@ -220,9 +226,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
         viewRecordFragment = arguments?.getBoolean("viewRecord")
         isFlowComplete = arguments?.getBoolean("isFlowComplete")
+        isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
 
-        if (viewRecordFragment == true || isFollowp == true) {
-            Log.i("CaseRecordCustomModelOne", "onViewCreated:True 1 ${benFlowMap.size}")
+        if (viewRecordFragment == true || isFollowp == true || isFollowupVisit == true) {
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
@@ -270,8 +276,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                  binding.useTempForFields.visibility = View.GONE
 
              }
-
-
             lifecycleScope.launch {
                 convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
@@ -311,7 +315,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }
 
         } else {
-            Log.i("CaseRecordCustomModelOne", "onViewCreated:Else ${benFlowMap.size}")
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
                 requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
@@ -332,7 +335,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             disableTextInputLayout(binding.referalReasonLabel)
         }
 
-        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
+        if (preferenceDao.isDoctorSelected() || viewRecordFragment == true || isFollowupVisit == true) {
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
@@ -680,12 +683,13 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
     }
 
-    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo, hasFollowupVisit: Boolean) {
 
         findNavController().navigate(
             R.id.action_caseRecordCustom_self, Bundle().apply {
                 putBoolean("viewRecord", isVisible)
                 putBoolean("isFlowComplete", false)
+                putBoolean("hasFollowupVisit", hasFollowupVisit)
                 putSerializable("benVisitInfo", it)
             }
         )
@@ -1614,4 +1618,5 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             ).show()
         }
     }
+
 }

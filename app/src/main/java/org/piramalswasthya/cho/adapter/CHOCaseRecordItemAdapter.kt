@@ -80,7 +80,11 @@ class CHOCaseRecordItemAdapter (
     ) = BenViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
-        val benFlowItem = benFlowList?.get(position)
+        val benFlowItem = if (benFlowList != null && position < benFlowList.size) {
+            benFlowList[position]
+        } else {
+            null
+        }
         holder.bind(getItem(position), clickListener, benFlowItem)
     }
 
