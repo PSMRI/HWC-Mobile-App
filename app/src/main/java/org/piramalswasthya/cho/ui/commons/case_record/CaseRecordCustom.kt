@@ -247,6 +247,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             lifecycleScope.launch {
 
                 if (isFollowupVisit == true){
+                    btnSubmit?.visibility = View.VISIBLE
+                    btnSubmit?.text = getString(R.string.update_btn)
                     viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
                         if (benFlowList.isNullOrEmpty()) return@observe
 
@@ -620,6 +622,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         dAdapter = DiagnosisAdapter(
             requireContext(),
             viewRecordFragment,
+            isFollowupVisit,
             itemListD,
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
@@ -645,6 +648,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 //            tempDBVal,
 //            tempList,
             viewRecordFragment,
+            isFollowupVisit,
             itemListP,
             formMListVal,
             frequencyListVal,

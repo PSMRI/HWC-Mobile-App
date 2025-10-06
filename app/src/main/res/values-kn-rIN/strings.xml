@@ -164,6 +164,7 @@
     <string name="_3_days">3 days</string>
     <string name="_1_month_ago">1 month ago</string>
     <string name="close">Close</string>
+    <string name="update_btn">Update</string>
     <string name="illness">Illness</string>
     <string name="previous_alcohol_history">Previous Alcohol History</string>
     <string name="previous_allergic_history">Previous Allergic History</string>

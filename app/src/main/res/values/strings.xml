@@ -625,5 +625,6 @@
     <string name="version">Version 6.0.0</string>
     <string name="str_duration">Duration:</string>
     <string name="edd_date">EDD Date</string>
+    <string name="update_btn">Update</string>
 
 </resources>
