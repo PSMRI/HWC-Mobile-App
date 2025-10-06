@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.adapter
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import org.piramalswasthya.cho.utils.setBoxColor
 class DiagnosisAdapter(
     private val mContext: Context,
     private val isVisitDetail: Boolean? = null,
+    private val isFollowupVisit: Boolean? = null,
     private val itemList: MutableList<DiagnosisValue>,
     private val itemChangeListener: RecyclerViewItemChangeListenerD
 ) : RecyclerView.Adapter<DiagnosisAdapter.ViewHolder>(){
@@ -105,8 +107,7 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         itemChangeListener.onItemChanged()
     }
 
-
-    if (isVisitDetail == true){
+    if (isVisitDetail == true && isFollowupVisit == false){
         holder.resetButton.isVisible = false
         holder.cancelButton.isVisible = false
         holder.diagnosisInput.isClickable = false

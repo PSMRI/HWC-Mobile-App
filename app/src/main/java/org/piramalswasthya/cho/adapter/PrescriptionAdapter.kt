@@ -24,6 +24,7 @@ import org.piramalswasthya.cho.utils.HelperUtil
 
 class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
+    private val isFollowupVisit: Boolean? = null,
     private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
@@ -160,7 +161,7 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        if (isVisitDetail == true){
+        if (isVisitDetail == true && isFollowupVisit == false){
             holder.subtractButton.isEnabled = false
             holder.addButton.isEnabled = false
 

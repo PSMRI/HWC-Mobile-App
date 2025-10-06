@@ -59,6 +59,7 @@ import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
+import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
@@ -84,6 +85,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
+import kotlin.collections.set
 import kotlin.math.pow
 
 
@@ -109,8 +111,9 @@ class PersonalDetailsFragment : Fragment() {
     private var embeddings: FloatArray? = null
     private lateinit var dialog: AlertDialog
 
-
-
+    private val benFlowMap = mutableMapOf<Int, BenFlow>()
+    private var benFlowListCache: List<BenFlow> = emptyList()
+    private var isFollowupVisit: Boolean? = null
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
@@ -210,6 +213,12 @@ class PersonalDetailsFragment : Fragment() {
                             clickListener = PatientItemAdapter.BenClickListener(
                                 {
                                         benVisitInfo ->
+
+                                    benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
+                                        viewModel.getVisitReasonByBenFlowID(beneficiaryID)
+                                    } ?: Timber.d("benFlowID is null, cannot get VisitReason")
+
+
                                     if(preferenceDao.isRegistrarSelected()){
 
                                     }
@@ -231,14 +240,55 @@ class PersonalDetailsFragment : Fragment() {
                                         if(preferenceDao.isNurseSelected()){
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", modifiedInfo);
-                                        intent.putExtra("viewRecord", true)
-                                        intent.putExtra("isFlowComplete", true)
-                                        startActivity(intent)
-                                        requireActivity().finish()
+
+                                        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+                                            if (benFlowList.isNullOrEmpty()) return@observe
+
+                                            val distinctList =
+                                                benFlowList.distinctBy { it.benVisitNo }
+
+                                            benFlowMap.clear()
+                                            distinctList.forEach { benFlow ->
+                                                benFlow.benVisitNo?.let { visitNo ->
+                                                    benFlowMap[visitNo] = benFlow
+                                                }
+                                            }
+
+                                            benFlowListCache = benFlowMap.values.toList()
+
+                                            isFollowupVisit =
+                                                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
+
+                                            val intent = Intent(
+                                                context,
+                                                EditPatientDetailsActivity::class.java
+                                            )
+                                            intent.putExtra("benVisitInfo", modifiedInfo);
+                                            intent.putExtra("viewRecord", true)
+                                            intent.putExtra("isFlowComplete", true)
+                                            intent.putExtra("isFollowupVisit", isFollowupVisit)
+                                            startActivity(intent)
+                                            requireActivity().finish()
+                                        }
                                     }
                                     else{
+                                        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+                                            if (benFlowList.isNullOrEmpty()) return@observe
+
+                                            val distinctList =
+                                                benFlowList.distinctBy { it.benVisitNo }
+
+                                            benFlowMap.clear()
+                                            distinctList.forEach { benFlow ->
+                                                benFlow.benVisitNo?.let { visitNo ->
+                                                    benFlowMap[visitNo] = benFlow
+                                                }
+                                            }
+
+                                            benFlowListCache = benFlowMap.values.toList()
+
+                                            isFollowupVisit =
+                                                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
 
                                         var modifiedInfo = benVisitInfo
                                         if(preferenceDao.isNurseSelected()){
@@ -248,8 +298,10 @@ class PersonalDetailsFragment : Fragment() {
                                         intent.putExtra("benVisitInfo", modifiedInfo);
                                         intent.putExtra("viewRecord", false)
                                         intent.putExtra("isFlowComplete", false)
+                                        intent.putExtra("isFollowupVisit", isFollowupVisit)
                                         startActivity(intent)
                                         requireActivity().finish()
+                                    }
                                     }
                                 },
                                 {

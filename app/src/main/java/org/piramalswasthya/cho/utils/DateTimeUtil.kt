@@ -404,6 +404,20 @@ class DateTimeUtil {
             return type
         }
 
+        fun formatedDate(dateStr: String?): String {
+            if (dateStr.isNullOrBlank()) return "N/A"
+
+            return try {
+                val inputFormat = SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.ENGLISH)
+                val date = inputFormat.parse(dateStr)
+
+                val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                outputFormat.format(date!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "N/A"
+            }
+        }
     }
 
 
