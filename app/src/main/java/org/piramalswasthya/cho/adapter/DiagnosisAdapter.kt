@@ -1,11 +1,15 @@
 package org.piramalswasthya.cho.adapter
 
+import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import org.piramalswasthya.cho.utils.setBoxColor
 import androidx.compose.ui.res.booleanResource
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,6 +20,8 @@ import org.piramalswasthya.cho.model.DiagnosisValue
 import org.piramalswasthya.cho.utils.setBoxColor
 
 class DiagnosisAdapter(
+    private val mContext: Context,
+    private val isVisitDetail: Boolean? = null,
     private val itemList: MutableList<DiagnosisValue>,
     private val itemChangeListener: RecyclerViewItemChangeListenerD
 ) : RecyclerView.Adapter<DiagnosisAdapter.ViewHolder>(){
@@ -97,6 +103,20 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         }
         holder.updateResetButtonState()
         itemChangeListener.onItemChanged()
+    }
+
+
+    if (isVisitDetail == true){
+        holder.resetButton.isVisible = false
+        holder.cancelButton.isVisible = false
+        holder.diagnosisInput.isClickable = false
+        holder.diagnosisInput.isFocusable = false
+
+        holder.diagnosisInpuTextt.boxBackgroundColor =
+            ContextCompat.getColor(mContext, R.color.disable_field_color)
+        holder.diagnosisInpuTextt.defaultHintTextColor = ColorStateList.valueOf(
+            ContextCompat.getColor(mContext, R.color.disable_field_hint_color)
+        )
     }
 
     // Update the visibility of the "Cancel" button for all items

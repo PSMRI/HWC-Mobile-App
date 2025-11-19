@@ -470,6 +470,12 @@ data class GenerateOtpHid(
 )
 
 @JsonClass(generateAdapter = true)
+data class SaveAbdmFacilityId(
+    val visitCode: Long?,
+    val abdmFacilityId: String?
+)
+
+@JsonClass(generateAdapter = true)
 data class ValidateOtpHid(
     val otp: String?,
     val txnId: String?,
@@ -503,12 +509,46 @@ data class GetBenHealthIdRequest(
     val beneficiaryID: Long?,
 )
 @JsonClass(generateAdapter = true)
+data class GenerateOTPForCareContextRequest(
+    val healthID: String,
+    val healthIdNumber: String,
+    val abdmFacilityId: String,
+    val abdmFacilityName: String
+)
+@JsonClass(generateAdapter = true)
+data class ValidateOTPAndCreateCareContextRequest(
+    val otp: String,
+    val txnId: String,
+    val beneficiaryID: Long,
+    val healthID: String,
+    val healthIdNumber: String,
+    val visitCode: Long,
+    val visitCategory: String,
+    val abdmFacilityId: String,
+    val abdmFacilityName: String
+)
+@JsonClass(generateAdapter = true)
 data class BenHealthDetails(
     val benHealthID: Int,
     val healthIdNumber: String,
+    val providerServiceMapId: Int,
     val beneficiaryRegID: Long,
-    val healthId: String
-)
+    val healthId: String,
+    val deleted: Boolean,
+    val processed: String,
+    val createdBy: String,
+    val createdDate: String,
+    val lastModDate: String,
+    val isNewAbha: Boolean
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class GenerateOTPForCareContext(
+    val txnId: String?
+): NetworkResponse()
+@JsonClass(generateAdapter = true)
+data class ValidateOTPAndCreateCareContextResponse(
+    val response: String
+): NetworkResponse()
 @JsonClass(generateAdapter = true)
 data class MapHIDtoBeneficiary(
     val beneficiaryRegID: Long?,
@@ -698,6 +738,12 @@ data class ActivityResponse(
 @JsonClass(generateAdapter = true)
 data class NurseDataRequest(
     val benRegID: Long,
+    val visitCode: Long,
+)
+
+@JsonClass(generateAdapter = true)
+data class CBACDataRequest(
+    val beneficiaryRegId: Long,
     val visitCode: Long,
 )
 

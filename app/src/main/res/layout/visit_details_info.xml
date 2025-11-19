@@ -1,11 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_nav_height"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_normal"
+            android:paddingEnd="@dimen/padding_normal">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginEnd="@dimen/padding_normal"
+                android:layout_weight="1"
+                android:backgroundTint="@color/button_danger"
+                android:text="@string/cancel" />
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="1"
+                android:backgroundTint="@color/green"
+                android:text="@string/next" />
+
+        </LinearLayout>
+
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+
+
+    <androidx.core.widget.NestedScrollView
     android:id="@+id/fragment_visit_details_info"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -175,6 +216,27 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edd_date_text"
+            style="@style/TextInputLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/custom_ui_margin"
+            android:hint="@string/edd_date"
+            android:textSize="18sp"
+            android:enabled="false"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edd_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/delivery_date_text"
             style="@style/TextInputLayoutStyle"
             android:layout_width="match_parent"
@@ -182,7 +244,7 @@
             android:layout_margin="@dimen/custom_ui_margin"
             android:hint="Delivery Date"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
+            app:layout_constraintTop_toBottomOf="@+id/edd_date_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/delivery_date"
@@ -775,5 +837,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/usePrevious" />
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

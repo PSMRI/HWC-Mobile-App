@@ -363,6 +363,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    tools:text="27-08-2025"
                                     android:textColor="@color/black"
                                     android:textSize="15sp"
                                     android:textStyle="bold" />
@@ -378,9 +379,9 @@
                             android:orientation="horizontal"
                             android:paddingTop="@dimen/padding_normal"
                             android:visibility="gone"
+                            app:layout_constraintStart_toStartOf="@+id/visitDataLl"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/refer_date_ll"
-                            app:layout_constraintTop_toTopOf="@+id/refer_date_ll">
+                            app:layout_constraintTop_toBottomOf="@+id/villageLl">
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -401,6 +402,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    tools:text="Dr. Sushant"
                                     android:textColor="@color/black"
                                     android:textSize="15sp"
                                     android:textStyle="bold" />
@@ -418,7 +420,7 @@
                             android:visibility="gone"
                             app:layout_constraintEnd_toStartOf="@+id/abhaLl"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/refer_date_ll">
+                            app:layout_constraintTop_toBottomOf="@+id/refer_from_ll">
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -439,6 +441,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    tools:text="Sushant Yadav"
                                     android:textColor="@color/black"
                                     android:textSize="15sp"
                                     android:textStyle="bold" />
@@ -477,6 +480,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    tools:text="91-8548-9856"
                                     android:textColor="@color/black"
                                     android:textSize="15sp"
                                     android:textStyle="bold" />

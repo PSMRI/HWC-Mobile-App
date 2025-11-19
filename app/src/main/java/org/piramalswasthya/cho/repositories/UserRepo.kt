@@ -154,6 +154,7 @@ class UserRepo @Inject constructor(
                 if (it.userName.lowercase() == userName.lowercase() && it.password == password) {
                     preferenceDao.setUserRoles(loggedInUser.roles);
                     preferenceDao.setUserLoginType(loginType);
+                    preferenceDao.setUsername(loggedInUser.userName)
                     val tokenB = preferenceDao.getPrimaryApiToken()
                     TokenInsertTmcInterceptor.setToken(
                         tokenB
@@ -357,6 +358,8 @@ class UserRepo @Inject constructor(
                     Timber.d("Token", token.toString())
                     val privilegesArray = data.getJSONArray("previlegeObj")
                     val privilegesObject = privilegesArray.getJSONObject(0)
+                    val rolesObjectArray = privilegesObject.getJSONArray("roles")
+                    preferenceDao.setWorkingLocationID(rolesObjectArray.getJSONObject(0).getInt("workingLocationID"))
                     val rolesArray = extractRoles(privilegesObject);
 //                    val roles = rolesArray;
 //                    Log.i("roles are ", roles);
@@ -369,6 +372,7 @@ class UserRepo @Inject constructor(
                     user?.serviceMapId = serviceMapId
                     TokenInsertTmcInterceptor.setToken(token)
                     preferenceDao.registerPrimaryApiToken(token)
+                    preferenceDao.registerUser(user!!)
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()

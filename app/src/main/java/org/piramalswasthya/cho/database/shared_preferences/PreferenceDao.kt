@@ -56,6 +56,18 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun getWorkingLocationID(): Int {
+        val prefKey = context.getString(R.string.WORK_LOCATION_ID)
+        return pref.getInt(prefKey, 21)
+    }
+    //
+    fun setWorkingLocationID(workingLocationID: Int) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.WORK_LOCATION_ID)
+        editor.putInt(prefKey, workingLocationID)
+        editor.apply()
+    }
+
     fun setUserRoles(roles: String) {
         val editor = pref.edit()
         val prefKey = context.getString(R.string.USER_ROLES)
@@ -183,6 +195,20 @@ class PreferenceDao @Inject constructor(@ApplicationContext private val context:
         editor.apply()
     }
 
+    fun getLastCbacSyncTime(): String {
+        val prefKey = context.getString(R.string.last_cbac_sync_time)
+        return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setLastCbacSyncTime(currTimeStamp: Long){
+        val prefKey = context.getString(R.string.last_cbac_sync_time)
+        val editor = pref.edit()
+        editor.putString(prefKey, DateTimeUtil.formatCustDateAndTime(currTimeStamp))
+        editor.apply()
+    }
+
+
     fun getLastPatientSyncTime(): String {
         val prefKey = context.getString(R.string.last_patient_sync_time)
         return pref.getString(prefKey, null) ?: DateTimeUtil.formatCustDateAndTime(epochTimestamp)
@@ -260,10 +286,25 @@ fun registerEsanjeevaniCred(userName: String,password: String) {
         editor.apply()
     }
 
+
+
     fun getLoggedInUser(): UserNetwork? {
         val prefKey = context.getString(R.string.PREF_user_entry)
         val json = pref.getString(prefKey, null)
         return Gson().fromJson(json, UserNetwork::class.java)
+    }
+
+    fun setUsername(user: String) {
+        val editor = pref.edit()
+        val prefKey = context.getString(R.string.PREF_user_name)
+        editor.putString(prefKey, user)
+        editor.apply()
+    }
+
+    fun getUsername(): String? {
+        val prefKey = context.getString(R.string.PREF_user_name)
+        val userName = pref.getString(prefKey, null)
+        return userName
     }
     fun saveUserLocationData(location: LocationData) {
         val editor = pref.edit()

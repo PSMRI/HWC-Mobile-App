@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
 import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
 import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
+import org.piramalswasthya.cho.database.converters.StringConverters
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.UserMasterLocationConverter
 import org.piramalswasthya.cho.database.converters.VillageConverter
@@ -149,7 +150,7 @@ import timber.log.Timber
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 107, exportSchema = false
+    version = 109, exportSchema = false
 )
 
 
@@ -166,7 +167,8 @@ import timber.log.Timber
     MasterDataListConverter::class,
     LocationConverter::class,
     DateConverter::class,
-    UserMasterLocationConverter::class
+    UserMasterLocationConverter::class,
+    StringConverters::class
 )
 
 abstract class InAppDb : RoomDatabase() {
@@ -223,6 +225,18 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_107_108 = object : Migration(107, 108) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Patient ADD COLUMN instructions TEXT")
+            }
+        }
+
+        val MIGRATION_108_109 = object : Migration(108, 109) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Investigation_Case_Record ADD COLUMN counsellingProvidedList TEXT")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -234,7 +248,7 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_106_107)
+                        .addMigrations(MIGRATION_106_107, MIGRATION_107_108,MIGRATION_108_109)
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {

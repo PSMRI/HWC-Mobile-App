@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.CbacCache
 
 
@@ -24,8 +25,8 @@ interface CbacDao {
     suspend fun getLastFilledCbacFromBenId(benId: String): CbacCache?
 
 
-//    @Query("SELECT c.*, b.householdId as hhId, b.gender as benGender FROM CBAC c join beneficiary b on c.benId= b.beneficiaryId WHERE c.processed in ('N','U') ")
-//    suspend fun getAllUnprocessedCbac(): List<CbacCachePush>
+    @Query("SELECT * FROM CBAC WHERE  syncState = :syncState ")
+    suspend fun getAllUnprocessedCbac(syncState: SyncState): List<CbacCache>
 //
 //    @Query("UPDATE CBAC SET syncState = 1 WHERE benId =:benId")
 //    suspend fun setCbacSyncing(vararg benId: Long)

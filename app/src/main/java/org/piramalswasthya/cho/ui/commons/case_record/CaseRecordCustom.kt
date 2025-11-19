@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -69,6 +71,8 @@ import org.piramalswasthya.cho.ui.commons.DropdownConst.Companion.unitVal
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.utils.Constants.pattern
+import org.piramalswasthya.cho.utils.HelperUtil
+import org.piramalswasthya.cho.utils.HelperUtil.disableTextInputLayout
 import org.piramalswasthya.cho.utils.generateIntFromUuid
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.nullIfEmpty
@@ -134,6 +138,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     private var doctorFlag = 2
     private var pharmacistFlag = 0
     private var viewRecordFragment: Boolean? = null
+    private var isFlowComplete: Boolean? = null
     var isAddTemplateClicked = false
 
     override fun onCreateView(
@@ -182,20 +187,58 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         val tableLayout = binding.tableLayout
 
         viewRecordFragment = arguments?.getBoolean("viewRecord")
-
+        isFlowComplete = arguments?.getBoolean("isFlowComplete")
 
         if (viewRecordFragment == true) {
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+            val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
             btnSubmit?.visibility = View.GONE
-            binding.patientList.visibility = View.GONE
+            btnCancel?.text = getString(R.string.close)
+
+            if (isFlowComplete == true){
+                binding.patientList.visibility = View.VISIBLE
+            }else{
+                binding.patientList.visibility = View.GONE
+            }
+
             binding.plusButtonD.visibility = View.GONE
             binding.plusButtonP.visibility = View.GONE
             binding.tempName.visibility = View.GONE
             binding.saveTemplate.visibility = View.GONE
             binding.deleteTemp.visibility = View.GONE
             binding.useTempForFields.visibility = View.GONE
+
+            binding.tvAddTemplateTitle.visibility = View.GONE
+            binding.externalI.visibility = View.GONE
+            binding.testName.visibility = View.GONE
+            binding.referReason.visibility = View.GONE
+            binding.referDropdown.visibility = View.GONE
+            binding.textReferHeading.visibility = View.GONE
+
             benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+             if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+                 btnSubmit?.visibility = View.VISIBLE
+                 binding.plusButtonD.visibility = View.VISIBLE
+                 binding.plusButtonP.visibility = View.VISIBLE
+                 binding.useTempForFields.visibility = View.VISIBLE
+
+             } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+            {
+                 btnSubmit?.visibility = View.VISIBLE
+                binding.plusButtonD.visibility = View.VISIBLE
+                binding.plusButtonP.visibility = View.VISIBLE
+                binding.useTempForFields.visibility = View.VISIBLE
+
+            } else {
+                 btnSubmit?.visibility = View.GONE
+                 binding.plusButtonD.visibility = View.GONE
+                 binding.plusButtonP.visibility = View.GONE
+                 binding.useTempForFields.visibility = View.GONE
+
+             }
+
+
             lifecycleScope.launch {
                 convertToPrescriptionValuesFromPC(viewModel.getPrescriptionForVisitNumAndPatientId(benVisitInfo))
                 convertToDiagnosisValues(viewModel.getProvisionalDiagnosisForVisitNumAndPatientId(benVisitInfo))
@@ -209,6 +252,31 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             val selectedRelationTypes = mapProcedureIdsToNames(procedureDropdown,resp)
             val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
             binding.selectF.text = selectedRelationTypesString
+
+            viewModel.previousTests.observe(viewLifecycleOwner) { record ->
+                val counselling = record?.counsellingProvidedList?.firstOrNull()
+                if (counselling.isNullOrEmpty()) {
+                    binding.routeDropDown.visibility = View.GONE
+                } else {
+                    binding.routeDropDown.visibility = View.VISIBLE
+                    binding.routeDropDownVal.setText(counselling)
+                    HelperUtil.disableDropdownField(binding.routeDropDownVal, binding.routeDropDown)
+                    disableTextInputLayout(binding.routeDropDown)
+                }
+                val externalInv = record?.externalInvestigations
+                if (externalInv.isNullOrEmpty()) {
+                    binding.externalI.visibility = View.GONE
+                } else {
+                    binding.externalI.visibility = View.VISIBLE
+                    binding.inputExternalI.setText(externalInv)
+                    binding.inputExternalI.isFocusable = false
+                    binding.inputExternalI.isFocusableInTouchMode = false
+                    binding.inputExternalI.isClickable = false
+                    binding.inputExternalI.isLongClickable = false
+                    disableTextInputLayout(binding.externalI)
+                }
+            }
+
         } else {
             binding.patientList.visibility = View.VISIBLE
             benVisitInfo =
@@ -222,16 +290,21 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         if (benVisitInfo.referTo != null) {
             binding.referToLabel.visibility = View.VISIBLE
             binding.referTo.setText(benVisitInfo.referTo)
+            disableTextInputLayout(binding.referToLabel)
         }
         if (benVisitInfo.referralReason != null) {
             binding.referalReasonLabel.visibility = View.VISIBLE
             binding.referalReason.setText(benVisitInfo.referralReason!!.split(pattern)[0])
+            disableTextInputLayout(binding.referalReasonLabel)
         }
 
         if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
             patientId = benVisitInfo.patient.patientID
             patId = benVisitInfo.patient.patientID
             viewModel.getVitalsDB(patId)
+            Timber.d("******************* prescriptionCheck************** ","AA")
+
+
             viewModel.getChiefComplaintDB(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             if (benVisitInfo.benVisitNo != null) {
                 viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
@@ -259,17 +332,22 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
                         val tableRowVal =
                             layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
-                        val componentName = component.componentName
+                        val componentName = component.remarks
                         val resultValue = component.testResultValue
                         val resultUnit = component.testResultUnit
-                        nameVal = "$procedureName- $componentName"
-                        if (resultUnit != null) {
-                            resultVal = "${resultValue} ${resultUnit}"
-                        } else {
-                            resultVal = "${resultValue}"
+                        nameVal = "$procedureName"
+
+                        resultVal = buildString {
+                            append(resultValue)
+                            resultUnit?.let { append(" $it") }
+                            append(" <br> <b>Remarks: </b> $componentName")
                         }
+
+                        tableRowVal.findViewById<TextView>(R.id.numberTextView)
+                            .text = HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
+
+//                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
                         tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
-                        tableRowVal.findViewById<TextView>(R.id.numberTextView).setText(resultVal)
                         tableLayout.addView(tableRowVal)
                     }
                 }
@@ -279,12 +357,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.patientList.adapter =
             CHOCaseRecordItemAdapter(CHOCaseRecordItemAdapter.BenClickListener {
 
-                findNavController().navigate(
-                    R.id.action_caseRecordCustom_self, Bundle().apply {
-                        putBoolean("viewRecord", true)
-                        putSerializable("benVisitInfo", it)
-                    }
-                )
+                 if( it.nurseFlag == 9 && it.doctorFlag == 3 && preferenceDao.isDoctorSelected() ){
+
+                     navigatetoCaseCustomRecordSelf(false,it)
+
+                 } else if ( it.nurseFlag == 9 && it.doctorFlag == 1 && preferenceDao.isDoctorSelected() )
+                 {
+                     navigatetoCaseCustomRecordSelf(false,it)
+
+
+                 } else {
+                     navigatetoCaseCustomRecordSelf(true,it)
+
+                 }
 
             })
         binding.inputTestName.addTextChangedListener(object : TextWatcher {
@@ -475,6 +560,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
         dAdapter = DiagnosisAdapter(
+            requireContext(),
+            viewRecordFragment,
             itemListD,
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
@@ -499,6 +586,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         pAdapter = PrescriptionAdapter(
 //            tempDBVal,
 //            tempList,
+            viewRecordFragment,
             itemListP,
             formMListVal,
             frequencyListVal,
@@ -552,7 +640,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             populateVitalsFields()
         }
     }
-        fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
+
+    private fun navigatetoCaseCustomRecordSelf(isVisible: Boolean, it: PatientDisplayWithVisitInfo) {
+
+        findNavController().navigate(
+            R.id.action_caseRecordCustom_self, Bundle().apply {
+                putBoolean("viewRecord", isVisible)
+                putBoolean("isFlowComplete", false)
+                putSerializable("benVisitInfo", it)
+            }
+        )
+    }
+
+    fun convertToPrescriptionValuesFromPC(prescriptionCaseRecords: List<PrescriptionCaseRecord?>) {
             itemListP.clear()
             for (prescriptionCaseRecord in prescriptionCaseRecords) {
                 val prescriptionValue = prescriptionCaseRecord?.let {
@@ -561,7 +661,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         form = "",  // Set the appropriate value for form (not available in PrescriptionCaseRecord)
                         frequency = prescriptionCaseRecord.frequency ?: "",
                         duration = prescriptionCaseRecord.duration ?: "",
-                        instruction = prescriptionCaseRecord.instruciton ?: "",
+                        instructions = prescriptionCaseRecord.instructions ?: "",
                         unit = prescriptionCaseRecord.unit ?: ""
                     )
                 }
@@ -605,7 +705,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         form = it1,
                         frequency = templateDB.frequency ?: "",
                         duration = templateDB.duration ?: "",
-                        instruction = templateDB.instruction ?: "",
+                        instructions = templateDB.instructions ?: "",
                         unit = templateDB.unit ?: "",
                         title = "Medicine - ${itemListP.size + 1}"
                     )
@@ -850,21 +950,22 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
     ) {
         viewModel.previousTests.observe(viewLifecycleOwner) {
             val selectedItems =
+//                BooleanArray(procedureDropdown.size) { false }
                 BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
             investigationBD = viewModel.previousTests.value
             val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
-            if (resp != null) {
-                val previousTestList = resp.toMutableList()
-                for (index in selectedItems.indices) {
-                    if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
-                        selectedItems[index] = true
-                    }
-                }
-            }
+//            if (resp != null) {
+//                val previousTestList = resp.toMutableList()
+//                for (index in selectedItems.indices) {
+//                    if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
+//                        selectedItems[index] = true
+//                    }
+//                }
+//            }
 
-            val disabledItems = labReportProcedureTypes.map { type ->
-                proceduresMasterData.indexOfFirst { it.procedureName == type }
-            }.toSet().toTypedArray()
+//            val disabledItems = labReportProcedureTypes.map { type ->
+//                proceduresMasterData.indexOfFirst { it.procedureName == type }
+//            }.toSet().toTypedArray()
 
             val builder = AlertDialog.Builder(requireContext())
                 .setTitle("Select Test Name")
@@ -874,15 +975,15 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     selectedItems
                 ) { _, which, isChecked ->
                     if (isChecked) {
-                        if (!disabledItems.contains(which)) {
+//                        if (!disabledItems.contains(which)) {
                             selectedTestName.add(which)
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Test with result cannot be selected",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+//                        } else {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Test with result cannot be selected",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
                     } else {
                         selectedTestName.remove(which)
                     }
@@ -921,10 +1022,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     val previousTestList = resp.toMutableList()
                     for (index in selectedItems.indices) {
                         if (previousTestList.contains(procedureDropdown!!.get(index).procedureID)) {
-                            alertDialog.listView.get(index).isEnabled = false
-                            alertDialog.listView.get(index).setOnClickListener() {
-                                alertDialog.listView.get(index).isEnabled = false
-                            }
+                            alertDialog.listView.get(index).isEnabled = true
+//                            alertDialog.listView.get(index).setOnClickListener() {
+//                                alertDialog.listView.get(index).isEnabled = false
+//                            }
                         }
                     }
                 }
@@ -1041,7 +1142,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             id?.toString() ?: ""
         }
 
-        val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
@@ -1053,13 +1154,14 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             } else {
                 idString.nullIfEmpty()
             }
-
+        val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
 
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
             newTestIds = idString.nullIfEmpty(),
-            externalInvestigation = externalInvestigation,
+            externalInvestigations = externalInvestigations,
+            counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
@@ -1087,7 +1189,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
-            var instruction = prescriptionData.instruction.nullIfEmpty()
+            var instructions = prescriptionData.instructions.nullIfEmpty()
 
 
             if (formVal != null) {
@@ -1101,7 +1203,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     itemId = formVal,
                     frequency = mappedFrequency,
                     duration = durVal,
-                    instruciton = instruction,
+                    instructions = instructions,
                     unit = unitVal,
                     patientID = patId,
                     benVisitNo = benVisitNo
@@ -1176,7 +1278,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             id?.toString() ?: ""
         }
 
-        val externalInvestigation = binding.inputExternalI.text.toString().nullIfEmpty()
+        val externalInvestigations = binding.inputExternalI.text.toString().nullIfEmpty()
         val referR = binding.inputReferReason.text.toString().nullIfEmpty()
         val counsellingTypesVal = binding.routeDropDownVal.text.toString().nullIfEmpty()
         val referVal = binding.referDropdownText.text.toString().nullIfEmpty()
@@ -1189,11 +1291,16 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 idString.nullIfEmpty()
             }
 
+
+        val counsellingList = counsellingTypesVal?.let { arrayListOf(it) } ?: arrayListOf()
+
+
         val investigation = InvestigationCaseRecord(
             investigationCaseRecordId = generateUuid(),
             previousTestIds = previousTestIdsTmp,
             newTestIds = idString.nullIfEmpty(),
-            externalInvestigation = externalInvestigation,
+            externalInvestigations = externalInvestigations,
+            counsellingProvidedList = counsellingList,
             counsellingTypes = counsellingTypesVal,
             patientID = patId,
             institutionId = referId,
@@ -1209,7 +1316,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             var freqVal = prescriptionData.frequency.nullIfEmpty()
             var unitVal = prescriptionData.unit.nullIfEmpty()
             var durVal = prescriptionData.duration.nullIfEmpty()
-            var instruction = prescriptionData.instruction.nullIfEmpty()
+            var instructions = prescriptionData.instructions.nullIfEmpty()
             if (formVal != null) {
                 val frequencyDescription = frequencyMap[freqVal]
                 var mappedFrequency: String? = null
@@ -1221,7 +1328,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                     itemId = formVal,
                     frequency = mappedFrequency,
                     duration = durVal,
-                    instruciton = instruction,
+                    instructions = instructions,
                     unit = unitVal ?: "Day(s)",
                     patientID = patId,
                     benVisitNo = benVisitNo
@@ -1284,7 +1391,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                         var freqVal = prescriptionTemp.frequency.nullIfEmpty()
                         var unitVal = prescriptionTemp.unit.nullIfEmpty()
                         var durVal = prescriptionTemp.duration.nullIfEmpty()
-                        var instruction = prescriptionTemp.instruction.nullIfEmpty()
+                        var instructions = prescriptionTemp.instructions.nullIfEmpty()
 
                         if (formVal != null) {
                             var pres = viewModel.userIDVAl?.let {
@@ -1298,7 +1405,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                                     frequency = freqVal,
                                     duration = durVal,
                                     unit = unitVal ?: "Day(s)",
-                                    instruction = instruction,
+                                    instructions = instructions,
                                     deleteStatus = 0
                                 )
                             }

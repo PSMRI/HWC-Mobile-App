@@ -5,6 +5,8 @@ import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
+import org.piramalswasthya.cho.model.CbacPostNew
+import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
@@ -136,6 +138,10 @@ interface AmritApiService {
     @POST("/flw-api/child-care/vaccination/saveAll")
     suspend fun postChildImmunizationDetails(@Body immunizationList: List<ImmunizationPost>): Response<ResponseBody>
 
+    @POST("/hwc-api/NCD/save/nurseData")
+    suspend fun postCbacData(@Body cbacList: CbacRequest): Response<ResponseBody>
+
+
     @POST("/flw-api/couple/tracking/saveAll")
     suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
 
@@ -147,6 +153,9 @@ interface AmritApiService {
 
     @POST("hwc-api/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
+
+    @POST("/hwc-api/NCD/getBenHistoryDetails")
+    suspend fun getCbacData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
     @POST("/hwc-api/labTechnician/get/prescribedProceduresList?apiKey=undefined")
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
@@ -197,10 +206,23 @@ interface AmritApiService {
 
     @POST("fhir-api/healthIDWithUID/createHealthIDWithUID")
     suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
+
+    @GET("common-api/facility/getWorklocationMappedAbdmFacility/{workingLocationId}")
+    suspend fun getWorkLocationMappedAbdmFacility(@Path("workingLocationId") workingLocationId :String): Response<ResponseBody>
+
+    @POST("fhir-api/facility/saveAbdmFacilityId")
+    suspend fun saveAbdmFacilityId(@Body saveAbdmFacilityId: SaveAbdmFacilityId): Response<ResponseBody>
+
     @POST("fhir-api/healthID/getBenhealthID")
     suspend fun getBenHealthID(@Body getBenHealthIdRequest: GetBenHealthIdRequest): Response<ResponseBody>
 
-    @POST("fhir-api/healthID/mapHealthIDToBeneficiary")
+    @POST("fhir-api/careContext/generateOTPForCareContext")
+    suspend fun generateOTPForCareContext(@Body generateOTPForCareContext: GenerateOTPForCareContextRequest): Response<ResponseBody>
+
+    @POST("fhir-api/careContext/validateOTPAndCreateCareContext")
+    suspend fun validateOTPAndCreateCareContext(@Body validateOTPAndCreateCareContextRequest: ValidateOTPAndCreateCareContextRequest): Response<ResponseBody>
+
+    @POST("fhir-api/healthIDRecord/mapHealthIDToBeneficiary")
     suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
 
     @POST("fhir-api/healthIDRecord/addHealthIdRecord")

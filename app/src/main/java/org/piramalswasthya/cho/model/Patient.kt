@@ -243,6 +243,7 @@ data class PatientDisplayWithVisitInfo(
     val createNewBenFlow: Boolean?,
     val prescriptionID:Int?,
     val benVisitNo: Int?,
+    val visitCategory: String?,
     val benFlowID: Long?,
     val nurseFlag: Int?,
     val doctorFlag: Int?,
@@ -264,6 +265,7 @@ data class PatientDisplayWithVisitInfo(
         vis.createNewBenFlow,
         vis.prescriptionID,
         vis.benVisitNo,
+        vis.visitCategory,
         vis.benFlowID,
         vis.nurseFlag,
         vis.doctorFlag,
@@ -294,6 +296,7 @@ data class PatientDisplayWithVisitInfo(
         null,
         null,
         null,
+        null,
         null
     )
 }
@@ -302,7 +305,7 @@ data class BenHealthIdDetails(
     var healthId: String = "",
     var healthIdNumber: String = "",
     var isNewAbha: Boolean= false
-)
+): Serializable
 
 @JsonClass(generateAdapter = true)
 data class PatientNetwork(

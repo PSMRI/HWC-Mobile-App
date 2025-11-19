@@ -100,10 +100,18 @@ class BenFlowRepo @Inject constructor(
         return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
     }
 
-    private fun convertStringToIntList(villageIds : String) : List<Int>{
-        return villageIds.split(",").map {
-            it.trim().toInt()
-        }
+//    Getting Number Formate Exception
+//    private fun convertStringToIntList(villageIds : String) : List<Int>{
+//        return villageIds.split(",").map {
+//            it.trim().toInt()
+//        }
+//    }
+
+    private fun convertStringToIntList(villageIds: String): List<Int> {
+        return villageIds.split(",")
+            .mapNotNull { part ->
+                part.trim().toIntOrNull()  // safely parse or skip if invalid
+            }
     }
 
     suspend fun createNewBenflow(user: UserDomain, patientDisplay: PatientDisplay, patientVisitInfoSync: PatientVisitInfoSync): NetworkResult<NetworkResponse> {
@@ -739,7 +747,7 @@ class BenFlowRepo @Inject constructor(
                     isEDL = it.isEDL,
                     qtyPrescribed = calculateQtyPrescribed(it.duration, it.unit, it.frequency),
                     route = it.routeID.toString(),
-                    instructions = it.instruciton
+                    instructions = it.instructions
                 )
                 Log.d("Pharmacist","Inserting PrescribedDrug: $prescribedDrugs")
                 val prescribedDrugsId = prescriptionDao.insert(prescribedDrugs)

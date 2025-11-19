@@ -18,6 +18,13 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PrescriptionDTO
+import org.piramalswasthya.cho.model.ProcedureDTO
+import org.piramalswasthya.cho.network.BenHealthDetails
+import org.piramalswasthya.cho.network.BenificiarySaveResponse
+import org.piramalswasthya.cho.network.GenerateOTPForCareContext
+import org.piramalswasthya.cho.network.NetworkResponse
+import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextResponse
 import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.BenVisitRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -46,6 +53,32 @@ class PharmacistFormViewModel @Inject constructor(
     val prescriptions: LiveData<PrescriptionDTO>
         get() = _prescriptions
 
+    private val _isBenHealthInfoFetched = MutableLiveData(false)
+    val isBenHealthInfoFetched: MutableLiveData<Boolean>
+        get() = _isBenHealthInfoFetched
+
+    private val _isOtpGenerated = MutableLiveData(false)
+    val isOtpGenerated: MutableLiveData<Boolean>
+        get() = _isOtpGenerated
+
+    private val _isOtpVerified = MutableLiveData(false)
+    val isOtpVerified: MutableLiveData<Boolean>
+        get() = _isOtpVerified
+
+    var benHealthInfo: BenHealthDetails? = null
+    var txnId: GenerateOTPForCareContext? = null
+    var response2: ValidateOTPAndCreateCareContextResponse? = null
+
+//    private val _txnId = MutableLiveData("")
+//    val txnId: MutableLiveData<String>
+//        get() = _txnId
+
+//    var careContext: String? = null
+
+//    private val _careContext = MutableLiveData("")
+//    val careContext: MutableLiveData<String>
+//        get() = _careContext
+
     enum class NetworkState {
         IDLE,
         LOADING,
@@ -64,6 +97,51 @@ class PharmacistFormViewModel @Inject constructor(
     fun getNetworkPrescriptionList() {
         viewModelScope.launch {
             _prescriptionObserver.value = NetworkState.SUCCESS
+        }
+    }
+
+    fun getBenHealthId(visitCode: Long?, benId: Long?, benRegId: Long?) {
+        viewModelScope.launch {
+            when (val response = patientRepo.getWorkLocationMappedAbdmFacility(visitCode, benId, benRegId)) {
+                is NetworkResult.Success -> {
+                    benHealthInfo = response.data as BenHealthDetails
+                    _isBenHealthInfoFetched.value = benHealthInfo != null
+                }
+                is NetworkResult.Error -> {
+                    _isBenHealthInfoFetched.value = false
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun generateOTPForCareContext() {
+        viewModelScope.launch {
+            when (val response = patientRepo.generateOTPForCareContext(benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!)) {
+                is NetworkResult.Success -> {
+                    txnId = response.data as GenerateOTPForCareContext
+                    _isOtpGenerated.value = txnId != null
+                }
+                is NetworkResult.Error -> {
+                    _isOtpGenerated.value  = false
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun validateOTPAndCreateCareContext(otp: String, beneficiaryID: Long, visitCode: Long, visitCategory: String) {
+        viewModelScope.launch {
+            when (val response = patientRepo.validateOTPAndCreateCareContext(otp, txnId?.txnId!!, beneficiaryID, benHealthInfo?.healthId!!, benHealthInfo?.healthIdNumber!!, visitCode, visitCategory)) {
+                is NetworkResult.Success -> {
+                    response2 = response.data as ValidateOTPAndCreateCareContextResponse
+                    _isOtpVerified.value = txnId != null
+                }
+                is NetworkResult.Error -> {
+                    _isOtpVerified.value  = false
+                }
+                else -> {}
+            }
         }
     }
 

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/padding_wide">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:padding="@dimen/padding_normal"
+        android:text="@string/abha_care_context"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_nrf"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:maxLines="2"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:visibility="gone"
+        android:text="@string/no_records_found"
+        android:textAlignment="gravity"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_header" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/abha_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_header">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_abha_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/abha_number"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvv_abha_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_abha_number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/tv_abha_number"
+            tools:text="91-4565-6545-7854@sbx" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_abha"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/abha"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvv_abha_number" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvv_abha"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_abha"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/tv_abha"
+            tools:text="91-4565-6545-7854" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_abha_created"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/created_date"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvv_abha" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvv_abha_created"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/tv_abha_created"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_abha_created"
+            tools:text="Jul 23, 2025, 4:13:12 PM" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/cancel"
+        android:visibility="gone"
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintEnd_toStartOf="@+id/btn_generate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/abha_box" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_generate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/generate_abha_otp"
+        android:visibility="gone"
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_cancel"
+        app:layout_constraintTop_toBottomOf="@+id/abha_box" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/ok"
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nrf" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

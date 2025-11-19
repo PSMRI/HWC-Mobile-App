@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.BuildConfig
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOutreachActivityFormBinding
 import org.piramalswasthya.cho.ui.outreach_activity.OutreachActivity
@@ -258,7 +259,7 @@ class OutreachActivityFormFragment : Fragment() {
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
                 requireContext(),
-                "org.piramalswasthya.cho.provider",
+                BuildConfig.APPLICATION_ID + ".provider",
                 it
             )
             takePictureLauncher.launch(photoURI)
