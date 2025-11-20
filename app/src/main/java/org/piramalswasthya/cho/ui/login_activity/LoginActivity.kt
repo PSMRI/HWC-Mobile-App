@@ -1,16 +1,12 @@
 package org.piramalswasthya.cho.ui.login_activity
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,9 +20,6 @@ import org.piramalswasthya.cho.databinding.ActivityLoginBinding
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
-import org.piramalswasthya.cho.utils.AutoLogoutReceiver
-import org.piramalswasthya.cho.work.WorkerUtils
-import java.util.*
 import javax.inject.Inject
 
 

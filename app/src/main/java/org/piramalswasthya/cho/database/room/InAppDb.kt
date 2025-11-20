@@ -14,11 +14,10 @@ import org.piramalswasthya.cho.database.converters.DistrictBlockConverter
 import org.piramalswasthya.cho.database.converters.DistrictConverter
 import org.piramalswasthya.cho.database.converters.FaceVectorConvertor
 import org.piramalswasthya.cho.database.converters.LocationConverter
-import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.converters.LocationEntityListConverter
 import org.piramalswasthya.cho.database.converters.LoginSettingsDataConverter
-import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.MasterDataListConverter
+import org.piramalswasthya.cho.database.converters.StateConverter
 import org.piramalswasthya.cho.database.converters.StringConverters
 import org.piramalswasthya.cho.database.converters.SyncStateConverter
 import org.piramalswasthya.cho.database.converters.UserMasterLocationConverter
@@ -37,12 +36,11 @@ import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
-import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
+import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
-import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
@@ -50,18 +48,98 @@ import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
+import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
+import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
-import org.piramalswasthya.cho.model.*
+import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.AlcoholDropdown
+import org.piramalswasthya.cho.model.AllergicReactionDropdown
+import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
+import org.piramalswasthya.cho.model.AssociateAilmentsHistory
+import org.piramalswasthya.cho.model.Batch
+import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.model.BlockMaster
+import org.piramalswasthya.cho.model.CbacCache
+import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.ChiefComplaintMaster
+import org.piramalswasthya.cho.model.CommunityMaster
+import org.piramalswasthya.cho.model.ComorbidConditionsDropdown
+import org.piramalswasthya.cho.model.ComponentDataDownsync
+import org.piramalswasthya.cho.model.ComponentDetails
+import org.piramalswasthya.cho.model.ComponentDetailsMaster
+import org.piramalswasthya.cho.model.ComponentOption
+import org.piramalswasthya.cho.model.ComponentOptionsMaster
+import org.piramalswasthya.cho.model.CounsellingProvided
+import org.piramalswasthya.cho.model.CovidVaccinationStatusHistory
+import org.piramalswasthya.cho.model.DeliveryOutcomeCache
+import org.piramalswasthya.cho.model.DiagnosisCaseRecord
+import org.piramalswasthya.cho.model.DistrictMaster
+import org.piramalswasthya.cho.model.DoseType
+import org.piramalswasthya.cho.model.DrugFormMaster
+import org.piramalswasthya.cho.model.DrugFrequencyMaster
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
+import org.piramalswasthya.cho.model.FamilyMemberDropdown
+import org.piramalswasthya.cho.model.GenderMaster
+import org.piramalswasthya.cho.model.GovIdEntityMaster
+import org.piramalswasthya.cho.model.HigherHealthCenter
+import org.piramalswasthya.cho.model.IllnessDropdown
+import org.piramalswasthya.cho.model.ImmunizationCache
+import org.piramalswasthya.cho.model.IncomeMaster
+import org.piramalswasthya.cho.model.InvestigationCaseRecord
+import org.piramalswasthya.cho.model.ItemMasterList
+import org.piramalswasthya.cho.model.Language
+import org.piramalswasthya.cho.model.LiteracyStatus
+import org.piramalswasthya.cho.model.LoginSettingsData
+import org.piramalswasthya.cho.model.MaritalStatusMaster
+import org.piramalswasthya.cho.model.MasterLocation
+import org.piramalswasthya.cho.model.MedicationHistory
+import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
+import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PastIllnessHistory
+import org.piramalswasthya.cho.model.PastSurgeryHistory
+import org.piramalswasthya.cho.model.Patient
+import org.piramalswasthya.cho.model.PatientVisitInfoSync
+import org.piramalswasthya.cho.model.PatientVitalsModel
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
+import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
+import org.piramalswasthya.cho.model.PrescribedDrugs
+import org.piramalswasthya.cho.model.PrescribedDrugsBatch
+import org.piramalswasthya.cho.model.Prescription
+import org.piramalswasthya.cho.model.PrescriptionCaseRecord
+import org.piramalswasthya.cho.model.PrescriptionTemplateDB
+import org.piramalswasthya.cho.model.PrescriptionWithItemMasterAndDrugFormMaster
+import org.piramalswasthya.cho.model.Procedure
+import org.piramalswasthya.cho.model.ProcedureDataDownsync
+import org.piramalswasthya.cho.model.ProcedureMaster
+import org.piramalswasthya.cho.model.ProceduresMasterData
+import org.piramalswasthya.cho.model.QualificationMaster
+import org.piramalswasthya.cho.model.ReferRevisitModel
+import org.piramalswasthya.cho.model.RelationshipMaster
+import org.piramalswasthya.cho.model.ReligionMaster
+import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.SubVisitCategory
+import org.piramalswasthya.cho.model.SurgeryDropdown
+import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
+import org.piramalswasthya.cho.model.TobaccoDropdown
+import org.piramalswasthya.cho.model.UserAuth
+import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.model.Vaccine
+import org.piramalswasthya.cho.model.VaccineType
+import org.piramalswasthya.cho.model.VillageMaster
+import org.piramalswasthya.cho.model.VisitCategory
+import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
-import timber.log.Timber
 
 @Database(
     entities = [
@@ -110,7 +188,6 @@ import timber.log.Timber
         PastSurgeryHistory::class,
         PastIllnessHistory::class,
         CovidVaccinationStatusHistory::class,
-        FingerPrint::class,
         InvestigationCaseRecord::class,
         PrescriptionCaseRecord::class,
         ChiefComplaintDB::class,
@@ -150,7 +227,7 @@ import timber.log.Timber
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 109, exportSchema = false
+    version = 110, exportSchema = false
 )
 
 
@@ -237,6 +314,11 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+                val MIGRATION_109_110 = object : Migration(109, 110) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP TABLE IF EXISTS FP_DATA")
+            }
+        }
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -248,7 +330,11 @@ abstract class InAppDb : RoomDatabase() {
                         "CHO-1.0-In-app-database"
                     )
 //                        .allowMainThreadQueries()
-                        .addMigrations(MIGRATION_106_107, MIGRATION_107_108,MIGRATION_108_109)
+                        .addMigrations(
+                            MIGRATION_106_107,
+                            MIGRATION_107_108,
+                            MIGRATION_108_109,MIGRATION_109_110
+                        )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {
