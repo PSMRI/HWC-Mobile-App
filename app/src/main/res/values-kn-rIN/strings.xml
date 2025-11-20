@@ -15,7 +15,6 @@
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">ಬಳಕೆದಾರ ಹೆಸರು</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="next">ಮುಂದೆ</string>
     <string name="cancel">ರದ್ದುಮಾಡು</string>
@@ -94,7 +93,6 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
 
-<!--    <string name="cbac">CBAC</string>-->
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>

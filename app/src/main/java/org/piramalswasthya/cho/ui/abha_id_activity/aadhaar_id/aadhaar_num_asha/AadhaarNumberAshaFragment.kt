@@ -60,7 +60,6 @@ class AadhaarNumberAshaFragment : Fragment() {
         val intent = requireActivity().intent
 
         val benId = intent.getLongExtra("benId", 0)
-        val benRegId = intent.getLongExtra("benRegId", 0)
 
         if (benId > 0) {
             viewModel.getBen(benId)
@@ -121,6 +120,8 @@ class AadhaarNumberAshaFragment : Fragment() {
 
         binding.tietAadhaarNumber.setTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                // Required override for TextWatcher.
+                // No pre-change logic needed for this input field.
             }
 
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -148,6 +149,7 @@ class AadhaarNumberAshaFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
+                // intentionally left blank - not required for this use case
             }
 
         })
@@ -155,9 +157,11 @@ class AadhaarNumberAshaFragment : Fragment() {
 
         binding.tietMobileNumber.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                // intentionally left blank - not required for this use case
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                // intentionally left blank - not required for this use case
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -183,9 +187,11 @@ class AadhaarNumberAshaFragment : Fragment() {
 
         binding.tietBenName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                // intentionally left blank - not required for this use case
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                // intentionally left blank - not required for this use case
             }
 
             override fun afterTextChanged(s: Editable?) {
