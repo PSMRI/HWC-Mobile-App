@@ -76,11 +76,7 @@ class UserRepo @Inject constructor(
      fun getLoggedInUserAsFlow(): Flow<Int?> {
         return userDao.getLoggedInUserAsFlow().map { it?.asDomainModel()?.userId }
     }
-    suspend fun isUserLoggedIn(): Int {
-        return withContext(Dispatchers.IO) {
-            userDao.getLoggedInStatus()
-        }
-    }
+
 
      suspend fun setOutreachProgram(loginType: String?,
                                       selectedOption: String?,
@@ -159,18 +155,6 @@ class UserRepo @Inject constructor(
                     it.masterLongitude = long
                     it.loginDistance = 1000
                     userDao.update(it)
-//                    if(!isBiometric!!) {
-//                        setOutreachProgram(
-//                            loginType,
-//                            selectedOption,
-//                            loginTimeStamp,
-//                            logoutTimeStamp,
-//                            lat,
-//                            long,
-//                            logoutType,
-//                            userImage
-//                        )
-//                    }
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -255,7 +239,6 @@ class UserRepo @Inject constructor(
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
                     val vanId = vanSp.getInt("vanID")
                     user?.vanId = vanId
-                    //val name = vanSp.getString("vanNoAndType")
                     val servicePointId = vanSp.getInt("servicePointID")
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
@@ -352,9 +335,7 @@ class UserRepo @Inject constructor(
                     val privilegesObject = privilegesArray.getJSONObject(0)
                     val rolesObjectArray = privilegesObject.getJSONArray("roles")
                     preferenceDao.setWorkingLocationID(rolesObjectArray.getJSONObject(0).getInt("workingLocationID"))
-                    val rolesArray = extractRoles(privilegesObject);
-//                    val roles = rolesArray;
-//                    Log.i("roles are ", roles);
+                    val rolesArray = extractRoles(privilegesObject)
                     val name = data.getString("fullName")
                     user = UserNetwork(userId, userName, password, name, rolesArray)
                     val serviceId = privilegesObject.getInt("serviceID")
@@ -474,16 +455,6 @@ class UserRepo @Inject constructor(
         }
     }
 
-//    private suspend fun getUserAssignedVillageIds(){
-//        user!!.assignVillageIds = "54151,54676,463267"
-////        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
-////        val responseBody = JSONObject(response.body()?.string() ?: "")
-////        if(responseBody.has("data")){
-////            val data = responseBody.getJSONObject("data")
-////            user!!.assignVillageIds = data.getString("villageId")
-////            user!!.assignVillageNames = data.getString("villageName")
-////        }
-//    }
 
     fun extractRoles(privilegesObject : JSONObject) : String{
 //        return "Lab Technician,MO,Pharmacist,Registrar,Staff Nurse"
@@ -628,9 +599,8 @@ class UserRepo @Inject constructor(
         if(loginAuditDataListUnsynced.isNotEmpty()){
             when(val response = saveLoginAuditDataToServer(loginAuditDataListUnsynced)){
                 is NetworkResult.Success ->{
-                    //TODO UPDATE SYNCED FLAG
-                    loginAuditDataListUnsynced.forEach { it ->
-                        userDao.updateAuditDataFlag(it.id)
+                    loginAuditDataListUnsynced.forEach { item->
+                        userDao.updateAuditDataFlag(item.id)
                     }
                 }
                 is NetworkResult.Error -> {
@@ -639,7 +609,9 @@ class UserRepo @Inject constructor(
                 }
                     return false
                 }
-                else ->{}
+                else ->{
+                    return false
+                }
             }
         }
         return true

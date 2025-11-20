@@ -339,7 +339,6 @@ abstract class InAppDb : RoomDatabase() {
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-//                                    Timber.d("Query to Room : sqlQuery=$sqlQuery with arguments : $bindArgs")
                                 }
                             },
                             Dispatchers.IO.asExecutor()

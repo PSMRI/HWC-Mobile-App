@@ -73,10 +73,6 @@ class ChoLoginFragment : Fragment() {
                 fragmentTransaction.replace(binding.selectActivityContainer.id, outreachFragment)
                 fragmentTransaction.commit()
             }
-            else -> {
-                fragmentTransaction.replace(binding.selectActivityContainer.id, hwcFragment)
-                fragmentTransaction.commit()
-            }
         }
     }
 
@@ -109,9 +105,13 @@ class ChoLoginFragment : Fragment() {
                     myLocation = location
                     }
 
-                    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+                        // No pre-change logic needed for this input field.
+                    }
 
-                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderEnabled(provider: String) {
+                        // No pre-change logic needed for this input field.
+                    }
 
                     override fun onProviderDisabled(provider: String) {
                         Toast.makeText(
