@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp">
@@ -20,27 +18,8 @@
             android:textSize="20dp"
             android:textStyle="normal|bold"
             app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
-<!--        <Button-->
-<!--              android:backgroundTint="@color/default_button"-->
-<!--            android:id="@+id/getLoc"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="8dp"-->
-<!--            android:text="@string/get_location"-->
-<!--            app:layout_constraintBottom_toTopOf="@+id/dropdown_label_state"-->
-<!--            app:layout_constraintStart_toStartOf="parent" />-->
-
-<!--        <Button-->
-<!--            android:id="@+id/enrollFpScreen"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="8dp"-->
-<!--            android:text="Enroll FingerPrint"-->
-<!--            app:layout_constraintBaseline_toBaselineOf="@+id/getLoc"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toEndOf="@+id/getLoc" />-->
 
         <TextView
             android:id="@+id/dropdown_label_state"
@@ -64,11 +43,11 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_state"
-                android:focusable="false"
-                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:clickable="false"
+                android:focusable="false"
                 android:inputType="none"
                 android:text="@string/choose_state" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -95,11 +74,11 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_dist"
-                android:focusable="false"
-                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:clickable="false"
+                android:focusable="false"
                 android:inputType="none"
                 android:text="@string/choose_district" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -126,11 +105,11 @@
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_taluk"
-                android:focusable="false"
-                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:clickable="false"
+                android:focusable="false"
                 android:inputType="none"
                 android:text="@string/choose_taluk" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -164,17 +143,6 @@
                 android:text="@string/choose_panchayat" />
         </com.google.android.material.textfield.TextInputLayout>
 
-<!--        <Button-->
-<!--              android:backgroundTint="@color/default_button"-->
-<!--            android:id="@+id/getGPSLoc"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:text="@string/get_gps_location"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/panchayat" />-->
-
         <Button
             android:id="@+id/getGPSLoc"
             android:layout_width="fill_parent"
@@ -185,52 +153,41 @@
             android:textStyle="normal|bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/panchayat"/>
+            app:layout_constraintTop_toBottomOf="@+id/panchayat" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/masterLat"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/padding_normal"
-                    android:hint="@string/master_latitude"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/getGPSLoc">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/masterLat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_normal"
+            android:hint="@string/master_latitude"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/getGPSLoc">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputMasterLat"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:inputType="none" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputMasterLat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/masterLong"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/padding_normal"
-                    android:hint="@string/master_longitude"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/masterLat">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/masterLong"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_normal"
+            android:hint="@string/master_longitude"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/masterLat">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputMasterLong"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:inputType="none" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-<!--                <Button-->
-<!--                      android:backgroundTint="@color/default_button"-->
-<!--                    android:id="@+id/retry"-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_margin="8dp"-->
-<!--                    android:text="@string/retry"-->
-<!--                    app:layout_constraintEnd_toStartOf="@id/submit"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toBottomOf="@+id/masterLong" />-->
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputMasterLong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/btn_submit_ll"
@@ -241,18 +198,17 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/masterLong"
-            >
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="@color/default_button"
-            android:text="@string/submit"
-             />
+            app:layout_constraintTop_toBottomOf="@+id/masterLong">
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/default_button"
+                android:text="@string/submit" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
+</ScrollView>

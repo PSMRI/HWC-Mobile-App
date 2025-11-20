@@ -314,9 +314,6 @@
     <string name="timer">timer</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="fp_tv">Please Place your Finger on the fingerprint sensor to proceed</string>
-    <string name="fp_try_again">Finger Not Recognised Try Again!</string>
-    <string name="fingerprint_captured">FingerPrint Captured!</string>
     <string name="parent_gurdian_name">Parent/Gurdian name</string>
     <string name="religion">Religion</string>
     <string name="community">Community</string>

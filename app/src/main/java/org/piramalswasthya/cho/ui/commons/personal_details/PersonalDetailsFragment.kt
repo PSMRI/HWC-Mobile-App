@@ -615,7 +615,6 @@ class PersonalDetailsFragment : Fragment() {
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
         val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID =
         benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-//        Log.d("prescriptionMsg", prescriptions.toString())
 
         val pdfDocument: PdfDocument = PdfDocument()
 

@@ -1,16 +1,12 @@
 package org.piramalswasthya.cho.repositories
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -28,7 +24,6 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
-import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
@@ -43,13 +38,13 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import retrofit2.HttpException
 import timber.log.Timber
@@ -71,9 +66,6 @@ class UserRepo @Inject constructor(
 
 
     private var user: UserNetwork? = null
-
-//    @SuppressLint("StaticFieldLeak")
-//    val context: Context = application.applicationContext
 
 
     suspend fun getLoggedInUser(): UserDomain? {
@@ -559,22 +551,6 @@ class UserRepo @Inject constructor(
                 return@withContext null
             }
         }
-    }
-
-    suspend fun insertFPDataToLocalDB(fpList: List<FingerPrint>){
-        return withContext(Dispatchers.IO){
-            try{
-                for(item in fpList){
-                    userDao.insertFpData(item)
-                }
-            } catch (e: Exception){
-                Timber.d("Error in inserting Finger Print Data $e")
-            }
-        }
-    }
-
-    fun getFPDataFromLocalDB(): LiveData<List<FingerPrint>>{
-        return  userDao.getAllFpData()
     }
 
     suspend fun updateLoginStatus(userName: String){
