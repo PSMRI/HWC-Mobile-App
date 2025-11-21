@@ -146,7 +146,6 @@ class CreateAbhaFragment : Fragment() {
         }else{
             val timestamp = System.currentTimeMillis()
             analyticsHelper.logCustomTimestampEvent("map_ben_to_health_id_request",timestamp)
-//            viewModel.mapBeneficiaryToHealthId(benId, benRegId)
         }
 
 

@@ -200,7 +200,7 @@ class CbacRepo @Inject constructor(
                                         }
                                     }
                                 } else {
-
+                                    allSynced = false
                                 }
                             } else {
                                 allSynced = false

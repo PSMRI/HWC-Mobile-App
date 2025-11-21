@@ -255,7 +255,6 @@ class AadhaarNumberAshaFragment : Fragment() {
         parentViewModel.setAadhaarNumber(binding.tietAadhaarNumber.text.toString())
         when (parentViewModel.verificationType.value) {
             "OTP" -> viewModel.generateOtpClicked(binding.tietAadhaarNumber.text.toString())
-//            "FP" -> rdServiceCapturePIDContract.launch(Unit)
         }
     }
 
