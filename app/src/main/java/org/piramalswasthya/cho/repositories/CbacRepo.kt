@@ -200,7 +200,7 @@ class CbacRepo @Inject constructor(
                                         }
                                     }
                                 } else {
-
+                                    allSynced = false
                                 }
                             } else {
                                 allSynced = false
@@ -217,80 +217,6 @@ class CbacRepo @Inject constructor(
             return@withContext allSynced
         }
     }
-
-  /*  suspend fun pushUnSyncedCbacRecords(): Boolean {
-
-        return withContext(Dispatchers.IO) {
-            val user =
-                userRepo.getLoggedInUser()
-                    ?: throw IllegalStateException("No user logged in!!")
-
-            val cbacCacheList: List<CbacCache> = cbacDao.getAllUnprocessedCbac(
-                SyncState.UNSYNCED)
-
-            val cbacDTOs = mutableListOf<CbacPostNew>()
-            cbacCacheList.forEach { cache ->
-                val patient = patientRepo.getPatient(cache.patId)
-                val genderEnum = patient.genderID?.let { Gender.fromId(it) }
-
-                if(patient.beneficiaryID != null){
-                    var cbacDto = genderEnum?.let { cache.asPostModel(it,context.resources,patient.beneficiaryID!!) }
-                    cbacDto?.let { cbacDTOs.add(it) }
-                }
-            }
-            if (cbacDTOs.isEmpty()) return@withContext true
-            try {
-                val response = amritApiService.postCbacData(cbacDTOs)
-                val statusCode = response.code()
-                if (statusCode == 200) {
-                    val responseString = response.body()?.string()
-                    if (responseString != null) {
-                        val jsonObj = JSONObject(responseString)
-
-                        val responseStatusCode = jsonObj.getInt("statusCode")
-                        Timber.d("Push to Amrit Child Immunization data : $responseStatusCode")
-                        when (responseStatusCode) {
-                            200 -> {
-                                try {
-                                    updateSyncStatusCbac(cbacCacheList)
-                                    return@withContext true
-                                } catch (e: Exception) {
-                                    Timber.d("Child Immunization entries not synced $e")
-                                }
-                            }
-
-                            5002 -> {
-                                if (userRepo.refreshTokenTmc(
-                                        user.userName, user.password
-                                    )
-                                ) throw SocketTimeoutException("Refreshed Token!")
-                                else throw IllegalStateException("User Logged out!!")
-                            }
-
-                            5000 -> {
-                                val errorMessage = jsonObj.getString("errorMessage")
-                                Log.d("child immunization fails", errorMessage)
-                                if (errorMessage == "No record found") return@withContext false
-                            }
-
-                            else -> {
-                                throw IllegalStateException("$responseStatusCode received, dont know what todo!?")
-                            }
-                        }
-                    }
-                }
-
-            } catch (e: SocketTimeoutException) {
-                Timber.d("save_child_immunization error : $e")
-                return@withContext false
-
-            } catch (e: java.lang.IllegalStateException) {
-//                Timber.d("save_child_immunization error : $e")
-//                return@withContext false
-            }
-            false
-        }
-    }*/
 
     private suspend fun updateSyncStatusCbac(cbac: CbacCache) {
         cbac.syncState = SyncState.SYNCED

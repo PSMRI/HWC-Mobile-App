@@ -317,6 +317,7 @@ abstract class InAppDb : RoomDatabase() {
                 val MIGRATION_109_110 = object : Migration(109, 110) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("DROP TABLE IF EXISTS FP_DATA")
+                database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
         fun getInstance(appContext: Context): InAppDb {

@@ -100,13 +100,6 @@ class BenFlowRepo @Inject constructor(
         return benFlowDao.getBenFlowByBenRegIdAndBenVisitNo(beneficiaryRegID, benVisitNo)
     }
 
-//    Getting Number Formate Exception
-//    private fun convertStringToIntList(villageIds : String) : List<Int>{
-//        return villageIds.split(",").map {
-//            it.trim().toInt()
-//        }
-//    }
-
     private fun convertStringToIntList(villageIds: String): List<Int> {
         return villageIds.split(",")
             .mapNotNull { part ->
