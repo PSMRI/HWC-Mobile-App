@@ -144,8 +144,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
-    //tensorflow and mlkit
-    implementation ("com.google.mlkit:face-detection:16.1.6")
+    //tensorflow and mediapipe.
+    implementation 'com.google.mediapipe:tasks-vision:latest.release'
     implementation ("org.tensorflow:tensorflow-lite:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu-api:2.11.0")

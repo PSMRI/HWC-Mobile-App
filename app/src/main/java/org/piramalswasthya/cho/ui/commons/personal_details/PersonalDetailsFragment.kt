@@ -39,14 +39,16 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import android.graphics.ImageDecoder
 import com.bumptech.glide.Glide
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
 import org.piramalswasthya.cho.facenet.FaceNetModel
 import org.piramalswasthya.cho.facenet.Models
 import dagger.hilt.android.AndroidEntryPoint
@@ -422,34 +424,79 @@ class PersonalDetailsFragment : Fragment() {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                val highspeed = FaceDetectorOptions.Builder()
-                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                    .build()
-                val detector = FaceDetection.getClient(highspeed)
-                val image = InputImage.fromFilePath(requireContext(), photoURI)
-                detector.process(image)
-                    .addOnSuccessListener { faces ->
-                        if (faces.isEmpty()) {
+                try {
+                    // Initialize MediaPipe Face Detector
+                    val baseOptionsBuilder = BaseOptions.builder()
+                        .setModelAssetPath("blaze_face_short_range.tflite")
+
+                    val options = FaceDetector.FaceDetectorOptions.builder()
+                        .setBaseOptions(baseOptionsBuilder.build())
+                        .setMinDetectionConfidence(0.5f)
+                        .setRunningMode(RunningMode.IMAGE)
+                        .build()
+
+                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
+
+                    // Load image from URI
+                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source = ImageDecoder.createSource(requireContext().contentResolver, photoURI)
+                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, photoURI)
+                    }
+
+                    // Convert to MPImage
+                    val mpImage = BitmapImageBuilder(imageBitmap).build()
+
+                    // Detect faces
+                    val detectionResult = faceDetector.detect(mpImage)
+
+                    // Handle detection results
+                    when {
+                        detectionResult.detections().isEmpty() -> {
                             Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
-                            return@addOnSuccessListener
-                        } else if (faces.size > 1) {
+                            faceDetector.close()
+                        }
+                        detectionResult.detections().size > 1 -> {
                             Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
-                            return@addOnSuccessListener
-                        } else {
-                            val face = faces[0]
-                            val boundingBox = face.boundingBox
-                            val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                requireContext().contentResolver,
-                                photoURI
-                            )
+                            faceDetector.close()
+                        }
+                        else -> {
+                            val detection = detectionResult.detections()[0]
+                            val boundingBox = detection.boundingBox()
+
+                            // Ensure bounding box is within image bounds (convert Float to Int)
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+                            // Validate dimensions
+                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                Toast.makeText(requireContext(), "Invalid face detection", Toast.LENGTH_SHORT).show()
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
+
+                            // Crop face from image
                             val faceBitmap = Bitmap.createBitmap(
                                 imageBitmap,
-                                boundingBox.left,
-                                boundingBox.top,
-                                boundingBox.width(),
-                                boundingBox.height()
+                                left,
+                                top,
+                                width,
+                                height
                             )
+
+                            // Clean up detector
+                            faceDetector.close()
+
+                            // Get face embeddings
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+
+                            // Compare faces and find matching patient
                             lifecycleScope.launch {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
                                 if (matchedPatient != null) {
@@ -486,10 +533,11 @@ class PersonalDetailsFragment : Fragment() {
                             }
                         }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("FaceDetection", "Face detection failed", e)
-                        Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
-                    }
+
+                } catch (e: Exception) {
+                    Log.e("FaceDetection", "Face detection failed", e)
+                    Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
