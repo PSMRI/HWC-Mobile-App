@@ -87,6 +87,8 @@ class PrescriptionAdapter(
             if (position in 0 until itemList.size) {
                 itemList.removeAt(position)
                 notifyItemRemoved(position)
+                notifyItemRangeChanged(position, itemList.size - position)
+
                 itemChangeListener.onItemChanged()
             }
         }
@@ -246,7 +248,7 @@ class PrescriptionAdapter(
         // Update the visibility of the "Reset" button for all items
         holder.updateResetButtonState()
 
-        holder.textPrescriptionHeading.text = itemData.title
+        holder.textPrescriptionHeading.text = "Medicine - ${position + 1}"
     }
 
 

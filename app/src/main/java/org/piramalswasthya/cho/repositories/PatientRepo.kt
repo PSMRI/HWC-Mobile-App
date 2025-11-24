@@ -47,9 +47,14 @@ import org.piramalswasthya.cho.network.BenHealthDetails
 import org.piramalswasthya.cho.network.BenificiarySaveResponse
 import org.piramalswasthya.cho.network.CountDownSync
 import org.piramalswasthya.cho.network.DownsyncSuccess
+import org.piramalswasthya.cho.network.GenerateOTPForCareContext
+import org.piramalswasthya.cho.network.GenerateOTPForCareContextRequest
 import org.piramalswasthya.cho.network.GetBenHealthIdRequest
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
+import org.piramalswasthya.cho.network.SaveAbdmFacilityId
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextRequest
+import org.piramalswasthya.cho.network.ValidateOTPAndCreateCareContextResponse
 import org.piramalswasthya.cho.network.VillageIdList
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
@@ -81,6 +86,9 @@ class PatientRepo @Inject constructor(
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
 ) {
+
+    private var abdmFacilityId: String = ""
+    private var abdmFacilityName: String = ""
 
     suspend fun insertPatient(patient: Patient) {
         patientDao.insertPatient(patient)
@@ -480,49 +488,137 @@ class PatientRepo @Inject constructor(
 
     }
 
-    suspend fun getBeneficiaryWithId(benRegId: Long): BenHealthDetails? {
-        try {
+    suspend fun getWorkLocationMappedAbdmFacility(visitCode: Long? = 0L, benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
             val response = apiService
-                .getBenHealthID(GetBenHealthIdRequest(benRegId, null))
-            if (response.isSuccessful) {
-                val responseBody = response.body()?.string()
-
-                when (responseBody?.let { JSONObject(it).getInt("statusCode") }) {
-                    200 -> {
-                        val jsonObj = JSONObject(responseBody)
-                        val data = jsonObj.getJSONObject("data").getJSONArray("BenHealthDetails")
-                            .toString()
-                        val bens = Gson().fromJson(data, Array<BenHealthDetails>::class.java)
-                        return if (bens.isNotEmpty()) {
-                            bens.last()
-                        } else {
-                            null
-                        }
-                    }
-
-                    5000, 5002 -> {
-                        if (JSONObject(responseBody).getString("errorMessage")
-                                .contentEquals("Invalid login key or session is expired")
-                        ) {
-                            val user = userRepo.getLoggedInUser()!!
-                            userRepo.refreshTokenTmc(user.userName, user.password)
-                            return getBeneficiaryWithId(benRegId)
-                        } else {
-                            NetworkResult.Error(
-                                0,
-                                JSONObject(responseBody).getString("errorMessage")
-                            )
-                        }
-                    }
-
-                    else -> {
-                        NetworkResult.Error(0, responseBody.toString())
-                    }
-                }
-            }
-        } catch (_: java.lang.Exception) {
+                .getWorkLocationMappedAbdmFacility(preferenceDao.getWorkingLocationID().toString())
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data")
+                    abdmFacilityId = data.getString("abdmFacilityID")
+                    abdmFacilityName = data.getString("abdmFacilityName")
+//                    val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+//                    NetworkResult.Success(result)
+                    saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getWorkLocationMappedAbdmFacility(visitCode = visitCode, benId = benId, benRegId = benRegId)
+                },
+            )
         }
-        return null
+
+    }
+
+    suspend fun saveAbdmFacilityId(visitCode: Long? = 0L, abdmFacilityId: String? = "", benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .saveAbdmFacilityId(SaveAbdmFacilityId(visitCode, abdmFacilityId))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    getBeneficiaryHealthId(benId, benRegId)
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    saveAbdmFacilityId(visitCode, abdmFacilityId, benId, benRegId)
+                },
+            )
+        }
+
+    }
+
+    suspend fun getBeneficiaryHealthId(benId: Long? = 0L, benRegId: Long? = 0L): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .getBenHealthID(GetBenHealthIdRequest(benRegId, benId))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").getJSONArray("BenHealthDetails")
+                        .toString()
+                    val bens = Gson().fromJson(data, Array<BenHealthDetails>::class.java)
+                    if (bens.isNotEmpty()) {
+                        NetworkResult.Success(bens.last())
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    getBeneficiaryHealthId(benId = benId, benRegId = benRegId)
+                },
+            )
+        }
+
+    }
+
+    suspend fun generateOTPForCareContext(healthID: String, healthIdNumber: String): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .generateOTPForCareContext(GenerateOTPForCareContextRequest(healthID, healthIdNumber, abdmFacilityId, abdmFacilityName))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val data2 = Gson().fromJson(data, GenerateOTPForCareContext::class.java)
+                    if (!data2.txnId.isNullOrEmpty()) {
+                        NetworkResult.Success(data2)
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    generateOTPForCareContext(healthID, healthIdNumber)
+                },
+            )
+        }
+
+    }
+
+    suspend fun validateOTPAndCreateCareContext(otp: String, txnId: String, beneficiaryID: Long, healthID: String, healthIdNumber: String, visitCode: Long, visitCategory: String): NetworkResult<NetworkResponse> {
+
+        return networkResultInterceptor {
+            val response = apiService
+                .validateOTPAndCreateCareContext(ValidateOTPAndCreateCareContextRequest(otp, txnId, beneficiaryID, healthID, healthIdNumber, visitCode, visitCategory, abdmFacilityId, abdmFacilityName))
+            val responseBody = response.body()?.string()
+            refreshTokenInterceptor(
+                responseBody = responseBody,
+                onSuccess = {
+                    val jsonObj = JSONObject(responseBody)
+                    val data = jsonObj.getJSONObject("data").toString()
+                    val data2 = Gson().fromJson(data, ValidateOTPAndCreateCareContextResponse::class.java)
+                    if (!data2.response.isNullOrEmpty()) {
+                        NetworkResult.Success(data2)
+                    } else {
+                        NetworkResult.Error(0, "No data")
+                    }
+                },
+                onTokenExpired = {
+                    val user = userRepo.getLoggedInUser()!!
+                    userRepo.refreshTokenTmc(user.userName, user.password)
+                    generateOTPForCareContext(healthID, healthIdNumber)
+                },
+            )
+        }
+
     }
 
     fun getPatientDisplayListForNurse() : Flow<List<PatientDisplayWithVisitInfo>> {

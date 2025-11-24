@@ -197,10 +197,23 @@ interface AmritApiService {
 
     @POST("fhir-api/healthIDWithUID/createHealthIDWithUID")
     suspend fun createHid(@Body createHealthIdRequest: CreateHealthIdRequest): Response<ResponseBody>
+
+    @GET("common-api/facility/getWorklocationMappedAbdmFacility/{workingLocationId}")
+    suspend fun getWorkLocationMappedAbdmFacility(@Path("workingLocationId") workingLocationId :String): Response<ResponseBody>
+
+    @POST("fhir-api/facility/saveAbdmFacilityId")
+    suspend fun saveAbdmFacilityId(@Body saveAbdmFacilityId: SaveAbdmFacilityId): Response<ResponseBody>
+
     @POST("fhir-api/healthID/getBenhealthID")
     suspend fun getBenHealthID(@Body getBenHealthIdRequest: GetBenHealthIdRequest): Response<ResponseBody>
 
-    @POST("fhir-api/healthID/mapHealthIDToBeneficiary")
+    @POST("fhir-api/careContext/generateOTPForCareContext")
+    suspend fun generateOTPForCareContext(@Body generateOTPForCareContext: GenerateOTPForCareContextRequest): Response<ResponseBody>
+
+    @POST("fhir-api/careContext/validateOTPAndCreateCareContext")
+    suspend fun validateOTPAndCreateCareContext(@Body validateOTPAndCreateCareContextRequest: ValidateOTPAndCreateCareContextRequest): Response<ResponseBody>
+
+    @POST("fhir-api/healthIDRecord/mapHealthIDToBeneficiary")
     suspend fun mapHealthIDToBeneficiary(@Body mapHIDtoBeneficiary: MapHIDtoBeneficiary): Response<ResponseBody>
 
     @POST("fhir-api/healthIDRecord/addHealthIdRecord")

@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">HWC</string>
+    <string name="app_name">AAM</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
     <string name="PREF_primary_JWT_API_KEY" translatable="false">JWT-Token_N</string>
     <string name="USER_ROLES" translatable="false">User_Roles</string>
+    <string name="WORK_LOCATION_ID" translatable="false">Working_Location_Id</string>
     <string name="SECOND_USER_ROLES" translatable="false">Second_User_Roles</string>
     <string name="SWITCH_USER_ROLES" translatable="false">Switch_User_Roles</string>
     <string name="title_activity_login">LoginActivity</string>
@@ -114,6 +115,13 @@
     <string name="investigation">Investigation</string>
     <string name="examination_text">Examination</string>
     <string name="other_info">Other Information</string>
+    <string name="info">Info</string>
+    <string name="want_care_context">Data saved successfully. Do you want to link Care Context?</string>
+    <string name="cancel_care_context">Do you want to cancel Care Context?</string>
+    <string name="abha_care_context">ABHA Care Context Mapping</string>
+    <string name="generate_abha_otp">Generate OTP</string>
+    <string name="created_date">Created Date</string>
+    <string name="otp_sent">OTP sent to your registered mobile number</string>
     <string name="add_text">Add</string>
     <string name="stock_warning_text">Stock Unavailable</string>
     <string name="view_prescription_text">View Prescription</string>
@@ -336,6 +344,7 @@
     <string name="route2">Route: </string>
     <string name="external_investigation">External Investigation</string>
     <string name="save_successful">Save Successful\n</string>
+    <string name="success">Success</string>
     <string name="something_wend_wong">Something Went Wrong</string>
     <string name="loading_form">Loading Form</string>
     <string name="loading">Loading Please Wait....</string>

@@ -224,19 +224,19 @@ class PersonalDetailsFragment : Fragment() {
                                         ).show()
                                     }
                                     else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() ){
-//                                        Toast.makeText(
-//                                            requireContext(),
-//                                            resources.getString(R.string.flowCompleted),
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-                                        var modifiedInfo = benVisitInfo
-                                        if(preferenceDao.isNurseSelected()){
-                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
-                                        }
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", modifiedInfo);
-                                        startActivity(intent)
-                                        requireActivity().finish()
+                                        Toast.makeText(
+                                            requireContext(),
+                                            resources.getString(R.string.flowCompleted),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+//                                        var modifiedInfo = benVisitInfo
+//                                        if(preferenceDao.isNurseSelected()){
+//                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
+//                                        }
+//                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+//                                        intent.putExtra("benVisitInfo", modifiedInfo);
+//                                        startActivity(intent)
+//                                        requireActivity().finish()
                                     }
                                     else{
                                         var modifiedInfo = benVisitInfo
@@ -463,6 +463,7 @@ class PersonalDetailsFragment : Fragment() {
                                         createNewBenFlow = visitInfo.createNewBenFlow,
                                         prescriptionID = visitInfo.prescriptionID,
                                         benVisitNo = visitInfo.benVisitNo,
+                                        visitCategory = visitInfo.visitCategory,
                                         benFlowID = visitInfo.benFlowID,
                                         nurseFlag = visitInfo.nurseFlag,
                                         doctorFlag = visitInfo.doctorFlag,

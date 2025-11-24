@@ -51,18 +51,20 @@ android {
     flavorDimensions "default"
 
     productFlavors {
-        staging {
-            applicationIdSuffix ".staging"
+        niramayStag {
+            applicationIdSuffix ".niramay.stag"
             applicationId "org.piramalswasthya.cho"
             resValue "string", "app_native_name", "HWC-Stag"
         }
-        uat {
-            applicationIdSuffix ".uat"
+        niramayUat {
+            applicationIdSuffix ".niramay.uat"
             applicationId "org.piramalswasthya.cho"
             resValue "string", "app_native_name", "HWC-Uat"
         }
-        production {
+        niramay {
+            applicationIdSuffix ".niramay"
             applicationId "org.piramalswasthya.cho"
+            resValue "string", "app_native_name", "HWC"
         }
     }
 
