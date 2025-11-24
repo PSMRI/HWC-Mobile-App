@@ -41,6 +41,7 @@
     <string name="last_sync_time">last_sync_time</string>
     <string name="last_patient_sync_time">last_patient_sync_time</string>
     <string name="last_benflow_sync_time">last_benflow_sync_time</string>
+    <string name="last_cbac_sync_time">last_benflow_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
@@ -319,6 +320,7 @@
     <string name="nav_item_2_text">Username : <b>%s</b></string>
     <string name="nav_item_3_text">User ID :  <b>%d</b></string>
     <string name="PREF_user_entry">logged-in-user</string>
+    <string name="PREF_user_name">user name</string>
     <string name="individual_s_consent_for_creation_of_abha_number">Individual’s consent for creation of ABHA Number.</string>
     <string name="exit">Exit</string>
     <string name="timer">timer</string>
@@ -622,5 +624,7 @@
     <string name="required">Required</string>
     <string name="version">Version 6.0.0</string>
     <string name="str_duration">Duration:</string>
+    <string name="edd_date">EDD Date</string>
+    <string name="update_btn">Update</string>
 
 </resources>

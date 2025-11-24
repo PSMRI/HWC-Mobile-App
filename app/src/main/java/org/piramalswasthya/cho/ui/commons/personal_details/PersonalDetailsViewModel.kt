@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BenFlow
 
 import org.piramalswasthya.cho.model.BenHealthIdDetails
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSyncWithPatient
+import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.utils.filterBenList
@@ -33,6 +35,7 @@ class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val pref: PreferenceDao,
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
+    private val benFlowRepo: BenFlowRepo
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
@@ -64,6 +67,8 @@ class PersonalDetailsViewModel @Inject constructor(
     val benRegId: LiveData<Long?>
         get() = _benRegId
 
+    private val _benFlows = MutableLiveData<List<BenFlow>?>()
+    val benFlows: LiveData<List<BenFlow>?> = _benFlows
 
 
     enum class NetworkState {
@@ -134,4 +139,16 @@ class PersonalDetailsViewModel @Inject constructor(
         pref.getEsanjeevaniPassword()
     fun fetchRememberedUsername(): String? =
         pref.getEsanjeevaniUserName()
+
+
+    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
+        viewModelScope.launch {
+            try {
+                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
+                _benFlows.value = benFlowList
+            } catch (e: Exception) {
+                _benFlows.value = emptyList()
+            }
+        }
+    }
 }

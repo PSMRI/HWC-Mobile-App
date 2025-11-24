@@ -1,11 +1,10 @@
 package org.piramalswasthya.cho.ui.commons.cbac
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
-import androidx.compose.ui.text.toLowerCase
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -19,15 +18,9 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
-//import org.piramalswasthya.cho.database.room.dao.BenDao
-//import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.helpers.Languages
-import org.piramalswasthya.cho.model.AgeUnit
-//import org.piramalswasthya.sakhi.model.BenBasicCache
-//import org.piramalswasthya.sakhi.model.BenRegCache
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.Gender
-import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.CbacRepo
@@ -56,6 +49,7 @@ class CbacViewModel @Inject constructor(
     }
 
 
+     var lastFillDate: Long = 0L
     private val englishResources by lazy {
         val configuration = Configuration(context.resources.configuration)
         configuration.setLocale(Locale.ENGLISH)
@@ -114,7 +108,8 @@ class CbacViewModel @Inject constructor(
     }
 
     private val patId = CbacFragmentArgs.fromSavedStateHandle(state).patId
-    val cbacId = CbacFragmentArgs.fromSavedStateHandle(state).cbacId
+    private val benId = CbacFragmentArgs.fromSavedStateHandle(state).benId
+    var cbacId = 0
     private val ashaId = 0
 
     private lateinit var cbac: CbacCache
@@ -157,7 +152,7 @@ class CbacViewModel @Inject constructor(
     private var flagForNcd = false
 
     private val _minDate = MutableLiveData<Long>()
-
+    var isOneYearPassed = false
 
     val minDate: LiveData<Long>
         get() = _minDate
@@ -165,18 +160,27 @@ class CbacViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                cbac = if (cbacId > 0)
-                    cbacRepo.getCbacCacheFromId(cbacId).also { _filledCbac.postValue(it) }
-                else
-                    CbacCache(
-                        patId = patId, ashaId = ashaId,
-                        syncState = SyncState.UNSYNCED,
-                        createdDate = System.currentTimeMillis()
-                    )
-                val lastFilledCbac = cbacRepo.getLastFilledCbac(patId)
+                val cachedCbac = cbacRepo.getLastFilledCbac(benId)
+                Log.e("PatientId","$cachedCbac  $benId")
+                cbac = cachedCbac?.also {
+                    _filledCbac.postValue(it)
+                    cbacId = it.id
+                } ?: CbacCache(
+                    patId = benId,
+                    patientId = patId,
+                    syncState = SyncState.UNSYNCED,
+                    createdDate = System.currentTimeMillis(),
+                     fillDate = 0L
+
+                )
+                lastFillDate = cbac.fillDate
+
+                val lastFilledCbac = cbacRepo.getLastFilledCbac(benId)
                 ben = patientRepo.getPatientDisplay(patId)!!
+
                 _minDate.postValue(lastFilledCbac?.fillDate?.let { it + TimeUnit.DAYS.toMillis(365) }
                     ?: ben.patient.registrationDate?.time ?: 0)
+
             }
             if (ben.ageUnit.name.lowercase() != "years")
                 throw IllegalStateException("Age not in years for CBAC form!!")

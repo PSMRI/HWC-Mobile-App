@@ -5,10 +5,13 @@ import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
+import org.piramalswasthya.cho.model.CbacPostNew
+import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
 import org.piramalswasthya.cho.model.LabResultDTO
 import org.piramalswasthya.cho.model.LocationRequest
+import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
 import org.piramalswasthya.cho.model.MasterLocationModel
 import org.piramalswasthya.cho.model.ModelObject
 import org.piramalswasthya.cho.model.NetworkBody
@@ -136,6 +139,10 @@ interface AmritApiService {
     @POST("/flw-api/child-care/vaccination/saveAll")
     suspend fun postChildImmunizationDetails(@Body immunizationList: List<ImmunizationPost>): Response<ResponseBody>
 
+    @POST("/hwc-api/NCD/save/nurseData")
+    suspend fun postCbacData(@Body cbacList: CbacRequest): Response<ResponseBody>
+
+
     @POST("/flw-api/couple/tracking/saveAll")
     suspend fun postEctForm(@Body ectPostList: List<ECTNetwork>): Response<ResponseBody>
 
@@ -148,12 +155,15 @@ interface AmritApiService {
     @POST("hwc-api/sync/beneficiaryGeneralOPDNurseFormDataToApp")
     suspend fun getNurseData(@Body nurseDataRequest: NurseDataRequest) : Response<ResponseBody>
 
+    @POST("/hwc-api/NCD/getByUserCbacDetails")
+    suspend fun getCbacData(@Body getcbacRequest: GetCBACRequest) : Response<ResponseBody>
+
     @POST("/hwc-api/labTechnician/get/prescribedProceduresList?apiKey=undefined")
     suspend fun getLabTestPrescribedProceduresList(@Body labProceduresDataRequest: LabProceduresDataRequest) : Response<ResponseBody>
 
     // TODO: update with final api once developed
     @POST("/hwc-api/labTechnician/get/fetchProcCompMapMasterData?apiKey=undefined")
-    suspend fun getMasterLabProceduresDate(/*@Body masterLabProceduresRequestModel: MasterLabProceduresRequestModel*/) : Response<ResponseBody>
+    suspend fun getMasterLabProceduresDate(@Body masterLabProceduresRequestModel: MasterLabProceduresRequestModel) : Response<ResponseBody>
 
     @POST("/hwc-api/generalOPD/save/doctorData?apiKey=undefined")
     suspend fun saveDoctorData(@Body patientDoctorForm: PatientDoctorFormUpsync) : Response<ResponseBody>

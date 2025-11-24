@@ -37,10 +37,17 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pullCbacFromAmritWorker = OneTimeWorkRequestBuilder<PullCbacFromAmritWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+
+
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pullBenFlowFromAmritWorker)
+            .then(pullCbacFromAmritWorker)
             .enqueue()
     }
 
@@ -87,6 +94,12 @@ object WorkerUtils {
             .setConstraints(networkOnlyConstraint)
             .build()
 
+        val pushCbacWorkRequest = OneTimeWorkRequestBuilder<PushCbacToAmirtWorker>()
+            .setConstraints(networkOnlyConstraint)
+            .build()
+
+
+
         val pushECToAmritWorker = OneTimeWorkRequestBuilder<PushECToAmritWorker>()
             .setConstraints(networkOnlyConstraint)
             .build()
@@ -94,6 +107,7 @@ object WorkerUtils {
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
+            .then(pushCbacWorkRequest)
             .then(pushBenToAmritWorker)
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
@@ -105,7 +119,8 @@ object WorkerUtils {
             .then(pushPNCWorkRequest)
             .then(pushECToAmritWorker)
             .then(pushImmunizationWorkRequest)
-//            .then(pushLabDataToAmrit)
+
+//           .then(pushLabDataToAmrit)
             .enqueue()
     }
 

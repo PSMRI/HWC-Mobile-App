@@ -1,12 +1,20 @@
 package org.piramalswasthya.cho.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
+import android.widget.AutoCompleteTextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import com.google.android.material.textfield.TextInputLayout
+import org.piramalswasthya.cho.R
+import android.view.View
 import org.piramalswasthya.cho.helpers.Languages
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 object HelperUtil {
@@ -68,4 +76,55 @@ object HelperUtil {
         }
         return null
     }
+
+    fun disableDropdownField(
+        autoCompleteTextView: AutoCompleteTextView,
+        textInputLayout: TextInputLayout
+    ) {
+        autoCompleteTextView.apply {
+            isFocusable = false
+            isClickable = false
+            isCursorVisible = false
+            keyListener = null
+            setOnTouchListener { _, _ -> true }
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+        }
+
+        textInputLayout.apply {
+            disableTextInputLayout(textInputLayout)
+            isEndIconVisible = false
+            setEndIconOnClickListener(null)
+            setOnClickListener { }
+        }
+    }
+
+    fun disableTextInputLayout(
+        textInputLayout: TextInputLayout,
+        @ColorRes backgroundColorRes: Int = R.color.disable_field_color,
+        @ColorRes hintColorRes: Int = R.color.disable_field_hint_color
+    ) {
+        textInputLayout.apply {
+            boxBackgroundColor = ContextCompat.getColor(context, backgroundColorRes)
+            defaultHintTextColor = ColorStateList.valueOf(
+                ContextCompat.getColor(context, hintColorRes)
+            )
+        }
+    }
+
+    fun View.setCustomOnClickListener(interval: Long = 1000L, onSafeClick: (View) -> Unit) {
+        var lastClickTime = 0L
+        setOnClickListener { v ->
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime >= interval) {
+                lastClickTime = currentTime
+                onSafeClick(v)
+            }
+        }
+    }
+
+    fun getEddDateFromLmpDate(lmpDate: Long): Long =
+        Calendar.getInstance().apply {
+            timeInMillis = lmpDate
+            add(Calendar.WEEK_OF_YEAR, 42)
+        }.timeInMillis
 }

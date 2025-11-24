@@ -81,11 +81,16 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 //            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
 //                binding.bottomNavigation.visibility = View.GONE
 //            }
+            val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
+            val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
+            val isFollowupVisit = intent?.getBooleanExtra("isFollowupVisit", false) ?: false
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController
                 .navigate(
                     R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
-//                        putBoolean("viewRecord", true)
+                        putBoolean("viewRecord", viewRecord)
+                        putBoolean("isFlowComplete", isFlowComplete)
+                        putBoolean("isFollowupVisit", isFollowupVisit)
                         putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
                     }
                 )
@@ -115,12 +120,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
+                    binding.bottomNavigation.visibility = View.GONE
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.visit_details)
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.customVitalsFragment -> {
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                     if (preferenceDao.isUserCHO()) {
@@ -133,26 +140,31 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
                 R.id.cbacFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.cbac)
+                    binding.bottomNavigation.visibility = View.GONE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.pwAncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.pncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.immunizationFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.immunization)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
                 R.id.eligibleCoupleTrackingFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.eligible_couple_tracking)
+                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }

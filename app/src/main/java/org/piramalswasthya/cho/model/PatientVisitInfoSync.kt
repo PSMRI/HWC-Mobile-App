@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.model
 
+import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
@@ -10,7 +11,9 @@ import androidx.room.Relation
 import com.squareup.moshi.JsonClass
 import org.piramalswasthya.cho.database.room.SyncState
 import java.io.Serializable
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 @Entity(
     tableName = "PATIENT_VISIT_INFO_SYNC",
@@ -99,7 +102,21 @@ data class PatientVisitInfoSync(
         doctorDataSynced = SyncState.SYNCED,
         labDataSynced = SyncState.SYNCED,
         pharmacistDataSynced = SyncState.SYNCED,
-        visitCategory = benFlow.VisitCategory ?: ""
+        visitCategory = benFlow.VisitCategory ?: "",
+        visitDate = benFlow.visitDate?.let {
+            try {
+                val inputFormat = SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.ENGLISH)
+                val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                val parsedDate = inputFormat.parse(it)
+                val onlyDateString = parsedDate?.let { d -> outputFormat.format(d) }
+                onlyDateString?.let { s -> outputFormat.parse(s) }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+
     )
 
 }
