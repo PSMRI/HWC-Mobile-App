@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.Log
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -14,19 +13,16 @@ import org.piramalswasthya.cho.database.room.dao.BenFlowDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BenFlow
-import org.piramalswasthya.cho.network.AmritApiService
-
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.CbacVisitDetails
-
 import org.piramalswasthya.cho.model.VisitDetailsWrapper
+import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.NurseDataRequest
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
-
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import javax.inject.Inject
@@ -237,7 +233,8 @@ class CbacRepo @Inject constructor(
                 responseBody = responseBody,
                 onSuccess = {
                     val data = responseBody.let { JSONObject(it).getString("data") }
-
+                    val cbacCache = Gson().fromJson(data, CbacCache::class.java)
+                    cbacDao.upsert(cbacCache)
                     NetworkResult.Success(NetworkResponse())
                 },
                 onTokenExpired = {

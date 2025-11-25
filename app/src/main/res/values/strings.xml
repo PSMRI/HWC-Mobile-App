@@ -41,7 +41,7 @@
     <string name="last_sync_time">last_sync_time</string>
     <string name="last_patient_sync_time">last_patient_sync_time</string>
     <string name="last_benflow_sync_time">last_benflow_sync_time</string>
-    <string name="last_cbac_sync_time">last_benflow_sync_time</string>
+    <string name="last_cbac_sync_time">last_cbac_sync_time</string>
     <string name="personal_details">Personal Details</string>
     <string name="first_name">First Name <font color="#FF0000">*</font></string>
     <string name="village_hint">Village <font color="#FF0000">*</font></string>
