@@ -38,8 +38,6 @@ import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-import org.piramalswasthya.cho.utils.DateTimeUtil
-import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -87,7 +85,7 @@ class UsernameFragment() : Fragment() {
                     }
                 }
                 }
-        viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
+        viewModel = ViewModelProvider(this)[UsernameViewModel::class.java]
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
 //        binding.loginSettings.visibility = View.INVISIBLE
 
@@ -104,8 +102,9 @@ class UsernameFragment() : Fragment() {
         }
         val biometricManager = BiometricManager.from(requireContext())
         when (biometricManager.canAuthenticate()) {
-            BiometricManager.BIOMETRIC_SUCCESS ->{}
-//                displayMessage("Biometric authentication is available")
+            BiometricManager.BIOMETRIC_SUCCESS ->{
+                // No-op for now.
+            }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
                 displayMessage("This device doesn't support biometric authentication")
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
@@ -123,9 +122,6 @@ class UsernameFragment() : Fragment() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
                 isBiometric = true
-                val username = user?.userName
-                val password = user?.password
-
                 getCurrentLocation()
                 tryAuthUser = true
                 viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -141,7 +137,9 @@ class UsernameFragment() : Fragment() {
                             )
                             isBiometric = false
                         }
-                        else -> {}
+                        else -> {
+                            // No-op for now.
+                        }
                     }
                 }
                 displayMessage("Authentication succeeded!")
@@ -182,9 +180,11 @@ class UsernameFragment() : Fragment() {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         binding.etUsername .addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No-op for now.
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // No-op for now.
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -256,21 +256,21 @@ private fun getCurrentLocation() {
                         user?.userName ?: "",
                         user?.password ?: "",
                         null,
-                        null,
-                        DateTimeUtil.formatDate(Date()),
-                        null,
                         location.latitude,
                         location.longitude,
-                        null,
                         requireContext()
                     )
                     tryAuthUser = false
                 }
             }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+                // No-op for now.
+            }
 
-            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderEnabled(provider: String) {
+                // No-op for now.
+            }
 
             override fun onProviderDisabled(provider: String) {
                 Toast.makeText(
