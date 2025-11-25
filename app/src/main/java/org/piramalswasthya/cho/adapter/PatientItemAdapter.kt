@@ -17,7 +17,6 @@ import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class PatientItemAdapter(
