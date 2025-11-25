@@ -20,10 +20,9 @@ import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.CbacResponseDto
 import org.piramalswasthya.cho.model.CbacVisitDetails
 import org.piramalswasthya.cho.model.VisitDetailsWrapper
-import org.piramalswasthya.cho.network.AmritApiService
+import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.model.toEntity
 import org.piramalswasthya.cho.network.GetCBACRequest
-import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
