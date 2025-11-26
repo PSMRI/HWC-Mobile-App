@@ -1,16 +1,12 @@
 package org.piramalswasthya.cho.repositories
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -28,7 +24,6 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.BlockMaster
 import org.piramalswasthya.cho.model.DistrictMaster
-import org.piramalswasthya.cho.model.FingerPrint
 import org.piramalswasthya.cho.model.LocationData
 import org.piramalswasthya.cho.model.LocationRequest
 import org.piramalswasthya.cho.model.MasterLocationModel
@@ -43,13 +38,13 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
-import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
-import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.network.TmcAuthUserRequest
 import org.piramalswasthya.cho.network.TmcUserVanSpDetailsRequest
+import org.piramalswasthya.cho.network.interceptors.TokenInsertTmcInterceptor
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
 import org.piramalswasthya.cho.network.socketTimeoutException
+import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
 import org.piramalswasthya.cho.utils.nullIfEmpty
 import retrofit2.HttpException
 import timber.log.Timber
@@ -69,12 +64,7 @@ class UserRepo @Inject constructor(
     private val tmcNetworkApiService: AmritApiService
 ) {
 
-
     private var user: UserNetwork? = null
-
-//    @SuppressLint("StaticFieldLeak")
-//    val context: Context = application.applicationContext
-
 
     suspend fun getLoggedInUser(): UserDomain? {
         return withContext(Dispatchers.IO) {
@@ -135,14 +125,8 @@ class UserRepo @Inject constructor(
         userName: String,
         password: String,
         loginType: String?,
-        selectedOption: String?,
-        loginTimeStamp: String?,
-        logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        userImage: String?,
-        logoutType: String?,
-        isBiometric: Boolean? = false,
         context: Context
     ): OutreachViewModel.State {
         return withContext(Dispatchers.IO) {
@@ -167,18 +151,7 @@ class UserRepo @Inject constructor(
                     it.masterLongitude = long
                     it.loginDistance = 1000
                     userDao.update(it)
-//                    if(!isBiometric!!) {
-//                        setOutreachProgram(
-//                            loginType,
-//                            selectedOption,
-//                            loginTimeStamp,
-//                            logoutTimeStamp,
-//                            lat,
-//                            long,
-//                            logoutType,
-//                            userImage
-//                        )
-//                    }
+
                     return@withContext OutreachViewModel.State.SUCCESS
                 }
             }
@@ -201,24 +174,10 @@ class UserRepo @Inject constructor(
                         userDao.resetAllUsersLoggedInState()
                         userDao.insert(user!!.asCacheModel())
                     }
-//                    if(!isBiometric!!) {
-//                        setOutreachProgram(
-//                            loginType,
-//                            selectedOption,
-//                            loginTimeStamp,
-//                            logoutTimeStamp,
-//                            lat,
-//                            long,
-//                            logoutType,
-//                            userImage
-//                        )
-//                    }
+
                     return@withContext OutreachViewModel.State.SUCCESS
-//                        }
                 }
                 return@withContext OutreachViewModel.State.ERROR_SERVER
-//                }
-//                return@withContext OutreachViewModel.State.ERROR_INPUT
             } catch (se: SocketTimeoutException) {
                 return@withContext OutreachViewModel.State.ERROR_SERVER
             } catch (ce: ConnectException) {
@@ -228,7 +187,7 @@ class UserRepo @Inject constructor(
             }
         }
     }
-    fun isInternetAvailable(context: Context): Boolean {
+    private fun isInternetAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -263,7 +222,6 @@ class UserRepo @Inject constructor(
                     val vanSp = vanSpDetailsArray.getJSONObject(i)
                     val vanId = vanSp.getInt("vanID")
                     user?.vanId = vanId
-                    //val name = vanSp.getString("vanNoAndType")
                     val servicePointId = vanSp.getInt("servicePointID")
                     user?.servicePointId = servicePointId
                     val servicePointName = vanSp.getString("servicePointName")
@@ -361,8 +319,6 @@ class UserRepo @Inject constructor(
                     val rolesObjectArray = privilegesObject.getJSONArray("roles")
                     preferenceDao.setWorkingLocationID(rolesObjectArray.getJSONObject(0).getInt("workingLocationID"))
                     val rolesArray = extractRoles(privilegesObject);
-//                    val roles = rolesArray;
-//                    Log.i("roles are ", roles);
                     val name = data.getString("fullName")
                     user = UserNetwork(userId, userName, password, name, rolesArray)
                     val serviceId = privilegesObject.getInt("serviceID")
@@ -376,7 +332,6 @@ class UserRepo @Inject constructor(
                     getUserVanSpDetails(context)
                     getLocDetailsBasedOnSpIDAndPsmID()
                     getUserMasterVillage()
-//                    getUserAssignedVillageIds()
                 } else {
                     val errorMessage = responseBody.getString("errorMessage")
                     GlobalScope.launch(Dispatchers.Main) {
@@ -409,7 +364,6 @@ class UserRepo @Inject constructor(
                     ?: throw IllegalStateException("Response success but data missing @ $response")
             )
 
-//            user!!.assignVillageIds = "24286,24326,24250,24334,24351,24294"
 
             val responseStatusCode = responseBody.getInt("statusCode")
             if (responseStatusCode == 200) {
@@ -482,18 +436,7 @@ class UserRepo @Inject constructor(
         }
     }
 
-//    private suspend fun getUserAssignedVillageIds(){
-//        user!!.assignVillageIds = "54151,54676,463267"
-////        val response = tmcNetworkApiService.getUserDetail(user!!.userId)
-////        val responseBody = JSONObject(response.body()?.string() ?: "")
-////        if(responseBody.has("data")){
-////            val data = responseBody.getJSONObject("data")
-////            user!!.assignVillageIds = data.getString("villageId")
-////            user!!.assignVillageNames = data.getString("villageName")
-////        }
-//    }
-
-    fun extractRoles(privilegesObject : JSONObject) : String{
+    private fun extractRoles(privilegesObject : JSONObject) : String{
 //        return "Lab Technician,MO,Pharmacist,Registrar,Staff Nurse"
 //        return "Lab Technician,MO,Pharmacist"
 
@@ -506,7 +449,7 @@ class UserRepo @Inject constructor(
         return roles.substring(0, roles.length - 1)
     }
 
-     fun encrypt(password: String): String {
+     private fun encrypt(password: String): String {
         val util = CryptoUtil()
         return util.encrypt(password)
     }
@@ -561,22 +504,6 @@ class UserRepo @Inject constructor(
         }
     }
 
-    suspend fun insertFPDataToLocalDB(fpList: List<FingerPrint>){
-        return withContext(Dispatchers.IO){
-            try{
-                for(item in fpList){
-                    userDao.insertFpData(item)
-                }
-            } catch (e: Exception){
-                Timber.d("Error in inserting Finger Print Data $e")
-            }
-        }
-    }
-
-    fun getFPDataFromLocalDB(): LiveData<List<FingerPrint>>{
-        return  userDao.getAllFpData()
-    }
-
     suspend fun updateLoginStatus(userName: String){
         try {
             userDao.resetAllUsersLoggedInState()
@@ -611,8 +538,8 @@ class UserRepo @Inject constructor(
     }
 
     suspend fun setUserMasterVillageIdAndName(user: UserCache, masterVillageId: Int?, masterVillageName: String?){
-        user?.masterVillageID = masterVillageId
-        user?.masterVillageName = masterVillageName
+        user.masterVillageID = masterVillageId
+        user.masterVillageName = masterVillageName
         userDao.update(user)
     }
      suspend fun setUserMasterVillage(user:UserCache, userMasterVillage: UserMasterVillage) {
@@ -625,22 +552,22 @@ class UserRepo @Inject constructor(
              if (responseStatusCode == 200) {
                  val data = responseJson.getJSONObject("data")
                  val masterVillageName = data.getString("villageName")
-                 user?.masterVillageName = masterVillageName
+                 user.masterVillageName = masterVillageName
                  val masterVillageId = data.getInt("districtBranchID")
-                 user?.masterVillageID = masterVillageId
+                 user.masterVillageID = masterVillageId
                  val masterLocAddress = data.getString("address")
-                 user?.masterLocationAddress = masterLocAddress
+                 user.masterLocationAddress = masterLocAddress
                  val loginDistance = data.getInt("loginDistance")
-                 user?.loginDistance = loginDistance
+                 user.loginDistance = loginDistance
                  val blockId = data.getInt("blockID")
-                 user?.masterBlockID = blockId
+                 user.masterBlockID = blockId
                  val masterLatitude = data.getDouble("latitude")
-                 user?.masterLatitude = masterLatitude
+                 user.masterLatitude = masterLatitude
                  val masterLongitude = data.getDouble("longitude")
-                 user?.masterLongitude = masterLongitude
+                 user.masterLongitude = masterLongitude
 
                  val use = user
-                 use?.masterVillageName
+                 use.masterVillageName
 
                  userDao.update(user)
 
@@ -653,7 +580,7 @@ class UserRepo @Inject constructor(
             when(val response = saveLoginAuditDataToServer(loginAuditDataListUnsynced)){
                 is NetworkResult.Success ->{
                     //TODO UPDATE SYNCED FLAG
-                    loginAuditDataListUnsynced.forEach { it ->
+                    loginAuditDataListUnsynced.forEach {
                         userDao.updateAuditDataFlag(it.id)
                     }
                 }
@@ -663,7 +590,9 @@ class UserRepo @Inject constructor(
                 }
                     return false
                 }
-                else ->{}
+                else ->{
+                    // No-op for now.
+                }
             }
         }
         return true

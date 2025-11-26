@@ -110,9 +110,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation files('lib/AlCamera.jar')
     implementation 'androidx.viewpager2:viewpager2:1.0.0-beta04'
-//    implementation files('lib/FDxSDKProFDAndroid.jar')
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.hilt:hilt-common:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
