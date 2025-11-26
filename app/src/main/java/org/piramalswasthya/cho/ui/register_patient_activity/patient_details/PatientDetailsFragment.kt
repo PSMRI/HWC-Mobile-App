@@ -138,10 +138,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
     @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
-        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )  == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             // Camera permission is granted, proceed to take a picture
             takePicture()
         } else {

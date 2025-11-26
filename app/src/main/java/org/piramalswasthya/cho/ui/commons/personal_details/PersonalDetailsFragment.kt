@@ -198,7 +198,7 @@ class PersonalDetailsFragment : Fragment() {
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
-                    itemAdapter = context?.let { it ->
+                    itemAdapter = context?.let {
                         PatientItemAdapter(
                             apiService,
                             it,
@@ -482,22 +482,26 @@ class PersonalDetailsFragment : Fragment() {
                             val detection = detectionResult.detections()[0]
                             val boundingBox = detection.boundingBox()
 
-                            // Ensure bounding box is within image bounds (convert Float to Int)
-                            val left = boundingBox.left.toInt().coerceAtLeast(0)
-                            val top = boundingBox.top.toInt().coerceAtLeast(0)
-                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
-                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
-                            val width = (right - left).coerceAtLeast(1)
-                            val height = (bottom - top).coerceAtLeast(1)
-
-                            // Validate dimensions
-                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                            // Check for degenerate bounding box before coercion
+                            if (boundingBox.right <= boundingBox.left || boundingBox.bottom <= boundingBox.top) {
                                 Toast.makeText(
                                     requireContext(), "Invalid face detection", Toast.LENGTH_SHORT
                                 ).show()
                                 faceDetector.close()
                                 return@registerForActivityResult
                             }
+
+// Ensure bounding box stays within image bounds
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+// No need to validate width/height again — coercion guarantees ≥ 1
+
 
                             // Crop face from image
                             val faceBitmap = Bitmap.createBitmap(
@@ -626,10 +630,10 @@ class PersonalDetailsFragment : Fragment() {
             patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
         )
         val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
         )
         val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
         )
 
         val pdfDocument: PdfDocument = PdfDocument()
@@ -652,7 +656,7 @@ class PersonalDetailsFragment : Fragment() {
         val extraSpace = 10F
 
         // Set up Paint for text
-         Paint().apply {
+        Paint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textSize = 15F
             color = ContextCompat.getColor(requireContext(), android.R.color.black)
@@ -700,7 +704,7 @@ class PersonalDetailsFragment : Fragment() {
         }
 
         canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
-        currentY += lineHeight
+        //currentY += lineHeight
 
         subheading.textAlign = Paint.Align.LEFT
         val rightX = pageWidth - 300F
@@ -1023,49 +1027,6 @@ class PersonalDetailsFragment : Fragment() {
         outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
         Objects.requireNonNull(outst)
         return outst
-    }
-
-    private fun hasPermission(permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(), permission
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-
-    private fun checkPermissions() {
-
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_AUDIO
-            )
-        } else {
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        }
-        if (!hasPermission(permissions[0])) {
-            permissionLauncher.launch(permissions)
-        }
-    }
-
-    private var permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        var isGranted = true
-        for (item in it) {
-            if (!item.value) {
-                isGranted = false
-            }
-        }
-        if (isGranted) {
-            Toast.makeText(requireContext(), "Permissions Granted", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Permissions Denied", Toast.LENGTH_SHORT).show()
-
-        }
     }
 
     private val searchTextWatcher = object : TextWatcher {
