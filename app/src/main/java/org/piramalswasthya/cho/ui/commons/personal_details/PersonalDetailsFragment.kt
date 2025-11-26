@@ -153,7 +153,7 @@ class PersonalDetailsFragment : Fragment() {
             when (bool!!) {
                 true -> {
                     binding.search.requestFocus()
-                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
 
                 }
 
@@ -163,6 +163,7 @@ class PersonalDetailsFragment : Fragment() {
             }
 
         }
+
         binding.cameraIcon.setOnClickListener {
 
 //            initialise the facenet model
@@ -375,6 +376,7 @@ class PersonalDetailsFragment : Fragment() {
     var pageWidth = 792
 
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
         if (checkSelfPermission(
                 requireContext(), Manifest.permission.CAMERA
@@ -390,11 +392,23 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun requestCameraPermission() {
         val permission =
             arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestPermissions(permission, 112)
+        permissionLauncher.launch(permission)
     }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allGranted = permissions.values.all { it }
+            if (allGranted) {
+                takePicture()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private fun takePicture() {
         val photoFile: File? = try {
@@ -1141,14 +1155,14 @@ class PersonalDetailsFragment : Fragment() {
                             errorTv.visibility = View.GONE
                             val responseToken = apiService.getJwtToken(networkBody)
                             if (responseToken.message == "Success") {
-                                val token = responseToken.model?.access_token;
+                                val token = responseToken.model?.access_token
                                 if (token != null) {
                                     TokenESanjeevaniInterceptor.setToken(token)
                                 }
                                 val intent = Intent(context, WebViewActivity::class.java)
-                                intent.putExtra("patientId", benVisitInfo.patient.patientID);
-                                intent.putExtra("usernameEs", usernameEs);
-                                intent.putExtra("passwordEs", passwordEs);
+                                intent.putExtra("patientId", benVisitInfo.patient.patientID)
+                                intent.putExtra("usernameEs", usernameEs)
+                                intent.putExtra("passwordEs", passwordEs)
                                 context?.startActivity(intent)
                                 dialog?.dismiss()
                             } else {
@@ -1169,16 +1183,11 @@ class PersonalDetailsFragment : Fragment() {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork
-            val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-            return networkCapabilities != null && (networkCapabilities.hasTransport(
-                NetworkCapabilities.TRANSPORT_WIFI
-            ) || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-        } else {
-            val networkInfo = connectivityManager.activeNetworkInfo
-            return networkInfo != null && networkInfo.isConnected
-        }
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null && (networkCapabilities.hasTransport(
+            NetworkCapabilities.TRANSPORT_WIFI
+        ) || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
     private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {

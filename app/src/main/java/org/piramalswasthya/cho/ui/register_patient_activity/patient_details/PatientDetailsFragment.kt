@@ -146,104 +146,101 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             requestCameraPermission()
         }
     }
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun requestCameraPermission() {
         val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
-        requestPermissions(permission, 112)
+        permissionLauncher.launch(permission)
     }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
                 // Picture was taken successfully, update the ImageView with the captured image
-                if (photoURI == null) {
-                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                } else {
-                    Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
-                        .into(binding.ivImgCapture)
+                Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
+                    .into(binding.ivImgCapture)
 
-                    try {
-                        // Initialize MediaPipe Face Detector
-                        val baseOptionsBuilder = BaseOptions.builder()
-                            .setModelAssetPath("blaze_face_short_range.tflite")
+                try {
+                    // Initialize MediaPipe Face Detector
+                    val baseOptionsBuilder = BaseOptions.builder()
+                        .setModelAssetPath("blaze_face_short_range.tflite")
 
-                        val options = FaceDetector.FaceDetectorOptions.builder()
-                            .setBaseOptions(baseOptionsBuilder.build())
-                            .setMinDetectionConfidence(0.5f)
-                            .setRunningMode(RunningMode.IMAGE)
-                            .build()
+                    val options = FaceDetector.FaceDetectorOptions.builder()
+                        .setBaseOptions(baseOptionsBuilder.build())
+                        .setMinDetectionConfidence(0.5f)
+                        .setRunningMode(RunningMode.IMAGE)
+                        .build()
 
-                        val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
+                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
 
-                        // Load image from URI
-                        val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            val source = ImageDecoder.createSource(requireContext().contentResolver, photoURI)
-                            ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
-                        } else {
-                            @Suppress("DEPRECATION")
-                            MediaStore.Images.Media.getBitmap(requireContext().contentResolver, photoURI)
-                        }
-
-                        // Convert to MPImage
-                        val mpImage = BitmapImageBuilder(imageBitmap).build()
-
-                        // Detect faces
-                        val detectionResult = faceDetector.detect(mpImage)
-
-                        // Handle detection results
-                        when {
-                            detectionResult.detections().isEmpty() -> {
-                                Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
-                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                faceDetector.close()
-                            }
-                            detectionResult.detections().size > 1 -> {
-                                Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
-                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                faceDetector.close()
-                            }
-                            else -> {
-                                val detection = detectionResult.detections()[0]
-                                val boundingBox = detection.boundingBox()
-
-                                // Ensure bounding box is within image bounds (convert Float to Int)
-                                val left = boundingBox.left.toInt().coerceAtLeast(0)
-                                val top = boundingBox.top.toInt().coerceAtLeast(0)
-                                val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
-                                val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
-                                val width = (right - left).coerceAtLeast(1)
-                                val height = (bottom - top).coerceAtLeast(1)
-
-                                // Validate dimensions
-                                if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
-                                    Toast.makeText(requireContext(), "Invalid face detection", Toast.LENGTH_SHORT).show()
-                                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                    faceDetector.close()
-                                    return@registerForActivityResult
-                                }
-
-                                // Crop face from image
-                                val faceBitmap = Bitmap.createBitmap(
-                                    imageBitmap,
-                                    left,
-                                    top,
-                                    width,
-                                    height
-                                )
-
-                                // Clean up detector
-                                faceDetector.close()
-
-                                // Get face embeddings
-                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-
-                    } catch (e: Exception) {
-                        Log.e("FaceDetection", "Face detection failed", e)
-                        Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                        binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                    // Load image from URI
+                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source = ImageDecoder.createSource(requireContext().contentResolver, photoURI)
+                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, photoURI)
                     }
+
+                    // Convert to MPImage
+                    val mpImage = BitmapImageBuilder(imageBitmap).build()
+
+                    // Detect faces
+                    val detectionResult = faceDetector.detect(mpImage)
+
+                    // Handle detection results
+                    when {
+                        detectionResult.detections().isEmpty() -> {
+                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                            binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                            faceDetector.close()
+                        }
+                        detectionResult.detections().size > 1 -> {
+                            Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                            binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                            faceDetector.close()
+                        }
+                        else -> {
+                            val detection = detectionResult.detections()[0]
+                            val boundingBox = detection.boundingBox()
+
+                            // Ensure bounding box is within image bounds (convert Float to Int)
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+                            // Validate dimensions
+                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                Toast.makeText(requireContext(), "Invalid face detection", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
+
+                            // Crop face from image
+                            val faceBitmap = Bitmap.createBitmap(
+                                imageBitmap,
+                                left,
+                                top,
+                                width,
+                                height
+                            )
+
+                            // Clean up detector
+                            faceDetector.close()
+
+                            // Get face embeddings
+                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                            Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("FaceDetection", "Face detection failed", e)
+                    Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 }
             }
         }
@@ -285,19 +282,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 112) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allGranted = permissions.values.all { it }
+            if (allGranted) {
                 takePicture()
             } else {
                 Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
             }
         }
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -432,32 +425,35 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
                     if (!userData.dateOfBirth.isNullOrEmpty()) {
-                        var date: Date? = null
-                        date = when {
-                            userData.dateOfBirth[2].toString() == "/" ->
+                        val date: Date? = when {
+                            userData.dateOfBirth[2].toString() == "/" -> {
                                 inputDateFormat1.parse(userData.dateOfBirth)
-                            userData.dateOfBirth[2].toString() == "-" ->
+                            }
+                            userData.dateOfBirth[2].toString() == "-" -> {
                                 inputDateFormat2.parse(userData.dateOfBirth)
-                            userData.dateOfBirth[4].toString() == "-" ->
+                            }
+                            userData.dateOfBirth[4].toString() == "-" -> {
                                 inputDateFormat3.parse(userData.dateOfBirth)
-                            userData.dateOfBirth[4].toString() == "/" ->
+                            }
+                            userData.dateOfBirth[4].toString() == "/" -> {
                                 inputDateFormat4.parse(userData.dateOfBirth)
-                            else -> null
+                            }
+                            else -> {
+                                null
+                            }
                         } as Date
 
-                        if(date!=null) {
-                            val outputDateStr: String = outputDateFormat.format(date)
-                            val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
+                        val outputDateStr: String = outputDateFormat.format(date)
+                        val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
 
-                            viewModel.selectedDateOfBirth = outputDate
+                        viewModel.selectedDateOfBirth = outputDate
 
-                            dobUtil.showDatePickerDialog(
-                                requireContext(),
-                                viewModel.selectedDateOfBirth,
-                                maxDays = 0,
-                                minDays = -(99*365 + 25)
-                            )
-                        }
+                        dobUtil.showDatePickerDialog(
+                            requireContext(),
+                            viewModel.selectedDateOfBirth,
+                            maxDays = 0,
+                            minDays = -(99*365 + 25)
+                        )
 
                     }
                     if (!userData.gender.isNullOrEmpty()){
@@ -552,25 +548,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.spouseName.setText(result)
         }
     }
-    private val speechToTextLauncherForAge = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNumeric()) {
-            val pattern = "\\d{2}".toRegex()
-            val match = pattern.find(result)
-            if(result.toInt() > 0) binding.age.setText(result)
-        }
-    }
+
     private val speechToTextLauncherForFatherName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
             binding.fatherNameEditText.setText(result)
         }
     }
-    private fun String.isNumeric(): Boolean {
-        return try { this.toDouble()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
-    }
+
     private val speechToTextLauncherForPhoneNumber = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank()) {
             val cleanedResult = result.replace("\\s".toRegex(), "") // Remove all spaces
@@ -981,20 +965,23 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.enteredAgeWeeks = age.weeks
         viewModel.enteredAgeDays = age.days
 
-
-
-        if(viewModel.enteredAgeYears != 0){
-            viewModel.enteredAge = viewModel.enteredAgeYears
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
-        }else if(viewModel.enteredAgeMonths != 0){
-            viewModel.enteredAge = viewModel.enteredAgeMonths
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
-        }else if(viewModel.enteredAgeWeeks != 0){
-            viewModel.enteredAge = viewModel.enteredAgeWeeks
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
-        }else{
-            viewModel.enteredAge = viewModel.enteredAgeDays
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+        when {
+            viewModel.enteredAgeYears != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeYears
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+            }
+            viewModel.enteredAgeMonths != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeMonths
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+            }
+            viewModel.enteredAgeWeeks != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeWeeks
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+            }
+            else -> {
+                viewModel.enteredAge = viewModel.enteredAgeDays
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+            }
         }
 
         var ageString = ""
