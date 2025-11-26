@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.ImageDecoder
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
@@ -44,11 +45,10 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
-import org.piramalswasthya.cho.facenet.FaceNetModel
-import org.piramalswasthya.cho.facenet.Models
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,8 @@ import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentPersonalDetailsBinding
-import org.piramalswasthya.cho.model.BenFlow
+import org.piramalswasthya.cho.facenet.FaceNetModel
+import org.piramalswasthya.cho.facenet.Models
 import org.piramalswasthya.cho.model.NetworkBody
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
@@ -85,64 +86,60 @@ import java.util.Date
 import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
-import kotlin.collections.set
 import kotlin.math.pow
 
 
 @AndroidEntryPoint
 class PersonalDetailsFragment : Fragment() {
     @Inject
-    lateinit var apiService : ESanjeevaniApiService
+    lateinit var apiService: ESanjeevaniApiService
     private lateinit var viewModel: PersonalDetailsViewModel
-    private lateinit var homeviewModel: HomeViewModel
-    private var itemAdapter : PatientItemAdapter? = null
-    private var usernameEs : String = ""
-    private var passwordEs : String = ""
-    private var errorEs : String = ""
-    private var network : Boolean = false
+    private var itemAdapter: PatientItemAdapter? = null
+    private var usernameEs: String = ""
+    private var passwordEs: String = ""
+    private var errorEs: String = ""
+    private var network: Boolean = false
     private var currentFileName: String? = null
-    private lateinit var  photoURI: Uri
+    private lateinit var photoURI: Uri
     private var currentPhotoPath: String? = null
+
     //facenet
     private val useGpu = false
     private val useXNNPack = true
     private val modelInfo = Models.FACENET
-    private lateinit var faceNetModel : FaceNetModel
+    private lateinit var faceNetModel: FaceNetModel
     private var embeddings: FloatArray? = null
     private lateinit var dialog: AlertDialog
 
-    private val benFlowMap = mutableMapOf<Int, BenFlow>()
-    private var benFlowListCache: List<BenFlow> = emptyList()
-    private var isFollowupVisit: Boolean? = null
-
     @Inject
     lateinit var preferenceDao: PreferenceDao
+
     @Inject
     lateinit var patientDao: PatientDao
+
     @Inject
     lateinit var caseRecordeRepo: CaseRecordeRepo
+
     @Inject
     lateinit var visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo
+
     @Inject
     lateinit var vitalsRepo: VitalsRepo
     private var _binding: FragmentPersonalDetailsBinding? = null
-    private var patientCount : Int = 0
+    private var patientCount: Int = 0
 
     private val binding
         get() = _binding!!
 
     private val abhaDisclaimer by lazy {
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.beneficiary_abha_number))
+        AlertDialog.Builder(requireContext()).setTitle(getString(R.string.beneficiary_abha_number))
             .setMessage("it")
             .setPositiveButton(resources.getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
             .create()
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         HomeViewModel.resetSearchBool()
         _binding = FragmentPersonalDetailsBinding.inflate(inflater, container, false)
@@ -152,19 +149,21 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        HomeViewModel.searchBool.observe(viewLifecycleOwner){
-                bool ->
-            when(bool!!) {
-                true ->{
+        HomeViewModel.searchBool.observe(viewLifecycleOwner) { bool ->
+            when (bool!!) {
+                true -> {
                     binding.search.requestFocus()
                     activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
                 }
-                else -> {}
+
+                else -> {
+                    //No-Ops for now
+                }
             }
 
         }
-        binding.cameraIcon.setOnClickListener{
+        binding.cameraIcon.setOnClickListener {
 
 //            initialise the facenet model
             val inflater = layoutInflater
@@ -195,177 +194,135 @@ class PersonalDetailsFragment : Fragment() {
         binding.searchTil.setEndIconOnClickListener {
             speechToTextLauncherForSearchByName.launch(Unit)
         }
-        viewModel = ViewModelProvider(this).get(PersonalDetailsViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PersonalDetailsViewModel::class.java]
         viewModel.patientObserver.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 PersonalDetailsViewModel.NetworkState.SUCCESS -> {
-                    var result = ""
-                    if(itemAdapter?.itemCount==0||itemAdapter?.itemCount==1) {
-                        result = getString(R.string.patient_cnt_display)
-                    }
-                    else {
-                        result = getString(R.string.patients_cnt_display)
-                    }
                     itemAdapter = context?.let { it ->
                         PatientItemAdapter(
                             apiService,
                             it,
-                            clickListener = PatientItemAdapter.BenClickListener(
-                                {
-                                        benVisitInfo ->
-
-                                    benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
-                                        viewModel.getVisitReasonByBenFlowID(beneficiaryID)
-                                    } ?: Timber.d("benFlowID is null, cannot get VisitReason")
-
-
-                                    if(preferenceDao.isRegistrarSelected()){
-
+                            clickListener = PatientItemAdapter.BenClickListener({ benVisitInfo ->
+                                when {
+                                    preferenceDao.isRegistrarSelected() -> {
+                                        // No-Op: Registrar sees nothing here for now
                                     }
-                                    else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() ){
+
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 2 && preferenceDao.isDoctorSelected() -> {
+
                                         Toast.makeText(
                                             requireContext(),
                                             resources.getString(R.string.pendingForLabtech),
                                             Toast.LENGTH_SHORT
                                         ).show()
-
                                     }
-                                    else if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() ){
-//                                        Toast.makeText(
-//                                            requireContext(),
-//                                            resources.getString(R.string.flowCompleted),
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
+
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 9 && preferenceDao.isDoctorSelected() -> {
+
                                         var modifiedInfo = benVisitInfo
-                                        if(preferenceDao.isNurseSelected()){
+                                        if (preferenceDao.isNurseSelected()) {
                                             modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
                                         }
 
-                                        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
-                                            if (benFlowList.isNullOrEmpty()) return@observe
-
-                                            val distinctList =
-                                                benFlowList.distinctBy { it.benVisitNo }
-
-                                            benFlowMap.clear()
-                                            distinctList.forEach { benFlow ->
-                                                benFlow.benVisitNo?.let { visitNo ->
-                                                    benFlowMap[visitNo] = benFlow
-                                                }
-                                            }
-
-                                            benFlowListCache = benFlowMap.values.toList()
-
-                                            isFollowupVisit =
-                                                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
-
-                                            val intent = Intent(
-                                                context,
-                                                EditPatientDetailsActivity::class.java
-                                            )
-                                            intent.putExtra("benVisitInfo", modifiedInfo);
-                                            intent.putExtra("viewRecord", true)
-                                            intent.putExtra("isFlowComplete", true)
-                                            intent.putExtra("isFollowupVisit", isFollowupVisit)
-                                            startActivity(intent)
-                                            requireActivity().finish()
+                                        val intent = Intent(
+                                            context, EditPatientDetailsActivity::class.java
+                                        ).apply {
+                                            putExtra("benVisitInfo", modifiedInfo)
+                                            putExtra("viewRecord", true)
+                                            putExtra("isFlowComplete", true)
                                         }
-                                    }
-                                    else{
-                                        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
-                                            if (benFlowList.isNullOrEmpty()) return@observe
-
-                                            val distinctList =
-                                                benFlowList.distinctBy { it.benVisitNo }
-
-                                            benFlowMap.clear()
-                                            distinctList.forEach { benFlow ->
-                                                benFlow.benVisitNo?.let { visitNo ->
-                                                    benFlowMap[visitNo] = benFlow
-                                                }
-                                            }
-
-                                            benFlowListCache = benFlowMap.values.toList()
-
-                                            isFollowupVisit =
-                                                benFlowListCache.lastOrNull()?.VisitReason == "Follow Up"
-
-                                        var modifiedInfo = benVisitInfo
-                                        if(preferenceDao.isNurseSelected()){
-                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
-                                        }
-                                        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                                        intent.putExtra("benVisitInfo", modifiedInfo);
-                                        intent.putExtra("viewRecord", false)
-                                        intent.putExtra("isFlowComplete", false)
-                                        intent.putExtra("isFollowupVisit", isFollowupVisit)
                                         startActivity(intent)
                                         requireActivity().finish()
                                     }
-                                    }
-                                },
-                                {
-                                        benVisitInfo ->
 
-                                    checkAndGenerateABHA(benVisitInfo)
-                                },
-                                {
-                                        benVisitInfo -> callLoginDialog(benVisitInfo)
-                                },
-                                {
-                                        benVisitInfo ->
-                                    lifecycleScope.launch {
-                                        generatePDF(benVisitInfo)
-                                    }
+                                    else -> {
 
-                                },
-                                {
-                                        benVisitInfo ->  openDialog(benVisitInfo)
+                                        var modifiedInfo = benVisitInfo
+                                        if (preferenceDao.isNurseSelected()) {
+                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
+                                        }
+
+                                        val intent = Intent(
+                                            context, EditPatientDetailsActivity::class.java
+                                        ).apply {
+                                            putExtra("benVisitInfo", modifiedInfo)
+                                            putExtra("viewRecord", false)
+                                            putExtra("isFlowComplete", false)
+                                        }
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
                                 }
-                            ),
+
+                            }, { benVisitInfo ->
+
+                                checkAndGenerateABHA(benVisitInfo)
+                            }, { benVisitInfo ->
+                                callLoginDialog(benVisitInfo)
+                            }, { benVisitInfo ->
+                                lifecycleScope.launch {
+                                    generatePDF(benVisitInfo)
+                                }
+
+                            }, { benVisitInfo ->
+                                openDialog(benVisitInfo)
+                            }),
                             showAbha = true
                         )
                     }
 
                     binding.patientListContainer.patientList.adapter = itemAdapter
 
-                    if(preferenceDao.isRegistrarSelected() || preferenceDao.isNurseSelected()){
-                        lifecycleScope.launch {
-                            viewModel.patientListForNurse?.collect { it ->
-                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-                                binding.patientListContainer.patientCount.text =
-                                    it.size.toString() + getResultStr(it.size)
-                                patientCount = it.size
+                    when {
+                        preferenceDao.isRegistrarSelected() || preferenceDao.isNurseSelected() -> {
+                            lifecycleScope.launch {
+                                viewModel.patientListForNurse?.collect {
+                                    itemAdapter?.submitList(it.sortedByDescending { item ->
+                                        item.patient.registrationDate
+                                    })
+                                    binding.patientListContainer.patientCount.text =
+                                        it.size.toString() + getResultStr(it.size)
+                                    patientCount = it.size
+                                }
                             }
                         }
-                    }
-                    else if(preferenceDao.isDoctorSelected()){
-                        lifecycleScope.launch {
-                            viewModel.patientListForDoctor?.collect { it ->
-                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-                                binding.patientListContainer.patientCount.text =
-                                    it.size.toString() + getResultStr(it.size)
-                                patientCount = it.size
+
+                        preferenceDao.isDoctorSelected() -> {
+                            lifecycleScope.launch {
+                                viewModel.patientListForDoctor?.collect {
+                                    itemAdapter?.submitList(it.sortedByDescending { item ->
+                                        item.patient.registrationDate
+                                    })
+                                    binding.patientListContainer.patientCount.text =
+                                        it.size.toString() + getResultStr(it.size)
+                                    patientCount = it.size
+                                }
                             }
                         }
-                    }
-                    else if(preferenceDao.isLabSelected()){
-                        lifecycleScope.launch {
-                            viewModel.patientListForLab?.collect { it ->
-                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-                                binding.patientListContainer.patientCount.text =
-                                    it.size.toString() + getResultStr(it.size)
-                                patientCount = it.size
+
+                        preferenceDao.isLabSelected() -> {
+                            lifecycleScope.launch {
+                                viewModel.patientListForLab?.collect {
+                                    itemAdapter?.submitList(it.sortedByDescending { item ->
+                                        item.patient.registrationDate
+                                    })
+                                    binding.patientListContainer.patientCount.text =
+                                        it.size.toString() + getResultStr(it.size)
+                                    patientCount = it.size
+                                }
                             }
                         }
-                    }
-                    else if(preferenceDao.isPharmaSelected()){
-                        lifecycleScope.launch {
-                            viewModel.patientListForPharmacist?.collect { it ->
-                                itemAdapter?.submitList(it.sortedByDescending { it.patient.registrationDate})
-                                binding.patientListContainer.patientCount.text =
-                                    itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                                patientCount = it.size
+
+                        preferenceDao.isPharmaSelected() -> {
+                            lifecycleScope.launch {
+                                viewModel.patientListForPharmacist?.collect {
+                                    itemAdapter?.submitList(it.sortedByDescending { item ->
+                                        item.patient.registrationDate
+                                    })
+                                    binding.patientListContainer.patientCount.text =
+                                        itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                    patientCount = it.size
+                                }
                             }
                         }
                     }
@@ -373,7 +330,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 else -> {
-
+                    //No-Ops for now
                 }
             }
 
@@ -398,20 +355,19 @@ class PersonalDetailsFragment : Fragment() {
             }
 
             binding.search.setOnFocusChangeListener { searchView, b ->
-                if (b)
-                    (searchView as EditText).addTextChangedListener(searchTextWatcher)
-                else
-                    (searchView as EditText).removeTextChangedListener(searchTextWatcher)
+                if (b) (searchView as EditText).addTextChangedListener(searchTextWatcher)
+                else (searchView as EditText).removeTextChangedListener(searchTextWatcher)
 
             }
         }
     }
 
-    private lateinit var syncBottomSheet : SyncBottomSheetFragment
+    private lateinit var syncBottomSheet: SyncBottomSheetFragment
     private fun openDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
         syncBottomSheet = SyncBottomSheetFragment(benVisitInfo)
-        if(!syncBottomSheet.isVisible)
-            syncBottomSheet.show(childFragmentManager, resources.getString(R.string.sync))
+        if (!syncBottomSheet.isVisible) syncBottomSheet.show(
+            childFragmentManager, resources.getString(R.string.sync)
+        )
         Timber.tag("sync").i("${benVisitInfo}")
     }
 
@@ -420,9 +376,11 @@ class PersonalDetailsFragment : Fragment() {
 
 
     private fun checkAndRequestCameraPermission() {
-        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )  == PackageManager.PERMISSION_GRANTED
+        if (checkSelfPermission(
+                requireContext(), Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED || checkSelfPermission(
+                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
             // Camera permission is granted, proceed to take a picture
             takePicture()
@@ -431,10 +389,13 @@ class PersonalDetailsFragment : Fragment() {
             requestCameraPermission()
         }
     }
+
     private fun requestCameraPermission() {
-        val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
+        val permission =
+            arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         requestPermissions(permission, 112)
     }
+
     private fun takePicture() {
         val photoFile: File? = try {
             createImageFile()
@@ -444,13 +405,12 @@ class PersonalDetailsFragment : Fragment() {
 
         photoFile?.also {
             photoURI = FileProvider.getUriForFile(
-                requireContext(),
-                requireContext().packageName + ".provider",
-                it
+                requireContext(), requireContext().packageName + ".provider", it
             )
             takePictureLauncher.launch(photoURI)
         }
     }
+
     private fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault()).format(Date())
         val storageDir = requireContext().getExternalFilesDir("images")
@@ -471,37 +431,86 @@ class PersonalDetailsFragment : Fragment() {
         }
 
     }
+
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
-                val highspeed = FaceDetectorOptions.Builder()
-                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                    .build()
-                val detector = FaceDetection.getClient(highspeed)
-                val image = InputImage.fromFilePath(requireContext(), photoURI)
-                detector.process(image)
-                    .addOnSuccessListener { faces ->
-                        if (faces.isEmpty()) {
-                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
-                            return@addOnSuccessListener
-                        } else if (faces.size > 1) {
-                            Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
-                            return@addOnSuccessListener
-                        } else {
-                            val face = faces[0]
-                            val boundingBox = face.boundingBox
-                            val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                requireContext().contentResolver,
-                                photoURI
-                            )
+                try {
+                    // Initialize MediaPipe Face Detector
+                    val baseOptionsBuilder =
+                        BaseOptions.builder().setModelAssetPath("blaze_face_short_range.tflite")
+
+                    val options = FaceDetector.FaceDetectorOptions.builder()
+                        .setBaseOptions(baseOptionsBuilder.build()).setMinDetectionConfidence(0.5f)
+                        .setRunningMode(RunningMode.IMAGE).build()
+
+                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
+
+                    // Load image from URI
+                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source =
+                            ImageDecoder.createSource(requireContext().contentResolver, photoURI)
+                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                    } else {
+                        @Suppress("DEPRECATION") MediaStore.Images.Media.getBitmap(
+                            requireContext().contentResolver, photoURI
+                        )
+                    }
+
+                    // Convert to MPImage
+                    val mpImage = BitmapImageBuilder(imageBitmap).build()
+
+                    // Detect faces
+                    val detectionResult = faceDetector.detect(mpImage)
+
+                    // Handle detection results
+                    when {
+                        detectionResult.detections().isEmpty() -> {
+                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT)
+                                .show()
+                            faceDetector.close()
+                        }
+
+                        detectionResult.detections().size > 1 -> {
+                            Toast.makeText(
+                                requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT
+                            ).show()
+                            faceDetector.close()
+                        }
+
+                        else -> {
+                            val detection = detectionResult.detections()[0]
+                            val boundingBox = detection.boundingBox()
+
+                            // Ensure bounding box is within image bounds (convert Float to Int)
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+                            // Validate dimensions
+                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                Toast.makeText(
+                                    requireContext(), "Invalid face detection", Toast.LENGTH_SHORT
+                                ).show()
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
+
+                            // Crop face from image
                             val faceBitmap = Bitmap.createBitmap(
-                                imageBitmap,
-                                boundingBox.left,
-                                boundingBox.top,
-                                boundingBox.width(),
-                                boundingBox.height()
+                                imageBitmap, left, top, width, height
                             )
+
+                            // Clean up detector
+                            faceDetector.close()
+
+                            // Get face embeddings
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+
+                            // Compare faces and find matching patient
                             lifecycleScope.launch {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
                                 if (matchedPatient != null) {
@@ -529,19 +538,31 @@ class PersonalDetailsFragment : Fragment() {
                                         referralReason = visitInfo.referralReason
                                     )
                                     itemAdapter?.submitList(listOf(benVisitInfo))
-                                    binding.patientListContainer.patientCount.text = "1 Matched Patient"
-                                    Toast.makeText(requireContext(), "1 matching patient found", Toast.LENGTH_SHORT).show()
+                                    binding.patientListContainer.patientCount.text =
+                                        "1 Matched Patient"
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "1 matching patient found",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
-                                    Toast.makeText(requireContext(), "No matching patient found", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "No matching patient found",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     searchPrompt.show()
                                 }
                             }
                         }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("FaceDetection", "Face detection failed", e)
-                        Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
-                    }
+
+                } catch (e: Exception) {
+                    Log.e("FaceDetection", "Face detection failed", e)
+                    Toast.makeText(
+                        requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
 
@@ -573,12 +594,6 @@ class PersonalDetailsFragment : Fragment() {
         return if (bestDistance < threshold) bestMatch else null
     }
 
-
-
-
-
-
-
     private fun L2Norm(x1: FloatArray, x2: FloatArray): Float {
         var sum = 0.0f
         for (i in x1.indices) {
@@ -588,34 +603,34 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     private val searchPrompt by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.note_ben_reg))
+        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.note_ben_reg))
             .setMessage(getString(R.string.no_patient_found))
             .setPositiveButton("Search") { dialog, _ ->
                 dialog.dismiss()
                 HomeViewModel.setSearchBool()
-            }
-            .setNegativeButton("Proceed with Registration"){dialog, _->
+            }.setNegativeButton("Proceed with Registration") { dialog, _ ->
                 val intent = Intent(context, RegisterPatientActivity::class.java).apply {
-                putExtra("photoUri", photoURI.toString())
-                putExtra("facevector", embeddings)
-            }
+                    putExtra("photoUri", photoURI.toString())
+                    putExtra("facevector", embeddings)
+                }
                 startActivity(intent)
                 dialog.dismiss()
                 HomeViewModel.resetSearchBool()
-            }
-            .create()
+            }.create()
     }
 
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
-        val patientName = (benVisitInfo.patient.firstName?:"") + " " + (benVisitInfo.patient.lastName?:"")
-        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(patientID =
-        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(patientID =
-        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(patientID =
-        benVisitInfo.patient.patientID,benVisitNo = benVisitInfo.benVisitNo!!)
-//        Log.d("prescriptionMsg", prescriptions.toString())
+        val patientName =
+            (benVisitInfo.patient.firstName ?: "") + " " + (benVisitInfo.patient.lastName ?: "")
+        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+        )
+        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
+            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+        )
+        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
+            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+        )
 
         val pdfDocument: PdfDocument = PdfDocument()
 
@@ -633,16 +648,11 @@ class PersonalDetailsFragment : Fragment() {
         val xPosition = 75F
         var y = 270F // Declare y as a var
         val rowHeight = 50F
-        val spaceBetweenNameAndPrescription = 30F
         val leftSideX = 50F
-        val rightSideX = 400F
         val extraSpace = 10F
-        val middleX = 220F
-        val bottomRightX = 400F
-        val yPosition = 270F
 
         // Set up Paint for text
-        val textPaint: Paint = Paint().apply {
+         Paint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textSize = 15F
             color = ContextCompat.getColor(requireContext(), android.R.color.black)
@@ -717,7 +727,7 @@ class PersonalDetailsFragment : Fragment() {
         // Define fixed column widths
         val columnWidth = 150F
         y += spaceAfterLine
-        y+=30
+        y += 30
 
         val chiefComplaintHeader = "Chief Complaints"
         val chiefComplaintHeaderSize = 25F // Adjust the size as needed
@@ -734,7 +744,7 @@ class PersonalDetailsFragment : Fragment() {
         val chiefComplaintColumnWidth = 150F
 
 // Draw table header for Chief Complaints
-        canvas.drawText("S.No.", xPosition+extraSpace, y, subheading)
+        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
         canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
         canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
@@ -799,7 +809,7 @@ class PersonalDetailsFragment : Fragment() {
 
         canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
         y += spaceAfterLine
-        y+=30
+        y += 30
 
         // Add a heading for the Vitals section
         val vitalsSectionHeader = "Vitals"
@@ -817,16 +827,25 @@ class PersonalDetailsFragment : Fragment() {
         val vitalsColumnWidth = 200F
 
         // Draw table header for Vitals
-        canvas.drawText("Vitals Name", xPosition+leftSideX, y, subheading)
-        canvas.drawText("Vitals Value", xPosition+leftSideX + vitalsColumnWidth, y, subheading)
+        canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
+        canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
 
         // Move down to the first row
         y += rowHeight
 
         // Function to draw Vitals Name and Value
         fun drawVitals(vitalsName: String, vitalsValue: String) {
-            drawTextWithWrapping(canvas, vitalsName, xPosition+leftSideX, y, vitalsColumnWidth, content)
-            drawTextWithWrapping(canvas, vitalsValue, xPosition+leftSideX + vitalsColumnWidth, y, vitalsColumnWidth, content)
+            drawTextWithWrapping(
+                canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
+            )
+            drawTextWithWrapping(
+                canvas,
+                vitalsValue,
+                xPosition + leftSideX + vitalsColumnWidth,
+                y,
+                vitalsColumnWidth,
+                content
+            )
             y += rowHeight
         }
 
@@ -857,12 +876,10 @@ class PersonalDetailsFragment : Fragment() {
 
 
         // Draw table header
-        canvas.drawText("S.No.", xPosition+extraSpace, y, subheading)
+        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
         canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
         canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
         canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
-//        canvas.drawText("Quantity", xPosition + 4 * columnWidth, y, subheading)
-//        canvas.drawText("Instructions", xPosition + 5 * columnWidth, y, subheading)
         canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
 
         // Move down to the first row
@@ -870,18 +887,13 @@ class PersonalDetailsFragment : Fragment() {
 
         // Iterate through the list of prescriptions and draw each as a row
         if (!prescriptions.isNullOrEmpty()) {
-            var count:Int = 0
+            var count: Int = 0
             for (prescription in prescriptions) {
                 // Draw each field with a fixed width
-                if(prescription!=null) {
+                if (prescription != null) {
                     count++
                     drawTextWithWrapping(
-                        canvas,
-                        count.toString(),
-                        xPosition,
-                        y,
-                        columnWidth,
-                        content
+                        canvas, count.toString(), xPosition, y, columnWidth, content
                     )
                     drawTextWithWrapping(
                         canvas,
@@ -918,14 +930,7 @@ class PersonalDetailsFragment : Fragment() {
                             content
                         )
                     }
-//                    drawTextWithWrapping(
-//                        canvas,
-//                        prescription.quantityInHand.toString(),
-//                        xPosition + 4 * columnWidth,
-//                        y,
-//                        columnWidth,
-//                        content
-//                    )
+
                     drawTextWithWrapping(
                         canvas,
                         prescription.instructions,
@@ -944,13 +949,14 @@ class PersonalDetailsFragment : Fragment() {
         pdfDocument.finishPage(myPage)
 
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName : String =  "Prescription_$patientName"+"_${timeStamp}_.pdf"
+        val fileName: String = "Prescription_$patientName" + "_${timeStamp}_.pdf"
 
         val outputStream: OutputStream
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             outputStream = createPdfForApi33(fileName)
         } else {
-            val downloadsDirectory: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val downloadsDirectory: File =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val file = File(downloadsDirectory, fileName)
 
             outputStream = FileOutputStream(file)
@@ -960,7 +966,9 @@ class PersonalDetailsFragment : Fragment() {
         try {
             pdfDocument.writeTo(outputStream)
 
-            Toast.makeText(requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
             e.printStackTrace()
 
@@ -970,9 +978,11 @@ class PersonalDetailsFragment : Fragment() {
         pdfDocument.close()
     }
 
-    private fun drawTextWithWrapping(canvas: Canvas, text: String?, x: Float, y: Float, maxWidth: Float, paint: Paint) {
+    private fun drawTextWithWrapping(
+        canvas: Canvas, text: String?, x: Float, y: Float, maxWidth: Float, paint: Paint
+    ) {
         var yPos = y
-        val textLines = wrapText(text?:"", paint, maxWidth)
+        val textLines = wrapText(text ?: "", paint, maxWidth)
         for (line in textLines) {
             canvas.drawText(line, x, yPos, paint)
             yPos += paint.textSize
@@ -999,7 +1009,7 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(fileName:String): OutputStream {
+    private fun createPdfForApi33(fileName: String): OutputStream {
         val outst: OutputStream
         val contentValues = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)
@@ -1008,8 +1018,7 @@ class PersonalDetailsFragment : Fragment() {
         }
 
         val pdfUri: Uri? = requireContext().contentResolver.insert(
-            MediaStore.Files.getContentUri("external"),
-            contentValues
+            MediaStore.Files.getContentUri("external"), contentValues
         )
         outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
         Objects.requireNonNull(outst)
@@ -1018,27 +1027,25 @@ class PersonalDetailsFragment : Fragment() {
 
     private fun hasPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
-            requireContext(),
-            permission
+            requireContext(), permission
         ) == PackageManager.PERMISSION_GRANTED
     }
 
 
     private fun checkPermissions() {
 
-        val permissions =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO,
-                    Manifest.permission.READ_MEDIA_AUDIO
-                )
-            } else {
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            }
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
         if (!hasPermission(permissions[0])) {
             permissionLauncher.launch(permissions)
         }
@@ -1048,7 +1055,7 @@ class PersonalDetailsFragment : Fragment() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         var isGranted = true
-        for (item in it){
+        for (item in it) {
             if (!item.value) {
                 isGranted = false
             }
@@ -1063,38 +1070,43 @@ class PersonalDetailsFragment : Fragment() {
 
     private val searchTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
+            //No-Ops for now
         }
 
         override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
+            //No-Ops for now
         }
 
         override fun afterTextChanged(p0: Editable?) {
             viewModel.filterText(p0?.toString() ?: "")
             binding.patientListContainer.patientCount.text =
                 patientCount.toString() + getResultStr(patientCount)
-            Log.d("arr","${patientCount}")
+
         }
 
     }
-    fun getResultStr(count:Int?):String{
-        if(count==1||count==0){
+
+    fun getResultStr(count: Int?): String {
+        if (count == 1 || count == 0) {
             return getString(R.string.patient_cnt_display)
         }
         return getString(R.string.patients_cnt_display)
     }
-    private val speechToTextLauncherForSearchByName = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
-            binding.search.setText(result)
-            binding.search.addTextChangedListener(searchTextWatcher)
+
+    private val speechToTextLauncherForSearchByName =
+        registerForActivityResult(SpeechToTextContract()) { result ->
+            if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
+                binding.search.setText(result)
+                binding.search.addTextChangedListener(searchTextWatcher)
+            }
         }
-    }
+
     private fun encryptSHA512(input: String): String {
         val digest = MessageDigest.getInstance("SHA-512")
         val hashBytes = digest.digest(input.toByteArray())
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
+
     private fun callLoginDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
         if (benVisitInfo.patient.phoneNo.isNullOrEmpty()) {
             context?.let {
@@ -1102,22 +1114,17 @@ class PersonalDetailsFragment : Fragment() {
                     .setMessage(getString(R.string.phone_no_not_found))
                     .setPositiveButton(getString(R.string.ok)) { dialog, _ ->
                         dialog.dismiss()
-                    }.create()
-                    .show()
+                    }.create().show()
             }
-        } else{
+        } else {
             network = isInternetAvailable(requireContext())
             val dialogView =
                 LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
             val dialog = context?.let {
-                MaterialAlertDialogBuilder(it)
-                    .setTitle("eSanjeevani Login")
-                    .setView(dialogView)
+                MaterialAlertDialogBuilder(it).setTitle("eSanjeevani Login").setView(dialogView)
                     .setNegativeButton("Cancel") { dialog, _ ->
-                        // Handle cancel button click
                         dialog.dismiss()
-                    }
-                    .create()
+                    }.create()
             }
             dialog?.show()
             val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
@@ -1126,16 +1133,19 @@ class PersonalDetailsFragment : Fragment() {
                 // Internet is available
                 dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
                 dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
-                val rememberedUsername : String? = viewModel.fetchRememberedUsername()
-                val rememberedPassword : String? = viewModel.fetchRememberedPassword()
-                if(!rememberedUsername.isNullOrBlank() && !rememberedPassword.isNullOrBlank()){
-                    dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text = Editable.Factory.getInstance().newEditable(rememberedUsername)
-                    dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text = Editable.Factory.getInstance().newEditable(rememberedPassword)
+                val rememberedUsername: String? = viewModel.fetchRememberedUsername()
+                val rememberedPassword: String? = viewModel.fetchRememberedPassword()
+                if (!rememberedUsername.isNullOrBlank() && !rememberedPassword.isNullOrBlank()) {
+                    dialogView.findViewById<TextInputEditText>(R.id.et_username_es).text =
+                        Editable.Factory.getInstance().newEditable(rememberedUsername)
+                    dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text =
+                        Editable.Factory.getInstance().newEditable(rememberedPassword)
                     rememberMeEsanjeevani.isChecked = true
                 }
             } else {
                 dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.GONE
-                dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.VISIBLE
+                dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility =
+                    View.VISIBLE
             }
 
 
@@ -1147,20 +1157,18 @@ class PersonalDetailsFragment : Fragment() {
                 passwordEs =
                     dialogView.findViewById<TextInputEditText>(R.id.et_password_es).text.toString()
                         .trim()
-                if(rememberMeEsanjeevani.isChecked){
-                    viewModel.rememberUserEsanjeevani(usernameEs,passwordEs)
-                }else{
+                if (rememberMeEsanjeevani.isChecked) {
+                    viewModel.rememberUserEsanjeevani(usernameEs, passwordEs)
+                } else {
                     viewModel.forgetUserEsanjeevani()
                 }
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        var passWord = encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
+                        var passWord =
+                            encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
 
                         var networkBody = NetworkBody(
-                            usernameEs,
-                            passWord,
-                            "token",
-                            "11001"
+                            usernameEs, passWord, "token", "11001"
                         )
                         val errorTv = dialogView.findViewById<MaterialTextView>(R.id.tv_error_es)
                         network = isInternetAvailable(requireContext())
@@ -1197,28 +1205,30 @@ class PersonalDetailsFragment : Fragment() {
     }
 
     fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val network = connectivityManager.activeNetwork
             val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-            return networkCapabilities != null &&
-                    (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                            networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+            return networkCapabilities != null && (networkCapabilities.hasTransport(
+                NetworkCapabilities.TRANSPORT_WIFI
+            ) || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
         } else {
             val networkInfo = connectivityManager.activeNetworkInfo
             return networkInfo != null && networkInfo.isConnected
         }
     }
+
     private fun checkAndGenerateABHA(benVisitInfo: PatientDisplayWithVisitInfo) {
-        Log.d("checkAndGenerateABHA click listener","checkAndGenerateABHA click listener")
+        Log.d("checkAndGenerateABHA click listener", "checkAndGenerateABHA click listener")
         viewModel.fetchAbha(benVisitInfo.patient.beneficiaryID!!)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
 
 
 }
