@@ -82,8 +82,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private lateinit var viewModel: PatientDetailsViewModel
 
-    private var doAgeToDob = true;
-    private var patient = Patient();
+    private var doAgeToDob = true
+    private var patient = Patient()
     private lateinit var villageAdapter :VillageDropdownAdapter
     private val dobUtil : DateTimeUtil = DateTimeUtil()
     var bool: Boolean = false
@@ -624,7 +624,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private fun setChangeListeners(){
 
         binding.maritalStatusDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
+            viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position]
             viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
             viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
@@ -936,7 +936,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         dobUtil.selectedDate.observe(viewLifecycleOwner) { date ->
             if(date != null){
-                setDateOfBirthToAge(date);
+                setDateOfBirthToAge(date)
             }
         }
 
@@ -944,22 +944,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
-//        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
-//        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
-//            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
         viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
-            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
+            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!)
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
         setMarriedFieldsVisibility()
-//        }
-        doAgeToDob = true;
+
+        doAgeToDob = true
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
-        val age = DateTimeUtil.calculateAgePicker(date);
-//        viewModel.enteredAge = age.value
+        val age = DateTimeUtil.calculateAgePicker(date)
         viewModel.enteredAgeYears = age.years
         viewModel.enteredAgeMonths = age.months
         viewModel.enteredAgeWeeks = age.weeks
@@ -1011,8 +1007,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     fun setPatientDetails(){
         patient.firstName = binding.firstName.text.toString().trim()
         patient.lastName = binding.lastName.text.toString().trim()
-        patient.dob = viewModel.selectedDateOfBirth;
-        patient.age = viewModel.enteredAge;
+        patient.dob = viewModel.selectedDateOfBirth
+        patient.age = viewModel.enteredAge
         patient.maritalStatusID = viewModel.maritalStatusId
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
@@ -1037,7 +1033,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
     override fun getFragmentId(): Int {
-        return R.id.fragment_add_patient_location;
+        return R.id.fragment_add_patient_location
     }
     fun checkVisibleFieldIsEmpty():Boolean{
         if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.ageVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
@@ -1060,7 +1056,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
                         if(preferenceDao.isUserCHO()){
                             val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo);
+                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo)
                             startActivity(intent)
                         }
                         else{
