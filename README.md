@@ -63,3 +63,34 @@ If you encounter any issues, bugs, or have feature requests, please file them in
 
 We’d love to have you join our community discussions and get real-time support!  
 Join our [Discord server](https://discord.gg/FVQWsf5ENS) to connect with contributors, ask questions, and stay updated.  
+
+
+## Credits
+
+This project uses third-party open-source models and resources. Full acknowledgements are provided below to comply with respective licenses and to support reproducibility.
+
+---
+
+### **1. FaceNet (facenet.tflite)**
+
+* Original FaceNet implementation
+  **Repository:** [https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
+  **License:** MIT License
+  **Architecture:** Inception-ResNet-v1 trained on CASIA-WebFace
+* Android TFLite model source used in this project:
+  **Repository:** [https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android](https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android)
+* The Facenet `.tflite` in our repo (`app/src/main/assets/facenet.tflite`) was sourced directly from the above repository.
+* If any developer wishes to convert a FaceNet `.pb` model to `.tflite`, refer to this conversion script:
+  **File:** [`src/train_model/tflite_convert.py`](https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py)
+
+---
+
+### **2. MediaPipe Face Detection (BlazeFace – Short Range)**
+
+* Replaced Google ML Kit with MediaPipe implementation.
+* Current face detection model used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
+* Downloaded from official source:
+  [https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models](https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models)
+* Face Detector is part of **Mediapipe Solutions**
+  **Repository:** [https://github.com/google/mediapipe](https://github.com/google/mediapipe)
+  **License:** Apache 2.0
