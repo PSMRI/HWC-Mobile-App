@@ -65,13 +65,13 @@ We’d love to have you join our community discussions and get real-time support
 Join our [Discord server](https://discord.gg/FVQWsf5ENS) to connect with contributors, ask questions, and stay updated.  
 
 
-## 📄 **Credits**
+## Credits
 
 This project uses third-party open-source models and resources. Full acknowledgements are provided below to comply with respective licenses and to support reproducibility.
 
 ---
 
-### 🔷 **1. FaceNet (facenet.tflite)**
+### **1. FaceNet (facenet.tflite)**
 
 * Original FaceNet implementation
   **Repository:** [https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
@@ -85,7 +85,7 @@ This project uses third-party open-source models and resources. Full acknowledge
 
 ---
 
-### 🔷 **2. MediaPipe Face Detection (BlazeFace – Short Range)**
+### **2. MediaPipe Face Detection (BlazeFace – Short Range)**
 
 * Replaced Google ML Kit with MediaPipe implementation.
 * Current face detection model used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
