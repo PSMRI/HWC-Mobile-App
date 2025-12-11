@@ -29,6 +29,24 @@
         <action
             android:id="@+id/action_usernameFragment_to_loginSettings"
             app:destination="@id/loginSettingsFragment" />
+        <action
+            android:id="@+id/actionSignInToHomeFromCho"
+            app:destination="@id/homeActivity">
+            <argument
+                android:name="dashboardBool"
+                app:argType="boolean"
+                android:defaultValue="true"/>
+        </action>
+        <action
+            android:id="@+id/actionChoToOutreach"
+            app:destination="@id/outreachLoginFragment" >
+            <argument
+                android:name="rememberUsername"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/actionChoToHwc"
+            app:destination="@id/hwcLoginFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginSettingsFragment"
