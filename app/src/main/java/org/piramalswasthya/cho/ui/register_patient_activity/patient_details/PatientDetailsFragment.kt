@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,7 +13,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,6 +67,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import android.text.InputType
+import android.view.inputmethod.InputMethodManager
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -238,7 +240,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
 
                 } catch (e: Exception) {
-                    Log.e("FaceDetection", "Face detection failed", e)
                     Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 }
@@ -298,6 +299,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+        setupVillageDropdown()
 
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
             val photoUri = Uri.parse(uriString)
@@ -635,10 +637,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.selectedGenderMaster = viewModel.genderMasterList[position]
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
         }
-        binding.villageDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedVillage = parent.getItemAtPosition(position) as VillageLocationData
-            binding.villageDropdown.setText(viewModel.selectedVillage!!.villageName, false)
-        }
 
         binding.dateOfBirth.setOnClickListener {
             dobUtil.showDatePickerDialog(
@@ -744,23 +742,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isGenderFilled = s?.isNotEmpty() == true
                 viewModel.setGender(isGenderFilled)
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                //No-Ops For Now
-            }
-        })
-        binding.villageDropdown.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                //No-Ops For Now
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isVillageFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setVillageBool(isVillageFilled) // Update LiveData
-                if (::villageAdapter.isInitialized) {
-                    villageAdapter.notifyDataSetChanged()
-                }
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -901,6 +882,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         viewModel.villageListFilter
                     )
                     binding.villageDropdown.setAdapter(villageAdapter)
+                    setVillageDropdownMaxHeight()
                 }
                 else -> {
                     //No-Ops For Now
@@ -940,6 +922,61 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
         }
 
+    }
+    private fun setupVillageDropdown() {
+
+        val dropdown = binding.villageDropdown
+
+        dropdown.apply {
+            threshold = 0
+            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            isFocusable = true
+            isFocusableInTouchMode = true
+            isCursorVisible = true
+        }
+
+        dropdown.setOnClickListener {
+            dropdown.showDropDown()
+        }
+
+        dropdown.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedVillage =
+                parent.getItemAtPosition(position) as VillageLocationData
+
+            dropdown.setText(viewModel.selectedVillage!!.villageName, false)
+            hideKeyboard(dropdown)
+        }
+
+        dropdown.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.setVillageBool(!s.isNullOrEmpty())
+
+                if (::villageAdapter.isInitialized) {
+                    villageAdapter.filter.filter(s)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+
+    private fun hideKeyboard(view: View) {
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    private fun setVillageDropdownMaxHeight() {
+        val dropdown = binding.villageDropdown
+
+        dropdown.post {
+            val screenHeight = resources.displayMetrics.heightPixels
+            dropdown.dropDownHeight = (screenHeight * 0.4).toInt()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
