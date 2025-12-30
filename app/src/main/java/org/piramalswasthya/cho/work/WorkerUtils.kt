@@ -107,8 +107,8 @@ object WorkerUtils {
         val workManager = WorkManager.getInstance(context)
         workManager
             .beginUniqueWork(syncOneTimeAmritSyncWorker, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
-            .then(pushCbacWorkRequest)
             .then(pushBenToAmritWorker)
+            .then(pushCbacWorkRequest)
             .then(createRevisitBenflowWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pushBenVisitInfoRequest)

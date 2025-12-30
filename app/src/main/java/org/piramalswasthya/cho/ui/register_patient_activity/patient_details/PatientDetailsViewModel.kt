@@ -172,6 +172,10 @@ class PatientDetailsViewModel @Inject constructor(
     fun setFirstName(boolean: Boolean){
         _firstNameVal.value = boolean
     }
+
+    fun setDataSaved(value: Boolean) {
+        _isDataSaved.postValue(value)
+    }
     fun setLastName(boolean: Boolean){
         _lastNameVal.value = boolean
     }

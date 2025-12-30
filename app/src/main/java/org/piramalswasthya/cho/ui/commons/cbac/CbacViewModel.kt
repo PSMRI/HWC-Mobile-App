@@ -182,7 +182,7 @@ class CbacViewModel @Inject constructor(
                     ?: ben.patient.registrationDate?.time ?: 0)
 
             }
-            if (ben.ageUnit.name.lowercase() != "years")
+            if (ben.ageUnit?.name?.lowercase() != "years")
                 throw IllegalStateException("Age not in years for CBAC form!!")
             val age = ben.patient.age
 //            val age = if (cbacId == 0) ben.age else BenBasicCache.getAgeFromDob(ben.dob)
@@ -222,7 +222,7 @@ class CbacViewModel @Inject constructor(
             }
             _age.value = ben.patient.age ?: 0
             _benName.value = "${ben.patient.firstName} ${if (ben.patient.lastName == null) "" else ben.patient.lastName}"
-            _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}"
+            _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
 
             _state.value = State.IDLE
 
@@ -532,7 +532,7 @@ class CbacViewModel @Inject constructor(
         var flagForHrp = false
 //        if (ben.genDetails?.reproductiveStatusId == 1 || ben.genDetails?.reproductiveStatusId == 2 || ben.genDetails?.reproductiveStatusId == 3) {
             //hrp related posibilities
-            if ((ben.gender.genderName.lowercase() == "female") && (
+            if ((ben.gender?.genderName?.lowercase() == "female") && (
                         cbac.cbac_foulveginaldischarge_pos == 1 ||
                                 cbac.cbac_sufferingtb_pos == 1 ||
                                 cbac.cbac_bleedingafterintercourse_pos == 1 ||
@@ -778,7 +778,7 @@ class CbacViewModel @Inject constructor(
             missingFieldString = resources.getString(R.string.cbac_validation_wfdw)
             return false
         }
-        if (ben.gender.genderName.lowercase() == "female") {
+        if (ben.gender?.genderName?.lowercase() == "female") {
             if (cbac.cbac_lumpinbreast_pos == 0) {
                 missingFieldString = resources.getString(R.string.cbac_validation_lb)
                 return false

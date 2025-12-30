@@ -23,7 +23,7 @@ class ApiSearchAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.patient_details_card, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_api_search_patient, parent, false)
         return ViewHolder(v)
     }
 
@@ -33,25 +33,29 @@ class ApiSearchAdapter(
         holder.itemView.setOnClickListener { onItemClick(item) }
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int {
+        return items.size
+    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val name: TextView = itemView.findViewById(R.id.name)
-        private val abhaNumber: TextView = itemView.findViewById(R.id.abha_number)
-        private val age: TextView = itemView.findViewById(R.id.age)
-        private val phoneNo: TextView = itemView.findViewById(R.id.phone_no)
-        private val gender: TextView = itemView.findViewById(R.id.gender)
+
+        private val tvName: TextView = itemView.findViewById(R.id.tvName)
+        private val tvBenId: TextView = itemView.findViewById(R.id.tvBenId)
+        private val tvGender: TextView = itemView.findViewById(R.id.tvGender)
 
         fun bind(info: PatientDisplayWithVisitInfo) {
-            val first = info.patient.firstName ?: ""
-            val last = info.patient.lastName ?: ""
-            name.text = "Name: $first $last"
-            gender.text = "Gender: ${info.genderName ?: "NA"}"
-            val benIdText = info.patient.beneficiaryRegID?.toString()
-                ?: info.patient.beneficiaryID?.toString() ?: "NA"
-            abhaNumber.text = "Beneficiary ID: $benIdText"
-            age.visibility = View.GONE
-            phoneNo.visibility = View.GONE
+            val first = info.patient.firstName.orEmpty()
+            val last = info.patient.lastName.orEmpty()
+
+            tvName.text = "$first $last"
+
+            val benId = info.patient.beneficiaryRegID
+                ?: info.patient.beneficiaryID
+
+            tvBenId.text = "Beneficiary ID: ${benId ?: "NA"}"
+            tvGender.text = "Gender: ${info.genderName ?: "NA"}"
+
         }
     }
+
 }
