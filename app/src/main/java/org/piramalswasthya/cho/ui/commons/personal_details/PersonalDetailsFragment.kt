@@ -15,7 +15,6 @@ import android.graphics.pdf.PdfDocument
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -72,6 +71,9 @@ import org.piramalswasthya.cho.network.interceptors.TokenESanjeevaniInterceptor
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
+import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -91,9 +93,10 @@ import java.util.Locale
 import java.util.Objects
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
-import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.generateUuid
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.work.WorkerUtils
+import android.os.Build
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -141,6 +144,13 @@ class PersonalDetailsFragment : Fragment() {
 
     @Inject
     lateinit var vitalsRepo: VitalsRepo
+
+    @Inject
+    lateinit var patientRepo: PatientRepo
+
+    @Inject
+    lateinit var userRepo: UserRepo
+
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount: Int = 0
 
@@ -315,7 +325,6 @@ class PersonalDetailsFragment : Fragment() {
                     binding.patientListContainer.patientList.adapter = itemAdapter
 
                     apiSearchAdapter = ApiSearchAdapter(requireContext()) { selectedPatient ->
-//                        saveApiPatientToLocalDb(selectedPatient)
                         hitRegisterApi(selectedPatient)
                     }
 
@@ -420,49 +429,6 @@ class PersonalDetailsFragment : Fragment() {
         }
     }
 
-    private fun saveApiPatientToLocalDb(
-        apiPatient: PatientDisplayWithVisitInfo
-    ) {
-        lifecycleScope.launch(Dispatchers.IO) {
-
-            if (!patientDao.existsByBeneficiaryRegId(apiPatient.patient.beneficiaryRegID)) {
-                patientDao.insertPatient(apiPatient.patient)
-            }
-
-            withContext(Dispatchers.Main) {
-                isShowingSearchResults = false
-                viewModel.filterText("")
-
-                binding.patientListContainer.patientList.adapter = itemAdapter
-
-                Toast.makeText(
-                    requireContext(),
-                    "Patient saved successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    fun setPatientDetails(apiPatient: PatientDisplayWithVisitInfo){
-        patient.firstName = apiPatient.patient.firstName.toString().trim()
-        patient.lastName = apiPatient.patient.lastName.toString().trim()
-        patient.dob = viewModelPatientDetails.selectedDateOfBirth
-        patient.age = viewModelPatientDetails.enteredAge
-        patient.maritalStatusID = viewModelPatientDetails.maritalStatusId
-        patient.ageUnitID = viewModelPatientDetails.selectedAgeUnit?.id
-        patient.parentName = apiPatient.patient.parentName.toString().trim()
-        patient.spouseName = apiPatient.patient.spouseName.toString().trim()
-        patient.faceEmbedding = embeddings?.toList()
-        if (apiPatient.patient.phoneNo.toString().isNullOrEmpty()) {
-            patient.phoneNo = null
-        } else {
-            patient.phoneNo = apiPatient.patient.phoneNo.toString()
-        }
-        patient.genderID = viewModelPatientDetails.selectedGenderMaster?.genderID
-        patient.registrationDate = Date()
-        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
-    }
 
     private fun setLocationDetails(){
         val locData = preferenceDao.getUserLocationData()
@@ -474,57 +440,210 @@ class PersonalDetailsFragment : Fragment() {
 
     }
 
-//    private fun hitRegisterApi(apiPatient: PatientDisplayWithVisitInfo){
-//            setPatientDetails(apiPatient)
-//            setLocationDetails()
-//            patient.patientID = generateUuid()
-//        lifecycleScope.launch(Dispatchers.IO) {
-//
-//            if (!patientDao.existsByBeneficiaryRegId(apiPatient.patient.beneficiaryRegID)) {
-//                patientDao.insertPatient(apiPatient.patient)
-//
-//                viewModelPatientDetails.isDataSaved.observe(viewLifecycleOwner) { state ->
-//                    if (state == true) {
-//                        WorkerUtils.triggerAmritSyncWorker(requireContext())
-//                        Toast.makeText(
-//                            requireContext(),
-//                            getString(R.string.patient_registered_successfully),
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                    }
-//                }
-//
-//            }else{
-//                Toast.makeText(requireContext(), "Patient Already Exist", Toast.LENGTH_SHORT).show()
-//
-//            }
-//        }
-//    }
     private fun hitRegisterApi(apiPatient: PatientDisplayWithVisitInfo) {
+        lifecycleScope.launch {
+            try {
+                val existingPatient = withContext(Dispatchers.IO) {
+                    apiPatient.patient.beneficiaryRegID?.let { benRegId ->
+                        patientRepo.getPatientByBenRegId(benRegId)
+                    }
+                }
 
-    setPatientDetails(apiPatient)
-    setLocationDetails()
-    patient.patientID = generateUuid()
+                if (existingPatient != null && existingPatient.syncState == SyncState.SYNCED) {
+                    withContext(Dispatchers.Main) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Patient Already Registered")
+                            .setMessage("This patient is already registered in the system.")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
 
-    lifecycleScope.launch {
-        val exists = withContext(Dispatchers.IO) {
-            patientDao.existsByBeneficiaryRegId(apiPatient.patient.beneficiaryRegID)
-        }
+                val patientExists = withContext(Dispatchers.IO) {
+                    apiPatient.patient.beneficiaryRegID?.let { benRegId ->
+                        patientDao.existsByBeneficiaryRegId(benRegId)
+                    } ?: false
+                }
 
-        if (!exists) {
-            withContext(Dispatchers.IO) {
-                patientDao.insertPatient(apiPatient.patient)
+                if (patientExists && existingPatient == null) {
+                    withContext(Dispatchers.Main) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Patient Already Exists")
+                            .setMessage("This patient already exists in the system. Please refresh the patient list.")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
+
+                patient = existingPatient?.apply {
+                    firstName = apiPatient.patient.firstName
+                    lastName = apiPatient.patient.lastName
+                    beneficiaryRegID = apiPatient.patient.beneficiaryRegID
+                    phoneNo = apiPatient.patient.phoneNo
+                    genderID = apiPatient.patient.genderID
+                    dob = apiPatient.patient.dob
+                    age = apiPatient.patient.age
+                    ageUnitID = apiPatient.patient.ageUnitID
+                    maritalStatusID = apiPatient.patient.maritalStatusID
+                    spouseName = apiPatient.patient.spouseName
+                    parentName = apiPatient.patient.parentName
+                    stateID = apiPatient.patient.stateID
+                    districtID = apiPatient.patient.districtID
+                    blockID = apiPatient.patient.blockID
+                    districtBranchID = apiPatient.patient.districtBranchID
+                    syncState = SyncState.UNSYNCED
+                } ?: Patient(
+                    patientID = generateUuid(),
+                    firstName = apiPatient.patient.firstName,
+                    lastName = apiPatient.patient.lastName,
+                    beneficiaryRegID = apiPatient.patient.beneficiaryRegID,
+                    syncState = SyncState.UNSYNCED,
+                    registrationDate = Date(),
+                    phoneNo = apiPatient.patient.phoneNo,
+                    genderID = apiPatient.patient.genderID,
+                    dob = apiPatient.patient.dob,
+                    age = apiPatient.patient.age,
+                    ageUnitID = apiPatient.patient.ageUnitID,
+                    maritalStatusID = apiPatient.patient.maritalStatusID,
+                    spouseName = apiPatient.patient.spouseName,
+                    parentName = apiPatient.patient.parentName,
+                    stateID = apiPatient.patient.stateID,
+                    districtID = apiPatient.patient.districtID,
+                    blockID = apiPatient.patient.blockID,
+                    districtBranchID = apiPatient.patient.districtBranchID
+                )
+
+                val hasRequiredFields = patient.dob != null &&
+                                       patient.genderID != null && 
+                                       patient.districtBranchID != null
+
+                if (!hasRequiredFields) {
+                    withContext(Dispatchers.Main) {
+                        val missingFields = mutableListOf<String>()
+                        if (patient.dob == null) missingFields.add("DOB")
+                        if (patient.genderID == null) missingFields.add("Gender")
+                        if (patient.districtBranchID == null) missingFields.add("Village")
+                        
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Incomplete Data")
+                            .setMessage("Patient data is incomplete. Missing: ${missingFields.joinToString(", ")}")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
+                
+                if (patient.districtBranchID == null) {
+                    setLocationDetails()
+                }
+
+                withContext(Dispatchers.IO) {
+                    patientRepo.insertPatient(patient)
+                }
+
+                val patientDisplay = withContext(Dispatchers.IO) {
+                    patientRepo.getPatientDisplay(patient.patientID)
+                }
+
+                if (patientDisplay?.patient?.syncState == SyncState.SYNCING) {
+                    withContext(Dispatchers.Main) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Registration In Progress")
+                            .setMessage("This patient is already being registered. Please wait for the registration to complete.")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
+                
+                if (patientDisplay?.patient?.syncState == SyncState.SYNCED) {
+                    withContext(Dispatchers.Main) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Patient Already Registered")
+                            .setMessage("This patient is already registered in the system.")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
+
+                val user = withContext(Dispatchers.IO) {
+                    userRepo.getLoggedInUser()
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Registering patient...",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                val registrationResult = withContext(Dispatchers.IO) {
+                    patientRepo.registerNewPatient(patientDisplay, user)
+                }
+
+                when (registrationResult) {
+                    is NetworkResult.Success -> {
+                        withContext(Dispatchers.Main) {
+                            WorkerUtils.triggerAmritSyncWorker(requireContext())
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.patient_registered_successfully),
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            binding.search.text?.clear()
+                            isShowingSearchResults = false
+                            viewModel.filterText("")
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        withContext(Dispatchers.Main) {
+                            if (registrationResult.message.contains("missing mandatory data")) {
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle("Complete Registration")
+                                    .setMessage("Patient data is incomplete. Please complete the registration form with required information (DOB, Gender, Village).")
+                                    .setPositiveButton("Open Registration Form") { _, _ ->
+                                        val intent = Intent(requireContext(), RegisterPatientActivity::class.java)
+                                        intent.putExtra("patientId", patient.patientID)
+                                        startActivity(intent)
+                                    }
+                                    .setNegativeButton("Cancel", null)
+                                    .show()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Registration failed: ${registrationResult.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                    else -> {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Registration failed. Please try again.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error in hitRegisterApi")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
-            viewModelPatientDetails.setDataSaved(true)
-        } else {
-            Toast.makeText(
-                requireContext(),
-                "Patient Already Exist",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
-}
 
     private lateinit var syncBottomSheet: SyncBottomSheetFragment
     private fun openDialog(benVisitInfo: PatientDisplayWithVisitInfo) {
@@ -1215,6 +1334,7 @@ class PersonalDetailsFragment : Fragment() {
             //No-Ops for now
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(p0: Editable?) {
             val query = p0?.toString()?.trim().orEmpty()
 
@@ -1229,7 +1349,6 @@ class PersonalDetailsFragment : Fragment() {
 
             lifecycleScope.launch(Dispatchers.IO) {
 
-                // 🔹 Local search (UI quick response)
                 val local = patientDao.getPatientList()
                 val localMatches = local.filter {
                     val fn = it.patient.firstName.orEmpty()
@@ -1249,7 +1368,6 @@ class PersonalDetailsFragment : Fragment() {
                     }
                 }
 
-                // 🔹 ALWAYS call API from 1 char
                 try {
                     val response = amritApiService.quickSearchES(
                         mapOf("search" to query)
@@ -1263,37 +1381,125 @@ class PersonalDetailsFragment : Fragment() {
                     for (i in 0 until dataArr.length()) {
                         val obj = dataArr.getJSONObject(i)
 
+                        val firstName = obj.optString("firstName")
+                        val lastName = obj.optString("lastName")
+                        val beneficiaryRegID = obj.optLong("beneficiaryRegID")
+                        
+                        var dob: Date? = null
+                        if (obj.has("dob") && !obj.isNull("dob")) {
+                            val dobString = obj.optString("dob", "")
+                            if (dobString.isNotEmpty() && dobString != "null" && dobString.lowercase() != "null") {
+                                try {
+                                    dob = DateTimeUtil.formatUTCToDate(dobString)
+                                    Timber.d("Successfully parsed DOB: $dobString -> $dob")
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Error parsing DOB: $dobString")
+                                }
+                            }
+                        }
+                        
+                        var genderID: Int? = null
+                        if (obj.has("genderID")) {
+                            genderID = obj.optInt("genderID")
+                        } else if (obj.has("m_gender")) {
+                            val mGender = obj.optJSONObject("m_gender")
+                            genderID = mGender?.optInt("genderID")
+                        }
+                        
+                        val iBendemographics = obj.optJSONObject("i_bendemographics")
+                        var stateID: Int? = null
+                        var districtID: Int? = null
+                        var blockID: Int? = null
+                        var districtBranchID: Int? = null
+                        var villageName: String? = null
+                        
+                        if (iBendemographics != null) {
+                            if (iBendemographics.has("stateID")) {
+                                stateID = iBendemographics.optInt("stateID")
+                            } else if (iBendemographics.has("m_state")) {
+                                val mState = iBendemographics.optJSONObject("m_state")
+                                stateID = mState?.optInt("stateID")
+                            }
+                            
+                            if (iBendemographics.has("districtID")) {
+                                districtID = iBendemographics.optInt("districtID")
+                            } else if (iBendemographics.has("m_district")) {
+                                val mDistrict = iBendemographics.optJSONObject("m_district")
+                                districtID = mDistrict?.optInt("districtID")
+                            }
+                            
+                            if (iBendemographics.has("blockID")) {
+                                blockID = iBendemographics.optInt("blockID")
+                            } else if (iBendemographics.has("m_districtblock")) {
+                                val mDistrictBlock = iBendemographics.optJSONObject("m_districtblock")
+                                blockID = mDistrictBlock?.optInt("blockID")
+                            }
+                            
+                            if (iBendemographics.has("villageID")) {
+                                districtBranchID = iBendemographics.optInt("villageID")
+                            } else if (iBendemographics.has("districtBranchID")) {
+                                districtBranchID = iBendemographics.optInt("districtBranchID")
+                            }
+                            
+                            villageName = iBendemographics.optString("villageName")
+                        }
+                        
+                        var phoneNo: String? = null
+                        if (obj.has("benPhoneMaps")) {
+                            val benPhoneMaps = obj.optJSONArray("benPhoneMaps")
+                            if (benPhoneMaps != null && benPhoneMaps.length() > 0) {
+                                val phoneMap = benPhoneMaps.getJSONObject(0)
+                                phoneNo = phoneMap.optString("phoneNo")
+                            }
+                        }
+                        
+                        val age = if (obj.has("age")) obj.optInt("age") else null
+                        
+                        val spouseName = obj.optString("spouseName").takeIf { it.isNotEmpty() }
+                        
+                        val parentName = obj.optString("fatherName").takeIf { it.isNotEmpty() }
+
                         val patient = Patient(
                             patientID = generateUuid(),
-                            firstName = obj.optString("firstName"),
-                            lastName = obj.optString("lastName"),
-                            beneficiaryRegID = obj.optLong("beneficiaryRegID"),
-                            syncState = SyncState.UNSYNCED
+                            firstName = firstName,
+                            lastName = lastName,
+                            beneficiaryRegID = beneficiaryRegID,
+                            syncState = SyncState.UNSYNCED,
+                            dob = dob,
+                            genderID = genderID,
+                            age = age,
+                            phoneNo = phoneNo,
+                            spouseName = spouseName,
+                            parentName = parentName,
+                            stateID = stateID,
+                            districtID = districtID,
+                            blockID = blockID,
+                            districtBranchID = districtBranchID
                         )
 
                         list.add(
                             PatientDisplayWithVisitInfo(
                                 patient = patient,
-                        genderName = obj.optString("genderName"),
-                        villageName = null,
-                        ageUnit = null,
-                        maritalStatus = null,
-                        nurseDataSynced = null,
-                        doctorDataSynced = null,
-                        createNewBenFlow = null,
-                        prescriptionID = null,
-                        benVisitNo = null,
-                        visitCategory = null,
-                        benFlowID = null,
-                        nurseFlag = null,
-                        doctorFlag = null,
-                        labtechFlag = null,
-                        pharmacist_flag = null,
-                        visitDate = null,
-                        referDate = null,
-                        referTo = null,
-                        referralReason = null
-                        )
+                                genderName = obj.optString("genderName"),
+                                villageName = villageName,
+                                ageUnit = null,
+                                maritalStatus = null,
+                                nurseDataSynced = null,
+                                doctorDataSynced = null,
+                                createNewBenFlow = null,
+                                prescriptionID = null,
+                                benVisitNo = null,
+                                visitCategory = null,
+                                benFlowID = null,
+                                nurseFlag = null,
+                                doctorFlag = null,
+                                labtechFlag = null,
+                                pharmacist_flag = null,
+                                visitDate = null,
+                                referDate = null,
+                                referTo = null,
+                                referralReason = null
+                            )
                         )
                     }
 
@@ -1360,7 +1566,6 @@ class PersonalDetailsFragment : Fragment() {
             val loginBtn = dialogView.findViewById<MaterialButton>(R.id.loginButton)
             val rememberMeEsanjeevani = dialogView.findViewById<CheckBox>(R.id.cb_remember_es)
             if (network) {
-                // Internet is available
                 dialogView.findViewById<ConstraintLayout>(R.id.cl_error_es).visibility = View.GONE
                 dialogView.findViewById<LinearLayout>(R.id.ll_login_es).visibility = View.VISIBLE
                 val rememberedUsername: String? = viewModel.fetchRememberedUsername()

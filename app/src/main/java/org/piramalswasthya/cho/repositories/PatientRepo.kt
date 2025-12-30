@@ -8,7 +8,10 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
+import org.piramalswasthya.cho.network.exception
+import org.piramalswasthya.cho.network.jsonException
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.BatchDao
 import org.piramalswasthya.cho.database.room.dao.BlockMasterDao
@@ -91,7 +94,78 @@ class PatientRepo @Inject constructor(
     private var abdmFacilityName: String = ""
 
     suspend fun insertPatient(patient: Patient) {
+        // Ensure master data exists before inserting patient
+        ensureMasterDataExists(patient)
         patientDao.insertPatient(patient)
+    }
+
+    /**
+     * Ensures all master data (State, District, Block, Village, Gender) exists before inserting patient
+     */
+    private suspend fun ensureMasterDataExists(patient: Patient) {
+        // Cache IDs in local vals to satisfy smart-cast requirements
+        val stateId = patient.stateID
+        val districtId = patient.districtID
+        val blockId = patient.blockID
+        val villageId = patient.districtBranchID
+
+        // Ensure State exists
+        if (stateId != null) {
+            if (stateMasterDao.getStateById(stateId) == null) {
+                stateMasterDao.insertStates(
+                    StateMaster(
+                        stateID = stateId,
+                        stateName = "", // Name not available from patient data
+                        govtLGDStateID = null
+                    )
+                )
+            }
+        }
+
+        // Ensure District exists
+        if (districtId != null && stateId != null) {
+            if (districtMasterDao.getDistrictById(districtId) == null) {
+                districtMasterDao.insertDistrict(
+                    DistrictMaster(
+                        districtID = districtId,
+                        stateID = stateId,
+                        govtLGDStateID = null,
+                        govtLGDDistrictID = null,
+                        districtName = ""
+                    )
+                )
+            }
+        }
+
+        // Ensure Block exists
+        if (blockId != null && districtId != null) {
+            if (blockMasterDao.getBlockById(blockId) == null) {
+                blockMasterDao.insertBlock(
+                    BlockMaster(
+                        blockID = blockId,
+                        districtID = districtId,
+                        govtLGDDistrictID = null,
+                        govLGDSubDistrictID = null,
+                        blockName = ""
+                    )
+                )
+            }
+        }
+
+        // Ensure Village exists
+        if (villageId != null && blockId != null) {
+            if (villageMasterDao.getVillageById(villageId) == null) {
+                villageMasterDao.insertVillage(
+                    VillageMaster(
+                        districtBranchID = villageId,
+                        blockID = blockId,
+                        govtLGDVillageID = null,
+                        govtLGDSubDistrictID = null,
+                        villageName = ""
+                    )
+                )
+            }
+        }
     }
 
     suspend fun getBenFromId(benId: Long): Patient? {
@@ -174,17 +248,92 @@ class PatientRepo @Inject constructor(
 
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
+        // 🔹 Basic validation – this API needs mandatory fields which are missing
+        val p = patient.patient
+        if (p.dob == null || p.genderID == null || p.districtBranchID == null) {
+            // These are the minimum fields required downstream in PatientNetwork/Bendemographics
+            return NetworkResult.Error(
+                0,
+                "Cannot register – missing mandatory data (DOB / gender / village). Please complete registration form first."
+            )
+        }
+
         return networkResultInterceptor {
             val patNet = PatientNetwork(patient, user)
-            Timber.d("patient register is ", patNet.toString())
+//            Timber.d("patient register is ", patNet.toString())
             val response = apiService.saveBenificiaryDetails(patNet)
+            
+            // Check if response is successful
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                Timber.e("Registration failed - HTTP ${response.code()}: $errorBody")
+                
+                // Try to parse error message from response
+                val errorMessage = try {
+                    if (errorBody != null) {
+                        val errorJson = JSONObject(errorBody)
+                        if (errorJson.has("errorMessage")) {
+                            errorJson.getString("errorMessage")
+                        } else if (errorJson.has("message")) {
+                            errorJson.getString("message")
+                        } else {
+                            "Registration failed with status code ${response.code()}"
+                        }
+                    } else {
+                        "Registration failed with status code ${response.code()}"
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Error parsing error response")
+                    errorBody ?: "Registration failed with status code ${response.code()}"
+                }
+                
+                return@networkResultInterceptor NetworkResult.Error(response.code(), errorMessage)
+            }
+            
             val responseBody = response.body()?.string()
+            
+            if (responseBody == null) {
+                Timber.e("Registration failed - Response body is null")
+                return@networkResultInterceptor NetworkResult.Error(0, "Server returned empty response")
+            }
+            
             refreshTokenInterceptor(
                 responseBody = responseBody,
                 onSuccess = {
-                    val data = responseBody.let { JSONObject(it).getString("data") }
-                    val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
-                    NetworkResult.Success(result)
+                    try {
+                        val jsonResponse = JSONObject(responseBody)
+                        
+                        // Check statusCode in response
+                        if (jsonResponse.has("statusCode")) {
+                            val statusCode = jsonResponse.getInt("statusCode")
+                            if (statusCode != 200) {
+                                val errorMessage = if (jsonResponse.has("errorMessage")) {
+                                    jsonResponse.getString("errorMessage")
+                                } else if (jsonResponse.has("message")) {
+                                    jsonResponse.getString("message")
+                                } else {
+                                    "Registration failed with status code $statusCode"
+                                }
+                                Timber.e("Registration failed - Status code: $statusCode, Message: $errorMessage")
+                                NetworkResult.Error(statusCode, errorMessage)
+                            } else {
+                                val data = jsonResponse.getString("data")
+                                val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+                                NetworkResult.Success(result)
+                            }
+                        } else {
+                            // No statusCode field, try to parse data directly
+                            val data = jsonResponse.getString("data")
+                            val result = Gson().fromJson(data, BenificiarySaveResponse::class.java)
+                            NetworkResult.Success(result)
+                        }
+                    } catch (e: JSONException) {
+                        Timber.e(e, "Error parsing registration response: $responseBody")
+                        NetworkResult.Error(jsonException, "Invalid response format from server")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Unexpected error parsing registration response")
+                        NetworkResult.Error(exception, "Error processing server response: ${e.message}")
+                    }
                 },
                 onTokenExpired = {
                     val user = userRepo.getLoggedInUser()!!
@@ -195,6 +344,7 @@ class PatientRepo @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun downloadAndSyncPatientRecords(): Boolean {
 
         val user = userRepo.getLoggedInUser()
