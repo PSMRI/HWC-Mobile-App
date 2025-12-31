@@ -90,7 +90,7 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
                         putBoolean("viewRecord", viewRecord)
                         putBoolean("isFlowComplete", isFlowComplete)
-
+                        })
             val extra = intent?.getSerializableExtra("benVisitInfo")
             if (extra is PatientDisplayWithVisitInfo) {
                  if( extra.nurseFlag == 9 && extra.doctorFlag == 1 && preferenceDao.isDoctorSelected() ){
