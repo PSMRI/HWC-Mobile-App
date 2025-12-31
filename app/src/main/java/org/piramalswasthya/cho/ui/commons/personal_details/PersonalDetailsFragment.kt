@@ -1349,6 +1349,7 @@ class PersonalDetailsFragment : Fragment() {
 
             lifecycleScope.launch(Dispatchers.IO) {
 
+                // Get local patients for fallback (only used if API returns no results or fails)
                 val local = patientDao.getPatientList()
                 val localMatches = local.filter {
                     val fn = it.patient.firstName.orEmpty()
@@ -1360,14 +1361,6 @@ class PersonalDetailsFragment : Fragment() {
                             rid.contains(query)
                 }
 
-                withContext(Dispatchers.Main) {
-                    if (localMatches.isNotEmpty()) {
-                        isShowingSearchResults = false
-                        viewModel.filterText(query)
-                        binding.patientListContainer.patientList.adapter = itemAdapter
-                    }
-                }
-
                 try {
                     val response = amritApiService.quickSearchES(
                         mapOf("search" to query)
@@ -1376,6 +1369,28 @@ class PersonalDetailsFragment : Fragment() {
                     val body = response.body()?.string().orEmpty()
                     val root = JSONObject(body)
                     val dataArr = root.optJSONArray("data") ?: JSONArray()
+
+                    // Check if API returned empty results - show local data as fallback
+                    if (dataArr.length() == 0) {
+                        Timber.d("API returned no results, showing local data as fallback: ${localMatches.size} matches")
+                        withContext(Dispatchers.Main) {
+                            if (localMatches.isNotEmpty()) {
+                                isShowingSearchResults = false
+                                viewModel.filterText(query)
+                                binding.patientListContainer.patientList.adapter = itemAdapter
+                                binding.patientListContainer.patientCount.text =
+                                    localMatches.size.toString() + getResultStr(localMatches.size)
+                            } else {
+                                // No local matches either
+                                isShowingSearchResults = true
+                                apiSearchAdapter?.submitList(emptyList())
+                                binding.patientListContainer.patientList.adapter = apiSearchAdapter
+                                binding.patientListContainer.patientCount.text =
+                                    "0" + getResultStr(0)
+                            }
+                        }
+                        return@launch
+                    }
 
                     val list = mutableListOf<PatientDisplayWithVisitInfo>()
                     for (i in 0 until dataArr.length()) {
@@ -1512,8 +1527,24 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                 } catch (e: Exception) {
+                    // API call failed - show local data as fallback
+                    Timber.e(e, "Search API failed, showing local data as fallback")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show()
+                        if (localMatches.isNotEmpty()) {
+                            isShowingSearchResults = false
+                            viewModel.filterText(query)
+                            binding.patientListContainer.patientList.adapter = itemAdapter
+                            binding.patientListContainer.patientCount.text =
+                                localMatches.size.toString() + getResultStr(localMatches.size)
+                        } else {
+                            // No local matches and API failed
+                            isShowingSearchResults = true
+                            apiSearchAdapter?.submitList(emptyList())
+                            binding.patientListContainer.patientList.adapter = apiSearchAdapter
+                            binding.patientListContainer.patientCount.text =
+                                "0" + getResultStr(0)
+                            Toast.makeText(requireContext(), "No results found", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
