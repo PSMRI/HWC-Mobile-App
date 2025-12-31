@@ -325,6 +325,13 @@ class PersonalDetailsFragment : Fragment() {
                     binding.patientListContainer.patientList.adapter = itemAdapter
 
                     apiSearchAdapter = ApiSearchAdapter(requireContext()) { selectedPatient ->
+                        binding.search.text?.clear()
+                        isShowingSearchResults = false
+                        viewModel.filterText("")
+                        binding.patientListContainer.patientList.adapter = itemAdapter
+                        val currentCount = itemAdapter?.itemCount ?: patientCount
+                        binding.patientListContainer.patientCount.text =
+                            currentCount.toString() + getResultStr(currentCount)
                         hitRegisterApi(selectedPatient)
                     }
 
@@ -347,9 +354,14 @@ class PersonalDetailsFragment : Fragment() {
                                     itemAdapter?.submitList(it.sortedByDescending { item ->
                                         item.patient.registrationDate
                                     })
-                                    binding.patientListContainer.patientCount.text =
-                                        it.size.toString() + getResultStr(it.size)
                                     patientCount = it.size
+                                    withContext(Dispatchers.Main) {
+                                        if (!isShowingSearchResults) {
+                                            binding.patientListContainer.patientList.adapter = itemAdapter
+                                            binding.patientListContainer.patientCount.text =
+                                                it.size.toString() + getResultStr(it.size)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -360,9 +372,14 @@ class PersonalDetailsFragment : Fragment() {
                                     itemAdapter?.submitList(it.sortedByDescending { item ->
                                         item.patient.registrationDate
                                     })
-                                    binding.patientListContainer.patientCount.text =
-                                        it.size.toString() + getResultStr(it.size)
                                     patientCount = it.size
+                                    withContext(Dispatchers.Main) {
+                                        if (!isShowingSearchResults) {
+                                            binding.patientListContainer.patientList.adapter = itemAdapter
+                                            binding.patientListContainer.patientCount.text =
+                                                it.size.toString() + getResultStr(it.size)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -373,9 +390,14 @@ class PersonalDetailsFragment : Fragment() {
                                     itemAdapter?.submitList(it.sortedByDescending { item ->
                                         item.patient.registrationDate
                                     })
-                                    binding.patientListContainer.patientCount.text =
-                                        it.size.toString() + getResultStr(it.size)
                                     patientCount = it.size
+                                    withContext(Dispatchers.Main) {
+                                        if (!isShowingSearchResults) {
+                                            binding.patientListContainer.patientList.adapter = itemAdapter
+                                            binding.patientListContainer.patientCount.text =
+                                                it.size.toString() + getResultStr(it.size)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -386,9 +408,14 @@ class PersonalDetailsFragment : Fragment() {
                                     itemAdapter?.submitList(it.sortedByDescending { item ->
                                         item.patient.registrationDate
                                     })
-                                    binding.patientListContainer.patientCount.text =
-                                        itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                                     patientCount = it.size
+                                    withContext(Dispatchers.Main) {
+                                        if (!isShowingSearchResults) {
+                                            binding.patientListContainer.patientList.adapter = itemAdapter
+                                            binding.patientListContainer.patientCount.text =
+                                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -467,53 +494,80 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 if (patientExists && existingPatient == null) {
-                    withContext(Dispatchers.Main) {
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Patient Already Exists")
-                            .setMessage("This patient already exists in the system. Please refresh the patient list.")
-                            .setPositiveButton("OK", null)
-                            .show()
+                    val foundPatient = withContext(Dispatchers.IO) {
+                        apiPatient.patient.beneficiaryRegID?.let { benRegId ->
+                            patientRepo.getPatientByBenRegId(benRegId)
+                        }
                     }
-                    return@launch
+                    
+                    if (foundPatient != null) {
+                        patient = foundPatient.apply {
+                            firstName = apiPatient.patient.firstName
+                            lastName = apiPatient.patient.lastName
+                            beneficiaryRegID = apiPatient.patient.beneficiaryRegID
+                            phoneNo = apiPatient.patient.phoneNo
+                            genderID = apiPatient.patient.genderID
+                            dob = apiPatient.patient.dob
+                            age = apiPatient.patient.age
+                            ageUnitID = apiPatient.patient.ageUnitID
+                            maritalStatusID = apiPatient.patient.maritalStatusID
+                            spouseName = apiPatient.patient.spouseName
+                            parentName = apiPatient.patient.parentName
+                            stateID = apiPatient.patient.stateID
+                            districtID = apiPatient.patient.districtID
+                            blockID = apiPatient.patient.blockID
+                            districtBranchID = apiPatient.patient.districtBranchID
+                            syncState = SyncState.UNSYNCED
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Patient Already Exists")
+                                .setMessage("This patient already exists in the system. Please refresh the patient list.")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        }
+                        return@launch
+                    }
+                } else {
+                    patient = existingPatient?.apply {
+                        firstName = apiPatient.patient.firstName
+                        lastName = apiPatient.patient.lastName
+                        beneficiaryRegID = apiPatient.patient.beneficiaryRegID
+                        phoneNo = apiPatient.patient.phoneNo
+                        genderID = apiPatient.patient.genderID
+                        dob = apiPatient.patient.dob
+                        age = apiPatient.patient.age
+                        ageUnitID = apiPatient.patient.ageUnitID
+                        maritalStatusID = apiPatient.patient.maritalStatusID
+                        spouseName = apiPatient.patient.spouseName
+                        parentName = apiPatient.patient.parentName
+                        stateID = apiPatient.patient.stateID
+                        districtID = apiPatient.patient.districtID
+                        blockID = apiPatient.patient.blockID
+                        districtBranchID = apiPatient.patient.districtBranchID
+                        syncState = SyncState.UNSYNCED
+                    } ?: Patient(
+                        patientID = generateUuid(),
+                        firstName = apiPatient.patient.firstName,
+                        lastName = apiPatient.patient.lastName,
+                        beneficiaryRegID = apiPatient.patient.beneficiaryRegID,
+                        syncState = SyncState.UNSYNCED,
+                        registrationDate = Date(),
+                        phoneNo = apiPatient.patient.phoneNo,
+                        genderID = apiPatient.patient.genderID,
+                        dob = apiPatient.patient.dob,
+                        age = apiPatient.patient.age,
+                        ageUnitID = apiPatient.patient.ageUnitID,
+                        maritalStatusID = apiPatient.patient.maritalStatusID,
+                        spouseName = apiPatient.patient.spouseName,
+                        parentName = apiPatient.patient.parentName,
+                        stateID = apiPatient.patient.stateID,
+                        districtID = apiPatient.patient.districtID,
+                        blockID = apiPatient.patient.blockID,
+                        districtBranchID = apiPatient.patient.districtBranchID
+                    )
                 }
-
-                patient = existingPatient?.apply {
-                    firstName = apiPatient.patient.firstName
-                    lastName = apiPatient.patient.lastName
-                    beneficiaryRegID = apiPatient.patient.beneficiaryRegID
-                    phoneNo = apiPatient.patient.phoneNo
-                    genderID = apiPatient.patient.genderID
-                    dob = apiPatient.patient.dob
-                    age = apiPatient.patient.age
-                    ageUnitID = apiPatient.patient.ageUnitID
-                    maritalStatusID = apiPatient.patient.maritalStatusID
-                    spouseName = apiPatient.patient.spouseName
-                    parentName = apiPatient.patient.parentName
-                    stateID = apiPatient.patient.stateID
-                    districtID = apiPatient.patient.districtID
-                    blockID = apiPatient.patient.blockID
-                    districtBranchID = apiPatient.patient.districtBranchID
-                    syncState = SyncState.UNSYNCED
-                } ?: Patient(
-                    patientID = generateUuid(),
-                    firstName = apiPatient.patient.firstName,
-                    lastName = apiPatient.patient.lastName,
-                    beneficiaryRegID = apiPatient.patient.beneficiaryRegID,
-                    syncState = SyncState.UNSYNCED,
-                    registrationDate = Date(),
-                    phoneNo = apiPatient.patient.phoneNo,
-                    genderID = apiPatient.patient.genderID,
-                    dob = apiPatient.patient.dob,
-                    age = apiPatient.patient.age,
-                    ageUnitID = apiPatient.patient.ageUnitID,
-                    maritalStatusID = apiPatient.patient.maritalStatusID,
-                    spouseName = apiPatient.patient.spouseName,
-                    parentName = apiPatient.patient.parentName,
-                    stateID = apiPatient.patient.stateID,
-                    districtID = apiPatient.patient.districtID,
-                    blockID = apiPatient.patient.blockID,
-                    districtBranchID = apiPatient.patient.districtBranchID
-                )
 
                 val hasRequiredFields = patient.dob != null &&
                                        patient.genderID != null && 
@@ -540,6 +594,13 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 withContext(Dispatchers.IO) {
+                    patient.beneficiaryRegID?.let { benRegId ->
+                        val existing = patientRepo.getPatientByBenRegId(benRegId)
+                        if (existing != null && existing.patientID != patient.patientID) {
+                            Timber.w("Found existing patient with same beneficiaryRegID: ${existing.patientID}, using it instead of ${patient.patientID}")
+                            patient.patientID = existing.patientID
+                        }
+                    }
                     patientRepo.insertPatient(patient)
                 }
 
@@ -1338,14 +1399,18 @@ class PersonalDetailsFragment : Fragment() {
         override fun afterTextChanged(p0: Editable?) {
             val query = p0?.toString()?.trim().orEmpty()
 
-            if (query.isBlank()) {
-                isShowingSearchResults = false
-                viewModel.filterText("")
-                binding.patientListContainer.patientCount.text =
-                    patientCount.toString() + getResultStr(patientCount)
-                binding.patientListContainer.patientList.adapter = itemAdapter
-                return
-            }
+                if (query.isBlank()) {
+                    isShowingSearchResults = false
+                    viewModel.filterText("")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        binding.patientListContainer.patientList.adapter = itemAdapter
+                        // Update count from the current adapter if available
+                        val currentCount = itemAdapter?.itemCount ?: patientCount
+                        binding.patientListContainer.patientCount.text =
+                            currentCount.toString() + getResultStr(currentCount)
+                    }
+                    return
+                }
 
             lifecycleScope.launch(Dispatchers.IO) {
 
