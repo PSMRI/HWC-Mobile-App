@@ -87,6 +87,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var doAgeToDob = true
     private var patient = Patient()
     private lateinit var villageAdapter :VillageDropdownAdapter
+    private var isSettingVillageProgrammatically = false
     private val dobUtil : DateTimeUtil = DateTimeUtil()
     var bool: Boolean = false
     private var currentFileName: String? = null
@@ -881,6 +882,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         binding.villageDropdown,
                         viewModel.villageListFilter
                     )
+                    villageAdapter.onDataUpdated = {
+                        setVillageDropdownMaxHeight()
+                    }
                     binding.villageDropdown.setAdapter(villageAdapter)
                     setVillageDropdownMaxHeight()
                 }
@@ -936,15 +940,29 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         dropdown.setOnClickListener {
-            dropdown.showDropDown()
+            if (::villageAdapter.isInitialized) {
+                villageAdapter.shouldAutoShowDropdown = true
+                isSettingVillageProgrammatically = true
+                villageAdapter.filter.filter("")
+                isSettingVillageProgrammatically = false
+            } else {
+                dropdown.showDropDown()
+            }
         }
 
         dropdown.setOnItemClickListener { parent, _, position, _ ->
             viewModel.selectedVillage =
                 parent.getItemAtPosition(position) as VillageLocationData
 
+            if (::villageAdapter.isInitialized) {
+                villageAdapter.shouldAutoShowDropdown = false
+            }
+            isSettingVillageProgrammatically = true
+            
             dropdown.setText(viewModel.selectedVillage!!.villageName, false)
+            dropdown.dismissDropDown()
             hideKeyboard(dropdown)
+            isSettingVillageProgrammatically = false
         }
 
         dropdown.addTextChangedListener(object : TextWatcher {
@@ -954,7 +972,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.setVillageBool(!s.isNullOrEmpty())
 
-                if (::villageAdapter.isInitialized) {
+                if (::villageAdapter.isInitialized && !isSettingVillageProgrammatically) {
                     villageAdapter.filter.filter(s)
                 }
             }
@@ -974,8 +992,35 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val dropdown = binding.villageDropdown
 
         dropdown.post {
-            val screenHeight = resources.displayMetrics.heightPixels
-            dropdown.dropDownHeight = (screenHeight * 0.4).toInt()
+            if (::villageAdapter.isInitialized) {
+                val itemCount = villageAdapter.count
+                if (itemCount > 0) {
+                    var itemHeightPx = 0
+                    try {
+                        val tempParent = android.widget.FrameLayout(requireContext())
+                        val itemView = villageAdapter.getDropDownView(0, null, tempParent)
+                        itemView.measure(
+                            View.MeasureSpec.makeMeasureSpec(dropdown.width, View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        )
+                        itemHeightPx = itemView.measuredHeight
+                    } catch (e: Exception) {
+                        val itemHeightDp = 50f
+                        itemHeightPx = (itemHeightDp * resources.displayMetrics.density).toInt()
+                    }
+                    val bottomPaddingDp = 16f
+                    val bottomPaddingPx = (bottomPaddingDp * resources.displayMetrics.density).toInt()
+                    val calculatedHeight = (itemCount * itemHeightPx) + bottomPaddingPx
+                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                    dropdown.dropDownHeight = minOf(calculatedHeight, maxHeight)
+                } else {
+                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                    dropdown.dropDownHeight = maxHeight
+                }
+            } else {
+                val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                dropdown.dropDownHeight = maxHeight
+            }
         }
     }
 

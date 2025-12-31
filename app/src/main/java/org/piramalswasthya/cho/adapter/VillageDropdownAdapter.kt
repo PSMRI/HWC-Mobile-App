@@ -18,6 +18,7 @@ class VillageDropdownAdapter(
 ) : ArrayAdapter<VillageLocationData>(context, resource, dataList) {
 
     var onDataUpdated: (() -> Unit)? = null
+    var shouldAutoShowDropdown: Boolean = true
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
@@ -51,12 +52,13 @@ class VillageDropdownAdapter(
                 addAll(results?.values as List<VillageLocationData>)
                 notifyDataSetChanged()
 
-                autoCompleteTextView.post {
-                    if (!autoCompleteTextView.isPopupShowing) {
-                        autoCompleteTextView.showDropDown()
+                if (shouldAutoShowDropdown) {
+                    autoCompleteTextView.post {
+                        if (!autoCompleteTextView.isPopupShowing) {
+                            autoCompleteTextView.showDropDown()
+                        }
                     }
                 }
-
                 onDataUpdated?.invoke()
             }
         }
