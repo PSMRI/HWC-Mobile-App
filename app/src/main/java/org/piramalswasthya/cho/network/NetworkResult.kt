@@ -1,13 +1,9 @@
 package org.piramalswasthya.cho.network
 
-import android.util.Log
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONObject
-import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
@@ -30,10 +26,8 @@ suspend inline fun networkResultInterceptor(
             NetworkResult.Error(jsonException, "Invalid response! Please try again!")
         } catch (e: SocketTimeoutException) {
             NetworkResult.Error(socketTimeoutException, "Request Timed out! Please try again!")
-        } catch (e: java.lang.Exception) {
-            NetworkResult.Error(exception, e.message ?: "Unknown Error")
         } catch (e: Exception) {
-            NetworkResult.Error(exception, e.message ?: "exception occured is")
+            NetworkResult.Error(exception, e.message ?: "Unknown Error")
         }
 
     }
@@ -54,7 +48,7 @@ suspend inline fun refreshTokenInterceptor(
                 onTokenExpired()
             }
             else -> {
-                NetworkResult.Error(0, responseBody.toString())
+                NetworkResult.Error(0, responseBody ?: "Unknown error")
             }
         }
     }

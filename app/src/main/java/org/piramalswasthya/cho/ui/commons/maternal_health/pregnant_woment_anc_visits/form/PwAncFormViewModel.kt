@@ -77,7 +77,7 @@ class PwAncFormViewModel @Inject constructor(
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit.name} | ${ben.gender.genderName}"
+                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                 ancCache = PregnantWomanAncCache(
                     patientID = patientID,
                     visitNumber = visitNumber,

@@ -87,7 +87,8 @@
             android:id="@+id/radioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
+            android:layout_marginStart="@dimen/custom_ui_margin"
+            android:layout_marginEnd="@dimen/custom_ui_margin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textCat">
 
@@ -98,7 +99,9 @@
                 android:tag="General OPD"
                 android:text="@string/outpatient_care"
                 android:textColor="@drawable/radio_btn_select"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:minHeight="0dp"
+                />
 
             <RadioButton
                 android:id="@+id/radioButton2"
@@ -107,7 +110,9 @@
                 android:tag="Other CPHC Services"
                 android:text="@string/other_cphc_services"
                 android:textColor="@drawable/radio_btn_select"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:minHeight="0dp"
+                />
         </RadioGroup>
 
         <TextView
@@ -143,7 +148,8 @@
                 android:tag="New Chief Complaint"
                 android:text="@string/new_chief_complaint_str"
                 android:textColor="@drawable/radio_btn_select"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:minHeight="0dp"/>
 
             <RadioButton
                 android:id="@+id/radioButton4"
@@ -152,109 +158,115 @@
                 android:tag="Follow Up"
                 android:text="@string/follow_up_str"
                 android:textColor="@drawable/radio_btn_select"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:minHeight="0dp"/>
         </RadioGroup>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/subCatDropDown"
-            style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
+
+        <LinearLayout
+            android:id="@+id/vertical_detail_ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:hint="@string/select_sub_category"
-            android:textSize="18sp"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/radioGroup2">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup2">
 
-            <AutoCompleteTextView
-                android:id="@+id/subCatInput"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:inputType="none"
-                android:textSize="18sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reasonForVisitDropDown"
-            style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:hint="@string/reason_for_visit"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/subCatDropDown">
-
-            <AutoCompleteTextView
-                android:id="@+id/reasonForVisitInput"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:inputType="none"
-                android:textSize="18sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/lmp_date_text"
-            style="@style/TextInputLayoutStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:hint="LMP Date"
-            android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/reasonForVisitDropDown">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/lmp_date"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/subCatDropDown"
+                style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableEnd="@drawable/ic_calendar"
-                android:focusable="false"
-                android:inputType="text"
-                android:textSize="18sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="@string/select_sub_category"
+                android:textSize="18sp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/edd_date_text"
-            style="@style/TextInputLayoutStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:hint="@string/edd_date"
-            android:textSize="18sp"
-            android:enabled="false"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/lmp_date_text">
+                <AutoCompleteTextView
+                    android:id="@+id/subCatInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none"
+                    android:textSize="18sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edd_date"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reasonForVisitDropDown"
+                style="@style/TextInputLayoutStyle.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:textColor="@color/black"
-                android:textSize="18sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="@string/reason_for_visit"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:textSize="18sp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/delivery_date_text"
-            style="@style/TextInputLayoutStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/custom_ui_margin"
-            android:hint="Delivery Date"
-            android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/edd_date_text">
+                <AutoCompleteTextView
+                    android:id="@+id/reasonForVisitInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="none"
+                    android:textSize="18sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/delivery_date"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/lmp_date_text"
+                style="@style/TextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableEnd="@drawable/ic_calendar"
-                android:focusable="false"
-                android:inputType="text"
-                android:textSize="18sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:hint="LMP Date"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:textSize="18sp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/lmp_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/ic_calendar"
+                    android:focusable="false"
+                    android:inputType="text"
+                    android:textSize="18sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/edd_date_text"
+                style="@style/TextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/edd_date"
+                android:textSize="18sp"
+                android:enabled="false"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edd_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/delivery_date_text"
+                style="@style/TextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Delivery Date"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:textSize="18sp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/delivery_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/ic_calendar"
+                    android:focusable="false"
+                    android:inputType="text"
+                    android:textSize="18sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_anc"
@@ -264,7 +276,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="@+id/layyy"
             app:layout_constraintStart_toStartOf="@+id/layyy"
-            app:layout_constraintTop_toBottomOf="@+id/delivery_date_text"
+            app:layout_constraintTop_toBottomOf="@+id/vertical_detail_ll"
             tools:itemCount="4"
             tools:listitem="@layout/rv_item_pregnancy_anc" />
 
@@ -330,7 +342,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|center_horizontal"
                     android:layout_margin="@dimen/custom_ui_margin"
-                    android:backgroundTint="@color/status_success"
+                    android:backgroundTint="@color/green"
                     android:src="@drawable/baseline_add_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

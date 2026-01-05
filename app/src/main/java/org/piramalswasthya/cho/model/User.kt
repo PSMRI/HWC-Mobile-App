@@ -491,7 +491,7 @@ data class EsanjeevniPatient(
     "",
         patientDisp.patient.lastName!!,
     1,
-    patientDisp.gender.genderName,
+        patientDisp.gender?.genderName ?: "NA",
     false,
     arrayListOf(), //sending address as null for now
     arrayListOf(EsanjeevniPatientContactDetails(patientDisp)),

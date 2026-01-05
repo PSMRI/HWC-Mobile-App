@@ -188,12 +188,12 @@ data class PatientDisplay(
         parentColumn = "genderID",
         entityColumn = "genderID"
     )
-    val gender: GenderMaster,
+    val gender: GenderMaster?,
     @Relation(
         parentColumn = "ageUnitID",
         entityColumn = "id"
     )
-    val ageUnit: AgeUnit,
+    val ageUnit: AgeUnit?,
     @Relation(
         parentColumn = "maritalStatusID",
         entityColumn = "maritalStatusID"
@@ -396,7 +396,7 @@ data class PatientNetwork(
         patientDisplay.patient.parentName,
         patientDisplay.patient.firstName,
         patientDisplay.patient.genderID,
-        patientDisplay.gender.genderName,
+        patientDisplay.gender?.genderName,
         null,
         null,
         Bendemographics(patientDisplay, user),

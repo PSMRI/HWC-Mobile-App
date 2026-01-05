@@ -5,7 +5,6 @@ import okhttp3.ResponseBody
 import org.piramalswasthya.cho.model.ANCPost
 import org.piramalswasthya.cho.model.AllocationItemDataRequest
 import org.piramalswasthya.cho.model.BenNewFlow
-import org.piramalswasthya.cho.model.CbacPostNew
 import org.piramalswasthya.cho.model.CbacRequest
 import org.piramalswasthya.cho.model.ECTNetwork
 import org.piramalswasthya.cho.model.ImmunizationPost
@@ -188,6 +187,9 @@ interface AmritApiService {
 
 //    @POST("hwc-api/registrar/registrarBeneficaryRegistrationNew?apiKey=f5e3e002-8ef8-44cd-9064-45fbc8cad")
 //    suspend fun saveBenificiaryDetails(@Body benificiary: PatientNetwork) : Response<ResponseBody>
+
+    @POST("hwc-api/registrar/quickSearchES")
+    suspend fun quickSearchES(@Body request: Map<String, String>): Response<ResponseBody>
 
     @GET("/common-api/covid/master/VaccinationTypeAndDoseTaken?apiKey=undefined")
     suspend fun getVaccinationTypeAndDoseTaken(): Response<ResponseBody>
