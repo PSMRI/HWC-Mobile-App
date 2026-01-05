@@ -97,6 +97,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.work.WorkerUtils
 import android.os.Build
+import org.piramalswasthya.cho.utils.NetworkConnection
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -110,7 +111,8 @@ class PersonalDetailsFragment : Fragment() {
     private lateinit var viewModel: PersonalDetailsViewModel
     private lateinit var viewModelPatientDetails: PatientDetailsViewModel
     private var patient = Patient()
-
+    private lateinit var networkConnection: NetworkConnection
+    private var isNetworkAvailable = false
     private var itemAdapter: PatientItemAdapter? = null
     private var apiSearchAdapter: ApiSearchAdapter? = null
     private var usernameEs: String = ""
@@ -175,6 +177,13 @@ class PersonalDetailsFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        networkConnection = NetworkConnection(requireContext())
+
+        networkConnection.observe(viewLifecycleOwner) { isConnected ->
+            isNetworkAvailable = isConnected
+        }
+
         viewModelPatientDetails = ViewModelProvider(this)[PatientDetailsViewModel::class.java]
         HomeViewModel.searchBool.observe(viewLifecycleOwner) { bool ->
             when (bool!!) {
@@ -1399,22 +1408,18 @@ class PersonalDetailsFragment : Fragment() {
         override fun afterTextChanged(p0: Editable?) {
             val query = p0?.toString()?.trim().orEmpty()
 
-                if (query.isBlank()) {
-                    isShowingSearchResults = false
-                    viewModel.filterText("")
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        binding.patientListContainer.patientList.adapter = itemAdapter
-                        // Update count from the current adapter if available
-                        val currentCount = itemAdapter?.itemCount ?: patientCount
-                        binding.patientListContainer.patientCount.text =
-                            currentCount.toString() + getResultStr(currentCount)
-                    }
-                    return
-                }
+            if (query.isBlank()) {
+                isShowingSearchResults = false
+                viewModel.filterText("")
+                binding.patientListContainer.patientList.adapter = itemAdapter
+                val count = itemAdapter?.itemCount ?: patientCount
+                binding.patientListContainer.patientCount.text =
+                    count.toString() + getResultStr(count)
+                return
+            }
 
             lifecycleScope.launch(Dispatchers.IO) {
 
-                // Get local patients for fallback (only used if API returns no results or fails)
                 val local = patientDao.getPatientList()
                 val localMatches = local.filter {
                     val fn = it.patient.firstName.orEmpty()
@@ -1426,6 +1431,19 @@ class PersonalDetailsFragment : Fragment() {
                             rid.contains(query)
                 }
 
+                if (!isNetworkAvailable) {
+                    Timber.d("Offline search → skipping API")
+
+                    withContext(Dispatchers.Main) {
+                        isShowingSearchResults = false
+                        viewModel.filterText(query)
+                        binding.patientListContainer.patientList.adapter = itemAdapter
+                        binding.patientListContainer.patientCount.text =
+                            localMatches.size.toString() + getResultStr(localMatches.size)
+                    }
+                    return@launch
+                }
+
                 try {
                     val response = amritApiService.quickSearchES(
                         mapOf("search" to query)
@@ -1435,153 +1453,18 @@ class PersonalDetailsFragment : Fragment() {
                     val root = JSONObject(body)
                     val dataArr = root.optJSONArray("data") ?: JSONArray()
 
-                    // Check if API returned empty results - show local data as fallback
                     if (dataArr.length() == 0) {
-                        Timber.d("API returned no results, showing local data as fallback: ${localMatches.size} matches")
                         withContext(Dispatchers.Main) {
-                            if (localMatches.isNotEmpty()) {
-                                isShowingSearchResults = false
-                                viewModel.filterText(query)
-                                binding.patientListContainer.patientList.adapter = itemAdapter
-                                binding.patientListContainer.patientCount.text =
-                                    localMatches.size.toString() + getResultStr(localMatches.size)
-                            } else {
-                                // No local matches either
-                                isShowingSearchResults = true
-                                apiSearchAdapter?.submitList(emptyList())
-                                binding.patientListContainer.patientList.adapter = apiSearchAdapter
-                                binding.patientListContainer.patientCount.text =
-                                    "0" + getResultStr(0)
-                            }
+                            isShowingSearchResults = false
+                            viewModel.filterText(query)
+                            binding.patientListContainer.patientList.adapter = itemAdapter
+                            binding.patientListContainer.patientCount.text =
+                                localMatches.size.toString() + getResultStr(localMatches.size)
                         }
                         return@launch
                     }
 
                     val list = mutableListOf<PatientDisplayWithVisitInfo>()
-                    for (i in 0 until dataArr.length()) {
-                        val obj = dataArr.getJSONObject(i)
-
-                        val firstName = obj.optString("firstName")
-                        val lastName = obj.optString("lastName")
-                        val beneficiaryRegID = obj.optLong("beneficiaryRegID")
-                        
-                        var dob: Date? = null
-                        if (obj.has("dob") && !obj.isNull("dob")) {
-                            val dobString = obj.optString("dob", "")
-                            if (dobString.isNotEmpty() && dobString != "null" && dobString.lowercase() != "null") {
-                                try {
-                                    dob = DateTimeUtil.formatUTCToDate(dobString)
-                                    Timber.d("Successfully parsed DOB: $dobString -> $dob")
-                                } catch (e: Exception) {
-                                    Timber.e(e, "Error parsing DOB: $dobString")
-                                }
-                            }
-                        }
-                        
-                        var genderID: Int? = null
-                        if (obj.has("genderID")) {
-                            genderID = obj.optInt("genderID")
-                        } else if (obj.has("m_gender")) {
-                            val mGender = obj.optJSONObject("m_gender")
-                            genderID = mGender?.optInt("genderID")
-                        }
-                        
-                        val iBendemographics = obj.optJSONObject("i_bendemographics")
-                        var stateID: Int? = null
-                        var districtID: Int? = null
-                        var blockID: Int? = null
-                        var districtBranchID: Int? = null
-                        var villageName: String? = null
-                        
-                        if (iBendemographics != null) {
-                            if (iBendemographics.has("stateID")) {
-                                stateID = iBendemographics.optInt("stateID")
-                            } else if (iBendemographics.has("m_state")) {
-                                val mState = iBendemographics.optJSONObject("m_state")
-                                stateID = mState?.optInt("stateID")
-                            }
-                            
-                            if (iBendemographics.has("districtID")) {
-                                districtID = iBendemographics.optInt("districtID")
-                            } else if (iBendemographics.has("m_district")) {
-                                val mDistrict = iBendemographics.optJSONObject("m_district")
-                                districtID = mDistrict?.optInt("districtID")
-                            }
-                            
-                            if (iBendemographics.has("blockID")) {
-                                blockID = iBendemographics.optInt("blockID")
-                            } else if (iBendemographics.has("m_districtblock")) {
-                                val mDistrictBlock = iBendemographics.optJSONObject("m_districtblock")
-                                blockID = mDistrictBlock?.optInt("blockID")
-                            }
-                            
-                            if (iBendemographics.has("villageID")) {
-                                districtBranchID = iBendemographics.optInt("villageID")
-                            } else if (iBendemographics.has("districtBranchID")) {
-                                districtBranchID = iBendemographics.optInt("districtBranchID")
-                            }
-                            
-                            villageName = iBendemographics.optString("villageName")
-                        }
-                        
-                        var phoneNo: String? = null
-                        if (obj.has("benPhoneMaps")) {
-                            val benPhoneMaps = obj.optJSONArray("benPhoneMaps")
-                            if (benPhoneMaps != null && benPhoneMaps.length() > 0) {
-                                val phoneMap = benPhoneMaps.getJSONObject(0)
-                                phoneNo = phoneMap.optString("phoneNo")
-                            }
-                        }
-                        
-                        val age = if (obj.has("age")) obj.optInt("age") else null
-                        
-                        val spouseName = obj.optString("spouseName").takeIf { it.isNotEmpty() }
-                        
-                        val parentName = obj.optString("fatherName").takeIf { it.isNotEmpty() }
-
-                        val patient = Patient(
-                            patientID = generateUuid(),
-                            firstName = firstName,
-                            lastName = lastName,
-                            beneficiaryRegID = beneficiaryRegID,
-                            syncState = SyncState.UNSYNCED,
-                            dob = dob,
-                            genderID = genderID,
-                            age = age,
-                            phoneNo = phoneNo,
-                            spouseName = spouseName,
-                            parentName = parentName,
-                            stateID = stateID,
-                            districtID = districtID,
-                            blockID = blockID,
-                            districtBranchID = districtBranchID
-                        )
-
-                        list.add(
-                            PatientDisplayWithVisitInfo(
-                                patient = patient,
-                                genderName = obj.optString("genderName"),
-                                villageName = villageName,
-                                ageUnit = null,
-                                maritalStatus = null,
-                                nurseDataSynced = null,
-                                doctorDataSynced = null,
-                                createNewBenFlow = null,
-                                prescriptionID = null,
-                                benVisitNo = null,
-                                visitCategory = null,
-                                benFlowID = null,
-                                nurseFlag = null,
-                                doctorFlag = null,
-                                labtechFlag = null,
-                                pharmacist_flag = null,
-                                visitDate = null,
-                                referDate = null,
-                                referTo = null,
-                                referralReason = null
-                            )
-                        )
-                    }
 
                     withContext(Dispatchers.Main) {
                         isShowingSearchResults = true
@@ -1592,28 +1475,239 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                 } catch (e: Exception) {
-                    // API call failed - show local data as fallback
-                    Timber.e(e, "Search API failed, showing local data as fallback")
+                    Timber.e(e, "API error → fallback to local")
+
                     withContext(Dispatchers.Main) {
-                        if (localMatches.isNotEmpty()) {
-                            isShowingSearchResults = false
-                            viewModel.filterText(query)
-                            binding.patientListContainer.patientList.adapter = itemAdapter
-                            binding.patientListContainer.patientCount.text =
-                                localMatches.size.toString() + getResultStr(localMatches.size)
-                        } else {
-                            // No local matches and API failed
-                            isShowingSearchResults = true
-                            apiSearchAdapter?.submitList(emptyList())
-                            binding.patientListContainer.patientList.adapter = apiSearchAdapter
-                            binding.patientListContainer.patientCount.text =
-                                "0" + getResultStr(0)
-                            Toast.makeText(requireContext(), "No results found", Toast.LENGTH_SHORT).show()
-                        }
+                        isShowingSearchResults = false
+                        viewModel.filterText(query)
+                        binding.patientListContainer.patientList.adapter = itemAdapter
+                        binding.patientListContainer.patientCount.text =
+                            localMatches.size.toString() + getResultStr(localMatches.size)
                     }
                 }
             }
         }
+
+
+//        @RequiresApi(Build.VERSION_CODES.O)
+//        override fun afterTextChanged(p0: Editable?) {
+//            val query = p0?.toString()?.trim().orEmpty()
+//
+//                if (query.isBlank()) {
+//                    isShowingSearchResults = false
+//                    viewModel.filterText("")
+//                    lifecycleScope.launch(Dispatchers.Main) {
+//                        binding.patientListContainer.patientList.adapter = itemAdapter
+//                        // Update count from the current adapter if available
+//                        val currentCount = itemAdapter?.itemCount ?: patientCount
+//                        binding.patientListContainer.patientCount.text =
+//                            currentCount.toString() + getResultStr(currentCount)
+//                    }
+//                    return
+//                }
+//
+//            lifecycleScope.launch(Dispatchers.IO) {
+//
+//                // Get local patients for fallback (only used if API returns no results or fails)
+//                val local = patientDao.getPatientList()
+//                val localMatches = local.filter {
+//                    val fn = it.patient.firstName.orEmpty()
+//                    val ln = it.patient.lastName.orEmpty()
+//                    val rid = it.patient.beneficiaryRegID?.toString().orEmpty()
+//                    "$fn $ln".contains(query, true) ||
+//                            fn.contains(query, true) ||
+//                            ln.contains(query, true) ||
+//                            rid.contains(query)
+//                }
+//
+//                try {
+//                    val response = amritApiService.quickSearchES(
+//                        mapOf("search" to query)
+//                    )
+//
+//                    val body = response.body()?.string().orEmpty()
+//                    val root = JSONObject(body)
+//                    val dataArr = root.optJSONArray("data") ?: JSONArray()
+//
+//                    // Check if API returned empty results - show local data as fallback
+//                    if (dataArr.length() == 0) {
+//                        Timber.d("API returned no results, showing local data as fallback: ${localMatches.size} matches")
+//                        withContext(Dispatchers.Main) {
+//                            if (localMatches.isNotEmpty()) {
+//                                isShowingSearchResults = false
+//                                viewModel.filterText(query)
+//                                binding.patientListContainer.patientList.adapter = itemAdapter
+//                                binding.patientListContainer.patientCount.text =
+//                                    localMatches.size.toString() + getResultStr(localMatches.size)
+//                            } else {
+//                                // No local matches either
+//                                isShowingSearchResults = true
+//                                apiSearchAdapter?.submitList(emptyList())
+//                                binding.patientListContainer.patientList.adapter = apiSearchAdapter
+//                                binding.patientListContainer.patientCount.text =
+//                                    "0" + getResultStr(0)
+//                            }
+//                        }
+//                        return@launch
+//                    }
+//
+//                    val list = mutableListOf<PatientDisplayWithVisitInfo>()
+//                    for (i in 0 until dataArr.length()) {
+//                        val obj = dataArr.getJSONObject(i)
+//
+//                        val firstName = obj.optString("firstName")
+//                        val lastName = obj.optString("lastName")
+//                        val beneficiaryRegID = obj.optLong("beneficiaryRegID")
+//
+//                        var dob: Date? = null
+//                        if (obj.has("dob") && !obj.isNull("dob")) {
+//                            val dobString = obj.optString("dob", "")
+//                            if (dobString.isNotEmpty() && dobString != "null" && dobString.lowercase() != "null") {
+//                                try {
+//                                    dob = DateTimeUtil.formatUTCToDate(dobString)
+//                                    Timber.d("Successfully parsed DOB: $dobString -> $dob")
+//                                } catch (e: Exception) {
+//                                    Timber.e(e, "Error parsing DOB: $dobString")
+//                                }
+//                            }
+//                        }
+//
+//                        var genderID: Int? = null
+//                        if (obj.has("genderID")) {
+//                            genderID = obj.optInt("genderID")
+//                        } else if (obj.has("m_gender")) {
+//                            val mGender = obj.optJSONObject("m_gender")
+//                            genderID = mGender?.optInt("genderID")
+//                        }
+//
+//                        val iBendemographics = obj.optJSONObject("i_bendemographics")
+//                        var stateID: Int? = null
+//                        var districtID: Int? = null
+//                        var blockID: Int? = null
+//                        var districtBranchID: Int? = null
+//                        var villageName: String? = null
+//
+//                        if (iBendemographics != null) {
+//                            if (iBendemographics.has("stateID")) {
+//                                stateID = iBendemographics.optInt("stateID")
+//                            } else if (iBendemographics.has("m_state")) {
+//                                val mState = iBendemographics.optJSONObject("m_state")
+//                                stateID = mState?.optInt("stateID")
+//                            }
+//
+//                            if (iBendemographics.has("districtID")) {
+//                                districtID = iBendemographics.optInt("districtID")
+//                            } else if (iBendemographics.has("m_district")) {
+//                                val mDistrict = iBendemographics.optJSONObject("m_district")
+//                                districtID = mDistrict?.optInt("districtID")
+//                            }
+//
+//                            if (iBendemographics.has("blockID")) {
+//                                blockID = iBendemographics.optInt("blockID")
+//                            } else if (iBendemographics.has("m_districtblock")) {
+//                                val mDistrictBlock = iBendemographics.optJSONObject("m_districtblock")
+//                                blockID = mDistrictBlock?.optInt("blockID")
+//                            }
+//
+//                            if (iBendemographics.has("villageID")) {
+//                                districtBranchID = iBendemographics.optInt("villageID")
+//                            } else if (iBendemographics.has("districtBranchID")) {
+//                                districtBranchID = iBendemographics.optInt("districtBranchID")
+//                            }
+//
+//                            villageName = iBendemographics.optString("villageName")
+//                        }
+//
+//                        var phoneNo: String? = null
+//                        if (obj.has("benPhoneMaps")) {
+//                            val benPhoneMaps = obj.optJSONArray("benPhoneMaps")
+//                            if (benPhoneMaps != null && benPhoneMaps.length() > 0) {
+//                                val phoneMap = benPhoneMaps.getJSONObject(0)
+//                                phoneNo = phoneMap.optString("phoneNo")
+//                            }
+//                        }
+//
+//                        val age = if (obj.has("age")) obj.optInt("age") else null
+//
+//                        val spouseName = obj.optString("spouseName").takeIf { it.isNotEmpty() }
+//
+//                        val parentName = obj.optString("fatherName").takeIf { it.isNotEmpty() }
+//
+//                        val patient = Patient(
+//                            patientID = generateUuid(),
+//                            firstName = firstName,
+//                            lastName = lastName,
+//                            beneficiaryRegID = beneficiaryRegID,
+//                            syncState = SyncState.UNSYNCED,
+//                            dob = dob,
+//                            genderID = genderID,
+//                            age = age,
+//                            phoneNo = phoneNo,
+//                            spouseName = spouseName,
+//                            parentName = parentName,
+//                            stateID = stateID,
+//                            districtID = districtID,
+//                            blockID = blockID,
+//                            districtBranchID = districtBranchID
+//                        )
+//
+//                        list.add(
+//                            PatientDisplayWithVisitInfo(
+//                                patient = patient,
+//                                genderName = obj.optString("genderName"),
+//                                villageName = villageName,
+//                                ageUnit = null,
+//                                maritalStatus = null,
+//                                nurseDataSynced = null,
+//                                doctorDataSynced = null,
+//                                createNewBenFlow = null,
+//                                prescriptionID = null,
+//                                benVisitNo = null,
+//                                visitCategory = null,
+//                                benFlowID = null,
+//                                nurseFlag = null,
+//                                doctorFlag = null,
+//                                labtechFlag = null,
+//                                pharmacist_flag = null,
+//                                visitDate = null,
+//                                referDate = null,
+//                                referTo = null,
+//                                referralReason = null
+//                            )
+//                        )
+//                    }
+//
+//                    withContext(Dispatchers.Main) {
+//                        isShowingSearchResults = true
+//                        apiSearchAdapter?.submitList(list)
+//                        binding.patientListContainer.patientList.adapter = apiSearchAdapter
+//                        binding.patientListContainer.patientCount.text =
+//                            list.size.toString() + getResultStr(list.size)
+//                    }
+//
+//                } catch (e: Exception) {
+//                    // API call failed - show local data as fallback
+//                    Timber.e(e, "Search API failed, showing local data as fallback")
+//                    withContext(Dispatchers.Main) {
+//                        if (localMatches.isNotEmpty()) {
+//                            isShowingSearchResults = false
+//                            viewModel.filterText(query)
+//                            binding.patientListContainer.patientList.adapter = itemAdapter
+//                            binding.patientListContainer.patientCount.text =
+//                                localMatches.size.toString() + getResultStr(localMatches.size)
+//                        } else {
+//                            // No local matches and API failed
+//                            isShowingSearchResults = true
+//                            apiSearchAdapter?.submitList(emptyList())
+//                            binding.patientListContainer.patientList.adapter = apiSearchAdapter
+//                            binding.patientListContainer.patientCount.text =
+//                                "0" + getResultStr(0)
+//                            Toast.makeText(requireContext(), "No results found", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
     }
