@@ -2,21 +2,21 @@ package org.piramalswasthya.cho.ui.register_patient_activity.patient_details
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -28,11 +28,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
-import org.piramalswasthya.cho.facenet.FaceNetModel
-import org.piramalswasthya.cho.facenet.Models
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +43,8 @@ import org.piramalswasthya.cho.adapter.model.DropdownList
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.AlertAgePickerBinding
 import org.piramalswasthya.cho.databinding.FragmentPatientDetailsBinding
+import org.piramalswasthya.cho.facenet.FaceNetModel
+import org.piramalswasthya.cho.facenet.Models
 import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
@@ -66,6 +67,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import android.text.InputType
+import android.view.inputmethod.InputMethodManager
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,11 +84,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private lateinit var viewModel: PatientDetailsViewModel
 
-    private var doAgeToDob = true;
-    private var patient = Patient();
+    private var doAgeToDob = true
+    private var patient = Patient()
     private lateinit var villageAdapter :VillageDropdownAdapter
-    private var villageList = ArrayList<VillageLocationData>()
-    private var villageListFilter = ArrayList<VillageLocationData>()
+    private var isSettingVillageProgrammatically = false
     private val dobUtil : DateTimeUtil = DateTimeUtil()
     var bool: Boolean = false
     private var currentFileName: String? = null
@@ -108,7 +110,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     ): View {
         binding.ivImgCapture.setOnClickListener {
             if (::dialog.isInitialized && dialog.isShowing) {
-                    dialog.dismiss()
+                dialog.dismiss()
             }
             val inflater = layoutInflater
             val dialogView = inflater.inflate(R.layout.dialog_progress, null)
@@ -139,10 +141,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
     @RequiresApi(Build.VERSION_CODES.P)
     private fun checkAndRequestCameraPermission() {
-        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(requireContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )  == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             // Camera permission is granted, proceed to take a picture
             takePicture()
         } else {
@@ -150,64 +149,100 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             requestCameraPermission()
         }
     }
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun requestCameraPermission() {
         val permission = arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE )
-        requestPermissions(permission, 112)
+        permissionLauncher.launch(permission)
     }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
                 // Picture was taken successfully, update the ImageView with the captured image
-                if (photoURI == null)
-                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                else {
-                    Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
-                        .into(binding.ivImgCapture)
+                Glide.with(this).load(photoURI).placeholder(R.drawable.ic_person).circleCrop()
+                    .into(binding.ivImgCapture)
 
-                    val highspeed = FaceDetectorOptions.Builder()
-                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                try {
+                    // Initialize MediaPipe Face Detector
+                    val baseOptionsBuilder = BaseOptions.builder()
+                        .setModelAssetPath("blaze_face_short_range.tflite")
+
+                    val options = FaceDetector.FaceDetectorOptions.builder()
+                        .setBaseOptions(baseOptionsBuilder.build())
+                        .setMinDetectionConfidence(0.5f)
+                        .setRunningMode(RunningMode.IMAGE)
                         .build()
-                    val detector = FaceDetection.getClient(highspeed)
-                    val image = InputImage.fromFilePath(requireContext(), photoURI)
-                    detector.process(image)
-                        .addOnSuccessListener { faces ->
-                            if(faces.isEmpty()){
-                                Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
-                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                return@addOnSuccessListener
-                            }
-                            if(faces.size>1){
-                                Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
-                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
-                                return@addOnSuccessListener
-                            }
-                            else{
-                                val face = faces[0]
-                                val boundingBox = face.boundingBox
-                                val imageBitmap = MediaStore.Images.Media.getBitmap(
-                                    requireContext().contentResolver,
-                                    photoURI
-                                )
-                                val faceBitmap = Bitmap.createBitmap(
-                                    imageBitmap,
-                                    boundingBox.left,
-                                    boundingBox.top,
-                                    boundingBox.width(),
-                                    boundingBox.height()
-                                )
-                                embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
 
-                            }
+                    val faceDetector = FaceDetector.createFromOptions(requireContext(), options)
 
+                    // Load image from URI
+                    val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source = ImageDecoder.createSource(requireContext().contentResolver, photoURI)
+                        ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, photoURI)
+                    }
 
+                    // Convert to MPImage
+                    val mpImage = BitmapImageBuilder(imageBitmap).build()
+
+                    // Detect faces
+                    val detectionResult = faceDetector.detect(mpImage)
+
+                    // Handle detection results
+                    when {
+                        detectionResult.detections().isEmpty() -> {
+                            Toast.makeText(requireContext(), "No face detected", Toast.LENGTH_SHORT).show()
+                            binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                            faceDetector.close()
                         }
-                        .addOnFailureListener { e ->
-                            Log.e("FaceDetection", "Face detection failed", e)
-                            Toast.makeText(requireContext(), "Face detection failed", Toast.LENGTH_SHORT).show()
+                        detectionResult.detections().size > 1 -> {
+                            Toast.makeText(requireContext(), "Multiple faces detected", Toast.LENGTH_SHORT).show()
+                            binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                            faceDetector.close()
                         }
+                        else -> {
+                            val detection = detectionResult.detections()[0]
+                            val boundingBox = detection.boundingBox()
 
+                            // Ensure bounding box is within image bounds (convert Float to Int)
+                            val left = boundingBox.left.toInt().coerceAtLeast(0)
+                            val top = boundingBox.top.toInt().coerceAtLeast(0)
+                            val right = boundingBox.right.toInt().coerceAtMost(imageBitmap.width)
+                            val bottom = boundingBox.bottom.toInt().coerceAtMost(imageBitmap.height)
+                            val width = (right - left).coerceAtLeast(1)
+                            val height = (bottom - top).coerceAtLeast(1)
+
+                            // Validate dimensions
+                            if (width <= 0 || height <= 0 || left >= imageBitmap.width || top >= imageBitmap.height) {
+                                Toast.makeText(requireContext(), "Invalid face detection", Toast.LENGTH_SHORT).show()
+                                binding.ivImgCapture.setImageResource(R.drawable.ic_person)
+                                faceDetector.close()
+                                return@registerForActivityResult
+                            }
+
+                            // Crop face from image
+                            val faceBitmap = Bitmap.createBitmap(
+                                imageBitmap,
+                                left,
+                                top,
+                                width,
+                                height
+                            )
+
+                            // Clean up detector
+                            faceDetector.close()
+
+                            // Get face embeddings
+                            embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
+                            Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Face detection failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    binding.ivImgCapture.setImageResource(R.drawable.ic_person)
                 }
             }
         }
@@ -235,7 +270,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         currentFileName = "JPEG_${timeStamp}_.jpeg"
         var file = File(storageDir, currentFileName)
 
-        // Ensure the file doesn't already exist
         var counter = 1
         while (file.exists()) {
             currentFileName = "JPEG_${timeStamp}_$counter.jpeg"
@@ -244,34 +278,29 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         return file.apply {
-            // Save a file path for use with ACTION_VIEW intents
             currentPhotoPath = absolutePath
         }
 
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 112) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, you can proceed to open the camera
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allGranted = permissions.values.all { it }
+            if (allGranted) {
                 takePicture()
             } else {
                 Toast.makeText(requireContext(), getString(R.string.permission_to_access_the_camera_denied), Toast.LENGTH_SHORT).show()
             }
         }
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(PatientDetailsViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PatientDetailsViewModel::class.java]
         hideMarriedFields()
         setChangeListeners()
         setAdapters()
+        setupVillageDropdown()
 
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
             val photoUri = Uri.parse(uriString)
@@ -300,10 +329,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.age.setOnClickListener {
             ageAlertDialog.show()
         }
-        //initialise the facenet model
-
-
-
     }
 
     private val ageAlertDialog by lazy {
@@ -314,9 +339,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         alertBinding.dialogNumberPickerMonths.minValue = 0
         alertBinding.dialogNumberPickerMonths.maxValue = 11
 
-//        alertBinding.dialogNumberPickerWeeks.minValue = 0
-//        alertBinding.dialogNumberPickerWeeks.maxValue = 4       // Assuming a maximum of 4 weeks in a month
-
         alertBinding.dialogNumberPickerDays.minValue = 0
         alertBinding.dialogNumberPickerDays.maxValue = 29
 
@@ -325,30 +347,33 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             .create()
 
         alertBinding.btnOk.setOnClickListener {
-            alertBinding.dialogNumberPickerYears.clearFocus();
-            alertBinding.dialogNumberPickerMonths.clearFocus();
-//            alertBinding.dialogNumberPickerWeeks.clearFocus();
-            alertBinding.dialogNumberPickerDays.clearFocus();
+            alertBinding.dialogNumberPickerYears.clearFocus()
+            alertBinding.dialogNumberPickerMonths.clearFocus()
+            alertBinding.dialogNumberPickerDays.clearFocus()
 
             viewModel.enteredAgeYears = alertBinding.dialogNumberPickerYears.value
             viewModel.enteredAgeMonths = alertBinding.dialogNumberPickerMonths.value
-//            viewModel.enteredAgeWeeks = alertBinding.dialogNumberPickerWeeks.value
             viewModel.enteredAgeDays = alertBinding.dialogNumberPickerDays.value
 
             setAgeToDateOfBirth()
 
-            if(viewModel.enteredAgeYears != 0){
-                viewModel.enteredAge = viewModel.enteredAgeYears
-                viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
-            }else if(viewModel.enteredAgeMonths != 0){
-                viewModel.enteredAge = viewModel.enteredAgeMonths
-                viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
-            }else if(viewModel.enteredAgeWeeks != 0){
-                viewModel.enteredAge = viewModel.enteredAgeWeeks
-                viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
-            }else{
-                viewModel.enteredAge = viewModel.enteredAgeDays
-                viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+            when {
+                viewModel.enteredAgeYears != 0 -> {
+                    viewModel.enteredAge = viewModel.enteredAgeYears
+                    viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+                }
+                viewModel.enteredAgeMonths != 0 -> {
+                    viewModel.enteredAge = viewModel.enteredAgeMonths
+                    viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+                }
+                viewModel.enteredAgeWeeks != 0 -> {
+                    viewModel.enteredAge = viewModel.enteredAgeWeeks
+                    viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+                }
+                else -> {
+                    viewModel.enteredAge = viewModel.enteredAgeDays
+                    viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+                }
             }
 
             var ageString = ""
@@ -375,7 +400,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         alert.setOnShowListener {
             alertBinding.dialogNumberPickerYears.value =  viewModel.enteredAgeYears!!
             alertBinding.dialogNumberPickerMonths.value = viewModel.enteredAgeMonths!!
-//            alertBinding.dialogNumberPickerWeeks.value = viewModel.enteredAgeWeeks!!
             alertBinding.dialogNumberPickerDays.value =  viewModel.enteredAgeDays!!
         }
         alert
@@ -404,31 +428,35 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
                     if (!userData.dateOfBirth.isNullOrEmpty()) {
-                        var date: Date? = null
-                        if(userData.dateOfBirth[2].toString()=="/") {
-                            date =
-                                userData.dateOfBirth.let { inputDateFormat1.parse(it) } as Date
-                        }else if(userData.dateOfBirth[2].toString()=="-"){
-                            date = userData.dateOfBirth.let { inputDateFormat2.parse(it) } as Date
-                        }
-                        else if(userData.dateOfBirth[4].toString()=="-"){
-                            date = userData.dateOfBirth.let { inputDateFormat3.parse(it) } as Date
-                        } else if(userData.dateOfBirth[4].toString()=="/"){
-                            date = userData.dateOfBirth.let { inputDateFormat4.parse(it) } as Date
-                        }
-                        if(date!=null) {
-                            val outputDateStr: String = outputDateFormat.format(date)
-                            val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
+                        val date: Date? = when {
+                            userData.dateOfBirth[2].toString() == "/" -> {
+                                inputDateFormat1.parse(userData.dateOfBirth)
+                            }
+                            userData.dateOfBirth[2].toString() == "-" -> {
+                                inputDateFormat2.parse(userData.dateOfBirth)
+                            }
+                            userData.dateOfBirth[4].toString() == "-" -> {
+                                inputDateFormat3.parse(userData.dateOfBirth)
+                            }
+                            userData.dateOfBirth[4].toString() == "/" -> {
+                                inputDateFormat4.parse(userData.dateOfBirth)
+                            }
+                            else -> {
+                                null
+                            }
+                        } as Date
 
-                            viewModel.selectedDateOfBirth = outputDate
+                        val outputDateStr: String = outputDateFormat.format(date)
+                        val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
 
-                            dobUtil.showDatePickerDialog(
-                                requireContext(),
-                                viewModel.selectedDateOfBirth,
-                                maxDays = 0,
-                                minDays = -(99*365 + 25)
-                            )
-                        }
+                        viewModel.selectedDateOfBirth = outputDate
+
+                        dobUtil.showDatePickerDialog(
+                            requireContext(),
+                            viewModel.selectedDateOfBirth,
+                            maxDays = 0,
+                            minDays = -(99*365 + 25)
+                        )
 
                     }
                     if (!userData.gender.isNullOrEmpty()){
@@ -496,7 +524,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                                 dateOfBirth = xml.getAttributeValue(null, "dob")
 
                             }
-//                            else->{}
                         }
                     }
                 }
@@ -524,26 +551,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.spouseName.setText(result)
         }
     }
-    private val speechToTextLauncherForAge = registerForActivityResult(SpeechToTextContract()) { result ->
-        if (result.isNotBlank() && result.isNumeric()) {
-            val pattern = "\\d{2}".toRegex()
-            val match = pattern.find(result)
-            val firstTwoDigits = match?.value
-            if(result.toInt() > 0) binding.age.setText(result)
-        }
-    }
+
     private val speechToTextLauncherForFatherName = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank() && result.isNotEmpty() && !result.any { it.isDigit() }) {
             binding.fatherNameEditText.setText(result)
         }
     }
-    private fun String.isNumeric(): Boolean {
-        return try { this.toDouble()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
-    }
+
     private val speechToTextLauncherForPhoneNumber = registerForActivityResult(SpeechToTextContract()) { result ->
         if (result.isNotBlank()) {
             val cleanedResult = result.replace("\\s".toRegex(), "") // Remove all spaces
@@ -556,9 +570,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.firstNameVal.observe(viewLifecycleOwner) {
                 binding.firstNameText.setBoxColor(it, resources.getString(R.string.enter_your_first_name))
             }
-//            viewModel.lastNameVal.observe(viewLifecycleOwner) {
-//                binding.lastNameText.setBoxColor(it, resources.getString(R.string.enter_last_name))
-//            }
+
             viewModel.dobVal.observe(viewLifecycleOwner) {
                 binding.dateOfBirthText.setBoxColor(it, resources.getString(R.string.fill_dob))
             }
@@ -597,11 +609,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "married") {
                     binding.fatherNameText.visibility = View.GONE
                     binding.spouseNameText.visibility = View.VISIBLE
-//                    binding.ageAtMarriageText.visibility = View.VISIBLE
+
                 } else if (viewModel.selectedMaritalStatus != null && viewModel.selectedMaritalStatus!!.status.lowercase() == "unmarried") {
                     binding.spouseNameText.visibility = View.GONE
                     binding.fatherNameText.visibility = View.VISIBLE
-//                    binding.ageAtMarriageText.visibility = View.GONE
                 } else {
                     binding.spouseNameText.visibility = View.GONE
                     binding.fatherNameText.visibility = View.GONE
@@ -615,21 +626,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
 
-        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _Adapter ->
-            viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position];
+        binding.maritalStatusDropdown.setOnItemClickListener { _, _, position, _ ->
+            viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position]
             viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
             viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
             setMarriedFieldsVisibility()
         }
 
-        binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedGenderMaster = viewModel.genderMasterList[position];
+        binding.genderDropdown.setOnItemClickListener { _, _, position, _ ->
+            viewModel.selectedGenderMaster = viewModel.genderMasterList[position]
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
-        }
-        binding.villageDropdown.setOnItemClickListener { parent, _, position, _ ->
-            viewModel.selectedVillage = parent.getItemAtPosition(position) as VillageLocationData
-            binding.villageDropdown.setText(viewModel.selectedVillage!!.villageName, false)
         }
 
         binding.dateOfBirth.setOnClickListener {
@@ -659,82 +666,95 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
         })
         binding.firstName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setFirstName(isDobFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true
+                viewModel.setFirstName(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
         binding.lastName.addTextChangedListener (object :TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setLastName(isDobFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true
+                viewModel.setLastName(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
         binding.dateOfBirth.addTextChangedListener (object :TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setDob(isDobFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true
+                viewModel.setDob(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
         binding.age.addTextChangedListener (object :TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setAge(isDobFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true
+                viewModel.setAge(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
         binding.ageInUnitDropdown.addTextChangedListener (object :TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isDobFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setAgeUnit(isDobFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isDobFilled = s?.isNotEmpty() == true
+                viewModel.setAgeUnit(isDobFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
         binding.genderDropdown.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isGenderFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setGender(isGenderFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
-        })
-        binding.villageDropdown.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isVillageFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setVillageBool(isVillageFilled) // Update LiveData
-                if (::villageAdapter.isInitialized) {
-                    villageAdapter.notifyDataSetChanged()
-                }
+                val isGenderFilled = s?.isNotEmpty() == true
+                viewModel.setGender(isGenderFilled)
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
 
 
         binding.phoneNo.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
+            }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isPhoneNumberFilled = s?.isNotEmpty() == true
@@ -750,40 +770,54 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     binding.phoneNoText.setBoxColor(it.boolean,it.reason)
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
 
         binding.maritalStatusDropdown.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isMaritalStatusFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setMarital(isMaritalStatusFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isMaritalStatusFilled = s?.isNotEmpty() == true
+                viewModel.setMarital(isMaritalStatusFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
 
         binding.spouseName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isSpouseNameFilled = s?.isNotEmpty() == true // Check if not empty
-                viewModel.setSpouse(isSpouseNameFilled) // Update LiveData
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //No-Ops For Now
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isSpouseNameFilled = s?.isNotEmpty() == true
+                viewModel.setSpouse(isSpouseNameFilled)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
 
         binding.ageAtMarriage.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                  //No-Ops For Now
+            }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val isAgeAtMarriageFilled = s?.isNotEmpty() == true // Check if not empty
                 viewModel.setMaritalAge(isAgeAtMarriageFilled) // Update LiveData
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                //No-Ops For Now
+            }
         })
 
     }
@@ -791,10 +825,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
 
     private fun isValidPhoneNumber(phoneNumber: String) {
-        var char = phoneNumber.get(0)
+        var char = phoneNumber[0]
 
-        if(char.equals('9') || char.equals('8') || char.equals('7') || char.equals('6')) {
-            Log.d("aryan","${char}")
+        if(char=='9' || char=='8' || char=='7' || char=='6') {
             if (phoneNumber.length == 10 && phoneNumber.matches(Regex("\\d+"))) {
                 if (isNotRepeatableNumber(phoneNumber)) {
                     viewModel.setPhoneN(true, "null")
@@ -820,7 +853,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return false
     }
     private val ageTextWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            //No-Ops For Now
+        }
 
         @RequiresApi(Build.VERSION_CODES.O)
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -840,8 +875,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.villageVal.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
-//                    val dropdownList = viewModel.villageList.map { it -> DropdownList(it.districtBranchID.toInt(), it.villageName) }
-//                    val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.villageDropdown)
                     villageAdapter = VillageDropdownAdapter(
                         requireContext(),
                         R.layout.drop_down,
@@ -849,10 +882,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         binding.villageDropdown,
                         viewModel.villageListFilter
                     )
+                    villageAdapter.onDataUpdated = {
+                        setVillageDropdownMaxHeight()
+                    }
                     binding.villageDropdown.setAdapter(villageAdapter)
+                    setVillageDropdownMaxHeight()
                 }
                 else -> {
-
+                    //No-Ops For Now
                 }
             }
         }
@@ -860,12 +897,12 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.maritalStatus.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.maritalStatusList.map { it -> DropdownList(it.maritalStatusID, it.status) }
+                    val dropdownList = viewModel.maritalStatusList.map { DropdownList(it.maritalStatusID, it.status) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.maritalStatusDropdown)
                     binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
                 }
                 else -> {
-
+                    //No-Ops For Now
                 }
             }
         }
@@ -873,61 +910,156 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         viewModel.genderMaster.observe(viewLifecycleOwner) { state ->
             when (state!!){
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
-                    val dropdownList = viewModel.genderMasterList.map { it -> DropdownList(it.genderID, it.genderName) }
+                    val dropdownList = viewModel.genderMasterList.map { DropdownList(it.genderID, it.genderName) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.genderDropdown)
                     binding.genderDropdown.setAdapter(dropdownAdapter)
                 }
                 else -> {
-
+                    //No-Ops For Now
                 }
             }
         }
 
         dobUtil.selectedDate.observe(viewLifecycleOwner) { date ->
             if(date != null){
-                setDateOfBirthToAge(date);
+                setDateOfBirthToAge(date)
             }
         }
 
     }
+    private fun setupVillageDropdown() {
+
+        val dropdown = binding.villageDropdown
+
+        dropdown.apply {
+            threshold = 0
+            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            isFocusable = true
+            isFocusableInTouchMode = true
+            isCursorVisible = true
+        }
+
+        dropdown.setOnClickListener {
+            if (::villageAdapter.isInitialized) {
+                villageAdapter.shouldAutoShowDropdown = true
+                isSettingVillageProgrammatically = true
+                villageAdapter.filter.filter("")
+                isSettingVillageProgrammatically = false
+            } else {
+                dropdown.showDropDown()
+            }
+        }
+
+        dropdown.setOnItemClickListener { parent, _, position, _ ->
+            viewModel.selectedVillage =
+                parent.getItemAtPosition(position) as VillageLocationData
+
+            if (::villageAdapter.isInitialized) {
+                villageAdapter.shouldAutoShowDropdown = false
+            }
+            isSettingVillageProgrammatically = true
+            
+            dropdown.setText(viewModel.selectedVillage!!.villageName, false)
+            dropdown.dismissDropDown()
+            hideKeyboard(dropdown)
+            isSettingVillageProgrammatically = false
+        }
+
+        dropdown.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.setVillageBool(!s.isNullOrEmpty())
+
+                if (::villageAdapter.isInitialized && !isSettingVillageProgrammatically) {
+                    villageAdapter.filter.filter(s)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+
+    private fun hideKeyboard(view: View) {
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    private fun setVillageDropdownMaxHeight() {
+        val dropdown = binding.villageDropdown
+
+        dropdown.post {
+            if (::villageAdapter.isInitialized) {
+                val itemCount = villageAdapter.count
+                if (itemCount > 0) {
+                    var itemHeightPx = 0
+                    try {
+                        val tempParent = android.widget.FrameLayout(requireContext())
+                        val itemView = villageAdapter.getDropDownView(0, null, tempParent)
+                        itemView.measure(
+                            View.MeasureSpec.makeMeasureSpec(dropdown.width, View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        )
+                        itemHeightPx = itemView.measuredHeight
+                    } catch (e: Exception) {
+                        val itemHeightDp = 50f
+                        itemHeightPx = (itemHeightDp * resources.displayMetrics.density).toInt()
+                    }
+                    val bottomPaddingDp = 16f
+                    val bottomPaddingPx = (bottomPaddingDp * resources.displayMetrics.density).toInt()
+                    val calculatedHeight = (itemCount * itemHeightPx) + bottomPaddingPx
+                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                    dropdown.dropDownHeight = minOf(calculatedHeight, maxHeight)
+                } else {
+                    val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                    dropdown.dropDownHeight = maxHeight
+                }
+            } else {
+                val maxHeight = (resources.displayMetrics.heightPixels * 0.4).toInt()
+                dropdown.dropDownHeight = maxHeight
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setAgeToDateOfBirth(){
-//        viewModel.enteredAge = binding.age.text.toString().trim().toIntOrNull()
-//        if(viewModel.enteredAge != null && viewModel.selectedAgeUnitEnum != null && doAgeToDob){
-//            viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAge!!, viewModel.selectedAgeUnitEnum!!);
         viewModel.selectedDateOfBirth = DateTimeUtil.calculateDateOfBirth(viewModel.enteredAgeYears!!, viewModel.enteredAgeMonths!!,
-            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!);
+            viewModel.enteredAgeWeeks!!, viewModel.enteredAgeDays!!)
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(viewModel.selectedDateOfBirth!!))
-            setMarriedFieldsVisibility()
-//        }
-        doAgeToDob = true;
+        setMarriedFieldsVisibility()
+
+        doAgeToDob = true
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDateOfBirthToAge(date: Date){
-        val age = DateTimeUtil.calculateAgePicker(date);
-//        viewModel.enteredAge = age.value
+        val age = DateTimeUtil.calculateAgePicker(date)
         viewModel.enteredAgeYears = age.years
         viewModel.enteredAgeMonths = age.months
         viewModel.enteredAgeWeeks = age.weeks
         viewModel.enteredAgeDays = age.days
 
-
-
-        if(viewModel.enteredAgeYears != 0){
-            viewModel.enteredAge = viewModel.enteredAgeYears
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
-        }else if(viewModel.enteredAgeMonths != 0){
-            viewModel.enteredAge = viewModel.enteredAgeMonths
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
-        }else if(viewModel.enteredAgeWeeks != 0){
-            viewModel.enteredAge = viewModel.enteredAgeWeeks
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
-        }else{
-            viewModel.enteredAge = viewModel.enteredAgeDays
-            viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+        when {
+            viewModel.enteredAgeYears != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeYears
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[2]
+            }
+            viewModel.enteredAgeMonths != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeMonths
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[1]
+            }
+            viewModel.enteredAgeWeeks != 0 -> {
+                viewModel.enteredAge = viewModel.enteredAgeWeeks
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[3]
+            }
+            else -> {
+                viewModel.enteredAge = viewModel.enteredAgeDays
+                viewModel.selectedAgeUnit = viewModel.ageUnitList[0]
+            }
         }
 
         var ageString = ""
@@ -948,11 +1080,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[viewModel.selectedAgeUnitEnum]?.name ?: "", false)
 
         viewModel.selectedDateOfBirth = date
-//        viewModel.selectedAgeUnitEnum = age.unit
-//        viewModel.selectedAgeUnit = viewModel.ageUnitMap[age.unit]
-        doAgeToDob = false;
-//        binding.age.setText(age.value.toString())
-//        binding.ageInUnitDropdown.setText(viewModel.ageUnitMap[age.unit]?.name ?: "", false)
+        doAgeToDob = false
         binding.dateOfBirth.setText(DateTimeUtil.formattedDate(date))
 
     }
@@ -961,8 +1089,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     fun setPatientDetails(){
         patient.firstName = binding.firstName.text.toString().trim()
         patient.lastName = binding.lastName.text.toString().trim()
-        patient.dob = viewModel.selectedDateOfBirth;
-        patient.age = viewModel.enteredAge;
+        patient.dob = viewModel.selectedDateOfBirth
+        patient.age = viewModel.enteredAge
         patient.maritalStatusID = viewModel.maritalStatusId
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
@@ -986,15 +1114,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.districtBranchID = viewModel.selectedVillage?.districtBranchID!!.toInt()
     }
 
-    private fun checkImageCaptured(): Boolean {
-        if (currentPhotoPath == null) {
-            return false
-        }
-        return true
-    }
-
     override fun getFragmentId(): Int {
-        return R.id.fragment_add_patient_location;
+        return R.id.fragment_add_patient_location
     }
     fun checkVisibleFieldIsEmpty():Boolean{
         if(!viewModel.firstNameVal.value!! || !viewModel.dobVal.value!! || !viewModel.ageVal.value!! || !viewModel.genderVal.value!! || !viewModel.villageBoolVal.value!! ){
@@ -1017,7 +1138,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
                         if(preferenceDao.isUserCHO()){
                             val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo);
+                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo)
                             startActivity(intent)
                         }
                         else{
@@ -1026,7 +1147,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-//                        Toast.makeText(requireContext(), getString(R.string.something_wend_wong), Toast.LENGTH_SHORT).show()
+                        //No-Ops For Now we can display error message like something went wrng
                     }
                 }
             }

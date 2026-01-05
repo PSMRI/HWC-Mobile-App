@@ -18,6 +18,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import timber.log.Timber
 
 class DateTimeUtil {
 
@@ -303,9 +304,44 @@ class DateTimeUtil {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun formatUTCToDate(dateString: String): Date? {
-            val instant = Instant.parse(dateString)
-            val date = Date.from(instant)
-            return date
+            return try {
+                // Try parsing with Instant.parse first (handles ISO 8601 formats)
+                val instant = Instant.parse(dateString)
+                Date.from(instant)
+            } catch (e: Exception) {
+                // Fallback: Try parsing with SimpleDateFormat for various formats
+                try {
+                    val formats = listOf(
+                        "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",  // 1994-09-10T00:00:00.000+00:00
+                        "yyyy-MM-dd'T'HH:mm:ss.SSSZ",     // 1994-09-10T00:00:00.000+0000
+                        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",   // 1994-09-10T00:00:00.000Z
+                        "yyyy-MM-dd'T'HH:mm:ssXXX",       // 1994-09-10T00:00:00+00:00
+                        "yyyy-MM-dd'T'HH:mm:ssZ",         // 1994-09-10T00:00:00+0000
+                        "yyyy-MM-dd'T'HH:mm:ss'Z'",       // 1994-09-10T00:00:00Z
+                        "yyyy-MM-dd"                      // 1994-09-10
+                    )
+                    
+                    for (format in formats) {
+                        try {
+                            val sdf = SimpleDateFormat(format, Locale.US)
+                            sdf.timeZone = TimeZone.getTimeZone("UTC")
+                            val date = sdf.parse(dateString)
+                            if (date != null) {
+                                Timber.d("Successfully parsed date with format $format: $dateString -> $date")
+                                return date
+                            }
+                        } catch (e2: Exception) {
+                            // Try next format
+                            continue
+                        }
+                    }
+                    Timber.e("Failed to parse date string with any format: $dateString")
+                    null
+                } catch (e2: Exception) {
+                    Timber.e(e2, "Error in fallback date parsing: $dateString")
+                    null
+                }
+            }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)

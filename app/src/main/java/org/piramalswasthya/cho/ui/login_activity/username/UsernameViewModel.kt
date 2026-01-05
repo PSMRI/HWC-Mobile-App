@@ -43,12 +43,8 @@ class UsernameViewModel@Inject constructor(
         username: String,
         password: String,
         loginType: String?,
-        selectedOption: String?,
-        loginTimeStamp: String?,
-        logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?,
         context: Context
     ) {
         _state.value  = OutreachViewModel.State.SAVING
@@ -57,15 +53,9 @@ class UsernameViewModel@Inject constructor(
                 username,
                 password,
                 loginType,
-                selectedOption,
-                loginTimeStamp,
-                logoutTimeStamp,
                 lat,
                 long,
-                null,
-                logoutType,
-            true,
-            context)
+                context)
         }
     }
     fun resetState() {

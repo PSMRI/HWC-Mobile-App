@@ -120,6 +120,27 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_password_hwc"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/til_password_hint_text"
+                    android:layout_marginBottom="@dimen/margin_big"
+                    tools:layout_editor_absoluteX="16dp"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_password_hwc"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:drawablePadding="@dimen/padding_normal"
+                        android:inputType="textPassword"
+                        android:singleLine="true"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <CheckBox
                     android:id="@+id/cb_remember"
                     android:layout_width="match_parent"
@@ -145,8 +166,8 @@
                     android:layout_marginTop="@dimen/margin_big"
                     android:layout_gravity="center"
                     android:backgroundTint="@color/default_button"
-                    android:text="@string/next"
-                    android:textSize="@dimen/text_big" />
+                    android:text="@string/login"
+                    android:textSize="@dimen/text_big"/>
 
                 <TextView
                     android:id="@+id/textView12"
@@ -164,6 +185,11 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/btn_next" />
 
+
+                <FrameLayout
+                    android:id="@+id/select_activity_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

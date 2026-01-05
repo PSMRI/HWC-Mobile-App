@@ -37,10 +37,12 @@ import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.LoginSettingsDataRepository
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.login_activity.LoginActivity
+import org.piramalswasthya.cho.ui.login_activity.cho_login.hwc.HwcViewModel
 import org.piramalswasthya.cho.ui.login_activity.cho_login.outreach.OutreachViewModel
-import org.piramalswasthya.cho.utils.DateTimeUtil
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 private var locationManager: LocationManager? = null
@@ -59,15 +61,11 @@ class UsernameFragment() : Fragment() {
     lateinit var userRepo: UserRepo
     @Inject
     lateinit var loginSettingsDataRepository: LoginSettingsDataRepository
-    private var loginSettingsData: LoginSettingsData? = null
-
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
-
     private lateinit var viewModel: UsernameViewModel
+    private lateinit var hwcViewModel: HwcViewModel
     private var user: UserCache? = null
-    private var prevLoggedInUser: UserCache? = null
-    private var showDashboard : Boolean? = null
     private var isBiometric : Boolean = false
     private var _binding: FragmentUsernameBinding? = null
     private val binding: FragmentUsernameBinding
@@ -87,7 +85,9 @@ class UsernameFragment() : Fragment() {
                     }
                 }
                 }
-        viewModel = ViewModelProvider(this).get(UsernameViewModel::class.java)
+        viewModel = ViewModelProvider(this)[UsernameViewModel::class.java]
+        hwcViewModel = ViewModelProvider(this)[HwcViewModel::class.java]
+
         _binding = FragmentUsernameBinding.inflate(layoutInflater, container, false)
 //        binding.loginSettings.visibility = View.INVISIBLE
 
@@ -104,8 +104,9 @@ class UsernameFragment() : Fragment() {
         }
         val biometricManager = BiometricManager.from(requireContext())
         when (biometricManager.canAuthenticate()) {
-            BiometricManager.BIOMETRIC_SUCCESS ->{}
-//                displayMessage("Biometric authentication is available")
+            BiometricManager.BIOMETRIC_SUCCESS ->{
+                // No-op for now.
+            }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
                 displayMessage("This device doesn't support biometric authentication")
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
@@ -123,27 +124,11 @@ class UsernameFragment() : Fragment() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
                 isBiometric = true
-                val username = user?.userName
-                val password = user?.password
-
                 getCurrentLocation()
                 tryAuthUser = true
-                viewModel.state.observe(viewLifecycleOwner) { state ->
-                    when (state!!) {
-                        OutreachViewModel.State.SUCCESS -> {
-                            var cbRememberUsername:Boolean = binding.cbRemember.isChecked
-                            findNavController().navigate(
-                                UsernameFragmentDirections.actionSignInFragmentToChoLogin(
-                                    binding.etUsername.text.toString(),
-                                    cbRememberUsername,
-                                    isBiometric
-                                )
-                            )
-                            isBiometric = false
-                        }
-                        else -> {}
-                    }
-                }
+                val userName = binding.etUsername.text.toString()
+                val remember = binding.cbRemember.isChecked
+                loginHwc(userName, "", remember, true)
                 displayMessage("Authentication succeeded!")
             }
 
@@ -182,9 +167,11 @@ class UsernameFragment() : Fragment() {
         activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackPressedCallback)
         binding.etUsername .addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No-op for now.
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // No-op for now.
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -194,14 +181,20 @@ class UsernameFragment() : Fragment() {
         })
         binding.btnNxt.setOnClickListener {
             if(!binding.etUsername.text.toString().isNullOrBlank()) {
-                var cbRememberUsername:Boolean = binding.cbRemember.isChecked
-                findNavController().navigate(
-                    UsernameFragmentDirections.actionSignInFragmentToChoLogin(
-                        binding.etUsername.text.toString(),
-                        cbRememberUsername,
-                        isBiometric
-                    )
-                )
+                val userName = binding.etUsername.text.toString()
+                val userPass = binding.etPasswordHwc.text.toString()
+                val remember = binding.cbRemember.isChecked
+
+                loginHwc(userName, userPass,remember, isBiometric)
+
+//                val cbRememberUsername:Boolean = binding.cbRemember.isChecked
+//                findNavController().navigate(
+//                    UsernameFragmentDirections.actionSignInFragmentToChoLogin(
+//                        binding.etUsername.text.toString(),
+//                        cbRememberUsername,
+//                        isBiometric
+//                    )
+//                )
             }
             else
                 Toast.makeText(requireContext(), getString(R.string.invalid_username_entered), Toast.LENGTH_LONG).show()
@@ -231,7 +224,7 @@ class UsernameFragment() : Fragment() {
         }
     }
 
-private fun getCurrentLocation() {
+    private fun getCurrentLocation() {
     // Check if location permissions are granted
     if (ActivityCompat.checkSelfPermission(
             requireContext(),
@@ -256,21 +249,21 @@ private fun getCurrentLocation() {
                         user?.userName ?: "",
                         user?.password ?: "",
                         null,
-                        null,
-                        DateTimeUtil.formatDate(Date()),
-                        null,
                         location.latitude,
                         location.longitude,
-                        null,
                         requireContext()
                     )
                     tryAuthUser = false
                 }
             }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+                // No-op for now.
+            }
 
-            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderEnabled(provider: String) {
+                // No-op for now.
+            }
 
             override fun onProviderDisabled(provider: String) {
                 Toast.makeText(
@@ -301,6 +294,101 @@ private fun getCurrentLocation() {
         )
     }
 }
+
+    private fun loginHwc(userName: String,password: String, rememberUsername: Boolean, isBiometric: Boolean) {
+
+        val timestamp = getTimestamp()
+
+        if (!isBiometric) {
+            // Normal login
+            lifecycleScope.launch {
+                hwcViewModel.authUser(
+                    userName,
+                    password,
+                    "HWC",
+                    null,
+                    timestamp,
+                    null,
+                    currentLocation?.latitude,
+                    currentLocation?.longitude,
+                    null,
+                    requireContext()
+                )
+
+                hwcViewModel.state.observe(viewLifecycleOwner) { state ->
+                    when (state) {
+                        OutreachViewModel.State.SUCCESS -> {
+
+//                            val user = userDao.getLoggedInUser()
+
+                            if (rememberUsername)
+                                hwcViewModel.rememberUser(userName, password)
+                            else
+                                hwcViewModel.forgetUser()
+
+                            findNavController().navigate(
+                                UsernameFragmentDirections.actionSignInToHomeFromCho(true)
+                            )
+
+                            hwcViewModel.resetState()
+                            activity?.finish()
+                        }
+
+                        OutreachViewModel.State.ERROR_SERVER,
+                        OutreachViewModel.State.ERROR_NETWORK -> {
+                            Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_LONG).show()
+                            hwcViewModel.resetState()
+                        }
+
+                        OutreachViewModel.State.SAVING -> {
+                            Toast.makeText(requireContext(), "Processing...", Toast.LENGTH_SHORT).show()
+                        }
+                        OutreachViewModel.State.IDLE -> {
+                            // No-op
+                        }
+                        OutreachViewModel.State.LOADING -> {
+                            // No-op
+                        }
+                        OutreachViewModel.State.ERROR_INPUT -> {
+                            Toast.makeText(requireContext(), "Invalid input", Toast.LENGTH_SHORT).show()
+                            hwcViewModel.resetState()
+                        }
+                    }
+                }
+            }
+        } else {
+            // Biometric login
+            lifecycleScope.launch {
+                val user = userDao.getLoggedInUser()
+
+                hwcViewModel.setOutreachDetails(
+                    "HWC",
+                    null,
+                    timestamp,
+                    null,
+                    currentLocation?.latitude,
+                    currentLocation?.longitude,
+                    null,
+                    false
+                )
+
+                findNavController().navigate(
+                    UsernameFragmentDirections.actionSignInToHomeFromCho(true)
+                )
+
+                hwcViewModel.resetState()
+                activity?.finish()
+            }
+        }
+    }
+
+    private fun getTimestamp(): String {
+        val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
+        val timeZone = TimeZone.getTimeZone("GMT+0530")
+        val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+        formatter.timeZone = timeZone
+        return formatter.format(Date())
+    }
 }
 
 

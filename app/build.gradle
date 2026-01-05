@@ -110,9 +110,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation files('lib/AlCamera.jar')
     implementation 'androidx.viewpager2:viewpager2:1.0.0-beta04'
-//    implementation files('lib/FDxSDKProFDAndroid.jar')
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.hilt:hilt-common:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -144,8 +142,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
-    //tensorflow and mlkit
-    implementation ("com.google.mlkit:face-detection:16.1.6")
+    //tensorflow and mediapipe.
+    implementation 'com.google.mediapipe:tasks-vision:latest.release'
     implementation ("org.tensorflow:tensorflow-lite:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu-api:2.11.0")

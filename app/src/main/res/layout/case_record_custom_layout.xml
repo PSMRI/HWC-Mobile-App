@@ -124,7 +124,7 @@
                         app:layout_constraintEnd_toStartOf="@+id/temperatureEditTxt"
                         app:layout_constraintStart_toStartOf="@+id/temperatureEditTxt"
                         app:layout_constraintTop_toTopOf="@+id/temperatureEditTxt"
-                        app:tint="@color/background_primary" />
+                        app:tint="@color/default_button" />
 
                     <ImageView
                         android:id="@+id/ivIconTemperature"
@@ -617,7 +617,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|center_horizontal"
                         android:layout_margin="@dimen/custom_ui_margin"
-                        android:backgroundTint="@color/status_success"
+                        android:backgroundTint="@color/green"
                         android:src="@drawable/baseline_add_icon"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -913,7 +913,7 @@
                         android:layout_gravity="bottom|center_horizontal"
                         android:layout_margin="@dimen/custom_ui_margin"
                         android:layout_marginBottom="10dp"
-                        android:backgroundTint="@color/status_success"
+                        android:backgroundTint="@color/green"
                         android:src="@drawable/baseline_add_icon"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

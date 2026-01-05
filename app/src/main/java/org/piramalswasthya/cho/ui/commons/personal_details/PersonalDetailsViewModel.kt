@@ -34,8 +34,7 @@ import javax.inject.Inject
 class PersonalDetailsViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val pref: PreferenceDao,
-    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
-    private val benFlowRepo: BenFlowRepo
+    private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo
 ) : ViewModel() {
     private val filter = MutableStateFlow("")
 
@@ -66,9 +65,6 @@ class PersonalDetailsViewModel @Inject constructor(
     private val _benRegId = MutableLiveData<Long?>()
     val benRegId: LiveData<Long?>
         get() = _benRegId
-
-    private val _benFlows = MutableLiveData<List<BenFlow>?>()
-    val benFlows: LiveData<List<BenFlow>?> = _benFlows
 
 
     enum class NetworkState {
@@ -140,15 +136,4 @@ class PersonalDetailsViewModel @Inject constructor(
     fun fetchRememberedUsername(): String? =
         pref.getEsanjeevaniUserName()
 
-
-    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
-        viewModelScope.launch {
-            try {
-                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
-                _benFlows.value = benFlowList
-            } catch (e: Exception) {
-                _benFlows.value = emptyList()
-            }
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.login_activity.cho_login.outreach
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,9 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.UserDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.OutreachDropdownList
-import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.OutreachRepo
 import org.piramalswasthya.cho.repositories.RegistrarMasterDataRepo
@@ -39,7 +36,6 @@ class OutreachViewModel @Inject constructor(
     private val userDao: UserDao,
     private val pref: PreferenceDao
 ) : ViewModel() {
-    // TODO: Implement the ViewModel
 
     enum class State {
         IDLE,
@@ -63,7 +59,6 @@ class OutreachViewModel @Inject constructor(
     }
 
 
-    //TODO: JUST FOR TESTING, NEEDS TO BE MOVED WHEN APPROPRIATE VIEW MODELS ARE READY
     init {
         _outreachList= MutableLiveData()
         getOutreach()
@@ -91,13 +86,8 @@ fun getOutreach(){
         username: String,
         password: String,
         loginType: String,
-        selectedOption: String,
-        loginTimeStamp: String,
-        logoutTimeStamp: String?,
         lat: Double?,
         long: Double?,
-        logoutType: String?,
-        imageString : String?,
         context: Context
     ) {
         _state.value = State.SAVING
@@ -106,17 +96,10 @@ fun getOutreach(){
                 username,
                 password,
                 loginType,
-                selectedOption,
-                loginTimeStamp,
-                logoutTimeStamp,
                 lat,
                 long,
-                logoutType,
-            imageString,
-            false,
                 context)
-//            userRepo.setOutreachProgram(selectedOption,timestamp,lat,long)
-//            _state.value = State.SUCCESS
+
         }
     }
     suspend fun setOutreachDetails(
