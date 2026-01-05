@@ -141,7 +141,7 @@ class VisitDetailViewModel @Inject constructor(
         getChiefMasterComplaintList()
     }
 
-    fun init(patientID: String){
+    fun init(patientID: String,benId: String){
         viewModelScope.launch {
             lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
             allActiveAncRecords.value = getAllActiveAncRecords(patientID)
@@ -156,13 +156,12 @@ class VisitDetailViewModel @Inject constructor(
             lastEct.value = getLastEct(patientID)
 
 
-            val cachedCbac = cbacRepo.getLastFilledCbac(patientID)
+            val cachedCbac = cbacRepo.getLastFilledCbac(benId)
 
             cbac = cachedCbac?.also {
                 cbacId = it.id
             } ?: CbacCache(
                 patId = patientID,
-                ashaId = 0,
                 syncState = SyncState.UNSYNCED,
                 createdDate = System.currentTimeMillis()
             )

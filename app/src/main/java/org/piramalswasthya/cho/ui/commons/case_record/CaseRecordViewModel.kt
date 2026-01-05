@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.ui.commons.case_record
 
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,7 @@ import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ChiefComplaintDB
 import org.piramalswasthya.cho.model.CounsellingProvided
 import org.piramalswasthya.cho.model.DiagnosisCaseRecord
@@ -36,6 +38,7 @@ import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProceduresMasterData
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.BenFlowRepo
 import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.DoctorMasterDataMaleRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
@@ -66,7 +69,8 @@ class CaseRecordViewModel @Inject constructor(
     private val caseRecordeDao: CaseRecordeDao,
     private val investigationDao: InvestigationDao,
     private val userRepo: UserRepo,
-    private val templateRepo: PrescriptionTemplateRepo
+    private val templateRepo: PrescriptionTemplateRepo,
+    private val benFlowRepo: BenFlowRepo
 ): ViewModel() {
     val userId  = userRepo.getLoggedInUserAsFlow()
     private val _isDataDeleted = MutableLiveData<Boolean>(false)
@@ -128,6 +132,19 @@ class CaseRecordViewModel @Inject constructor(
     private val _vitalsDB = MutableLiveData<PatientVitalsModel>()
     val vitalsDB: LiveData<PatientVitalsModel>
         get() = _vitalsDB
+
+//    private val _visitReason = MutableLiveData<String?>()
+//    val visitReason: LiveData<String?>
+//        get() = _visitReason
+//  private val _visitDate = MutableLiveData<String?>()
+//    val visitDate: LiveData<String?>
+//        get() = _visitDate
+
+
+
+    private val _benFlows = MutableLiveData<List<BenFlow>?>()
+    val benFlows: LiveData<List<BenFlow>?> = _benFlows
+
 
     init {
         viewModelScope.launch {
@@ -389,5 +406,32 @@ class CaseRecordViewModel @Inject constructor(
     suspend fun getTemplatesByTemplateName(selectedString: String): List<PrescriptionTemplateDB?> {
         return templateRepo.getTemplateUsingTempName(selectedString)
     }
+
+//    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
+//        viewModelScope.launch {
+//            try {
+//
+//                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
+//                val latest = benFlowList?.maxByOrNull { it.visitDate ?: "" }
+//                _visitReason.value = latest?.VisitReason
+//                _visitDate.value = latest?.visitDate
+//            } catch (e: Exception) {
+//                _visitReason.value = null
+//                _visitDate.value = null
+//            }
+//        }
+//    }
+
+    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
+        viewModelScope.launch {
+            try {
+                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
+                _benFlows.value = benFlowList   // <-- store full list
+            } catch (e: Exception) {
+                _benFlows.value = emptyList()
+            }
+        }
+    }
+
 
 }

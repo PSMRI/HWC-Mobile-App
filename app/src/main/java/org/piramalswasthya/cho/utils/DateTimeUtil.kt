@@ -220,6 +220,19 @@ class DateTimeUtil {
             return Age(AgeUnitEnum.DAYS, period.days)
         }
 
+        @JvmStatic
+        fun String?.toMillisOrNull(pattern: String = "MMM dd, yyyy, h:mm:ss a"): Long? {
+            if (this.isNullOrBlank()) return null
+            return try {
+                val format = SimpleDateFormat(pattern, Locale.getDefault())
+                format.timeZone = TimeZone.getTimeZone("UTC")
+                format.parse(this)?.time
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgePicker(dateOfBirth: Date): AgePicker {
             val birthLocalDate =
@@ -391,6 +404,20 @@ class DateTimeUtil {
             return type
         }
 
+        fun formatedDate(dateStr: String?): String {
+            if (dateStr.isNullOrBlank()) return "N/A"
+
+            return try {
+                val inputFormat = SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.ENGLISH)
+                val date = inputFormat.parse(dateStr)
+
+                val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                outputFormat.format(date!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "N/A"
+            }
+        }
     }
 
 

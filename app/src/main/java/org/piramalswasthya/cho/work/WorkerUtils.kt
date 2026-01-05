@@ -48,7 +48,6 @@ object WorkerUtils {
             .beginUniqueWork(syncName, ExistingWorkPolicy.APPEND_OR_REPLACE, pullPatientFromAmritWorker)
             .then(pullBenFlowFromAmritWorker)
             .then(pullCbacFromAmritWorker)
-
             .enqueue()
     }
 
