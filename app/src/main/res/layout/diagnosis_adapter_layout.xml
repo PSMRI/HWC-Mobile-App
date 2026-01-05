@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.Button"
         android:layout_gravity="center"
-        android:backgroundTint="@color/status_error"
+        android:backgroundTint="@color/button_danger"
         android:src="@drawable/baseline_cross_line"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintEnd_toEndOf="parent"
