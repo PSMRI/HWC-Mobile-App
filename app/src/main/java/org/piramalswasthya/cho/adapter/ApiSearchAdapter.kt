@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +42,8 @@ class ApiSearchAdapter(
         private val tvName: TextView = itemView.findViewById(R.id.tvName)
         private val tvBenId: TextView = itemView.findViewById(R.id.tvBenId)
         private val tvGender: TextView = itemView.findViewById(R.id.tvGender)
+        private val tvAge: TextView = itemView.findViewById(R.id.tvAge)
+        private val tvMobile: TextView = itemView.findViewById(R.id.tvMobile)
 
         fun bind(info: PatientDisplayWithVisitInfo) {
             val first = info.patient.firstName.orEmpty()
@@ -50,11 +51,10 @@ class ApiSearchAdapter(
 
             tvName.text = "$first $last"
 
-            val benId = info.patient.beneficiaryRegID
-                ?: info.patient.beneficiaryID
-
-            tvBenId.text = "Beneficiary ID: ${benId ?: "NA"}"
+            tvBenId.text = "Beneficiary ID: ${info.patient.beneficiaryID ?: "NA"}"
             tvGender.text = "Gender: ${info.genderName ?: "NA"}"
+            tvAge.text = "Age: ${info.patient.age ?: "NA"}"
+            tvMobile.text = "Mobile No.: ${info.patient.phoneNo ?: "NA"}"
 
         }
     }
