@@ -248,10 +248,8 @@ class PatientRepo @Inject constructor(
 
     suspend fun registerNewPatient(patient : PatientDisplay, user: UserDomain?): NetworkResult<NetworkResponse> {
 
-        // 🔹 Basic validation – this API needs mandatory fields which are missing
         val p = patient.patient
         if (p.dob == null || p.genderID == null || p.districtBranchID == null) {
-            // These are the minimum fields required downstream in PatientNetwork/Bendemographics
             return NetworkResult.Error(
                 0,
                 "Cannot register – missing mandatory data (DOB / gender / village). Please complete registration form first."
