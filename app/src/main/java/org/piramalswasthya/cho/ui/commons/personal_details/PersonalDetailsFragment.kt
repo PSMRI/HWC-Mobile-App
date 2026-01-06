@@ -703,7 +703,6 @@ class PersonalDetailsFragment : Fragment() {
                     }
                 }
             } catch (e: Exception) {
-                Timber.e(e, "Error in hitRegisterApi")
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         requireContext(),
@@ -1432,8 +1431,6 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 if (!isNetworkAvailable) {
-                    Timber.d("Offline search → skipping API")
-
                     withContext(Dispatchers.Main) {
                         isShowingSearchResults = false
                         viewModel.filterText(query)
@@ -1471,6 +1468,19 @@ class PersonalDetailsFragment : Fragment() {
                         val firstName = obj.optString("firstName")
                         val lastName = obj.optString("lastName")
                         val beneficiaryRegID = obj.optLong("beneficiaryRegID")
+
+                        var beneficiaryID: Long? = null
+                        if (obj.has("beneficiaryID") && !obj.isNull("beneficiaryID")) {
+                            try {
+                                beneficiaryID = if (obj.opt("beneficiaryID") is String) {
+                                    obj.optString("beneficiaryID").toLongOrNull()
+                                } else {
+                                    obj.optLong("beneficiaryID")
+                                }
+                            } catch (e: Exception) {
+                                Timber.e(e, "Error parsing beneficiaryID")
+                            }
+                        }
 
                         var dob: Date? = null
                         if (obj.has("dob") && !obj.isNull("dob")) {
@@ -1551,6 +1561,7 @@ class PersonalDetailsFragment : Fragment() {
                             firstName = firstName,
                             lastName = lastName,
                             beneficiaryRegID = beneficiaryRegID,
+                            beneficiaryID = beneficiaryID,
                             syncState = SyncState.UNSYNCED,
                             dob = dob,
                             genderID = genderID,

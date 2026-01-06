@@ -54,7 +54,7 @@ class ApiSearchAdapter(
             tvBenId.text = "Beneficiary ID: ${info.patient.beneficiaryID ?: "NA"}"
             tvGender.text = "Gender: ${info.genderName ?: "NA"}"
             tvAge.text = "Age: ${info.patient.age ?: "NA"}"
-            tvMobile.text = "Mobile No.: ${info.patient.phoneNo ?: "NA"}"
+            tvMobile.text = "Mo No.: ${info.patient.phoneNo ?: "NA"}"
 
         }
     }
