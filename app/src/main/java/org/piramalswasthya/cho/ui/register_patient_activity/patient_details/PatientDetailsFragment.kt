@@ -57,6 +57,8 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
+import org.piramalswasthya.cho.utils.KeyboardUtils
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -626,6 +628,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
 
+        // Setup keyboard handling for marital status dropdown
+        binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
+        
         binding.maritalStatusDropdown.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position]
             viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
@@ -634,12 +639,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setMarriedFieldsVisibility()
         }
 
+        // Setup keyboard handling for gender dropdown
+        binding.genderDropdown.setupDropdownKeyboardHandling()
+        
         binding.genderDropdown.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedGenderMaster = viewModel.genderMasterList[position]
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
         }
 
         binding.dateOfBirth.setOnClickListener {
+            // Hide keyboard when clicking on date of birth field
+            KeyboardUtils.hideKeyboard(binding.dateOfBirth)
+            KeyboardUtils.hideKeyboardFromActivity(requireContext())
+            
             dobUtil.showDatePickerDialog(
                 requireContext(),
                 viewModel.selectedDateOfBirth,
@@ -900,6 +912,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.maritalStatusList.map { DropdownList(it.maritalStatusID, it.status) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.maritalStatusDropdown)
                     binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
+                    // Ensure keyboard handling is set up (in case it wasn't set earlier)
+                    binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
                 }
                 else -> {
                     //No-Ops For Now
@@ -913,6 +927,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.genderMasterList.map { DropdownList(it.genderID, it.genderName) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.genderDropdown)
                     binding.genderDropdown.setAdapter(dropdownAdapter)
+                    // Setup keyboard handling for gender dropdown
+                    binding.genderDropdown.setupDropdownKeyboardHandling()
                 }
                 else -> {
                     //No-Ops For Now
@@ -939,7 +955,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             isCursorVisible = true
         }
 
+        // Setup keyboard handling for dropdown
+        dropdown.setupDropdownKeyboardHandling()
+
         dropdown.setOnClickListener {
+            // Hide keyboard when dropdown is clicked
+            KeyboardUtils.hideKeyboard(dropdown)
+            KeyboardUtils.hideKeyboardFromActivity(requireContext())
+            
             if (::villageAdapter.isInitialized) {
                 villageAdapter.shouldAutoShowDropdown = true
                 isSettingVillageProgrammatically = true

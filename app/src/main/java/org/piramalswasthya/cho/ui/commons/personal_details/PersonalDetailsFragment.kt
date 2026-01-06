@@ -1358,11 +1358,7 @@ class PersonalDetailsFragment : Fragment() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(p0: Editable?) {
             val query = p0?.toString()?.trim().orEmpty()
-
-            // Cancel previous search job
             searchJob?.cancel()
-            
-            // Update current search query
             currentSearchQuery = query
 
             if (query.isBlank()) {
@@ -1390,7 +1386,6 @@ class PersonalDetailsFragment : Fragment() {
 
                 if (!isNetworkAvailable) {
                     withContext(Dispatchers.Main) {
-                        // Only update UI if this is still the current search query
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
                             viewModel.filterText(query)
@@ -1413,7 +1408,6 @@ class PersonalDetailsFragment : Fragment() {
 
                     if (dataArr.length() == 0) {
                         withContext(Dispatchers.Main) {
-                            // Only update UI if this is still the current search query
                             if (currentSearchQuery == query) {
                                 isShowingSearchResults = false
                                 viewModel.filterText(query)
@@ -1566,7 +1560,6 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        // Only update UI if this is still the current search query
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = true
                             apiSearchAdapter?.submitList(list)
@@ -1580,7 +1573,6 @@ class PersonalDetailsFragment : Fragment() {
                     Timber.e(e, "API error → fallback to local")
 
                     withContext(Dispatchers.Main) {
-                        // Only update UI if this is still the current search query
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
                             viewModel.filterText(query)

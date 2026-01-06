@@ -42,6 +42,8 @@ import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
 import org.piramalswasthya.cho.model.InputType.DATE_PICKER
@@ -301,6 +303,8 @@ class FormInputAdapter(
                 return
             }
 
+            binding.actvRvDropdown.setupDropdownKeyboardHandling()
+            
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
                 Timber.d("Item DD : $item")
@@ -559,6 +563,9 @@ class FormInputAdapter(
             item.errorText?.also { binding.tilEditText.error = it }
                 ?: run { binding.tilEditText.error = null }
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                
                 item.value?.let { value ->
                     thisYear = value.substring(6).toInt()
                     thisMonth = value.substring(3, 5).trim().toInt() - 1
@@ -611,6 +618,9 @@ class FormInputAdapter(
             binding.form = item
             binding.et.isEnabled = isEnabled
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                
                 val hour: Int
                 val minute: Int
                 if (item.value == null) {
@@ -692,6 +702,11 @@ class FormInputAdapter(
             binding.form = item
             if (isEnabled) {
                 binding.clickListener = clickListener
+                binding.et.setOnClickListener {
+                    KeyboardUtils.hideKeyboard(binding.et)
+                    KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                    clickListener?.onAgeClick(item)
+                }
 //                if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
 //                Timber.d("Bound EditText item ${item.title} with ${item.required}")
 //                binding.tilEditText.error = item.errorText
