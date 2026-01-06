@@ -44,9 +44,46 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
     val existingFocusListener = onFocusChangeListener
 
     showSoftInputOnFocus = false
+    
+    val LAST_CLICK_TIME_TAG = "last_click_time"
+    val DROPDOWN_STATE_TAG = "dropdown_is_showing"
+    
+    isFocusable = true
+    isFocusableInTouchMode = true
+    isClickable = true
+    
+    val existingClickListener = getTag(android.R.id.text1) as? View.OnClickListener
 
-    setOnTouchListener {_, event ->
-        if (event.action == MotionEvent.ACTION_DOWN) {
+    setOnTouchListener { view, event ->
+        if (event.action == MotionEvent.ACTION_UP) {
+            val currentTime = System.currentTimeMillis()
+            val lastClickTime = getTag(LAST_CLICK_TIME_TAG.hashCode()) as? Long ?: 0L
+            
+            if (currentTime - lastClickTime < 300) {
+                return@setOnTouchListener true
+            }
+            setTag(LAST_CLICK_TIME_TAG.hashCode(), currentTime)
+            
+            KeyboardUtils.hideKeyboard(this)
+            KeyboardUtils.hideKeyboardFromActivity(this.context)
+            
+            existingClickListener?.onClick(view)
+            
+            if (adapter != null && adapter.count > 0) {
+                val isDropdownShowing = getTag(DROPDOWN_STATE_TAG.hashCode()) as? Boolean ?: false
+                val actualPopupShowing = isPopupShowing
+
+                if (isDropdownShowing || actualPopupShowing) {
+                    dismissDropDown()
+                    setTag(DROPDOWN_STATE_TAG.hashCode(), false)
+                } else {
+                    showDropDown()
+                    setTag(DROPDOWN_STATE_TAG.hashCode(), true)
+                }
+            }
+            
+            return@setOnTouchListener true
+        } else if (event.action == MotionEvent.ACTION_DOWN) {
             KeyboardUtils.hideKeyboard(this)
             KeyboardUtils.hideKeyboardFromActivity(this.context)
         }
@@ -57,21 +94,12 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
         if (hasFocus) {
             KeyboardUtils.hideKeyboard(this)
             KeyboardUtils.hideKeyboardFromActivity(this.context)
-            
-            postDelayed({
-                if (isPopupShowing) {
-                    KeyboardUtils.hideKeyboard(this)
-                    KeyboardUtils.hideKeyboardFromActivity(this.context)
-                }
-            }, 100)
+        } else {
+            post {
+                val actualState = isPopupShowing
+                setTag(DROPDOWN_STATE_TAG.hashCode(), actualState)
+            }
         }
         existingFocusListener?.onFocusChange(view, hasFocus)
-    }
-
-    val existingClickTag = getTag(android.R.id.text1)
-    setOnClickListener { view ->
-        KeyboardUtils.hideKeyboard(this)
-        KeyboardUtils.hideKeyboardFromActivity(this.context)
-        (existingClickTag as? View.OnClickListener)?.onClick(view)
     }
 }

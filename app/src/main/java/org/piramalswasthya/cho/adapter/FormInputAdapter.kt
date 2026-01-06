@@ -378,6 +378,10 @@ class FormInputAdapter(
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
+                        rdBtn.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
@@ -492,6 +496,10 @@ class FormInputAdapter(
                         cbx.text = it
                         addView(cbx)
                         if (item.value?.contains(it) == true) cbx.isChecked = true
+                        cbx.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 if (item.value != null) item.value = item.value + it
