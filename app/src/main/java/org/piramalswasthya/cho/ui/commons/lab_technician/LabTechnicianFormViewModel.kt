@@ -57,6 +57,9 @@ class LabTechnicianFormViewModel @Inject constructor(
     val procedures: LiveData<List<ProcedureDTO>>
         get() = _procedures
 
+    private val _benFlows = MutableLiveData<List<org.piramalswasthya.cho.model.BenFlow>?>()
+    val benFlows: LiveData<List<org.piramalswasthya.cho.model.BenFlow>?> = _benFlows
+
     @SuppressLint("StaticFieldLeak")
     val context: Context = application.applicationContext
 
@@ -107,6 +110,17 @@ class LabTechnicianFormViewModel @Inject constructor(
 
     fun resetBool() {
         _boolCall.value = false
+    }
+
+    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
+        viewModelScope.launch {
+            try {
+                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
+                _benFlows.value = benFlowList
+            } catch (e: Exception) {
+                _benFlows.value = emptyList()
+            }
+        }
     }
 
     fun saveLabData(dtos: List<ProcedureDTO>?, benVisitInfo: PatientDisplayWithVisitInfo) {
