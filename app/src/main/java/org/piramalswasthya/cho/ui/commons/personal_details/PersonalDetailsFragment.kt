@@ -51,6 +51,7 @@ import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
@@ -130,6 +131,8 @@ class PersonalDetailsFragment : Fragment() {
     private lateinit var photoURI: Uri
     private var currentPhotoPath: String? = null
     private var isShowingSearchResults: Boolean = false
+    private var currentSearchQuery: String = ""
+    private var searchJob: Job? = null
 
     //facenet
     private val useGpu = false
@@ -1355,6 +1358,8 @@ class PersonalDetailsFragment : Fragment() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(p0: Editable?) {
             val query = p0?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            currentSearchQuery = query
 
             if (query.isBlank()) {
                 isShowingSearchResults = false
@@ -1366,7 +1371,7 @@ class PersonalDetailsFragment : Fragment() {
                 return
             }
 
-            lifecycleScope.launch(Dispatchers.IO) {
+            searchJob = lifecycleScope.launch(Dispatchers.IO) {
 
                 val local = patientDao.getPatientList()
                 val localMatches = local.filter {
@@ -1381,11 +1386,13 @@ class PersonalDetailsFragment : Fragment() {
 
                 if (!isNetworkAvailable) {
                     withContext(Dispatchers.Main) {
-                        isShowingSearchResults = false
-                        viewModel.filterText(query)
-                        binding.patientListContainer.patientList.adapter = itemAdapter
-                        binding.patientListContainer.patientCount.text =
-                            localMatches.size.toString() + getResultStr(localMatches.size)
+                        if (currentSearchQuery == query) {
+                            isShowingSearchResults = false
+                            viewModel.filterText(query)
+                            binding.patientListContainer.patientList.adapter = itemAdapter
+                            binding.patientListContainer.patientCount.text =
+                                localMatches.size.toString() + getResultStr(localMatches.size)
+                        }
                     }
                     return@launch
                 }
@@ -1401,11 +1408,13 @@ class PersonalDetailsFragment : Fragment() {
 
                     if (dataArr.length() == 0) {
                         withContext(Dispatchers.Main) {
-                            isShowingSearchResults = false
-                            viewModel.filterText(query)
-                            binding.patientListContainer.patientList.adapter = itemAdapter
-                            binding.patientListContainer.patientCount.text =
-                                localMatches.size.toString() + getResultStr(localMatches.size)
+                            if (currentSearchQuery == query) {
+                                isShowingSearchResults = false
+                                viewModel.filterText(query)
+                                binding.patientListContainer.patientList.adapter = itemAdapter
+                                binding.patientListContainer.patientCount.text =
+                                    localMatches.size.toString() + getResultStr(localMatches.size)
+                            }
                         }
                         return@launch
                     }
@@ -1551,22 +1560,26 @@ class PersonalDetailsFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        isShowingSearchResults = true
-                        apiSearchAdapter?.submitList(list)
-                        binding.patientListContainer.patientList.adapter = apiSearchAdapter
-                        binding.patientListContainer.patientCount.text =
-                            list.size.toString() + getResultStr(list.size)
+                        if (currentSearchQuery == query) {
+                            isShowingSearchResults = true
+                            apiSearchAdapter?.submitList(list)
+                            binding.patientListContainer.patientList.adapter = apiSearchAdapter
+                            binding.patientListContainer.patientCount.text =
+                                list.size.toString() + getResultStr(list.size)
+                        }
                     }
 
                 } catch (e: Exception) {
                     Timber.e(e, "API error → fallback to local")
 
                     withContext(Dispatchers.Main) {
-                        isShowingSearchResults = false
-                        viewModel.filterText(query)
-                        binding.patientListContainer.patientList.adapter = itemAdapter
-                        binding.patientListContainer.patientCount.text =
-                            localMatches.size.toString() + getResultStr(localMatches.size)
+                        if (currentSearchQuery == query) {
+                            isShowingSearchResults = false
+                            viewModel.filterText(query)
+                            binding.patientListContainer.patientList.adapter = itemAdapter
+                            binding.patientListContainer.patientCount.text =
+                                localMatches.size.toString() + getResultStr(localMatches.size)
+                        }
                     }
                 }
             }
