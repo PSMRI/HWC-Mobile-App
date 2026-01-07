@@ -122,7 +122,6 @@ class PersonalDetailsFragment : Fragment() {
     lateinit var amritApiService: AmritApiService
     private lateinit var viewModel: PersonalDetailsViewModel
     private lateinit var viewModelPatientDetails: PatientDetailsViewModel
-    private var patient = Patient()
     private lateinit var networkConnection: NetworkConnection
     private var isNetworkAvailable = false
     private var itemAdapter: PatientItemAdapter? = null
@@ -528,10 +527,8 @@ class PersonalDetailsFragment : Fragment() {
                     districtBranchID = viewModelPatientDetails.selectedVillage?.districtBranchID?.toInt()
                 }
                 
-                // Ensure all parent master data exists before inserting/updating VillageMaster
                 if (districtBranchID != null && blockID != null && districtID != null && stateID != null && !villageName.isNullOrBlank()) {
                     withContext(Dispatchers.IO) {
-                        // Ensure State exists
                         if (stateMasterDao.getStateById(stateID) == null) {
                             stateMasterDao.insertStates(
                                 StateMaster(
@@ -542,7 +539,6 @@ class PersonalDetailsFragment : Fragment() {
                             )
                         }
                         
-                        // Ensure District exists
                         if (districtMasterDao.getDistrictById(districtID) == null) {
                             districtMasterDao.insertDistrict(
                                 DistrictMaster(
@@ -555,7 +551,6 @@ class PersonalDetailsFragment : Fragment() {
                             )
                         }
                         
-                        // Ensure Block exists
                         if (blockMasterDao.getBlockById(blockID) == null) {
                             blockMasterDao.insertBlock(
                                 BlockMaster(
@@ -568,7 +563,6 @@ class PersonalDetailsFragment : Fragment() {
                             )
                         }
                         
-                        // Now ensure Village exists with the village name
                         val existingVillage = villageMasterDao.getVillageById(districtBranchID)
                         if (existingVillage == null || existingVillage.villageName.isNullOrBlank()) {
                             villageMasterDao.insertVillage(
@@ -648,7 +642,6 @@ class PersonalDetailsFragment : Fragment() {
                 }
                 
                 if (saveSuccess) {
-                    // Refresh patient list
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             requireContext(),
