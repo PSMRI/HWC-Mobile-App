@@ -2,6 +2,9 @@ package org.piramalswasthya.cho.ui.commons.personal_details
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -33,6 +36,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
@@ -133,6 +137,8 @@ class PersonalDetailsFragment : Fragment() {
     private var isShowingSearchResults: Boolean = false
     private var currentSearchQuery: String = ""
     private var searchJob: Job? = null
+
+    private val prescriptionChannelId = "prescription_download"
 
     //facenet
     private val useGpu = false
@@ -1272,31 +1278,51 @@ class PersonalDetailsFragment : Fragment() {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val fileName: String = "Prescription_$patientName" + "_${timeStamp}_.pdf"
 
+        showDownloadingNotification(fileName)
+
         val outputStream: OutputStream
+        var pdfUri: Uri? = null
+        var file: File? = null
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            outputStream = createPdfForApi33(fileName)
+            val result = createPdfForApi33(fileName)
+            outputStream = result.first
+            pdfUri = result.second
         } else {
             val downloadsDirectory: File =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDirectory, fileName)
-
+            file = File(downloadsDirectory, fileName)
             outputStream = FileOutputStream(file)
-
         }
 
         try {
             pdfDocument.writeTo(outputStream)
+            outputStream.close()
 
-            Toast.makeText(
-                requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT
-            ).show()
+            if (pdfUri == null && file != null) {
+                pdfUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().packageName + ".provider",
+                    file
+                )
+            }
+
+            dismissNotification(0)
+            pdfUri?.let {
+                showDownloadCompleteNotification(fileName, it)
+            }
+
+//            Toast.makeText(
+//                requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT
+//            ).show()
         } catch (e: Exception) {
             e.printStackTrace()
-
+            dismissNotification(0)
             Toast.makeText(requireContext(), "Failed to generate PDF file", Toast.LENGTH_SHORT)
                 .show()
+        } finally {
+            pdfDocument.close()
         }
-        pdfDocument.close()
     }
 
     private fun drawTextWithWrapping(
@@ -1330,8 +1356,7 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(fileName: String): OutputStream {
-        val outst: OutputStream
+    private fun createPdfForApi33(fileName: String): Pair<OutputStream, Uri> {
         val contentValues = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)
             put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
@@ -1341,9 +1366,77 @@ class PersonalDetailsFragment : Fragment() {
         val pdfUri: Uri? = requireContext().contentResolver.insert(
             MediaStore.Files.getContentUri("external"), contentValues
         )
-        outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
+        val outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
         Objects.requireNonNull(outst)
-        return outst
+        Objects.requireNonNull(pdfUri)
+        return Pair(outst, pdfUri)
+    }
+
+    private fun showDownloadingNotification(fileName: String) {
+        val notificationManager =
+            requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                prescriptionChannelId,
+                "Prescription Download",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(requireContext(), prescriptionChannelId)
+            .setContentTitle("Downloading Prescription")
+            .setContentText("Generating PDF: $fileName")
+            .setSmallIcon(R.drawable.ic_download)
+            .setProgress(100, 0, true)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        notificationManager.notify(0, notification)
+    }
+
+    private fun showDownloadCompleteNotification(fileName: String, uri: Uri) {
+        val notificationManager =
+            requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                prescriptionChannelId,
+                "Prescription Download",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(requireContext(), prescriptionChannelId)
+            .setContentTitle("Download Complete")
+            .setContentText("Prescription PDF: $fileName")
+            .setSmallIcon(R.drawable.ic_download)
+            .setAutoCancel(true)
+            .setOngoing(false)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    requireContext(),
+                    0,
+                    Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/pdf")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+            .build()
+
+        notificationManager.notify(1, notification)
+    }
+
+    private fun dismissNotification(notificationId: Int) {
+        val notificationManager =
+            requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(notificationId)
     }
 
     private val searchTextWatcher = object : TextWatcher {
