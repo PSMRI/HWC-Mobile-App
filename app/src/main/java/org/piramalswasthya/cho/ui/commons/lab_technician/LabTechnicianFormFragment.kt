@@ -36,10 +36,12 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.FragmentLabTechnicianFormBinding
+import org.piramalswasthya.cho.model.BenFlow
 import org.piramalswasthya.cho.model.ComponentDetailDTO
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsViewModel
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
@@ -76,6 +78,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
 
     private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
     private lateinit var patientId: String
+    private var visitDateText = mutableStateOf("N/A")
 
 
     private val args: LabTechnicianFormFragmentArgs by lazy {
@@ -115,6 +118,26 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
         patientId = benVisitInfo.patient.patientID
 
+        benVisitInfo.patient.beneficiaryID?.let { beneficiaryID ->
+            viewModel.getVisitReasonByBenFlowID(beneficiaryID)
+        }
+        
+        visitDateText.value = benVisitInfo.visitDate?.let { DateTimeUtil.formatDate(it) } ?: "N/A"
+        
+        viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
+            if (benFlowList.isNullOrEmpty()) return@observe
+            
+            val benFlow = benVisitInfo.benVisitNo?.let { visitNo ->
+                benFlowList.find { it.benVisitNo == visitNo }
+            }
+            
+            visitDateText.value = if (!benFlow?.visitDate.isNullOrBlank()) {
+                DateTimeUtil.formatedDate(benFlow?.visitDate)
+            } else {
+                benVisitInfo.visitDate?.let { DateTimeUtil.formatDate(it) } ?: "N/A"
+            }
+        }
+
         viewModel.getLoggedInUserDetails()
         viewModel.boolCall.observe(viewLifecycleOwner) {
             if (it) {
@@ -141,7 +164,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
             } else {
                 dtos = viewModel.procedures.value
                 composeView.setContent {
-                    AddProcedures(dtos)
+                    AddProcedures(dtos, benVisitInfo)
                 }
                 parentViewModel.setSubmitActive(true)
             }
@@ -174,8 +197,43 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
     }
 
     @Composable
-    fun AddProcedures(dtos: List<ProcedureDTO>?) {
+    fun AddProcedures(dtos: List<ProcedureDTO>?, benVisitInfo: PatientDisplayWithVisitInfo) {
+        
         Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "Visit No: ",
+                        style = TextStyle(fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    )
+                    Text(
+                        text = benVisitInfo.benVisitNo?.toString() ?: "",
+                        style = TextStyle(fontSize = 16.sp)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .weight(2f)
+                ) {
+                    Text(
+                        text = "Visit Date: ",
+                        style = TextStyle(fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    )
+                    Text(
+                        text = visitDateText.value,
+                        style = TextStyle(fontSize = 16.sp)
+                    )
+                }
+            }
+            
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
