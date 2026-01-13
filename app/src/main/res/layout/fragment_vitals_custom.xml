@@ -306,6 +306,13 @@
                 app:layout_constraintTop_toTopOf="@+id/ivspo2Bg" />
 
 
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierVitals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="respiratoryEditTxt,spo2EditTxt" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/rbsEditTxt"
                 style="@style/TextInputLayoutStyle"
@@ -318,7 +325,7 @@
                 app:helperText="@string/required"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/respiratoryEditTxt">
+                app:layout_constraintTop_toBottomOf="@+id/barrierVitals">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputRBS"
