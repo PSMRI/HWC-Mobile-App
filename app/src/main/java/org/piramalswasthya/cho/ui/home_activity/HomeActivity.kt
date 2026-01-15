@@ -578,7 +578,7 @@ private fun triggerAlarmManager(){
             .setTitle(resources.getString(R.string.exit_application))
             .setMessage(resources.getString(R.string.do_you_want_to_exit_application))
             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                this.finish()
+                this.finishAffinity()
             }
             .setNegativeButton(resources.getString(R.string.no)) { d, _ ->
                 d.dismiss()
