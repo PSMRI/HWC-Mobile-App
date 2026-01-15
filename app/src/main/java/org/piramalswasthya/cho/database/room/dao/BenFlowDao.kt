@@ -1,36 +1,32 @@
 package org.piramalswasthya.cho.database.room.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import org.piramalswasthya.cho.model.BenFlow
-import org.piramalswasthya.cho.model.BlockMaster
 
 @Dao
 interface BenFlowDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBenFlow(benFlow: BenFlow)
-    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(DISTINCT Visit_DB.patientID) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getOpdCount(genderID: Int, periodParam: String, createdBy: String) : Int?
 
-    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'ANC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(DISTINCT Visit_DB.patientID) FROM Visit_DB WHERE (Visit_DB.category LIKE 'ANC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getAncCount(periodParam: String, createdBy: String) : Int?
 
-    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'PNC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(DISTINCT Visit_DB.patientID) FROM Visit_DB WHERE (Visit_DB.category LIKE 'PNC') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getPncCount(periodParam: String, createdBy: String) : Int?
 
-    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'Neonatal and Infant Health Care Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(DISTINCT Visit_DB.patientID) FROM Visit_DB WHERE (Visit_DB.category LIKE 'Neonatal and Infant Health Care Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getImmunizationCount(periodParam: String, createdBy: String) : Int?
 
-    @Query("SELECT COUNT(*) FROM Visit_DB WHERE (Visit_DB.category LIKE 'FP & Contraceptive Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
+    @Query("SELECT COUNT(DISTINCT Visit_DB.patientID) FROM Visit_DB WHERE (Visit_DB.category LIKE 'FP & Contraceptive Services') AND createdBy = :createdBy AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
     suspend fun getEctCount(periodParam: String, createdBy: String): Int?
 
-    @Query("SELECT COUNT(*) FROM Visit_DB INNER JOIN PATIENT ON PATIENT.patientID = Visit_DB.patientID WHERE PATIENT.genderID = :genderID AND (Visit_DB.category LIKE 'General OPD') AND Visit_DB.benVisitDate LIKE '%' || :periodParam || '%' ")
-     fun getOpdCountLive(genderID: Int, periodParam: String) : LiveData<Int?>?
     @Query("SELECT * FROM BENFLOW WHERE beneficiaryRegID = :beneficiaryRegID LIMIT 1")
     suspend fun getBenFlowByBenRegId(beneficiaryRegID: Long) : BenFlow?
 
