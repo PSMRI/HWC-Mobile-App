@@ -174,4 +174,38 @@ interface PatientDao {
 
     @Query("SELECT COUNT(*) FROM Patient WHERE registrationDate = :registrationDate")
     suspend fun countPatientsByRegistrationDate(registrationDate: Date): Int
+
+    // Maternal Health - Get patients with delivery outcome for list
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus, " +
+            "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "FROM PATIENT pat " +
+            "INNER JOIN DELIVERY_OUTCOME do ON pat.patientID = do.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+            "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID " +
+            "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
+            "WHERE do.isActive = 1 AND latestVisit.patientID IS NULL " +
+            "GROUP BY pat.patientID " +
+            "ORDER BY do.updatedDate DESC")
+    fun getPatientsWithDeliveryOutcome(): Flow<List<PatientDisplayWithVisitInfo>>
+
+    // Maternal Health - Get patients with delivery outcomes for infant registration
+    @Query("SELECT pat.*, gen.gender_name as genderName, vilN.village_name as villageName, age.age_name as ageUnit, mat.status as maritalStatus, " +
+            "vis.nurseDataSynced, vis.doctorDataSynced, vis.prescriptionID, vis.createNewBenFlow, vis.benVisitNo, " +
+            "vis.benFlowID, vis.nurseFlag, vis.doctorFlag, vis.labtechFlag, vis.pharmacist_flag, vis.visitDate, vis.referDate, vis.referTo, vis.referralReason " +
+            "FROM PATIENT pat " +
+            "INNER JOIN DELIVERY_OUTCOME do ON pat.patientID = do.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC vis ON pat.patientID = vis.patientID " +
+            "LEFT JOIN PATIENT_VISIT_INFO_SYNC AS latestVisit ON pat.patientID = latestVisit.patientID AND vis.benVisitNo < latestVisit.benVisitNo " +
+            "LEFT JOIN GENDER_MASTER gen ON gen.genderID = pat.genderID " +
+            "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID " +
+            "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
+            "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
+            "WHERE do.isActive = 1 AND do.liveBirth > 0 AND latestVisit.patientID IS NULL " +
+            "GROUP BY pat.patientID " +
+            "ORDER BY do.updatedDate DESC")
+    fun getPatientsWithBabiesForInfantReg(): Flow<List<PatientDisplayWithVisitInfo>>
 }

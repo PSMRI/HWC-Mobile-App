@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--  Delivery Outcome  -->
+    <string name="do_delivery_date">Date of Delivery</string>
+    <string name="do_delivery_time">Time of Delivery</string>
+    <string name="do_delivery_place">Place of Delivery</string>
+    <string name="do_delivery_type">Type of Delivery</string>
+    <string name="do_had_complication">Complications during Delivery?</string>
+    <string name="do_delivery_complication">Delivery Complication</string>
+    <string name="do_death_cause">Probable Cause of Death</string>
+    <string name="do_other_death_cause">Other Cause of Death</string>
+    <string name="do_other_delivery_complication">Other Delivery Complication</string>
+    <string name="do_delivery_outcome">Outcomes of Delivery</string>
+    <string name="do_live_birth">Live Birth</string>
+    <string name="do_still_birth">Still Birth</string>
+    <string name="do_discharge_date">Date of Discharge</string>
+    <string name="do_discharge_time">Time of Discharge</string>
+    <string name="do_is_jsy_beneficiary">Is the Pregnant Woman a JSY Beneficiary?</string>
+    <string name="do_death_date">Date of Death</string>
+    <string name="do_death_place">Place of Death</string>
+    <string name="do_other_place_of_death">Other Place of Death</string>
+    <string name="do_mcp_card">MCP Card (Upload 2 images)</string>
+    <string name="do_jsy_voucher">JSY Voucher</string>
+    
+    <string-array name="do_place_of_delivery_array">
+        <item>District Hospital</item>
+        <item>Community Health Centre</item>
+        <item>Primary Health Centre</item>
+        <item>Sub Centre</item>
+        <item>Other Public Facility</item>
+        <item>Accredited Private Hospital</item>
+        <item>Other Private Hospital</item>
+        <item>Home</item>
+        <item>Sub District Hospital</item>
+        <item>Medical College Hospital</item>
+        <item>In Transit</item>
+    </string-array>
+    
+    <string-array name="do_type_of_delivery_array">
+        <item>Normal</item>
+        <item>Caesarean</item>
+        <item>Assisted</item>
+    </string-array>
+    
+    <string-array name="do_had_complications_array">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    
+    <string-array name="do_complications_array">
+        <item>PPH</item>
+        <item>RETAINED PLACENTA</item>
+        <item>OBSTRUCTED DELIVERY</item>
+        <item>PROLAPSED CORD</item>
+        <item>TWINS PREGNANCY</item>
+        <item>CONVULSIONS</item>
+        <item>DEATH</item>
+        <item>ANY OTHER (SPECIFY)</item>
+        <item>DON\'T KNOW</item>
+    </string-array>
+    
+    <string-array name="do_cause_of_death_array">
+        <item>Eclampcia</item>
+        <item>Haemorrahge</item>
+        <item>Obstructed Labour</item>
+        <item>Prolonged Labour</item>
+        <item>Other</item>
+        <item>High Fever</item>
+    </string-array>
+    
+    <string-array name="do_is_jsy_beneficiary_array">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="do_death_place_array">
+        <item>Home</item>
+        <item>Hospital</item>
+        <item>Transit</item>
+        <item>Other</item>
+    </string-array>
+
+    <!--  Infant Registration  -->
+    <string name="ir_baby_name">Name of Baby</string>
+    <string name="ir_infant_term">Infant Term</string>
+    <string name="ir_corticosteroid_given">Was Corticosteroid Inj. given?</string>
+    <string name="ir_gender">Sex of Infant</string>
+    <string name="ir_baby_cried_at_birth">Baby Cried Immediately at Birth</string>
+    <string name="ir_resuscitation">If No, Resuscitation Done</string>
+    <string name="ir_referred">Referred to higher facility for further management</string>
+    <string name="ir_had_birth_defect">Any birth defect seen at birth?</string>
+    <string name="ir_birth_defect">Defect seen at birth</string>
+    <string name="ir_other_defect">Other defect seen at Birth</string>
+    <string name="ir_weight">Weight at Birth (grams)</string>
+    <string name="ir_breast_feeding_started">Breast feeding started within one hour of birth</string>
+    <string name="ir_opv0_dose">OPV0 Dose</string>
+    <string name="ir_bcg_dose">BCG Dose</string>
+    <string name="ir_hepb_dose">HEP B-0 Dose</string>
+    <string name="ir_vitk_dose">VITK Dose</string>
+    <string name="ir_is_sncu">Is baby discharged from SNCU?</string>
+    <string name="ir_delivery_discharge_summary">Delivery Discharge Summary (Upload 4 images)</string>
+    
+    <!-- Labels -->
+    <string name="delivery_outcome">Delivery Outcome</string>
+    <string name="infant_reg_list">Infant Registration List</string>
+    <string name="infant_registration">Infant Registration</string>
+    <string name="file_size">File size too large</string>
+    
+    <string-array name="ir_infant_term">
+        <item>Full Term</item>
+        <item>Pre Term</item>
+    </string-array>
+    
+    <string-array name="ir_confirmation_array1">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+    
+    <string-array name="ir_confirmation_array2">
+        <item>Yes</item>
+        <item>No</item>
+        <item>NA</item>
+    </string-array>
+    
+    <string-array name="ir_confirmation_array3">
+        <item>Yes</item>
+        <item>No</item>
+        <item>Don\'t Know</item>
+    </string-array>
+    
+    <string-array name="ir_birth_defect_array">
+        <item>Cleft Lip / Cleft Palate</item>
+        <item>Club Foot</item>
+        <item>Down\'s Syndrome</item>
+        <item>Hydrocephalus</item>
+        <item>Imperforate Anus</item>
+        <item>Neural Tube Defect (Spinal Bifida)</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="ir_gender_array">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Ambiguous</item>
+    </string-array>
+
+</resources>

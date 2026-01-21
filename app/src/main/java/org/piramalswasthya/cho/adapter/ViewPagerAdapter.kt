@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.piramalswasthya.cho.ui.home.HomeFragment
 import org.piramalswasthya.cho.ui.home_activity.DashboardFragment
+import org.piramalswasthya.cho.ui.home_activity.rmnch.RMNCHFragment
 
 class ViewPagerAdapter(supportFragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(supportFragmentManager, lifecycle) {
 
@@ -14,15 +15,15 @@ class ViewPagerAdapter(supportFragmentManager: FragmentManager, lifecycle: Lifec
     private val mFragmentTitleList = ArrayList<String>()
 
     override fun getItemCount(): Int {
-        return  2
+        return  3  // Home, Dashboard, RMNCH
     }
 
     override fun createFragment(position: Int): Fragment {
-       return if(position==0){
-            HomeFragment()
-        }
-        else{
-            DashboardFragment()
-        }
+       return when(position) {
+           0 -> HomeFragment()
+           1 -> DashboardFragment()
+           2 -> RMNCHFragment()
+           else -> HomeFragment()
+       }
     }
 }

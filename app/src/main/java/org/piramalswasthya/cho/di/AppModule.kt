@@ -25,6 +25,8 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
+import org.piramalswasthya.cho.database.room.dao.NewbornOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -314,6 +316,14 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideDeliveryOutcomeDao(database: InAppDb): DeliveryOutcomeDao = database.deliveryOutcomeDao
+
+    @Singleton
+    @Provides
+    fun provideInfantRegDao(database: InAppDb): InfantRegDao = database.infantRegDao
+
+    @Singleton
+    @Provides
+    fun provideNewbornOutcomeDao(database: InAppDb): NewbornOutcomeDao = database.newbornOutcomeDao
 
     @Singleton
     @Provides

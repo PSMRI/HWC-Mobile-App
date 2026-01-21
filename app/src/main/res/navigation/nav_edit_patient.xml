@@ -35,6 +35,12 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
             app:destination="@id/cbacFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_deliveryOutcomeFragment"
+            app:destination="@id/deliveryOutcomeFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_newbornOutcomeFragment"
+            app:destination="@id/newbornOutcomeFragment" />
     </fragment>
 
     <fragment
@@ -151,6 +157,81 @@
             app:argType="integer" />
     </fragment>
 
+    <!-- Delivery Outcome Fragment -->
+    <fragment
+        android:id="@+id/deliveryOutcomeFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.DeliveryOutcomeFragment"
+        android:label="Delivery Outcome"
+        tools:layout="@layout/fragment_new_form">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_deliveryOutcomeFragment_to_infantRegListFragment"
+            app:destination="@id/infantRegListFragment" />
+    </fragment>
+
+    <!-- Infant Registration List -->
+    <fragment
+        android:id="@+id/infantRegListFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.infant_reg.InfantRegListFragment"
+        android:label="Infant Registration List"
+        tools:layout="@layout/fragment_list">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_infantRegListFragment_to_infantRegFragment"
+            app:destination="@id/infantRegFragment" />
+    </fragment>
+
+    <!-- Infant Registration Form -->
+    <fragment
+        android:id="@+id/infantRegFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.infant_reg.InfantRegFragment"
+        android:label="Infant Registration"
+        tools:layout="@layout/fragment_new_form">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="babyIndex"
+            app:argType="integer" />
+    </fragment>
+
+    <!-- Newborn Outcome Form (Comprehensive) -->
+    <fragment
+        android:id="@+id/newbornOutcomeFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.newborn_outcome.NewbornOutcomeFragment"
+        android:label="Newborn Outcome"
+        tools:layout="@layout/fragment_new_form">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Delivery Outcome List -->
+    <fragment
+        android:id="@+id/deliveryOutcomeListFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.list.DeliveryOutcomeListFragment"
+        android:label="Delivery Outcome List"
+        tools:layout="@layout/fragment_delivery_outcome_list">
+        <action
+            android:id="@+id/action_deliveryOutcomeListFragment_to_deliveryOutcomeFragment"
+            app:destination="@id/deliveryOutcomeFragment" />
+    </fragment>
+
+    <!-- Infant Registration Dashboard List -->
+    <fragment
+        android:id="@+id/infantRegDashboardFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.infant_reg.dashboard.InfantRegDashboardFragment"
+        android:label="Infant Registration List"
+        tools:layout="@layout/fragment_infant_reg_dashboard">
+        <action
+            android:id="@+id/action_infantRegDashboardFragment_to_infantRegListFragment"
+            app:destination="@id/infantRegListFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/immunizationFormFragment"
         android:name="org.piramalswasthya.cho.ui.commons.immunization_due.child_immunization.form.ImmunizationFormFragment"
@@ -191,6 +272,20 @@
         android:id="@+id/selectBatchFragment"
         android:name="org.piramalswasthya.cho.ui.commons.pharmacist.SelectBatchFragment"
         android:label="SelectBatchFragment" />
+
+    <!-- RMNCH - Maternal Health -->
+    <fragment
+        android:id="@+id/maternalHealthFragment"
+        android:name="org.piramalswasthya.cho.ui.home_activity.rmnch.MaternalHealthFragment"
+        android:label="Maternal Health"
+        tools:layout="@layout/fragment_maternal_health">
+        <action
+            android:id="@+id/action_maternalHealthFragment_to_deliveryOutcomeFragment"
+            app:destination="@id/deliveryOutcomeFragment" />
+        <action
+            android:id="@+id/action_maternalHealthFragment_to_infantRegListFragment"
+            app:destination="@id/infantRegListFragment" />
+    </fragment>
 
 
 </navigation>

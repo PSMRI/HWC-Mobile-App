@@ -35,6 +35,8 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
+import org.piramalswasthya.cho.database.room.dao.NewbornOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -94,6 +96,9 @@ import org.piramalswasthya.cho.model.HigherHealthCenter
 import org.piramalswasthya.cho.model.IllnessDropdown
 import org.piramalswasthya.cho.model.ImmunizationCache
 import org.piramalswasthya.cho.model.IncomeMaster
+import org.piramalswasthya.cho.model.InfantRegCache
+import org.piramalswasthya.cho.model.NeonateDetailsCache
+import org.piramalswasthya.cho.model.NewbornOutcomeCache
 import org.piramalswasthya.cho.model.InvestigationCaseRecord
 import org.piramalswasthya.cho.model.ItemMasterList
 import org.piramalswasthya.cho.model.Language
@@ -218,6 +223,9 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
+        InfantRegCache::class,
+        NewbornOutcomeCache::class,
+        NeonateDetailsCache::class,
         EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class,
         CbacCache::class,
@@ -227,7 +235,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 110, exportSchema = false
+    version = 112, exportSchema = false
 )
 
 
@@ -288,6 +296,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val maternalHealthDao: MaternalHealthDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
+    abstract val infantRegDao: InfantRegDao
+    abstract val newbornOutcomeDao: NewbornOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
     abstract val cbacDao: CbacDao
@@ -320,6 +330,67 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+
+        val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create INFANT_REG table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `INFANT_REG` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `childPatientID` TEXT,
+                        `motherPatientID` TEXT NOT NULL,
+                        `isActive` INTEGER NOT NULL,
+                        `babyName` TEXT,
+                        `babyIndex` INTEGER NOT NULL,
+                        `infantTerm` TEXT,
+                        `corticosteroidGiven` TEXT,
+                        `gender` TEXT,
+                        `babyCriedAtBirth` INTEGER,
+                        `resuscitation` INTEGER,
+                        `referred` TEXT,
+                        `hadBirthDefect` TEXT,
+                        `birthDefect` TEXT,
+                        `isSNCU` TEXT,
+                        `deliveryDischargeSummary1` TEXT,
+                        `deliveryDischargeSummary2` TEXT,
+                        `deliveryDischargeSummary3` TEXT,
+                        `deliveryDischargeSummary4` TEXT,
+                        `otherDefect` TEXT,
+                        `weight` REAL,
+                        `breastFeedingStarted` INTEGER,
+                        `opv0Dose` INTEGER,
+                        `bcgDose` INTEGER,
+                        `hepBDose` INTEGER,
+                        `vitkDose` INTEGER,
+                        `processed` TEXT,
+                        `createdBy` TEXT NOT NULL,
+                        `createdDate` INTEGER NOT NULL,
+                        `updatedBy` TEXT NOT NULL,
+                        `updatedDate` INTEGER NOT NULL,
+                        `syncState` TEXT NOT NULL,
+                        FOREIGN KEY(`motherPatientID`) REFERENCES `PATIENT`(`patientID`) 
+                            ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """)
+                
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `infRegInd` 
+                    ON `INFANT_REG` (`motherPatientID`)
+                """)
+                
+                // Add new columns to DELIVERY_OUTCOME
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeath INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeathValue TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN dateOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeathId INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN otherPlaceOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN mcp1File TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN mcp2File TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN jsyFile TEXT")
+            }
+        }
+        
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -334,7 +405,9 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,MIGRATION_109_110
+                            MIGRATION_108_109,
+                            MIGRATION_109_110,
+                            MIGRATION_110_111
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

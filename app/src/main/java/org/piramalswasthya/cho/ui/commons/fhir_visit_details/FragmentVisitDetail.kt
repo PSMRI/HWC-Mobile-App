@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.fhir_visit_details
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -404,6 +405,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
         }
+        else if(subCat == DropdownConst.neonatalAndNewbornOutcome){
+            // Hide Reason for Visit dropdown for Neonatal & Newborn Outcome
+            binding.reasonForVisitDropDown.visibility = View.GONE
+            binding.reasonText.visibility = View.GONE
+            viewModel.selectedReasonForVisit = ""
+        }
         else{
             viewModel.selectedReasonForVisit = ""
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
@@ -527,6 +534,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         super.onDestroyView()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -1402,6 +1410,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 )
             }
+            else if(binding.subCatInput.text.toString() == DropdownConst.neonatalAndNewbornOutcome){
+                // Navigate to Neonatal & Newborn Outcome form
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToNewbornOutcomeFragment(
+                        patientID = benVisitInfo.patient.patientID
+                    )
+                )
+            }
 
         }
         else {
@@ -1462,6 +1478,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
@@ -1690,6 +1707,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return R.id.fragment_visit_details_info
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onSubmitAction() {
         navigateNext()
     }

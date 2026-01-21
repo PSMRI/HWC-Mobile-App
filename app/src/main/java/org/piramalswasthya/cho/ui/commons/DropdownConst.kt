@@ -12,12 +12,13 @@ class DropdownConst {
         val ncdScreening: String = "NCD screening"
 
         val neonatalAndInfant: String = "Neonatal & Infant Health"
+        val neonatalAndNewbornOutcome: String = "Neonatal & Newborn Outcome"
         val immunization: String = "Immunization Services"
 
         val male_ncd: List<String> = listOf(ncdScreening)
-        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep)
-        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization)
-        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening)
+        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, neonatalAndNewbornOutcome)
+        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, neonatalAndNewbornOutcome, immunization)
+        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, neonatalAndNewbornOutcome, ncdScreening)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant)
 
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")

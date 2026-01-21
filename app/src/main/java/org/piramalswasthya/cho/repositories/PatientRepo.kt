@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
@@ -978,5 +979,18 @@ class PatientRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             prescriptionDao.getPrescription(patientID, benVisitNo, prescriptionID)
         }
+    }
+
+    // Maternal Health - Delivery Outcome List
+    fun getDeliveredWomenList(): Flow<List<PatientDisplayWithVisitInfo>> {
+        // Get patients with delivery outcome records
+        return patientDao.getPatientsWithDeliveryOutcome()
+    }
+
+    // Maternal Health - Infant Registration List
+    fun getPNCActiveWomenWithBabiesList(): Flow<List<PatientDisplayWithVisitInfo>> {
+        // Return the patients list directly
+        // The ViewModel will handle the mapping to InfantRegDomain
+        return patientDao.getPatientsWithBabiesForInfantReg()
     }
 }
