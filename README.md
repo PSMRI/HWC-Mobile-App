@@ -6,7 +6,7 @@
 
 The **HWC Mobile App** is designed for healthcare programs to facilitate collaboration among health workers with different roles such as **Registrar, Nurse, Pharmacist, Lab Technician, and Doctor**.
 
-## The application eliminates pen-and-paper workflows by enabling digital patient data entry with improved accuracy, traceability, and operational efficiency.
+The application eliminates pen-and-paper workflows by enabling digital patient data entry with improved accuracy, traceability, and operational efficiency.
 
 ## Functional Description
 
@@ -30,7 +30,7 @@ The **HWC Mobile App** is designed for healthcare programs to facilitate collabo
 
 ## Technologies & Tools Used
 
-- **IDE**: Android Studio (Giraffe / Hedgehog or later recommended)
+- **IDE**: Android Studio (Otter series or later recommended)
 - **Languages**: Kotlin, XML, SQL
 - **Architecture**: MVVM, Android Architecture Components
 - **UI**: XML + Jetpack Compose (hybrid)
@@ -54,6 +54,12 @@ To successfully build and run this project, ensure the following versions:
 - **Compile SDK**: 35
 - **Min SDK**: 24
 - **Target SDK**: 35
+
+> ⚠️ **Important Setup Notes**
+>
+> - Use **JDK 17 only**. Java 21 is **not supported** and will cause Gradle build failures.
+> - Ensure `kotlin.version=1.9.10` is set in `gradle.properties` to avoid Compose compiler compatibility errors.
+> - Add a valid `google-services.json` file inside the `app/` directory before running the project.
 
 > ⚠️ **Note**: Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
 
