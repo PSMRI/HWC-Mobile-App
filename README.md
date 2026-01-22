@@ -14,7 +14,9 @@ The application eliminates pen-and-paper workflows by enabling digital patient d
   Registrars or Nurses can register patients in the system (including Esanjivani-linked registrations where applicable).
 
 - **Patient Updates**
-  Doctors, Lab Technicians, and Pharmacists can update clinical, lab, and medication-related information for registered patients.
+  **Doctors** update clinical details
+- **Lab Technicians** update laboratory results
+- **Pharmacists** manage medication and dispensing details
 
 ---
 
@@ -30,15 +32,17 @@ The application eliminates pen-and-paper workflows by enabling digital patient d
 
 ## Technologies & Tools Used
 
-- **IDE**: Android Studio (Otter series or later recommended)
-- **Languages**: Kotlin, XML, SQL
-- **Architecture**: MVVM, Android Architecture Components
-- **UI**: XML + Jetpack Compose (hybrid)
-- **Database**: Room
-- **Dependency Injection**: Hilt
-- **Networking**: Retrofit, OkHttp
-- **Asynchronous**: Kotlin Coroutines
-- **Firebase**: Analytics, Crashlytics, Auth, Remote Config
+**IDE**: Android Studio **Otter Feature Drop (2025.2.3) or later**
+
+- **Language**: Kotlin
+- **UI Framework**: Jetpack Compose
+- **Architecture**: MVVM
+- **Local Storage**: Room Database
+- **Networking**: Retrofit
+- **Background Tasks**: WorkManager
+- **Authentication**: Firebase Auth
+- **Machine Learning**: TensorFlow Lite (FaceNet)
+- **Version Control**: Git & GitHub
 
 ---
 
@@ -46,20 +50,22 @@ The application eliminates pen-and-paper workflows by enabling digital patient d
 
 To successfully build and run this project, ensure the following versions:
 
-- **Android Studio**: Latest stable version
-- **Android Gradle Plugin (AGP)**: 8.1.x
-- **Gradle**: 8.1
-- **Kotlin**: 1.9.10
-- **Compose Compiler**: Compatible with Kotlin 1.9.10
+**Android Studio**: Otter Feature Drop (2025.2.3) or later
+
+- **Android Gradle Plugin (AGP)**: 9.0.0
+- **Gradle**: 9.3.0
+- **Kotlin**: 2.3.0
 - **Compile SDK**: 35
-- **Min SDK**: 24
 - **Target SDK**: 35
+- **Min SDK**: 24
+- **Java (JDK)**: 17
 
 > ⚠️ **Important Setup Notes**
 >
 > - Use **JDK 17 only**. Java 21 is **not supported** and will cause Gradle build failures.
 > - Ensure `kotlin.version=1.9.10` is set in `gradle.properties` to avoid Compose compiler compatibility errors.
 > - Add a valid `google-services.json` file inside the `app/` directory before running the project.
+> - Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
 
 > ⚠️ **Note**: Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
 
@@ -85,11 +91,15 @@ To successfully build and run this project, ensure the following versions:
    - Select **Open an existing Android Studio project**
    - Choose the cloned root directory
 
-3. **Sync Gradle**
+3. **Add Firebase configuration**
+
+   - app/google-services.json
+
+4. **Sync Gradle**
 
    - Allow Android Studio to download all dependencies
 
-4. **Run the app**
+5. **Run the app**
 
    - Use an emulator or a physical Android device (Android 7.0+ recommended)
 
@@ -159,11 +169,11 @@ This project uses third-party open-source models and libraries. Full acknowledge
 
 - The `facenet.tflite` model located at:
 
-  ```
-  app/src/main/assets/facenet.tflite
-  ```
+```text
+app/src/main/assets/facenet.tflite
+```
 
-  was sourced directly from the above repository.
+was sourced directly from the above repository.
 
 - **Model Conversion Reference**
   Script: [https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py](https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py)
