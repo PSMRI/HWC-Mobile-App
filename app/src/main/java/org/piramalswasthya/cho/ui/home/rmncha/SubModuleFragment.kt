@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_REGISTRATION_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -85,6 +86,7 @@ class SubModuleFragment : Fragment() {
                     val showECRegistration = navDirections.arguments.getBoolean(SHOW_EC_REGISTRATION_KEY, false)
                     val showECTracking = navDirections.arguments.getBoolean(SHOW_EC_TRACKING_KEY, false)
                     val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
+                    val showANCVisits = navDirections.arguments.getBoolean(SHOW_ANC_VISITS_KEY, false)
                     
                     when {
                         showECRegistration -> {
@@ -100,6 +102,11 @@ class SubModuleFragment : Fragment() {
                         showPWR -> {
                             // Navigate to Pregnant Women Registration List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showANCVisits -> {
+                            // Navigate to ANC Visits List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
                         else -> {

@@ -680,4 +680,12 @@
     <!-- Pregnant Women Registration Strings -->
     <string name="no_pregnant_women_found">No Pregnant Women Found</string>
 
+    <!-- ANC Visits Strings -->
+    <string name="weeks_of_pregnancy">Weeks Of Pregnancy</string>
+    <string name="edd">EDD</string>
+    <string name="last_visit_date">Last Visit Date</string>
+    <string name="add_anc_visit">ADD ANC VISIT</string>
+    <string name="add_pmsma">ADD PMSMA</string>
+    <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
+
 </resources>

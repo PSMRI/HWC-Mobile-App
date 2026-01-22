@@ -25,6 +25,7 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_EC_REGISTRATION_KEY = "show_ec_registration"
         const val SHOW_EC_TRACKING_KEY = "show_ec_tracking"
         const val SHOW_PWR_KEY = "show_pwr"
+        const val SHOW_ANC_VISITS_KEY = "show_anc_visits"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
@@ -33,6 +34,7 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_EC_REGISTRATION = 1003 // Action for EC registration list
         private const val ACTION_EC_TRACKING = 1004 // Action for EC tracking list
         private const val ACTION_PWR = 1005 // Action for Pregnant Women Registration list
+        private const val ACTION_ANC_VISITS = 1006 // Action for ANC Visits list
     }
 
     // NavDirections for sub-module navigation
@@ -74,6 +76,14 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_PWR
         override val arguments = Bundle().apply {
             putBoolean(SHOW_PWR_KEY, true)
+        }
+    }
+
+    // NavDirections for showing ANC Visits list
+    private val showANCVisitsAction = object : NavDirections {
+        override val actionId: Int = ACTION_ANC_VISITS
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_ANC_VISITS_KEY, true)
         }
     }
 
@@ -178,7 +188,7 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_medical_briefcase,
                 resources.getString(R.string.anc_visits),
                 null,
-                placeholderNavAction
+                showANCVisitsAction
             ),
             Icon(
                 R.drawable.ic_new_born_baby,
