@@ -98,7 +98,12 @@
         <activity
             android:name=".ui.home.rmncha.eligible_couple.EligibleCoupleRegistrationActivity"
             android:exported="false"
-            android:label="@string/eligible_couple_list"
+            android:label="@string/eligible_couple_registration"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity"
+            android:exported="false"
+            android:label="@string/eligible_couple_tracking"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
             android:name=".ui.login_activity.LoginActivity"

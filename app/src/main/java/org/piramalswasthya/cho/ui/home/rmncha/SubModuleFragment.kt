@@ -91,12 +91,9 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showECTracking -> {
-                            // TODO: Navigate to Eligible Couple Tracking List (to be implemented)
-                            Toast.makeText(
-                                requireContext(),
-                                "Eligible Couple Tracking - Coming Soon",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            // Navigate to Eligible Couple Tracking List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity.getIntent(requireContext())
+                            startActivity(intent)
                         }
                         else -> {
                             // Other sub-modules - placeholder

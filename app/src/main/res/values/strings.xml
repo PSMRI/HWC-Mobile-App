@@ -668,6 +668,7 @@
     <string name="under_review">Under Review</string>
     <string name="register">Register</string>
     <string name="no_eligible_couples_found">No Eligible Couples Found</string>
+    <string name="no_registered_couples_found">No Registered Couples Found</string>
     <string name="call">Call</string>
     <string name="no_data">No Data</string>
     <string name="search">Search</string>
