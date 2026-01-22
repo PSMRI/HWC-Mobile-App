@@ -227,13 +227,25 @@ class UserRepo @Inject constructor(
                     val servicePointName = vanSp.getString("servicePointName")
                     user?.servicePointName = servicePointName
                     if (!vanSp.has("facilityID")) {
-                        Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Facility ID not found", Toast.LENGTH_LONG).show()
+                        }
                         delay(3000)
+                        // Set a default value instead of trying to access a non-existent field
+                        user?.facilityID = -1  // Use a default value like -1 to indicate missing data
+                    } else {
+                        val facilityId = vanSp.getInt("facilityID")
+                        user?.facilityID = facilityId
                     }
-                    val facilityId = vanSp.getInt("facilityID")
-                    user?.facilityID = facilityId
-                    user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
-
+                    if (!vanSp.has("parkingPlaceID")) {
+                        user?.parkingPlaceId = -1  // Default value
+                    } else {
+                        user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
+                    }
+                    // Remove these redundant lines that are causing the crash
+                    // val facilityId = vanSp.getInt("facilityID")
+                    // user?.facilityID = facilityId
+                    // user?.parkingPlaceId = vanSp.getInt("parkingPlaceID")
                 }
                 true
             } else {
