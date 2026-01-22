@@ -111,19 +111,103 @@ class NewbornOutcomeFragment : Fragment() {
      * Handle conditional form logic based on field changes
      */
     private fun handleFormValueChange(formId: Int, index: Int) {
-        // TODO: Add alerts for medical conditions:
-        // - Birth weight < 2500g → LBW alert
-        // - Sex = "Ambiguous" → Specialist referral alert
-        // - Outcome = Stillbirth → Audit form alert
-        // - Status = "Died" → Neonatal death audit alert
-        // - Status = "Admitted" → PNC counseling alert
-        // - Birth certificate = "No" → Legal requirement alert
+        when (formId) {
+            11 -> handleSexSelection(index) // Baby1Sex
+            14 -> handleBirthWeight() // Baby1BirthWeight
+            10 -> handleOutcomeAtBirth(index) // Baby1OutcomeAtBirth
+            19 -> handleCurrentStatus(index) // Baby1CurrentStatus
+            18 -> handleComplications() // Baby1Complications
+            26 -> handleBirthCertificate(index) // Baby1BirthCertificate
+        }
         
         binding.form.rvInputForm.adapter?.apply {
             when (formId) {
-                // Add specific field IDs here if needed for UI updates
                 else -> {}
             }
+        }
+    }
+
+    private fun handleSexSelection(index: Int) {
+        // If Ambiguous (index 2) → show alert for specialist referral
+        if (index == 2) {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Specialist Referral Required")
+                .setMessage("Ambiguous sex detected. Please refer to pediatric specialist for evaluation.")
+                .setPositiveButton("OK", null)
+                .show()
+        }
+    }
+
+    private fun handleBirthWeight() {
+        viewModel.getBirthWeight()?.let { weight ->
+            val message = when {
+                weight < 1000 -> "⚠️ ELBW Alert: Extremely Low Birth Weight (<1000g). Immediate SNCU referral required."
+                weight < 1500 -> "⚠️ VLBW Alert: Very Low Birth Weight (<1500g). Specialist care needed."
+                weight < 2500 -> "⚠️ LBW Alert: Low Birth Weight (<2500g). Close monitoring required."
+                weight >= 4000 -> "⚠️ Macrosomia Alert: Birth weight ≥4000g. Screen mother for GDM."
+                else -> null
+            }
+            
+            message?.let {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Birth Weight Alert")
+                    .setMessage(it)
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun handleOutcomeAtBirth(index: Int) {
+        // If Stillbirth (index 1 or 2) or Died during delivery (index 3)
+        if (index in 1..3) {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Stillbirth/Death Audit Required")
+                .setMessage("Please complete the stillbirth/neonatal death audit form as per protocol.")
+                .setPositiveButton("OK", null)
+                .show()
+        }
+    }
+
+    private fun handleCurrentStatus(index: Int) {
+        when (index) {
+            1, 2 -> { // Admitted (SNCU/NICU) or Admitted (General ward)
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("PNC Counseling Required")
+                    .setMessage("Baby is admitted. Please provide PNC counseling to mother regarding baby's condition and follow-up care.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+            3 -> { // Died
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Neonatal Death Audit Required")
+                    .setMessage("Please complete the neonatal death audit form immediately.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun handleComplications() {
+        viewModel.hasComplications()?.let { hasComplications ->
+            if (hasComplications) {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Immediate Review Required")
+                    .setMessage("Newborn complications detected. Immediate pediatric/specialist review required.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun handleBirthCertificate(index: Int) {
+        // If "No (Not applied)" (index 2)
+        if (index == 2) {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Birth Registration Required")
+                .setMessage("Please inform the family that birth registration is a legal requirement within 21 days of birth.")
+                .setPositiveButton("OK", null)
+                .show()
         }
     }
 

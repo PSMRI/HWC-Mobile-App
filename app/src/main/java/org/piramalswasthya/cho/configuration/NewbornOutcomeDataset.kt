@@ -232,6 +232,7 @@ class NewbornOutcomeDataset(
 
     suspend fun setUpPage(
         existingData: NewbornOutcomeCache?,
+        neonatesList: List<org.piramalswasthya.cho.model.NeonateDetailsCache>?,
         patientID: String
     ) {
         val list = mutableListOf<FormElement>()
@@ -248,76 +249,193 @@ class NewbornOutcomeDataset(
             }
         }
 
+        // Load Baby 1 data from existing neonates
+        neonatesList?.firstOrNull()?.let { baby1 ->
+            loadBaby1Values(baby1)
+        }
+
         // Add number of neonates selector
         list.add(numberOfNeonates)
 
-        // Add Baby 1 fields
-        list.add(baby1OutcomeAtBirth)
-        
-        // Only show remaining fields if Live Birth
-        if (baby1OutcomeAtBirth.value == "Live Birth" || baby1OutcomeAtBirth.value == null) {
-            list.add(baby1Sex)
-            list.add(baby1CriedImmediately)
-            
-            // Show resuscitation type only if "Cried after resuscitation"
-            if (baby1CriedImmediately.value == "Cried after resuscitation") {
-                list.add(baby1ResuscitationType)
-            }
-            
-            list.add(baby1BirthWeight)
-            list.add(baby1CongenitalAnomaly)
-            
-            // Show anomaly type if Yes/Suspected
-            if (baby1CongenitalAnomaly.value in listOf("Yes", "Suspected (under evaluation)")) {
-                list.add(baby1TypeOfAnomaly)
-                if (baby1TypeOfAnomaly.value == "Other") {
-                    list.add(baby1OtherAnomaly)
-                }
-            }
-            
-            list.add(baby1Complications)
-            list.add(baby1CurrentStatus)
-            
-            // Show cause of death if Died
-            if (baby1CurrentStatus.value == "Died") {
-                list.add(baby1CauseOfDeath)
-                if (baby1CauseOfDeath.value == "Other (specify)") {
-                    list.add(baby1OtherCauseOfDeath)
-                }
-            }
-            
-            // Only show vaccines if not died
-            if (baby1CurrentStatus.value != "Died") {
-                list.add(baby1BirthDoseVaccines)
-                if (baby1BirthDoseVaccines.value == "None") {
-                    list.add(baby1ReasonNoVaccines)
-                }
-                
-                list.add(baby1VitaminK)
-                if (baby1VitaminK.value == "No") {
-                    list.add(baby1ReasonNoVitaminK)
-                }
-                
-                list.add(baby1BirthCertificate)
-            }
+        // Determine how many babies to show
+        val numBabies = when (numberOfNeonates.value) {
+            "Single (1)" -> 1
+            "Twins (2)" -> 2
+            "Triplets (3)" -> 3
+            "Quadruplets+ (4)" -> 4
+            else -> 1
         }
 
-        // TODO: Add Baby 2, 3, 4 sections based on numberOfNeonates
+        // Add Baby 1 fields (always shown)
+        addBaby1Fields(list)
+
+        // Add Baby 2 section if Twins or more
+        if (numBabies >= 2) {
+            addBabySectionHeader(list, 2)
+            // TODO: Load Baby 2 data and show fields
+            addPlaceholderMessage(list, "Baby 2 details section (coming soon)")
+        }
+
+        // Add Baby 3 section if Triplets or more
+        if (numBabies >= 3) {
+            addBabySectionHeader(list, 3)
+            addPlaceholderMessage(list, "Baby 3 details section (coming soon)")
+        }
+
+        // Add Baby 4 section if Quadruplets+
+        if (numBabies >= 4) {
+            addBabySectionHeader(list, 4)
+            addPlaceholderMessage(list, "Baby 4 details section (coming soon)")
+        }
 
         setUpPage(list)
+    }
+
+    private fun loadBaby1Values(baby: org.piramalswasthya.cho.model.NeonateDetailsCache) {
+        baby1OutcomeAtBirth.value = baby.outcomeAtBirth
+        baby1Sex.value = baby.sex
+        baby1CriedImmediately.value = baby.criedImmediately
+        baby1ResuscitationType.value = baby.resuscitationType
+        baby1BirthWeight.value = baby.birthWeight?.toString()
+        baby1CongenitalAnomaly.value = baby.congenitalAnomalyDetected
+        baby1TypeOfAnomaly.value = baby.typeOfCongenitalAnomaly
+        baby1OtherAnomaly.value = baby.otherCongenitalAnomaly
+        baby1Complications.value = baby.newbornComplications
+        baby1CurrentStatus.value = baby.currentStatusOfBaby
+        baby1CauseOfDeath.value = baby.causeOfDeath
+        baby1OtherCauseOfDeath.value = baby.otherCauseOfDeath
+        baby1BirthDoseVaccines.value = baby.birthDoseVaccines
+        baby1ReasonNoVaccines.value = baby.reasonForNoVaccines
+        baby1VitaminK.value = baby.vitaminKInjection
+        baby1ReasonNoVitaminK.value = baby.reasonForNoVitaminK
+        baby1BirthCertificate.value = baby.birthCertificateIssued
+    }
+
+    private fun addBabySectionHeader(list: MutableList<FormElement>, babyNumber: Int) {
+        list.add(FormElement(
+            id = 1000 + babyNumber,
+            inputType = InputType.EDIT_TEXT,
+            title = "\n═══════ BABY $babyNumber ═══════\n",
+            required = false,
+            isEnabled = false,
+            headingLine = true
+        ))
+    }
+
+    private fun addPlaceholderMessage(list: MutableList<FormElement>, message: String) {
+        list.add(FormElement(
+            id = 2000 + list.size,
+            inputType = InputType.EDIT_TEXT,
+            title = message,
+            required = false,
+            isEnabled = false
+        ))
+    }
+
+    private fun addBaby1Fields(list: MutableList<FormElement>) {
+        // Always add outcome at birth first
+        list.add(baby1OutcomeAtBirth)
+        
+        val outcomeValue = baby1OutcomeAtBirth.value
+        val isStillbirthOrDied = outcomeValue in listOf(
+            "Still Birth (Fresh)", 
+            "Still Birth (Macerated)", 
+            "Died during delivery"
+        )
+
+        // If stillbirth/died during delivery -> only show complications
+        if (isStillbirthOrDied) {
+            list.add(baby1Complications)
+            return
+        }
+
+        // For Live Birth or no selection yet (null), show all fields
+        // Add basic fields
+        list.add(baby1Sex)
+        list.add(baby1CriedImmediately)
+        
+        // Show resuscitation type only if "Cried after resuscitation"
+        if (baby1CriedImmediately.value == "Cried after resuscitation") {
+            list.add(baby1ResuscitationType)
+        }
+        
+        list.add(baby1BirthWeight)
+        list.add(baby1CongenitalAnomaly)
+        
+        // Show anomaly type if Yes/Suspected
+        if (baby1CongenitalAnomaly.value in listOf("Yes", "Suspected (under evaluation)")) {
+            list.add(baby1TypeOfAnomaly)
+            if (baby1TypeOfAnomaly.value == "Other") {
+                list.add(baby1OtherAnomaly)
+            }
+        }
+        
+        list.add(baby1Complications)
+        list.add(baby1CurrentStatus)
+        
+        // Check if died
+        val isDied = baby1CurrentStatus.value == "Died"
+        
+        if (isDied) {
+            // If died, show cause of death fields
+            list.add(baby1CauseOfDeath)
+            if (baby1CauseOfDeath.value == "Other (specify)") {
+                list.add(baby1OtherCauseOfDeath)
+            }
+            // Don't show vaccines/certificate if died
+        } else {
+            // If NOT died (or no selection), show vaccines and certificate
+            list.add(baby1BirthDoseVaccines)
+            if (baby1BirthDoseVaccines.value == "None") {
+                list.add(baby1ReasonNoVaccines)
+            }
+            
+            list.add(baby1VitaminK)
+            if (baby1VitaminK.value == "No") {
+                list.add(baby1ReasonNoVitaminK)
+            }
+            
+            list.add(baby1BirthCertificate)
+        }
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
             numberOfNeonates.id -> {
-                val triggerIndex = getIndexOfElement(numberOfNeonates)
                 // TODO: Add/remove baby sections based on selection
-                triggerIndex
+                getIndexOfElement(numberOfNeonates)
             }
             baby1OutcomeAtBirth.id -> {
-                val triggerIndex = getIndexOfElement(baby1OutcomeAtBirth)
-                // TODO: Show/hide fields based on outcome
-                triggerIndex
+                // Rebuild entire Baby 1 section based on outcome
+                val liveBirthIndex = baby1OutcomeAtBirth.entries?.indexOf("Live Birth") ?: 0
+                val isLiveBirth = index == liveBirthIndex
+                
+                if (!isLiveBirth) {
+                    // If stillbirth/died, remove all fields except complications
+                    triggerDependants(
+                        source = baby1OutcomeAtBirth,
+                        removeItems = listOf(
+                            baby1Sex, baby1CriedImmediately, baby1ResuscitationType,
+                            baby1BirthWeight, baby1CongenitalAnomaly, baby1TypeOfAnomaly,
+                            baby1OtherAnomaly, baby1CurrentStatus, baby1CauseOfDeath,
+                            baby1OtherCauseOfDeath, baby1BirthDoseVaccines,
+                            baby1ReasonNoVaccines, baby1VitaminK, baby1ReasonNoVitaminK,
+                            baby1BirthCertificate
+                        ),
+                        addItems = listOf(baby1Complications)
+                    )
+                } else {
+                    // If live birth, add basic fields
+                    triggerDependants(
+                        source = baby1OutcomeAtBirth,
+                        removeItems = listOf(),
+                        addItems = listOf(
+                            baby1Sex, baby1CriedImmediately, baby1BirthWeight,
+                            baby1CongenitalAnomaly, baby1Complications, baby1CurrentStatus,
+                            baby1BirthDoseVaccines, baby1VitaminK, baby1BirthCertificate
+                        )
+                    )
+                }
             }
             baby1CriedImmediately.id -> {
                 val criedIndex = baby1CriedImmediately.entries?.indexOf("Cried after resuscitation") ?: 1
@@ -357,12 +475,28 @@ class NewbornOutcomeDataset(
             }
             baby1CurrentStatus.id -> {
                 val diedIndex = baby1CurrentStatus.entries?.indexOf("Died") ?: 3
-                triggerDependants(
-                    source = baby1CurrentStatus,
-                    passedIndex = index,
-                    triggerIndex = diedIndex,
-                    target = baby1CauseOfDeath
-                )
+                
+                if (index == diedIndex) {
+                    // If died, show cause of death and remove vaccines/certificate
+                    triggerDependants(
+                        source = baby1CurrentStatus,
+                        removeItems = listOf(
+                            baby1BirthDoseVaccines, baby1ReasonNoVaccines,
+                            baby1VitaminK, baby1ReasonNoVitaminK,
+                            baby1BirthCertificate
+                        ),
+                        addItems = listOf(baby1CauseOfDeath)
+                    )
+                } else {
+                    // If NOT died, remove cause of death and add vaccines/certificate
+                    triggerDependants(
+                        source = baby1CurrentStatus,
+                        removeItems = listOf(baby1CauseOfDeath, baby1OtherCauseOfDeath),
+                        addItems = listOf(
+                            baby1BirthDoseVaccines, baby1VitaminK, baby1BirthCertificate
+                        )
+                    )
+                }
             }
             baby1CauseOfDeath.id -> {
                 val otherIndex = baby1CauseOfDeath.entries?.indexOf("Other (specify)") ?: 7
@@ -406,8 +540,33 @@ class NewbornOutcomeDataset(
                 else -> 1
             }
             
-            // Note: Neonate-specific data is mapped in ViewModel
-            // because we need to handle multiple NeonateDetailsCache objects
+            // Note: Neonate-specific data is mapped via mapBaby1ToNeonate
+        }
+    }
+
+    fun mapBaby1ToNeonate(neonate: org.piramalswasthya.cho.model.NeonateDetailsCache) {
+        // Map Baby 1 fields to neonate entity
+        neonate.apply {
+            outcomeAtBirth = baby1OutcomeAtBirth.value ?: "Live Birth"
+            sex = baby1Sex.value
+            criedImmediately = baby1CriedImmediately.value
+            resuscitationType = baby1ResuscitationType.value
+            birthWeight = baby1BirthWeight.value?.toDoubleOrNull()
+            congenitalAnomalyDetected = baby1CongenitalAnomaly.value
+            typeOfCongenitalAnomaly = baby1TypeOfAnomaly.value
+            otherCongenitalAnomaly = baby1OtherAnomaly.value
+            newbornComplications = baby1Complications.value
+            currentStatusOfBaby = baby1CurrentStatus.value ?: "Healthy and with mother"
+            causeOfDeath = baby1CauseOfDeath.value
+            otherCauseOfDeath = baby1OtherCauseOfDeath.value
+            birthDoseVaccines = baby1BirthDoseVaccines.value
+            reasonForNoVaccines = baby1ReasonNoVaccines.value
+            vitaminKInjection = baby1VitaminK.value
+            reasonForNoVitaminK = baby1ReasonNoVitaminK.value
+            birthCertificateIssued = baby1BirthCertificate.value
+            
+            // Update timestamp
+            updatedDate = System.currentTimeMillis()
         }
     }
 }

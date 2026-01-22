@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.NewbornOutcomeDataset
@@ -99,28 +100,36 @@ class NewbornOutcomeViewModel @Inject constructor(
                     )
                 }
 
-                // Check for existing record
-                newbornOutcomeRepo.getActiveNewbornOutcomeByPatientID(patientID).collect { existing ->
-                    if (existing != null) {
-                        newbornOutcome = existing
-                        _recordExists.value = true
-                        // Load neonates
-                        newbornOutcomeRepo.getNeonateDetailsByOutcomeID(existing.id).collect { list ->
-                            neonatesList.clear()
-                            neonatesList.addAll(list)
-                        }
-                    } else {
-                        _recordExists.value = false
+                // Check for existing record (use first() to get single value, not collect forever)
+                val existing = newbornOutcomeRepo.getActiveNewbornOutcomeByPatientID(patientID).firstOrNull()
+                if (existing != null) {
+                    newbornOutcome = existing
+                    _recordExists.value = true
+                    // Load neonates
+                    val existingNeonates = newbornOutcomeRepo.getNeonateDetailsByOutcomeID(existing.id).firstOrNull()
+                    if (existingNeonates != null && existingNeonates.isNotEmpty()) {
+                        neonatesList.clear()
+                        neonatesList.addAll(existingNeonates)
                     }
-
-                    dataset.setUpPage(
-                        if (recordExists.value == true) newbornOutcome else null,
-                        patientID
-                    )
+                } else {
+                    _recordExists.value = false
                 }
+
+                // Setup form page with existing data
+                dataset.setUpPage(
+                    existingData = if (recordExists.value == true) newbornOutcome else null,
+                    neonatesList = if (recordExists.value == true && neonatesList.isNotEmpty()) neonatesList else null,
+                    patientID = patientID
+                )
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing NewbornOutcomeViewModel")
                 _recordExists.value = false
+                // Still setup page even if error
+                dataset.setUpPage(
+                    existingData = null,
+                    neonatesList = null,
+                    patientID = patientID
+                )
             }
         }
     }
@@ -140,8 +149,10 @@ class NewbornOutcomeViewModel @Inject constructor(
                     // Map form values to newborn outcome cache
                     dataset.mapValues(newbornOutcome, 0)
 
-                    // TODO: Map neonate-specific fields from dataset to neonatesList
-                    // This will be done when we add the field mapping logic
+                    // Map Baby 1 fields to first neonate
+                    if (neonatesList.isNotEmpty()) {
+                        dataset.mapBaby1ToNeonate(neonatesList[0])
+                    }
 
                     // Save complete newborn outcome
                     newbornOutcomeRepo.saveCompleteNewbornOutcome(newbornOutcome, neonatesList)
@@ -157,5 +168,14 @@ class NewbornOutcomeViewModel @Inject constructor(
 
     fun resetState() {
         _state.value = State.IDLE
+    }
+
+    fun getBirthWeight(): Double? {
+        return neonatesList.firstOrNull()?.birthWeight
+    }
+
+    fun hasComplications(): Boolean? {
+        val complications = neonatesList.firstOrNull()?.newbornComplications
+        return complications != null && complications != "None" && complications.isNotBlank()
     }
 }
