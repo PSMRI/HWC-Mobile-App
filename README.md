@@ -3,96 +3,201 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-PSMRI%2FHWC--Mobile--App-blue.svg?...)](https://deepwiki.com/PSMRI/HWC-Mobile-App)
 
 ## Overview
-The HWC Mobile App is designed for healthcare programs to facilitate collaboration among health workers with different roles such as Registrar, Nurse, Pharmacist, Lab Technician, and Doctor, etc.
-This application aims to eliminate pen and paperwork for different roles, allowing them to enter patient data digitally with increased ease and accuracy.
 
+The **HWC Mobile App** is designed for healthcare programs to facilitate collaboration among health workers with different roles such as **Registrar, Nurse, Pharmacist, Lab Technician, and Doctor**.
+
+The application eliminates pen-and-paper workflows by enabling digital patient data entry with improved accuracy, traceability, and operational efficiency.
 
 ## Functional Description
 
-- **Patient Registration**: Nurses or Registrars can register patients (the same patient can be registered with Esanjivni).
-- **Patient Updates**: Doctors, Lab Technicians, and Pharmacists can update the details for registered patients within the app.
+- **Patient Registration**
+  Registrars or Nurses can register patients in the system (including Esanjivani-linked registrations where applicable).
+
+- **Patient Updates**
+  **Doctors** update clinical details
+- **Lab Technicians** update laboratory results
+- **Pharmacists** manage medication and dispensing details
+
+---
 
 ## Features
 
-- **User Authentication**: Secure login for different roles like Registrar, Nurse, Doctor, Lab Technician, Pharmacist .
-- **Real-time Data**: Access to up-to-date information about patients.
-- **User-Friendly Interface**: Intuitive design for easy navigation.
-- **Offline Access**: Ability to use the app without an internet connection.
-- **Multilingual Support**: Ability to use app in different languages like English, Kannada.
+- **Role-Based Authentication**: Secure login for Registrar, Nurse, Doctor, Lab Technician, and Pharmacist roles.
+- **Real-Time Patient Data**: Access to the latest patient information across roles.
+- **User-Friendly Interface**: Intuitive UI for fast navigation in clinical environments.
+- **Offline Support**: Core workflows function without internet connectivity, with sync when online.
+- **Multilingual Support**: Currently supports **English** and **Kannada**.
+
+---
 
 ## Technologies & Tools Used
 
-- **IDE**: Android Studio.
-- **Database**: Room
-- **Languages**: XML, Kotlin, SQL
-- **Architecture & Architectural Components**: MVVM, Android Architectural Components
-- **SDK**: Android SDK 23-34
+**IDE**: Android Studio **Otter Feature Drop (2025.2.3) or later**
 
+- **Language**: Kotlin
+- **UI Framework**: Jetpack Compose
+- **Architecture**: MVVM
+- **Local Storage**: Room Database
+- **Networking**: Retrofit
+- **Background Tasks**: WorkManager
+- **Authentication**: Firebase Auth
+- **Machine Learning**: TensorFlow Lite (FaceNet)
+- **Version Control**: Git & GitHub
 
-## Installation
+---
 
-Make sure you have the following installed:
+## Build & Environment Requirements
+
+To successfully build and run this project, ensure the following versions:
+
+**Android Studio**: Otter Feature Drop (2025.2.3) or later
+
+- **Android Gradle Plugin (AGP)**: 9.0.0
+- **Gradle**: 9.3.0
+- **Kotlin**: 2.3.0
+- **Compile SDK**: 35
+- **Target SDK**: 35
+- **Min SDK**: 24
+- **Java (JDK)**: 17
+
+> ⚠️ **Important Setup Notes**
+
+<!-- > -->
+
+> - Use **JDK 17 only**. Java 21 is **not supported** and will cause Gradle build failures.
+> - This project uses **Kotlin 2.3.0**. Do **not** override Kotlin versions manually unless you fully understand AGP compatibility.
+> - Add a valid `google-services.json` file inside the `app/` directory before running the project.
+> - Jetpack Compose compiler is bundled with Kotlin 2.x. Refer to the official Compose–Kotlin compatibility map if upgrading.
+
+> ⚠️ **Note**: Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
+
+---
+
+## Installation & Setup
+
+### Prerequisites
 
 - [Android Studio](https://developer.android.com/studio)
+- Android SDK Platform 35
 
-To run this project, Follow these steps:
+### Steps
 
-1. Clone the repository to your local machine,
-   using: `git clone https://github.com/PSMRI/HWC-Mobile-App`.
-2. Open Android Studio.
-3. Click on 'Open an existing Android Studio project'.
-4. Navigate to the directory where you cloned the project and select the root folder.
-5. Wait for Android Studio to sync the project and download the dependencies.
-6. Once the sync is done, you can run the project on an emulator or a physical device.
+1. **Clone the repository**
 
+   ```bash
+   git clone https://github.com/PSMRI/HWC-Mobile-App
+   ```
+
+2. **Open Android Studio**
+
+   - Select **Open an existing Android Studio project**
+   - Choose the cloned root directory
+
+3. **Add Firebase configuration**
+
+   - app/google-services.json
+
+4. **Sync Gradle**
+
+   - Allow Android Studio to download all dependencies
+
+5. **Run the app**
+
+   - Use an emulator or a physical Android device (Android 7.0+ recommended)
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome and appreciated.
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Make your changes.
-4. Commit your changes (`git commit -am 'Add some feature'`).
-5. Push to the branch (`git push origin feature/your-feature`).
-6. Create a new Pull Request.
+1. Fork the repository
+2. Create a new branch
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+3. Make your changes
+4. Commit your changes
+
+   ```bash
+   git commit -m "Add your feature"
+   ```
+
+5. Push to your branch
+
+   ```bash
+   git push origin feature/your-feature
+   ```
+
+6. Create a Pull Request
+
+---
 
 ## Filing Issues
 
-If you encounter any issues, bugs, or have feature requests, please file them in the [main AMRIT repository](https://github.com/PSMRI/AMRIT/issues). Centralizing all feedback helps us streamline improvements and address concerns efficiently.  
+If you encounter bugs or have feature requests, please file them in the **main AMRIT repository**:
+
+👉 [https://github.com/PSMRI/AMRIT/issues](https://github.com/PSMRI/AMRIT/issues)
+
+Centralizing feedback helps streamline triage and resolution.
+
+---
 
 ## Join Our Community
 
-We’d love to have you join our community discussions and get real-time support!  
-Join our [Discord server](https://discord.gg/FVQWsf5ENS) to connect with contributors, ask questions, and stay updated.  
+Join our community for discussions, support, and updates:
 
-
-## Credits
-
-This project uses third-party open-source models and resources. Full acknowledgements are provided below to comply with respective licenses and to support reproducibility.
+👉 **Discord**: [https://discord.gg/FVQWsf5ENS](https://discord.gg/FVQWsf5ENS)
 
 ---
 
-### **1. FaceNet (facenet.tflite)**
+## Credits & Open-Source Acknowledgements
 
-* Original FaceNet implementation
-  **Repository:** [https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
-  **License:** MIT License
-  **Architecture:** Inception-ResNet-v1 trained on CASIA-WebFace
-* Android TFLite model source used in this project:
-  **Repository:** [https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android](https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android)
-* The Facenet `.tflite` in our repo (`app/src/main/assets/facenet.tflite`) was sourced directly from the above repository.
-* If any developer wishes to convert a FaceNet `.pb` model to `.tflite`, refer to this conversion script:
-  **File:** [`src/train_model/tflite_convert.py`](https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py)
+This project uses third-party open-source models and libraries. Full acknowledgements are listed below in compliance with respective licenses.
 
 ---
 
-### **2. MediaPipe Face Detection (BlazeFace – Short Range)**
+### 1. FaceNet (facenet.tflite)
 
-* Replaced Google ML Kit with MediaPipe implementation.
-* Current face detection model used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
-* Downloaded from official source:
+- **Original Implementation**
+  Repository: [https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
+  License: MIT License
+  Architecture: Inception-ResNet-v1 trained on CASIA-WebFace
+
+- **Android TFLite Source Used**
+  Repository: [https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android](https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android)
+
+- The `facenet.tflite` model located at:
+
+```text
+app/src/main/assets/facenet.tflite
+```
+
+was sourced directly from the above repository.
+
+- **Model Conversion Reference**
+  Script: [https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py](https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py)
+
+---
+
+### 2. MediaPipe Face Detection (BlazeFace – Short Range)
+
+- Replaced Google ML Kit with MediaPipe Face Detection
+
+- Model Used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
+
+- Official Source:
   [https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models](https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models)
-* Face Detector is part of **Mediapipe Solutions**
-  **Repository:** [https://github.com/google/mediapipe](https://github.com/google/mediapipe)
-  **License:** Apache 2.0
+
+- MediaPipe Repository:
+  [https://github.com/google/mediapipe](https://github.com/google/mediapipe)
+
+- License: **Apache 2.0**
+
+---
+
+## License
+
+This project follows the licensing terms of its included third-party dependencies. Refer to individual libraries for detailed license information.
