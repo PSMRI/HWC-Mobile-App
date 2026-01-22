@@ -67,12 +67,28 @@ interface MaternalHealthDao {
 
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)
-//
-//    @Update
-//    suspend fun updatePwr(it: PregnantWomanRegistrationCache)
-//    @Query("select * from HRP_NON_PREGNANT_ASSESS assess where ((select count(*) from BEN_BASIC_CACHE b where benId = assess.benId and b.reproductiveStatusId = 1) = 1)")
-//    fun getAllNonPregnancyAssessRecords(): Flow<List<HRPNonPregnantAssessCache>>
-//
-//    @Query("select * from HRP_PREGNANT_ASSESS assess where ((select count(*) from BEN_BASIC_CACHE b where benId = assess.benId and b.reproductiveStatusId = 2) = 1)")
-//    fun getAllPregnancyAssessRecords(): Flow<List<HRPPregnantAssessCache>>
+
+    @Update
+    suspend fun updatePwr(vararg it: PregnantWomanRegistrationCache)
+
+    /**
+     * Get all patients with their pregnancy registration data
+     * Returns Flow for reactive updates
+     */
+    @Transaction
+    @Query("SELECT * FROM PATIENT WHERE genderID = 2 AND age BETWEEN 15 AND 49 ORDER BY registrationDate DESC")
+    fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>>
+
+    /**
+     * Get specific patient with pregnancy registration
+     */
+    @Transaction
+    @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
+    suspend fun getPatientWithPWR(patientID: String): PatientWithPwrCache?
+
+    /**
+     * Get count of pregnant women registrations
+     */
+    @Query("SELECT COUNT(DISTINCT patientID) FROM pregnancy_register WHERE active = 1")
+    fun getPWRCount(): Flow<Int>
 }

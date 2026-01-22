@@ -183,55 +183,78 @@ data class PregnantWomanRegistrationCache(
     }
 }
 
-//data class BenWithPwrCache(
-//    @Embedded
-//    val ben: BenBasicCache,
-//    @Relation(
-//        parentColumn = "benId", entityColumn = "benId"
-//    )
-//    val pwr: List<PregnantWomanRegistrationCache>,
-//
-//    ) {
-//    fun asPwrDomainModel(): BenWithPwrDomain {
-//        return BenWithPwrDomain(
-//            ben = ben.asBasicDomainModel(),
-//            pwr = pwr.firstOrNull { it.active }
-//        )
-//    }
-//
-//    fun asBenBasicDomainModelForHRPPregAssessmentForm(): BenBasicDomainForForm {
-//
-//        return BenBasicDomainForForm(
-//            benId = ben.benId,
-//            hhId = ben.hhId,
-//            regDate = BenBasicCache.dateFormat.format(Date(ben.regDate)),
-//            benName = ben.benName,
-//            benSurname = ben.benSurname ?: "",
-//            gender = ben.gender.name,
-//            dob = ben.dob,
-//            mobileNo = ben.mobileNo.toString(),
-//            fatherName = ben.fatherName,
-//            familyHeadName = ben.familyHeadName ?: "",
-//            spouseName = ben.spouseName ?: "",
-//            lastMenstrualPeriod = getDateStringFromLong(ben.lastMenstrualPeriod),
-//            edd = getEddFromLmp(ben.lastMenstrualPeriod),
-////            typeOfList = typeOfList.name,
-//            rchId = ben.rchId ?: "Not Available",
-//            hrpStatus = ben.hrpStatus,
-//            form1Filled = ben.hrppaFilled,
-//            syncState = ben.hrppaSyncState,
-//            form2Enabled = true,
-//            form2Filled = ben.hrpmbpFilled
-//        )
-//    }
-//
-//}
+/**
+ * Patient with Pregnant Woman Registration data
+ */
+data class PatientWithPwrCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    fun asDomainModel(): PatientWithPwrDomain {
+        return PatientWithPwrDomain(
+            patient = patient,
+            pwr = pwr
+        )
+    }
+}
 
-//data class BenWithPwrDomain(
-////    val benId: Long,
-//    val ben: BenBasicDomain,
-//    val pwr: PregnantWomanRegistrationCache?
-//)
+/**
+ * Domain model for displaying patient with pregnancy registration
+ */
+data class PatientWithPwrDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    /**
+     * Get weeks of pregnancy
+     */
+    fun getWeeksOfPregnancy(): Int {
+        return pwr?.lmpDate?.let {
+            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
+            (daysSinceLMP / 7).toInt()
+        } ?: 0
+    }
+
+    /**
+     * Get EDD (Expected Date of Delivery) - LMP + 280 days
+     */
+    fun getEDD(): Long {
+        return pwr?.lmpDate?.let { it + TimeUnit.DAYS.toMillis(280) } ?: 0L
+    }
+
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return pwr?.lmpDate?.let { getDateStringFromLong(it) ?: "NA" } ?: "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return getDateStringFromLong(getEDD()) ?: "NA"
+    }
+
+    /**
+     * Check if pregnancy is active
+     */
+    fun isActive(): Boolean {
+        return pwr?.active ?: false
+    }
+
+    /**
+     * Check if this is high-risk pregnancy
+     */
+    fun isHighRisk(): Boolean {
+        return pwr?.isHrp ?: false
+    }
+}
 
 data class PwrPost(
     val id: Long = 0,

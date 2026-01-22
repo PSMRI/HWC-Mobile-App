@@ -11,6 +11,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.model.PatientWithPwrCache
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
@@ -129,6 +131,29 @@ class MaternalHealthRepo @Inject constructor(
 
             return@withContext true
         }
+    }
+
+    /**
+     * Get all patients with their pregnancy registration data
+     */
+    fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getAllPatientsWithPWR()
+    }
+
+    /**
+     * Get specific patient with pregnancy registration
+     */
+    suspend fun getPatientWithPWR(patientID: String): PatientWithPwrCache? {
+        return withContext(Dispatchers.IO) {
+            maternalHealthDao.getPatientWithPWR(patientID)
+        }
+    }
+
+    /**
+     * Get count of pregnant women registrations
+     */
+    fun getPWRCount(): Flow<Int> {
+        return maternalHealthDao.getPWRCount()
     }
 
     private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {

@@ -24,6 +24,7 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_ALL_BENEFICIARIES_KEY = "show_all_beneficiaries"
         const val SHOW_EC_REGISTRATION_KEY = "show_ec_registration"
         const val SHOW_EC_TRACKING_KEY = "show_ec_tracking"
+        const val SHOW_PWR_KEY = "show_pwr"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
@@ -31,6 +32,7 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_SHOW_LIST = 1002 // Custom action ID for showing lists
         private const val ACTION_EC_REGISTRATION = 1003 // Action for EC registration list
         private const val ACTION_EC_TRACKING = 1004 // Action for EC tracking list
+        private const val ACTION_PWR = 1005 // Action for Pregnant Women Registration list
     }
 
     // NavDirections for sub-module navigation
@@ -64,6 +66,14 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_EC_TRACKING
         override val arguments = Bundle().apply {
             putBoolean(SHOW_EC_TRACKING_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Pregnant Women Registration list
+    private val showPWRAction = object : NavDirections {
+        override val actionId: Int = ACTION_PWR
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_PWR_KEY, true)
         }
     }
 
@@ -162,7 +172,7 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_register,
                 resources.getString(R.string.pregnant_women_registration),
                 null,
-                placeholderNavAction
+                showPWRAction
             ),
             Icon(
                 R.drawable.ic_medical_briefcase,

@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_TYPE_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_REGISTRATION_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -80,9 +81,10 @@ class SubModuleFragment : Fragment() {
         val rvAdapter = IconGridAdapter(
             IconGridAdapter.GridIconClickListener { navDirections ->
                 try {
-                    // Check if this is a direct list navigation (EC Registration or Tracking)
+                    // Check if this is a direct list navigation
                     val showECRegistration = navDirections.arguments.getBoolean(SHOW_EC_REGISTRATION_KEY, false)
                     val showECTracking = navDirections.arguments.getBoolean(SHOW_EC_TRACKING_KEY, false)
+                    val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
                     
                     when {
                         showECRegistration -> {
@@ -93,6 +95,11 @@ class SubModuleFragment : Fragment() {
                         showECTracking -> {
                             // Navigate to Eligible Couple Tracking List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showPWR -> {
+                            // Navigate to Pregnant Women Registration List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
                         else -> {

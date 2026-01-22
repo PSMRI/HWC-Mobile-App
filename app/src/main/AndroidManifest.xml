@@ -106,6 +106,11 @@
             android:label="@string/eligible_couple_tracking"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
+            android:name=".ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity"
+            android:exported="false"
+            android:label="@string/pregnant_women_registration"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"
