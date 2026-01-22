@@ -61,11 +61,13 @@ To successfully build and run this project, ensure the following versions:
 - **Java (JDK)**: 17
 
 > ⚠️ **Important Setup Notes**
->
+
+<!-- > -->
+
 > - Use **JDK 17 only**. Java 21 is **not supported** and will cause Gradle build failures.
-> - Ensure `kotlin.version=1.9.10` is set in `gradle.properties` to avoid Compose compiler compatibility errors.
+> - This project uses **Kotlin 2.3.0**. Do **not** override Kotlin versions manually unless you fully understand AGP compatibility.
 > - Add a valid `google-services.json` file inside the `app/` directory before running the project.
-> - Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
+> - Jetpack Compose compiler is bundled with Kotlin 2.x. Refer to the official Compose–Kotlin compatibility map if upgrading.
 
 > ⚠️ **Note**: Kotlin and Jetpack Compose versions must remain compatible. Refer to the official Compose–Kotlin compatibility map if upgrading.
 
