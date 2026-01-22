@@ -627,4 +627,19 @@
     <string name="edd_date">EDD Date</string>
     <string name="update_btn">Update</string>
 
+    <!-- RMNCHA+ Dashboard Module Strings -->
+    <string name="all_household">All Household</string>
+    <string name="all_beneficiaries">All Beneficiaries</string>
+    <string name="eligible_couple_list">Eligible Couple List</string>
+    <string name="maternal_health">Maternal Health</string>
+    <string name="child_care">Child Care</string>
+    <string name="disease_control">Disease Control</string>
+    <string name="communicable_diseases">Communicable Diseases</string>
+    <string name="routine_immunization">Routine Immunization</string>
+    <string name="high_risk_assessment">High Risk Assessment</string>
+    <string name="general_opd_care_list">General OPD Care List</string>
+    <string name="death_reports">Death Reports</string>
+    <string name="village_level_forms">Village Level Forms</string>
+    <string name="cd_icon_grid_icon">Icon Grid Item</string>
+
 </resources>

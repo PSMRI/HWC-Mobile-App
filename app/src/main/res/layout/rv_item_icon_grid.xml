@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="homeIcon"
+            type="org.piramalswasthya.cho.model.Icon" />
+
+        <variable
+            name="clickListener"
+            type="org.piramalswasthya.cho.adapter.IconGridAdapter.GridIconClickListener" />
+
+        <variable
+            name="scope"
+            type="kotlinx.coroutines.CoroutineScope" />
+
+    </data>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_small"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{()-> clickListener.onClicked(homeIcon)}"
+            app:cardCornerRadius="@dimen/padding_normal"
+            app:cardElevation="16dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="@dimen/padding_normal">
+
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_marginHorizontal="@dimen/margin_normal"
+                    android:background="@{homeIcon.colorPrimary ? @drawable/bg_circular_1 : @drawable/bg_circular_2 }"
+                    android:contentDescription="@string/cd_icon_grid_icon"
+                    android:padding="@dimen/padding_normal"
+                    android:scaleType="centerCrop"
+                    app:imageResource="@{homeIcon.icon}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_count"
+                    app:tint="?attr/colorOnPrimary"
+                    tools:background="@drawable/bg_circular_1"
+                    tools:src="@drawable/ic_sync" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:labelFor="@id/imageView2"
+                    android:paddingBottom="@dimen/padding_normal"
+                    android:text="@{homeIcon.title}"
+                    android:lines="2"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    app:autoSizeMaxTextSize="16sp"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/imageView2"
+                    tools:text="Dummy Text" />
+
+                <TextView
+                    android:id="@+id/tv_count"
+                    recordCount="@{homeIcon.count}"
+                    scope="@{scope}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingEnd="@dimen/padding_normal"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="2" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+</layout>

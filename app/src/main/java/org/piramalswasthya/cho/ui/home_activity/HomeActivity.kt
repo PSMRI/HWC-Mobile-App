@@ -305,10 +305,11 @@ class HomeActivity : AppCompatActivity() {
         val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
             homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-            tab.addTab(tab.newTab().setText("Home")) // Add "Dashboard" tab second
-            tab.addTab(tab.newTab().setText("Dashboard"))      // Add "Home" tab first
+            tab.addTab(tab.newTab().setText("Home"))
+            tab.addTab(tab.newTab().setText("Dashboard"))
+            tab.addTab(tab.newTab().setText("RMNCHA"))
 
-// Adding the Adapter to the ViewPager
+        // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
         if(!showDashboard && (dashboardBool == null || !dashboardBool)) {
             pager.post {
