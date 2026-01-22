@@ -58,13 +58,26 @@ class RMNCHAFragment : Fragment() {
         val rvAdapter = IconGridAdapter(
             IconGridAdapter.GridIconClickListener { navDirections ->
                 try {
-                    // Placeholder click handling - will be replaced with actual navigation
-                    // when the RMNCHA+ feature fragments are implemented
-                    Toast.makeText(
-                        requireContext(),
-                        "RMNCHA+ feature coming soon",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    // Check if this module has sub-modules
+                    val moduleType = navDirections.arguments.getString(
+                        org.piramalswasthya.cho.configuration.RMNCHAIconDataset.MODULE_TYPE_KEY
+                    )
+                    
+                    if (moduleType != null) {
+                        // Navigate to SubModuleActivity
+                        val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getIntent(
+                            requireContext(),
+                            moduleType
+                        )
+                        startActivity(intent)
+                    } else {
+                        // Direct navigation to list (not yet implemented)
+                        Toast.makeText(
+                            requireContext(),
+                            "List view coming soon",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     Timber.d("RMNCHA+ icon clicked: ${navDirections.actionId}")
                 } catch (e: Exception) {
                     Timber.e(e, "Navigation failed")

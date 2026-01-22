@@ -105,7 +105,6 @@
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
-    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
 
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
@@ -641,5 +640,25 @@
     <string name="death_reports">Death Reports</string>
     <string name="village_level_forms">Village Level Forms</string>
     <string name="cd_icon_grid_icon">Icon Grid Item</string>
+
+    <!-- Maternal Health Sub-modules -->
+    <string name="pregnant_women_registration">Pregnant Women Registration</string>
+    <string name="anc_visits">ANC Visits</string>
+    <string name="delivery_outcome">Delivery Outcome</string>
+    <string name="pnc_mother_list">PNC Mother List</string>
+    <string name="infant_registration">Infant Registration</string>
+    <string name="child_registration">Child Registration</string>
+    <string name="abortion_list">Abortion List</string>
+    <string name="e_pmsma_list">e-PMSMA List</string>
+
+    <!-- Child Care Sub-modules -->
+    <string name="infant_list">Infant List</string>
+    <string name="child_list">Child List</string>
+    <string name="adolescent_list">Adolescent List</string>
+    <string name="children_under_5_years">Children under 5 Years</string>
+
+    <!-- Eligible Couple Sub-modules -->
+    <string name="eligible_couple_registration">Eligible Couple Registration</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
 
 </resources>
