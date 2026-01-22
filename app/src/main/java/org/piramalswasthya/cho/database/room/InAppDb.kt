@@ -85,6 +85,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
+import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
@@ -218,6 +219,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
+        EligibleCoupleRegCache::class,
         EligibleCoupleTrackingCache::class,
         PrescriptionTemplateDB::class,
         CbacCache::class,
@@ -227,7 +229,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 110, exportSchema = false
+    version = 111, exportSchema = false
 )
 
 

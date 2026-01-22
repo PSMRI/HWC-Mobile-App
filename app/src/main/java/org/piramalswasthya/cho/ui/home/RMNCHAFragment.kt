@@ -71,7 +71,7 @@ class RMNCHAFragment : Fragment() {
                         )
                         startActivity(intent)
                     } else {
-                        // Handle "All Beneficiaries" - navigate to dedicated activity
+                        // Handle direct list navigation (only for "All Beneficiaries" and similar)
                         val showAllBeneficiaries = navDirections.arguments.getBoolean(
                             org.piramalswasthya.cho.configuration.RMNCHAIconDataset.SHOW_ALL_BENEFICIARIES_KEY,
                             false

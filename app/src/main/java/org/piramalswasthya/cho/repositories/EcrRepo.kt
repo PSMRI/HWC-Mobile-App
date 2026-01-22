@@ -38,6 +38,35 @@ class EcrRepo @Inject constructor(
     private val tmcNetworkApiService: AmritApiService
 ) {
 
+    // ===== Eligible Couple Registration Methods =====
+
+    fun getAllPatientsWithECR() = database.ecrDao.getAllPatientsWithECR()
+
+    suspend fun getPatientWithECR(patientId: String) = withContext(Dispatchers.IO) {
+        database.ecrDao.getPatientWithECR(patientId)
+    }
+
+    suspend fun getSavedECR(patientId: String) = withContext(Dispatchers.IO) {
+        database.ecrDao.getSavedECR(patientId)
+    }
+
+    suspend fun saveECR(ecrCache: org.piramalswasthya.cho.model.EligibleCoupleRegCache) {
+        withContext(Dispatchers.IO) {
+            database.ecrDao.upsert(ecrCache)
+        }
+    }
+
+    suspend fun updateECR(ecrCache: org.piramalswasthya.cho.model.EligibleCoupleRegCache) {
+        withContext(Dispatchers.IO) {
+            database.ecrDao.update(ecrCache)
+        }
+    }
+
+    suspend fun getECRCount() = withContext(Dispatchers.IO) {
+        database.ecrDao.ecrCount()
+    }
+
+    // ===== Eligible Couple Tracking Methods =====
 
     suspend fun getAllECT(patientID: String): List<EligibleCoupleTrackingCache> {
         return withContext(Dispatchers.IO) {

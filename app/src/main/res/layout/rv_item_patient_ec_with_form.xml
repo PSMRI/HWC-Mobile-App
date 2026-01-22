@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="patientWithEcr"
+            type="org.piramalswasthya.cho.model.PatientWithEcrDomain" />
+
+        <variable
+            name="clickListener"
+            type="org.piramalswasthya.cho.adapter.ECRegistrationAdapter.ClickListener" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_ec_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:backgroundTint="@color/default_button"
+        android:elevation="4dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Title Bar with Patient Name -->
+            <LinearLayout
+                android:id="@+id/ll_title_ec_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_female"
+                    app:tint="@color/default_button" />
+
+                <TextView
+                    android:id="@+id/tv_patient_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:text="@{patientWithEcr.patient.firstName + ` ` + (patientWithEcr.patient.lastName ?? ``)}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="@color/default_button"
+                    android:textStyle="bold"
+                    tools:text="SINA DD" />
+
+                <ImageView
+                    android:id="@+id/iv_miss_state"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:contentDescription="@string/status"
+                    android:src="@drawable/ic_female"
+                    android:visibility="gone"
+                    app:tint="@android:color/holo_red_dark"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iv_call"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:contentDescription="@string/call"
+                    android:src="@android:drawable/ic_menu_call"
+                    app:tint="@color/primary" />
+
+            </LinearLayout>
+
+            <!-- Details Section -->
+            <LinearLayout
+                android:id="@+id/linear_ec_Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp"
+                app:layout_constraintTop_toBottomOf="@id/ll_title_ec_bar">
+
+                <!-- Row 1: Husband Name & Age -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/husband_name"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.patient.spouseName ?? `NA`}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="AN" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/age_ben"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="30 YEARS" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Row 2: Beneficiary ID, Mobile Number, RCH ID -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/beneficiary_id"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.patient.beneficiaryID != null ? String.valueOf(patientWithEcr.patient.beneficiaryID) : `NA`}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="219097846526" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tv_mob_no_ph"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.patient.phoneNo ?? `NA`}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="9957027233" />
+                    </LinearLayout>
+
+                    <!-- RCH ID not available in Patient entity, displaying NA -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tv_rch_id"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="NA"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="NA" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Row 3: LMP Date, Status, VIEW Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/llLmpDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/lmp_date"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/benLmpDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="01-01-2025" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llBenStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/status"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/benStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="Missed Period" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_form_ec1"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:onClick="@{() -> clickListener.onClickForm(patientWithEcr)}"
+                        android:text="@string/view"
+                        android:textColor="@color/white"
+                        app:strokeColor="@color/white"
+                        tools:backgroundTint="@android:color/holo_green_dark" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

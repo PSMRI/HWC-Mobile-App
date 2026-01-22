@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.home.rmncha
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,8 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_ELIGIBLE_COUPLE
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_MATERNAL_HEALTH
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_TYPE_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_REGISTRATION_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -77,12 +80,33 @@ class SubModuleFragment : Fragment() {
         val rvAdapter = IconGridAdapter(
             IconGridAdapter.GridIconClickListener { navDirections ->
                 try {
-                    // Placeholder click handling - will be replaced with actual list navigation
-                    Toast.makeText(
-                        requireContext(),
-                        "List view coming soon",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    // Check if this is a direct list navigation (EC Registration or Tracking)
+                    val showECRegistration = navDirections.arguments.getBoolean(SHOW_EC_REGISTRATION_KEY, false)
+                    val showECTracking = navDirections.arguments.getBoolean(SHOW_EC_TRACKING_KEY, false)
+                    
+                    when {
+                        showECRegistration -> {
+                            // Navigate to Eligible Couple Registration List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleRegistrationActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showECTracking -> {
+                            // TODO: Navigate to Eligible Couple Tracking List (to be implemented)
+                            Toast.makeText(
+                                requireContext(),
+                                "Eligible Couple Tracking - Coming Soon",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else -> {
+                            // Other sub-modules - placeholder
+                            Toast.makeText(
+                                requireContext(),
+                                "List view coming soon",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                     Timber.d("Sub-module icon clicked: ${navDirections.actionId}")
                 } catch (e: Exception) {
                     Timber.e(e, "Navigation failed")

@@ -22,11 +22,15 @@ class RMNCHAIconDataset @Inject constructor() {
     companion object {
         const val MODULE_TYPE_KEY = "module_type"
         const val SHOW_ALL_BENEFICIARIES_KEY = "show_all_beneficiaries"
+        const val SHOW_EC_REGISTRATION_KEY = "show_ec_registration"
+        const val SHOW_EC_TRACKING_KEY = "show_ec_tracking"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
         private const val ACTION_SUBMODULE = 1001 // Custom action ID for sub-modules
         private const val ACTION_SHOW_LIST = 1002 // Custom action ID for showing lists
+        private const val ACTION_EC_REGISTRATION = 1003 // Action for EC registration list
+        private const val ACTION_EC_TRACKING = 1004 // Action for EC tracking list
     }
 
     // NavDirections for sub-module navigation
@@ -44,6 +48,22 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_SHOW_LIST
         override val arguments = Bundle().apply {
             putBoolean(SHOW_ALL_BENEFICIARIES_KEY, true)
+        }
+    }
+
+    // NavDirections for showing EC Registration list
+    private val showECRegistrationAction = object : NavDirections {
+        override val actionId: Int = ACTION_EC_REGISTRATION
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_EC_REGISTRATION_KEY, true)
+        }
+    }
+
+    // NavDirections for showing EC Tracking list
+    private val showECTrackingAction = object : NavDirections {
+        override val actionId: Int = ACTION_EC_TRACKING
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_EC_TRACKING_KEY, true)
         }
     }
 
@@ -238,13 +258,13 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_register,
                 resources.getString(R.string.eligible_couple_registration),
                 null,
-                placeholderNavAction
+                showECRegistrationAction
             ),
             Icon(
                 R.drawable.ic_person,
                 resources.getString(R.string.eligible_couple_tracking),
                 null,
-                placeholderNavAction
+                showECTrackingAction
             )
         ).apply {
             forEachIndexed { index, icon ->

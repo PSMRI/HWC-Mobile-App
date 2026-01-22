@@ -661,4 +661,19 @@
     <string name="eligible_couple_registration">Eligible Couple Registration</string>
     <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
 
+    <!-- Eligible Couple List Strings -->
+    <string name="husband_name">Husband Name</string>
+    <string name="lmp_date">LMP Date</string>
+    <string name="missed_period">Missed Period</string>
+    <string name="under_review">Under Review</string>
+    <string name="register">Register</string>
+    <string name="no_eligible_couples_found">No Eligible Couples Found</string>
+    <string name="call">Call</string>
+    <string name="no_data">No Data</string>
+    <string name="search">Search</string>
+    <string name="status">Status</string>
+    <string name="age_ben">Age</string>
+    <string name="tv_mob_no_ph">Mobile No</string>
+    <string name="tv_rch_id">RCH ID</string>
+
 </resources>
