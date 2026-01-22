@@ -6,9 +6,7 @@
 
 The **HWC Mobile App** is designed for healthcare programs to facilitate collaboration among health workers with different roles such as **Registrar, Nurse, Pharmacist, Lab Technician, and Doctor**.
 
-The application eliminates pen-and-paper workflows by enabling digital patient data entry with improved accuracy, traceability, and operational efficiency.
-
----
+## The application eliminates pen-and-paper workflows by enabling digital patient data entry with improved accuracy, traceability, and operational efficiency.
 
 ## Functional Description
 
