@@ -21,10 +21,12 @@ class RMNCHAIconDataset @Inject constructor() {
 
     companion object {
         const val MODULE_TYPE_KEY = "module_type"
+        const val SHOW_ALL_BENEFICIARIES_KEY = "show_all_beneficiaries"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
         private const val ACTION_SUBMODULE = 1001 // Custom action ID for sub-modules
+        private const val ACTION_SHOW_LIST = 1002 // Custom action ID for showing lists
     }
 
     // NavDirections for sub-module navigation
@@ -34,6 +36,14 @@ class RMNCHAIconDataset @Inject constructor() {
             override val arguments = Bundle().apply {
                 putString(MODULE_TYPE_KEY, moduleType)
             }
+        }
+    }
+
+    // NavDirections for showing all beneficiaries (switches to Home tab)
+    private val showAllBeneficiariesAction = object : NavDirections {
+        override val actionId: Int = ACTION_SHOW_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_ALL_BENEFICIARIES_KEY, true)
         }
     }
 
@@ -54,7 +64,7 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_person,
                 resources.getString(R.string.all_beneficiaries),
                 null,
-                placeholderNavAction
+                showAllBeneficiariesAction
             ),
             Icon(
                 R.drawable.ic_person,

@@ -744,4 +744,12 @@ private fun myMethodToRunAtSpecificTime() {
     // Your method code here
 //    viewModel.logout(myLocation,"By System")
 }
+
+    /**
+     * Switch to the Home tab (index 0) from RMNCHA dashboard
+     * Used when "All Beneficiaries" is clicked from RMNCHA tab
+     */
+    fun switchToHomeTab() {
+        pager.setCurrentItem(0, true) // true for smooth scroll animation
+    }
 }

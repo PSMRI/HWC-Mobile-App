@@ -64,19 +64,31 @@ class RMNCHAFragment : Fragment() {
                     )
                     
                     if (moduleType != null) {
-                        // Navigate to SubModuleActivity
+                        // Navigate to SubModuleActivity for modules with sub-cards
                         val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getIntent(
                             requireContext(),
                             moduleType
                         )
                         startActivity(intent)
                     } else {
-                        // Direct navigation to list (not yet implemented)
-                        Toast.makeText(
-                            requireContext(),
-                            "List view coming soon",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        // Handle "All Beneficiaries" - navigate to dedicated activity
+                        val showAllBeneficiaries = navDirections.arguments.getBoolean(
+                            org.piramalswasthya.cho.configuration.RMNCHAIconDataset.SHOW_ALL_BENEFICIARIES_KEY,
+                            false
+                        )
+                        
+                        if (showAllBeneficiaries) {
+                            // Navigate to AllBeneficiariesActivity
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.AllBeneficiariesActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        } else {
+                            // Other modules - list view coming soon
+                            Toast.makeText(
+                                requireContext(),
+                                "List view coming soon",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                     Timber.d("RMNCHA+ icon clicked: ${navDirections.actionId}")
                 } catch (e: Exception) {
