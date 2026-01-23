@@ -26,6 +26,12 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_EC_TRACKING_KEY = "show_ec_tracking"
         const val SHOW_PWR_KEY = "show_pwr"
         const val SHOW_ANC_VISITS_KEY = "show_anc_visits"
+        const val SHOW_DELIVERY_OUTCOME_KEY = "show_delivery_outcome"
+        const val SHOW_PNC_MOTHER_LIST_KEY = "show_pnc_mother_list"
+        const val SHOW_INFANT_REG_LIST_KEY = "show_infant_reg_list"
+        const val SHOW_CHILD_REG_LIST_KEY = "show_child_reg_list"
+        const val SHOW_ABORTION_LIST_KEY = "show_abortion_list"
+        const val SHOW_PMSMA_LIST_KEY = "show_pmsma_list"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
@@ -35,6 +41,12 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_EC_TRACKING = 1004 // Action for EC tracking list
         private const val ACTION_PWR = 1005 // Action for Pregnant Women Registration list
         private const val ACTION_ANC_VISITS = 1006 // Action for ANC Visits list
+        private const val ACTION_DELIVERY_OUTCOME = 1007 // Action for Delivery Outcome list
+        private const val ACTION_PNC_MOTHER_LIST = 1008 // Action for PNC Mother List
+        private const val ACTION_INFANT_REG_LIST = 1009 // Action for Infant Registration List
+        private const val ACTION_CHILD_REG_LIST = 1010 // Action for Child Registration List
+        private const val ACTION_ABORTION_LIST = 1011 // Action for Abortion List
+        private const val ACTION_PMSMA_LIST = 1012 // Action for e-PMSMA List
     }
 
     // NavDirections for sub-module navigation
@@ -84,6 +96,54 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_ANC_VISITS
         override val arguments = Bundle().apply {
             putBoolean(SHOW_ANC_VISITS_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Delivery Outcome list
+    private val showDeliveryOutcomeAction = object : NavDirections {
+        override val actionId: Int = ACTION_DELIVERY_OUTCOME
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_DELIVERY_OUTCOME_KEY, true)
+        }
+    }
+
+    // NavDirections for showing PNC Mother List
+    private val showPNCMotherListAction = object : NavDirections {
+        override val actionId: Int = ACTION_PNC_MOTHER_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_PNC_MOTHER_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Infant Registration List
+    private val showInfantRegListAction = object : NavDirections {
+        override val actionId: Int = ACTION_INFANT_REG_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_INFANT_REG_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Child Registration List
+    private val showChildRegListAction = object : NavDirections {
+        override val actionId: Int = ACTION_CHILD_REG_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_CHILD_REG_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Abortion List
+    private val showAbortionListAction = object : NavDirections {
+        override val actionId: Int = ACTION_ABORTION_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_ABORTION_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing e-PMSMA List
+    private val showPmsmaListAction = object : NavDirections {
+        override val actionId: Int = ACTION_PMSMA_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_PMSMA_LIST_KEY, true)
         }
     }
 
@@ -194,37 +254,37 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_new_born_baby,
                 resources.getString(R.string.delivery_outcome),
                 null,
-                placeholderNavAction
+                showDeliveryOutcomeAction
             ),
             Icon(
                 R.drawable.ic_new_born_baby,
                 resources.getString(R.string.pnc_mother_list),
                 null,
-                placeholderNavAction
+                showPNCMotherListAction
             ),
             Icon(
                 R.drawable.ic_infant,
                 resources.getString(R.string.infant_registration),
                 null,
-                placeholderNavAction
+                showInfantRegListAction
             ),
             Icon(
                 R.drawable.ic_child,
                 resources.getString(R.string.child_registration),
                 null,
-                placeholderNavAction
+                showChildRegListAction
             ),
             Icon(
                 R.drawable.ic_close,
                 resources.getString(R.string.abortion_list),
                 null,
-                placeholderNavAction
+                showAbortionListAction
             ),
             Icon(
                 R.drawable.ic_exclamation_circle,
                 resources.getString(R.string.e_pmsma_list),
                 null,
-                placeholderNavAction
+                showPmsmaListAction
             )
         ).apply {
             forEachIndexed { index, icon ->

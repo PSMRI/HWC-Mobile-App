@@ -214,3 +214,72 @@ data class PncDomain(
     val visitNumber: Int,
     val syncState: SyncState? = null
 )
+
+/**
+ * Patient with Delivery Outcome and PNC data
+ */
+data class PatientWithDeliveryOutcomeAndPncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val deliveryOutcome: DeliveryOutcomeCache?,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pncRecords: List<PNCVisitCache>
+) {
+    fun asDomainModel(): PatientWithPncDomain {
+        val activeDo = deliveryOutcome?.takeIf { it.isActive }
+        val latestPnc = pncRecords.maxByOrNull { it.pncPeriod }
+        
+        return PatientWithPncDomain(
+            patient = patient,
+            deliveryOutcome = activeDo,
+            latestPnc = latestPnc,
+            allPncRecords = pncRecords
+        )
+    }
+}
+
+/**
+ * Domain model for displaying patient with PNC data
+ */
+data class PatientWithPncDomain(
+    val patient: Patient,
+    val deliveryOutcome: DeliveryOutcomeCache?,
+    val latestPnc: PNCVisitCache?,
+    val allPncRecords: List<PNCVisitCache>
+) {
+    /**
+     * Get formatted delivery date string
+     */
+    fun getFormattedDeliveryDate(): String {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong(it) ?: "NA"
+        } ?: "NA"
+    }
+
+    /**
+     * Get days since delivery
+     */
+    fun getDaysSinceDelivery(): Long {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
+        } ?: 0L
+    }
+
+    /**
+     * Check if eligible for PNC (within 42 days or not completed all visits)
+     */
+    fun isEligibleForPNC(): Boolean {
+        val daysSinceDelivery = getDaysSinceDelivery()
+        val lastPncPeriod = latestPnc?.pncPeriod ?: 0
+        
+        // Eligible if within 42 days OR haven't completed all PNC visits
+        return daysSinceDelivery <= 42 || lastPncPeriod < 42
+    }
+}

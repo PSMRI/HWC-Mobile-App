@@ -256,6 +256,179 @@ data class PatientWithPwrDomain(
     }
 }
 
+/**
+ * Patient with PWR and ANC records (for abortion list)
+ */
+data class PatientWithPwrAndAncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: PregnantWomanRegistrationCache?,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
+) {
+    fun asAbortionDomainModel(): AbortionDomain {
+        val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
+        val activePwr = pwr?.takeIf { it.active }
+        
+        // Use LMP from PWR or abortion record
+        val lmpDateToUse = activePwr?.lmpDate
+            ?: abortionRecord?.let { 
+                // If no PWR, try to get LMP from abortion record (if stored)
+                // For now, use 0L if not available
+                0L
+            } ?: 0L
+
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        } else null
+
+        return AbortionDomain(
+            patient = patient,
+            pwr = activePwr,
+            abortionRecord = abortionRecord,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse,
+            abortionDate = abortionRecord?.abortionDate
+        )
+    }
+}
+
+/**
+ * Domain model for displaying abortion list
+ */
+data class AbortionDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val abortionRecord: PregnantWomanAncCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?,
+    val abortionDate: Long?
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted abortion date string
+     */
+    fun getFormattedAbortionDate(): String {
+        return abortionDate?.let { getDateStringFromLong(it) ?: "NA" } ?: "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Check if abortion form is filled (has abortion type and facility)
+     */
+    val isAbortionFormFilled: Boolean
+        get() = abortionRecord?.let { 
+            it.abortionType != null && it.abortionFacility != null 
+        } ?: false
+}
+
+/**
+ * Patient with PWR for PMSMA list
+ * Shows women registered for pregnancy (eligible for PMSMA)
+ */
+data class PatientWithPwrForPmsmaCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    fun asPmsmaDomainModel(): PmsmaDomain {
+        val activePwr = pwr?.takeIf { it.active }
+        
+        val lmpDateToUse = activePwr?.lmpDate ?: 0L
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        } else null
+
+        return PmsmaDomain(
+            patient = patient,
+            pwr = activePwr,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse
+        )
+    }
+}
+
+/**
+ * Domain model for displaying PMSMA list
+ */
+data class PmsmaDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+}
+
 data class PwrPost(
     val id: Long = 0,
     val benId: Long = 0,

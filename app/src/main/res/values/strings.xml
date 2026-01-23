@@ -688,4 +688,28 @@
     <string name="add_pmsma">ADD PMSMA</string>
     <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
 
+    <!-- Delivery Outcome Strings -->
+    <string name="no_delivered_women_found">No Delivered Women Found</string>
+
+    <!-- PNC Mother List Strings -->
+    <string name="delivery_date">Delivery Date</string>
+    <string name="days_since_delivery">Days Since Delivery</string>
+    <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
+
+    <!-- Infant Registration Strings -->
+    <string name="infant_reg_list">Infant Reg List</string>
+    <string name="mother_name">Mother\'s Name</string>
+    <string name="no_infants_found">No Infants Found</string>
+
+    <!-- Child Registration Strings -->
+    <string name="child_reg_list">Child Reg List</string>
+    <string name="no_children_found">No Children Found</string>
+
+    <!-- Abortion List Strings -->
+    <string name="abortion_date">Abortion Date</string>
+    <string name="no_abortion_records_found">No Abortion Records Found</string>
+
+    <!-- e-PMSMA List Strings -->
+    <string name="no_pmsma_women_found">No PMSMA Women Found</string>
+
 </resources>

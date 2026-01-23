@@ -21,6 +21,12 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_DELIVERY_OUTCOME_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PNC_MOTHER_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_REG_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_REG_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PMSMA_LIST_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -87,6 +93,12 @@ class SubModuleFragment : Fragment() {
                     val showECTracking = navDirections.arguments.getBoolean(SHOW_EC_TRACKING_KEY, false)
                     val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
                     val showANCVisits = navDirections.arguments.getBoolean(SHOW_ANC_VISITS_KEY, false)
+                    val showDeliveryOutcome = navDirections.arguments.getBoolean(SHOW_DELIVERY_OUTCOME_KEY, false)
+                    val showPNCMotherList = navDirections.arguments.getBoolean(SHOW_PNC_MOTHER_LIST_KEY, false)
+                    val showInfantRegList = navDirections.arguments.getBoolean(SHOW_INFANT_REG_LIST_KEY, false)
+                    val showChildRegList = navDirections.arguments.getBoolean(SHOW_CHILD_REG_LIST_KEY, false)
+                    val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
+                    val showPmsmaList = navDirections.arguments.getBoolean(SHOW_PMSMA_LIST_KEY, false)
                     
                     when {
                         showECRegistration -> {
@@ -107,6 +119,36 @@ class SubModuleFragment : Fragment() {
                         showANCVisits -> {
                             // Navigate to ANC Visits List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showDeliveryOutcome -> {
+                            // Navigate to Delivery Outcome List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showPNCMotherList -> {
+                            // Navigate to PNC Mother List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showInfantRegList -> {
+                            // Navigate to Infant Registration List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.InfantRegListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showChildRegList -> {
+                            // Navigate to Child Registration List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ChildRegListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showAbortionList -> {
+                            // Navigate to Abortion List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.AbortionListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showPmsmaList -> {
+                            // Navigate to e-PMSMA List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PmsmaListActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
                         else -> {

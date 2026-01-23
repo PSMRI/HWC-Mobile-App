@@ -116,6 +116,36 @@
             android:label="@string/anc_visits"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
+            android:name=".ui.home.rmncha.maternal_health.DeliveryOutcomeActivity"
+            android:exported="false"
+            android:label="@string/delivery_outcome"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.maternal_health.PNCMotherListActivity"
+            android:exported="false"
+            android:label="@string/pnc_mother_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.maternal_health.InfantRegListActivity"
+            android:exported="false"
+            android:label="@string/infant_reg_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.maternal_health.ChildRegListActivity"
+            android:exported="false"
+            android:label="@string/child_reg_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.maternal_health.AbortionListActivity"
+            android:exported="false"
+            android:label="@string/abortion_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
+            android:name=".ui.home.rmncha.maternal_health.PmsmaListActivity"
+            android:exported="false"
+            android:label="@string/e_pmsma_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"

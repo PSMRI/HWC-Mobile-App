@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
@@ -13,6 +15,7 @@ import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.io.IOException
@@ -51,6 +54,36 @@ class PncRepo @Inject constructor(
 
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>{
         return pncDao.getAllPNCsByPatId(patientID)
+    }
+
+    /**
+     * Get all patients who are eligible for PNC (have delivered and within 42 days or not completed all visits)
+     * First gets patientIDs from DeliveryOutcome records, then fetches full patient data
+     */
+    fun getAllPNCMothers(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>> {
+        return pncDao.getPNCMothersPatientIDs()
+            .transformLatest { patientIDs ->
+                val patients = mutableListOf<PatientWithDeliveryOutcomeAndPncCache>()
+                patientIDs.forEach { patientID ->
+                    val patient = withContext(Dispatchers.IO) {
+                        pncDao.getPatientWithDeliveryOutcomeAndPncByID(patientID)
+                    }
+                    patient?.let {
+                        // Filter for females aged 15-49
+                        if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {
+                            patients.add(it)
+                        }
+                    }
+                }
+                emit(patients)
+            }
+    }
+
+    /**
+     * Get count of PNC mothers
+     */
+    fun getPNCMothersCount(): Flow<Int> {
+        return pncDao.getPNCMothersCount()
     }
 
     suspend fun processPncVisits(): Boolean {

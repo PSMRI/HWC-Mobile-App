@@ -5,14 +5,18 @@ import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
-import kotlinx.coroutines.flow.Flow
+import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.model.PatientWithPwrCache
+import org.piramalswasthya.cho.model.PmsmaDomain
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
@@ -154,6 +158,69 @@ class MaternalHealthRepo @Inject constructor(
      */
     fun getPWRCount(): Flow<Int> {
         return maternalHealthDao.getPWRCount()
+    }
+
+    /**
+     * Get all patients who have delivered
+     * First gets patientIDs from ANC records, then fetches full patient data
+     */
+    fun getAllDeliveredWomen(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getDeliveredWomenPatientIDs()
+            .transformLatest { patientIDs ->
+                val patients = mutableListOf<PatientWithPwrCache>()
+                patientIDs.forEach { patientID ->
+                    val patient = withContext(Dispatchers.IO) {
+                        maternalHealthDao.getPatientWithPWRByID(patientID)
+                    }
+                    patient?.let {
+                        // Filter for females aged 15-49
+                        if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {
+                            patients.add(it)
+                        }
+                    }
+                }
+                emit(patients)
+            }
+    }
+
+    /**
+     * Get count of delivered women
+     */
+    fun getDeliveredWomenCount(): Flow<Int> {
+        return maternalHealthDao.getDeliveredWomenCount()
+    }
+
+    /**
+     * Get all women with abortion records
+     */
+    fun getAbortionPregnantWomanList(): Flow<List<AbortionDomain>> {
+        return maternalHealthDao.getAllAbortionWomenList()
+            .map { list -> 
+                list.map { it.asAbortionDomainModel() }
+                    .filter { it.abortionDate != null } // Ensure abortion date exists
+            }
+    }
+
+    /**
+     * Get count of abortion women
+     */
+    fun getAbortionWomenCount(): Flow<Int> {
+        return maternalHealthDao.getAllAbortionWomenCount()
+    }
+
+    /**
+     * Get all women registered for pregnancy (eligible for PMSMA)
+     */
+    fun getRegisteredPmsmaWomenList(): Flow<List<PmsmaDomain>> {
+        return maternalHealthDao.getAllRegisteredPmsmaWomenList()
+            .map { list -> list.map { it.asPmsmaDomainModel() } }
+    }
+
+    /**
+     * Get count of PMSMA eligible women
+     */
+    fun getRegisteredPmsmaWomenCount(): Flow<Int> {
+        return maternalHealthDao.getAllRegisteredPmsmaWomenCount()
     }
 
     private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {
