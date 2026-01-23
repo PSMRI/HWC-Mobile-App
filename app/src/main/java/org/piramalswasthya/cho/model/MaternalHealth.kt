@@ -333,6 +333,27 @@ data class PregnantWomanAncCache(
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
+
+    var lmpDate: Long? = null,
+    var visitDate: Long? = null,
+    var weekOfPregnancy: Int? = null,
+
+    var serialNo: String? = null,
+    var methodOfTermination: String? = null,
+    var methodOfTerminationId: Int? = 0,
+    var terminationDoneBy: String? = null,
+    var terminationDoneById: Int? = 0,
+    var isPaiucdId: Int? = 0,
+    var isYesOrNo: Boolean? = false,
+    var isPaiucd: String? = null,
+    var dateSterilisation: Long? = null,
+    var remarks: String? = null,
+    var abortionImg1: String? = null,
+    var abortionImg2: String? = null,
+    var placeOfDeath: String? = null,
+    var placeOfDeathId: Int? = 0,
+    var otherPlaceOfDeath: String? = null,
+
     var isAborted: Boolean = false,
     var abortionType: String? = null,
     var abortionTypeId: Int = 0,
@@ -371,7 +392,23 @@ data class PregnantWomanAncCache(
     val createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
-    var syncState: SyncState
+    var syncState: SyncState,
+    var frontFilePath : String? = null,
+    var backFilePath : String? = null,
+
+    // NEW FIELDS - JIRA Validation Requirements
+    var bloodSugarFasting: Int? = null,  // Blood Sugar (Fasting) mg/dL
+    var urineSugar: String? = null,  // Urine Sugar dropdown value
+    var urineSugarId: Int = 0,  // Urine Sugar dropdown ID
+    var fetalHeartRate: Double? = null,  // FHR in bpm
+    var calciumGiven: Int = 0,  // Calcium tablets given
+    var dangerSigns: String? = null,  // Danger Signs dropdown value
+    var dangerSignsId: Int = 0,  // Danger Signs dropdown ID
+    var counsellingProvided: Boolean? = null,  // Counselling Yes/No
+    var counsellingTopics: String? = null,  // Counselling Topics value
+    var counsellingTopicsId: Int = 0,  // Counselling Topics ID
+    var nextAncVisitDate: Long? = null  // Next ANC Visit Date
+
 ) : FormDataModel {
     fun asPostModel(benId: Long): ANCPost {
         return ANCPost(

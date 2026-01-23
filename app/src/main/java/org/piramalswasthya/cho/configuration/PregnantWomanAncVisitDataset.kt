@@ -154,10 +154,11 @@ class PregnantWomanAncVisitDataset(
     )
     private val urineAlbumin = FormElement(
         id = 14,
-        inputType = InputType.RADIO,
+        inputType = InputType.DROPDOWN,
         title = "Urine Albumin",
-        entries = arrayOf("Absent", "Present"),
-        required = false,
+        entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
+        required = true,
+        hasDependants = true
     )
     private val randomBloodSugarTest = FormElement(
         id = 15,
@@ -313,6 +314,104 @@ class PregnantWomanAncVisitDataset(
         hasDependants = false
     )
 
+    private val bloodSugarFasting = FormElement(
+        id = 33,
+        inputType = InputType.EDIT_TEXT,
+        title = "Blood Sugar (Fasting) mg/dL",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        required = true,
+        min = 40,
+        max = 400,
+        hasDependants = true
+    )
+
+    private val urineSugar = FormElement(
+        id = 34,
+        inputType = InputType.DROPDOWN,
+        title = "Urine Sugar",
+        entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val fetalHeartRate = FormElement(
+        id = 35,
+        inputType = InputType.EDIT_TEXT,
+        title = "Fetal Heart Rate (FHR) bpm",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL,
+        etMaxLength = 5,
+        required = true,
+        minDecimal = 40.0,
+        maxDecimal = 200.0,
+        hasDependants = true
+    )
+
+    private val calciumGiven = FormElement(
+        id = 36,
+        inputType = InputType.EDIT_TEXT,
+        title = "Calcium Given",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        required = false,
+        min = 0,
+        max = 400
+    )
+
+    private val dangerSigns = FormElement(
+        id = 37,
+        inputType = InputType.CHECKBOXES,
+        title = "Danger Signs",
+        entries = arrayOf(
+            "None",
+            "Vaginal Bleeding",
+            "Swelling of hands, feet or face",
+            "Severe Headache",
+            "Blurred Vision",
+            "Convulsions/ seizures",
+            "Severe abdominal pain",
+            "Fever > 38°C",
+            "Painful urination/ Burning",
+            "Reduced fetal movement",
+            "Vaginal fluid leakage",
+            "Persistent vomiting",
+            "Breathlessness/ chest pain"
+        ),
+        required = true,
+        hasDependants = true
+    )
+
+    private val counsellingProvided = FormElement(
+        id = 38,
+        inputType = InputType.RADIO,
+        title = "Counselling Provided",
+        entries = arrayOf("No", "Yes"),
+        required = false,
+        hasDependants = true
+    )
+
+    private val counsellingTopics = FormElement(
+        id = 39,
+        inputType = InputType.CHECKBOXES,
+        title = "Which counselling was provided?",
+        entries = arrayOf(
+            "Nutrition",
+            "Birth Preparedness and Complication readiness",
+            "Identification of danger signs",
+            "Medication compliance (IFA/ Calcium/ other medications)",
+            "Immunization",
+            "Hygiene and Infection Prevention"
+        ),
+        required = true
+    )
+
+    private val nextAncVisitDate = FormElement(
+        id = 40,
+        inputType = InputType.DATE_PICKER,
+        title = "Next ANC Visit Date",
+        required = true
+    )
+
     private var toggleBp = false
 
     fun resetBpToggle() {
@@ -340,19 +439,25 @@ class PregnantWomanAncVisitDataset(
             bp,
             pulseRate,
             hb,
+            bloodSugarFasting,
             fundalHeight,
             urineAlbumin,
+            urineSugar,
+            fetalHeartRate,
             randomBloodSugarTest,
             dateOfTTOrTd1,
             dateOfTTOrTd2,
             dateOfTTOrTdBooster,
             numFolicAcidTabGiven,
             numIfaAcidTabGiven,
+            calciumGiven,
             anyHighRisk,
+            dangerSigns,
             highRiskReferralFacility,
             hrpConfirm,
-            maternalDeath
-
+            counsellingProvided,
+            maternalDeath,
+            nextAncVisitDate
         )
         lmpDate.value = this.regis.getDateStringFromLong(this.regis.lmpDate)
         abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
@@ -363,6 +468,10 @@ class PregnantWomanAncVisitDataset(
         dateOfTTOrTd1.max = abortionDate.max
         dateOfTTOrTd2.max = abortionDate.max
         dateOfTTOrTdBooster.max = abortionDate.max
+
+        // Next ANC Visit Date range (> today, <= EDD)
+        nextAncVisitDate.min = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
+        nextAncVisitDate.max = getEddFromLmp(regis.lmpDate)
 
         if (lastAnc == null)
             list.remove(dateOfTTOrTd2)
@@ -401,6 +510,10 @@ class PregnantWomanAncVisitDataset(
                     list.remove(numIfaAcidTabGiven)
                 } else {
                     list.remove(numFolicAcidTabGiven)
+                }
+                // Disable Calcium up to 14 weeks
+                if (weeks <= 14) {
+                    list.remove(calciumGiven)
                 }
                 weeks.toString()
             }
@@ -715,6 +828,95 @@ class PregnantWomanAncVisitDataset(
                 validateAllAlphabetsSpaceOnEditText(otherMaternalDeathProbableCause)
             }
 
+            // NEW FIELD VALIDATIONS
+
+            bloodSugarFasting.id -> {
+                validateIntMinMax(bloodSugarFasting)
+                bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
+                    if (bsValue > 95) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                            anyHighRisk.value = anyHighRisk.entries?.last()
+                        }
+                        if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+                            if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
+                                highRiskCondition.value = highRiskCondition.entries!![6]
+                            }
+                        }
+                    }
+                }
+                -1
+            }
+
+            urineSugar.id -> {
+                urineSugar.value?.let { value ->
+                    val riskLevels = arrayOf("+", "++", "+++")
+                    if (value in riskLevels) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                            anyHighRisk.value = anyHighRisk.entries?.last()
+                        }
+                        if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
+                            highRiskCondition.value = highRiskCondition.entries!![6]
+                        }
+                    }
+                }
+                -1
+            }
+
+            fetalHeartRate.id -> {
+                validateDoubleUpto1DecimalPlaces(fetalHeartRate)
+                if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
+
+                fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
+                    if (fhrValue < 110.0 || fhrValue > 160.0) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                            anyHighRisk.value = anyHighRisk.entries?.last()
+                        }
+                    }
+                }
+                -1
+            }
+
+            urineAlbumin.id -> {
+                urineAlbumin.value?.let { value ->
+                    val riskLevels = arrayOf("+", "++", "+++")
+                    if (value in riskLevels) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                            anyHighRisk.value = anyHighRisk.entries?.last()
+                        }
+                    }
+                }
+                -1
+            }
+
+            calciumGiven.id -> validateIntMinMax(calciumGiven)
+
+            dangerSigns.id -> {
+                dangerSigns.value?.let { value ->
+                    if (value != "None") {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                            anyHighRisk.value = anyHighRisk.entries?.last()
+                        }
+                        when (value) {
+                            "Vaginal Bleeding" -> highRiskCondition.value = highRiskCondition.entries!![3]
+                            "Convulsions/ seizures" -> highRiskCondition.value = highRiskCondition.entries!![2]
+                            else -> {
+                                if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
+                                    highRiskCondition.value = highRiskCondition.entries!!.last()
+                                }
+                            }
+                        }
+                    }
+                }
+                -1
+            }
+
+            counsellingProvided.id -> triggerDependants(
+                source = counsellingProvided,
+                passedIndex = index,
+                triggerIndex = 1,
+                target = counsellingTopics,
+            )
+
             else -> -1
         }
 
@@ -767,6 +969,19 @@ class PregnantWomanAncVisitDataset(
             deliveryDone.value?.let {
                 cache.pregnantWomanDelivered = it == deliveryDone.entries!!.first()
             }
+
+
+            cache.bloodSugarFasting = bloodSugarFasting.value?.toInt()
+            cache.urineSugar = urineSugar.value
+            cache.urineSugarId = urineSugar.getPosition()
+            cache.fetalHeartRate = fetalHeartRate.value?.toDouble()
+            cache.calciumGiven = calciumGiven.value?.toInt() ?: 0
+            cache.dangerSigns = dangerSigns.value
+            cache.dangerSignsId = dangerSigns.getPosition()
+            cache.counsellingProvided = counsellingProvided.value == counsellingProvided.entries?.last()
+            cache.counsellingTopics = counsellingTopics.value
+            cache.counsellingTopicsId = counsellingTopics.getPosition()
+            cache.nextAncVisitDate = nextAncVisitDate.value?.let { getLongFromDate(it) }
         }
     }
 
