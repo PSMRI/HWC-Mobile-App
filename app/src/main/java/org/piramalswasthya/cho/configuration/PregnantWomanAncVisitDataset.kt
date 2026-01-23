@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
-import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
@@ -837,7 +836,7 @@ class PregnantWomanAncVisitDataset(
                         if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
                         }
-                        if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+                        else {
                             if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
                                 highRiskCondition.value = highRiskCondition.entries!![6]
                             }
@@ -867,10 +866,8 @@ class PregnantWomanAncVisitDataset(
                 if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
 
                 fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
-                    if (fhrValue < 110.0 || fhrValue > 160.0) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                    if( (fhrValue < 110.0 || fhrValue > 160.0) && (anyHighRisk.value != anyHighRisk.entries?.last())) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
-                        }
                     }
                 }
                 -1
@@ -879,10 +876,8 @@ class PregnantWomanAncVisitDataset(
             urineAlbumin.id -> {
                 urineAlbumin.value?.let { value ->
                     val riskLevels = arrayOf("+", "++", "+++")
-                    if (value in riskLevels) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                    if( (value in riskLevels) &&(anyHighRisk.value != anyHighRisk.entries?.last()) ){
                             anyHighRisk.value = anyHighRisk.entries?.last()
-                        }
                     }
                 }
                 -1

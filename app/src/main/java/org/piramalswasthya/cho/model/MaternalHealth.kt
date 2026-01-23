@@ -1,21 +1,16 @@
 package org.piramalswasthya.cho.model
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
-import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
-import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
