@@ -63,9 +63,7 @@ class PncRepo @Inject constructor(
             .transformLatest { patientIDs ->
                 val patients = mutableListOf<PatientWithDeliveryOutcomeAndPncCache>()
                 patientIDs.forEach { patientID ->
-                    val patient = withContext(Dispatchers.IO) {
-                        pncDao.getPatientWithDeliveryOutcomeAndPncByID(patientID)
-                    }
+                    val patient = pncDao.getPatientWithDeliveryOutcomeAndPncByID(patientID)
                     patient?.let {
                         // Filter for females aged 15-49
                         if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {

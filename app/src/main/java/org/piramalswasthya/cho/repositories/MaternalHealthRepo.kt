@@ -45,14 +45,6 @@ class MaternalHealthRepo @Inject constructor(
     }
 
 
-
-//    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
-//        return withContext(Dispatchers.IO) {
-//            maternalHealthDao.getSavedActiveRecord(benId)
-//        }
-//    }
-//
-
     suspend fun getLastVisitNumber(benId: String): Int? {
         return maternalHealthDao.getLastVisitNumber(benId)
     }
@@ -161,9 +153,7 @@ class MaternalHealthRepo @Inject constructor(
             .transformLatest { patientIDs ->
                 val patients = mutableListOf<PatientWithPwrCache>()
                 patientIDs.forEach { patientID ->
-                    val patient = withContext(Dispatchers.IO) {
-                        maternalHealthDao.getPatientWithPWRByID(patientID)
-                    }
+                    val patient = maternalHealthDao.getPatientWithPWRByID(patientID)
                     patient?.let {
                         // Filter for females aged 15-49
                         if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {

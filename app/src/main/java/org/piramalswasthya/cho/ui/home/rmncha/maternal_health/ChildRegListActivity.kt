@@ -85,9 +85,13 @@ class ChildRegListActivity : AppCompatActivity() {
 
     private fun setupSearch() {
         binding.searchView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No action needed before text changes
+            }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // No action needed during text changes - handled in afterTextChanged
+            }
 
             override fun afterTextChanged(s: Editable?) {
                 filterChildren(s?.toString() ?: "")

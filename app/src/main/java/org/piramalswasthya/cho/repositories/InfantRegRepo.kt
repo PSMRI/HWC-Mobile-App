@@ -1,9 +1,7 @@
 package org.piramalswasthya.cho.repositories
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.model.ChildRegDomain
 import org.piramalswasthya.cho.model.InfantRegCache
@@ -44,27 +42,16 @@ class InfantRegRepo @Inject constructor(
         return infantRegDao.getAllRegisteredInfantsCount()
     }
 
-    suspend fun getInfantReg(patientID: String, babyIndex: Int): InfantRegCache? {
-        return withContext(Dispatchers.IO) {
-            infantRegDao.getInfantReg(patientID, babyIndex)
-        }
-    }
+    suspend fun getInfantReg(patientID: String, babyIndex: Int): InfantRegCache? =
+        infantRegDao.getInfantReg(patientID, babyIndex)
 
-    suspend fun getInfantRegFromChildPatientID(childPatientID: String): InfantRegCache? {
-        return withContext(Dispatchers.IO) {
-            infantRegDao.getInfantRegFromChildPatientID(childPatientID)
-        }
-    }
+    suspend fun getInfantRegFromChildPatientID(childPatientID: String): InfantRegCache? =
+        infantRegDao.getInfantRegFromChildPatientID(childPatientID)
 
     suspend fun saveInfantReg(infantRegCache: InfantRegCache) {
-        withContext(Dispatchers.IO) {
-            infantRegDao.saveInfantReg(infantRegCache)
-        }
+        infantRegDao.saveInfantReg(infantRegCache)
     }
 
-    suspend fun getNumBabiesRegistered(patientID: String): Int {
-        return withContext(Dispatchers.IO) {
-            infantRegDao.getNumBabiesRegistered(patientID)
-        }
-    }
+    suspend fun getNumBabiesRegistered(patientID: String): Int =
+        infantRegDao.getNumBabiesRegistered(patientID)
 }

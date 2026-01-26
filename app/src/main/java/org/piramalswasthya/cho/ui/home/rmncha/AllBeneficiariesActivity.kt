@@ -8,9 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -151,7 +149,9 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                     Timber.d("Loading patients...")
                 }
 
-                else -> {}
+                else -> {
+                    // No action needed for other states
+                }
             }
         }
 
@@ -164,11 +164,9 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                             item.patient.registrationDate
                         }
                         patientCount = sortedList.size
-                        withContext(Dispatchers.Main) {
-                            itemAdapter?.submitList(sortedList)
-                            binding.patientListContainer.patientCount.text =
-                                sortedList.size.toString() + getResultStr(sortedList.size)
-                        }
+                        itemAdapter?.submitList(sortedList)
+                        binding.patientListContainer.patientCount.text =
+                            sortedList.size.toString() + getResultStr(sortedList.size)
                     }
                 }
             }
@@ -180,11 +178,9 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                             item.patient.registrationDate
                         }
                         patientCount = sortedList.size
-                        withContext(Dispatchers.Main) {
-                            itemAdapter?.submitList(sortedList)
-                            binding.patientListContainer.patientCount.text =
-                                sortedList.size.toString() + getResultStr(sortedList.size)
-                        }
+                        itemAdapter?.submitList(sortedList)
+                        binding.patientListContainer.patientCount.text =
+                            sortedList.size.toString() + getResultStr(sortedList.size)
                     }
                 }
             }
@@ -196,11 +192,9 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                             item.patient.registrationDate
                         }
                         patientCount = sortedList.size
-                        withContext(Dispatchers.Main) {
-                            itemAdapter?.submitList(sortedList)
-                            binding.patientListContainer.patientCount.text =
-                                sortedList.size.toString() + getResultStr(sortedList.size)
-                        }
+                        itemAdapter?.submitList(sortedList)
+                        binding.patientListContainer.patientCount.text =
+                            sortedList.size.toString() + getResultStr(sortedList.size)
                     }
                 }
             }
@@ -212,11 +206,9 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                             item.patient.registrationDate
                         }
                         patientCount = sortedList.size
-                        withContext(Dispatchers.Main) {
-                            itemAdapter?.submitList(sortedList)
-                            binding.patientListContainer.patientCount.text =
-                                itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
-                        }
+                        itemAdapter?.submitList(sortedList)
+                        binding.patientListContainer.patientCount.text =
+                            itemAdapter?.itemCount.toString() + getResultStr(itemAdapter?.itemCount)
                     }
                 }
             }
