@@ -521,7 +521,11 @@ data class ANCPost(
             pulseRate = pulseRate.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbumin = if (urineAlbuminPresent == true) "Present" else "Absent",
+            urineAlbumin = when (urineAlbuminPresent) {
+                true -> "+"
+                false -> "Negative"
+                null -> null
+            },
 //            urineAlbuminId
             randomBloodSugarTest = if (bloodSugarTestDone == true) "Done" else "Not Done",
 //            randomBloodSugarTestId

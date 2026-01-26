@@ -479,7 +479,13 @@ class PregnantWomanAncVisitDataset(
         val edd = getEddFromLmp(regis.lmpDate)
         val tomorrow = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
         nextAncVisitDate.max = edd
-        nextAncVisitDate.min = minOf(tomorrow, edd)
+        // Allow saved next visit date when editing, but still cap at EDD and ensure >= tomorrow for new visits
+        saved?.let { savedAnc ->
+            val savedCandidate = savedAnc.nextAncVisitDate ?: (savedAnc.ancDate + TimeUnit.DAYS.toMillis(1))
+            nextAncVisitDate.min = minOf(maxOf(tomorrow, savedCandidate), edd)
+        } ?: run {
+            nextAncVisitDate.min = minOf(tomorrow, edd)
+        }
 
         if (lastAnc == null)
             list.remove(dateOfTTOrTd2)
@@ -570,7 +576,13 @@ class PregnantWomanAncVisitDataset(
             pulseRate.value = savedAnc.pulseRate
             hb.value = savedAnc.hb?.toString()
             fundalHeight.value = savedAnc.fundalHeight?.toString()
-            urineAlbumin.value = urineAlbumin.getStringFromPosition(savedAnc.urineAlbuminId)
+            // Map legacy "Present/Absent" values to new dropdown values
+            urineAlbumin.value = when (savedAnc.urineAlbumin?.trim()) {
+                "Present" -> "+"
+                "Absent" -> "Negative"
+                "Negative", "Trace", "+", "++", "+++" -> savedAnc.urineAlbumin
+                else -> urineAlbumin.getStringFromPosition(savedAnc.urineAlbuminId)
+            }
             randomBloodSugarTest.value =
                 randomBloodSugarTest.getStringFromPosition(savedAnc.randomBloodSugarTestId)
             dateOfTTOrTd1.value = regis.tt1?.let { getDateFromLong(it) }
@@ -1089,7 +1101,7 @@ class PregnantWomanAncVisitDataset(
             // For multi-select checkboxes, getPosition() doesn't work correctly
             // Store 0 since the value itself contains all the information
             cache.dangerSignsId = if (dangerSigns.inputType == InputType.CHECKBOXES) 0 else dangerSigns.getPosition()
-            cache.counsellingProvided = counsellingProvided.value == counsellingProvided.entries?.last()
+            cache.counsellingProvided = counsellingProvided.value?.let { it == counsellingProvided.entries?.last() }
             cache.counsellingTopics = counsellingTopics.value
             // For multi-select checkboxes, getPosition() doesn't work correctly
             // Store 0 since the value itself contains all the information

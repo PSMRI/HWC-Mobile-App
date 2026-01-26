@@ -1358,6 +1358,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                                 isNavigationInProgress = false
                                 binding.btnSubmit.isEnabled = true
                                 checkAndNavigateAnc()
+                            } else {
+                                isNavigationInProgress = false
+                                binding.btnSubmit.isEnabled = true
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to save LMP date. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
@@ -1394,6 +1402,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                                             benVisitInfo.patient.patientID, visitNumber
                                         )
                                     )
+                                } else {
+                                    isNavigationInProgress = false
+                                    binding.btnSubmit.isEnabled = true
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Failed to save delivery date. Please try again.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         }
