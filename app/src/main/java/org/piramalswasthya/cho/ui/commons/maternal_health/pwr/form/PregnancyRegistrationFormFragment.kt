@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,76 +67,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             val adapter = FormInputAdapter(
                 formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                     viewModel.updateListOnValueChanged(formId, index)
-                    val layoutManager = binding.form.rvInputForm.layoutManager as LinearLayoutManager
-                    val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
-                    val offset = binding.form.rvInputForm.getChildAt(0)?.top ?: 0
-
-                    // Specifically handle complications field to update immediately
-                    if (formId == 14) { // complicationsInPreviousPregnancy.id (updated from 13)
-                        // Find the position of the complications field
-                        val complicationsIndex = viewModel.getIndexOfComplications()
-                        if (complicationsIndex >= 0) {
-                            // Notify item changed to refresh the view
-                            binding.form.rvInputForm.adapter?.notifyItemChanged(complicationsIndex)
-                        }
-                    }
-                    if (formId == 19 || formId == 21 || formId == 23) {
-                        // Force immediate UI update for date fields
-                        lifecycleScope.launch {
-                            delay(100)
-                            binding.form.rvInputForm.adapter?.notifyDataSetChanged()
-
-                            // Restore scroll position
-                            layoutManager.scrollToPositionWithOffset(firstVisiblePosition, offset)
-                        }
-                    }
-                    if (formId == 18) { // preExistingConditions.id (updated from 17)
-                        // Find the position of the complications field
-                        val preExistingConditionsIndex = viewModel.getIndexOfPreExistingConditions()
-                        if (preExistingConditionsIndex >= 0) {
-                            // Notify item changed to refresh the view
-                            binding.form.rvInputForm.adapter?.notifyItemChanged(preExistingConditionsIndex)
-                        }
-                    }
-                    if (formId == 15 || formId == 16) { // height or weight fields (updated from 14,15)
-                        val bmiPosition = viewModel.getIndexOfBmi()
-                        if (bmiPosition >= 0) {
-                            binding.form.rvInputForm.adapter?.notifyItemChanged(bmiPosition)
-                        }
-                    }
-
-                    if (formId == 5) { // lmp.id (updated from 4)
-                        binding.form.rvInputForm.adapter?.apply {
-                            notifyItemChanged(viewModel.getIndexOfEdd())
-                            notifyItemChanged(viewModel.getIndexOfGestationalAge())
-                            notifyItemChanged(viewModel.getIndexOfTrimester())
-                        }
-                    }
-                    if (formId == 10) { // gravida.id (updated from 9)
-                        binding.form.rvInputForm.adapter?.apply {
-                            notifyItemChanged(viewModel.getIndexOfPara())
-                        }
-                    }
-
-                    // Handle VDRL/RPR, HIV, and HBsAg results for showing/hiding date fields
-                    if (formId == 19 || formId == 21 || formId == 23) { // vdrlRprResult.id, hivResult.id, hbsAgResult.id
-                        val testDateFieldId = when (formId) {
-                            19 -> 20 // vdrlRprDate.id
-                            21 -> 22 // hivTestDate.id
-                            23 -> 24 // hbsAgTestDate.id
-                            else -> -1
-                        }
-
-                        if (testDateFieldId != -1) {
-                            val testDateIndex = viewModel.getIndexOfTestDate(testDateFieldId)
-                            if (testDateIndex >= 0) {
-                                binding.form.rvInputForm.adapter?.notifyItemChanged(testDateIndex)
-                            } else {
-                                // If date field should be shown but isn't in list yet, refresh the whole list
-                                binding.form.rvInputForm.adapter?.notifyDataSetChanged()
-                            }
-                        }
-                    }
+                    handleFormFieldChange(formId)
                 },
                 isEnabled = !exists
             )
@@ -148,6 +80,112 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+    }
+
+    /**
+     * Handle form field changes and update UI accordingly
+     */
+    private fun handleFormFieldChange(formId: Int) {
+        val layoutManager = binding.form.rvInputForm.layoutManager as? LinearLayoutManager ?: return
+        val adapter = binding.form.rvInputForm.adapter ?: return
+        val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+        val offset = binding.form.rvInputForm.getChildAt(0)?.top ?: 0
+
+        when (formId) {
+            14 -> handleComplicationsFieldChange(adapter) // complicationsInPreviousPregnancy.id
+            15, 16 -> handleAnthropometryFieldChange(adapter) // height or weight fields
+            18 -> handlePreExistingConditionsFieldChange(adapter) // preExistingConditions.id
+            19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
+            5 -> handleLmpFieldChange(adapter) // lmp.id
+            10 -> handleGravidaFieldChange(adapter) // gravida.id
+        }
+    }
+
+    /**
+     * Handle complications field change
+     */
+    private fun handleComplicationsFieldChange(adapter: RecyclerView.Adapter<*>) {
+        val complicationsIndex = viewModel.getIndexOfComplications()
+        if (complicationsIndex >= 0) {
+            adapter.notifyItemChanged(complicationsIndex)
+        }
+    }
+
+    /**
+     * Handle anthropometry (height/weight) field change
+     */
+    private fun handleAnthropometryFieldChange(adapter: RecyclerView.Adapter<*>) {
+        val bmiPosition = viewModel.getIndexOfBmi()
+        if (bmiPosition >= 0) {
+            adapter.notifyItemChanged(bmiPosition)
+        }
+    }
+
+    /**
+     * Handle pre-existing conditions field change
+     */
+    private fun handlePreExistingConditionsFieldChange(adapter: RecyclerView.Adapter<*>) {
+        val preExistingConditionsIndex = viewModel.getIndexOfPreExistingConditions()
+        if (preExistingConditionsIndex >= 0) {
+            adapter.notifyItemChanged(preExistingConditionsIndex)
+        }
+    }
+
+    /**
+     * Handle test result field change (VDRL/RPR, HIV, HBsAg)
+     */
+    private fun handleTestResultFieldChange(
+        formId: Int,
+        adapter: RecyclerView.Adapter<*>,
+        layoutManager: LinearLayoutManager,
+        firstVisiblePosition: Int,
+        offset: Int
+    ) {
+        // Force immediate UI update for date fields
+        lifecycleScope.launch {
+            delay(100)
+            adapter.notifyDataSetChanged()
+            layoutManager.scrollToPositionWithOffset(firstVisiblePosition, offset)
+        }
+
+        // Handle test date field update
+        val testDateFieldId = getTestDateFieldId(formId)
+        if (testDateFieldId != -1) {
+            val testDateIndex = viewModel.getIndexOfTestDate(testDateFieldId)
+            if (testDateIndex >= 0) {
+                adapter.notifyItemChanged(testDateIndex)
+            } else {
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    /**
+     * Get test date field ID based on test result field ID
+     */
+    private fun getTestDateFieldId(testResultFieldId: Int): Int {
+        return when (testResultFieldId) {
+            19 -> 20 // vdrlRprDate.id
+            21 -> 22 // hivTestDate.id
+            23 -> 24 // hbsAgTestDate.id
+            else -> -1
+        }
+    }
+
+    /**
+     * Handle LMP field change
+     */
+    private fun handleLmpFieldChange(adapter: RecyclerView.Adapter<*>) {
+        adapter.notifyItemChanged(viewModel.getIndexOfEdd())
+        adapter.notifyItemChanged(viewModel.getIndexOfGestationalAge())
+        adapter.notifyItemChanged(viewModel.getIndexOfTrimester())
+    }
+
+    /**
+     * Handle Gravida field change
+     */
+    private fun handleGravidaFieldChange(adapter: RecyclerView.Adapter<*>) {
+        adapter.notifyItemChanged(viewModel.getIndexOfPara())
     }
 
     private fun observeViewModel() {

@@ -67,7 +67,9 @@ class PregnantWomanRegistrationDataset(
         }
     }
 
-    private var isFormReadOnly: Boolean = false
+    private var _isFormReadOnly: Boolean = false
+    val isFormReadOnly: Boolean
+        get() = _isFormReadOnly
     private lateinit var registrationCache: PregnantWomanRegistrationCache
     private var dateOfRegMillis: Long = System.currentTimeMillis()
     private var oneYearBeforeRegMillis: Long = 0L
@@ -348,7 +350,7 @@ class PregnantWomanRegistrationDataset(
         savedRecord: PregnantWomanRegistrationCache?
     ) {
         this.registrationCache = savedRecord ?: createDefaultRegistrationCache(ben)
-        isFormReadOnly = savedRecord?.isFirstAncSubmitted == true
+        _isFormReadOnly = savedRecord?.isFirstAncSubmitted == true
 
         // Initialize date of registration
         dateOfRegMillis = savedRecord?.dateOfRegistration ?: System.currentTimeMillis()
@@ -360,126 +362,123 @@ class PregnantWomanRegistrationDataset(
         list.add(dateOfReg)
         list.add(rchId)
 
-        // If form is read-only, we need to show ALL fields with saved values
+        // Build form based on read-only or editable mode
         if (isFormReadOnly) {
-            // For read-only mode, show all fields including test results and dates
-            savedRecord?.let { cache ->
-                populateFormFromCache(cache)
-
-                // Add all the main fields that should be visible in read-only mode
-                list.addAll(listOf(
-                    pregnancyTestAtFacility,
-                    uptResult,
-                    lmp, edd, gestationalAge, trimester,
-                    bloodGroup,
-                    gravida, para
-                ))
-
-                // Add history fields if gravida > 1
-                cache.numPrevPregnancy?.let { gravidaValue ->
-                    if (gravidaValue > 1) {
-                        list.addAll(listOf(
-                            historyOfAbortions,
-                            previousLSCS,
-                            complicationsInPreviousPregnancy
-                        ))
-                    }
-                }
-
-                // Add anthropometry fields
-                list.addAll(listOf(
-                    height, weight, bmi
-                ))
-
-                // Add pre-existing conditions
-                list.add(preExistingConditions)
-
-                // Add lab investigation fields
-                list.addAll(listOf(
-                    vdrlRprResult,
-                    hivResult,
-                    hbsAgResult
-                ))
-
-                // Add high-risk pregnancy flag
-                list.add(isHighRiskPregnancy)
-
-                // Add date fields conditionally based on saved test results
-                cache.vdrlRprTestResult?.let { vdrlResult ->
-                    if (vdrlResult == TEST_RESULT_REACTIVE || vdrlResult == TEST_RESULT_NON_REACTIVE) {
-                        list.add(vdrlRprDate)
-                    }
-                }
-
-                cache.hivTestResult?.let { hivResultValue ->
-                    if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
-                        list.add(hivTestDate)
-                    }
-                }
-
-                cache.hbsAgTestResult?.let { hbsAgResultValue ->
-                    if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
-                        list.add(hbsAgTestDate)
-                    }
-                }
-
-                // Make all fields read-only
-                makeFormReadOnly(list)
-            }
+            savedRecord?.let { buildReadOnlyFormList(it, list) }
         } else {
-            // For new form/editable mode, start with basic fields
-            list.add(pregnancyTestAtFacility)
-
-            // Set initial values from saved record (for editing existing record)
-            savedRecord?.let { cache ->
-                populateFormFromCache(cache)
-
-                // If editing an existing record, add the UPT result field
-                // and conditionally add other fields based on UPT result
-                val hasLmpDate = cache.lmpDate > 0
-                if (hasLmpDate) {
-                    list.add(uptResult)
-
-                    // Add all fields that would be shown for positive UPT
-                    list.addAll(getBaseRegistrationFields())
-
-                    // Add history fields if gravida > 1
-                    cache.numPrevPregnancy?.let { gravidaValue ->
-                        if (gravidaValue > 1) {
-                            list.addAll(listOf(
-                                historyOfAbortions,
-                                previousLSCS,
-                                complicationsInPreviousPregnancy
-                            ))
-                        }
-                    }
-
-                    // Add date fields conditionally
-                    cache.vdrlRprTestResult?.let { vdrlResult ->
-                        if (vdrlResult == TEST_RESULT_REACTIVE || vdrlResult == TEST_RESULT_NON_REACTIVE) {
-                            list.add(vdrlRprDate)
-                        }
-                    }
-
-                    cache.hivTestResult?.let { hivResultValue ->
-                        if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
-                            list.add(hivTestDate)
-                        }
-                    }
-
-                    cache.hbsAgTestResult?.let { hbsAgResultValue ->
-                        if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
-                            list.add(hbsAgTestDate)
-                        }
-                    }
-                } else {
-                    // If no LMP date, just add UPT result field
-                    list.add(uptResult)
-                }
-            }
+            buildEditableFormList(savedRecord, list)
         }
 
         setUpPage(list)
+    }
+
+    /**
+     * Build form list for read-only mode
+     */
+    private suspend fun buildReadOnlyFormList(
+        cache: PregnantWomanRegistrationCache,
+        list: MutableList<FormElement>
+    ) {
+        populateFormFromCache(cache)
+
+        // Add all main fields
+        list.addAll(listOf(
+            pregnancyTestAtFacility,
+            uptResult,
+            lmp, edd, gestationalAge, trimester,
+            bloodGroup,
+            gravida, para
+        ))
+
+        // Add history fields if gravida > 1
+        addHistoryFieldsIfNeeded(cache, list)
+
+        // Add anthropometry, pre-existing conditions, and lab fields
+        list.addAll(listOf(
+            height, weight, bmi,
+            preExistingConditions,
+            vdrlRprResult,
+            hivResult,
+            hbsAgResult,
+            isHighRiskPregnancy
+        ))
+
+        // Add test date fields conditionally
+        addTestDateFieldsIfNeeded(cache, list)
+
+        // Make all fields read-only
+        makeFormReadOnly(list)
+    }
+
+    /**
+     * Build form list for editable mode
+     */
+    private suspend fun buildEditableFormList(
+        savedRecord: PregnantWomanRegistrationCache?,
+        list: MutableList<FormElement>
+    ) {
+        list.add(pregnancyTestAtFacility)
+
+        savedRecord?.let { cache ->
+            populateFormFromCache(cache)
+            val hasLmpDate = cache.lmpDate > 0
+
+            if (hasLmpDate) {
+                list.add(uptResult)
+                list.addAll(getBaseRegistrationFields())
+                addHistoryFieldsIfNeeded(cache, list)
+                addTestDateFieldsIfNeeded(cache, list)
+            } else {
+                list.add(uptResult)
+            }
+        }
+    }
+
+    /**
+     * Add history fields if gravida > 1
+     */
+    private fun addHistoryFieldsIfNeeded(
+        cache: PregnantWomanRegistrationCache,
+        list: MutableList<FormElement>
+    ) {
+        cache.numPrevPregnancy?.let { gravidaValue ->
+            if (gravidaValue > 1) {
+                list.addAll(listOf(
+                    historyOfAbortions,
+                    previousLSCS,
+                    complicationsInPreviousPregnancy
+                ))
+            }
+        }
+    }
+
+    /**
+     * Add test date fields if test results indicate they should be shown
+     */
+    private fun addTestDateFieldsIfNeeded(
+        cache: PregnantWomanRegistrationCache,
+        list: MutableList<FormElement>
+    ) {
+        if (shouldShowTestDateField(cache.vdrlRprTestResult, isHbsAg = false)) {
+            list.add(vdrlRprDate)
+        }
+        if (shouldShowTestDateField(cache.hivTestResult, isHbsAg = false)) {
+            list.add(hivTestDate)
+        }
+        if (shouldShowTestDateField(cache.hbsAgTestResult, isHbsAg = true)) {
+            list.add(hbsAgTestDate)
+        }
+    }
+
+    /**
+     * Check if test date field should be shown based on test result
+     */
+    private fun shouldShowTestDateField(testResult: String?, isHbsAg: Boolean): Boolean {
+        return when {
+            testResult == null -> false
+            isHbsAg -> testResult == TEST_RESULT_POSITIVE || testResult == TEST_RESULT_NEGATIVE
+            else -> testResult == TEST_RESULT_REACTIVE || testResult == TEST_RESULT_NON_REACTIVE
+        }
     }
 
     private fun getBaseRegistrationFields(): List<FormElement> {
@@ -545,10 +544,18 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun populateFormFromCache(cache: PregnantWomanRegistrationCache) {
+        populateBasicFields(cache)
+        populateTestResultFields(cache)
+        populateHistoryFieldsIfNeeded(cache)
+    }
+
+    /**
+     * Populate basic form fields from cache
+     */
+    private fun populateBasicFields(cache: PregnantWomanRegistrationCache) {
         dateOfReg.value = getDateFromLong(cache.dateOfRegistration)
         rchId.value = cache.rchId?.toString()
 
-        // Set other values if available
         if (cache.lmpDate > 0) {
             lmp.value = getDateFromLong(cache.lmpDate)
             updateCalculatedFields(System.currentTimeMillis())
@@ -559,60 +566,83 @@ class PregnantWomanRegistrationDataset(
         para.value = cache.numPrevPregnancy?.toString()
         height.value = cache.height?.toString()
         weight.value = cache.weight?.toString()
-
-        // Update BMI
         updateBMI()
+    }
 
-        // Set VDRL/RPR values
+    /**
+     * Populate test result fields and their date fields
+     */
+    private fun populateTestResultFields(cache: PregnantWomanRegistrationCache) {
+        populateVdrlRprFields(cache)
+        populateHivFields(cache)
+        populateHbsAgFields(cache)
+    }
+
+    /**
+     * Populate VDRL/RPR test result and date fields
+     */
+    private fun populateVdrlRprFields(cache: PregnantWomanRegistrationCache) {
         vdrlRprResult.value = cache.vdrlRprTestResult
-        cache.vdrlRprTestResult?.let { vdrlResult ->
-            if (vdrlResult == "Reactive" || vdrlResult == "Non-Reactive") {
-                vdrlRprDate.isEnabled = true
-                vdrlRprDate.required = true
-                vdrlRprDate.value = cache.dateOfVdrlRprTest?.let { date -> getDateFromLong(date) }
-            }
+        if (shouldShowTestDateField(cache.vdrlRprTestResult, isHbsAg = false)) {
+            vdrlRprDate.isEnabled = true
+            vdrlRprDate.required = true
+            vdrlRprDate.value = cache.dateOfVdrlRprTest?.let { getDateFromLong(it) }
         }
+    }
 
-        // Set HIV values
+    /**
+     * Populate HIV test result and date fields
+     */
+    private fun populateHivFields(cache: PregnantWomanRegistrationCache) {
         hivResult.value = cache.hivTestResult
-        cache.hivTestResult?.let { hivResultValue ->
-            if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
-                hivTestDate.isEnabled = true
-                hivTestDate.required = true
-                hivTestDate.value = cache.dateOfHivTest?.let { date -> getDateFromLong(date) }
-            }
+        if (shouldShowTestDateField(cache.hivTestResult, isHbsAg = false)) {
+            hivTestDate.isEnabled = true
+            hivTestDate.required = true
+            hivTestDate.value = cache.dateOfHivTest?.let { getDateFromLong(it) }
         }
+    }
 
-        // Set HBsAg values
+    /**
+     * Populate HBsAg test result and date fields
+     */
+    private fun populateHbsAgFields(cache: PregnantWomanRegistrationCache) {
         hbsAgResult.value = cache.hbsAgTestResult
-        cache.hbsAgTestResult?.let { hbsAgResultValue ->
-            if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
-                hbsAgTestDate.isEnabled = true
-                hbsAgTestDate.required = true
-                hbsAgTestDate.value = cache.dateOfHbsAgTest?.let { date -> getDateFromLong(date) }
-            }
+        if (shouldShowTestDateField(cache.hbsAgTestResult, isHbsAg = true)) {
+            hbsAgTestDate.isEnabled = true
+            hbsAgTestDate.required = true
+            hbsAgTestDate.value = cache.dateOfHbsAgTest?.let { getDateFromLong(it) }
         }
+    }
 
+    /**
+     * Populate history fields if gravida > 1
+     */
+    private fun populateHistoryFieldsIfNeeded(cache: PregnantWomanRegistrationCache) {
         cache.numPrevPregnancy?.let { gravidaValue ->
             if (gravidaValue > 1) {
-                historyOfAbortions.isEnabled = true
-                historyOfAbortions.required = true
-                historyOfAbortions.value = if (cache.historyOfAbortions == true) "Yes" else "No"
-
-                previousLSCS.isEnabled = true
-                previousLSCS.required = true
-                previousLSCS.value = if (cache.previousLSCS == true) "Yes" else "No"
-
-                complicationsInPreviousPregnancy.isEnabled = true
-                complicationsInPreviousPregnancy.required = true
-                complicationsInPreviousPregnancy.value = cache.complicationPrevPregnancy
-
-                preExistingConditions.value = cache.pastIllness
-
-                // Update high risk status
+                enableHistoryFields(cache)
                 updateHighRiskStatus()
             }
         }
+    }
+
+    /**
+     * Enable and populate history-related fields
+     */
+    private fun enableHistoryFields(cache: PregnantWomanRegistrationCache) {
+        historyOfAbortions.isEnabled = true
+        historyOfAbortions.required = true
+        historyOfAbortions.value = if (cache.historyOfAbortions == true) "Yes" else "No"
+
+        previousLSCS.isEnabled = true
+        previousLSCS.required = true
+        previousLSCS.value = if (cache.previousLSCS == true) "Yes" else "No"
+
+        complicationsInPreviousPregnancy.isEnabled = true
+        complicationsInPreviousPregnancy.required = true
+        complicationsInPreviousPregnancy.value = cache.complicationPrevPregnancy
+
+        preExistingConditions.value = cache.pastIllness
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
@@ -736,107 +766,93 @@ class PregnantWomanRegistrationDataset(
             Timber.d("Gravida changed to: $gravidaValue")
 
             if (gravidaValue <= 1) {
-                // Gravida is 1 or less - remove the field
-                historyOfAbortions.isEnabled = false
-                historyOfAbortions.required = false
-                historyOfAbortions.value = null
-
-                // Remove from form if it's currently visible
-                triggerDependants(
-                    source = gravida,
-                    removeItems = listOf(historyOfAbortions),
-                    addItems = emptyList()
-                )
-
-                // Also disable/remove previous LSCS and complications
-                previousLSCS.isEnabled = false
-                previousLSCS.required = false
-                previousLSCS.value = null
-                triggerDependants(
-                    source = gravida,
-                    removeItems = listOf(previousLSCS),
-                    addItems = emptyList()
-                )
-
-                complicationsInPreviousPregnancy.isEnabled = false
-                complicationsInPreviousPregnancy.required = false
-                complicationsInPreviousPregnancy.value = null
-                triggerDependants(
-                    source = gravida,
-                    removeItems = listOf(complicationsInPreviousPregnancy),
-                    addItems = emptyList()
-                )
-
-                updateHighRiskStatus()
-
+                removeHistoryFields()
             } else {
-                // Gravida is more than 1 - add the field
-                historyOfAbortions.isEnabled = true
-                historyOfAbortions.required = true
-
-                // Add to form after the para field (position logic depends on your form structure)
-                val paraPosition = getIndexById(para.id)
-                if (paraPosition >= 0 && getIndexById(historyOfAbortions.id) < 0) {
-                    // Add after para
-                    triggerDependants(
-                        source = gravida,
-                        addItems = listOf(historyOfAbortions),
-                        removeItems = emptyList(),
-                        position = paraPosition + 1
-                    )
-                }
-
-                // Also enable/add previous LSCS and complications
-                previousLSCS.isEnabled = true
-                previousLSCS.required = true
-                if (getIndexById(previousLSCS.id) < 0) {
-                    val historyPosition = getIndexById(historyOfAbortions.id)
-                    triggerDependants(
-                        source = gravida,
-                        addItems = listOf(previousLSCS),
-                        removeItems = emptyList(),
-                        position = historyPosition + 1
-                    )
-                }
-
-                complicationsInPreviousPregnancy.isEnabled = true
-                complicationsInPreviousPregnancy.required = true
-                if (getIndexById(complicationsInPreviousPregnancy.id) < 0) {
-                    val lscsPosition = getIndexById(previousLSCS.id)
-                    triggerDependants(
-                        source = gravida,
-                        addItems = listOf(complicationsInPreviousPregnancy),
-                        removeItems = emptyList(),
-                        position = lscsPosition + 1
-                    )
-                }
+                addHistoryFields()
             }
 
-            // Handle Para field
-            if (gravidaValue == 1) {
-                // Set para to 0 and disable it
-                para.value = "0"
-                para.isEnabled = false
-                para.required = false
-                para.errorText = null
-
-                Timber.d("Para auto-set to 0 and disabled")
-            } else {
-                // Enable para field
-                para.isEnabled = true
-                para.required = true
-
-                // Clear auto-set value if it was "0"
-                if (para.value == "0") {
-                    para.value = null
-                }
-            }
-
+            handleParaFieldForGravida(gravidaValue)
             updateHighRiskStatus()
             return historyOfAbortions.id
         }
 
         return -1
+    }
+
+    /**
+     * Remove history fields when gravida <= 1
+     */
+    private fun removeHistoryFields() {
+        val historyFields = listOf(historyOfAbortions, previousLSCS, complicationsInPreviousPregnancy)
+
+        historyFields.forEach { field ->
+            field.isEnabled = false
+            field.required = false
+            field.value = null
+            triggerDependants(
+                source = gravida,
+                removeItems = listOf(field),
+                addItems = emptyList()
+            )
+        }
+
+        updateHighRiskStatus()
+    }
+
+    /**
+     * Add history fields when gravida > 1
+     */
+    private fun addHistoryFields() {
+        historyOfAbortions.isEnabled = true
+        historyOfAbortions.required = true
+
+        val paraPosition = getIndexById(para.id)
+        if (paraPosition >= 0 && getIndexById(historyOfAbortions.id) < 0) {
+            triggerDependants(
+                source = gravida,
+                addItems = listOf(historyOfAbortions),
+                removeItems = emptyList(),
+                position = paraPosition + 1
+            )
+        }
+
+        addFieldIfNotExists(previousLSCS) { getIndexById(historyOfAbortions.id) + 1 }
+        addFieldIfNotExists(complicationsInPreviousPregnancy) { getIndexById(previousLSCS.id) + 1 }
+    }
+
+    /**
+     * Add a field if it doesn't exist in the form
+     */
+    private fun addFieldIfNotExists(field: FormElement, positionProvider: () -> Int) {
+        field.isEnabled = true
+        field.required = true
+        if (getIndexById(field.id) < 0) {
+            triggerDependants(
+                source = gravida,
+                addItems = listOf(field),
+                removeItems = emptyList(),
+                position = positionProvider()
+            )
+        }
+    }
+
+    /**
+     * Handle Para field based on gravida value
+     */
+    private fun handleParaFieldForGravida(gravidaValue: Int) {
+        if (gravidaValue == 1) {
+            para.value = "0"
+            para.isEnabled = false
+            para.required = false
+            para.errorText = null
+            Timber.d("Para auto-set to 0 and disabled")
+        } else {
+            para.isEnabled = true
+            para.required = true
+            if (para.value == "0") {
+                para.value = null
+            }
+        }
     }
 
     private fun handleHistoryOfAbortionsChange(index: Int): Int {
@@ -1103,49 +1119,68 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun checkHighRiskConditions(): Boolean {
-        var isHRP = false
+        return checkHeightCondition() ||
+                checkHistoryOfAbortions() ||
+                checkPreviousLSCS() ||
+                checkPreExistingConditions() ||
+                checkComplicationsInPreviousPregnancy() ||
+                checkLabResults()
+    }
 
-        // Check height < 145 cm
-        height.value?.toDoubleOrNull()?.let {
-            if (it < 145) isHRP = true
-        }
+    /**
+     * Check if height < 145 cm (HRP condition)
+     */
+    private fun checkHeightCondition(): Boolean {
+        return height.value?.toDoubleOrNull()?.let { it < 145 } == true
+    }
 
-        // Check history of abortion
-        if (historyOfAbortions.value == "Yes") isHRP = true
+    /**
+     * Check if history of abortions exists
+     */
+    private fun checkHistoryOfAbortions(): Boolean {
+        return historyOfAbortions.value == "Yes"
+    }
 
-        // Check previous LSCS
-        if (previousLSCS.value == "Yes") isHRP = true
+    /**
+     * Check if previous LSCS exists
+     */
+    private fun checkPreviousLSCS(): Boolean {
+        return previousLSCS.value == "Yes"
+    }
 
-        // Check pre-existing conditions (excluding "None")
-        preExistingConditions.value?.let { value ->
-            if (value.isNotEmpty()) {
-                // Parse comma-separated string
-                val selections = value.split(",").map { it.trim() }
-                if (selections.isNotEmpty() && !selections.contains("None")) {
-                    isHRP = true
-                }
-            }
-        }
+    /**
+     * Check if pre-existing conditions exist (excluding "None")
+     */
+    private fun checkPreExistingConditions(): Boolean {
+        return preExistingConditions.value?.let { value ->
+            value.isNotEmpty() && hasNonNoneSelections(value)
+        } == true
+    }
 
-        // Check complications in previous pregnancy (excluding "None")
-        complicationsInPreviousPregnancy.value?.let { value ->
-            if (value.isNotEmpty()) {
-                // Parse comma-separated string
-                val selections = value.split(",").map { it.trim() }
-                if (selections.isNotEmpty() && !selections.contains("None")) {
-                    isHRP = true
-                }
-            }
-        }
+    /**
+     * Check if complications in previous pregnancy exist (excluding "None")
+     */
+    private fun checkComplicationsInPreviousPregnancy(): Boolean {
+        return complicationsInPreviousPregnancy.value?.let { value ->
+            value.isNotEmpty() && hasNonNoneSelections(value)
+        } == true
+    }
 
-        // Check lab results
-        if (vdrlRprResult.value == TEST_RESULT_REACTIVE ||
-            hivResult.value == TEST_RESULT_REACTIVE ||
-            hbsAgResult.value == TEST_RESULT_POSITIVE) {
-            isHRP = true
-        }
+    /**
+     * Check if any lab results indicate HRP
+     */
+    private fun checkLabResults(): Boolean {
+        return vdrlRprResult.value == TEST_RESULT_REACTIVE ||
+                hivResult.value == TEST_RESULT_REACTIVE ||
+                hbsAgResult.value == TEST_RESULT_POSITIVE
+    }
 
-        return isHRP
+    /**
+     * Check if comma-separated selections contain non-"None" values
+     */
+    private fun hasNonNoneSelections(value: String): Boolean {
+        val selections = value.split(",").map { it.trim() }
+        return selections.isNotEmpty() && !selections.contains("None")
     }
 
     private fun makeFormReadOnly(fields: List<FormElement>) {
@@ -1220,8 +1255,6 @@ class PregnantWomanRegistrationDataset(
             }
         }
     }
-
-    fun getIsFormReadOnly(): Boolean = isFormReadOnly
 
     fun shouldNavigateToVitals(): Boolean {
         // Navigate to Vitals & Prescription after successful submission
