@@ -8,14 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.configuration.PregnantWomanRegistrationDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PatientDisplay
-import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -50,12 +46,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
         object ToVitalsAndPrescription : NavigationEvent()
     }
 
-    private val patientID: String? = try {
-        savedStateHandle.get<String>("patientID")
-    } catch (e: Exception) {
-        Timber.e(e, "Error getting patientID from savedStateHandle")
-        null
-    }
+    private val patientID: String? = savedStateHandle["patientID"]
 
     private val _state = MutableLiveData(State.IDLE)
     val state: LiveData<State>
@@ -193,44 +184,42 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
     fun saveForm() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    _state.postValue(State.SAVING)
+            try {
+                _state.postValue(State.SAVING)
 
-                    // Check if patientID is available
-                    if (!this@PregnancyRegistrationFormViewModel::registrationCache.isInitialized) {
-                        throw IllegalStateException("Registration cache not initialized")
-                    }
-
-                    // Update timestamps
-                    registrationCache.updatedDate = System.currentTimeMillis()
-
-                    // If it's a new record, set created date
-                    if (_recordExists.value != true) {
-                        registrationCache.createdDate = System.currentTimeMillis()
-                    }
-
-                    // Map form values to cache
-                    dataset.mapValues(registrationCache, 1) // Assuming pageNumber = 1
-
-                    // Save to repository
-                    maternalHealthRepo.persistRegisterRecord(registrationCache)
-
-                    // Update record exists state
-                    _recordExists.postValue(true)
-
-                    Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
-
-                    // Check if we should navigate to vitals after save
-                    if (dataset.shouldNavigateToVitals()) {
-                        _navigateTo.postValue(NavigationEvent.ToVitalsAndPrescription)
-                    }
-
-                    _state.postValue(State.SAVE_SUCCESS)
-                } catch (e: Exception) {
-                    Timber.e(e, "Saving pregnancy registration data failed!!")
-                    _state.postValue(State.SAVE_FAILED)
+                // Check if patientID is available
+                check(this@PregnancyRegistrationFormViewModel::registrationCache.isInitialized) {
+                    "Registration cache not initialized"
                 }
+
+                // Update timestamps
+                registrationCache.updatedDate = System.currentTimeMillis()
+
+                // If it's a new record, set created date
+                if (_recordExists.value != true) {
+                    registrationCache.createdDate = System.currentTimeMillis()
+                }
+
+                // Map form values to cache
+                dataset.mapValues(registrationCache, 1) // Assuming pageNumber = 1
+
+                // Save to repository
+                maternalHealthRepo.persistRegisterRecord(registrationCache)
+
+                // Update record exists state
+                _recordExists.postValue(true)
+
+                Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
+
+                // Check if we should navigate to vitals after save
+                if (dataset.shouldNavigateToVitals()) {
+                    _navigateTo.postValue(NavigationEvent.ToVitalsAndPrescription)
+                }
+
+                _state.postValue(State.SAVE_SUCCESS)
+            } catch (e: Exception) {
+                Timber.e(e, "Saving pregnancy registration data failed!!")
+                _state.postValue(State.SAVE_FAILED)
             }
         }
     }

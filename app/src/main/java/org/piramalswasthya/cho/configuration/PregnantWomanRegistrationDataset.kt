@@ -10,13 +10,24 @@ import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 class PregnantWomanRegistrationDataset(
     context: Context, currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
     companion object {
+        // Test result constants
+        const val TEST_RESULT_REACTIVE = "Reactive"
+        const val TEST_RESULT_NON_REACTIVE = "Non-Reactive"
+        const val TEST_RESULT_TEST_NOT_DONE = "Test Not Done"
+        const val TEST_RESULT_POSITIVE = "Positive"
+        const val TEST_RESULT_NEGATIVE = "Negative"
+
+        // Test result indices (matching array order)
+        private const val TEST_RESULT_INDEX_REACTIVE = 0
+        private const val TEST_RESULT_INDEX_NON_REACTIVE = 1
+        private const val TEST_RESULT_INDEX_NOT_DONE = 2
+
         private fun getMinLmpMillis(): Long {
             val cal = Calendar.getInstance()
             cal.add(Calendar.DAY_OF_YEAR, -42 * 7) // Last 42 weeks
@@ -272,7 +283,7 @@ class PregnantWomanRegistrationDataset(
         id = 19,
         inputType = InputType.DROPDOWN,
         title = "VDRL/RPR Test result",
-        entries = arrayOf("Reactive", "Non-Reactive", "Test Not Done"),
+        entries = arrayOf(TEST_RESULT_REACTIVE, TEST_RESULT_NON_REACTIVE, TEST_RESULT_TEST_NOT_DONE),
         required = true,
         hasDependants = true
     )
@@ -291,7 +302,7 @@ class PregnantWomanRegistrationDataset(
         id = 21,
         inputType = InputType.DROPDOWN,
         title = "HIV Test result",
-        entries = arrayOf("Reactive", "Non-Reactive", "Test Not Done"),
+        entries = arrayOf(TEST_RESULT_REACTIVE, TEST_RESULT_NON_REACTIVE, TEST_RESULT_TEST_NOT_DONE),
         required = true,
         hasDependants = true
     )
@@ -309,7 +320,7 @@ class PregnantWomanRegistrationDataset(
         id = 23,
         inputType = InputType.DROPDOWN,
         title = "HBsAg Test result",
-        entries = arrayOf("Positive", "Negative", "Test Not Done"),
+        entries = arrayOf(TEST_RESULT_POSITIVE, TEST_RESULT_NEGATIVE, TEST_RESULT_TEST_NOT_DONE),
         required = true,
         hasDependants = true
     )
@@ -353,7 +364,7 @@ class PregnantWomanRegistrationDataset(
         if (isFormReadOnly) {
             // For read-only mode, show all fields including test results and dates
             savedRecord?.let { cache ->
-                populateFormFromCache(cache, list)
+                populateFormFromCache(cache)
 
                 // Add all the main fields that should be visible in read-only mode
                 list.addAll(listOf(
@@ -395,19 +406,19 @@ class PregnantWomanRegistrationDataset(
 
                 // Add date fields conditionally based on saved test results
                 cache.vdrlRprTestResult?.let { vdrlResult ->
-                    if (vdrlResult == "Reactive" || vdrlResult == "Non-Reactive") {
+                    if (vdrlResult == TEST_RESULT_REACTIVE || vdrlResult == TEST_RESULT_NON_REACTIVE) {
                         list.add(vdrlRprDate)
                     }
                 }
 
                 cache.hivTestResult?.let { hivResultValue ->
-                    if (hivResultValue == "Reactive" || hivResultValue == "Non-Reactive") {
+                    if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
                         list.add(hivTestDate)
                     }
                 }
 
                 cache.hbsAgTestResult?.let { hbsAgResultValue ->
-                    if (hbsAgResultValue == "Positive" || hbsAgResultValue == "Negative") {
+                    if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
                         list.add(hbsAgTestDate)
                     }
                 }
@@ -421,7 +432,7 @@ class PregnantWomanRegistrationDataset(
 
             // Set initial values from saved record (for editing existing record)
             savedRecord?.let { cache ->
-                populateFormFromCache(cache, list)
+                populateFormFromCache(cache)
 
                 // If editing an existing record, add the UPT result field
                 // and conditionally add other fields based on UPT result
@@ -445,19 +456,19 @@ class PregnantWomanRegistrationDataset(
 
                     // Add date fields conditionally
                     cache.vdrlRprTestResult?.let { vdrlResult ->
-                        if (vdrlResult == "Reactive" || vdrlResult == "Non-Reactive") {
+                        if (vdrlResult == TEST_RESULT_REACTIVE || vdrlResult == TEST_RESULT_NON_REACTIVE) {
                             list.add(vdrlRprDate)
                         }
                     }
 
                     cache.hivTestResult?.let { hivResultValue ->
-                        if (hivResultValue == "Reactive" || hivResultValue == "Non-Reactive") {
+                        if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
                             list.add(hivTestDate)
                         }
                     }
 
                     cache.hbsAgTestResult?.let { hbsAgResultValue ->
-                        if (hbsAgResultValue == "Positive" || hbsAgResultValue == "Negative") {
+                        if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
                             list.add(hbsAgTestDate)
                         }
                     }
@@ -485,40 +496,6 @@ class PregnantWomanRegistrationDataset(
         )
     }
 
-    private suspend fun addDateFieldsForSavedRecords(cache: PregnantWomanRegistrationCache) {
-        // Add VDRL/RPR date field if test was done
-        cache.vdrlRprTestResult?.let { vdrlResultValue ->
-            if (vdrlResultValue == "Reactive" || vdrlResultValue == "Non-Reactive") {
-                addDateFieldAfterTestResult(vdrlRprResult, vdrlRprDate)
-            }
-        }
-
-        // Add HIV date field if test was done
-        cache.hivTestResult?.let { hivResultValue ->
-            if (hivResultValue == "Reactive" || hivResultValue == "Non-Reactive") {
-                addDateFieldAfterTestResult(hivResult, hivTestDate)
-            }
-        }
-
-        // Add HBsAg date field if test was done
-        cache.hbsAgTestResult?.let { hbsAgResultValue ->
-            if (hbsAgResultValue == "Positive" || hbsAgResultValue == "Negative") {
-                addDateFieldAfterTestResult(hbsAgResult, hbsAgTestDate)
-            }
-        }
-    }
-
-    private suspend fun addDateFieldAfterTestResult(testResultField: FormElement, dateField: FormElement) {
-        val testResultPosition = getIndexById(testResultField.id)
-        if (testResultPosition >= 0 && getIndexById(dateField.id) < 0) {
-            triggerDependants(
-                source = testResultField,
-                addItems = listOf(dateField),
-                removeItems = emptyList(),
-                position = testResultPosition + 1
-            )
-        }
-    }
 
     fun createDefaultRegistrationCache(ben: PatientDisplay?): PregnantWomanRegistrationCache {
         return PregnantWomanRegistrationCache(
@@ -567,7 +544,7 @@ class PregnantWomanRegistrationDataset(
         )
     }
 
-    private fun populateFormFromCache(cache: PregnantWomanRegistrationCache, list: MutableList<FormElement>) {
+    private fun populateFormFromCache(cache: PregnantWomanRegistrationCache) {
         dateOfReg.value = getDateFromLong(cache.dateOfRegistration)
         rchId.value = cache.rchId?.toString()
 
@@ -599,7 +576,7 @@ class PregnantWomanRegistrationDataset(
         // Set HIV values
         hivResult.value = cache.hivTestResult
         cache.hivTestResult?.let { hivResultValue ->
-            if (hivResultValue == "Reactive" || hivResultValue == "Non-Reactive") {
+            if (hivResultValue == TEST_RESULT_REACTIVE || hivResultValue == TEST_RESULT_NON_REACTIVE) {
                 hivTestDate.isEnabled = true
                 hivTestDate.required = true
                 hivTestDate.value = cache.dateOfHivTest?.let { date -> getDateFromLong(date) }
@@ -609,7 +586,7 @@ class PregnantWomanRegistrationDataset(
         // Set HBsAg values
         hbsAgResult.value = cache.hbsAgTestResult
         cache.hbsAgTestResult?.let { hbsAgResultValue ->
-            if (hbsAgResultValue == "Positive" || hbsAgResultValue == "Negative") {
+            if (hbsAgResultValue == TEST_RESULT_POSITIVE || hbsAgResultValue == TEST_RESULT_NEGATIVE) {
                 hbsAgTestDate.isEnabled = true
                 hbsAgTestDate.required = true
                 hbsAgTestDate.value = cache.dateOfHbsAgTest?.let { date -> getDateFromLong(date) }
@@ -880,14 +857,14 @@ class PregnantWomanRegistrationDataset(
 
     private fun handleVdrlRprResultChange(index: Int) {
         when (index) {
-            0 -> { // Reactive
+            TEST_RESULT_INDEX_REACTIVE -> { // Reactive
                 onShowAlert?.invoke("VDRL/RPR Test is Reactive - HRP condition")
                 showVdrlRprDateField()
             }
-            1 -> { // Non-Reactive
+            TEST_RESULT_INDEX_NON_REACTIVE -> { // Non-Reactive
                 showVdrlRprDateField()
             }
-            2 -> { // Test Not Done
+            TEST_RESULT_INDEX_NOT_DONE -> { // Test Not Done
                 hideVdrlRprDateField()
             }
         }
@@ -896,14 +873,14 @@ class PregnantWomanRegistrationDataset(
 
     private fun handleHivResultChange(index: Int) {
         when (index) {
-            0 -> { // Reactive
+            TEST_RESULT_INDEX_REACTIVE -> { // Reactive
                 onShowAlert?.invoke("HIV Test is Reactive - HRP condition")
                 showHivTestDateField()
             }
-            1 -> { // Non-Reactive
+            TEST_RESULT_INDEX_NON_REACTIVE -> { // Non-Reactive
                 showHivTestDateField()
             }
-            2 -> { // Test Not Done
+            TEST_RESULT_INDEX_NOT_DONE -> { // Test Not Done
                 hideHivTestDateField()
             }
         }
@@ -912,14 +889,14 @@ class PregnantWomanRegistrationDataset(
 
     private fun handleHbsAgResultChange(index: Int) {
         when (index) {
-            0 -> { // Positive
+            TEST_RESULT_INDEX_REACTIVE -> { // Positive
                 onShowAlert?.invoke("HBsAg Test is Positive - HRP condition")
                 showHbsAgTestDateField()
             }
-            1 -> { // Negative
+            TEST_RESULT_INDEX_NON_REACTIVE -> { // Negative
                 showHbsAgTestDateField()
             }
-            2 -> { // Test Not Done
+            TEST_RESULT_INDEX_NOT_DONE -> { // Test Not Done
                 hideHbsAgTestDateField()
             }
         }
@@ -1162,9 +1139,9 @@ class PregnantWomanRegistrationDataset(
         }
 
         // Check lab results
-        if (vdrlRprResult.value == "Reactive" ||
-            hivResult.value == "Reactive" ||
-            hbsAgResult.value == "Positive") {
+        if (vdrlRprResult.value == TEST_RESULT_REACTIVE ||
+            hivResult.value == TEST_RESULT_REACTIVE ||
+            hbsAgResult.value == TEST_RESULT_POSITIVE) {
             isHRP = true
         }
 
@@ -1179,7 +1156,9 @@ class PregnantWomanRegistrationDataset(
                 InputType.DROPDOWN -> field.inputType = InputType.TEXT_VIEW
                 InputType.RADIO -> field.inputType = InputType.TEXT_VIEW
                 InputType.CHECKBOXES -> field.inputType = InputType.TEXT_VIEW
-                else -> {}
+                else -> {
+                    // No conversion needed for other input types
+                }
             }
             field.isEnabled = false
         }

@@ -522,7 +522,7 @@ class FormInputAdapter(
                             cbx.isChecked = !wasChecked
 
                             // Get the option details from tag
-                            val (clickedOption, clickedIndex) = cbx.tag as Pair<String, Int>
+                            val (_, clickedIndex) = cbx.tag as Pair<String, Int>
 
                             // Call the listener to update the data
                             formValueListener?.onValueChanged(item, clickedIndex)

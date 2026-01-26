@@ -119,7 +119,6 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
                     // Handle VDRL/RPR, HIV, and HBsAg results for showing/hiding date fields
                     if (formId == 19 || formId == 21 || formId == 23) { // vdrlRprResult.id, hivResult.id, hbsAgResult.id
-                        val testResultFieldId = formId
                         val testDateFieldId = when (formId) {
                             19 -> 20 // vdrlRprDate.id
                             21 -> 22 // hivTestDate.id
@@ -242,11 +241,6 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             false
         }
     }
-
-    private fun navigateToNextScreen() {
-        findNavController().navigate(R.id.pregnantWomanRegistrationFragment)
-    }
-
     override fun onSubmitAction() {
         submitRegistrationForm()
     }
