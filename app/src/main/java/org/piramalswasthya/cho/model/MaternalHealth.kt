@@ -106,6 +106,8 @@ data class PregnantWomanRegistrationCache(
     var vdrlRprTestResult: String? = null,
     var vdrlRprTestResultId: Int = 0,
     var dateOfVdrlRprTest: Long? = null,
+    var historyOfAbortions: Boolean? = null,
+    var previousLSCS: Boolean? = null,
 
     var hivTestResult: String? = null,
     var hivTestResultId: Int = 0,
@@ -134,6 +136,7 @@ data class PregnantWomanRegistrationCache(
     var createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
+    var isFirstAncSubmitted: Boolean = false,
     var syncState: SyncState
 ) : FormDataModel {
 
@@ -333,6 +336,10 @@ data class PregnantWomanAncCache(
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
+    var lmpDate: Long? = null,
+    var pregnancyTestAtFacility: Boolean? = null,
+    var uptResult: String? = null,
+    var uptResultId: Int = -1,
     var isAborted: Boolean = false,
     var abortionType: String? = null,
     var abortionTypeId: Int = 0,
@@ -340,18 +347,36 @@ data class PregnantWomanAncCache(
     var abortionFacilityId: Int = 0,
     var abortionDate: Long? = null,
     var weight: Int? = null,
+    var height: Int? = null,
+    val gravida: Int? = null,
+    val para: Int? = null,
+    val historyOfAbortions: Boolean? = null,
+    val previousLSCS: Boolean? = null,
+    val complicationsPrevPregnancy: String? = null,
+    val pastIllness: String? = null,
+    val vdrlRprTestResult: String? = null,
+    val vdrlRprTestResultId: Int? = null,
+    val dateOfVdrlRprTest: Long? = null,
+    val hivTestResult: String? = null,
+    val hivTestResultId: Int? = null,
+    val dateOfHivTest: Long? = null,
+    val hbsAgTestResult: String? = null,
+    val hbsAgTestResultId: Int? = null,
+    val dateOfHbsAgTest: Long? = null,
+    var numPrevPregnancy: Int? = null,
+    var otherComplication: String? = null,
     var bpSystolic: Int? = null,
     var bpDiastolic: Int? = null,
     var pulseRate: String? = null,
     var hb: Double? = null,
     var fundalHeight: Int? = null,
+    var anyHighRisk: Boolean? = null,
     var urineAlbumin: String? = null,
     var urineAlbuminId: Int = 0,
     var randomBloodSugarTest: String? = null,
     var randomBloodSugarTestId: Int = 0,
     var numFolicAcidTabGiven: Int = 0,
     var numIfaAcidTabGiven: Int = 0,
-    var anyHighRisk: Boolean? = null,
     var highRisk: String? = null,
     var highRiskId: Int = 0,
     var otherHighRisk: String? = null,
@@ -371,6 +396,7 @@ data class PregnantWomanAncCache(
     val createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
+    var isFirstAncSubmitted: Boolean = false,
     var syncState: SyncState
 ) : FormDataModel {
     fun asPostModel(benId: Long): ANCPost {
@@ -418,6 +444,8 @@ data class ANCPost(
     val ancDate: String? = null,
     val isActive: Boolean,
     val ancVisit: Int,
+    val pregnancyTestAtFacility: Boolean? = null,
+    val uptResult: String? = null,
     val isAborted: Boolean = false,
     val abortionType: String? = null,
     val abortionFacility: String? = null,
@@ -455,11 +483,26 @@ data class ANCPost(
             patientID = "",
             visitNumber = ancVisit,
             ancDate = getLongFromDate(ancDate),
+            pregnancyTestAtFacility = pregnancyTestAtFacility,
+            uptResult = uptResult,
+            uptResultId = when(uptResult) {
+                "Positive" -> 0
+                "Negative" -> 1
+                else -> -1
+            },
             isAborted = isAborted,
             abortionType = abortionType,
-//            abortionTypeId =
+            abortionTypeId = when(abortionType) {
+                "Induced" -> 0
+                "Spontaneous" -> 1
+                else -> -1
+            },
             abortionFacility = abortionFacility,
-//            abortionFacilityId
+            abortionFacilityId = when(abortionFacility) {
+                "Govt. Hospital" -> 0
+                "Pvt. Hospital" -> 1
+                else -> -1
+            },
             abortionDate = getLongFromDate(abortionDate),
             weight = weightOfPW,
             bpSystolic = bpSystolic,

@@ -364,7 +364,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.anc, DropdownConst.pnc)
+                listOf(DropdownConst.pwr,DropdownConst.anc, DropdownConst.pnc)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -638,6 +638,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         binding.eddDateText.visibility = View.VISIBLE
                     }
 //                }
+            }
+            else if(viewModel.selectedReasonForVisit == DropdownConst.pwr){
+                binding.rvPnc.visibility = View.VISIBLE
+                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+
+                }
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
@@ -1384,6 +1390,51 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
                 }
             }
+            else if(reasonForVisit == DropdownConst.pnc){
+                viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
+                    val visitNumber = (it ?: 0) + 1
+                    viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){it1->
+                        if(deliveryDate == null){
+                            Toast.makeText(
+                                requireContext(),
+                                "Select Delivery Date",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else if(it1 == null){
+                            viewModel.saveDeliveryOutcome(benVisitInfo.patient.patientID, deliveryDate!!)
+                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
+                                if(it2){
+                                    findNavController().navigate(
+                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                                            benVisitInfo.patient.patientID, visitNumber
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        else{
+                            findNavController().navigate(
+                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                                    benVisitInfo.patient.patientID, visitNumber
+                                )
+                            )
+                        }
+                    }
+
+                }
+            }
+            else if (reasonForVisit == DropdownConst.pwr) {
+
+                findNavController().navigate(
+                    FragmentVisitDetailDirections
+                        .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benId = benVisitInfo.patient.beneficiaryID.toString()
+                        )
+                )
+            }
+
             else if(reasonForVisit == DropdownConst.immunization){
                 childImmunizationListViewModel.updateBottomSheetData(
                     benVisitInfo.patient.patientID

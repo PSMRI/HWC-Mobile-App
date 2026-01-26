@@ -523,6 +523,7 @@
     <string name="anc_visit_number">ANC Visit %1d</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
+    <string name="icon_title_pmr">Pregnant Women Registration</string>
     <!--  Post Natal Care  -->
     <string name="pnc_period">PNC Period</string>
     <string name="pnc_visit_date">PNC Visit Date</string>

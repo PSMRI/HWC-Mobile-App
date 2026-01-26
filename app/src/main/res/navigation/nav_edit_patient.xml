@@ -26,6 +26,7 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_pncFormFragment"
             app:destination="@id/pncFormFragment" />
+
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_immunizationFormFragment"
             app:destination="@id/immunizationFormFragment" />
@@ -35,6 +36,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
             app:destination="@id/cbacFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_pregnantWomanRegistrationFragment"
+            app:destination="@id/pregnantWomanRegistrationFragment" />
     </fragment>
 
     <fragment
@@ -173,6 +177,21 @@
             android:name="createdDate"
             app:argType="long" />
     </fragment>
+    <fragment
+        android:id="@+id/pregnantWomanRegistrationFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
+        android:label="PregnantWomanRegistrationFragment">
+
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+
+        <argument
+            android:name="benId"
+            app:argType="string" />
+    </fragment>
+
+
     <fragment
         android:id="@+id/cbacFragment"
         android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"
