@@ -99,7 +99,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private var units = mutualVisitUnitsVal
     private var subCatOptions = ArrayList<SubVisitCategory>()
 
-//    private lateinit var subCatAdapter: SubCategoryAdapter
+    //    private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
 
@@ -296,7 +296,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
         if( ageCheckForChild(benVisitInfo.patient.dob) ){
 
-             if (ageCheckForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
+            if (ageCheckForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female"){
                 val subCatAdapter = SubCategoryAdapter(
                     requireContext(),
                     R.layout.dropdown_subcategory,
@@ -304,20 +304,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     DropdownConst.age_0_to_1)
                 binding.subCatInput.setAdapter(subCatAdapter)
             } else if (age15To18ForFemaleChild(benVisitInfo.patient.dob) && benVisitInfo.genderName?.lowercase() == "female") {
-                 val subCatAdapter = SubCategoryAdapter(
-                     requireContext(),
-                     R.layout.dropdown_subcategory,
-                     R.id.tv_dropdown_item_text,
-                     DropdownConst.female_1_to_59)
-                 binding.subCatInput.setAdapter(subCatAdapter)
-             } else {
-                 val subCatAdapter = SubCategoryAdapter(
-                     requireContext(),
-                     R.layout.dropdown_subcategory,
-                     R.id.tv_dropdown_item_text,
-                     DropdownConst.age_0_to_1)
-                 binding.subCatInput.setAdapter(subCatAdapter)
-             }
+                val subCatAdapter = SubCategoryAdapter(
+                    requireContext(),
+                    R.layout.dropdown_subcategory,
+                    R.id.tv_dropdown_item_text,
+                    DropdownConst.female_1_to_59)
+                binding.subCatInput.setAdapter(subCatAdapter)
+            } else {
+                val subCatAdapter = SubCategoryAdapter(
+                    requireContext(),
+                    R.layout.dropdown_subcategory,
+                    R.id.tv_dropdown_item_text,
+                    DropdownConst.age_0_to_1)
+                binding.subCatInput.setAdapter(subCatAdapter)
+            }
 
 
 //            viewModel.selectedSubCat = DropdownConst.age_0_to_1[0]
@@ -505,7 +505,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     override fun onResume(){
         Log.v("tag on", "onResume")
         super.onResume()
-        
+
         deliveryDate = null
         binding.deliveryDate.setText("")
         setSubCategoryDropdown()
@@ -633,10 +633,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
 //                viewModel.activePwrRecord.observe(viewLifecycleOwner){
-                    if(viewModel.activePwrRecord == null && lmpDate == null){
-                        binding.lmpDateText.visibility = View.VISIBLE
-                        binding.eddDateText.visibility = View.VISIBLE
-                    }
+                if(viewModel.activePwrRecord == null && lmpDate == null){
+                    binding.lmpDateText.visibility = View.VISIBLE
+                    binding.eddDateText.visibility = View.VISIBLE
+                }
 //                }
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.pwr){
@@ -734,13 +734,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                    ).show()
 //                }
 //                else{
-                    val submitDoctorData = Bundle()
-                    submitDoctorData.putBoolean("viewRecord", true)
-                    submitDoctorData.putSerializable("benVisitInfo", it)
+                val submitDoctorData = Bundle()
+                submitDoctorData.putBoolean("viewRecord", true)
+                submitDoctorData.putSerializable("benVisitInfo", it)
 
-                    findNavController().navigate(
-                        R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
-                    )
+                findNavController().navigate(
+                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, submitDoctorData
+                )
 
 //                }
 
@@ -1047,9 +1047,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
         else{
-                findNavController().navigate(
-                    R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
-                )
+            findNavController().navigate(
+                R.id.action_fhirVisitDetailsFragment_to_caseRecordCustom, bundle
+            )
         }
     }
     private fun setVitalsMasterData() {
@@ -1201,7 +1201,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
         }
         if (chiefComplaintDB2.size==0){
-                binding.usePrevious.visibility = View.GONE
+            binding.usePrevious.visibility = View.GONE
         }
         chAdapter = ChiefComplaintMultiAdapter(chiefComplaintDB2,"")
         binding.chiefComplaintExtra2.adapter = chAdapter
@@ -1334,61 +1334,27 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             if(reasonForVisit == DropdownConst.anc){
 
 //                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
-                    if(viewModel.activePwrRecord == null && lmpDate == null){
-                        Toast.makeText(
-                            requireContext(),
-                            "Select LMP Date",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    else if(viewModel.activePwrRecord == null){
-                        viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
-//                        lmpDateDisablity = true
-                        binding.lmpDate.setOnClickListener {}
-                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
-                            if(it2){
-                                checkAndNavigateAnc()
-                            }
-                        }
-                    }
-                    else{
-                        checkAndNavigateAnc()
-                    }
-//                }
-            }
-            else if(reasonForVisit == DropdownConst.pnc){
-                viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
-                    val visitNumber = (it ?: 0) + 1
-                    viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){it1->
-                        if(deliveryDate == null){
-                            Toast.makeText(
-                                requireContext(),
-                                "Select Delivery Date",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        else if(it1 == null){
-                            viewModel.saveDeliveryOutcome(benVisitInfo.patient.patientID, deliveryDate!!)
-                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
-                                if(it2){
-                                    findNavController().navigate(
-                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
-                                            benVisitInfo.patient.patientID, visitNumber
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                        else{
-                            findNavController().navigate(
-                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
-                                    benVisitInfo.patient.patientID, visitNumber
-                                )
-                            )
-                        }
-                    }
-
+                if(viewModel.activePwrRecord == null && lmpDate == null){
+                    Toast.makeText(
+                        requireContext(),
+                        "Select LMP Date",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+                else if(viewModel.activePwrRecord == null){
+                    viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
+//                        lmpDateDisablity = true
+                    binding.lmpDate.setOnClickListener {}
+                    viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
+                        if(it2){
+                            checkAndNavigateAnc()
+                        }
+                    }
+                }
+                else{
+                    checkAndNavigateAnc()
+                }
+//                }
             }
             else if(reasonForVisit == DropdownConst.pnc){
                 viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){
@@ -1518,27 +1484,27 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
 //        viewModel.lastAnc.observe(viewLifecycleOwner){
-            if(viewModel.lastAnc != null && System.currentTimeMillis() - viewModel.lastAnc!!.ancDate < minGap){
-                Toast.makeText(
-                    requireContext(),
-                    "ANC found within 28 days",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            else if(viewModel.lastAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
-                Toast.makeText(
-                    requireContext(),
-                    "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            else{
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                    )
+        if(viewModel.lastAnc != null && System.currentTimeMillis() - viewModel.lastAnc!!.ancDate < minGap){
+            Toast.makeText(
+                requireContext(),
+                "ANC found within 28 days",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        else if(viewModel.lastAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
+            Toast.makeText(
+                requireContext(),
+                "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        else{
+            findNavController().navigate(
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                    benVisitInfo.patient.patientID, lastAncVisit + 1, false
                 )
-            }
+            )
+        }
 //        }
     }
 
@@ -1578,8 +1544,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
-    private fun setVisitMasterDataAndVitalsForFollow(){
-        val masterDb2 = MasterDb(patientId)
+    /**
+     * Helper function to build VisitMasterDb from form inputs
+     */
+    private fun buildVisitMasterDb(): VisitMasterDb {
         val visitMasterDb = VisitMasterDb()
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
@@ -1590,28 +1558,32 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
         visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
         visitMasterDb.reason = selectedReasonRadioButton?.tag.toString()
-        val subCategory = binding.subCatInput.text.toString()
-        visitMasterDb.subCategory = subCategory
+        visitMasterDb.subCategory = binding.subCatInput.text.toString()
 
-        val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
-        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            for (chiefComplaintData in chiefComplaintList) {
-                var cc = ChiefComplaintValues(
+        val chiefComplaintList = mutableListOf<ChiefComplaintValues>()
+        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintDataList ->
+            for (chiefComplaintData in chiefComplaintDataList) {
+                val cc = ChiefComplaintValues(
                     id = chiefComplaintData.chiefComplaintId,
                     chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
                     duration = chiefComplaintData.duration.nullIfEmpty(),
                     durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
                     description = chiefComplaintData.description.nullIfEmpty()
                 )
-                chiefComplaintList2.add(cc)
+                chiefComplaintList.add(cc)
             }
         }
 
-        visitMasterDb.chiefComplaint = chiefComplaintList2
-        masterDb2.visitMasterDb = visitMasterDb
+        visitMasterDb.chiefComplaint = chiefComplaintList
+        return visitMasterDb
+    }
 
-        var vitalsDB = viewModel.vitalsDB
-        var vitalDb2 = VitalsMasterDb(
+    /**
+     * Helper function to build VitalsMasterDb from viewModel
+     */
+    private fun buildVitalsMasterDb(): VitalsMasterDb {
+        val vitalsDB = viewModel.vitalsDB
+        return VitalsMasterDb(
             height = vitalsDB?.height,
             weight = vitalsDB?.weight,
             bmi = vitalsDB?.bmi,
@@ -1624,43 +1596,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             respiratoryRate = vitalsDB?.respiratoryRate,
             rbs = vitalsDB?.rbs
         )
-        Log.d("kkkk","${vitalDb2.height}")
-        masterDb2.vitalsMasterDb = vitalDb2
-        bundle.putSerializable("MasterDb", masterDb2)
+    }
+
+    private fun setVisitMasterDataAndVitalsForFollow() {
+        val masterDb = MasterDb(patientId)
+        masterDb.visitMasterDb = buildVisitMasterDb()
+        masterDb.vitalsMasterDb = buildVitalsMasterDb()
+        bundle.putSerializable("MasterDb", masterDb)
     }
 
     private fun setVisitMasterDataForFollow() {
         val masterDb = MasterDb(patientId)
-        val visitMasterDb = VisitMasterDb()
-
-        val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
-        val selectedReasonRadioButtonId = binding.radioGroup2.checkedRadioButtonId
-
-        val selectedCategoryRadioButton =
-            view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
-        val selectedReasonRadioButton = view?.findViewById<RadioButton>(selectedReasonRadioButtonId)
-
-        visitMasterDb.category = selectedCategoryRadioButton?.tag.toString()
-        visitMasterDb.reason = selectedReasonRadioButton?.tag.toString()
-        val subCategory = binding.subCatInput.text.toString()
-        visitMasterDb.subCategory = subCategory
-
-        val chiefComplaintList2 = mutableListOf<ChiefComplaintValues>()
-        viewModel.chiefComplaintDB.observe(viewLifecycleOwner) { chiefComplaintList ->
-            for (chiefComplaintData in chiefComplaintList) {
-                var cc = ChiefComplaintValues(
-                    id = chiefComplaintData.chiefComplaintId,
-                    chiefComplaint = chiefComplaintData.chiefComplaint.nullIfEmpty(),
-                    duration = chiefComplaintData.duration.nullIfEmpty(),
-                    durationUnit = chiefComplaintData.durationUnit.nullIfEmpty(),
-                    description = chiefComplaintData.description.nullIfEmpty()
-                )
-                chiefComplaintList2.add(cc)
-            }
-        }
-
-        visitMasterDb.chiefComplaint = chiefComplaintList2
-        masterDb.visitMasterDb = visitMasterDb
+        masterDb.visitMasterDb = buildVisitMasterDb()
         bundle.putSerializable("MasterDb", masterDb)
     }
 
@@ -1748,13 +1695,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     override fun onCancelAction() {
-       onCancelCall()
+        onCancelCall()
     }
 
-  private fun onCancelCall() {
-      val intent = Intent(context, HomeActivity::class.java)
-      startActivity(intent)
-      requireActivity().finish()
+    private fun onCancelCall() {
+        val intent = Intent(context, HomeActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
     //methods for voice to text conversion and update the input fields
     override fun onEndIconDurationClick(position: Int) {

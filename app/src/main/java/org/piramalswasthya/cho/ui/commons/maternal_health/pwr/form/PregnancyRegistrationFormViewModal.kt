@@ -146,50 +146,11 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     fun getIndexOfTestDate(testDateId: Int): Int = dataset.getIndexById(testDateId)
 
     private fun createNewRegistrationCache(ben: PatientDisplay, userName: String): PregnantWomanRegistrationCache {
-        return PregnantWomanRegistrationCache(
-            patientID = ben.patient.patientID,
-            syncState = SyncState.UNSYNCED,
-            createdDate = System.currentTimeMillis(),
-            updatedDate = System.currentTimeMillis(),
-            dateOfRegistration = System.currentTimeMillis(),
-            bloodGroupId = 0,
-            vdrlRprTestResultId = 0,
-            hivTestResultId = 0,
-            hbsAgTestResultId = 0,
-            complicationPrevPregnancyId = null,
-            hrpIdById = 0,
-            isFirstAncSubmitted = false,
-            id = 0,
-            mcpCardNumber = null,
-            rchId = null,
-            lmpDate = 0L,
-            bloodGroup = null,
-            weight = null,
-            height = null,
-            vdrlRprTestResult = null,
-            dateOfVdrlRprTest = null,
-            historyOfAbortions = null,
-            previousLSCS = null,
-            hivTestResult = null,
-            dateOfHivTest = null,
-            hbsAgTestResult = null,
-            dateOfHbsAgTest = null,
-            pastIllness = null,
-            otherPastIllness = null,
-            is1st = true,
-            numPrevPregnancy = null,
-            complicationPrevPregnancy = null,
-            otherComplication = null,
-            isHrp = false,
-            hrpIdBy = null,
-            active = true,
-            tt1 = null,
-            tt2 = null,
-            ttBooster = null,
-            processed = "N",
-            createdBy = userName,
-            updatedBy = userName
-        )
+        // Use the dataset's helper method and update user fields
+        val cache = dataset.createDefaultRegistrationCache(ben)
+        cache.createdBy = userName
+        cache.updatedBy = userName
+        return cache
     }
 
     private fun setupDatasetCallbacks() {

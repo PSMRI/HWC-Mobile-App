@@ -284,7 +284,7 @@ class PregnantWomanRegistrationDataset(
         required = false,
         max = System.currentTimeMillis(),
 
-    )
+        )
 
     // Lab Investigations - HIV
     private val hivResult = FormElement(
@@ -520,7 +520,7 @@ class PregnantWomanRegistrationDataset(
         }
     }
 
-    private fun createDefaultRegistrationCache(ben: PatientDisplay?): PregnantWomanRegistrationCache {
+    fun createDefaultRegistrationCache(ben: PatientDisplay?): PregnantWomanRegistrationCache {
         return PregnantWomanRegistrationCache(
             patientID = ben?.patient?.patientID ?: "",
             syncState = SyncState.UNSYNCED,
@@ -925,70 +925,50 @@ class PregnantWomanRegistrationDataset(
         }
         updateHighRiskStatus()
     }
-    private fun showVdrlRprDateField() {
-        // Update date constraints
+    /**
+     * Generic helper to show a test date field
+     */
+    private fun showTestDateField(dateField: FormElement, sourceField: FormElement) {
         val today = System.currentTimeMillis()
-        vdrlRprDate.min = oneYearBeforeRegMillis
-        vdrlRprDate.max = today
+        dateField.min = oneYearBeforeRegMillis
+        dateField.max = today
+        dateField.isEnabled = true
+        dateField.required = true
+        addDateFieldAfterSource(sourceField, dateField)
+    }
 
-        vdrlRprDate.isEnabled = true
-        vdrlRprDate.required = true
+    /**
+     * Generic helper to hide a test date field
+     */
+    private fun hideTestDateField(dateField: FormElement) {
+        dateField.isEnabled = false
+        dateField.required = false
+        dateField.value = null
+        removeDateField(dateField)
+    }
 
-        // Add date field after VDRL/RPR result field
-        addDateFieldAfterSource(vdrlRprResult, vdrlRprDate)
+    private fun showVdrlRprDateField() {
+        showTestDateField(vdrlRprDate, vdrlRprResult)
     }
 
     private fun hideVdrlRprDateField() {
-        vdrlRprDate.isEnabled = false
-        vdrlRprDate.required = false
-        vdrlRprDate.value = null
-
-        // Remove date field
-        removeDateField(vdrlRprDate)
+        hideTestDateField(vdrlRprDate)
     }
 
     private fun showHivTestDateField() {
-        // Update date constraints
-        val today = System.currentTimeMillis()
-        hivTestDate.min = oneYearBeforeRegMillis
-        hivTestDate.max = today
-
-        hivTestDate.isEnabled = true
-        hivTestDate.required = true
-
-        // Add date field after HIV result field
-        addDateFieldAfterSource(hivResult, hivTestDate)
+        showTestDateField(hivTestDate, hivResult)
     }
 
     private fun hideHivTestDateField() {
-        hivTestDate.isEnabled = false
-        hivTestDate.required = false
-        hivTestDate.value = null
-
-        // Remove date field
-        removeDateField(hivTestDate)
+        hideTestDateField(hivTestDate)
     }
 
     private fun showHbsAgTestDateField() {
-        // Update date constraints
-        val today = System.currentTimeMillis()
-        hbsAgTestDate.min = oneYearBeforeRegMillis
-        hbsAgTestDate.max = today
-
-        hbsAgTestDate.isEnabled = true
-        hbsAgTestDate.required = true
-
-        // Add date field after HBsAg result field
-        addDateFieldAfterSource(hbsAgResult, hbsAgTestDate)
+        showTestDateField(hbsAgTestDate, hbsAgResult)
     }
 
     private fun hideHbsAgTestDateField() {
-        hbsAgTestDate.isEnabled = false
-        hbsAgTestDate.required = false
-        hbsAgTestDate.value = null
-
-        // Remove date field
-        removeDateField(hbsAgTestDate)
+        hideTestDateField(hbsAgTestDate)
     }
 
     // Helper methods to add/remove fields
@@ -1022,51 +1002,47 @@ class PregnantWomanRegistrationDataset(
             )
         }
     }
-    private fun handleComplicationsChange(index: Int): Int {
-        val entries = complicationsInPreviousPregnancy.entries!!
+    /**
+     * Generic helper to handle checkbox field changes with "None" option
+     */
+    private fun handleCheckboxFieldChange(
+        field: FormElement,
+        index: Int,
+        alertMessage: String? = null
+    ): Int {
+        val entries = field.entries!!
         val clickedOption = entries[index]
-
-        // Get current value
-        val currentValue = complicationsInPreviousPregnancy.value ?: ""
-
-        Timber.d("Complications change - Index: $index, Option: $clickedOption, Current: '$currentValue'")
+        val currentValue = field.value ?: ""
 
         if (index == 0) { // "None" clicked
-            // When "None" is clicked, set it as the only selection
-            complicationsInPreviousPregnancy.value = clickedOption
-            Timber.d("Set to 'None' only")
+            field.value = clickedOption
         } else {
-            // Handle other options
             val selections = mutableSetOf<String>()
-
             if (currentValue.isNotEmpty()) {
-                // Split the current value and filter out empty strings
                 selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
             }
-
-            // Remove "None" if it exists (can't have "None" with other options)
             selections.remove("None")
 
-            // Toggle the clicked option
             if (selections.contains(clickedOption)) {
                 selections.remove(clickedOption)
-                Timber.d("Removed: $clickedOption")
             } else {
                 selections.add(clickedOption)
-                // Show HRP alert for the selected complication
-                onShowAlert?.invoke("Previous pregnancy complication: $clickedOption - High Risk Pregnancy")
-                Timber.d("Added: $clickedOption")
+                alertMessage?.let { onShowAlert?.invoke(it) }
             }
 
-            // Update the value
-            complicationsInPreviousPregnancy.value = if (selections.isEmpty()) ""
-            else selections.joinToString(",")
-
-            Timber.d("New value: '${complicationsInPreviousPregnancy.value}'")
+            field.value = if (selections.isEmpty()) "" else selections.joinToString(",")
         }
 
         updateHighRiskStatus()
-        return getIndexById(complicationsInPreviousPregnancy.id)
+        return getIndexById(field.id)
+    }
+
+    private fun handleComplicationsChange(index: Int): Int {
+        return handleCheckboxFieldChange(
+            field = complicationsInPreviousPregnancy,
+            index = index,
+            alertMessage = "Previous pregnancy complication: ${complicationsInPreviousPregnancy.entries!![index]} - High Risk Pregnancy"
+        )
     }
 
     private fun handleParaChange(): Int {
@@ -1095,50 +1071,11 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun handlePreExistingConditionsChange(index: Int): Int {
-        val entries = preExistingConditions.entries!!
-        val clickedOption = entries[index]
-
-        // Get current value
-        val currentValue = preExistingConditions.value ?: ""
-
-        Timber.d("Pre-existing conditions change - Index: $index, Option: $clickedOption, Current: '$currentValue'")
-
-        if (index == 0) { // "None" clicked
-            // When "None" is clicked, set it as the only selection
-            preExistingConditions.value = clickedOption
-            Timber.d("Set to 'None' only for pre-existing conditions")
-        } else {
-            // Handle other options
-            val selections = mutableSetOf<String>()
-
-            if (currentValue.isNotEmpty()) {
-                // Split the current value and filter out empty strings
-                selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
-            }
-
-            // Remove "None" if it exists (can't have "None" with other options)
-            selections.remove("None")
-
-            // Toggle the clicked option
-            if (selections.contains(clickedOption)) {
-                selections.remove(clickedOption)
-                Timber.d("Removed: $clickedOption from pre-existing conditions")
-            } else {
-                selections.add(clickedOption)
-                // Show HRP alert for the selected condition
-                onShowAlert?.invoke("Pre-existing condition: $clickedOption - High Risk Pregnancy")
-                Timber.d("Added: $clickedOption to pre-existing conditions")
-            }
-
-            // Update the value
-            preExistingConditions.value = if (selections.isEmpty()) ""
-            else selections.joinToString(",")
-
-            Timber.d("New value for pre-existing conditions: '${preExistingConditions.value}'")
-        }
-
-        updateHighRiskStatus()
-        return getIndexById(preExistingConditions.id)
+        return handleCheckboxFieldChange(
+            field = preExistingConditions,
+            index = index,
+            alertMessage = "Pre-existing condition: ${preExistingConditions.entries!![index]} - High Risk Pregnancy"
+        )
     }
 
     private fun updateCalculatedFields(currentDate: Long) {
