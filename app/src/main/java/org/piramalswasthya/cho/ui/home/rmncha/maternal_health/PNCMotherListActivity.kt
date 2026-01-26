@@ -3,9 +3,6 @@ package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +15,10 @@ import org.piramalswasthya.cho.adapter.PNCMotherAdapter
 import org.piramalswasthya.cho.databinding.ActivityPncMotherListBinding
 import org.piramalswasthya.cho.model.PatientWithPncDomain
 import org.piramalswasthya.cho.repositories.PncRepo
+import org.piramalswasthya.cho.utils.filterPatientsByQuery
+import org.piramalswasthya.cho.utils.setupSearchTextWatcher
+import org.piramalswasthya.cho.utils.updateListUI
+import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -48,9 +49,7 @@ class PNCMotherListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Set up toolbar
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.pnc_mother_list)
+        setupToolbarWithBack(binding.toolbar, getString(R.string.pnc_mother_list))
 
         setupRecyclerView()
         setupSearch()
@@ -75,15 +74,9 @@ class PNCMotherListActivity : AppCompatActivity() {
     }
 
     private fun setupSearch() {
-        binding.searchView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                filterPatients(s?.toString() ?: "")
-            }
-        })
+        binding.searchView.setupSearchTextWatcher { query ->
+            filterPatients(query)
+        }
     }
 
     private fun observePatients() {
@@ -102,47 +95,20 @@ class PNCMotherListActivity : AppCompatActivity() {
     }
 
     private fun filterPatients(query: String) {
-        filteredPatients = if (query.isBlank()) {
-            allPatients
-        } else {
-            allPatients.filter { patient ->
-                val firstName = patient.patient.firstName?.lowercase() ?: ""
-                val lastName = patient.patient.lastName?.lowercase() ?: ""
-                val spouseName = patient.patient.spouseName?.lowercase() ?: ""
-                val phoneNo = patient.patient.phoneNo ?: ""
-                val beneficiaryID = patient.patient.beneficiaryID?.toString() ?: ""
-
-                val searchQuery = query.lowercase()
-
-                firstName.contains(searchQuery) ||
-                        lastName.contains(searchQuery) ||
-                        spouseName.contains(searchQuery) ||
-                        phoneNo.contains(searchQuery) ||
-                        beneficiaryID.contains(searchQuery)
-            }
-        }
+        filteredPatients = allPatients.filterPatientsByQuery(query) { it.patient }
         updateUI()
     }
 
     private fun updateUI() {
-        if (filteredPatients.isEmpty()) {
-            binding.flEmpty.visibility = View.VISIBLE
-            binding.rvPncMothers.visibility = View.GONE
-            binding.tvCount.text = "0 ${getString(R.string.result)}"
-        } else {
-            binding.flEmpty.visibility = View.GONE
-            binding.rvPncMothers.visibility = View.VISIBLE
-            adapter.submitList(filteredPatients)
-
-            val countText = if (filteredPatients.size == 1) {
-                "1 ${getString(R.string.result)}"
-            } else {
-                "${filteredPatients.size} ${getString(R.string.result)}s"
-            }
-            binding.tvCount.text = countText
-        }
-
-        Timber.d("Displaying ${filteredPatients.size} PNC mothers")
+        adapter.submitList(filteredPatients)
+        updateListUI(
+            filteredList = filteredPatients,
+            emptyStateView = binding.flEmpty,
+            recyclerView = binding.rvPncMothers,
+            countTextView = binding.tvCount,
+            resultString = getString(R.string.result),
+            logMessage = "Displaying PNC mothers"
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {
