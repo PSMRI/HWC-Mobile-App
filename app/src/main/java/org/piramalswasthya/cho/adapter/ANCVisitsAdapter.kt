@@ -71,8 +71,6 @@ class ANCVisitsAdapter(
             binding.tvEdd.text = item.getFormattedEDD()
 
             binding.tvLastVisit.text = "N/A"
-            // val lastAncDate = getLastAncVisitDate(item.patient.patientID)
-            // binding.tvLastVisit.text = lastAncDate ?: "N/A"
 
             binding.executePendingBindings()
         }
