@@ -422,8 +422,9 @@ data class PregnantWomanAncCache(
             hb = hb,
             fundalHeight = fundalHeight,
             urineAlbuminPresent = when (urineAlbumin) {
-                null, "Negative", "Trace" -> false
-                else -> true  // "+", "++", "+++" are treated as positive
+                null, "Negative", "Trace", "Absent" -> false
+                "Present", "+", "++", "+++" -> true
+                else -> null
             },
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,

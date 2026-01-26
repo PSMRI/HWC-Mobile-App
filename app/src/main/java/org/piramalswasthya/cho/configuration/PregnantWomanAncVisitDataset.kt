@@ -472,13 +472,10 @@ class PregnantWomanAncVisitDataset(
             minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(21 * 7))
 
         // Next ANC Visit Date range (> today, <= EDD)
-        nextAncVisitDate.min = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
-        nextAncVisitDate.max = getEddFromLmp(regis.lmpDate)
-        // Guard against min > max
-        if (nextAncVisitDate.min != null && nextAncVisitDate.max != null && nextAncVisitDate.min!! > nextAncVisitDate.max!!) {
-            nextAncVisitDate.min = null
-            nextAncVisitDate.max = null
-        }
+        val edd = getEddFromLmp(regis.lmpDate)
+        val tomorrow = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
+        nextAncVisitDate.max = edd
+        nextAncVisitDate.min = minOf(tomorrow, edd)
 
         if (lastAnc == null)
             list.remove(dateOfTTOrTd2)
@@ -902,10 +899,9 @@ class PregnantWomanAncVisitDataset(
                                 position = getIndexById(anyHighRisk.id) + 1
                             )
                         }
-                        else {
-                            if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
-                                highRiskCondition.value = highRiskCondition.entries!![6]
-                            }
+                        // Always set DIABETES when blood sugar > 95, regardless of anyHighRisk state
+                        if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
+                            highRiskCondition.value = highRiskCondition.entries!![6]
                         }
                     }
                 }
@@ -953,6 +949,12 @@ class PregnantWomanAncVisitDataset(
                         // Set high risk condition to "OTHER" for abnormal FHR (for consistency)
                         if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
                             highRiskCondition.value = highRiskCondition.entries!!.last()
+                            triggerDependants(
+                                source = highRiskCondition,
+                                passedIndex = highRiskCondition.entries!!.lastIndex,
+                                triggerIndex = highRiskCondition.entries!!.lastIndex,
+                                target = otherHighRiskCondition,
+                            )
                         }
                     }
                 }

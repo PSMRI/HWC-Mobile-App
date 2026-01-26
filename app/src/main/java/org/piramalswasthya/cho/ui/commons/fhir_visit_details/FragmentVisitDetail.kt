@@ -1341,8 +1341,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                        lmpDateDisablity = true
                         binding.lmpDate.setOnClickListener {}
                         
-                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
-                            if(it2){
+                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner) { saved ->
+                            if (saved) {
+                                viewModel.isLMPDateSaved.removeObservers(viewLifecycleOwner)
                                 checkAndNavigateAnc()
                             }
                         }
@@ -1365,8 +1366,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         }
                         else if(it1 == null){
                             viewModel.saveDeliveryOutcome(benVisitInfo.patient.patientID, deliveryDate!!)
-                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
-                                if(it2){
+                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner) { saved ->
+                                if (saved) {
+                                    viewModel.isDeliveryDateSaved.removeObservers(viewLifecycleOwner)
                                     findNavController().navigate(
                                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
                                             benVisitInfo.patient.patientID, visitNumber

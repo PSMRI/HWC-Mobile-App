@@ -16,10 +16,14 @@ fun getWeeksOfPregnancy(regLong: Long, lmpLong: Long) =
  * Formats gestational age as "X weeks Y days"
  * @param regLong Current date in milliseconds
  * @param lmpLong LMP date in milliseconds
- * @return Formatted string like "12 weeks 3 days"
+ * @return Formatted string like "12 weeks 3 days" or "0 weeks" if regLong < lmpLong
  */
 fun getGestationalAgeFormatted(regLong: Long, lmpLong: Long): String {
-    val totalDays = TimeUnit.MILLISECONDS.toDays(regLong - lmpLong).toInt()
+    val diff = regLong - lmpLong
+    if (diff <= 0) {
+        return "0 weeks"
+    }
+    val totalDays = TimeUnit.MILLISECONDS.toDays(diff).toInt().coerceAtLeast(0)
     val weeks = totalDays / 7
     val days = totalDays % 7
     return if (days == 0) {
