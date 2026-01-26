@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
@@ -471,6 +472,11 @@ class PregnantWomanAncVisitDataset(
         // Next ANC Visit Date range (> today, <= EDD)
         nextAncVisitDate.min = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
         nextAncVisitDate.max = getEddFromLmp(regis.lmpDate)
+        // Guard against min > max
+        if (nextAncVisitDate.min != null && nextAncVisitDate.max != null && nextAncVisitDate.min!! > nextAncVisitDate.max!!) {
+            nextAncVisitDate.min = null
+            nextAncVisitDate.max = null
+        }
 
         if (lastAnc == null)
             list.remove(dateOfTTOrTd2)
@@ -528,6 +534,10 @@ class PregnantWomanAncVisitDataset(
                 list.remove(numIfaAcidTabGiven)
             } else {
                 list.remove(numFolicAcidTabGiven)
+            }
+            // Disable Calcium up to 14 weeks when editing saved visits too
+            if (woP <= 14) {
+                list.remove(calciumGiven)
             }
             if (woP >= Konstants.minWeekToShowDelivered) {
                 if (!list.contains(deliveryDone)) list.add(deliveryDone)
@@ -606,6 +616,21 @@ class PregnantWomanAncVisitDataset(
             }
             deliveryDone.value =
                 if (savedAnc.pregnantWomanDelivered == true) deliveryDone.entries!!.first() else deliveryDone.entries!!.last()
+            
+            // Populate new ANC fields when editing saved visits
+            bloodSugarFasting.value = savedAnc.bloodSugarFasting?.toString()
+            urineSugar.value = savedAnc.urineSugar
+            fetalHeartRate.value = savedAnc.fetalHeartRate?.toString()
+            calciumGiven.value = savedAnc.calciumGiven.takeIf { it > 0 }?.toString()
+            dangerSigns.value = savedAnc.dangerSigns
+            counsellingProvided.value = savedAnc.counsellingProvided?.let {
+                if (it) counsellingProvided.entries!!.last() else counsellingProvided.entries!!.first()
+            }
+            if (savedAnc.counsellingProvided == true) {
+                counsellingTopics.value = savedAnc.counsellingTopics
+                list.add(list.indexOf(counsellingProvided) + 1, counsellingTopics)
+            }
+            nextAncVisitDate.value = savedAnc.nextAncVisitDate?.let { getDateFromLong(it) }
         }
         setUpPage(list)
 
@@ -835,8 +860,15 @@ class PregnantWomanAncVisitDataset(
                     if (bsValue > 95) {
                         if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
+                            // Trigger dependants when anyHighRisk is set programmatically
+                            triggerDependants(
+                                source = anyHighRisk,
+                                removeItems = emptyList(),
+                                addItems = listOf(highRiskCondition),
+                                position = getIndexById(anyHighRisk.id) + 1
+                            )
                         }
-                        else {
+                        if (anyHighRisk.value == anyHighRisk.entries?.last()) {
                             if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
                                 highRiskCondition.value = highRiskCondition.entries!![6]
                             }
@@ -852,6 +884,13 @@ class PregnantWomanAncVisitDataset(
                     if (value in riskLevels) {
                         if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
+                            // Trigger dependants when anyHighRisk is set programmatically
+                            triggerDependants(
+                                source = anyHighRisk,
+                                removeItems = emptyList(),
+                                addItems = listOf(highRiskCondition),
+                                position = getIndexById(anyHighRisk.id) + 1
+                            )
                         }
                         if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
                             highRiskCondition.value = highRiskCondition.entries!![6]
@@ -866,8 +905,17 @@ class PregnantWomanAncVisitDataset(
                 if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
 
                 fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
-                    if( (fhrValue < 110.0 || fhrValue > 160.0) && (anyHighRisk.value != anyHighRisk.entries?.last())) {
+                    if (fhrValue < 110.0 || fhrValue > 160.0) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
+                            // Trigger dependants when anyHighRisk is set programmatically
+                            triggerDependants(
+                                source = anyHighRisk,
+                                removeItems = emptyList(),
+                                addItems = listOf(highRiskCondition),
+                                position = getIndexById(anyHighRisk.id) + 1
+                            )
+                        }
                     }
                 }
                 -1
@@ -876,8 +924,17 @@ class PregnantWomanAncVisitDataset(
             urineAlbumin.id -> {
                 urineAlbumin.value?.let { value ->
                     val riskLevels = arrayOf("+", "++", "+++")
-                    if( (value in riskLevels) &&(anyHighRisk.value != anyHighRisk.entries?.last()) ){
+                    if (value in riskLevels) {
+                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
+                            // Trigger dependants when anyHighRisk is set programmatically
+                            triggerDependants(
+                                source = anyHighRisk,
+                                removeItems = emptyList(),
+                                addItems = listOf(highRiskCondition),
+                                position = getIndexById(anyHighRisk.id) + 1
+                            )
+                        }
                     }
                 }
                 -1
@@ -887,13 +944,29 @@ class PregnantWomanAncVisitDataset(
 
             dangerSigns.id -> {
                 dangerSigns.value?.let { value ->
-                    if (value != "None") {
+                    // Handle multi-select dangerSigns values
+                    // Values are stored as concatenated strings (e.g., "NoneVaginal Bleeding")
+                    // Check if value contains any danger sign (excluding "None")
+                    val hasDangerSigns = value.isNotEmpty() && !value.contains("None") && 
+                        dangerSigns.entries?.any { entry -> 
+                            entry != "None" && value.contains(entry)
+                        } == true
+                    
+                    if (hasDangerSigns) {
                         if (anyHighRisk.value != anyHighRisk.entries?.last()) {
                             anyHighRisk.value = anyHighRisk.entries?.last()
+                            // Trigger dependants when anyHighRisk is set programmatically
+                            triggerDependants(
+                                source = anyHighRisk,
+                                removeItems = emptyList(),
+                                addItems = listOf(highRiskCondition),
+                                position = getIndexById(anyHighRisk.id) + 1
+                            )
                         }
-                        when (value) {
-                            "Vaginal Bleeding" -> highRiskCondition.value = highRiskCondition.entries!![3]
-                            "Convulsions/ seizures" -> highRiskCondition.value = highRiskCondition.entries!![2]
+                        // Set high risk condition based on danger signs
+                        when {
+                            value.contains("Vaginal Bleeding") -> highRiskCondition.value = highRiskCondition.entries!![3]
+                            value.contains("Convulsions/ seizures") -> highRiskCondition.value = highRiskCondition.entries!![2]
                             else -> {
                                 if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
                                     highRiskCondition.value = highRiskCondition.entries!!.last()
@@ -972,10 +1045,14 @@ class PregnantWomanAncVisitDataset(
             cache.fetalHeartRate = fetalHeartRate.value?.toDouble()
             cache.calciumGiven = calciumGiven.value?.toInt() ?: 0
             cache.dangerSigns = dangerSigns.value
-            cache.dangerSignsId = dangerSigns.getPosition()
+            // For multi-select checkboxes, getPosition() doesn't work correctly
+            // Store 0 since the value itself contains all the information
+            cache.dangerSignsId = if (dangerSigns.inputType == InputType.CHECKBOXES) 0 else dangerSigns.getPosition()
             cache.counsellingProvided = counsellingProvided.value == counsellingProvided.entries?.last()
             cache.counsellingTopics = counsellingTopics.value
-            cache.counsellingTopicsId = counsellingTopics.getPosition()
+            // For multi-select checkboxes, getPosition() doesn't work correctly
+            // Store 0 since the value itself contains all the information
+            cache.counsellingTopicsId = if (counsellingTopics.inputType == InputType.CHECKBOXES) 0 else counsellingTopics.getPosition()
             cache.nextAncVisitDate = nextAncVisitDate.value?.let { getLongFromDate(it) }
         }
     }

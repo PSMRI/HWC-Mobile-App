@@ -34,6 +34,8 @@ import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
 import org.piramalswasthya.cho.adapter.PncVisitAdapter
 import org.piramalswasthya.cho.adapter.SubCategoryAdapter
+// TODO: Uncomment when AncVisitsBottomSheetFragment is created
+// import org.piramalswasthya.cho.ui.commons.maternal_health.AncVisitsBottomSheetFragment
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.databinding.VisitDetailsInfoBinding
@@ -43,6 +45,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -749,10 +752,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             })
 
         binding.rvAnc.adapter =
-            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
+            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { item: PregnantWomanAncCache ->
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benId, visitNumber, true
+                        item.patientID, item.visitNumber, true
                     )
                 )
             })
@@ -791,6 +794,53 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         viewModel.lastAncVisitNumber.observe(viewLifecycleOwner){
             lastAncVisit = it ?: 0
         }
+
+        // TODO: Uncomment when btnViewAncVisits and btnAddNextVisitAnc are added to layout
+        /*
+        binding.btnViewAncVisits.setOnClickListener {
+            lifecycleScope.launch {
+                val ancVisits = viewModel.allActiveAncRecords.value
+                if (!ancVisits.isNullOrEmpty()) {
+                    Log.d("ANCVisits", "Showing ${ancVisits.size} ANC visits in bottom sheet")
+                    val bottomSheet = AncVisitsBottomSheetFragment(
+                        ancVisits,
+                        AncVisitAdapter.AncVisitClickListener { item: PregnantWomanAncCache ->
+                            findNavController().navigate(
+                                FragmentVisitDetailDirections
+                                    .actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                                        item.patientID, item.visitNumber, true
+                                    )
+                            )
+                        }
+                    )
+                    bottomSheet.show(childFragmentManager, "ANC_VISITS_BOTTOM_SHEET")
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "No ANC visits available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        binding.btnAddNextVisitAnc.setOnClickListener {
+            Log.d("AddNextVisit", "Add next ANC visit button clicked")
+            checkAndNavigateAnc()
+        }
+
+        // BLOCKING FIX #3: Show/hide buttons based on ANC visit availability
+        viewModel.allActiveAncRecords.observe(viewLifecycleOwner) { ancVisits ->
+            Log.d("ANCButtons", "ANC visits count: ${ancVisits?.size ?: 0}")
+            if (!ancVisits.isNullOrEmpty()) {
+                binding.btnViewAncVisits.visibility = View.VISIBLE
+                binding.btnAddNextVisitAnc.visibility = View.VISIBLE
+            } else {
+                binding.btnViewAncVisits.visibility = View.GONE
+                binding.btnAddNextVisitAnc.visibility = View.GONE
+            }
+        }
+        */
 
         lifecycleScope.launch {
             viewModel.getPatientDisplayListForDoctorByPatient(benVisitInfo.patient.patientID).collect{
@@ -1339,6 +1389,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
 //                        lmpDateDisablity = true
                         binding.lmpDate.setOnClickListener {}
+                        
+                        // BLOCKING FIX #5: Add error feedback to UI
+                        // TODO: Uncomment when registrationError is added to ViewModel
+                        /*
+                        viewModel.registrationError.observe(viewLifecycleOwner) { error ->
+                            if (error != null) {
+                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                                Log.e("PregnancyRegistration", "Registration error: $error")
+                            }
+                        }
+                        */
+                        
                         viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                             if(it2){
                                 checkAndNavigateAnc()

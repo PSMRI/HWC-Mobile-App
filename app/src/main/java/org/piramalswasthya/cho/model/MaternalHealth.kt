@@ -421,7 +421,10 @@ data class PregnantWomanAncCache(
             pulseRate = pulseRate?.toInt(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbuminPresent = urineAlbumin == "Present",
+            urineAlbuminPresent = when (urineAlbumin) {
+                null, "Negative", "Trace" -> false
+                else -> true  // "+", "++", "+++" are treated as positive
+            },
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,
             ifaTabs = numIfaAcidTabGiven,
