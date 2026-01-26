@@ -1513,6 +1513,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
@@ -1741,6 +1742,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return R.id.fragment_visit_details_info
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onSubmitAction() {
         navigateNext()
     }
