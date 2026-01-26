@@ -43,6 +43,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -749,10 +750,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             })
 
         binding.rvAnc.adapter =
-            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
+            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { item: PregnantWomanAncCache ->
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benId, visitNumber, true
+                        item.patientID, item.visitNumber, true
                     )
                 )
             })
@@ -1339,6 +1340,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
 //                        lmpDateDisablity = true
                         binding.lmpDate.setOnClickListener {}
+                        
                         viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
                             if(it2){
                                 checkAndNavigateAnc()

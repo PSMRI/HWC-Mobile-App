@@ -521,6 +521,7 @@
     <string name="radio_title_ds">%s<span> **</span></string>
     <string name="radio_title">%s<span> *</span></string>
     <string name="anc_visit_number">ANC Visit %1d</string>
+    <string name="anc_visits">ANC Visits</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
     <!--  Post Natal Care  -->

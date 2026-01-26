@@ -421,7 +421,10 @@ data class PregnantWomanAncCache(
             pulseRate = pulseRate?.toInt(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbuminPresent = urineAlbumin == "Present",
+            urineAlbuminPresent = when (urineAlbumin) {
+                null, "Negative", "Trace" -> false
+                else -> true  // "+", "++", "+++" are treated as positive
+            },
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,
             ifaTabs = numIfaAcidTabGiven,
@@ -439,7 +442,16 @@ data class PregnantWomanAncCache(
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
-            updatedBy = updatedBy
+            updatedBy = updatedBy,
+            // Include new ANC fields
+            bloodSugarFasting = bloodSugarFasting,
+            urineSugar = urineSugar,
+            fetalHeartRate = fetalHeartRate,
+            calciumGiven = calciumGiven.takeIf { it > 0 },
+            dangerSigns = dangerSigns,
+            counsellingProvided = counsellingProvided,
+            counsellingTopics = counsellingTopics,
+            nextAncVisitDate = nextAncVisitDate?.let { getDateStringFromLong(it) }
         )
     }
 }
@@ -479,7 +491,16 @@ data class ANCPost(
     val createdDate: String? = null,
     val createdBy: String,
     val updatedDate: String? = null,
-    val updatedBy: String
+    val updatedBy: String,
+    // New ANC fields
+    val bloodSugarFasting: Int? = null,
+    val urineSugar: String? = null,
+    val fetalHeartRate: Double? = null,
+    val calciumGiven: Int? = null,
+    val dangerSigns: String? = null,
+    val counsellingProvided: Boolean? = null,
+    val counsellingTopics: String? = null,
+    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
         return PregnantWomanAncCache(
@@ -525,7 +546,16 @@ data class ANCPost(
             createdDate = getLongFromDate(createdDate),
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
-            syncState = SyncState.SYNCED
+            syncState = SyncState.SYNCED,
+            // Map new ANC fields
+            bloodSugarFasting = bloodSugarFasting,
+            urineSugar = urineSugar,
+            fetalHeartRate = fetalHeartRate,
+            calciumGiven = calciumGiven ?: 0,
+            dangerSigns = dangerSigns,
+            counsellingProvided = counsellingProvided,
+            counsellingTopics = counsellingTopics,
+            nextAncVisitDate = getLongFromDate(nextAncVisitDate)
         )
     }
 }

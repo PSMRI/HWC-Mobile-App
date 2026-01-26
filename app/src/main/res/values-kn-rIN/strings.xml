@@ -96,6 +96,7 @@
 
 <!--    <string name="cbac">CBAC</string>-->
     <string name="anc">ANC</string>
+    <string name="anc_visits">ANC Visits</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
     <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
