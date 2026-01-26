@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
@@ -25,8 +24,6 @@ import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 class EcrRepo @Inject constructor(

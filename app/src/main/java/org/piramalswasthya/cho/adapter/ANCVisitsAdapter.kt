@@ -1,16 +1,15 @@
 package org.piramalswasthya.cho.adapter
 
+import android.os.Build
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemAncVisitBinding
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
 import org.piramalswasthya.cho.utils.DateTimeUtil
-import org.piramalswasthya.cho.utils.HelperUtil
-import java.util.concurrent.TimeUnit
 
 class ANCVisitsAdapter(
     private val clickListener: ClickListener? = null
@@ -42,6 +41,7 @@ class ANCVisitsAdapter(
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun bind(
             item: PatientWithPwrDomain,
             clickListener: ClickListener?
@@ -70,9 +70,7 @@ class ANCVisitsAdapter(
             // Set EDD
             binding.tvEdd.text = item.getFormattedEDD()
 
-            // Set last visit date (TODO: Get from ANC records)
             binding.tvLastVisit.text = "N/A"
-            // TODO: Fetch last ANC visit date from database
             // val lastAncDate = getLastAncVisitDate(item.patient.patientID)
             // binding.tvLastVisit.text = lastAncDate ?: "N/A"
 
@@ -83,6 +81,7 @@ class ANCVisitsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ANCVisitViewHolder.from(parent)
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ANCVisitViewHolder, position: Int) {
         holder.bind(getItem(position), clickListener)
     }

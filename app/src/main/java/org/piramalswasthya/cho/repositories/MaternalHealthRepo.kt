@@ -1,19 +1,15 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import org.piramalswasthya.cho.database.room.InAppDb
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+//import org.piramalswasthya.cho.database.room.InAppDb
+//import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.model.PatientWithPwrCache
 import org.piramalswasthya.cho.model.PmsmaDomain
@@ -25,7 +21,6 @@ import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 //import org.piramalswasthya.sakhi.database.room.dao.BenDao
 //import org.piramalswasthya.sakhi.database.room.dao.MaternalHealthDao
-import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.model.ANCPost
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
@@ -34,18 +29,15 @@ import org.piramalswasthya.cho.model.ANCPost
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MaternalHealthRepo @Inject constructor(
     private val amritApiService: AmritApiService,
     private val maternalHealthDao: MaternalHealthDao,
-    private val database: InAppDb,
+//    private val database: InAppDb,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
-    private val preferenceDao: PreferenceDao,
+//    private val preferenceDao: PreferenceDao,
 ) {
 
     suspend fun getSavedRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
@@ -54,11 +46,11 @@ class MaternalHealthRepo @Inject constructor(
 
 
 
-    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
-        return withContext(Dispatchers.IO) {
-            maternalHealthDao.getSavedActiveRecord(benId)
-        }
-    }
+//    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
+//        return withContext(Dispatchers.IO) {
+//            maternalHealthDao.getSavedActiveRecord(benId)
+//        }
+//    }
 //
 
     suspend fun getLastVisitNumber(benId: String): Int? {

@@ -1,8 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transformLatest
@@ -12,7 +10,7 @@ import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+//import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
@@ -26,7 +24,7 @@ class PncRepo @Inject constructor(
     private val amritApiService: AmritApiService,
     private val pncDao: PncDao,
     private val userRepo: UserRepo,
-    private val preferenceDao: PreferenceDao,
+//    private val preferenceDao: PreferenceDao,
     private val patientDao: PatientDao,
 ) {
     suspend fun getSavedPncRecord(patientID: String, visitNumber: Int): PNCVisitCache? {

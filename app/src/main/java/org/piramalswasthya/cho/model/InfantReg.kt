@@ -9,7 +9,6 @@ import androidx.room.Relation
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.network.getLongFromDate
-import org.piramalswasthya.cho.utils.DateTimeUtil.Companion.getDateTimeStringFromLong
 import java.text.SimpleDateFormat
 import java.util.Locale
 

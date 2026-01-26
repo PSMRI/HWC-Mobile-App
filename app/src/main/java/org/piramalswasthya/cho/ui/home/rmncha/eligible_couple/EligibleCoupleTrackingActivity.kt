@@ -19,7 +19,6 @@ import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
 import org.piramalswasthya.cho.utils.setupToolbarWithBack
-import timber.log.Timber
 import javax.inject.Inject
 
 /**

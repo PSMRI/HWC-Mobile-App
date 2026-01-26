@@ -8,7 +8,6 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.model.Patient
-import timber.log.Timber
 
 /**
  * Utility functions for RMNCHA+ Activities to reduce code duplication
