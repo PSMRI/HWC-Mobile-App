@@ -64,7 +64,6 @@ class EligibleCoupleTrackingActivity : AppCompatActivity() {
                     "Track: ${patientWithEcr.patient.firstName}",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: Navigate to EC Tracking Form
             }
         )
 

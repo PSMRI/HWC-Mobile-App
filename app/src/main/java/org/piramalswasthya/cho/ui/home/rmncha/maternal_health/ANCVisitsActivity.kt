@@ -68,7 +68,6 @@ class ANCVisitsActivity : AppCompatActivity() {
                         "Add ANC Visit: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Add ANC Visit Form
                 },
                 clickedANCVisits = { patientWithPwr ->
                     Toast.makeText(
@@ -76,7 +75,6 @@ class ANCVisitsActivity : AppCompatActivity() {
                         "View ANC Visits: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to ANC Visits List
                 },
                 clickedAddPMSMA = { patientWithPwr ->
                     Toast.makeText(
@@ -84,7 +82,6 @@ class ANCVisitsActivity : AppCompatActivity() {
                         "Add PMSMA: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Add PMSMA Form
                 }
             )
         )

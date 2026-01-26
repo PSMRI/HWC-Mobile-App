@@ -67,7 +67,6 @@ class AbortionListActivity : AppCompatActivity() {
                         "View Abortion: $patientID",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Abortion Form/View
                 },
                 clickedAdd = { patientID ->
                     // Handle ADD click - navigate to abortion form
@@ -76,7 +75,6 @@ class AbortionListActivity : AppCompatActivity() {
                         "Add Abortion: $patientID",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Abortion Form
                 }
             )
         )

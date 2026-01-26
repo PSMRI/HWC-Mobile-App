@@ -67,14 +67,12 @@ class ChildRegListActivity : AppCompatActivity() {
                         "View Child: $childPatientID",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Child Details/View
                 } else {
                     Toast.makeText(
                         this,
                         "Register Child: Patient $patientID, Baby Index $babyIndex",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Child Registration Form
                 }
             }
         )

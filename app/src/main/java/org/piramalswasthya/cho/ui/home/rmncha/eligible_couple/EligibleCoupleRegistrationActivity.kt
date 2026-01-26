@@ -66,7 +66,6 @@ class EligibleCoupleRegistrationActivity : AppCompatActivity() {
                         "Register: ${patientWithEcr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to EC Registration Form
                 } else {
                     // Navigate to view/edit form
                     Toast.makeText(
@@ -74,7 +73,6 @@ class EligibleCoupleRegistrationActivity : AppCompatActivity() {
                         "View: ${patientWithEcr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to EC View/Edit Form
                 }
             }
         )

@@ -64,7 +64,6 @@ class PNCMotherListActivity : AppCompatActivity() {
                     "View PNC: ${patientWithPnc.patient.firstName}",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: Navigate to PNC Form
             }
         )
 

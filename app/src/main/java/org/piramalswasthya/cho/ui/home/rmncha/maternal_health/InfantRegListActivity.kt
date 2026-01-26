@@ -66,7 +66,6 @@ class InfantRegListActivity : AppCompatActivity() {
                     "Infant Registration: Patient $patientID, Baby Index $babyIndex",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: Navigate to Infant Registration Form
             }
         )
 

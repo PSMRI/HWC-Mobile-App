@@ -66,7 +66,6 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
                         "Register Pregnancy: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Pregnancy Registration Form
                 } else {
                     // Navigate to view/edit form
                     Toast.makeText(
@@ -74,7 +73,6 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
                         "View Pregnancy: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // TODO: Navigate to Pregnancy View/Edit Form
                 }
             }
         )

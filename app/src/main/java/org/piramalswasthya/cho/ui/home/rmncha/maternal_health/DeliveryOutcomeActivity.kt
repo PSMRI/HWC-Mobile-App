@@ -64,7 +64,6 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
                     "View Delivery Outcome: ${patientWithPwr.patient.firstName}",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: Navigate to Delivery Outcome Form
             }
         )
 

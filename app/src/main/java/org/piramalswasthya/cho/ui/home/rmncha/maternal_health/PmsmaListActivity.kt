@@ -66,7 +66,6 @@ class PmsmaListActivity : AppCompatActivity() {
                     "View PMSMA: $patientID",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: Navigate to PMSMA Form/View
             }
         )
 
