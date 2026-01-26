@@ -822,13 +822,18 @@ class PregnantWomanAncVisitDataset(
                 -1
             }
 
-            bp.id -> validateForBp(bp)
+            bp.id -> {
+                validateForBp(bp)
+                recomputeHighRiskState()
+                -1
+            }
 
             weight.id -> validateIntMinMax(weight)
 
             hb.id -> {
                 validateDoubleUpto1DecimalPlaces(hb)
                 if (hb.errorText == null) validateDoubleMinMax(hb)
+                recomputeHighRiskState()
                 -1
             }
 
@@ -900,134 +905,31 @@ class PregnantWomanAncVisitDataset(
 
             bloodSugarFasting.id -> {
                 validateIntMinMax(bloodSugarFasting)
-                bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
-                    if (bsValue > 95) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                            anyHighRisk.value = anyHighRisk.entries?.last()
-                            // Trigger dependants when anyHighRisk is set programmatically
-                            triggerDependants(
-                                source = anyHighRisk,
-                                removeItems = emptyList(),
-                                addItems = listOf(highRiskCondition),
-                                position = getIndexById(anyHighRisk.id) + 1
-                            )
-                        }
-                        // Always set DIABETES when blood sugar > 95, regardless of anyHighRisk state
-                        if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
-                            highRiskCondition.value = highRiskCondition.entries!![6]
-                        }
-                    }
-                }
+                recomputeHighRiskState()
                 -1
             }
 
             urineSugar.id -> {
-                urineSugar.value?.let { value ->
-                    val riskLevels = arrayOf("+", "++", "+++")
-                    if (value in riskLevels) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                            anyHighRisk.value = anyHighRisk.entries?.last()
-                            // Trigger dependants when anyHighRisk is set programmatically
-                            triggerDependants(
-                                source = anyHighRisk,
-                                removeItems = emptyList(),
-                                addItems = listOf(highRiskCondition),
-                                position = getIndexById(anyHighRisk.id) + 1
-                            )
-                        }
-                        if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
-                            highRiskCondition.value = highRiskCondition.entries!![6]
-                        }
-                    }
-                }
+                recomputeHighRiskState()
                 -1
             }
 
             fetalHeartRate.id -> {
                 validateDoubleUpto1DecimalPlaces(fetalHeartRate)
                 if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
-
-                fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
-                    if (fhrValue < 110.0 || fhrValue > 160.0) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                            anyHighRisk.value = anyHighRisk.entries?.last()
-                            // Trigger dependants when anyHighRisk is set programmatically
-                            triggerDependants(
-                                source = anyHighRisk,
-                                removeItems = emptyList(),
-                                addItems = listOf(highRiskCondition),
-                                position = getIndexById(anyHighRisk.id) + 1
-                            )
-                        }
-                        // Set high risk condition to "OTHER" for abnormal FHR (for consistency)
-                        if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
-                            highRiskCondition.value = highRiskCondition.entries!!.last()
-                            triggerDependants(
-                                source = highRiskCondition,
-                                passedIndex = highRiskCondition.entries!!.lastIndex,
-                                triggerIndex = highRiskCondition.entries!!.lastIndex,
-                                target = otherHighRiskCondition,
-                            )
-                        }
-                    }
-                }
+                recomputeHighRiskState()
                 -1
             }
 
             urineAlbumin.id -> {
-                urineAlbumin.value?.let { value ->
-                    val riskLevels = arrayOf("+", "++", "+++")
-                    if (value in riskLevels) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                            anyHighRisk.value = anyHighRisk.entries?.last()
-                            // Trigger dependants when anyHighRisk is set programmatically
-                            triggerDependants(
-                                source = anyHighRisk,
-                                removeItems = emptyList(),
-                                addItems = listOf(highRiskCondition),
-                                position = getIndexById(anyHighRisk.id) + 1
-                            )
-                        }
-                    }
-                }
+                recomputeHighRiskState()
                 -1
             }
 
             calciumGiven.id -> validateIntMinMax(calciumGiven)
 
             dangerSigns.id -> {
-                dangerSigns.value?.let { value ->
-                    // Parse individual selections - assumes values are concatenated
-                    val selectedSigns = dangerSigns.entries?.filter { entry ->
-                        value.contains(entry)
-                    } ?: emptyList()
-                    
-                    // If "None" is selected along with other signs, prioritize the danger signs
-                    val hasDangerSigns = selectedSigns.any { it != "None" }
-                    
-                    if (hasDangerSigns) {
-                        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                            anyHighRisk.value = anyHighRisk.entries?.last()
-                            // Trigger dependants when anyHighRisk is set programmatically
-                            triggerDependants(
-                                source = anyHighRisk,
-                                removeItems = emptyList(),
-                                addItems = listOf(highRiskCondition),
-                                position = getIndexById(anyHighRisk.id) + 1
-                            )
-                        }
-                        // Set high risk condition based on danger signs
-                        when {
-                            selectedSigns.contains("Vaginal Bleeding") -> highRiskCondition.value = highRiskCondition.entries!![3]
-                            selectedSigns.contains("Convulsions/ seizures") -> highRiskCondition.value = highRiskCondition.entries!![2]
-                            else -> {
-                                if (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first()) {
-                                    highRiskCondition.value = highRiskCondition.entries!!.last()
-                                }
-                            }
-                        }
-                    }
-                }
+                recomputeHighRiskState()
                 -1
             }
 
@@ -1046,6 +948,139 @@ class PregnantWomanAncVisitDataset(
     fun getIndexOfTd1() = getIndexById(dateOfTTOrTd1.id)
     fun getIndexOfTd2() = getIndexById(dateOfTTOrTd2.id)
     fun getIndexOfTdBooster() = getIndexById(dateOfTTOrTdBooster.id)
+
+    /**
+     * Recomputes high-risk state from all current inputs and updates flags accordingly.
+     * Clears high-risk flags when no triggers apply.
+     */
+    private fun recomputeHighRiskState() {
+        var hasHighRisk = false
+        var riskCondition: String? = null
+
+        // Check blood sugar fasting
+        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
+            if (bsValue > 95) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![6] // DIABETES
+                }
+            }
+        }
+
+        // Check urine sugar
+        urineSugar.value?.let { value ->
+            val riskLevels = arrayOf("+", "++", "+++")
+            if (value in riskLevels) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![6] // DIABETES
+                }
+            }
+        }
+
+        // Check fetal heart rate
+        fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
+            if (fhrValue < 110.0 || fhrValue > 160.0) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!!.last() // OTHER
+                }
+            }
+        }
+
+        // Check urine albumin
+        urineAlbumin.value?.let { value ->
+            val riskLevels = arrayOf("+", "++", "+++")
+            if (value in riskLevels) {
+                hasHighRisk = true
+            }
+        }
+
+        // Check danger signs
+        dangerSigns.value?.let { value ->
+            val selectedSigns = dangerSigns.entries?.filter { entry ->
+                value.contains(entry)
+            } ?: emptyList()
+            val hasDangerSigns = selectedSigns.any { it != "None" }
+            if (hasDangerSigns) {
+                hasHighRisk = true
+                when {
+                    selectedSigns.contains("Vaginal Bleeding") -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!![3]
+                        }
+                    }
+                    selectedSigns.contains("Convulsions/ seizures") -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!![2]
+                        }
+                    }
+                    else -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!!.last()
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check HB
+        hb.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.toDouble()?.let {
+            if (it < 7) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![5] // SEVERE ANAEMIA
+                }
+            }
+        }
+
+        // Check BP
+        bp.value?.takeIf { it.isNotEmpty() && bp.errorText == null }?.let {
+            val sys = it.substringBefore("/").toInt()
+            val dia = it.substringAfter("/").toInt()
+            if (sys < 90 || sys >= 140 || dia < 60 || dia >= 90) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![1] // HIGH BP
+                }
+            }
+        }
+
+        // Update anyHighRisk flag
+        if (hasHighRisk) {
+            if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                anyHighRisk.value = anyHighRisk.entries?.last()
+                triggerDependants(
+                    source = anyHighRisk,
+                    removeItems = emptyList(),
+                    addItems = listOf(highRiskCondition),
+                    position = getIndexById(anyHighRisk.id) + 1
+                )
+            }
+            // Update high risk condition if needed
+            if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
+                highRiskCondition.value = riskCondition
+                if (riskCondition == highRiskCondition.entries!!.last()) {
+                    triggerDependants(
+                        source = highRiskCondition,
+                        passedIndex = highRiskCondition.entries!!.lastIndex,
+                        triggerIndex = highRiskCondition.entries!!.lastIndex,
+                        target = otherHighRiskCondition,
+                    )
+                }
+            }
+        } else {
+            // Clear high-risk flags when no triggers apply
+            // Only clear if currently set to "Yes" (likely auto-set) and no triggers apply
+            if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+                anyHighRisk.value = anyHighRisk.entries?.first()
+                // Reset high risk condition to "NONE" when clearing
+                if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
+                    highRiskCondition.value = highRiskCondition.entries?.first()
+                }
+            }
+        }
+    }
 
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
