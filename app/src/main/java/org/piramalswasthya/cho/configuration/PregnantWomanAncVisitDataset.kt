@@ -18,6 +18,10 @@ class PregnantWomanAncVisitDataset(
     context: Context, currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
+    companion object {
+        private const val ALL_TD_DOSES_MESSAGE = " (All TD doses have been given)"
+    }
+
     private var lastAncVisitDate: Long = 0L
 
     private lateinit var regis: PregnantWomanRegistrationCache
@@ -640,18 +644,17 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun setUpTdX() {
-        val allDosesMessage = " (All TD doses have been given)"
         if (regis.ttBooster != null) {
             dateOfTTOrTdBooster.value = getDateFromLong(regis.ttBooster!!)
             dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
             dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
             // Add message when booster is given
-            if (!dateOfTTOrTdBooster.title.contains(allDosesMessage)) {
-                dateOfTTOrTdBooster.title += allDosesMessage
+            if (!dateOfTTOrTdBooster.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                dateOfTTOrTdBooster.title += ALL_TD_DOSES_MESSAGE
             }
-            if (!dateOfTTOrTd2.title.contains(allDosesMessage)) {
-                dateOfTTOrTd2.title += allDosesMessage
+            if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
             }
         } else if (regis.tt1 == null) {
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
@@ -667,8 +670,8 @@ class PregnantWomanAncVisitDataset(
                 dateOfTTOrTd2.value = getDateFromLong(regis.tt2!!)
                 dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
                 // Add message when TD2 is given
-                if (!dateOfTTOrTd2.title.contains(allDosesMessage)) {
-                    dateOfTTOrTd2.title += allDosesMessage
+                if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                    dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
                 }
             }
         }
@@ -785,22 +788,20 @@ class PregnantWomanAncVisitDataset(
             }
 
             dateOfTTOrTd2.id -> {
-                val allDosesMessage = " (All TD doses have been given)"
-                if (dateOfTTOrTd2.value != null && !dateOfTTOrTd2.title.contains(allDosesMessage)) {
-                    dateOfTTOrTd2.title += allDosesMessage
+                if (dateOfTTOrTd2.value != null && !dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                    dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
                 }
                 -1
             }
 
             dateOfTTOrTdBooster.id -> {
-                val allDosesMessage = " (All TD doses have been given)"
                 if (dateOfTTOrTdBooster.value != null) {
                     dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
-                    if (!dateOfTTOrTdBooster.title.contains(allDosesMessage)) {
-                        dateOfTTOrTdBooster.title += allDosesMessage
+                    if (!dateOfTTOrTdBooster.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                        dateOfTTOrTdBooster.title += ALL_TD_DOSES_MESSAGE
                     }
-                    if (!dateOfTTOrTd2.title.contains(allDosesMessage)) {
-                        dateOfTTOrTd2.title += allDosesMessage
+                    if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
+                        dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
                     }
                 } else {
                     dateOfTTOrTd1.inputType = InputType.DATE_PICKER

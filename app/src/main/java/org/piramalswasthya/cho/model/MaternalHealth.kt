@@ -448,7 +448,7 @@ data class PregnantWomanAncCache(
             bloodSugarFasting = bloodSugarFasting,
             urineSugar = urineSugar,
             fetalHeartRate = fetalHeartRate,
-            calciumGiven = calciumGiven.takeIf { it > 0 },
+            calciumGiven = calciumGiven,
             dangerSigns = dangerSigns,
             counsellingProvided = counsellingProvided,
             counsellingTopics = counsellingTopics,
