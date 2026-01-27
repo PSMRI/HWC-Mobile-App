@@ -640,11 +640,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                }
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.pwr){
-                binding.rvPnc.visibility = View.VISIBLE
-                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
+                                binding.rvPnc.visibility = View.GONE
+                            }
 
-                }
-            }
+
             else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
                 viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){

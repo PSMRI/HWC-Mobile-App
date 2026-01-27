@@ -509,22 +509,25 @@ class FormInputAdapter(
                         }
                         cbx.isChecked = isChecked
 
-                        // Store the option text and index in the checkbox tag for reference
                         cbx.tag = Pair(optionText, index)
 
                         cbx.setOnClickListener {
                             if (!isEnabled) return@setOnClickListener
 
-                            // Get the current state before toggling
-                            val wasChecked = cbx.isChecked
+                            val isNowChecked = cbx.isChecked
+                            val (clickedOption, clickedIndex) = cbx.tag as Pair<String, Int>
 
-                            // Optimistic UI update - toggle immediately for visual feedback
-                            cbx.isChecked = !wasChecked
+                            val currentSelections = item.value?.split(",")?.map { it.trim() }?.toMutableSet() ?: mutableSetOf()
 
-                            // Get the option details from tag
-                            val (_, clickedIndex) = cbx.tag as Pair<String, Int>
+                            if (isNowChecked) {
+                                currentSelections.add(clickedOption)
+                            } else {
+                                currentSelections.remove(clickedOption)
+                            }
 
-                            // Call the listener to update the data
+                            item.value = if (currentSelections.isEmpty()) "" else currentSelections.joinToString(",")
+
+
                             formValueListener?.onValueChanged(item, clickedIndex)
                         }
                     }

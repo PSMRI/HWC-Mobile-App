@@ -49,6 +49,9 @@
         <action
             android:id="@+id/action_customVitalsFragment_to_caseRecordCustom"
             app:destination="@id/caseRecordCustom" />
+        <action
+            android:id="@+id/action_customVitalsFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
@@ -189,6 +192,14 @@
         <argument
             android:name="benId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment"
+            app:popUpTo="@id/patientHomeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
 

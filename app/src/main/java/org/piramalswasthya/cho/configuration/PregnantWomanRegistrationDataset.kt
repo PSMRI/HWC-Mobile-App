@@ -387,21 +387,17 @@ class PregnantWomanRegistrationDataset(
             uptResult,
             lmp, edd, gestationalAge, trimester,
             bloodGroup,
-            gravida, para
-        ))
-
-        // Add history fields if gravida > 1
-        addHistoryFieldsIfNeeded(cache, list)
-
-        // Add anthropometry, pre-existing conditions, and lab fields
-        list.addAll(listOf(
-            height, weight, bmi,
+            gravida, para,
             preExistingConditions,
+            height, weight, bmi,
             vdrlRprResult,
             hivResult,
             hbsAgResult,
             isHighRiskPregnancy
         ))
+
+        // Add history fields if gravida > 1
+        addHistoryFieldsIfNeeded(cache, list)
 
         // Add test date fields conditionally
         addTestDateFieldsIfNeeded(cache, list)
@@ -555,6 +551,8 @@ class PregnantWomanRegistrationDataset(
     private fun populateBasicFields(cache: PregnantWomanRegistrationCache) {
         dateOfReg.value = getDateFromLong(cache.dateOfRegistration)
         rchId.value = cache.rchId?.toString()
+        pregnancyTestAtFacility.value = cache.pregnancyTestAtFacility
+        uptResult.value = cache.uptResult
 
         if (cache.lmpDate > 0) {
             lmp.value = getDateFromLong(cache.lmpDate)
@@ -563,10 +561,12 @@ class PregnantWomanRegistrationDataset(
 
         bloodGroup.value = cache.bloodGroup
         gravida.value = cache.numPrevPregnancy?.toString()
-        para.value = cache.numPrevPregnancy?.toString()
+        para.value = (cache.numPrevPregnancy?.let { it - 1 })?.toString()
         height.value = cache.height?.toString()
         weight.value = cache.weight?.toString()
         updateBMI()
+        preExistingConditions.value = cache.pastIllness
+        isHighRiskPregnancy.value = if(cache.isHrp) "Yes" else "No"
     }
 
     /**
@@ -1042,9 +1042,9 @@ class PregnantWomanRegistrationDataset(
         val paraValue = para.value?.toIntOrNull() ?: return -1
         val gravidaValue = gravida.value?.toIntOrNull() ?: return -1
 
-        return if (paraValue > gravidaValue) {
-            para.errorText = "Para cannot exceed Gravida"
-            para.value = gravidaValue.toString()
+        return if (paraValue >= gravidaValue) {
+            para.errorText = "Para cannot be greater than or equal to Gravida"
+            para.value = (gravidaValue - 1).toString()
             -1
         } else {
             para.errorText = null
@@ -1206,6 +1206,9 @@ class PregnantWomanRegistrationDataset(
 
             // Map RCH ID
             cache.rchId = rchId.value?.toLongOrNull()
+            
+            cache.pregnancyTestAtFacility = pregnancyTestAtFacility.value
+            cache.uptResult = uptResult.value
 
             // Map pregnancy details
             cache.lmpDate = lmp.value?.let { getLongFromDate(it) } ?: 0L

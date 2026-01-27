@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnancyRegistrationFormViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -75,7 +76,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             binding.form.rvInputForm.adapter = adapter
 
             lifecycleScope.launch {
-                viewModel.formList.collect {
+                viewModel.formList.collect { 
                     if (it.isNotEmpty()) adapter.submitList(it)
                 }
             }
@@ -92,12 +93,12 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
         val offset = binding.form.rvInputForm.getChildAt(0)?.top ?: 0
 
         when (formId) {
-            14 -> handleComplicationsFieldChange(adapter) // complicationsInPreviousPregnancy.id
-            15, 16 -> handleAnthropometryFieldChange(adapter) // height or weight fields
-            18 -> handlePreExistingConditionsFieldChange(adapter) // preExistingConditions.id
+            14 -> handleComplicationsFieldChange(adapter)
+            15, 16 -> handleAnthropometryFieldChange(adapter)
+            18 -> handlePreExistingConditionsFieldChange(adapter)
             19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
-            5 -> handleLmpFieldChange(adapter) // lmp.id
-            10 -> handleGravidaFieldChange(adapter) // gravida.id
+            5 -> handleLmpFieldChange(adapter)
+            10 -> handleGravidaFieldChange(adapter)
         }
     }
 
@@ -136,7 +137,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
      */
     private fun handleTestResultFieldChange(
         formId: Int,
-        adapter: RecyclerView.Adapter<*>,
+        adapter: RecyclerView.Adapter<*>, // Corrected this line
         layoutManager: LinearLayoutManager,
         firstVisiblePosition: Int,
         offset: Int
@@ -186,6 +187,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
      */
     private fun handleGravidaFieldChange(adapter: RecyclerView.Adapter<*>) {
         adapter.notifyItemChanged(viewModel.getIndexOfPara())
+        adapter.notifyDataSetChanged()
     }
 
     private fun observeViewModel() {
@@ -237,19 +239,18 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             event?.let { navigationEvent ->
                 when (navigationEvent) {
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToEligibleCouple -> {
-                        // Navigate to Eligible Couple screen
-                        // Replace with your actual navigation ID
-                        // findNavController().navigate(R.id.eligibleCoupleFragment)
-                        Timber.d("Navigate to Eligible Couple")
+                        findNavController().navigate(R.id.eligibleCoupleTrackingFormFragment)
                         viewModel.clearNavigation()
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsAndPrescription -> {
-                        // Navigate to Vitals & Prescription screen
-                        // Replace with your actual navigation ID
-                        // findNavController().navigate(R.id.vitalsAndPrescriptionFragment)
-                        Timber.d("Navigate to Vitals and Prescription")
+                        val action =
+                            PregnantWomanRegistrationFragmentDirections.actionPregnantWomanRegistrationFragmentToCustomVitalsFragment()
+                        findNavController().navigate(action)
                         viewModel.clearNavigation()
+                    }
+                    else -> {
+                        //Do nothing
                     }
                 }
             }
@@ -284,7 +285,12 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        if (viewModel.recordExists.value == true) {
+            val action = PregnantWomanRegistrationFragmentDirections.actionPregnantWomanRegistrationFragmentToPatientHomeFragment()
+            findNavController().navigate(action)
+        } else {
+            findNavController().navigateUp()
+        }
     }
 
     override fun getFragmentId(): Int = R.id.pregnantWomanRegistrationFragment
