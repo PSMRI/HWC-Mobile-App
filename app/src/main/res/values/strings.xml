@@ -712,4 +712,7 @@
     <!-- e-PMSMA List Strings -->
     <string name="no_pmsma_women_found">No PMSMA Women Found</string>
 
+    <!-- Adolescent List Strings -->
+    <string name="no_adolescents_found">No Adolescents Found</string>
+
 </resources>

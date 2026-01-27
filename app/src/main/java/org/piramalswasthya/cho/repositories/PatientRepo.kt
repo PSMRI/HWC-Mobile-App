@@ -227,6 +227,34 @@ class PatientRepo @Inject constructor(
         return patientDao.getInfantListCount()
     }
 
+    /**
+     * Get all children (age 2-5 years)
+     */
+    fun getChildList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildList()
+    }
+
+    /**
+     * Get count of children (age 2-5 years)
+     */
+    fun getChildListCount(): Flow<Int> {
+        return patientDao.getChildListCount()
+    }
+
+    /**
+     * Get all adolescents (age 6-14 years)
+     */
+    fun getAdolescentList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllAdolescentList()
+    }
+
+    /**
+     * Get count of adolescents (age 6-14 years)
+     */
+    fun getAdolescentListCount(): Flow<Int> {
+        return patientDao.getAdolescentListCount()
+    }
+
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
 //        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){

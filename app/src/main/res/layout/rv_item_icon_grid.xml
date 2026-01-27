@@ -61,6 +61,7 @@
                     android:gravity="center"
                     android:labelFor="@id/imageView2"
                     android:paddingBottom="@dimen/padding_normal"
+                    android:paddingHorizontal="16dp"
                     android:text="@{homeIcon.title}"
                     android:lines="2"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"

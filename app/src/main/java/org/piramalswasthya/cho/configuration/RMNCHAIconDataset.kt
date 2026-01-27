@@ -33,6 +33,8 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_ABORTION_LIST_KEY = "show_abortion_list"
         const val SHOW_PMSMA_LIST_KEY = "show_pmsma_list"
         const val SHOW_INFANT_LIST_KEY = "show_infant_list"
+        const val SHOW_CHILD_LIST_KEY = "show_child_list"
+        const val SHOW_ADOLESCENT_LIST_KEY = "show_adolescent_list"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
@@ -49,6 +51,8 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_ABORTION_LIST = 1011 // Action for Abortion List
         private const val ACTION_PMSMA_LIST = 1012 // Action for e-PMSMA List
         private const val ACTION_INFANT_LIST = 1013 // Action for Infant List
+        private const val ACTION_CHILD_LIST = 1014 // Action for Child List
+        private const val ACTION_ADOLESCENT_LIST = 1015 // Action for Adolescent List
     }
 
     // NavDirections for sub-module navigation
@@ -154,6 +158,22 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_INFANT_LIST
         override val arguments = Bundle().apply {
             putBoolean(SHOW_INFANT_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Child List
+    private val showChildListAction = object : NavDirections {
+        override val actionId: Int = ACTION_CHILD_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_CHILD_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Adolescent List
+    private val showAdolescentListAction = object : NavDirections {
+        override val actionId: Int = ACTION_ADOLESCENT_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_ADOLESCENT_LIST_KEY, true)
         }
     }
 
@@ -318,13 +338,13 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_child,
                 resources.getString(R.string.child_list),
                 null,
-                placeholderNavAction
+                showChildListAction
             ),
             Icon(
                 R.drawable.ic_person,
                 resources.getString(R.string.adolescent_list),
                 null,
-                placeholderNavAction
+                showAdolescentListAction
             ),
             Icon(
                 R.drawable.ic_child,

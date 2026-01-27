@@ -28,6 +28,8 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CH
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PMSMA_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_LIST_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ADOLESCENT_LIST_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -101,6 +103,8 @@ class SubModuleFragment : Fragment() {
                     val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
                     val showPmsmaList = navDirections.arguments.getBoolean(SHOW_PMSMA_LIST_KEY, false)
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
+                    val showChildList = navDirections.arguments.getBoolean(SHOW_CHILD_LIST_KEY, false)
+                    val showAdolescentList = navDirections.arguments.getBoolean(SHOW_ADOLESCENT_LIST_KEY, false)
                     
                     when {
                         showECRegistration -> {
@@ -156,6 +160,16 @@ class SubModuleFragment : Fragment() {
                         showInfantList -> {
                             // Navigate to Infant List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.InfantListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showChildList -> {
+                            // Navigate to Child List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListActivity.getIntent(requireContext())
+                            startActivity(intent)
+                        }
+                        showAdolescentList -> {
+                            // Navigate to Adolescent List
+                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
                         else -> {

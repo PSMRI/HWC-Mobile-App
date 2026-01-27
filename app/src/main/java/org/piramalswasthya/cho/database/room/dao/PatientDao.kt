@@ -197,4 +197,50 @@ interface PatientDao {
         AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 61
     """)
     fun getInfantListCount(): Flow<Int>
+
+    /**
+     * Get all children (age between 2-5 years, i.e., 730-1825 days)
+     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 730 AND 1825
+        ORDER BY dob DESC
+    """)
+    fun getAllChildList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of children (age between 2-5 years)
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 730 AND 1825
+    """)
+    fun getChildListCount(): Flow<Int>
+
+    /**
+     * Get all adolescents (age between 6-14 years, i.e., 2190-5110 days)
+     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 2190 AND 5110
+        ORDER BY dob DESC
+    """)
+    fun getAllAdolescentList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of adolescents (age between 6-14 years)
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 2190 AND 5110
+    """)
+    fun getAdolescentListCount(): Flow<Int>
 }
