@@ -227,7 +227,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 110, exportSchema = false
+    version = 111, exportSchema = false
 )
 
 
@@ -320,6 +320,29 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+        val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PREGNANCY_ANC table
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN pregnancyTestAtFacility INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResult TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResultId INTEGER DEFAULT -1")
+            }
+        }
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions INTEGER"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS INTEGER"
+                )
+            }
+        }
+
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -334,7 +357,7 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,MIGRATION_109_110
+                            MIGRATION_108_109,MIGRATION_109_110,MIGRATION_110_111,MIGRATION_111_112
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

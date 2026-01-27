@@ -367,7 +367,7 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         return TimeUnit.MILLISECONDS.toDays(millisDiff).toInt()
     }
 
-    protected fun getEddFromLmp(lmp: Long) =
+    fun getEddFromLmp(lmp: Long) =
 
         Calendar.getInstance().apply {
             timeInMillis = lmp
