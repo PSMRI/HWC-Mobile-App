@@ -35,6 +35,7 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_INFANT_LIST_KEY = "show_infant_list"
         const val SHOW_CHILD_LIST_KEY = "show_child_list"
         const val SHOW_ADOLESCENT_LIST_KEY = "show_adolescent_list"
+        const val SHOW_CHILDREN_UNDER_FIVE_LIST_KEY = "show_children_under_five_list"
         const val MODULE_MATERNAL_HEALTH = "maternal_health"
         const val MODULE_CHILD_CARE = "child_care"
         const val MODULE_ELIGIBLE_COUPLE = "eligible_couple"
@@ -53,6 +54,7 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_INFANT_LIST = 1013 // Action for Infant List
         private const val ACTION_CHILD_LIST = 1014 // Action for Child List
         private const val ACTION_ADOLESCENT_LIST = 1015 // Action for Adolescent List
+        private const val ACTION_CHILDREN_UNDER_FIVE_LIST = 1016 // Action for Children under 5 Years list
     }
 
     // NavDirections for sub-module navigation
@@ -174,6 +176,14 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_ADOLESCENT_LIST
         override val arguments = Bundle().apply {
             putBoolean(SHOW_ADOLESCENT_LIST_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Children under 5 Years List
+    private val showChildrenUnderFiveListAction = object : NavDirections {
+        override val actionId: Int = ACTION_CHILDREN_UNDER_FIVE_LIST
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_CHILDREN_UNDER_FIVE_LIST_KEY, true)
         }
     }
 
@@ -350,7 +360,7 @@ class RMNCHAIconDataset @Inject constructor() {
                 R.drawable.ic_child,
                 resources.getString(R.string.children_under_5_years),
                 null,
-                placeholderNavAction
+                showChildrenUnderFiveListAction
             )
         ).apply {
             forEachIndexed { index, icon ->

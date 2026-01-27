@@ -243,4 +243,28 @@ interface PatientDao {
         AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 2190 AND 5110
     """)
     fun getAdolescentListCount(): Flow<Int>
+
+    /**
+     * Get all children under 5 years (age <= 5 years, i.e., <= 1825 days)
+     * This combines infants and young children into a single list for child care services.
+     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 1825
+        ORDER BY dob DESC
+    """)
+    fun getAllChildrenUnderFiveList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of children under 5 years (age <= 5 years)
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 1825
+    """)
+    fun getChildrenUnderFiveListCount(): Flow<Int>
 }

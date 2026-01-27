@@ -161,6 +161,11 @@
             android:label="@string/adolescent_list"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
+            android:name=".ui.home.rmncha.child_care.ChildrenUnderFiveYearsActivity"
+            android:exported="false"
+            android:label="@string/children_under_5_years"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"

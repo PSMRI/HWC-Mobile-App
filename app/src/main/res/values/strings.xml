@@ -715,4 +715,10 @@
     <!-- Adolescent List Strings -->
     <string name="no_adolescents_found">No Adolescents Found</string>
 
+    <!-- Children under 5 Years List Strings -->
+    <string name="no_children_under_5_found">No Children under 5 Years Found</string>
+    <string name="check_sam">Check SAM</string>
+    <string name="ors">ORS</string>
+    <string name="ifa">IFA</string>
+
 </resources>

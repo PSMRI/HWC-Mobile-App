@@ -74,9 +74,9 @@
         app:layout_constraintTop_toBottomOf="@+id/searchLayout"
         tools:text="42 Results" />
 
-    <!-- RecyclerView for Child List -->
+    <!-- RecyclerView for Children under 5 Years List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChildList"
+        android:id="@+id/rvChildrenUnderFiveList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -86,7 +86,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCount"
         tools:itemCount="5"
-        tools:listitem="@layout/rv_item_child_list" />
+        tools:listitem="@layout/rv_item_children_under_five_years" />
 
     <!-- Empty State -->
     <FrameLayout
@@ -128,3 +128,4 @@
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
