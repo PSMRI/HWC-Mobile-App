@@ -20,7 +20,6 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnancyRegistrationFormViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -76,7 +75,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             binding.form.rvInputForm.adapter = adapter
 
             lifecycleScope.launch {
-                viewModel.formList.collect { 
+                viewModel.formList.collect {
                     if (it.isNotEmpty()) adapter.submitList(it)
                 }
             }
