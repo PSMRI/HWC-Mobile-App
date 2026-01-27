@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">AAM</string>
+    <string name="all_td_doses_message"> All TD doses have been given</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>
@@ -521,6 +522,7 @@
     <string name="radio_title_ds">%s<span> **</span></string>
     <string name="radio_title">%s<span> *</span></string>
     <string name="anc_visit_number">ANC Visit %1d</string>
+    <string name="anc_visits">ANC Visits</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
     <!--  Post Natal Care  -->

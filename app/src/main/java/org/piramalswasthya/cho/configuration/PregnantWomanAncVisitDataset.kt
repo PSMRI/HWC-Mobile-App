@@ -6,6 +6,7 @@ import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
+import org.piramalswasthya.cho.helpers.getGestationalAgeFormatted
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PatientDisplay
@@ -17,6 +18,8 @@ import kotlin.math.min
 class PregnantWomanAncVisitDataset(
     context: Context, currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
+
+    private val allTdDosesMessage: String get() = resources.getString(R.string.all_td_doses_message)
 
     private var lastAncVisitDate: Long = 0L
 
@@ -81,7 +84,7 @@ class PregnantWomanAncVisitDataset(
         arrayId = -1,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,
-        required = false,
+        required = true,
         min = 30,
         max = 200
     )
@@ -91,7 +94,7 @@ class PregnantWomanAncVisitDataset(
         title = "BP of PW – Systolic/ Diastolic (mm Hg) ",
 //        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 7,
-        required = false,
+        required = true,
     )
 //    private val bpDiastolic = FormElement(
 //        id = 10,
@@ -141,7 +144,7 @@ class PregnantWomanAncVisitDataset(
         etMaxLength = 4,
         minDecimal = 2.0,
         maxDecimal = 15.0,
-        required = false,
+        required = true,
     )
 
     private val fundalHeight = FormElement(
@@ -154,10 +157,11 @@ class PregnantWomanAncVisitDataset(
     )
     private val urineAlbumin = FormElement(
         id = 14,
-        inputType = InputType.RADIO,
+        inputType = InputType.DROPDOWN,
         title = "Urine Albumin",
-        entries = arrayOf("Absent", "Present"),
-        required = false,
+        entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
+        required = true,
+        hasDependants = true
     )
     private val randomBloodSugarTest = FormElement(
         id = 15,
@@ -185,7 +189,7 @@ class PregnantWomanAncVisitDataset(
         id = 18,
         inputType = InputType.DATE_PICKER,
         title = "Date of Td TT (Boooster Dose)",
-        required = false,
+        required = true,
         hasDependants = true,
 
         max = System.currentTimeMillis(),
@@ -313,6 +317,104 @@ class PregnantWomanAncVisitDataset(
         hasDependants = false
     )
 
+    private val bloodSugarFasting = FormElement(
+        id = 33,
+        inputType = InputType.EDIT_TEXT,
+        title = "Blood Sugar (Fasting) mg/dL",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        required = true,
+        min = 40,
+        max = 400,
+        hasDependants = true
+    )
+
+    private val urineSugar = FormElement(
+        id = 34,
+        inputType = InputType.DROPDOWN,
+        title = "Urine Sugar",
+        entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
+        required = true,
+        hasDependants = true
+    )
+
+    private val fetalHeartRate = FormElement(
+        id = 35,
+        inputType = InputType.EDIT_TEXT,
+        title = "Fetal Heart Rate (FHR) bpm",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL,
+        etMaxLength = 5,
+        required = true,
+        minDecimal = 40.0,
+        maxDecimal = 200.0,
+        hasDependants = true
+    )
+
+    private val calciumGiven = FormElement(
+        id = 36,
+        inputType = InputType.EDIT_TEXT,
+        title = "Calcium Given",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        required = false,
+        min = 0,
+        max = 400
+    )
+
+    private val dangerSigns = FormElement(
+        id = 37,
+        inputType = InputType.CHECKBOXES,
+        title = "Danger Signs",
+        entries = arrayOf(
+            "None",
+            "Vaginal Bleeding",
+            "Swelling of hands, feet or face",
+            "Severe Headache",
+            "Blurred Vision",
+            "Convulsions/ seizures",
+            "Severe abdominal pain",
+            "Fever > 38°C",
+            "Painful urination/ Burning",
+            "Reduced fetal movement",
+            "Vaginal fluid leakage",
+            "Persistent vomiting",
+            "Breathlessness/ chest pain"
+        ),
+        required = true,
+        hasDependants = true
+    )
+
+    private val counsellingProvided = FormElement(
+        id = 38,
+        inputType = InputType.RADIO,
+        title = "Counselling Provided",
+        entries = arrayOf("No", "Yes"),
+        required = false,
+        hasDependants = true
+    )
+
+    private val counsellingTopics = FormElement(
+        id = 39,
+        inputType = InputType.CHECKBOXES,
+        title = "Which counselling was provided?",
+        entries = arrayOf(
+            "Nutrition",
+            "Birth Preparedness and Complication readiness",
+            "Identification of danger signs",
+            "Medication compliance (IFA/ Calcium/ other medications)",
+            "Immunization",
+            "Hygiene and Infection Prevention"
+        ),
+        required = true
+    )
+
+    private val nextAncVisitDate = FormElement(
+        id = 40,
+        inputType = InputType.DATE_PICKER,
+        title = "Next ANC Visit Date",
+        required = true
+    )
+
     private var toggleBp = false
 
     fun resetBpToggle() {
@@ -340,29 +442,49 @@ class PregnantWomanAncVisitDataset(
             bp,
             pulseRate,
             hb,
+            bloodSugarFasting,
             fundalHeight,
             urineAlbumin,
+            urineSugar,
+            fetalHeartRate,
             randomBloodSugarTest,
             dateOfTTOrTd1,
             dateOfTTOrTd2,
             dateOfTTOrTdBooster,
             numFolicAcidTabGiven,
             numIfaAcidTabGiven,
+            calciumGiven,
             anyHighRisk,
+            dangerSigns,
             highRiskReferralFacility,
             hrpConfirm,
-            maternalDeath
-
+            counsellingProvided,
+            maternalDeath,
+            nextAncVisitDate
         )
         lmpDate.value = this.regis.getDateStringFromLong(this.regis.lmpDate)
         abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
-        dateOfTTOrTd1.min = abortionDate.min
-        dateOfTTOrTdBooster.min = abortionDate.min
+        // TD Dose 1: 5 weeks from LMP to 36 weeks of LMP, ≤ today
+        dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+        dateOfTTOrTd1.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+        // TT Booster: 5 weeks from LMP to 36 weeks of LMP, ≤ today
+        dateOfTTOrTdBooster.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+        dateOfTTOrTdBooster.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+        // Abortion date: 5-21 weeks (unchanged)
         abortionDate.max =
             minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(21 * 7))
-        dateOfTTOrTd1.max = abortionDate.max
-        dateOfTTOrTd2.max = abortionDate.max
-        dateOfTTOrTdBooster.max = abortionDate.max
+
+        // Next ANC Visit Date range (> today, <= EDD)
+        val edd = getEddFromLmp(regis.lmpDate)
+        val tomorrow = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)
+        nextAncVisitDate.max = edd
+        // Allow saved next visit date when editing, but still cap at EDD and ensure >= tomorrow for new visits
+        saved?.let { savedAnc ->
+            val savedCandidate = savedAnc.nextAncVisitDate ?: (savedAnc.ancDate + TimeUnit.DAYS.toMillis(1))
+            nextAncVisitDate.min = minOf(maxOf(tomorrow, savedCandidate), edd)
+        } ?: run {
+            nextAncVisitDate.min = minOf(tomorrow, edd)
+        }
 
         if (lastAnc == null)
             list.remove(dateOfTTOrTd2)
@@ -379,8 +501,12 @@ class PregnantWomanAncVisitDataset(
 
                 lastAncVisitDate = last.ancDate
             }
-            ancDate.max =
-                minOf(getEddFromLmp(regis.lmpDate), System.currentTimeMillis())
+            // ANC date max: ≤42 weeks from LMP, ≤ EDD (40 weeks), and ≤ today
+            ancDate.max = minOf(
+                regis.lmpDate + TimeUnit.DAYS.toMillis(42 * 7), // 42 weeks from LMP
+                getEddFromLmp(regis.lmpDate), // EDD (40 weeks)
+                System.currentTimeMillis() // Today
+            )
             ancDate.value = getDateFromLong(ancDate.max!!)
             maternalDateOfDeath.min =
                 maxOf(regis.lmpDate, lastAncVisitDate) + TimeUnit.DAYS.toMillis(1)
@@ -402,7 +528,11 @@ class PregnantWomanAncVisitDataset(
                 } else {
                     list.remove(numFolicAcidTabGiven)
                 }
-                weeks.toString()
+                // Disable Calcium up to 14 weeks
+                if (weeks <= 14) {
+                    list.remove(calciumGiven)
+                }
+                getGestationalAgeFormatted(long, regis.lmpDate)
             }
         }
 
@@ -417,11 +547,15 @@ class PregnantWomanAncVisitDataset(
             } else {
                 list.remove(numFolicAcidTabGiven)
             }
+            // Disable Calcium up to 14 weeks when editing saved visits too
+            if (woP <= 14) {
+                list.remove(calciumGiven)
+            }
             if (woP >= Konstants.minWeekToShowDelivered) {
                 if (!list.contains(deliveryDone)) list.add(deliveryDone)
             }
             ancDate.value = getDateFromLong(savedAnc.ancDate)
-            weekOfPregnancy.value = woP.toString()
+            weekOfPregnancy.value = getGestationalAgeFormatted(savedAnc.ancDate, regis.lmpDate)
             isAborted.value =
                 if (savedAnc.isAborted) isAborted.entries!!.last() else isAborted.entries!!.first()
             if (savedAnc.isAborted) {
@@ -441,7 +575,13 @@ class PregnantWomanAncVisitDataset(
             pulseRate.value = savedAnc.pulseRate
             hb.value = savedAnc.hb?.toString()
             fundalHeight.value = savedAnc.fundalHeight?.toString()
-            urineAlbumin.value = urineAlbumin.getStringFromPosition(savedAnc.urineAlbuminId)
+            // Map legacy "Present/Absent" values to new dropdown values
+            urineAlbumin.value = when (savedAnc.urineAlbumin?.trim()) {
+                "Present" -> "+"
+                "Absent" -> "Negative"
+                "Negative", "Trace", "+", "++", "+++" -> savedAnc.urineAlbumin
+                else -> urineAlbumin.getStringFromPosition(savedAnc.urineAlbuminId)
+            }
             randomBloodSugarTest.value =
                 randomBloodSugarTest.getStringFromPosition(savedAnc.randomBloodSugarTestId)
             dateOfTTOrTd1.value = regis.tt1?.let { getDateFromLong(it) }
@@ -494,6 +634,21 @@ class PregnantWomanAncVisitDataset(
             }
             deliveryDone.value =
                 if (savedAnc.pregnantWomanDelivered == true) deliveryDone.entries!!.first() else deliveryDone.entries!!.last()
+            
+            // Populate new ANC fields when editing saved visits
+            bloodSugarFasting.value = savedAnc.bloodSugarFasting?.toString()
+            urineSugar.value = savedAnc.urineSugar
+            fetalHeartRate.value = savedAnc.fetalHeartRate?.toString()
+            calciumGiven.value = savedAnc.calciumGiven.takeIf { it > 0 }?.toString()
+            dangerSigns.value = savedAnc.dangerSigns
+            counsellingProvided.value = savedAnc.counsellingProvided?.let {
+                if (it) counsellingProvided.entries!!.last() else counsellingProvided.entries!!.first()
+            }
+            if (savedAnc.counsellingProvided == true) {
+                counsellingTopics.value = savedAnc.counsellingTopics
+                list.add(list.indexOf(counsellingProvided) + 1, counsellingTopics)
+            }
+            nextAncVisitDate.value = savedAnc.nextAncVisitDate?.let { getDateFromLong(it) }
         }
         setUpPage(list)
 
@@ -505,6 +660,13 @@ class PregnantWomanAncVisitDataset(
             dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
             dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+            // Add message when booster is given
+            if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
+                dateOfTTOrTdBooster.title += allTdDosesMessage
+            }
+            if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                dateOfTTOrTd2.title += allTdDosesMessage
+            }
         } else if (regis.tt1 == null) {
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
         } else {
@@ -512,11 +674,16 @@ class PregnantWomanAncVisitDataset(
             dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
             dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
             if (regis.tt2 == null) {
-                dateOfTTOrTd2.min = regis.tt1!! + TimeUnit.DAYS.toMillis(28)
-                dateOfTTOrTd2.max = min(System.currentTimeMillis(), getEddFromLmp(regis.lmpDate))
+                dateOfTTOrTd2.min = regis.tt1!! + TimeUnit.DAYS.toMillis(28) // 4 weeks after TD1
+                // TD dose 2 max: up to 36 weeks of LMP and ≤ today
+                dateOfTTOrTd2.max = min(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
             } else {
                 dateOfTTOrTd2.value = getDateFromLong(regis.tt2!!)
                 dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                // Add message when TD2 is given
+                if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                    dateOfTTOrTd2.title += allTdDosesMessage
+                }
             }
         }
     }
@@ -527,8 +694,7 @@ class PregnantWomanAncVisitDataset(
             ancDate.id -> {
                 ancDate.value?.let {
                     val long = getLongFromDate(it)
-                    val weeks = 2
-//                    val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
+                    val weeks = getWeeksOfPregnancy(long, regis.lmpDate)
                     val listChanged = if (weeks >= Konstants.minWeekToShowDelivered) {
                         triggerDependants(
                             source = maternalDeath,
@@ -542,7 +708,7 @@ class PregnantWomanAncVisitDataset(
                             removeItems = listOf(deliveryDone),
                         )
                     }
-                    weekOfPregnancy.value = weeks.toString()
+                    weekOfPregnancy.value = getGestationalAgeFormatted(long, regis.lmpDate)
                     val calcVisitNumber = when (weeks) {
                         in Konstants.minAnc1Week..Konstants.maxAnc1Week -> 1
                         in Konstants.minAnc2Week..Konstants.maxAnc2Week -> 2
@@ -632,23 +798,41 @@ class PregnantWomanAncVisitDataset(
                 -1
             }
 
+            dateOfTTOrTd2.id -> {
+                if (dateOfTTOrTd2.value != null && !dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                    dateOfTTOrTd2.title += allTdDosesMessage
+                }
+                -1
+            }
+
             dateOfTTOrTdBooster.id -> {
-                if (dateOfTTOrTdBooster.value == null) {
-                    dateOfTTOrTd1.inputType = InputType.DATE_PICKER
-                } else {
+                if (dateOfTTOrTdBooster.value != null) {
                     dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
+                    if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
+                        dateOfTTOrTdBooster.title += allTdDosesMessage
+                    }
+                    if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                        dateOfTTOrTd2.title += allTdDosesMessage
+                    }
+                } else {
+                    dateOfTTOrTd1.inputType = InputType.DATE_PICKER
                 }
 
                 -1
             }
 
-            bp.id -> validateForBp(bp)
+            bp.id -> {
+                validateForBp(bp)
+                recomputeHighRiskState()
+                -1
+            }
 
             weight.id -> validateIntMinMax(weight)
 
             hb.id -> {
                 validateDoubleUpto1DecimalPlaces(hb)
                 if (hb.errorText == null) validateDoubleMinMax(hb)
+                recomputeHighRiskState()
                 -1
             }
 
@@ -665,10 +849,11 @@ class PregnantWomanAncVisitDataset(
                     if (it < 7)
                         highRiskCondition.value = highRiskCondition.entries!![5]
                 }
-                bp.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.let {
+                bp.value?.takeIf { it.isNotEmpty() && bp.errorText == null }?.let {
                     val sys = it.substringBefore("/").toInt()
                     val dia = it.substringAfter("/").toInt()
-                    if (sys > 140 || dia > 90) {
+                    // HRP alert: Systolic < 90 or >= 140, Diastolic < 60 or >= 90
+                    if (sys < 90 || sys >= 140 || dia < 60 || dia >= 90) {
                         highRiskCondition.value = highRiskCondition.entries!![1]
                     }
                 }
@@ -715,6 +900,45 @@ class PregnantWomanAncVisitDataset(
                 validateAllAlphabetsSpaceOnEditText(otherMaternalDeathProbableCause)
             }
 
+            // NEW FIELD VALIDATIONS
+
+            bloodSugarFasting.id -> {
+                validateIntMinMax(bloodSugarFasting)
+                recomputeHighRiskState()
+                -1
+            }
+
+            urineSugar.id -> {
+                recomputeHighRiskState()
+                -1
+            }
+
+            fetalHeartRate.id -> {
+                validateDoubleUpto1DecimalPlaces(fetalHeartRate)
+                if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
+                recomputeHighRiskState()
+                -1
+            }
+
+            urineAlbumin.id -> {
+                recomputeHighRiskState()
+                -1
+            }
+
+            calciumGiven.id -> validateIntMinMax(calciumGiven)
+
+            dangerSigns.id -> {
+                recomputeHighRiskState()
+                -1
+            }
+
+            counsellingProvided.id -> triggerDependants(
+                source = counsellingProvided,
+                passedIndex = index,
+                triggerIndex = 1,
+                target = counsellingTopics,
+            )
+
             else -> -1
         }
 
@@ -723,6 +947,139 @@ class PregnantWomanAncVisitDataset(
     fun getIndexOfTd1() = getIndexById(dateOfTTOrTd1.id)
     fun getIndexOfTd2() = getIndexById(dateOfTTOrTd2.id)
     fun getIndexOfTdBooster() = getIndexById(dateOfTTOrTdBooster.id)
+
+    /**
+     * Recomputes high-risk state from all current inputs and updates flags accordingly.
+     * Clears high-risk flags when no triggers apply.
+     */
+    private fun recomputeHighRiskState() {
+        var hasHighRisk = false
+        var riskCondition: String? = null
+
+        // Check blood sugar fasting
+        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
+            if (bsValue > 95) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![6] // DIABETES
+                }
+            }
+        }
+
+        // Check urine sugar
+        urineSugar.value?.let { value ->
+            val riskLevels = arrayOf("+", "++", "+++")
+            if (value in riskLevels) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![6] // DIABETES
+                }
+            }
+        }
+
+        // Check fetal heart rate
+        fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
+            if (fhrValue < 110.0 || fhrValue > 160.0) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!!.last() // OTHER
+                }
+            }
+        }
+
+        // Check urine albumin
+        urineAlbumin.value?.let { value ->
+            val riskLevels = arrayOf("+", "++", "+++")
+            if (value in riskLevels) {
+                hasHighRisk = true
+            }
+        }
+
+        // Check danger signs
+        dangerSigns.value?.let { value ->
+            val selectedSigns = dangerSigns.entries?.filter { entry ->
+                value.contains(entry)
+            } ?: emptyList()
+            val hasDangerSigns = selectedSigns.any { it != "None" }
+            if (hasDangerSigns) {
+                hasHighRisk = true
+                when {
+                    selectedSigns.contains("Vaginal Bleeding") -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!![3]
+                        }
+                    }
+                    selectedSigns.contains("Convulsions/ seizures") -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!![2]
+                        }
+                    }
+                    else -> {
+                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                            riskCondition = highRiskCondition.entries!!.last()
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check HB
+        hb.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.toDouble()?.let {
+            if (it < 7) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![5] // SEVERE ANAEMIA
+                }
+            }
+        }
+
+        // Check BP
+        bp.value?.takeIf { it.isNotEmpty() && bp.errorText == null }?.let {
+            val sys = it.substringBefore("/").toInt()
+            val dia = it.substringAfter("/").toInt()
+            if (sys < 90 || sys >= 140 || dia < 60 || dia >= 90) {
+                hasHighRisk = true
+                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
+                    riskCondition = highRiskCondition.entries!![1] // HIGH BP
+                }
+            }
+        }
+
+        // Update anyHighRisk flag
+        if (hasHighRisk) {
+            if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+                anyHighRisk.value = anyHighRisk.entries?.last()
+                triggerDependants(
+                    source = anyHighRisk,
+                    removeItems = emptyList(),
+                    addItems = listOf(highRiskCondition),
+                    position = getIndexById(anyHighRisk.id) + 1
+                )
+            }
+            // Update high risk condition if needed
+            if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
+                highRiskCondition.value = riskCondition
+                if (riskCondition == highRiskCondition.entries!!.last()) {
+                    triggerDependants(
+                        source = highRiskCondition,
+                        passedIndex = highRiskCondition.entries!!.lastIndex,
+                        triggerIndex = highRiskCondition.entries!!.lastIndex,
+                        target = otherHighRiskCondition,
+                    )
+                }
+            }
+        } else {
+            // Clear high-risk flags when no triggers apply
+            // Only clear if currently set to "Yes" (likely auto-set) and no triggers apply
+            if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+                anyHighRisk.value = anyHighRisk.entries?.first()
+                // Reset high risk condition to "NONE" when clearing
+                if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
+                    highRiskCondition.value = highRiskCondition.entries?.first()
+                }
+            }
+        }
+    }
 
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -767,6 +1124,23 @@ class PregnantWomanAncVisitDataset(
             deliveryDone.value?.let {
                 cache.pregnantWomanDelivered = it == deliveryDone.entries!!.first()
             }
+
+
+            cache.bloodSugarFasting = bloodSugarFasting.value?.toInt()
+            cache.urineSugar = urineSugar.value
+            cache.urineSugarId = urineSugar.getPosition()
+            cache.fetalHeartRate = fetalHeartRate.value?.toDouble()
+            cache.calciumGiven = calciumGiven.value?.toInt() ?: 0
+            cache.dangerSigns = dangerSigns.value
+            // For multi-select checkboxes, getPosition() doesn't work correctly
+            // Store 0 since the value itself contains all the information
+            cache.dangerSignsId = if (dangerSigns.inputType == InputType.CHECKBOXES) 0 else dangerSigns.getPosition()
+            cache.counsellingProvided = counsellingProvided.value?.let { it == counsellingProvided.entries?.last() }
+            cache.counsellingTopics = counsellingTopics.value
+            // For multi-select checkboxes, getPosition() doesn't work correctly
+            // Store 0 since the value itself contains all the information
+            cache.counsellingTopicsId = if (counsellingTopics.inputType == InputType.CHECKBOXES) 0 else counsellingTopics.getPosition()
+            cache.nextAncVisitDate = nextAncVisitDate.value?.let { getLongFromDate(it) }
         }
     }
 

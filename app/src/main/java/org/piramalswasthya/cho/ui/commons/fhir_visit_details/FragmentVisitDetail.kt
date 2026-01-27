@@ -43,6 +43,7 @@ import org.piramalswasthya.cho.model.ChiefComplaintValues
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.MasterDb
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -102,6 +103,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //    private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
+    private var isNavigationInProgress: Boolean = false
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
@@ -749,10 +751,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             })
 
         binding.rvAnc.adapter =
-            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { benId, visitNumber ->
+            AncVisitAdapter(AncVisitAdapter.AncVisitClickListener { item: PregnantWomanAncCache ->
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benId, visitNumber, true
+                        item.patientID, item.visitNumber, true
                     )
                 )
             })
@@ -1319,6 +1321,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun navigateNext() {
+        // Prevent repeated taps while navigation is in progress
+        if (isNavigationInProgress) {
+            return
+        }
+        isNavigationInProgress = true
+        binding.btnSubmit.isEnabled = false
+        
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedCategoryRadioButton =
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
@@ -1329,6 +1338,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
 //                viewModel.activePwrRecord.observe(viewLifecycleOwner) { it1->
                     if(viewModel.activePwrRecord == null && lmpDate == null){
+                        isNavigationInProgress = false
+                        binding.btnSubmit.isEnabled = true
                         Toast.makeText(
                             requireContext(),
                             "Select LMP Date",
@@ -1339,13 +1350,28 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
 //                        lmpDateDisablity = true
                         binding.lmpDate.setOnClickListener {}
-                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner){it2->
-                            if(it2){
+                        
+                        viewModel.isLMPDateSaved.removeObservers(viewLifecycleOwner)
+                        viewModel.isLMPDateSaved.observe(viewLifecycleOwner) { saved ->
+                            if (saved) {
+                                viewModel.isLMPDateSaved.removeObservers(viewLifecycleOwner)
+                                isNavigationInProgress = false
+                                binding.btnSubmit.isEnabled = true
                                 checkAndNavigateAnc()
+                            } else {
+                                isNavigationInProgress = false
+                                binding.btnSubmit.isEnabled = true
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to save LMP date. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
                     else{
+                        isNavigationInProgress = false
+                        binding.btnSubmit.isEnabled = true
                         checkAndNavigateAnc()
                     }
 //                }
@@ -1355,6 +1381,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     val visitNumber = (it ?: 0) + 1
                     viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){it1->
                         if(deliveryDate == null){
+                            isNavigationInProgress = false
+                            binding.btnSubmit.isEnabled = true
                             Toast.makeText(
                                 requireContext(),
                                 "Select Delivery Date",
@@ -1363,17 +1391,31 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         }
                         else if(it1 == null){
                             viewModel.saveDeliveryOutcome(benVisitInfo.patient.patientID, deliveryDate!!)
-                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
-                                if(it2){
+                            viewModel.isDeliveryDateSaved.removeObservers(viewLifecycleOwner)
+                            viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner) { saved ->
+                                if (saved) {
+                                    viewModel.isDeliveryDateSaved.removeObservers(viewLifecycleOwner)
+                                    isNavigationInProgress = false
+                                    binding.btnSubmit.isEnabled = true
                                     findNavController().navigate(
                                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
                                             benVisitInfo.patient.patientID, visitNumber
                                         )
                                     )
+                                } else {
+                                    isNavigationInProgress = false
+                                    binding.btnSubmit.isEnabled = true
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Failed to save delivery date. Please try again.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         }
                         else{
+                            isNavigationInProgress = false
+                            binding.btnSubmit.isEnabled = true
                             findNavController().navigate(
                                 FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
                                     benVisitInfo.patient.patientID, visitNumber
@@ -1385,6 +1427,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.immunization){
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 childImmunizationListViewModel.updateBottomSheetData(
                     benVisitInfo.patient.patientID
                 )
@@ -1395,7 +1439,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 checkAndNavigateEct()
             }
             else if(reasonForVisit == DropdownConst.ncdScreening){
-
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToCbacFragment(
                         patId = benVisitInfo.patient.patientID, cbacId = 0 , benId = benVisitInfo.patient.beneficiaryID.toString()
@@ -1409,6 +1454,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             if (viewModel.getIsFollowUp()) {
                 //            val chiefData = addChiefComplaintsData()
                 setVisitMasterDataForFollow()
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 findNavController().navigate(
                     R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                 )
@@ -1416,6 +1463,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 // initially calling checkAndAddCatSubCat() but now changed to
                 // validation on category and Subcategory
                 catBool = if (binding.radioGroup.checkedRadioButtonId == -1) {
+                    isNavigationInProgress = false
+                    binding.btnSubmit.isEnabled = true
                     Toast.makeText(
                         requireContext(),
                         resources.getString(R.string.toast_cat_select),
@@ -1444,14 +1493,20 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 setVisitMasterData()
 
                 if (catBool && isFileSelected && isFileUploaded && chiefData) {
+                    isNavigationInProgress = false
+                    binding.btnSubmit.isEnabled = true
                     findNavController().navigate(
                         R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                     )
                 } else if (!isFileSelected && catBool && chiefData) {
+                    isNavigationInProgress = false
+                    binding.btnSubmit.isEnabled = true
                     findNavController().navigate(
                         R.id.action_fhirVisitDetailsFragment_to_customVitalsFragment, bundle
                     )
                 } else if (isFileSelected && !isFileUploaded && catBool && chiefData) {
+                    isNavigationInProgress = false
+                    binding.btnSubmit.isEnabled = true
                     Toast.makeText(
                         requireContext(),
                         resources.getString(R.string.toast_upload_file),
@@ -1467,6 +1522,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
 //        viewModel.lastAnc.observe(viewLifecycleOwner){
             if(viewModel.lastAnc != null && System.currentTimeMillis() - viewModel.lastAnc!!.ancDate < minGap){
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 Toast.makeText(
                     requireContext(),
                     "ANC found within 28 days",
@@ -1474,6 +1531,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 ).show()
             }
             else if(viewModel.lastAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 Toast.makeText(
                     requireContext(),
                     "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
@@ -1481,6 +1540,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 ).show()
             }
             else{
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
                         benVisitInfo.patient.patientID, lastAncVisit + 1, false
@@ -1510,6 +1571,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun checkAndNavigateEct(){
         viewModel.lastEct.observe(viewLifecycleOwner){
             if(it != null && checkValid(it)){
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 Toast.makeText(
                     requireContext(),
                     "Eligible Couple tracking is done for this month",
@@ -1517,6 +1580,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 ).show()
             }
             else{
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
                         benVisitInfo.patient.patientID, 0L
