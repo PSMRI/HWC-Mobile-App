@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.Languages
@@ -18,9 +19,7 @@ class PregnantWomanAncVisitDataset(
     context: Context, currentLanguage: Languages
 ) : Dataset(context, currentLanguage) {
 
-    companion object {
-        private const val ALL_TD_DOSES_MESSAGE = " (All TD doses have been given)"
-    }
+    private val allTdDosesMessage: String get() = resources.getString(R.string.all_td_doses_message)
 
     private var lastAncVisitDate: Long = 0L
 
@@ -662,11 +661,11 @@ class PregnantWomanAncVisitDataset(
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
             dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
             // Add message when booster is given
-            if (!dateOfTTOrTdBooster.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                dateOfTTOrTdBooster.title += ALL_TD_DOSES_MESSAGE
+            if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
+                dateOfTTOrTdBooster.title += allTdDosesMessage
             }
-            if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
+            if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                dateOfTTOrTd2.title += allTdDosesMessage
             }
         } else if (regis.tt1 == null) {
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
@@ -682,8 +681,8 @@ class PregnantWomanAncVisitDataset(
                 dateOfTTOrTd2.value = getDateFromLong(regis.tt2!!)
                 dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
                 // Add message when TD2 is given
-                if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                    dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
+                if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                    dateOfTTOrTd2.title += allTdDosesMessage
                 }
             }
         }
@@ -800,8 +799,8 @@ class PregnantWomanAncVisitDataset(
             }
 
             dateOfTTOrTd2.id -> {
-                if (dateOfTTOrTd2.value != null && !dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                    dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
+                if (dateOfTTOrTd2.value != null && !dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                    dateOfTTOrTd2.title += allTdDosesMessage
                 }
                 -1
             }
@@ -809,11 +808,11 @@ class PregnantWomanAncVisitDataset(
             dateOfTTOrTdBooster.id -> {
                 if (dateOfTTOrTdBooster.value != null) {
                     dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
-                    if (!dateOfTTOrTdBooster.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                        dateOfTTOrTdBooster.title += ALL_TD_DOSES_MESSAGE
+                    if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
+                        dateOfTTOrTdBooster.title += allTdDosesMessage
                     }
-                    if (!dateOfTTOrTd2.title.contains(ALL_TD_DOSES_MESSAGE)) {
-                        dateOfTTOrTd2.title += ALL_TD_DOSES_MESSAGE
+                    if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
+                        dateOfTTOrTd2.title += allTdDosesMessage
                     }
                 } else {
                     dateOfTTOrTd1.inputType = InputType.DATE_PICKER
