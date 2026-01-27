@@ -56,23 +56,10 @@ class PncRepo @Inject constructor(
 
     /**
      * Get all patients who are eligible for PNC (have delivered and within 42 days or not completed all visits)
-     * First gets patientIDs from DeliveryOutcome records, then fetches full patient data
+     * Uses a single optimized query instead of N+1 pattern
      */
     fun getAllPNCMothers(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>> {
-        return pncDao.getPNCMothersPatientIDs()
-            .transformLatest { patientIDs ->
-                val patients = mutableListOf<PatientWithDeliveryOutcomeAndPncCache>()
-                patientIDs.forEach { patientID ->
-                    val patient = pncDao.getPatientWithDeliveryOutcomeAndPncByID(patientID)
-                    patient?.let {
-                        // Filter for females aged 15-49
-                        if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {
-                            patients.add(it)
-                        }
-                    }
-                }
-                emit(patients)
-            }
+        return pncDao.getAllPNCMothersWithData()
     }
 
     /**

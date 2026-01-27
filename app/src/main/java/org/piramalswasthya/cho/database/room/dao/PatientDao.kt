@@ -222,25 +222,27 @@ interface PatientDao {
     fun getChildListCount(): Flow<Int>
 
     /**
-     * Get all adolescents (age between 6-14 years, i.e., 2190-5110 days)
+     * Get all adolescents (age between 10-19 years, i.e., 3650-6935 days)
      * Calculates age in days from DOB (stored as milliseconds since epoch)
+     * Aligned with RMNCHA+ guidelines (10-19 years)
      */
     @Transaction
     @Query("""
         SELECT * FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 2190 AND 5110
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
         ORDER BY dob DESC
     """)
     fun getAllAdolescentList(): Flow<List<PatientDisplay>>
 
     /**
-     * Get count of adolescents (age between 6-14 years)
+     * Get count of adolescents (age between 10-19 years)
+     * Aligned with RMNCHA+ guidelines (10-19 years)
      */
     @Query("""
         SELECT COUNT(*) FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 2190 AND 5110
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 3650 AND 6935
     """)
     fun getAdolescentListCount(): Flow<Int>
 

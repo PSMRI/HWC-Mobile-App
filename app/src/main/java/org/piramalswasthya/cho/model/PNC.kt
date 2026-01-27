@@ -225,7 +225,7 @@ data class PatientWithDeliveryOutcomeAndPncCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val deliveryOutcome: DeliveryOutcomeCache?,
+    val deliveryOutcome: List<DeliveryOutcomeCache>?,
     @Relation(
         parentColumn = "patientID",
         entityColumn = "patientID"
@@ -233,7 +233,7 @@ data class PatientWithDeliveryOutcomeAndPncCache(
     val pncRecords: List<PNCVisitCache>
 ) {
     fun asDomainModel(): PatientWithPncDomain {
-        val activeDo = deliveryOutcome?.takeIf { it.isActive }
+        val activeDo = deliveryOutcome?.firstOrNull { it.isActive }
         val latestPnc = pncRecords.maxByOrNull { it.pncPeriod }
         
         return PatientWithPncDomain(

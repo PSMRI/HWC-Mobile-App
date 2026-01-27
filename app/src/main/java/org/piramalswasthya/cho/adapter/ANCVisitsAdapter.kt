@@ -1,9 +1,7 @@
 package org.piramalswasthya.cho.adapter
 
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -41,20 +39,12 @@ class ANCVisitsAdapter(
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun bind(
             item: PatientWithPwrDomain,
             clickListener: ClickListener?
         ) {
             binding.patientWithPwr = item
             binding.clickListener = clickListener
-
-            // Set age
-            item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
 
             // Set weeks of pregnancy
             val weeks = item.getWeeksOfPregnancy()
@@ -79,7 +69,6 @@ class ANCVisitsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ANCVisitViewHolder.from(parent)
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ANCVisitViewHolder, position: Int) {
         holder.bind(getItem(position), clickListener)
     }

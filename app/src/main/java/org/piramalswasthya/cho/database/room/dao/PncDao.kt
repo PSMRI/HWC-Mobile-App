@@ -40,28 +40,36 @@ interface PncDao {
 
     /**
      * Get patientIDs of women eligible for PNC (have delivered and within 42 days or not completed all visits)
+     * Excludes patients who have completed the 42-day PNC visit
      */
     @Query("""
         SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
-        LEFT OUTER JOIN pnc_visit pnc ON do.patientID = pnc.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
-        AND (pnc.isActive IS NULL OR pnc.isActive = 1)
-        AND (pnc.pncPeriod IS NULL OR pnc.pncPeriod != 42)
+        AND NOT EXISTS (
+            SELECT 1 FROM pnc_visit pnc
+            WHERE pnc.patientID = do.patientID
+            AND pnc.isActive = 1
+            AND pnc.pncPeriod = 42
+        )
         ORDER BY do.dateOfDelivery DESC
     """)
     fun getPNCMothersPatientIDs(): Flow<List<String>>
 
     /**
      * Get count of PNC mothers
+     * Excludes patients who have completed the 42-day PNC visit
      */
     @Query("""
         SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
-        LEFT OUTER JOIN pnc_visit pnc ON do.patientID = pnc.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
-        AND (pnc.isActive IS NULL OR pnc.isActive = 1)
-        AND (pnc.pncPeriod IS NULL OR pnc.pncPeriod != 42)
+        AND NOT EXISTS (
+            SELECT 1 FROM pnc_visit p
+            WHERE p.patientID = do.patientID
+            AND p.isActive = 1
+            AND p.pncPeriod = 42
+        )
     """)
     fun getPNCMothersCount(): Flow<Int>
 
@@ -71,5 +79,27 @@ interface PncDao {
     @Transaction
     @Query("SELECT * FROM PATIENT WHERE patientID = :patientID")
     suspend fun getPatientWithDeliveryOutcomeAndPncByID(patientID: String): PatientWithDeliveryOutcomeAndPncCache?
+
+    /**
+     * Get all PNC mothers with their delivery outcome and PNC data in a single query
+     * Filters for females (genderID=2) aged 15-49 who have delivered and are eligible for PNC
+     */
+    @Transaction
+    @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
+        WHERE do.isActive = 1
+        AND do.dateOfDelivery IS NOT NULL
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        AND NOT EXISTS (
+            SELECT 1 FROM pnc_visit pnc
+            WHERE pnc.patientID = p.patientID
+            AND pnc.isActive = 1
+            AND pnc.pncPeriod = 42
+        )
+        ORDER BY do.dateOfDelivery DESC
+    """)
+    fun getAllPNCMothersWithData(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>>
 
 }

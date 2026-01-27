@@ -212,33 +212,52 @@ data class PatientWithPwrDomain(
 ) {
     /**
      * Get weeks of pregnancy
+     * Returns 0 if LMP date is missing or invalid (null or <= 0)
      */
     fun getWeeksOfPregnancy(): Int {
-        return pwr?.lmpDate?.let {
-            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - pwr.lmpDate)
             (daysSinceLMP / 7).toInt()
-        } ?: 0
+        } else {
+            0
+        }
     }
 
     /**
      * Get EDD (Expected Date of Delivery) - LMP + 280 days
+     * Returns 0L if LMP date is missing or invalid (null or <= 0)
      */
     fun getEDD(): Long {
-        return pwr?.lmpDate?.let { it + TimeUnit.DAYS.toMillis(280) } ?: 0L
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            pwr.lmpDate + TimeUnit.DAYS.toMillis(280)
+        } else {
+            0L
+        }
     }
 
     /**
      * Get formatted LMP date string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
      */
     fun getFormattedLMPDate(): String {
-        return pwr?.lmpDate?.let { getDateStringFromLong(it) ?: "NA" } ?: "NA"
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            getDateStringFromLong(pwr.lmpDate) ?: "NA"
+        } else {
+            "NA"
+        }
     }
 
     /**
      * Get formatted EDD string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
      */
     fun getFormattedEDD(): String {
-        return getDateStringFromLong(getEDD()) ?: "NA"
+        val edd = getEDD()
+        return if (edd > 0L) {
+            getDateStringFromLong(edd) ?: "NA"
+        } else {
+            "NA"
+        }
     }
 
     /**
@@ -276,9 +295,10 @@ data class PatientWithPwrAndAncCache(
     fun asAbortionDomainModel(): AbortionDomain {
         val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
         val activePwr = pwr?.takeIf { it.active }
+        val registeredPwr = pwr
         
-        // Use LMP from PWR or abortion record
-        val lmpDateToUse = activePwr?.lmpDate
+        // Use LMP from registered PWR (even if inactive) or abortion record
+        val lmpDateToUse = registeredPwr?.lmpDate
             ?: abortionRecord?.let { 
                 // If no PWR, try to get LMP from abortion record (if stored)
                 // For now, use 0L if not available

@@ -40,12 +40,12 @@ data class InfantRegCache(
     var hadBirthDefect: String? = null,
     var birthDefect: String? = null,
     var otherDefect: String? = null,
-    var weight: Double? = 0.0,
+    var weight: Double? = null,
     var breastFeedingStarted: Boolean? = null,
-    var opv0Dose: Long? = System.currentTimeMillis(),
-    var bcgDose: Long? = System.currentTimeMillis(),
-    var hepBDose: Long? = System.currentTimeMillis(),
-    var vitkDose: Long? = System.currentTimeMillis(),
+    var opv0Dose: Long? = null,
+    var bcgDose: Long? = null,
+    var hepBDose: Long? = null,
+    var vitkDose: Long? = null,
     var processed: String? = "N",
     var createdBy: String,
     val createdDate: Long = System.currentTimeMillis(),
@@ -104,7 +104,7 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val deliveryOutcome: DeliveryOutcomeCache?,
+    val deliveryOutcome: List<DeliveryOutcomeCache>?,
     @Relation(
         parentColumn = "patientID",
         entityColumn = "motherPatientID"
@@ -112,7 +112,7 @@ data class PatientWithDeliveryOutcomeAndInfantRegCache(
     val savedInfantRegRecords: List<InfantRegCache>
 ) {
     fun asDomainModel(): List<InfantRegDomain> {
-        val activeDo = deliveryOutcome?.takeIf { it.isActive } ?: return emptyList()
+        val activeDo = deliveryOutcome?.firstOrNull { it.isActive } ?: return emptyList()
         val activeIr = savedInfantRegRecords.filter { it.isActive }
         val list = mutableListOf<InfantRegDomain>()
         val numLiveBirth = activeDo.liveBirth ?: 1

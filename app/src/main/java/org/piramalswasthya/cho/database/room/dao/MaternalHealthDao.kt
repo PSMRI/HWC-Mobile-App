@@ -73,10 +73,18 @@ interface MaternalHealthDao {
 
     /**
      * Get all patients with their pregnancy registration data
+     * Returns only patients who have an active pregnancy registration
      * Returns Flow for reactive updates
      */
     @Transaction
-    @Query("SELECT * FROM PATIENT WHERE genderID = 2 AND age BETWEEN 15 AND 49 ORDER BY registrationDate DESC")
+    @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        INNER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        WHERE pwr.active = 1
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY pwr.createdDate DESC
+    """)
     fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>>
 
     /**

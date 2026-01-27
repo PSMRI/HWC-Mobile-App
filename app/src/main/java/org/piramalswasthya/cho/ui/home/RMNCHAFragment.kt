@@ -57,6 +57,11 @@ class RMNCHAFragment : Fragment() {
         
         val rvAdapter = IconGridAdapter(
             IconGridAdapter.GridIconClickListener { navDirections ->
+                // Skip navigation for placeholder entries (actionId == 0)
+                if (navDirections.actionId == 0) {
+                    return@GridIconClickListener
+                }
+                
                 try {
                     // Check if this module has sub-modules
                     val moduleType = navDirections.arguments.getString(
@@ -94,8 +99,7 @@ class RMNCHAFragment : Fragment() {
                 } catch (e: Exception) {
                     Timber.e(e, "Navigation failed")
                 }
-            },
-            lifecycleScope
+            }
         )
         
         binding.rvIconGrid.adapter = rvAdapter

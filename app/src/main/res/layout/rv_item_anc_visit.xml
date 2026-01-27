@@ -149,6 +149,7 @@
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
+                            app:ageFromDate="@{patientWithPwr.patient.dob}"
                             tools:text="29 YEARS" />
                     </LinearLayout>
 
@@ -224,7 +225,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Not Available"
+                            android:text="@{patientWithPwr.pwr != null &amp;&amp; patientWithPwr.pwr.rchId != null &amp;&amp; patientWithPwr.pwr.rchId != 0L ? String.valueOf(patientWithPwr.pwr.rchId) : `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="Not Available" />

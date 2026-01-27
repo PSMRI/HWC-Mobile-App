@@ -114,17 +114,17 @@ class AllBeneficiariesActivity : AppCompatActivity() {
                 { benVisitInfo ->
                     // eSanjeevani button click
                     Toast.makeText(this, "eSanjeevani - Coming soon", Toast.LENGTH_SHORT).show()
-                    Timber.d("eSanjeevani clicked for beneficiary ID: ${benVisitInfo.patient.beneficiaryID}")
+                    Timber.d("eSanjeevani clicked")
                 },
                 { benVisitInfo ->
                     // Download prescription button click
                     Toast.makeText(this, "Download Prescription - Coming soon", Toast.LENGTH_SHORT).show()
-                    Timber.d("Download prescription clicked for beneficiary ID: ${benVisitInfo.patient.beneficiaryID}")
+                    Timber.d("Download prescription clicked")
                 },
                 { benVisitInfo ->
                     // Sync button click
                     Toast.makeText(this, "Sync - Coming soon", Toast.LENGTH_SHORT).show()
-                    Timber.d("Sync clicked for beneficiary ID: ${benVisitInfo.patient.beneficiaryID}")
+                    Timber.d("Sync clicked")
                 }
             ),
             showAbha = true

@@ -14,10 +14,6 @@
             name="clickListener"
             type="org.piramalswasthya.cho.adapter.IconGridAdapter.GridIconClickListener" />
 
-        <variable
-            name="scope"
-            type="kotlinx.coroutines.CoroutineScope" />
-
     </data>
 
         <androidx.cardview.widget.CardView
@@ -74,7 +70,6 @@
                 <TextView
                     android:id="@+id/tv_count"
                     recordCount="@{homeIcon.count}"
-                    scope="@{scope}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"

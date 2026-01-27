@@ -91,6 +91,11 @@ class SubModuleFragment : Fragment() {
         
         val rvAdapter = IconGridAdapter(
             IconGridAdapter.GridIconClickListener { navDirections ->
+                // Skip navigation for placeholder entries (actionId == 0)
+                if (navDirections.actionId == 0) {
+                    return@GridIconClickListener
+                }
+                
                 try {
                     // Check if this is a direct list navigation
                     val showECRegistration = navDirections.arguments.getBoolean(SHOW_EC_REGISTRATION_KEY, false)
@@ -192,8 +197,7 @@ class SubModuleFragment : Fragment() {
                 } catch (e: Exception) {
                     Timber.e(e, "Navigation failed")
                 }
-            },
-            lifecycleScope
+            }
         )
         
         binding.rvIconGrid.adapter = rvAdapter

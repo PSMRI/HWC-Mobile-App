@@ -6,13 +6,11 @@ import androidx.navigation.NavDirections
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
 import org.piramalswasthya.cho.databinding.RvItemIconGridBinding
 import org.piramalswasthya.cho.model.Icon
 
 class IconGridAdapter(
-    private val clickListener: GridIconClickListener,
-    private val scope: CoroutineScope
+    private val clickListener: GridIconClickListener
 ) :
     ListAdapter<Icon, IconGridAdapter.IconViewHolder>(IconDiffCallback) {
     object IconDiffCallback : DiffUtil.ItemCallback<Icon>() {
@@ -36,10 +34,9 @@ class IconGridAdapter(
             }
         }
 
-        fun bind(item: Icon, clickListener: GridIconClickListener, scope: CoroutineScope) {
+        fun bind(item: Icon, clickListener: GridIconClickListener) {
             binding.homeIcon = item
             binding.clickListener = clickListener
-            binding.scope = scope
             binding.executePendingBindings()
         }
 
@@ -49,7 +46,7 @@ class IconGridAdapter(
         IconViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: IconViewHolder, position: Int) {
-        holder.bind(getItem(position), clickListener, scope)
+        holder.bind(getItem(position), clickListener)
     }
 
     class GridIconClickListener(val selectedListener: (dest: NavDirections) -> Unit) {
