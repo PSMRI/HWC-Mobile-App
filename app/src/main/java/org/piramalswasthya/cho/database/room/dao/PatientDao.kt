@@ -174,4 +174,27 @@ interface PatientDao {
 
     @Query("SELECT COUNT(*) FROM Patient WHERE registrationDate = :registrationDate")
     suspend fun countPatientsByRegistrationDate(registrationDate: Date): Int
+
+    /**
+     * Get all infants (age <= 61 days)
+     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 61
+        ORDER BY dob DESC
+    """)
+    fun getAllInfantList(): Flow<List<PatientDisplay>>
+
+    /**
+     * Get count of infants (age <= 61 days)
+     */
+    @Query("""
+        SELECT COUNT(*) FROM PATIENT 
+        WHERE dob IS NOT NULL 
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 61
+    """)
+    fun getInfantListCount(): Flow<Int>
 }

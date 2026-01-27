@@ -146,6 +146,11 @@
             android:label="@string/e_pmsma_list"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
+            android:name=".ui.home.rmncha.child_care.InfantListActivity"
+            android:exported="false"
+            android:label="@string/infant_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"
