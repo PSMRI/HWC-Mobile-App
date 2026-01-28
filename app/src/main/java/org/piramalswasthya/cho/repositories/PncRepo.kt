@@ -1,18 +1,19 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+//import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.PNCNetwork
 import org.piramalswasthya.cho.model.PNCVisitCache
+import org.piramalswasthya.cho.model.PatientWithDeliveryOutcomeAndPncCache
 import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.io.IOException
@@ -23,7 +24,7 @@ class PncRepo @Inject constructor(
     private val amritApiService: AmritApiService,
     private val pncDao: PncDao,
     private val userRepo: UserRepo,
-    private val preferenceDao: PreferenceDao,
+//    private val preferenceDao: PreferenceDao,
     private val patientDao: PatientDao,
 ) {
     suspend fun getSavedPncRecord(patientID: String, visitNumber: Int): PNCVisitCache? {
@@ -51,6 +52,21 @@ class PncRepo @Inject constructor(
 
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>{
         return pncDao.getAllPNCsByPatId(patientID)
+    }
+
+    /**
+     * Get all patients who are eligible for PNC (have delivered and within 42 days or not completed all visits)
+     * Uses a single optimized query instead of N+1 pattern
+     */
+    fun getAllPNCMothers(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>> {
+        return pncDao.getAllPNCMothersWithData()
+    }
+
+    /**
+     * Get count of PNC mothers
+     */
+    fun getPNCMothersCount(): Flow<Int> {
+        return pncDao.getPNCMothersCount()
     }
 
     suspend fun processPncVisits(): Boolean {

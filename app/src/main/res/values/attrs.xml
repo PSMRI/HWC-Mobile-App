@@ -13,6 +13,12 @@
 <!--            <flag name="password" value="5" />-->
         </attr>
     </declare-styleable>
+    <attr name="colorQuaternary" format="color" />
+    <attr name="colorOnQuaternary" format="color" />
+    <attr name="colorQuaternaryContainer" format="color" />
+    <attr name="colorOnQuaternaryContainer" format="color" />
+    <attr name="harmonizeQuaternary" format="boolean" />
+    <!-- Temporary aliases for backward compatibility -->
     <attr name="colorQuartenary" format="color" />
     <attr name="colorOnQuartenary" format="color" />
     <attr name="colorQuartenaryContainer" format="color" />

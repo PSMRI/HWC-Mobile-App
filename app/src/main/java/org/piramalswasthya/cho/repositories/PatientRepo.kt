@@ -213,6 +213,63 @@ class PatientRepo @Inject constructor(
         return patientDao.getPatientListFlowForLab()
     }
 
+    /**
+     * Get all infants (age <= 61 days)
+     */
+    fun getInfantList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllInfantList()
+    }
+
+    /**
+     * Get count of infants (age <= 61 days)
+     */
+    fun getInfantListCount(): Flow<Int> {
+        return patientDao.getInfantListCount()
+    }
+
+    /**
+     * Get all children (age 2-5 years)
+     */
+    fun getChildList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildList()
+    }
+
+    /**
+     * Get count of children (age 2-5 years)
+     */
+    fun getChildListCount(): Flow<Int> {
+        return patientDao.getChildListCount()
+    }
+
+    /**
+     * Get all adolescents (age 6-14 years)
+     */
+    fun getAdolescentList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllAdolescentList()
+    }
+
+    /**
+     * Get count of adolescents (age 6-14 years)
+     */
+    fun getAdolescentListCount(): Flow<Int> {
+        return patientDao.getAdolescentListCount()
+    }
+
+    /**
+     * Get all children under 5 years (age <= 5 years)
+     * This combines infants and young children into a single list for child care services.
+     */
+    fun getChildrenUnderFiveList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildrenUnderFiveList()
+    }
+
+    /**
+     * Get count of children under 5 years (age <= 5 years)
+     */
+    fun getChildrenUnderFiveListCount(): Flow<Int> {
+        return patientDao.getChildrenUnderFiveListCount()
+    }
+
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)
 //        if(patient != null && benFlow.nurseFlag!! >= patient.nurseFlag!! && benFlow.doctorFlag!! >= patient.doctorFlag!!){

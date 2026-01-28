@@ -110,7 +110,9 @@
     <color name="md_theme_dark_surfaceTint">#91CDFF</color>
     <color name="md_theme_dark_outlineVariant">#42474E</color>
     <color name="md_theme_dark_scrim">#000000</color>
-    <color name="Quartenary">#FD5901</color>
+    <color name="Quaternary">#FD5901</color>
+    <!-- Temporary alias for backward compatibility -->
+    <color name="Quartenary">@color/Quaternary</color>
     <color name="Tertiary">#008083</color>
     <color name="holo_green_dark">#669900</color>
     <color name="holo_red_light">#F44336</color>
