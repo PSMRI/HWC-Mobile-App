@@ -17,16 +17,12 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_ELIGIBLE_COUPLE
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_MATERNAL_HEALTH
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_TYPE_KEY
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_REGISTRATION_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_DELIVERY_OUTCOME_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PNC_MOTHER_LIST_KEY
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_REG_LIST_KEY
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_REG_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PMSMA_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ADOLESCENT_LIST_KEY
@@ -35,13 +31,6 @@ import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
 
-/**
- * Sub-Module Fragment for RMNCHA+
- * Displays inner cards for specific modules like:
- * - Maternal Health (Pregnant Women Registration, ANC Visits, etc.)
- * - Child Care (Infant List, Child List, etc.)
- * - Eligible Couple (Registration, Tracking)
- */
 @AndroidEntryPoint
 class SubModuleFragment : Fragment() {
 
@@ -98,27 +87,18 @@ class SubModuleFragment : Fragment() {
                 
                 try {
                     // Check if this is a direct list navigation
-                    val showECRegistration = navDirections.arguments.getBoolean(SHOW_EC_REGISTRATION_KEY, false)
                     val showECTracking = navDirections.arguments.getBoolean(SHOW_EC_TRACKING_KEY, false)
                     val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
                     val showANCVisits = navDirections.arguments.getBoolean(SHOW_ANC_VISITS_KEY, false)
                     val showDeliveryOutcome = navDirections.arguments.getBoolean(SHOW_DELIVERY_OUTCOME_KEY, false)
                     val showPNCMotherList = navDirections.arguments.getBoolean(SHOW_PNC_MOTHER_LIST_KEY, false)
-                    val showInfantRegList = navDirections.arguments.getBoolean(SHOW_INFANT_REG_LIST_KEY, false)
-                    val showChildRegList = navDirections.arguments.getBoolean(SHOW_CHILD_REG_LIST_KEY, false)
                     val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
-                    val showPmsmaList = navDirections.arguments.getBoolean(SHOW_PMSMA_LIST_KEY, false)
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
                     val showChildList = navDirections.arguments.getBoolean(SHOW_CHILD_LIST_KEY, false)
                     val showAdolescentList = navDirections.arguments.getBoolean(SHOW_ADOLESCENT_LIST_KEY, false)
                     val showChildrenUnderFiveList = navDirections.arguments.getBoolean(SHOW_CHILDREN_UNDER_FIVE_LIST_KEY, false)
                     
                     when {
-                        showECRegistration -> {
-                            // Navigate to Eligible Couple Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleRegistrationActivity.getIntent(requireContext())
-                            startActivity(intent)
-                        }
                         showECTracking -> {
                             // Navigate to Eligible Couple Tracking List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity.getIntent(requireContext())
@@ -144,24 +124,9 @@ class SubModuleFragment : Fragment() {
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
-                        showInfantRegList -> {
-                            // Navigate to Infant Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.InfantRegListActivity.getIntent(requireContext())
-                            startActivity(intent)
-                        }
-                        showChildRegList -> {
-                            // Navigate to Child Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ChildRegListActivity.getIntent(requireContext())
-                            startActivity(intent)
-                        }
                         showAbortionList -> {
                             // Navigate to Abortion List
                             val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.AbortionListActivity.getIntent(requireContext())
-                            startActivity(intent)
-                        }
-                        showPmsmaList -> {
-                            // Navigate to e-PMSMA List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PmsmaListActivity.getIntent(requireContext())
                             startActivity(intent)
                         }
                         showInfantList -> {

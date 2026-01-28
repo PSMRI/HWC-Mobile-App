@@ -627,7 +627,6 @@
     <string name="update_btn">Update</string>
 
     <!-- RMNCHA+ Dashboard Module Strings -->
-    <string name="all_household">All Household</string>
     <string name="all_beneficiaries">All Beneficiaries</string>
     <string name="eligible_couple_list">Eligible Couple List</string>
     <string name="maternal_health">Maternal Health</string>

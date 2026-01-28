@@ -61,13 +61,13 @@ class RMNCHAFragment : Fragment() {
                 if (navDirections.actionId == 0) {
                     return@GridIconClickListener
                 }
-                
+
                 try {
                     // Check if this module has sub-modules
                     val moduleType = navDirections.arguments.getString(
                         org.piramalswasthya.cho.configuration.RMNCHAIconDataset.MODULE_TYPE_KEY
                     )
-                    
+
                     if (moduleType != null) {
                         // Navigate to SubModuleActivity for modules with sub-cards
                         val intent = org.piramalswasthya.cho.ui.home.rmncha.SubModuleActivity.getIntent(
@@ -76,24 +76,12 @@ class RMNCHAFragment : Fragment() {
                         )
                         startActivity(intent)
                     } else {
-                        // Handle direct list navigation (only for "All Beneficiaries" and similar)
-                        val showAllBeneficiaries = navDirections.arguments.getBoolean(
-                            org.piramalswasthya.cho.configuration.RMNCHAIconDataset.SHOW_ALL_BENEFICIARIES_KEY,
-                            false
-                        )
-                        
-                        if (showAllBeneficiaries) {
-                            // Navigate to AllBeneficiariesActivity
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.AllBeneficiariesActivity.getIntent(requireContext())
-                            startActivity(intent)
-                        } else {
-                            // Other modules - list view coming soon
-                            Toast.makeText(
-                                requireContext(),
-                                "List view coming soon",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        // Other modules - list view coming soon
+                        Toast.makeText(
+                            requireContext(),
+                            "List view coming soon",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     Timber.d("RMNCHA+ icon clicked: ${navDirections.actionId}")
                 } catch (e: Exception) {
