@@ -17,7 +17,6 @@ import org.piramalswasthya.cho.databinding.PatientListItemViewBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.network.ESanjeevaniApiService
 import org.piramalswasthya.cho.ui.home.HomeViewModel
-import org.piramalswasthya.cho.utils.Constants.pattern
 import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class PatientItemAdapter(
@@ -150,23 +149,28 @@ class PatientItemAdapter(
             }
 
 
-            if (item.patient.syncState == SyncState.SYNCED) {
-                //  binding.ivSyncState.visibility = View.VISIBLE
+            // Show BeneficiaryID if it exists, regardless of sync state
+            if (item.patient.beneficiaryID != null) {
                 binding.patientBenId.text = item.patient.beneficiaryID.toString()
                 binding.llBenId.visibility = View.VISIBLE
+            } else {
+                binding.llBenId.visibility = View.GONE
+            }
+
+            if (item.patient.syncState == SyncState.SYNCED) {
+                //  binding.ivSyncState.visibility = View.VISIBLE
                 binding.btnAbha.isEnabled = true
             } else {
                 binding.btnAbha.isEnabled = false
-                binding.llBenId.visibility = View.GONE
                 //   binding.ivSyncState.visibility = View.GONE
             }
             /*   Commented as prescription button should not display to user*/
 
             if(item.doctorFlag == 9){
-                   binding.prescriptionDownloadBtn.visibility = View.VISIBLE
-               }else{
-                   binding.prescriptionDownloadBtn.visibility = View.GONE
-               }
+                binding.prescriptionDownloadBtn.visibility = View.VISIBLE
+            }else{
+                binding.prescriptionDownloadBtn.visibility = View.GONE
+            }
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
@@ -198,6 +202,7 @@ class PatientItemAdapter(
         private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedViewCard: ((benVisitInfo: PatientDisplayWithVisitInfo) -> Unit)? = null,
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -218,6 +223,10 @@ class PatientItemAdapter(
 
         fun onClickSync(item: PatientDisplayWithVisitInfo) {
             syncIconButton(item)
+        }
+
+        fun onClickViewCard(item: PatientDisplayWithVisitInfo) {
+            clickedViewCard?.invoke(item)
         }
     }
 

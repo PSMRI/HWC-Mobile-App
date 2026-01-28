@@ -613,8 +613,11 @@
         <item>Mala N</item>
         <item>Chaya</item>
         <item>ECP</item>
+       
         <item>Any Other Method</item>
     </string-array>
+
+    
 
     <string name="template_null">Enter Template Name</string>
     <string name="templte_exists">Template name already exists</string>
@@ -626,5 +629,26 @@
     <string name="str_duration">Duration:</string>
     <string name="edd_date">EDD Date</string>
     <string name="update_btn">Update</string>
+
+    <!-- ABHA -->
+    <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
+    <string name="abha_id_number">ABHA ID Number (14 digits)</string>
+    <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
+    <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
+   
+
+    <!-- Beneficiary Card -->
+    <string name="beneficiary_card_title">Beneficiary Card</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
+    <string name="age_gender_label">Age / Gender</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="village_name_label">Village Name</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">Generate ABHA ID</string>
+    <string name="continue_btn">Continue</string>
+    <string name="not_available">Not Available</string>
+    <string name="view_beneficiary_card">View Card</string>
+
+    
 
 </resources>
