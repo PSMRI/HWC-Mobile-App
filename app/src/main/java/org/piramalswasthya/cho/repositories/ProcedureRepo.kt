@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.model.ComponentDetails
@@ -32,6 +33,7 @@ import javax.inject.Inject
 class ProcedureRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val procedureMasterDao: ProcedureMasterDao,
+    private val inAppDb: InAppDb,
     private val apiService: AmritApiService,
     private val userRepo: UserRepo
 ) {
@@ -44,10 +46,6 @@ class ProcedureRepo @Inject constructor(
         }
     }
 
-    /**
-     * Sync lab results from procedure + component_details to PROCEDURE_DATA_DOWNSYNC
-     * so the doctor's case record page can show submitted lab report data.
-     */
     suspend fun syncLabResultsToDownsyncTable(patientID: String, benVisitNo: Int) {
         withContext(Dispatchers.IO) {
             val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(patientID, benVisitNo) ?: return@withContext
@@ -91,73 +89,10 @@ class ProcedureRepo @Inject constructor(
         }
     }
 
-    /**
-     * Ensures procedure_master has the 7 lab procedures (seed data).
-     * Runs when migration didn't (e.g. fresh install at version 111) so lab form can render from DB without API.
-     */
     suspend fun ensureLabProcedureMasterSeed() {
         withContext(Dispatchers.IO) {
             if (procedureMasterDao.getMasterProcedureById(101L) != null) return@withContext
-            seedLabProcedureMasterData()
-        }
-    }
-
-    private suspend fun seedLabProcedureMasterData() {
-        val procedures = listOf(
-            Triple(101L, "Random Blood Glucose (RBS)", "Laboratory"),
-            Triple(104L, "RPR Card Test for Syphilis", "Laboratory"),
-            Triple(105L, "HIV-1 & HIV-2 (RDT)", "Laboratory"),
-            Triple(106L, "Serum Uric Acid", "Laboratory"),
-            Triple(107L, "HBsAg (RDT)", "Laboratory"),
-            Triple(108L, "Serum Total Cholesterol", "Laboratory"),
-            Triple(110L, "Hemoglobin", "Laboratory")
-        )
-        val components = listOf(
-            arrayOf(102L, 41, 140, 40, 500, true, "TextBox", "mg/dl", "Random Blood Glucose (RBS)", "Random Blood Glucose (RBS)"),
-            arrayOf(105L, null, null, null, null, false, "RadioButton", null, "RPR Card Test for Syphilis", "RPR Card Test for Syphilis"),
-            arrayOf(106L, null, null, null, null, false, "RadioButton", null, "HIV-1 & HIV-2 (RDT)", "HIV-1 & HIV-2 (RDT)"),
-            arrayOf(107L, 3, 7, 0, 30, true, "TextBox", "mg/dl", "Serum Uric Acid", "Serum Uric Acid"),
-            arrayOf(108L, null, null, null, null, false, "RadioButton", null, "HBsAg (RDT)", "HBsAg (RDT)"),
-            arrayOf(109L, 100, 200, 99, 400, true, "TextBox", "mg/dl", "Serum Total Cholesterol", "Serum Total Cholesterol"),
-            arrayOf(111L, 4, 15, 1, 18, true, "TextBox", "g/dL", "Hemoglobin", "Hemoglobin")
-        )
-                val componentOptions = listOf(
-            emptyList(),
-            listOf("Negative", "Positive"),
-            listOf("Negative", "Positive"),
-            emptyList(),
-            listOf("Negative", "Positive"),
-            emptyList(),
-            emptyList()
-        )
-        procedures.forEachIndexed { i, (procId, name, procType) ->
-            val procedure = ProcedureMaster(
-                procedureID = procId,
-                procedureDesc = name,
-                procedureType = procType,
-                prescriptionID = 2802381L,
-                procedureName = name,
-                isMandatory = false
-            )
-            val procedureMasterId = procedureMasterDao.insert(procedure)
-            val comp = components[i]
-            val compDetails = ComponentDetailsMaster(
-                testComponentID = comp[0] as Long,
-                procedureID = procedureMasterId,
-                rangeNormalMin = comp[1] as? Int,
-                rangeNormalMax = comp[2] as? Int,
-                rangeMin = comp[3] as? Int,
-                rangeMax = comp[4] as? Int,
-                isDecimal = comp[5] as Boolean,
-                inputType = comp[6] as String,
-                measurementUnit = comp[7] as? String,
-                testComponentName = comp[8] as String,
-                testComponentDesc = comp[9] as String
-            )
-            val compDetailsId = procedureMasterDao.insert(compDetails)
-            componentOptions[i].forEach { optName ->
-                procedureMasterDao.insert(ComponentOptionsMaster(componentDetailsId = compDetailsId, name = optName))
-            }
+            inAppDb.runSeedLabProcedureMaster()
         }
     }
 
@@ -232,13 +167,6 @@ class ProcedureRepo @Inject constructor(
         addProcedureFromMaster(procedureID, benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
     }
 
-    /**
-     * Copy prescribed lab procedures from ProcedureMaster to Procedure table for this visit.
-     * Called when doctor saves investigation with newTestIds so lab technician can render form from DB without API.
-     * Merges with existing procedures: only adds tests that are not already present for this visit,
-     * so previous lab data (e.g. A, B from first submission) is preserved and new tests (e.g. D) are added.
-     * Result: table shows cumulative tests (A, B, C, D) with A/C updated when lab fills again, B unchanged.
-     */
     suspend fun copyProceduresFromMasterForVisit(patientID: String, benVisitNo: Int, newTestIds: String?) {
         if (newTestIds.isNullOrBlank()) return
         withContext(Dispatchers.IO) {
