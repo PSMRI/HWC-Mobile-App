@@ -70,11 +70,25 @@ class LabTechnicianFormViewModel @Inject constructor(
     val isEntitySaved = MutableLiveData<Boolean>()
 
     /**
+     * Returns the set of procedure IDs (master IDs) that the doctor selected for this visit.
+     * Uses newTestIds (current selection) or previousTestIds (synced from server).
+     */
+    private suspend fun getDoctorSelectedTestIds(patientID: String, benVisitNo: Int): Set<Long> {
+        val investigation = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(
+            patientID,
+            benVisitNo
+        )?.investigationCaseRecord ?: return emptySet()
+        val idsStr = investigation.newTestIds?.takeIf { it.isNotBlank() }
+            ?: investigation.previousTestIds?.takeIf { it.isNotBlank() } ?: return emptySet()
+        return idsStr.split(",").mapNotNull { it.trim().toLongOrNull() }.toSet()
+    }
+
+    /**
      * Ensures lab procedures are in DB for this visit so form can render from local data (no API).
      * First ensures procedure_master has seed data (in case migration didn't run on fresh install).
      * If doctor already saved investigation with newTestIds, procedures were copied when saving.
      * If procedures are missing, copy from ProcedureMaster using newTestIds or previousTestIds (synced data).
-     * Then refreshes procedures LiveData so the lab record form shows the selected tests.
+     * Then shows only the test forms that the doctor selected (filters by newTestIds/previousTestIds).
      */
     suspend fun downloadProcedure(benVisitInfo: PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
@@ -97,12 +111,23 @@ class LabTechnicianFormViewModel @Inject constructor(
                     procedures = patientRepo.getProcedures(benVisitInfo)
                 }
             }
-            _procedures.postValue(procedures)
+            val selectedIds = getDoctorSelectedTestIds(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            val filtered = if (selectedIds.isEmpty()) procedures
+            else procedures?.filter { it.procedureID in selectedIds } ?: emptyList()
+            _procedures.postValue(filtered)
         }
     }
-    suspend fun getPrescribedProcedures(benVisitInfo : PatientDisplayWithVisitInfo) {
+
+    /**
+     * Fetches procedures for this visit and shows only the test forms that the doctor selected.
+     */
+    suspend fun getPrescribedProcedures(benVisitInfo: PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            _procedures.postValue(patientRepo.getProcedures(benVisitInfo))
+            val procedures = patientRepo.getProcedures(benVisitInfo)
+            val selectedIds = getDoctorSelectedTestIds(benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+            val filtered = if (selectedIds.isEmpty()) procedures
+            else procedures?.filter { it.procedureID in selectedIds } ?: emptyList()
+            _procedures.postValue(filtered)
             Timber.d("fetched procedures")
         }
     }

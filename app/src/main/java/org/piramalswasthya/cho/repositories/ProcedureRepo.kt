@@ -235,16 +235,20 @@ class ProcedureRepo @Inject constructor(
     /**
      * Copy prescribed lab procedures from ProcedureMaster to Procedure table for this visit.
      * Called when doctor saves investigation with newTestIds so lab technician can render form from DB without API.
-     * Replaces existing procedures for this visit with only the selected tests (so only those forms show in lab record).
+     * Merges with existing procedures: only adds tests that are not already present for this visit,
+     * so previous lab data (e.g. A, B from first submission) is preserved and new tests (e.g. D) are added.
+     * Result: table shows cumulative tests (A, B, C, D) with A/C updated when lab fills again, B unchanged.
      */
     suspend fun copyProceduresFromMasterForVisit(patientID: String, benVisitNo: Int, newTestIds: String?) {
         if (newTestIds.isNullOrBlank()) return
         withContext(Dispatchers.IO) {
             ensureLabProcedureMasterSeed()
-            procedureDao.deleteProcedureByPatientIDAndBenVisitNo(patientID, benVisitNo)
-            procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID, benVisitNo)
+            val existingProcedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(patientID, benVisitNo)
+            val existingProcedureIds = existingProcedures?.map { it.procedureID }?.toSet() ?: emptySet()
             newTestIds.split(",").mapNotNull { it.trim().toLongOrNull() }.forEach { procedureID ->
-                addProcedureFromMaster(procedureID, patientID, benVisitNo)
+                if (procedureID !in existingProcedureIds) {
+                    addProcedureFromMaster(procedureID, patientID, benVisitNo)
+                }
             }
         }
     }
