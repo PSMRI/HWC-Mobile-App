@@ -1,5 +1,7 @@
 package org.piramalswasthya.cho.ui.beneficiary_card.edit
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -88,6 +90,7 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setPatientInfo(patient: PatientDisplayWithVisitInfo) {
         _patientInfo.value = patient
 
@@ -194,6 +197,7 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
         return phoneValid && ageValid && statusValid
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun saveChanges() {
         if (!validateAll()) {
             _saveState.value = SaveState.ERROR
