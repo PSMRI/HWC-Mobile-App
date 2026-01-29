@@ -616,6 +616,8 @@
         <item>Any Other Method</item>
     </string-array>
 
+
+
     <string name="template_null">Enter Template Name</string>
     <string name="templte_exists">Template name already exists</string>
     <string name="delete_temp">Delete Template</string>
@@ -626,5 +628,48 @@
     <string name="str_duration">Duration:</string>
     <string name="edd_date">EDD Date</string>
     <string name="update_btn">Update</string>
+
+    <!-- Status of Woman and ABHA -->
+    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
+    <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
+    <string name="abha_id_number">ABHA ID Number (14 digits)</string>
+    <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
+    <string name="patient_details_edited_successfully">Patient details edited successfully</string>
+    <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
+    <string name="select_status_of_woman">Select Status of Woman</string>
+    <string name="duplicate_face_detected">Duplicate face detected</string>
+    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
+    <string name="use_existing">Use Existing</string>
+    <string name="continue_new">Continue New</string>
+
+    <!-- Beneficiary Card -->
+    <string name="beneficiary_card_title">Beneficiary Card</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
+    <string name="age_gender_label">Age / Gender</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="village_name_label">Village Name</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">Generate ABHA ID</string>
+    <string name="continue_btn">Continue</string>
+    <string name="not_available">Not Available</string>
+    <string name="view_beneficiary_card">View Card</string>
+
+    <!-- Edit Beneficiary Details -->
+    <string name="edit_beneficiary_details">Edit Beneficiary Details</string>
+    <string name="last_name_optional">Last Name (Optional)</string>
+    <string name="phone_number_optional">Phone Number (Optional)</string>
+    <string name="age_mandatory">Age <font color="#FF0000">*</font></string>
+    <string name="years_mandatory">Years <font color="#FF0000">*</font></string>
+    <string name="months_optional">Months</string>
+    <string name="days_optional">Days</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="edit_btn">Edit</string>
+    <string name="age_years_required">Age in years is required</string>
+    <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
+    <string name="status_of_woman_required">Status of Woman is required</string>
+    <string name="speak_now">Speak now...</string>
+
+    
 
 </resources>

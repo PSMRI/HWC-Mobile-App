@@ -161,6 +161,15 @@ data class Patient (
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
 
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
+    @ColumnInfo(name = "hasAbhaId")
+    var hasAbhaId: Boolean? = null,
+
+    @ColumnInfo(name = "abhaIdNumber")
+    var abhaIdNumber: String? = null,
+
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
 //
@@ -429,7 +438,7 @@ data class BenPhone(
     val phoneTypeID: Int?,
     val vanID: Int?
 ){
-//    alternateContactNumber:null
+    //    alternateContactNumber:null
 //    benRelationshipID:11
 //    createdBy:"Pranathi"
 //    parentBenRegID:877

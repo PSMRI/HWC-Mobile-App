@@ -14,7 +14,10 @@ import org.piramalswasthya.cho.model.GenderMaster
 import org.piramalswasthya.cho.model.MaritalStatusMaster
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.VillageLocationData
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.repositories.LanguageRepo
 import org.piramalswasthya.cho.repositories.MaleMasterDataRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -32,12 +35,14 @@ class PatientDetailsViewModel @Inject constructor(
     private val prefDao: PreferenceDao,
     private val userRepo: UserRepo,
     private val userDao: UserDao,
-    private val patientRepo: PatientRepo,
+    val patientRepo: PatientRepo,
+    private val patientDao: PatientDao,
     private val registrarMasterDataRepo: RegistrarMasterDataRepo,
     private val languageRepo: LanguageRepo,
     private val visitReasonsAndCategoriesRepo: VisitReasonsAndCategoriesRepo,
     private val vaccineAndDoseTypeRepo: VaccineAndDoseTypeRepo,
-    private val malMasterDataRepo: MaleMasterDataRepository
+    private val malMasterDataRepo: MaleMasterDataRepository,
+    private val statusOfWomanDao: StatusOfWomanDao
 ) : ViewModel() {
 
     enum class NetworkState {
@@ -158,17 +163,41 @@ class PatientDetailsViewModel @Inject constructor(
     var selectedVillage : VillageLocationData? = null;
     lateinit var benVisitInfo: PatientDisplayWithVisitInfo
 
+    // Status of Woman related variables
+    private val _statusOfWoman = MutableLiveData(NetworkState.IDLE)
+    val statusOfWoman: LiveData<NetworkState>
+        get() = _statusOfWoman
+
+    private val _statusOfWomanVal = MutableLiveData<Boolean>(false)
+    val statusOfWomanVal: MutableLiveData<Boolean>
+        get() = _statusOfWomanVal
+
+    private val _hasAbhaIdVal = MutableLiveData<Boolean>(false)
+    val hasAbhaIdVal: MutableLiveData<Boolean>
+        get() = _hasAbhaIdVal
+
+    private val _abhaIdNumberVal = MutableLiveData<Boolean>(false)
+    val abhaIdNumberVal: MutableLiveData<Boolean>
+        get() = _abhaIdNumberVal
+
+    var statusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
+    var filteredStatusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
+    var selectedStatusOfWoman: StatusOfWomanMaster? = null
+    var hasAbhaId: Boolean? = null
+    var abhaIdNumber: String? = null
+
     init {
         viewModelScope.launch {
             fetchAgeUnits()
             fetchMaritalStatus()
             fetchGenderMaster()
             fetchVillages()
+            fetchStatusOfWoman()
         }
     }
-   fun setDob(boolean: Boolean){
-       _dobVal.value = boolean
-   }
+    fun setDob(boolean: Boolean){
+        _dobVal.value = boolean
+    }
     fun setFirstName(boolean: Boolean){
         _firstNameVal.value = boolean
     }
@@ -187,7 +216,7 @@ class PatientDetailsViewModel @Inject constructor(
     }
     fun setPhoneN(boolean: Boolean, string: String){
         val phoneNumberValidation = PhoneNumberValidation(boolean, string)
-         _phoneN.value = phoneNumberValidation
+        _phoneN.value = phoneNumberValidation
     }
     fun setGender(boolean: Boolean){
         _genderVal.value = boolean
@@ -201,12 +230,12 @@ class PatientDetailsViewModel @Inject constructor(
     }   fun setSpouse(boolean: Boolean){
         _spouseNameVal.value = boolean
     }
-       fun setAgeGreaterThan11(boolean: Boolean){
-           _ageGreaterThan11.value = boolean
-       }
-     fun setIsClickedSS(boolean: Boolean){
-         _isClickedSS.value = boolean
-     }
+    fun setAgeGreaterThan11(boolean: Boolean){
+        _ageGreaterThan11.value = boolean
+    }
+    fun setIsClickedSS(boolean: Boolean){
+        _isClickedSS.value = boolean
+    }
 
 
     suspend fun fetchAgeUnits(){
@@ -283,6 +312,80 @@ class PatientDetailsViewModel @Inject constructor(
             benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(patient.patientID)
             _isDataSaved.value = true
         }
+    }
+
+    fun setStatusOfWoman(boolean: Boolean) {
+        _statusOfWomanVal.value = boolean
+    }
+
+    fun setHasAbhaId(boolean: Boolean) {
+        _hasAbhaIdVal.value = boolean
+    }
+
+    fun setAbhaIdNumber(boolean: Boolean) {
+        _abhaIdNumberVal.value = boolean
+    }
+
+    private suspend fun fetchStatusOfWoman() {
+        _statusOfWoman.value = NetworkState.LOADING
+        try {
+            statusOfWomanList = statusOfWomanDao.getAllStatusOfWoman()
+            _statusOfWoman.value = NetworkState.SUCCESS
+        } catch (_: Exception) {
+            _statusOfWoman.value = NetworkState.FAILURE
+        }
+    }
+
+    /**
+     * Returns filtered Status of Woman options based on gender, age, and marital status.
+     *
+     * Status IDs:
+     * 1 - Eligible Couple (EC)
+     * 2 - Pregnant Woman (PW)
+     * 3 - Postnatal (PN)
+     * 4 - Elderly (EL)
+     * 5 - Adolescent (AD)
+     * 6 - Permanent Sterilization (ST)
+     * 7 - Not Applicable (NA)
+     */
+    fun getFilteredStatusOfWomanOptions(genderId: Int?, ageInYears: Int?, maritalStatusId: Int?): List<StatusOfWomanMaster> {
+        // Only for females (genderId = 2)
+        if (genderId != 2) return emptyList()
+
+        return when {
+            // Female, ≥50 → Elderly only
+            ageInYears != null && ageInYears >= 50 ->
+                statusOfWomanList.filter { it.statusID == 4 }
+
+            // Female, 10-19, Unmarried → Adolescent only
+            ageInYears != null && ageInYears in 10..19 && maritalStatusId == 1 ->
+                statusOfWomanList.filter { it.statusID == 5 }
+
+            // Female, ≥15, Married → EC, PW, Postnatal, Sterilization
+            ageInYears != null && ageInYears >= 15 && maritalStatusId == 2 ->
+                statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
+
+            // Female, 20-49, Unmarried → Not Applicable only
+            ageInYears != null && ageInYears in 20..49 && maritalStatusId == 1 ->
+                statusOfWomanList.filter { it.statusID == 7 }
+
+            else -> emptyList()
+        }
+    }
+
+    /**
+     * Check if Status of Woman field should be visible.
+     * Visible only for females with age >= 10.
+     */
+    fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?): Boolean {
+        return genderId == 2 && ageInYears != null && ageInYears >= 10
+    }
+
+    /**
+     * Get all patients for face comparison.
+     */
+    fun getAllPatientsForFaceComparison(): List<Patient> {
+        return patientDao.getAllPatients()
     }
 
 }

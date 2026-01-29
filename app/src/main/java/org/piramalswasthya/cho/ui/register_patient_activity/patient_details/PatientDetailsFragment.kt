@@ -49,6 +49,8 @@ import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
+import kotlin.math.pow
+import org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardActivity
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -57,6 +59,8 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.setBoxColor
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
+import org.piramalswasthya.cho.utils.KeyboardUtils
 import org.piramalswasthya.cho.work.WorkerUtils
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -102,6 +106,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var embeddings: FloatArray? = null
     private lateinit var dialog: AlertDialog
     private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    // Status of Woman and ABHA
+    private var statusOfWomanAdapter: DropdownAdapter? = null
+    private var hasAbhaIdAdapter: DropdownAdapter? = null
+    private var selectedHasAbhaId: Boolean? = null
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
@@ -236,7 +245,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                             // Get face embeddings
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
-                            Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+
+                            // Check for face duplicates
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                val matchedPatient = compareFacesL2Norm(embeddings!!)
+                                withContext(Dispatchers.Main) {
+                                    if (matchedPatient != null) {
+                                        showDuplicateFaceDialog(matchedPatient)
+                                    } else {
+                                        Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -301,6 +321,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setChangeListeners()
         setAdapters()
         setupVillageDropdown()
+        setupHasAbhaIdDropdown()
+        setupStatusOfWomanDropdown()
 
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
             val photoUri = Uri.parse(uriString)
@@ -586,6 +608,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             viewModel.villageBoolVal.observe(viewLifecycleOwner) {
                 binding.villageText.setBoxColor(it, resources.getString(R.string.select_village))
             }
+            viewModel.statusOfWomanVal.observe(viewLifecycleOwner) {
+                if (binding.statusOfWomanText.visibility == View.VISIBLE) {
+                    binding.statusOfWomanText.setBoxColor(it, resources.getString(R.string.select_status_of_woman))
+                }
+            }
+            viewModel.abhaIdNumberVal.observe(viewLifecycleOwner) {
+                if (binding.abhaIdNumberText.visibility == View.VISIBLE && selectedHasAbhaId == true) {
+                    binding.abhaIdNumberText.setBoxColor(it, resources.getString(R.string.invalid_abha_format))
+                }
+            }
             viewModel.setIsClickedSS(true)
         }
     }
@@ -626,20 +658,32 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
 
+        // Setup keyboard handling for marital status dropdown
+        binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
+
         binding.maritalStatusDropdown.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position]
             viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
             viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
             binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
             setMarriedFieldsVisibility()
+            updateStatusOfWomanVisibility()
         }
+
+        // Setup keyboard handling for gender dropdown
+        binding.genderDropdown.setupDropdownKeyboardHandling()
 
         binding.genderDropdown.setOnItemClickListener { _, _, position, _ ->
             viewModel.selectedGenderMaster = viewModel.genderMasterList[position]
             binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
+            updateStatusOfWomanVisibility()
         }
 
         binding.dateOfBirth.setOnClickListener {
+            // Hide keyboard when clicking on date of birth field
+            KeyboardUtils.hideKeyboard(binding.dateOfBirth)
+            KeyboardUtils.hideKeyboardFromActivity(requireContext())
+
             dobUtil.showDatePickerDialog(
                 requireContext(),
                 viewModel.selectedDateOfBirth,
@@ -807,7 +851,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.ageAtMarriage.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                  //No-Ops For Now
+                //No-Ops For Now
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -867,6 +911,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun afterTextChanged(s: Editable?) {
             setMarriedFieldsVisibility()
+            updateStatusOfWomanVisibility()
         }
     }
 
@@ -900,6 +945,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.maritalStatusList.map { DropdownList(it.maritalStatusID, it.status) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.maritalStatusDropdown)
                     binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
+                    // Ensure keyboard handling is set up (in case it wasn't set earlier)
+                    binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
                 }
                 else -> {
                     //No-Ops For Now
@@ -913,6 +960,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     val dropdownList = viewModel.genderMasterList.map { DropdownList(it.genderID, it.genderName) }
                     val dropdownAdapter = DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.genderDropdown)
                     binding.genderDropdown.setAdapter(dropdownAdapter)
+                    // Setup keyboard handling for gender dropdown
+                    binding.genderDropdown.setupDropdownKeyboardHandling()
                 }
                 else -> {
                     //No-Ops For Now
@@ -939,7 +988,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             isCursorVisible = true
         }
 
+        // Setup keyboard handling for dropdown
+        dropdown.setupDropdownKeyboardHandling()
+
         dropdown.setOnClickListener {
+            // Hide keyboard when dropdown is clicked
+            KeyboardUtils.hideKeyboard(dropdown)
+            KeyboardUtils.hideKeyboardFromActivity(requireContext())
+
             if (::villageAdapter.isInitialized) {
                 villageAdapter.shouldAutoShowDropdown = true
                 isSettingVillageProgrammatically = true
@@ -958,7 +1014,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 villageAdapter.shouldAutoShowDropdown = false
             }
             isSettingVillageProgrammatically = true
-            
+
             dropdown.setText(viewModel.selectedVillage!!.villageName, false)
             dropdown.dismissDropDown()
             hideKeyboard(dropdown)
@@ -1104,6 +1160,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
         patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
+
+        // New fields for Status of Woman and ABHA
+        patient.statusOfWomanID = viewModel.selectedStatusOfWoman?.statusID
+        patient.hasAbhaId = viewModel.hasAbhaId
+        patient.abhaIdNumber = viewModel.abhaIdNumber
     }
 
     private fun setLocationDetails(){
@@ -1122,6 +1183,19 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             return false
         }
 
+        // Check Status of Woman if visible
+        if (binding.statusOfWomanText.visibility == View.VISIBLE && !viewModel.statusOfWomanVal.value!!) {
+            return false
+        }
+
+        // Check ABHA ID validation if Has ABHA ID is Yes
+        if (selectedHasAbhaId == true) {
+            val abhaNumber = binding.abhaIdNumber.text.toString().trim()
+            if (abhaNumber.length != 14) {
+                return false
+            }
+        }
+
         return true
     }
     @RequiresApi(Build.VERSION_CODES.O)
@@ -1136,15 +1210,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 when(state!!){
                     true -> {
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        if(preferenceDao.isUserCHO()){
-                            val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                            intent.putExtra("benVisitInfo", viewModel.benVisitInfo)
-                            startActivity(intent)
+                        Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
+
+                        // Show Beneficiary Card for CHO and Staff Nurse roles
+                        if(preferenceDao.isUserCHO() || preferenceDao.isNurseSelected()){
+                            showBeneficiaryCard()
                         }
                         else{
                             requireActivity().finish()
                         }
-                        Toast.makeText(requireContext(), getString(R.string.patient_registered_successfully), Toast.LENGTH_SHORT).show()
                     }
                     else -> {
                         //No-Ops For Now we can display error message like something went wrng
@@ -1154,8 +1228,228 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
 
+    
+    private fun showBeneficiaryCard() {
+        val intent = BeneficiaryCardActivity.getIntent(requireContext(), viewModel.benVisitInfo)
+        // Pass Status of Woman info for routing after card view
+        intent.putExtra("statusOfWomanID", viewModel.selectedStatusOfWoman?.statusID)
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
+    private fun navigateBasedOnStatusOfWoman() {
+        val intent = Intent(context, EditPatientDetailsActivity::class.java)
+        intent.putExtra("benVisitInfo", viewModel.benVisitInfo)
+
+        when (viewModel.selectedStatusOfWoman?.statusID) {
+            1 -> {
+                // EC - Navigate to Eligible Couple Tracking
+                intent.putExtra("navigateToEC", true)
+            }
+            2 -> {
+                // PW - Navigate to ANC/Pregnancy Module
+                intent.putExtra("navigateToPW", true)
+            }
+            3 -> {
+                // Postnatal - Navigate to PNC Module
+                intent.putExtra("navigateToPN", true)
+            }
+        }
+
+        startActivity(intent)
+    }
+
     override fun onCancelAction() {
         requireActivity().finish()
+    }
+
+    
+    private suspend fun compareFacesL2Norm(newEmbedding: FloatArray): Patient? {
+        var bestMatch: Patient? = null
+        var bestDistance = Float.MAX_VALUE
+
+        val patients = kotlinx.coroutines.withContext(Dispatchers.IO) {
+            viewModel.getAllPatientsForFaceComparison()
+        }
+
+        kotlinx.coroutines.withContext(Dispatchers.Default) {
+            for (patient in patients) {
+                val patientEmbedding = patient.faceEmbedding?.toFloatArray()
+                if (patientEmbedding == null || patientEmbedding.isEmpty()) {
+                    continue
+                }
+
+                val distance = l2Norm(newEmbedding, patientEmbedding)
+                if (distance < bestDistance) {
+                    bestDistance = distance
+                    bestMatch = patient
+                }
+            }
+        }
+
+        // L2 threshold for FaceNet model
+        val threshold = 10.0f
+        return if (bestDistance < threshold) bestMatch else null
+    }
+
+    private fun l2Norm(x1: FloatArray, x2: FloatArray): Float {
+        var sum = 0.0f
+        for (i in x1.indices) {
+            sum += (x1[i] - x2[i]).pow(2)
+        }
+        return kotlin.math.sqrt(sum)
+    }
+
+    
+    private fun showDuplicateFaceDialog(matchedPatient: Patient) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.duplicate_face_detected))
+            .setMessage(getString(R.string.duplicate_face_message) + "\n\nExisting: ${matchedPatient.firstName} ${matchedPatient.lastName}")
+            .setPositiveButton(getString(R.string.use_existing)) { dialog, _ ->
+                dialog.dismiss()
+                // Navigate to existing patient
+                val intent = Intent(context, EditPatientDetailsActivity::class.java)
+                lifecycleScope.launch {
+                    val benVisitInfo = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                        viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
+                    }
+                    intent.putExtra("benVisitInfo", benVisitInfo)
+                    startActivity(intent)
+                    requireActivity().finish()
+                }
+            }
+            .setNegativeButton(getString(R.string.continue_new)) { dialog, _ ->
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    
+    private fun setupHasAbhaIdDropdown() {
+        val options = listOf(
+            DropdownList(1, getString(R.string.select_yes)),
+            DropdownList(0, getString(R.string.select_no))
+        )
+
+        hasAbhaIdAdapter = DropdownAdapter(
+            requireContext(),
+            R.layout.drop_down,
+            options,
+            binding.hasAbhaIdDropdown
+        )
+        binding.hasAbhaIdDropdown.setAdapter(hasAbhaIdAdapter)
+        binding.hasAbhaIdDropdown.setupDropdownKeyboardHandling()
+
+        binding.hasAbhaIdDropdown.setOnItemClickListener { _, _, position, _ ->
+            selectedHasAbhaId = position == 0
+            viewModel.hasAbhaId = selectedHasAbhaId
+            viewModel.setHasAbhaId(true)
+
+            if (selectedHasAbhaId == true) {
+                binding.abhaIdNumberText.visibility = View.VISIBLE
+            } else {
+                binding.abhaIdNumberText.visibility = View.GONE
+                binding.abhaIdNumber.setText("")
+                viewModel.abhaIdNumber = null
+                // Show alert to counsel beneficiary for ABHA enrollment
+                showAbhaEnrollmentAlert()
+            }
+        }
+
+        
+        binding.abhaIdNumber.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val abhaNumber = s?.toString()?.trim() ?: ""
+                viewModel.abhaIdNumber = if (abhaNumber.isNotEmpty()) abhaNumber else null
+                viewModel.setAbhaIdNumber(abhaNumber.length == 14)
+
+                if (abhaNumber.isNotEmpty() && abhaNumber.length != 14) {
+                    binding.abhaIdNumberText.error = getString(R.string.invalid_abha_format)
+                } else {
+                    binding.abhaIdNumberText.error = null
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+   
+    private fun showAbhaEnrollmentAlert() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.alert_popup))
+            .setMessage(getString(R.string.abha_enrollment_alert))
+            .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    
+    private fun setupStatusOfWomanDropdown() {
+        viewModel.statusOfWoman.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                PatientDetailsViewModel.NetworkState.SUCCESS -> {
+                    updateStatusOfWomanVisibility()
+                }
+                else -> {}
+            }
+        }
+
+        binding.statusOfWomanDropdown.setupDropdownKeyboardHandling()
+
+        binding.statusOfWomanDropdown.setOnItemClickListener { _, _, position, _ ->
+            if (position >= 0 && position < viewModel.filteredStatusOfWomanList.size) {
+                viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[position]
+                binding.statusOfWomanDropdown.setText(viewModel.selectedStatusOfWoman!!.statusName, false)
+                viewModel.setStatusOfWoman(true)
+            }
+        }
+    }
+
+   
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateStatusOfWomanVisibility() {
+        val genderId = viewModel.selectedGenderMaster?.genderID
+        val ageInYears = viewModel.enteredAgeYears
+
+        if (viewModel.shouldShowStatusOfWoman(genderId, ageInYears)) {
+            binding.statusOfWomanText.visibility = View.VISIBLE
+
+            val maritalStatusId = viewModel.maritalStatusId
+            viewModel.filteredStatusOfWomanList = viewModel.getFilteredStatusOfWomanOptions(genderId, ageInYears, maritalStatusId)
+
+            if (viewModel.filteredStatusOfWomanList.isNotEmpty()) {
+                val dropdownList = viewModel.filteredStatusOfWomanList.map {
+                    DropdownList(it.statusID, it.statusName)
+                }
+                statusOfWomanAdapter = DropdownAdapter(
+                    requireContext(),
+                    R.layout.drop_down,
+                    dropdownList,
+                    binding.statusOfWomanDropdown
+                )
+                binding.statusOfWomanDropdown.setAdapter(statusOfWomanAdapter)
+
+                // If only one option, auto-select it
+                if (viewModel.filteredStatusOfWomanList.size == 1) {
+                    viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[0]
+                    binding.statusOfWomanDropdown.setText(viewModel.selectedStatusOfWoman!!.statusName, false)
+                    viewModel.setStatusOfWoman(true)
+                } else {
+                    // Clear previous selection
+                    viewModel.selectedStatusOfWoman = null
+                    binding.statusOfWomanDropdown.setText("", false)
+                    viewModel.setStatusOfWoman(false)
+                }
+            }
+        } else {
+            binding.statusOfWomanText.visibility = View.GONE
+            viewModel.selectedStatusOfWoman = null
+            viewModel.setStatusOfWoman(true) // Not required for non-females
+        }
     }
 
 }
