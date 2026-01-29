@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
@@ -85,6 +86,7 @@ class PatientRepo @Inject constructor(
     private val blockMasterDao: BlockMasterDao,
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
+    private val procedureMasterDao: ProcedureMasterDao,
     private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
@@ -822,6 +824,18 @@ class PatientRepo @Inject constructor(
                                 name = option.name
                             )
                             componentOptionDTOs += componentOptionDTO
+                        }
+
+                        if (componentOptionDTOs.isEmpty() && (componentDetails.inputType == "RadioButton" || componentDetails.inputType == "DropDown")) {
+                            val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
+                            val masterComponent = procedureMaster?.let { procMaster ->
+                                procedureMasterDao.getComponentDetails(procMaster.id).find { it.testComponentID == componentDetails.testComponentID }
+                            }
+                            masterComponent?.let { compMaster ->
+                                procedureMasterDao.getComponentOptions(compMaster.id)?.forEach { opt ->
+                                    componentOptionDTOs += ComponentOptionDTO(name = opt.name)
+                                }
+                            }
                         }
                         componentDetailDTO.compOpt = componentOptionDTOs
                         compListDetails += componentDetailDTO
