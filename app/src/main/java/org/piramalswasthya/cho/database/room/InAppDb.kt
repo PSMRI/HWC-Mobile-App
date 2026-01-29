@@ -326,6 +326,71 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+
+        val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        dateOfReg INTEGER NOT NULL,
+                        lmpDate INTEGER,
+                        noOfChildren INTEGER NOT NULL,
+                        noOfLiveChildren INTEGER NOT NULL,
+                        noOfMaleChildren INTEGER NOT NULL,
+                        noOfFemaleChildren INTEGER NOT NULL,
+                        isRegistered INTEGER NOT NULL,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+            }
+        }
+
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS INFANT_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        childPatientID TEXT,
+                        motherPatientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        babyName TEXT,
+                        babyIndex INTEGER NOT NULL,
+                        infantTerm TEXT,
+                        corticosteroidGiven TEXT,
+                        genderID INTEGER,
+                        babyCriedAtBirth INTEGER,
+                        resuscitation INTEGER,
+                        referred TEXT,
+                        hadBirthDefect TEXT,
+                        birthDefect TEXT,
+                        otherDefect TEXT,
+                        weight REAL,
+                        breastFeedingStarted INTEGER,
+                        opv0Dose INTEGER,
+                        bcgDose INTEGER,
+                        hepBDose INTEGER,
+                        vitkDose INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -340,9 +405,11 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,MIGRATION_109_110
+                            MIGRATION_108_109,
+                            MIGRATION_109_110,
+                            MIGRATION_110_111,
+                            MIGRATION_111_112
                         )
-                        .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

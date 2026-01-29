@@ -214,57 +214,64 @@ class PatientRepo @Inject constructor(
     }
 
     /**
-     * Get all infants (age <= 61 days)
+     * Get all infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
      */
     fun getInfantList(): Flow<List<PatientDisplay>> {
         return patientDao.getAllInfantList()
     }
 
     /**
-     * Get count of infants (age <= 61 days)
+     * Get count of infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
      */
     fun getInfantListCount(): Flow<Int> {
         return patientDao.getInfantListCount()
     }
 
     /**
-     * Get all children (age 2-5 years)
+     * Get all children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
      */
     fun getChildList(): Flow<List<PatientDisplay>> {
         return patientDao.getAllChildList()
     }
 
     /**
-     * Get count of children (age 2-5 years)
+     * Get count of children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
      */
     fun getChildListCount(): Flow<Int> {
         return patientDao.getChildListCount()
     }
 
     /**
-     * Get all adolescents (age 6-14 years)
+     * Get all adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
      */
     fun getAdolescentList(): Flow<List<PatientDisplay>> {
         return patientDao.getAllAdolescentList()
     }
 
     /**
-     * Get count of adolescents (age 6-14 years)
+     * Get count of adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
      */
     fun getAdolescentListCount(): Flow<Int> {
         return patientDao.getAdolescentListCount()
     }
 
     /**
-     * Get all children under 5 years (age <= 5 years)
-     * This combines infants and young children into a single list for child care services.
+     * Get all children under 5 years (age in days <= 1825).
+     * Single list for child care services; matches DAO day-based range.
      */
     fun getChildrenUnderFiveList(): Flow<List<PatientDisplay>> {
         return patientDao.getAllChildrenUnderFiveList()
     }
 
     /**
-     * Get count of children under 5 years (age <= 5 years)
+     * Get count of children under 5 years (age in days <= 1825).
+     * Matches DAO day-based range.
      */
     fun getChildrenUnderFiveListCount(): Flow<Int> {
         return patientDao.getChildrenUnderFiveListCount()

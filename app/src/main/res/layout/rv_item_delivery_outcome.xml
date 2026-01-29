@@ -127,6 +127,7 @@
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithPwr.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="29 YEARS" />
@@ -237,6 +238,7 @@
                             android:id="@+id/tv_lmp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithPwr.getFormattedLMPDate()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="19-12-2024" />
@@ -260,6 +262,7 @@
                             android:id="@+id/tv_edd"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithPwr.getFormattedEDD()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="25-09-2025" />

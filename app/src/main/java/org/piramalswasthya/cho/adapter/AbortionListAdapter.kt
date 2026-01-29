@@ -18,7 +18,8 @@ class AbortionListAdapter(
         override fun areItemsTheSame(
             oldItem: AbortionDomain,
             newItem: AbortionDomain
-        ) = oldItem.patient.patientID == newItem.patient.patientID
+        ) = oldItem.patient.patientID == newItem.patient.patientID &&
+                oldItem.abortionRecord?.id == newItem.abortionRecord?.id
 
         override fun areContentsTheSame(
             oldItem: AbortionDomain,
@@ -44,6 +45,7 @@ class AbortionListAdapter(
         ) {
             binding.item = item
             binding.clickListener = clickListener
+            binding.context = binding.root.context
 
             // Set button color based on abortion form status (text is bound via app:abortionActionText)
             val isFormFilled = item.isAbortionFormFilled

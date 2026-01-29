@@ -675,6 +675,7 @@
     <string name="age_ben">Age</string>
     <string name="tv_mob_no_ph">Mobile No</string>
     <string name="tv_rch_id">RCH ID</string>
+    <string name="not_available">Not Available</string>
 
     <!-- Pregnant Women Registration Strings -->
     <string name="no_pregnant_women_found">No Pregnant Women Found</string>

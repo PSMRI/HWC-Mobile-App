@@ -44,7 +44,7 @@ class ChildListAdapter(
             clickListener: ClickListener?
         ) {
             binding.patient = item
-            binding.clickListener = clickListener
+            binding.clickListener = clickListener ?: NO_OP_CLICK_LISTENER
 
             // Set child name
             val firstName = item.patient.firstName ?: ""
@@ -97,5 +97,10 @@ class ChildListAdapter(
     ) {
         fun onClickView(item: PatientDisplay) =
             clickedView?.let { it(item) }
+    }
+
+    companion object {
+        /** No-op listener used when adapter is constructed without a click listener so binding never sees null. */
+        private val NO_OP_CLICK_LISTENER = ClickListener(null)
     }
 }

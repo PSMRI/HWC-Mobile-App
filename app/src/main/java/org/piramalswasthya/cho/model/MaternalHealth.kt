@@ -185,7 +185,8 @@ data class PregnantWomanRegistrationCache(
 }
 
 /**
- * Patient with Pregnant Woman Registration data
+ * Patient with Pregnant Woman Registration data.
+ * Relation is a list; the active/most-recent record is selected when building the domain.
  */
 data class PatientWithPwrCache(
     @Embedded
@@ -194,12 +195,19 @@ data class PatientWithPwrCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val pwr: PregnantWomanRegistrationCache?
+    val pwr: List<PregnantWomanRegistrationCache>
 ) {
+    /**
+     * Active PWR record, or if none active the most recent by createdDate.
+     */
+    fun getActiveOrLatestPwr(): PregnantWomanRegistrationCache? =
+        pwr.filter { it.active }.maxByOrNull { it.createdDate }
+            ?: pwr.maxByOrNull { it.createdDate }
+
     fun asDomainModel(): PatientWithPwrDomain {
         return PatientWithPwrDomain(
             patient = patient,
-            pwr = pwr
+            pwr = getActiveOrLatestPwr()
         )
     }
 }
@@ -284,7 +292,8 @@ data class PatientWithPwrDomain(
 }
 
 /**
- * Patient with PWR and ANC records (for abortion list)
+ * Patient with PWR and ANC records (for abortion list).
+ * PWR is a list; active and latest-by-createdDate are selected when building the domain.
  */
 data class PatientWithPwrAndAncCache(
     @Embedded
@@ -293,7 +302,7 @@ data class PatientWithPwrAndAncCache(
         parentColumn = "patientID",
         entityColumn = "patientID"
     )
-    val pwr: PregnantWomanRegistrationCache?,
+    val pwr: List<PregnantWomanRegistrationCache>,
     @Relation(
         parentColumn = "patientID",
         entityColumn = "patientID"
@@ -302,9 +311,9 @@ data class PatientWithPwrAndAncCache(
 ) {
     fun asAbortionDomainModel(): AbortionDomain {
         val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
-        val activePwr = pwr?.takeIf { it.active }
-        val registeredPwr = pwr
-        
+        val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
+        val registeredPwr = pwr.maxByOrNull { it.createdDate }
+
         // Use LMP from registered PWR (even if inactive) or abortion record
         val lmpDateToUse = registeredPwr?.lmpDate
             ?: abortionRecord?.let { 

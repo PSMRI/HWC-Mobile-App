@@ -176,48 +176,52 @@ interface PatientDao {
     suspend fun countPatientsByRegistrationDate(registrationDate: Date): Int
 
     /**
-     * Get all infants (age <= 61 days)
-     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     * Get all infants (0–365 days).
+     * Calculates age in days from DOB (stored as milliseconds since epoch).
+     * WHO RMNCHA+ standard: infant = 0–365 days inclusive.
      */
     @Transaction
     @Query("""
         SELECT * FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 61
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 0 AND 365
         ORDER BY dob DESC
     """)
     fun getAllInfantList(): Flow<List<PatientDisplay>>
 
     /**
-     * Get count of infants (age <= 61 days)
+     * Get count of infants (0–365 days).
+     * WHO RMNCHA+ standard: infant = 0–365 days inclusive.
      */
     @Query("""
         SELECT COUNT(*) FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) <= 61
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 0 AND 365
     """)
     fun getInfantListCount(): Flow<Int>
 
     /**
-     * Get all children (age between 2-5 years, i.e., 730-1825 days)
-     * Calculates age in days from DOB (stored as milliseconds since epoch)
+     * Get all children (365–3285 days, i.e. 1–9 years).
+     * Calculates age in days from DOB (stored as milliseconds since epoch).
+     * WHO RMNCHA+ standard: child = 365–3285 days inclusive (1–9 years).
      */
     @Transaction
     @Query("""
         SELECT * FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 730 AND 1825
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 365 AND 3285
         ORDER BY dob DESC
     """)
     fun getAllChildList(): Flow<List<PatientDisplay>>
 
     /**
-     * Get count of children (age between 2-5 years)
+     * Get count of children (365–3285 days, i.e. 1–9 years).
+     * WHO RMNCHA+ standard: child = 365–3285 days inclusive (1–9 years).
      */
     @Query("""
         SELECT COUNT(*) FROM PATIENT 
         WHERE dob IS NOT NULL 
-        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 730 AND 1825
+        AND CAST(((strftime('%s','now') * 1000 - dob) / 86400000) AS INTEGER) BETWEEN 365 AND 3285
     """)
     fun getChildListCount(): Flow<Int>
 
