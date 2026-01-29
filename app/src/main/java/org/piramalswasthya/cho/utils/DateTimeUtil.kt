@@ -378,8 +378,16 @@ class DateTimeUtil {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun calculateAgeString(dateOfBirth: Date): String {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                calculateAgeStringModern(dateOfBirth)
+            } else {
+                calculateAgeStringLegacy(dateOfBirth)
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun calculateAgeStringModern(dateOfBirth: Date): String {
             val birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val currentDate = LocalDate.now()
 
@@ -402,6 +410,60 @@ class DateTimeUtil {
                     ageString += "$days days"
                 }
 
+            }
+
+            return ageString
+        }
+
+        private fun calculateAgeStringLegacy(dateOfBirth: Date): String {
+            val birthCalendar = Calendar.getInstance()
+            birthCalendar.time = dateOfBirth
+            val currentCalendar = Calendar.getInstance()
+
+            var years = currentCalendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)
+            var months = currentCalendar.get(Calendar.MONTH) - birthCalendar.get(Calendar.MONTH)
+            var days = currentCalendar.get(Calendar.DAY_OF_MONTH) - birthCalendar.get(Calendar.DAY_OF_MONTH)
+
+            // Adjust for negative days
+            if (days < 0) {
+                months--
+                // Get the actual number of days in the previous month
+                val tempCalendar = Calendar.getInstance()
+                tempCalendar.set(Calendar.YEAR, currentCalendar.get(Calendar.YEAR))
+                tempCalendar.set(Calendar.MONTH, currentCalendar.get(Calendar.MONTH))
+                tempCalendar.set(Calendar.DAY_OF_MONTH, 1)
+                tempCalendar.add(Calendar.DAY_OF_MONTH, -1)
+                val daysInPreviousMonth = tempCalendar.get(Calendar.DAY_OF_MONTH)
+                days += daysInPreviousMonth
+            }
+
+            // Adjust for negative months
+            if (months < 0) {
+                years--
+                months += 12
+            }
+
+            // Adjust for negative years (shouldn't happen, but safety check)
+            if (years < 0) {
+                return ""
+            }
+
+            // Match the modern implementation's logic: use modulo for months and days
+            months = months % 12
+            days = days % 30
+
+            var ageString = ""
+            if (years > 0) {
+                ageString += "$years years"
+            } else {
+                if (months > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$months months"
+                }
+                if (days > 0) {
+                    if (ageString.isNotEmpty()) ageString += ", "
+                    ageString += "$days days"
+                }
             }
 
             return ageString
