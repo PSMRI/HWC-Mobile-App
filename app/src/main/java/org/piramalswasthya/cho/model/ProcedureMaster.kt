@@ -24,7 +24,7 @@ data class ProcedureMaster (
 
 @Entity(tableName = "component_details_master",
     foreignKeys = [ForeignKey(
-        entity = Procedure::class,
+        entity = ProcedureMaster::class,
         childColumns = ["procedure_id"],
         parentColumns = ["id"],
         onDelete = CASCADE

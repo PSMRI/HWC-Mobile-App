@@ -309,7 +309,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 }
             }
             investigationBD = viewModel.previousTests.value
-            val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
+            val resp = investigationBD?.previousTestIds?.split(",")
+                ?.mapNotNull { it.trim().takeIf { s -> s.isNotEmpty() }?.toIntOrNull() }
             val selectedRelationTypes = mapProcedureIdsToNames(procedureDropdown,resp)
             val selectedRelationTypesString = selectedRelationTypes.joinToString(", ")
             binding.selectF.text = selectedRelationTypesString
@@ -1041,7 +1042,8 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 //                BooleanArray(procedureDropdown.size) { false }
                 BooleanArray(procedureDropdown.size) { selectedTestName.contains(it) }
             investigationBD = viewModel.previousTests.value
-            val resp = investigationBD?.previousTestIds?.split(",")?.map { it.toInt() }
+            val resp = investigationBD?.previousTestIds?.split(",")
+                ?.mapNotNull { it.trim().takeIf { s -> s.isNotEmpty() }?.toIntOrNull() }
 //            if (resp != null) {
 //                val previousTestList = resp.toMutableList()
 //                for (index in selectedItems.indices) {

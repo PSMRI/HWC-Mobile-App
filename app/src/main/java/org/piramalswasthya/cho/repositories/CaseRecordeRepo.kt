@@ -26,11 +26,20 @@ import javax.inject.Inject
 class CaseRecordeRepo @Inject constructor(
     private val caseRecordDao: CaseRecordeDao,
     private val benFlowDao: BenFlowDao,
+    private val procedureRepo: ProcedureRepo,
 ) {
     suspend fun saveInvestigationToCatche(investigationCaseRecord: InvestigationCaseRecord) {
         try{
             withContext(Dispatchers.IO){
                 caseRecordDao.insertInvestigationCaseRecord(investigationCaseRecord)
+                // Copy prescribed lab procedures from master so lab technician can render form from DB without API
+                investigationCaseRecord.benVisitNo?.let { benVisitNo ->
+                    procedureRepo.copyProceduresFromMasterForVisit(
+                        investigationCaseRecord.patientID,
+                        benVisitNo,
+                        investigationCaseRecord.newTestIds
+                    )
+                }
             }
         } catch (e: Exception){
             Timber.d("Error in saving Investigation $e")
