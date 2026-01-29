@@ -146,22 +146,17 @@ class MaternalHealthRepo @Inject constructor(
 
     /**
      * Get all patients who have delivered
-     * First gets patientIDs from ANC records, then fetches full patient data
+     * Uses batch query to avoid N+1 queries
      */
     fun getAllDeliveredWomen(): Flow<List<PatientWithPwrCache>> {
         return maternalHealthDao.getDeliveredWomenPatientIDs()
             .transformLatest { patientIDs ->
-                val patients = mutableListOf<PatientWithPwrCache>()
-                patientIDs.forEach { patientID ->
-                    val patient = maternalHealthDao.getPatientWithPWRByID(patientID)
-                    patient?.let {
-                        // Filter for females aged 15-49
-                        if (it.patient.genderID == 2 && (it.patient.age ?: 0) in 15..49) {
-                            patients.add(it)
-                        }
-                    }
+                if (patientIDs.isNotEmpty()) {
+                    val patients = maternalHealthDao.getDeliveredWomenByIDs(patientIDs)
+                    emit(patients)
+                } else {
+                    emit(emptyList())
                 }
-                emit(patients)
             }
     }
 

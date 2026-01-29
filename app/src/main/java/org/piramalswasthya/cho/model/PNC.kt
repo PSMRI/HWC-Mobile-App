@@ -265,18 +265,22 @@ data class PatientWithPncDomain(
 
     /**
      * Get days since delivery
+     * Returns null if deliveryOutcome or dateOfDelivery is missing
      */
-    fun getDaysSinceDelivery(): Long {
+    fun getDaysSinceDelivery(): Long? {
         return deliveryOutcome?.dateOfDelivery?.let {
             TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
-        } ?: 0L
+        }
     }
 
     /**
      * Check if eligible for PNC (within 42 days or not completed all visits)
      */
     fun isEligibleForPNC(): Boolean {
-        val daysSinceDelivery = getDaysSinceDelivery()
+        // Return false if there is no delivery date
+        val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return false
+        
+        val daysSinceDelivery = getDaysSinceDelivery() ?: return false
         val lastPncPeriod = latestPnc?.pncPeriod ?: 0
         
         // Eligible if within 42 days OR haven't completed all PNC visits

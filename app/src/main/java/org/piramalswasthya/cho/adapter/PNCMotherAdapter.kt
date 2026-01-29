@@ -58,10 +58,10 @@ class PNCMotherAdapter(
 
             // Set days since delivery
             val daysSinceDelivery = item.getDaysSinceDelivery()
-            binding.tvDaysSinceDelivery.text = if (daysSinceDelivery > 0) {
-                "$daysSinceDelivery days"
-            } else {
-                "Today"
+            binding.tvDaysSinceDelivery.text = when {
+                daysSinceDelivery == null -> "NA"
+                daysSinceDelivery > 0 -> "$daysSinceDelivery days"
+                else -> "Today"
             }
 
             binding.executePendingBindings()

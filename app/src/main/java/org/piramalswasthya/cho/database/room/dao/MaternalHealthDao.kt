@@ -133,6 +133,22 @@ interface MaternalHealthDao {
     suspend fun getPatientWithPWRByID(patientID: String): PatientWithPwrCache?
 
     /**
+     * Get delivered women by patientIDs (batch query to avoid N+1)
+     * Returns patients with their pregnancy registration data, filtered for females aged 15-49
+     */
+    @Transaction
+    @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        INNER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
+        WHERE p.patientID IN (:patientIDs)
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        AND pwr.active = 1
+        ORDER BY pwr.createdDate DESC
+    """)
+    suspend fun getDeliveredWomenByIDs(patientIDs: List<String>): List<PatientWithPwrCache>
+
+    /**
      * Get all patients with abortion records (isAborted = 1 and abortionDate is not null)
      * Joins Patient, PWR, and ANC to find women with abortions
      */

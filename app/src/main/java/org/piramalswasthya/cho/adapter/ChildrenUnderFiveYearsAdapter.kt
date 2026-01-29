@@ -59,7 +59,7 @@ class ChildrenUnderFiveYearsAdapter(
             // Age and DOB
             item.patient.dob?.let {
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-                binding.tvDob.text = DateTimeUtil.formattedDate(it)
+                binding.tvDob.text = DateTimeUtil.formatDate(it)
             } ?: run {
                 binding.tvAge.text = "NA"
                 binding.tvDob.text = "NA"
