@@ -372,46 +372,64 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 viewModel.getLabList(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
             }
             viewModel.labReportList.observe(viewLifecycleOwner) { labReports ->
-                var nameVal = ""
-                var resultVal = ""
-                for (labReport in labReports) {
-                    val procedureType = labReport.procedure.procedureName
-                    procedureType?.let { viewModel.labReportProcedureTypes.add(it) }
+                while (tableLayout.childCount > 1) {
+                    tableLayout.removeViewAt(1)
                 }
+                viewModel.labReportProcedureTypes.clear()
 
-                if (labReports.size > 0) {
-                    binding.scrollview.visibility = View.VISIBLE
-                    binding.resultHeading.visibility = View.VISIBLE
-                    binding.dateOption.visibility = View.VISIBLE
-                }
-                for (labReport in labReports) {
-                    val procedureName = labReport.procedure.procedureName
-                    binding.inputDate.setText(labReport.procedure.createdDate)
-                    binding.inputDate.inputType = InputType.TYPE_NULL
-                    binding.inputDate.isFocusable = false
-                    binding.inputDate.isClickable = false
-                    for (component in labReport.components) {
+                if (labReports.isEmpty()) return@observe
 
-                        val tableRowVal =
-                            layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
-                        val componentName = component.remarks
-                        val resultValue = component.testResultValue
-                        val resultUnit = component.testResultUnit
-                        nameVal = "$procedureName"
-
-                        resultVal = buildString {
-                            append(resultValue)
-                            resultUnit?.let { append(" $it") }
-                            append(" <br> <b>Remarks: </b> $componentName")
-                        }
-
-                        tableRowVal.findViewById<TextView>(R.id.numberTextView)
-                            .text = HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
-
-//                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
-                        tableRowVal.findViewById<TextView>(R.id.nameTextView).setText(nameVal)
-                        tableLayout.addView(tableRowVal)
+                val uniqueLatestReports = labReports
+                    .filter { it.procedure.procedureName != null }
+                    .groupBy { it.procedure.procedureName!! }
+                    .mapValues { (_, reports) ->
+                        reports.maxByOrNull { report ->
+                            report.procedure.createdDate?.let { dateStr ->
+                                try {
+                                    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).parse(dateStr)?.time ?: 0L
+                                } catch (_: Exception) {
+                                    try {
+                                        SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(dateStr)?.time ?: 0L
+                                    } catch (_: Exception) {
+                                        dateStr.hashCode().toLong()
+                                    }
+                                }
+                            } ?: 0L
+                        } ?: reports.first()
                     }
+                    .values
+                    .toList()
+
+                uniqueLatestReports.map { it.procedure.procedureName }.filterNotNull().distinct()
+                    .forEach { viewModel.labReportProcedureTypes.add(it) }
+
+                binding.scrollview.visibility = View.VISIBLE
+                binding.resultHeading.visibility = View.VISIBLE
+                binding.dateOption.visibility = View.VISIBLE
+
+                uniqueLatestReports.maxByOrNull { it.procedure.createdDate ?: "" }?.procedure?.createdDate?.let {
+                    binding.inputDate.setText(it)
+                }
+                binding.inputDate.inputType = InputType.TYPE_NULL
+                binding.inputDate.isFocusable = false
+                binding.inputDate.isClickable = false
+
+                for (labReport in uniqueLatestReports) {
+                    val procedureName = labReport.procedure.procedureName ?: continue
+                    val component = labReport.components.lastOrNull()
+                    val resultVal = if (component != null) {
+                        buildString {
+                            append(component.testResultValue.orEmpty())
+                            component.testResultUnit?.let { append(" $it") }
+                            component.remarks?.let { append(" <br> <b>Remarks: </b> $it") }
+                        }
+                    } else ""
+                    val tableRowVal =
+                        layoutInflater.inflate(R.layout.report_custom_layout, null) as TableRow
+                    tableRowVal.findViewById<TextView>(R.id.nameTextView).text = procedureName
+                    tableRowVal.findViewById<TextView>(R.id.numberTextView).text =
+                        HtmlCompat.fromHtml(resultVal, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                    tableLayout.addView(tableRowVal)
                 }
             }
 
