@@ -298,7 +298,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:text="@string/check_sam"
-                        android:onClick="@{() -> clickListener.onClick(patient)}" />
+                        android:onClick="@{() -> clickListener.onCheckSam(patient)}" />
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.Material3.Button.TonalButton"
@@ -306,14 +306,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:text="@string/ors"
-                        android:onClick="@{() -> clickListener.onClick(patient)}" />
+                        android:onClick="@{() -> clickListener.onOrs(patient)}" />
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/ifa"
-                        android:onClick="@{() -> clickListener.onClick(patient)}" />
+                        android:onClick="@{() -> clickListener.onIfa(patient)}" />
 
                 </LinearLayout>
 

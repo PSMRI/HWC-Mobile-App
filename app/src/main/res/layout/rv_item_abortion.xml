@@ -127,6 +127,7 @@
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{item.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="30 YEARS" />
@@ -335,8 +336,10 @@
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:abortionActionText="@{item}"
                         android:onClick="@{() -> item.isAbortionFormFilled ? clickListener.onClickView(item) : clickListener.onClickAdd(item)}"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        tools:text="@string/view" />
 
                 </LinearLayout>
 

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.RvItemPatientEcWithFormBinding
 import org.piramalswasthya.cho.model.PatientWithEcrDomain
-import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.util.concurrent.TimeUnit
 
 class ECRegistrationAdapter(
@@ -47,13 +46,6 @@ class ECRegistrationAdapter(
             binding.patientWithEcr = item
             binding.clickListener = clickListener
 
-            // Set age
-            item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
-
             // Handle ECR status display
             if (item.ecr == null) {
                 // Not registered yet
@@ -72,27 +64,14 @@ class ECRegistrationAdapter(
                     binding.root.resources.getColor(android.R.color.holo_green_dark, null)
                 )
 
-                // Set LMP Date
+                // LMP date and status text are bound via patientWithEcr.getFormattedLMPDate() and getECStatus()
                 val lmpDate = item.ecr.lmpDate
                 if (lmpDate != null && lmpDate > 0L) {
-                    binding.benLmpDate.text = org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong(lmpDate)
-
-                    // Calculate status based on LMP date
                     val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(
                         System.currentTimeMillis() - lmpDate
                     )
-
-                    if (daysSinceLMP > 35) {
-                        // Missed Period
-                        binding.ivMissState.visibility = View.VISIBLE
-                        binding.benStatus.text = binding.root.context.getString(R.string.missed_period)
-                    } else {
-                        // Under Review
-                        binding.ivMissState.visibility = View.GONE
-                        binding.benStatus.text = binding.root.context.getString(R.string.under_review)
-                    }
+                    binding.ivMissState.visibility = if (daysSinceLMP > 35) View.VISIBLE else View.GONE
                 } else {
-                    binding.benLmpDate.text = "NA"
                     binding.ivMissState.visibility = View.GONE
                     binding.llLmpDate.visibility = View.INVISIBLE
                     binding.llBenStatus.visibility = View.INVISIBLE

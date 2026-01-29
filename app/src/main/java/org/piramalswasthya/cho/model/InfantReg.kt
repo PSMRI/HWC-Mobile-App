@@ -9,6 +9,7 @@ import androidx.room.Relation
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.network.getLongFromDate
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -159,6 +160,13 @@ data class InfantRegDomain(
      */
     fun getMotherFullName(): String {
         return "${motherPatient.firstName} ${motherPatient.lastName ?: ""}".trim()
+    }
+
+    /**
+     * Get mother's age string for display (e.g. "29 YEARS" or "NA").
+     */
+    fun getMotherAgeString(): String {
+        return motherPatient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
     }
 
     /**

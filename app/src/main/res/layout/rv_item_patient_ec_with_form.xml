@@ -136,6 +136,7 @@
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="30 YEARS" />
@@ -249,6 +250,7 @@
                             android:id="@+id/benLmpDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.getFormattedLMPDate()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="01-01-2025" />
@@ -273,6 +275,7 @@
                             android:id="@+id/benStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.getECStatus()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="Missed Period" />

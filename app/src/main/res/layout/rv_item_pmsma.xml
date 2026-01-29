@@ -116,6 +116,7 @@
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@{item.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
                             tools:text="30 YEARS" />

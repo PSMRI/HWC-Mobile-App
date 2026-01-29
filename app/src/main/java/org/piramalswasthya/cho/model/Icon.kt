@@ -8,6 +8,6 @@ data class Icon(
     val title: String,
     val count: Flow<Int>?,
     val navAction: NavDirections,
-    var colorPrimary: Boolean = true,
+    val colorPrimary: Boolean = true,
     val allowRedBorder: Boolean = false
 )

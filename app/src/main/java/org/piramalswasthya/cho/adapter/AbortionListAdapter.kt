@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemAbortionBinding
 import org.piramalswasthya.cho.model.AbortionDomain
-import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class AbortionListAdapter(
     private val clickListener: ClickListener? = null
@@ -46,9 +45,8 @@ class AbortionListAdapter(
             binding.item = item
             binding.clickListener = clickListener
 
-            // Set button text and color based on abortion form status
+            // Set button color based on abortion form status (text is bound via app:abortionActionText)
             val isFormFilled = item.isAbortionFormFilled
-            binding.btnAction.text = if (isFormFilled) "VIEW" else "ADD"
             binding.btnAction.setBackgroundColor(
                 binding.root.resources.getColor(
                     if (isFormFilled) android.R.color.holo_green_dark 
@@ -56,13 +54,6 @@ class AbortionListAdapter(
                     null
                 )
             )
-
-            // Set age
-            item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
 
             // Set sync icon visibility
             binding.ivSync.visibility = if (item.abortionRecord?.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {

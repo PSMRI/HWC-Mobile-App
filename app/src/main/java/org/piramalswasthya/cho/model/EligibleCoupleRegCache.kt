@@ -9,6 +9,7 @@ import androidx.room.Relation
 import com.squareup.moshi.Json
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil
 import java.util.concurrent.TimeUnit
 
@@ -106,6 +107,13 @@ data class PatientWithEcrDomain(
             if (lmpDate > 0L) HelperUtil.getDateStringFromLong(lmpDate) ?: "NA"
             else "NA"
         } ?: "NA"
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "30 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
     }
 }
 

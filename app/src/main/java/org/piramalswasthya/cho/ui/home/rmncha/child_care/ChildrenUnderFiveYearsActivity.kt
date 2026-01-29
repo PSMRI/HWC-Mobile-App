@@ -56,9 +56,11 @@ class ChildrenUnderFiveYearsActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         adapter = ChildrenUnderFiveYearsAdapter(
-            ChildrenUnderFiveYearsAdapter.ClickListener { _ ->
-                // TODO: Hook up SAM / ORS / IFA flows when implemented
-            }
+            ChildrenUnderFiveYearsAdapter.ClickListener(
+                onCheckSam = { _ -> /* TODO: Hook up Check SAM flow when implemented */ },
+                onOrs = { _ -> /* TODO: Hook up ORS flow when implemented */ },
+                onIfa = { _ -> /* TODO: Hook up IFA flow when implemented */ }
+            )
         )
 
         binding.rvChildrenUnderFiveList.layoutManager = LinearLayoutManager(this)

@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemPmsmaBinding
 import org.piramalswasthya.cho.model.PmsmaDomain
-import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class PmsmaListAdapter(
     private val clickListener: ClickListener? = null
@@ -45,13 +44,6 @@ class PmsmaListAdapter(
         ) {
             binding.item = item
             binding.clickListener = clickListener
-
-            // Set age
-            item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
 
             binding.executePendingBindings()
         }

@@ -59,7 +59,7 @@ class ChildRegistrationAdapter(
             )
 
             // Set age
-            item.motherPatient.dob?.let {
+            item.childPatient?.dob?.let {
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
             } ?: run {
                 binding.tvAge.text = "NA"

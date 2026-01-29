@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemPregnantWomanBinding
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
-import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class PregnantWomenAdapter(
     private val clickListener: ClickListener? = null
@@ -45,13 +44,6 @@ class PregnantWomenAdapter(
         ) {
             binding.patientWithPwr = item
             binding.clickListener = clickListener
-
-            // Set age
-            item.patient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
 
             // Handle PWR status display (registered or not)
             if (item.pwr == null || !item.isActive()) {

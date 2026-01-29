@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.network.getLongFromDate
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -261,6 +262,13 @@ data class PatientWithPwrDomain(
     }
 
     /**
+     * Get patient's age string for display (e.g. "29 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
      * Check if pregnancy is active
      */
     fun isActive(): Boolean {
@@ -370,6 +378,13 @@ data class AbortionDomain(
     }
 
     /**
+     * Get age string from patient DOB for display (e.g. "25 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
      * Check if abortion form is filled (has abortion type and facility)
      */
     val isAbortionFormFilled: Boolean
@@ -446,6 +461,13 @@ data class PmsmaDomain(
      */
     fun getWeeksOfPregnancyString(): String {
         return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "30 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
     }
 }
 

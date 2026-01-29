@@ -65,7 +65,7 @@ class InfantListAdapter(
 
             // Set DOB
             item.patient.dob?.let {
-                binding.tvDob.text = DateTimeUtil.formattedDate(it)
+                binding.tvDob.text = DateTimeUtil.formatDate(it)
             } ?: run {
                 binding.tvDob.text = "NA"
             }

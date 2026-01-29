@@ -90,10 +90,13 @@ class ChildrenUnderFiveYearsAdapter(
     }
 
     class ClickListener(
-        private val onItemClicked: ((patient: PatientDisplay) -> Unit)? = null
+        private val onCheckSam: ((patient: PatientDisplay) -> Unit)? = null,
+        private val onOrs: ((patient: PatientDisplay) -> Unit)? = null,
+        private val onIfa: ((patient: PatientDisplay) -> Unit)? = null
     ) {
-        fun onClick(item: PatientDisplay) =
-            onItemClicked?.let { it(item) }
+        fun onCheckSam(patient: PatientDisplay) = onCheckSam?.invoke(patient)
+        fun onOrs(patient: PatientDisplay) = onOrs?.invoke(patient)
+        fun onIfa(patient: PatientDisplay) = onIfa?.invoke(patient)
     }
 }
 

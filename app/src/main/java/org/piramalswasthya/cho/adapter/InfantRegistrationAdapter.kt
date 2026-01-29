@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemInfantRegBinding
 import org.piramalswasthya.cho.model.InfantRegDomain
-import org.piramalswasthya.cho.utils.DateTimeUtil
 
 class InfantRegistrationAdapter(
     private val clickListener: ClickListener? = null
@@ -47,9 +46,8 @@ class InfantRegistrationAdapter(
             binding.item = item
             binding.clickListener = clickListener
 
-            // Set button text and color based on registration status
+            // Set button color based on registration status (text is bound via app:infantRegActionText)
             val isRegistered = item.isRegistered()
-            binding.btnAction.text = if (isRegistered) "VIEW" else "REGISTER"
             binding.btnAction.setBackgroundColor(
                 binding.root.resources.getColor(
                     if (isRegistered) android.R.color.holo_green_dark 
@@ -57,13 +55,6 @@ class InfantRegistrationAdapter(
                     null
                 )
             )
-
-            // Set age
-            item.motherPatient.dob?.let {
-                binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
-            } ?: run {
-                binding.tvAge.text = "NA"
-            }
 
             // Set sync icon visibility
             binding.ivSync.visibility = if (item.syncState != null && item.syncState == org.piramalswasthya.cho.database.room.SyncState.SYNCED) {

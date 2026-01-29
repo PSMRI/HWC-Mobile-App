@@ -156,10 +156,8 @@ class RMNCHAIconDataset @Inject constructor() {
 //                null,
 //                createNavAction(MODULE_CHILD_CARE)
 //            ) // Hide as per BRD
-        ).apply {
-            forEachIndexed { index, icon ->
-                icon.colorPrimary = index % 2 == 0
-            }
+        ).mapIndexed { index, icon ->
+            icon.copy(colorPrimary = index % 2 == 0)
         }
     }
 
@@ -198,10 +196,8 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 showAbortionListAction
             )
-        ).apply {
-            forEachIndexed { index, icon ->
-                icon.colorPrimary = index % 2 == 0
-            }
+        ).mapIndexed { index, icon ->
+            icon.copy(colorPrimary = index % 2 == 0)
         }
     }
 
@@ -234,10 +230,8 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 showChildrenUnderFiveListAction
             )
-        ).apply {
-            forEachIndexed { index, icon ->
-                icon.colorPrimary = index % 2 == 0
-            }
+        ).mapIndexed { index, icon ->
+            icon.copy(colorPrimary = index % 2 == 0)
         }
     }
 
@@ -252,10 +246,8 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 showECTrackingAction
             )
-        ).apply {
-            forEachIndexed { index, icon ->
-                icon.colorPrimary = index % 2 == 0
-            }
+        ).mapIndexed { index, icon ->
+            icon.copy(colorPrimary = index % 2 == 0)
         }
     }
 }
