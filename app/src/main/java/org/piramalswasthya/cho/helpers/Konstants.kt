@@ -57,7 +57,7 @@ object Konstants {
     const val babyLowWeight: Double = 2.5
 
 
-        //PNC-EC cycle
+    //PNC-EC cycle
     const val pncEcGap : Long = 45
 
 

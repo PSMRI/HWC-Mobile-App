@@ -14,17 +14,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.EligibleCoupleTrackingDataset
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.repositories.EcrRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-//import org.piramalswasthya.sakhi.configuration.EligibleCoupleTrackingDataset
-//import org.piramalswasthya.sakhi.database.room.SyncState
-//import org.piramalswasthya.sakhi.database.shared_preferences.PreferenceDao
-//import org.piramalswasthya.sakhi.model.EligibleCoupleTrackingCache
-//import org.piramalswasthya.sakhi.repositories.BenRepo
-//import org.piramalswasthya.sakhi.repositories.EcrRepo
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,7 +31,14 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     private val ecrRepo: EcrRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val patientDao: PatientDao,
 ) : ViewModel() {
+
+    companion object {
+        // Status of Woman IDs
+        const val STATUS_PREGNANT_WOMAN = 2
+        const val STATUS_PERMANENT_STERILIZATION = 6
+    }
 
     val patientID =
         EligibleCoupleTrackingFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
@@ -46,6 +48,11 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     enum class State {
         IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
+    }
+
+    // Alert types for incentives
+    enum class AlertType {
+        NONE, ANTRA_INCENTIVE, STERILIZATION_INCENTIVE
     }
 
     private val _state = MutableLiveData(State.IDLE)
@@ -63,12 +70,23 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
-    //    private lateinit var user: UserDomain
+    // Alert LiveData for showing incentive dialogs
+    private val _showAlert = MutableLiveData<AlertType>(AlertType.NONE)
+    val showAlert: LiveData<AlertType>
+        get() = _showAlert
+
+    // Flag to track if status was updated to sterilization
+    private val _statusUpdatedToSterilization = MutableLiveData(false)
+    val statusUpdatedToSterilization: LiveData<Boolean>
+        get() = _statusUpdatedToSterilization
+
     private val dataset =
         EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
     var isPregnant: Boolean = false
+    var isSterilized: Boolean = false
+    var isAntraSelected: Boolean = false
 
     private lateinit var eligibleCoupleTracking: EligibleCoupleTrackingCache
 
@@ -129,10 +147,28 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
-                    isPregnant = (eligibleCoupleTracking.isPregnant == "Yes") ||
-                            (eligibleCoupleTracking.pregnancyTestResult == "Positive")
-                    if (isPregnant) {
 
+                    // Check pregnancy status
+                    isPregnant = dataset.isPregnancyPositive()
+
+                    // Check sterilization status
+                    isSterilized = dataset.isSterilizationSelected()
+
+                    // Check ANTRA injection
+                    isAntraSelected = dataset.isAntraSelected()
+
+                    // Update patient status if pregnant
+                    if (isPregnant) {
+                        updatePatientStatusToPregnant()
+                    }
+
+                    // Update patient status if sterilization selected
+                    if (isSterilized) {
+                        updatePatientStatusToSterilized()
+                        _statusUpdatedToSterilization.postValue(true)
+                        _showAlert.postValue(AlertType.STERILIZATION_INCENTIVE)
+                    } else if (isAntraSelected) {
+                        _showAlert.postValue(AlertType.ANTRA_INCENTIVE)
                     }
 
                     _state.postValue(State.SAVE_SUCCESS)
@@ -144,8 +180,34 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
         }
     }
 
+    private suspend fun updatePatientStatusToPregnant() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_PREGNANT_WOMAN
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Pregnant Woman")
+        } catch (e: Exception) {
+            Timber.e("Failed to update patient status to pregnant: $e")
+        }
+    }
+
+    private suspend fun updatePatientStatusToSterilized() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_PERMANENT_STERILIZATION
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Permanent Sterilization")
+        } catch (e: Exception) {
+            Timber.e("Failed to update patient status to sterilized: $e")
+        }
+    }
+
     fun resetState() {
         _state.value = State.IDLE
+    }
+
+    fun resetAlert() {
+        _showAlert.value = AlertType.NONE
     }
 
 

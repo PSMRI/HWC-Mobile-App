@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -114,14 +115,60 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         resources.getString(R.string.tracking_form_filled_successfully),
                         Toast.LENGTH_SHORT
                     ).show()
-                    saveNurseData()
-//                    navigateToNextScreen()
-//                    saveNurseData()
+                    // Check for alerts before saving nurse data
+                    checkForAlerts()
                 }
 
                 else -> {}
             }
         }
+
+        // Observe alert LiveData
+        viewModel.showAlert.observe(viewLifecycleOwner) { alertType ->
+            when (alertType) {
+                EligibleCoupleTrackingFormViewModel.AlertType.ANTRA_INCENTIVE -> {
+                    showAntraIncentiveAlert()
+                }
+                EligibleCoupleTrackingFormViewModel.AlertType.STERILIZATION_INCENTIVE -> {
+                    showSterilizationIncentiveAlert()
+                }
+                else -> {}
+            }
+        }
+    }
+
+    private fun checkForAlerts() {
+        // If no alert to show, proceed directly
+        if (viewModel.showAlert.value == EligibleCoupleTrackingFormViewModel.AlertType.NONE) {
+            saveNurseData()
+        }
+        // Alerts will be handled by the observer
+    }
+
+    private fun showAntraIncentiveAlert() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.incentive_alert_title))
+            .setMessage(getString(R.string.antra_incentive_alert))
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                viewModel.resetAlert()
+                saveNurseData()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun showSterilizationIncentiveAlert() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.incentive_alert_title))
+            .setMessage(getString(R.string.sterilization_incentive_alert))
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                viewModel.resetAlert()
+                saveNurseData()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun navigateToNextScreen() {
