@@ -487,10 +487,10 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(it) == true) cbx.isChecked = true
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
-                                if (item.value != null) item.value = item.value + it
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
                                 else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
@@ -506,7 +506,7 @@ class FormInputAdapter(
                                 }
                             } else {
                                 if (item.value?.contains(it) == true) {
-                                    item.value = item.value?.replace(it, "")
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(

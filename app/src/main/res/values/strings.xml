@@ -690,6 +690,40 @@
 
     <!-- Delivery Outcome Strings -->
     <string name="no_delivered_women_found">No Delivered Women Found</string>
+    <string name="do_mother_condition">Mother\'s Condition Immediately Post-Delivery</string>
+    <string name="do_maternal_complications">Maternal Complications</string>
+    <string name="do_mother_currently_admitted">Mother Currently Admitted?</string>
+    <string name="do_discharge_date">Date of Discharge</string>
+    <string name="do_next">Next</string>
+    <string name="do_inform_district_nodal_officer">Inform District Nodal Officer</string>
+    <string name="do_alert_intensive_pnc">Intensive PNC monitoring recommended for this mother.</string>
+    <string name="do_hysterectomy_note">Family planning status and eligible couple tracking will be updated for hysterectomy.</string>
+    <string name="do_maternal_death_audit">Maternal death audit form will be opened.</string>
+    <string name="do_discharge_date_before_delivery">Discharge date cannot be before delivery date.</string>
+    <string name="do_vitals_and_prescription">Vitals &amp; Prescription</string>
+    <string-array name="do_mother_condition_array">
+        <item>Healthy / Stable</item>
+        <item>Complication (specify)</item>
+        <item>Critical / ICU admission</item>
+        <item>Maternal Death</item>
+    </string-array>
+    <string-array name="do_maternal_complications_array">
+        <item>Post-Partum Hemorrhage (PPH)</item>
+        <item>Retained placenta</item>
+        <item>Perineal tear (1st/2nd degree)</item>
+        <item>Perineal tear (3rd/4th degree)</item>
+        <item>Uterine rupture</item>
+        <item>Sepsis/ Infection</item>
+        <item>Pre-eclampsia/Eclampsia</item>
+        <item>Blood transfusion required</item>
+        <item>Hysterectomy performed</item>
+        <item>Anesthesia complication</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="do_mother_admitted_array">
+        <item>Yes (Still in hospital)</item>
+        <item>No (Discharged)</item>
+    </string-array>
 
     <!-- PNC Mother List Strings -->
     <string name="delivery_date">Delivery Date</string>

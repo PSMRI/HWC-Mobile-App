@@ -3,7 +3,6 @@ package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +17,7 @@ import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
+import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.DeliveryOutcomeFormActivity
 import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import javax.inject.Inject
 
@@ -58,12 +58,12 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         adapter = DeliveryOutcomeAdapter(
             DeliveryOutcomeAdapter.ClickListener { patientWithPwr ->
-                // Handle click - navigate to delivery outcome form
-                Toast.makeText(
-                    this,
-                    "View Delivery Outcome: ${patientWithPwr.patient.firstName}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                startActivity(
+                    DeliveryOutcomeFormActivity.getIntent(
+                        this,
+                        patientWithPwr.patient.patientID
+                    )
+                )
             }
         )
 

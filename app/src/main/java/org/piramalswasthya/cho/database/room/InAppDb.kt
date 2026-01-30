@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 113, exportSchema = false
 )
 
 
@@ -391,6 +391,20 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_112_113 = object : Migration(112, 113) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCondition TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN maternalComplications TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCurrentlyAdmitted INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeath INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeathValue TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN dateOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeathId INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN otherPlaceOfDeath TEXT")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -408,7 +422,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_108_109,
                             MIGRATION_109_110,
                             MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_111_112,
+                            MIGRATION_112_113
                         )
                         .setQueryCallback(
                             object : QueryCallback {

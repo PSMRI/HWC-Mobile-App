@@ -632,12 +632,12 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             setVisibility()
             if(viewModel.selectedReasonForVisit == DropdownConst.anc){
                 binding.rvAnc.visibility = View.VISIBLE
-//                viewModel.activePwrRecord.observe(viewLifecycleOwner){
+                /* viewModel.activePwrRecord.observe(viewLifecycleOwner){ */
                     if(viewModel.activePwrRecord == null && lmpDate == null){
                         binding.lmpDateText.visibility = View.VISIBLE
                         binding.eddDateText.visibility = View.VISIBLE
                     }
-//                }
+                /* } */
             }
             else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
                 binding.rvPnc.visibility = View.VISIBLE
@@ -1366,7 +1366,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                             viewModel.isDeliveryDateSaved.observe(viewLifecycleOwner){it2->
                                 if(it2){
                                     findNavController().navigate(
-                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToDeliveryOutcomeFormFragment(
                                             benVisitInfo.patient.patientID, visitNumber
                                         )
                                     )
@@ -1375,7 +1375,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         }
                         else{
                             findNavController().navigate(
-                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPncFormFragment(
+                                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToDeliveryOutcomeFormFragment(
                                     benVisitInfo.patient.patientID, visitNumber
                                 )
                             )
@@ -1462,6 +1462,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
@@ -1690,6 +1691,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return R.id.fragment_visit_details_info
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onSubmitAction() {
         navigateNext()
     }
