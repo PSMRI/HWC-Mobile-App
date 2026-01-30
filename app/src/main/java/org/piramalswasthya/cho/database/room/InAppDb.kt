@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 116, exportSchema = false
+    version = 118, exportSchema = false
 )
 
 
@@ -529,6 +529,100 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_116_117 = object : Migration(116, 117) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate DELIVERY_OUTCOME to match current entity schema (remove extra columns
+                // that exist on devices from older builds: motherCondition, maternalComplications,
+                // motherCurrentlyAdmitted, isDeath, isDeathValue, dateOfDeath, placeOfDeath,
+                // placeOfDeathId, otherPlaceOfDeath).
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS DELIVERY_OUTCOME_NEW (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        dateOfDelivery INTEGER,
+                        timeOfDelivery TEXT,
+                        placeOfDelivery TEXT,
+                        typeOfDelivery TEXT,
+                        hadComplications INTEGER,
+                        complication TEXT,
+                        causeOfDeath TEXT,
+                        otherCauseOfDeath TEXT,
+                        otherComplication TEXT,
+                        deliveryOutcome INTEGER,
+                        liveBirth INTEGER,
+                        stillBirth INTEGER,
+                        dateOfDischarge INTEGER,
+                        timeOfDischarge TEXT,
+                        isJSYBenificiary INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO DELIVERY_OUTCOME_NEW (
+                        id, patientID, isActive, dateOfDelivery, timeOfDelivery, placeOfDelivery,
+                        typeOfDelivery, hadComplications, complication, causeOfDeath, otherCauseOfDeath,
+                        otherComplication, deliveryOutcome, liveBirth, stillBirth, dateOfDischarge,
+                        timeOfDischarge, isJSYBenificiary, processed, createdBy, createdDate,
+                        updatedBy, updatedDate, syncState
+                    ) SELECT
+                        id, patientID, isActive, dateOfDelivery, timeOfDelivery, placeOfDelivery,
+                        typeOfDelivery, hadComplications, complication, causeOfDeath, otherCauseOfDeath,
+                        otherComplication, deliveryOutcome, liveBirth, stillBirth, dateOfDischarge,
+                        timeOfDischarge, isJSYBenificiary, processed, createdBy, createdDate,
+                        updatedBy, updatedDate, syncState
+                    FROM DELIVERY_OUTCOME
+                """.trimIndent())
+                database.execSQL("DROP TABLE DELIVERY_OUTCOME")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME_NEW RENAME TO DELIVERY_OUTCOME")
+                database.execSQL("CREATE INDEX IF NOT EXISTS delOutInd ON DELIVERY_OUTCOME(patientID)")
+            }
+        }
+
+        val MIGRATION_117_118 = object : Migration(117, 118) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate component_details_master so FK references procedure_master(id) instead of procedure(id).
+                database.execSQL("PRAGMA foreign_keys=OFF")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS component_details_master_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        test_component_id INTEGER NOT NULL,
+                        procedure_id INTEGER NOT NULL,
+                        range_normal_min INTEGER,
+                        range_normal_max INTEGER,
+                        range_min INTEGER,
+                        range_max INTEGER,
+                        isDecimal INTEGER,
+                        inputType TEXT NOT NULL,
+                        measurement_nit TEXT,
+                        test_component_name TEXT NOT NULL,
+                        test_component_desc TEXT NOT NULL,
+                        FOREIGN KEY(procedure_id) REFERENCES procedure_master(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO component_details_master_new (
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    ) SELECT
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    FROM component_details_master
+                """.trimIndent())
+                database.execSQL("DROP TABLE component_details_master")
+                database.execSQL("ALTER TABLE component_details_master_new RENAME TO component_details_master")
+                database.execSQL("PRAGMA foreign_keys=ON")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -550,7 +644,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_112_113,
                             MIGRATION_113_114,
                             MIGRATION_114_115,
-                            MIGRATION_115_116
+                            MIGRATION_115_116,
+                            MIGRATION_116_117,
+                            MIGRATION_117_118
                         )
                         .setQueryCallback(
                             object : QueryCallback {
