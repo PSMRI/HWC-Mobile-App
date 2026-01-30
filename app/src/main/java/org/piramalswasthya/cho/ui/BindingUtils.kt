@@ -31,7 +31,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.helpers.Konstants
+import org.piramalswasthya.cho.model.AbortionDomain
 import org.piramalswasthya.cho.model.AncFormState
+import org.piramalswasthya.cho.model.InfantRegDomain
 import org.piramalswasthya.cho.model.AncFormState.*
 //import org.piramalswasthya.cho.model.BenBasicDomain
 import org.piramalswasthya.cho.model.FormInputOld
@@ -87,6 +89,21 @@ fun Button.setVaccineState(syncState: VaccineState?) {
     }
 }
 
+@BindingAdapter("abortionActionText")
+fun Button.setAbortionActionText(item: AbortionDomain?) {
+    item ?: return
+    text = context.getString(
+        if (item.isAbortionFormFilled) Resource.string.view else Resource.string.add
+    )
+}
+
+@BindingAdapter("infantRegActionText")
+fun Button.setInfantRegActionText(item: InfantRegDomain?) {
+    item ?: return
+    text = context.getString(
+        if (item.isRegistered()) Resource.string.view else Resource.string.register
+    )
+}
 
 @BindingAdapter("scope", "recordCount")
 fun TextView.setRecordCount(scope: CoroutineScope, count: Flow<Int>?) {
