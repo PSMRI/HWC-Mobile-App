@@ -95,7 +95,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     }
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main.immediate) {
             dataset.updateList(formId, index)
             checkAndEmitAlerts()
         }

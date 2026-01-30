@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import android.widget.LinearLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
@@ -20,6 +21,7 @@ class DeliveryOutcomeDataset(
 
     private var deliveryDateMillis: Long = 0L
 
+    /** 4 options: use vertical layout per requirement (vertical when >2 options). */
     private val motherCondition = FormElement(
         id = 1,
         inputType = InputType.RADIO,
@@ -27,7 +29,8 @@ class DeliveryOutcomeDataset(
         entries = resources.getStringArray(R.array.do_mother_condition_array),
         required = true,
         hasDependants = true,
-        hasAlertError = true
+        hasAlertError = true,
+        orientation = LinearLayout.VERTICAL
     )
 
     private val maternalComplications = FormElement(
@@ -40,13 +43,15 @@ class DeliveryOutcomeDataset(
         hasAlertError = true
     )
 
+    /** 2 options: use horizontal layout per requirement (horizontal when ≤2 options). */
     private val motherCurrentlyAdmitted = FormElement(
         id = 3,
         inputType = InputType.RADIO,
         title = resources.getString(R.string.do_mother_currently_admitted),
         entries = resources.getStringArray(R.array.do_mother_admitted_array),
         required = true,
-        hasDependants = true
+        hasDependants = true,
+        orientation = LinearLayout.HORIZONTAL
     )
 
     private val dateOfDischarge = FormElement(

@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,18 +43,22 @@ class DeliveryOutcomeFormFragment : Fragment() {
         binding.fabEdit.visibility = View.GONE
         binding.btnSubmit.text = getString(R.string.do_next)
 
+        var adapter: FormInputAdapter? = null
         viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
-            val adapter = FormInputAdapter(
-                formValueListener = FormInputAdapter.FormValueListener { formId, index ->
-                    viewModel.updateListOnValueChanged(formId, index)
-                    binding.form.rvInputForm.adapter?.notifyDataSetChanged()
-                },
-                isEnabled = !(recordExists == true)
-            )
-            binding.form.rvInputForm.adapter = adapter
-            lifecycleScope.launch {
-                viewModel.formList.collect { list ->
-                    if (list.isNotEmpty()) adapter.submitList(list)
+            if (adapter == null) {
+                adapter = FormInputAdapter(
+                    formValueListener = FormInputAdapter.FormValueListener { formId, index ->
+                        viewModel.updateListOnValueChanged(formId, index)
+                    },
+                    isEnabled = !(recordExists == true)
+                )
+                binding.form.rvInputForm.adapter = adapter
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.formList.collect { list ->
+                            if (list.isNotEmpty()) adapter?.submitList(list)
+                        }
+                    }
                 }
             }
         }
