@@ -410,7 +410,6 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        /** Ensures ELIGIBLE_COUPLE_REG and INFANT_REG exist (fixes DB at 114 that were created without these tables). */
         val MIGRATION_114_115 = object : Migration(114, 115) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
