@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 114, exportSchema = false
 )
 
 
@@ -346,6 +346,70 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_112_113 = object : Migration(112, 113) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        dateOfReg INTEGER NOT NULL,
+                        lmpDate INTEGER,
+                        noOfChildren INTEGER NOT NULL,
+                        noOfLiveChildren INTEGER NOT NULL,
+                        noOfMaleChildren INTEGER NOT NULL,
+                        noOfFemaleChildren INTEGER NOT NULL,
+                        isRegistered INTEGER NOT NULL,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+            }
+        }
+
+        val MIGRATION_113_114 = object : Migration(113, 114) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS INFANT_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        childPatientID TEXT,
+                        motherPatientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        babyName TEXT,
+                        babyIndex INTEGER NOT NULL,
+                        infantTerm TEXT,
+                        corticosteroidGiven TEXT,
+                        genderID INTEGER,
+                        babyCriedAtBirth INTEGER,
+                        resuscitation INTEGER,
+                        referred TEXT,
+                        hadBirthDefect TEXT,
+                        birthDefect TEXT,
+                        otherDefect TEXT,
+                        weight REAL,
+                        breastFeedingStarted INTEGER,
+                        opv0Dose INTEGER,
+                        bcgDose INTEGER,
+                        hepBDose INTEGER,
+                        vitkDose INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -363,7 +427,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_108_109,
                             MIGRATION_109_110,
                             MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_111_112,
+                            MIGRATION_112_113,
+                            MIGRATION_113_114
                         )
                         .setQueryCallback(
                             object : QueryCallback {
