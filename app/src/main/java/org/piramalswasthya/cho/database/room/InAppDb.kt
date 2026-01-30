@@ -35,6 +35,7 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -86,7 +87,9 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
+import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
+import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
@@ -220,7 +223,9 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
+        EligibleCoupleRegCache::class,
         EligibleCoupleTrackingCache::class,
+        InfantRegCache::class,
         PrescriptionTemplateDB::class,
         CbacCache::class,
         ProcedureMaster::class,
@@ -293,6 +298,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
+    abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
     abstract val statusOfWomanDao: StatusOfWomanDao
@@ -324,6 +330,7 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+
 
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -366,26 +373,6 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_112_113 = object : Migration(112, 113) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns to PREGNANCY_REGISTER table for MHWC-194
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN eddDate INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN gestationalAgeWeeks INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN gestationalAgeDays INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN trimester TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isUptConductedAtFacility INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN uptResult TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN bmi REAL")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN bmiCategory TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN preExistingConditions TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN gravida INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN para INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN hrpReasons TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0")
-            }
-        }
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -404,8 +391,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_108_109,
                             MIGRATION_109_110,
                             MIGRATION_110_111,
-                            MIGRATION_111_112,
-                            MIGRATION_112_113
+                            MIGRATION_111_112
+
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

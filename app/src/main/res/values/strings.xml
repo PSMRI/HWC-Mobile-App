@@ -105,7 +105,6 @@
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
-    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
 
     <string name="weight_kg_text">Weight(kg)</string>
     <string name="temperature_f_text">Temperature(F)</string>
@@ -616,8 +615,6 @@
         <item>Any Other Method</item>
     </string-array>
 
-
-
     <string name="template_null">Enter Template Name</string>
     <string name="templte_exists">Template name already exists</string>
     <string name="delete_temp">Delete Template</string>
@@ -628,6 +625,101 @@
     <string name="str_duration">Duration:</string>
     <string name="edd_date">EDD Date</string>
     <string name="update_btn">Update</string>
+
+    <!-- RMNCHA+ Dashboard Module Strings -->
+    <string name="all_beneficiaries">All Beneficiaries</string>
+    <string name="eligible_couple_list">Eligible Couple List</string>
+    <string name="maternal_health">Maternal Health</string>
+    <string name="child_care">Child Care</string>
+    <string name="disease_control">Disease Control</string>
+    <string name="communicable_diseases">Communicable Diseases</string>
+    <string name="routine_immunization">Routine Immunization</string>
+    <string name="high_risk_assessment">High Risk Assessment</string>
+    <string name="general_opd_care_list">General OPD Care List</string>
+    <string name="death_reports">Death Reports</string>
+    <string name="village_level_forms">Village Level Forms</string>
+    <string name="cd_icon_grid_icon">Icon Grid Item</string>
+
+    <!-- Maternal Health Sub-modules -->
+    <string name="pregnant_women_registration">Pregnant Women Registration</string>
+    <string name="anc_visits">ANC Visits</string>
+    <string name="delivery_outcome">Delivery Outcome</string>
+    <string name="pnc_mother_list">PNC Mother List</string>
+    <string name="infant_registration">Infant Registration</string>
+    <string name="child_registration">Child Registration</string>
+    <string name="abortion_list">Abortion List</string>
+    <string name="e_pmsma_list">e-PMSMA List</string>
+
+    <!-- Child Care Sub-modules -->
+    <string name="infant_list">Infant List</string>
+    <string name="child_list">Child List</string>
+    <string name="adolescent_list">Adolescent List</string>
+    <string name="children_under_5_years">Children under 5 Years</string>
+
+    <!-- Eligible Couple Sub-modules -->
+    <string name="eligible_couple_registration">Eligible Couple Registration</string>
+    <string name="eligible_couple_tracking">Eligible Couple Tracking</string>
+
+    <!-- Eligible Couple List Strings -->
+    <string name="husband_name">Husband Name</string>
+    <string name="lmp_date">LMP Date</string>
+    <string name="missed_period">Missed Period</string>
+    <string name="under_review">Under Review</string>
+    <string name="register">Register</string>
+    <string name="no_eligible_couples_found">No Eligible Couples Found</string>
+    <string name="no_registered_couples_found">No Registered Couples Found</string>
+    <string name="call">Call</string>
+    <string name="no_data">No Data</string>
+    <string name="search">Search</string>
+    <string name="status">Status</string>
+    <string name="age_ben">Age</string>
+    <string name="tv_mob_no_ph">Mobile No</string>
+    <string name="tv_rch_id">RCH ID</string>
+
+
+    <!-- Pregnant Women Registration Strings -->
+    <string name="no_pregnant_women_found">No Pregnant Women Found</string>
+
+    <!-- ANC Visits Strings -->
+    <string name="weeks_of_pregnancy">Weeks Of Pregnancy</string>
+    <string name="edd">EDD</string>
+    <string name="last_visit_date">Last Visit Date</string>
+    <string name="add_anc_visit">ADD ANC VISIT</string>
+    <string name="add_pmsma">ADD PMSMA</string>
+    <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
+
+    <!-- Delivery Outcome Strings -->
+    <string name="no_delivered_women_found">No Delivered Women Found</string>
+
+    <!-- PNC Mother List Strings -->
+    <string name="delivery_date">Delivery Date</string>
+    <string name="days_since_delivery">Days Since Delivery</string>
+    <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
+
+    <!-- Infant Registration Strings -->
+    <string name="infant_reg_list">Infant Reg List</string>
+    <string name="mother_name">Mother\'s Name</string>
+    <string name="no_infants_found">No Infants Found</string>
+
+    <!-- Child Registration Strings -->
+    <string name="child_reg_list">Child Reg List</string>
+    <string name="no_children_found">No Children Found</string>
+
+    <!-- Abortion List Strings -->
+    <string name="abortion_date">Abortion Date</string>
+    <string name="no_abortion_records_found">No Abortion Records Found</string>
+
+    <!-- e-PMSMA List Strings -->
+    <string name="no_pmsma_women_found">No PMSMA Women Found</string>
+
+    <!-- Adolescent List Strings -->
+    <string name="no_adolescents_found">No Adolescents Found</string>
+
+    <!-- Children under 5 Years List Strings -->
+    <string name="no_children_under_5_found">No Children under 5 Years Found</string>
+    <string name="check_sam">Check SAM</string>
+    <string name="ors">ORS</string>
+    <string name="ifa">IFA</string>
 
     <!-- Status of Woman and ABHA -->
     <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
@@ -651,7 +743,6 @@
     <string name="abha_id_label">ABHA ID</string>
     <string name="generate_abha_id_btn">Generate ABHA ID</string>
     <string name="continue_btn">Continue</string>
-    <string name="not_available">Not Available</string>
     <string name="view_beneficiary_card">View Card</string>
 
     <!-- Edit Beneficiary Details -->
@@ -669,7 +760,7 @@
     <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
     <string name="status_of_woman_required">Status of Woman is required</string>
     <string name="speak_now">Speak now...</string>
+    <string name="not_available">Not Available</string>
 
-    
 
 </resources>
