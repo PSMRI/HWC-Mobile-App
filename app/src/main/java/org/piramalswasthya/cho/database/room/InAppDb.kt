@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 118, exportSchema = false
+    version = 115, exportSchema = false
 )
 
 
@@ -346,7 +346,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-//        There was conflict i have fixed and inform to Abhilash and shiva to verify
+        //        There was conflict i have fixed and inform to Abhilash and shiva to verify
         val MIGRATION_112_113 = object : Migration(112, 113) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
@@ -413,180 +413,6 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_114_115 = object : Migration(114, 115) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        patientID TEXT NOT NULL,
-                        dateOfReg INTEGER NOT NULL,
-                        lmpDate INTEGER,
-                        noOfChildren INTEGER NOT NULL,
-                        noOfLiveChildren INTEGER NOT NULL,
-                        noOfMaleChildren INTEGER NOT NULL,
-                        noOfFemaleChildren INTEGER NOT NULL,
-                        isRegistered INTEGER NOT NULL,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS INFANT_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        childPatientID TEXT,
-                        motherPatientID TEXT NOT NULL,
-                        isActive INTEGER NOT NULL,
-                        babyName TEXT,
-                        babyIndex INTEGER NOT NULL,
-                        infantTerm TEXT,
-                        corticosteroidGiven TEXT,
-                        genderID INTEGER,
-                        babyCriedAtBirth INTEGER,
-                        resuscitation INTEGER,
-                        referred TEXT,
-                        hadBirthDefect TEXT,
-                        birthDefect TEXT,
-                        otherDefect TEXT,
-                        weight REAL,
-                        breastFeedingStarted INTEGER,
-                        opv0Dose INTEGER,
-                        bcgDose INTEGER,
-                        hepBDose INTEGER,
-                        vitkDose INTEGER,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
-            }
-        }
-
-        val MIGRATION_115_116 = object : Migration(115, 116) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        patientID TEXT NOT NULL,
-                        dateOfReg INTEGER NOT NULL,
-                        lmpDate INTEGER,
-                        noOfChildren INTEGER NOT NULL,
-                        noOfLiveChildren INTEGER NOT NULL,
-                        noOfMaleChildren INTEGER NOT NULL,
-                        noOfFemaleChildren INTEGER NOT NULL,
-                        isRegistered INTEGER NOT NULL,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS INFANT_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        childPatientID TEXT,
-                        motherPatientID TEXT NOT NULL,
-                        isActive INTEGER NOT NULL,
-                        babyName TEXT,
-                        babyIndex INTEGER NOT NULL,
-                        infantTerm TEXT,
-                        corticosteroidGiven TEXT,
-                        genderID INTEGER,
-                        babyCriedAtBirth INTEGER,
-                        resuscitation INTEGER,
-                        referred TEXT,
-                        hadBirthDefect TEXT,
-                        birthDefect TEXT,
-                        otherDefect TEXT,
-                        weight REAL,
-                        breastFeedingStarted INTEGER,
-                        opv0Dose INTEGER,
-                        bcgDose INTEGER,
-                        hepBDose INTEGER,
-                        vitkDose INTEGER,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
-            }
-        }
-
-        val MIGRATION_116_117 = object : Migration(116, 117) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Recreate DELIVERY_OUTCOME to match current entity schema (remove extra columns
-                // that exist on devices from older builds: motherCondition, maternalComplications,
-                // motherCurrentlyAdmitted, isDeath, isDeathValue, dateOfDeath, placeOfDeath,
-                // placeOfDeathId, otherPlaceOfDeath).
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS DELIVERY_OUTCOME_NEW (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        patientID TEXT NOT NULL,
-                        isActive INTEGER NOT NULL,
-                        dateOfDelivery INTEGER,
-                        timeOfDelivery TEXT,
-                        placeOfDelivery TEXT,
-                        typeOfDelivery TEXT,
-                        hadComplications INTEGER,
-                        complication TEXT,
-                        causeOfDeath TEXT,
-                        otherCauseOfDeath TEXT,
-                        otherComplication TEXT,
-                        deliveryOutcome INTEGER,
-                        liveBirth INTEGER,
-                        stillBirth INTEGER,
-                        dateOfDischarge INTEGER,
-                        timeOfDischarge TEXT,
-                        isJSYBenificiary INTEGER,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("""
-                    INSERT INTO DELIVERY_OUTCOME_NEW (
-                        id, patientID, isActive, dateOfDelivery, timeOfDelivery, placeOfDelivery,
-                        typeOfDelivery, hadComplications, complication, causeOfDeath, otherCauseOfDeath,
-                        otherComplication, deliveryOutcome, liveBirth, stillBirth, dateOfDischarge,
-                        timeOfDischarge, isJSYBenificiary, processed, createdBy, createdDate,
-                        updatedBy, updatedDate, syncState
-                    ) SELECT
-                        id, patientID, isActive, dateOfDelivery, timeOfDelivery, placeOfDelivery,
-                        typeOfDelivery, hadComplications, complication, causeOfDeath, otherCauseOfDeath,
-                        otherComplication, deliveryOutcome, liveBirth, stillBirth, dateOfDischarge,
-                        timeOfDischarge, isJSYBenificiary, processed, createdBy, createdDate,
-                        updatedBy, updatedDate, syncState
-                    FROM DELIVERY_OUTCOME
-                """.trimIndent())
-                database.execSQL("DROP TABLE DELIVERY_OUTCOME")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME_NEW RENAME TO DELIVERY_OUTCOME")
-                database.execSQL("CREATE INDEX IF NOT EXISTS delOutInd ON DELIVERY_OUTCOME(patientID)")
-            }
-        }
-
-        val MIGRATION_117_118 = object : Migration(117, 118) {
-            override fun migrate(database: SupportSQLiteDatabase) {
                 // Recreate component_details_master so FK references procedure_master(id) instead of procedure(id).
                 database.execSQL("PRAGMA foreign_keys=OFF")
                 database.execSQL("""
@@ -643,10 +469,7 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_111_112,
                             MIGRATION_112_113,
                             MIGRATION_113_114,
-                            MIGRATION_114_115,
-                            MIGRATION_115_116,
-                            MIGRATION_116_117,
-                            MIGRATION_117_118
+                            MIGRATION_114_115
                         )
                         .setQueryCallback(
                             object : QueryCallback {
