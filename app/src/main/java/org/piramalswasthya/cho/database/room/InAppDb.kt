@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 114, exportSchema = false
+    version = 116, exportSchema = false
 )
 
 
@@ -365,7 +365,7 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
@@ -403,7 +403,126 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
+        /** Ensures ELIGIBLE_COUPLE_REG and INFANT_REG exist (fixes DB at 114 that were created without these tables). */
+        val MIGRATION_114_115 = object : Migration(114, 115) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        dateOfReg INTEGER NOT NULL,
+                        lmpDate INTEGER,
+                        noOfChildren INTEGER NOT NULL,
+                        noOfLiveChildren INTEGER NOT NULL,
+                        noOfMaleChildren INTEGER NOT NULL,
+                        noOfFemaleChildren INTEGER NOT NULL,
+                        isRegistered INTEGER NOT NULL,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS INFANT_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        childPatientID TEXT,
+                        motherPatientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        babyName TEXT,
+                        babyIndex INTEGER NOT NULL,
+                        infantTerm TEXT,
+                        corticosteroidGiven TEXT,
+                        genderID INTEGER,
+                        babyCriedAtBirth INTEGER,
+                        resuscitation INTEGER,
+                        referred TEXT,
+                        hadBirthDefect TEXT,
+                        birthDefect TEXT,
+                        otherDefect TEXT,
+                        weight REAL,
+                        breastFeedingStarted INTEGER,
+                        opv0Dose INTEGER,
+                        bcgDose INTEGER,
+                        hepBDose INTEGER,
+                        vitkDose INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
+        val MIGRATION_115_116 = object : Migration(115, 116) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        dateOfReg INTEGER NOT NULL,
+                        lmpDate INTEGER,
+                        noOfChildren INTEGER NOT NULL,
+                        noOfLiveChildren INTEGER NOT NULL,
+                        noOfMaleChildren INTEGER NOT NULL,
+                        noOfFemaleChildren INTEGER NOT NULL,
+                        isRegistered INTEGER NOT NULL,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS INFANT_REG (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        childPatientID TEXT,
+                        motherPatientID TEXT NOT NULL,
+                        isActive INTEGER NOT NULL,
+                        babyName TEXT,
+                        babyIndex INTEGER NOT NULL,
+                        infantTerm TEXT,
+                        corticosteroidGiven TEXT,
+                        genderID INTEGER,
+                        babyCriedAtBirth INTEGER,
+                        resuscitation INTEGER,
+                        referred TEXT,
+                        hadBirthDefect TEXT,
+                        birthDefect TEXT,
+                        otherDefect TEXT,
+                        weight REAL,
+                        breastFeedingStarted INTEGER,
+                        opv0Dose INTEGER,
+                        bcgDose INTEGER,
+                        hepBDose INTEGER,
+                        vitkDose INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
@@ -429,7 +548,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_110_111,
                             MIGRATION_111_112,
                             MIGRATION_112_113,
-                            MIGRATION_113_114
+                            MIGRATION_113_114,
+                            MIGRATION_114_115,
+                            MIGRATION_115_116
                         )
                         .setQueryCallback(
                             object : QueryCallback {
