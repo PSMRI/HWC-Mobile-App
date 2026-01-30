@@ -77,17 +77,19 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
-                binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
-                if(recordExists){
+                // Previous ANC forms read-only when new visit started; last visit remains editable (Jira: visit locking)
+                val formEditable = !viewModel.isOldVisit
+                binding.fabEdit.visibility = View.GONE
+                if (viewModel.isOldVisit) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     btnSubmit?.visibility = View.GONE
                 }
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
+                binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
                 val adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
-                    }, isEnabled = !recordExists
+                    }, isEnabled = formEditable
                 )
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {

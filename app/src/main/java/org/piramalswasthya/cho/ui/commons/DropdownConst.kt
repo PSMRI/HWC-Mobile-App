@@ -4,6 +4,7 @@ class DropdownConst {
     companion object {
 
         val careAndPreg: String = "Care in Pregnancy & Childbirth"
+        val pregnancyRegistration: String = "Pregnancy Registration"
         val anc: String = "ANC"
         val pnc: String = "PNC"
 

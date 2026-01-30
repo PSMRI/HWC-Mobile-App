@@ -87,11 +87,13 @@ class PwAncFormViewModel @Inject constructor(
                 )
             }
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
-            maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
+            val recordExists = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
                 _recordExists.value = true
+                true
             } ?: run {
                 _recordExists.value = false
+                false
             }
             val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
 
@@ -100,7 +102,7 @@ class PwAncFormViewModel @Inject constructor(
                 ben,
                 registerRecord,
                 lastAnc,
-                if (recordExists.value == true) ancCache else null
+                if (recordExists) ancCache else null
             )
 
 
@@ -121,6 +123,8 @@ class PwAncFormViewModel @Inject constructor(
                 try {
                     _state.postValue(State.SAVING)
                     dataset.mapValues(ancCache, 1)
+                    // On completion: visit timestamped, record moves to next ANC stage (Jira: visit locking)
+                    ancCache.updatedDate = System.currentTimeMillis()
                     maternalHealthRepo.persistAncRecord(ancCache)
                     if (ancCache.pregnantWomanDelivered == true) {
 
