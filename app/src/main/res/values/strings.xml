@@ -19,7 +19,7 @@
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">Username</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="next">Next</string>
     <string name="til_password_hint_text">Password</string>
@@ -101,7 +101,7 @@
     <string name="lab_record_text">Lab Record</string>
     <string name="pharmacist_record_text">Pharmacist Record</string>
 
-    <!--    <string name="cbac">CBAC</string>-->
+
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
