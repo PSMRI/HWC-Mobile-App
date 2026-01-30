@@ -346,6 +346,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+//        There was conflict i have fixed and inform to Abhilash and shiva to verify
         val MIGRATION_112_113 = object : Migration(112, 113) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
