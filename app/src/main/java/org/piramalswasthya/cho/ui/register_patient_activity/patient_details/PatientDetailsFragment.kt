@@ -15,8 +15,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -331,6 +333,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         setupHasAbhaIdDropdown()
         setupStatusOfWomanDropdown()
 
+        enableFullBoxClick(binding.genderDropdown)
+        enableFullBoxClick(binding.maritalStatusDropdown)
+        enableFullBoxClick(binding.statusOfWomanDropdown)
+        enableFullBoxClick(binding.hasAbhaIdDropdown)
+
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
             val photoUri = Uri.parse(uriString)
             Glide.with(this).load(photoUri).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)}
@@ -443,6 +450,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                     applyScannedName(userData)
 
+
                     applyScannedDob(userData)
 
                     if (!userData.gender.isNullOrEmpty()){ 
@@ -496,6 +504,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
+   
+
 
     private fun applyScannedName(userData: PatientAadhaarDetails) {
         val nameParts = userData.name?.split(" ")
@@ -510,6 +520,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val dob = userData.dateOfBirth
         if (dob.isNullOrEmpty()) return
 
+        // keep same accepted input formats; guard indices to avoid OOB
         val inputDateFormat1 = SimpleDateFormat("dd/MM/yyyy")
         val inputDateFormat2 = SimpleDateFormat("dd-MM-yyyy")
         val inputDateFormat3 = SimpleDateFormat("yyyy-MM-dd")
@@ -843,7 +854,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                // Intentionally left empty
+                //No-Ops For Now
             }
         })
 
@@ -1053,17 +1064,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if (::villageAdapter.isInitialized) {
                 val itemCount = villageAdapter.count
                 if (itemCount > 0) {
-                    val itemHeightPx = try {
+                    var itemHeightPx: Int
+                    try {
                         val tempParent = android.widget.FrameLayout(requireContext())
                         val itemView = villageAdapter.getDropDownView(0, null, tempParent)
                         itemView.measure(
                             View.MeasureSpec.makeMeasureSpec(dropdown.width, View.MeasureSpec.EXACTLY),
                             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
                         )
-                        itemView.measuredHeight
+                        itemHeightPx = itemView.measuredHeight
                     } catch (e: Exception) {
                         val itemHeightDp = 50f
-                        (itemHeightDp * resources.displayMetrics.density).toInt()
+                        itemHeightPx = (itemHeightDp * resources.displayMetrics.density).toInt()
                     }
                     val bottomPaddingDp = 16f
                     val bottomPaddingPx = (bottomPaddingDp * resources.displayMetrics.density).toInt()
@@ -1305,6 +1317,20 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     }
 
     
+  
+    private fun enableFullBoxClick(dropdown: AutoCompleteTextView) {
+        dropdown.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                dropdown.showDropDown()
+            }
+            false
+        }
+
+        dropdown.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) dropdown.showDropDown()
+        }
+    }
+
     private fun setupHasAbhaIdDropdown() {
         val options = listOf(
             DropdownList(1, getString(R.string.select_yes)),
@@ -1378,7 +1404,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     updateStatusOfWomanVisibility()
                 }
                 else -> {
-                    //
+                    //No-Ops For Now
                 }
             }
         }
