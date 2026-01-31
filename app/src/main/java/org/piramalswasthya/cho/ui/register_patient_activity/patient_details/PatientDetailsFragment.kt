@@ -1259,9 +1259,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         var bestMatch: Patient? = null
         var bestDistance = Float.MAX_VALUE
 
-        val patients = kotlinx.coroutines.withContext(dispatcherProvider.IO) {
-            viewModel.getAllPatientsForFaceComparison()
-        }
+        val patients = viewModel.getAllPatientsForFaceComparison()
 
         kotlinx.coroutines.withContext(dispatcherProvider.Default) {
             for (patient in patients) {
