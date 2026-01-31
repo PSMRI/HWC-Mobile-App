@@ -1290,28 +1290,26 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     
     private fun showDuplicateFaceDialog(matchedPatient: Patient) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.duplicate_face_detected))
-            .setMessage(getString(R.string.duplicate_face_message) + "\n\nExisting: ${matchedPatient.firstName} ${matchedPatient.lastName}")
-            .setPositiveButton(getString(R.string.use_existing)) { dialog, _ ->
-                dialog.dismiss()
-                // Navigate to existing patient
-                val intent = Intent(context, EditPatientDetailsActivity::class.java)
-                lifecycleScope.launch {
-                    val benVisitInfo = kotlinx.coroutines.withContext(dispatcherProvider.IO) {
-                        viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
-                    }
-                    intent.putExtra("benVisitInfo", benVisitInfo)
-                    startActivity(intent)
-                    requireActivity().finish()
-                }
+    MaterialAlertDialogBuilder(requireContext())
+        .setTitle(getString(R.string.duplicate_face_detected))
+        .setMessage(getString(R.string.duplicate_face_message) + "\n\nExisting: ${matchedPatient.firstName} ${matchedPatient.lastName}")
+        .setPositiveButton(getString(R.string.use_existing)) { dialog, _ ->
+            dialog.dismiss()
+            // Navigate to existing patient
+            val intent = Intent(context, EditPatientDetailsActivity::class.java)
+            lifecycleScope.launch {
+                val benVisitInfo = viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
+                intent.putExtra("benVisitInfo", benVisitInfo)
+                startActivity(intent)
+                requireActivity().finish()
             }
-            .setNegativeButton(getString(R.string.continue_new)) { dialog, _ ->
-                dialog.dismiss()
-                Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-            }
-            .setCancelable(false)
-            .show()
+        }
+        .setNegativeButton(getString(R.string.continue_new)) { dialog, _ ->
+            dialog.dismiss()
+            Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
+        }
+        .setCancelable(false)
+        .show()
     }
 
     
