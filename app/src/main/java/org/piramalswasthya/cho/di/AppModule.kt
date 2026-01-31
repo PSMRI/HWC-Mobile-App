@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -79,7 +80,7 @@ object AppModule {
     private const val baseFlwUrl = "https://assamuat.piramalswasthya.org/"
 //        "https://uatamrit.piramalswasthya.org/"
 
-        //"https://amritdemo.piramalswasthya.org/"
+    //"https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
 
@@ -125,7 +126,7 @@ object AppModule {
             .addInterceptor(TokenESanjeevaniInterceptor())
             .build()
     }
-//
+    //
     @Singleton
     @Provides
     @Named("abhaClient")
@@ -140,20 +141,20 @@ object AppModule {
     }
 
 
-@Singleton
-@Provides
-fun provideESanjeevaniApiService(
-    moshi: Moshi,
-    @Named("eSanjeevaniClient") httpClient: OkHttpClient
-): ESanjeevaniApiService {
-    return Retrofit.Builder()
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
+    @Singleton
+    @Provides
+    fun provideESanjeevaniApiService(
+        moshi: Moshi,
+        @Named("eSanjeevaniClient") httpClient: OkHttpClient
+    ): ESanjeevaniApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl(sanjeevaniApi)
-        .client(httpClient)
-        .build()
-        .create(ESanjeevaniApiService::class.java)
-}
+            .baseUrl(sanjeevaniApi)
+            .client(httpClient)
+            .build()
+            .create(ESanjeevaniApiService::class.java)
+    }
 
     @Singleton
     @Provides
@@ -184,7 +185,7 @@ fun provideESanjeevaniApiService(
             .build()
             .create(FlwApiService::class.java)
     }
-//
+    //
     @Singleton
     @Provides
     fun provideAbhaApiService(
@@ -355,4 +356,8 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideCbacDao(database: InAppDb): CbacDao = database.cbacDao
+
+    @Singleton
+    @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
 }

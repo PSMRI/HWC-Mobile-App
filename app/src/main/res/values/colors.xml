@@ -128,5 +128,9 @@
     <color name="line_focused">#3F51B5</color>
     <color name="line_default">#C5CAE9</color>
     <color name="color_consent_text">#0000EE</color>
+    <!-- Gray shades for Beneficiary Card -->
+    <color name="gray_dark">#666666</color>
+    <color name="gray_light">#E0E0E0</color>
+    <color name="colorPrimary">#006496</color>
 
 </resources>

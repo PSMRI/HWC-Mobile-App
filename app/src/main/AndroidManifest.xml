@@ -65,6 +65,15 @@
             android:theme="@style/Theme.CHO" />
 
         <activity
+            android:name=".ui.beneficiary_card.BeneficiaryCardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CHO" />
+        <activity
+            android:name=".ui.beneficiary_card.edit.EditBeneficiaryDetailsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CHO"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ui.edit_patient_details_activity.EditPatientDetailsActivity"
             android:exported="false" />
         <activity

@@ -52,6 +52,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -130,6 +131,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -228,11 +230,12 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class
+        ComponentOptionsMaster::class,
+        StatusOfWomanMaster::class
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 113, exportSchema = false
 )
 
 
@@ -298,6 +301,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val statusOfWomanDao: StatusOfWomanDao
 
     companion object {
         @Volatile
@@ -327,69 +331,36 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PATIENT table
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN hasAbhaId INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN abhaIdNumber TEXT")
+
+                // Create STATUS_OF_WOMAN_MASTER table
                 database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        patientID TEXT NOT NULL,
-                        dateOfReg INTEGER NOT NULL,
-                        lmpDate INTEGER,
-                        noOfChildren INTEGER NOT NULL,
-                        noOfLiveChildren INTEGER NOT NULL,
-                        noOfMaleChildren INTEGER NOT NULL,
-                        noOfFemaleChildren INTEGER NOT NULL,
-                        isRegistered INTEGER NOT NULL,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    CREATE TABLE IF NOT EXISTS STATUS_OF_WOMAN_MASTER (
+                        statusID INTEGER PRIMARY KEY NOT NULL,
+                        statusName TEXT NOT NULL,
+                        statusCode TEXT NOT NULL
                     )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
+                """)
+
+                // Insert default status values
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
             }
         }
 
-        val MIGRATION_111_112 = object : Migration(111, 112) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS INFANT_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        childPatientID TEXT,
-                        motherPatientID TEXT NOT NULL,
-                        isActive INTEGER NOT NULL,
-                        babyName TEXT,
-                        babyIndex INTEGER NOT NULL,
-                        infantTerm TEXT,
-                        corticosteroidGiven TEXT,
-                        genderID INTEGER,
-                        babyCriedAtBirth INTEGER,
-                        resuscitation INTEGER,
-                        referred TEXT,
-                        hadBirthDefect TEXT,
-                        birthDefect TEXT,
-                        otherDefect TEXT,
-                        weight REAL,
-                        breastFeedingStarted INTEGER,
-                        opv0Dose INTEGER,
-                        bcgDose INTEGER,
-                        hepBDose INTEGER,
-                        vitkDose INTEGER,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
-            }
-        }
+
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -407,9 +378,24 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_107_108,
                             MIGRATION_108_109,
                             MIGRATION_109_110,
-                            MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_110_111
+
+
                         )
+                        .fallbackToDestructiveMigration()
+                        .addCallback(object : RoomDatabase.Callback() {
+                            override fun onCreate(db: SupportSQLiteDatabase) {
+                                super.onCreate(db)
+                                // Populate STATUS_OF_WOMAN_MASTER on fresh database creation
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+                            }
+                        })
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

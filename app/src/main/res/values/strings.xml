@@ -19,7 +19,7 @@
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">Username</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="next">Next</string>
     <string name="til_password_hint_text">Password</string>
@@ -101,7 +101,7 @@
     <string name="lab_record_text">Lab Record</string>
     <string name="pharmacist_record_text">Pharmacist Record</string>
 
-    <!--    <string name="cbac">CBAC</string>-->
+
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
@@ -675,7 +675,7 @@
     <string name="age_ben">Age</string>
     <string name="tv_mob_no_ph">Mobile No</string>
     <string name="tv_rch_id">RCH ID</string>
-    <string name="not_available">Not Available</string>
+
 
     <!-- Pregnant Women Registration Strings -->
     <string name="no_pregnant_women_found">No Pregnant Women Found</string>
@@ -720,5 +720,49 @@
     <string name="check_sam">Check SAM</string>
     <string name="ors">ORS</string>
     <string name="ifa">IFA</string>
+
+    <!-- Status of Woman and ABHA -->
+    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
+    <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
+    <string name="abha_id_number">ABHA ID Number (14 digits)</string>
+    <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
+    <string name="patient_details_edited_successfully">Patient details edited successfully</string>
+    <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
+    <string name="select_status_of_woman">Select Status of Woman</string>
+    <string name="duplicate_face_detected">Duplicate face detected</string>
+    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
+    <string name="use_existing">Use Existing</string>
+    <string name="continue_new">Continue New</string>
+
+    <!-- Beneficiary Card -->
+    <string name="beneficiary_card_title">Beneficiary Card</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
+    <string name="age_gender_label">Age / Gender</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="village_name_label">Village Name</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">Generate ABHA ID</string>
+    <string name="continue_btn">Continue</string>
+    <string name="view_beneficiary_card">View Card</string>
+
+    <!-- Edit Beneficiary Details -->
+    <string name="edit_beneficiary_details">Edit Beneficiary Details</string>
+    <string name="last_name_optional">Last Name (Optional)</string>
+    <string name="phone_number_optional">Phone Number (Optional)</string>
+    <string name="age_mandatory">Age <font color="#FF0000">*</font></string>
+    <string name="years_mandatory">Years <font color="#FF0000">*</font></string>
+    <string name="months_optional">Months</string>
+    <string name="days_optional">Days</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="edit_btn">Edit</string>
+    <string name="age_years_required">Age in years is required</string>
+    <string name="beneficiary_updated_successfully">Beneficiary details updated successfully</string>
+    <string name="status_of_woman_required">Status of Woman is required</string>
+    <string name="speak_now">Speak now...</string>
+    <string name="not_available">Not Available</string>
+    <string name="speech_recognition_error">Speech recognition not available</string>
+    <string name="beneficiary_photo_content_description">Photo of %s</string>
+    <string name="desc_patient_photo">Patient photo</string>
 
 </resources>
