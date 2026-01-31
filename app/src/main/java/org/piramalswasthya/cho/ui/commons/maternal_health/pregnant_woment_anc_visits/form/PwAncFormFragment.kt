@@ -132,7 +132,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                 State.SAVE_FAILED -> {
                     Toast.makeText(
 
-                        context, "Something wend wong! Contact testing!", Toast.LENGTH_LONG).show()
+                        context, "Something went wrong! Contact testing!", Toast.LENGTH_LONG).show()
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                 }

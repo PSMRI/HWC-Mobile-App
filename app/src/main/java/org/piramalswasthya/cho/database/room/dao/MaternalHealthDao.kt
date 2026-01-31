@@ -22,11 +22,14 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where patientID = :patientID order by ancDate desc limit 1")
     suspend fun getLastAnc(patientID: String): PregnantWomanAncCache?
 
-    @Query("select * from pregnancy_anc where patientID = :patientID and weight IS NOT NULL order by visitNumber desc limit 1")
+    @Query("select * from pregnancy_anc where patientID = :patientID and weight IS NOT NULL and isActive = 1 order by visitNumber desc limit 1")
     suspend fun getLastCompletedAnc(patientID: String): PregnantWomanAncCache?
 
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
     suspend fun getLastVisitNumber(patientID: String): Int?
+
+    @Query("select visitNumber from pregnancy_anc where patientID = :patientID and isActive = 1 order by visitNumber desc limit 1")
+    suspend fun getLastActiveVisitNumber(patientID: String): Int?
 
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
     suspend fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?

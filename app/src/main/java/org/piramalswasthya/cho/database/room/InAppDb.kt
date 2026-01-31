@@ -230,7 +230,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 111, exportSchema = false
+    version = 112, exportSchema = false
 )
 
 
@@ -344,6 +344,13 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP INDEX IF EXISTS ind_asha_due")
+                database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -360,7 +367,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_107_108,
                             MIGRATION_108_109,
                             MIGRATION_109_110,
-                            MIGRATION_110_111
+                            MIGRATION_110_111,
+                            MIGRATION_111_112
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

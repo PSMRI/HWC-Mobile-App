@@ -126,6 +126,9 @@ class PwAncFormViewModel @Inject constructor(
                     if (ancCache.anyHighRisk == true) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
                             it.isHrp = true
+                            if (it.processed != "N") it.processed = "U"
+                            it.syncState = SyncState.UNSYNCED
+                            it.updatedDate = System.currentTimeMillis()
                             maternalHealthRepo.persistRegisterRecord(it)
                         }
                     }

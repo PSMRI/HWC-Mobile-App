@@ -236,18 +236,19 @@ class VisitDetailViewModel @Inject constructor(
             val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
                 pwr = pwr,
                 benId = benId,
-                lmpDateMillis = lmpStartOfDayMillis,
                 ashaId = ashaId
             )
             if (registrationId > 0) {
                 activePwrRecord = pwr.copy(id = registrationId)
+                _isLMPDateSaved.value = true
+            } else {
+                _isLMPDateSaved.value = false
             }
             allActiveAncRecords.value = getAllActiveAncRecords(benId)
             completedAncRecords.value = getCompletedActiveAncRecords(benId)
             lastAnc = getLastAnc(benId)
             lastCompletedAnc = getLastCompletedAnc(benId)
             lastAncVisitNumber.value = getLastAncVisitNumber(benId)
-            _isLMPDateSaved.value = true
         }
     }
 
@@ -276,7 +277,6 @@ class VisitDetailViewModel @Inject constructor(
                 val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
                     pwr = pwr,
                     benId = benId,
-                    lmpDateMillis = lmpStartOfDayMillis,
                     ashaId = ashaId
                 )
                 if (registrationId > 0) {

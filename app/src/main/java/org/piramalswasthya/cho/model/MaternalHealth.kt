@@ -581,6 +581,7 @@ data class ANCPost(
 //    val syncState: SyncState?
 //)
 
+
 @Entity(
     tableName = "ASHA_DUE_LIST",
     foreignKeys = [ForeignKey(
@@ -590,7 +591,7 @@ data class ANCPost(
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"])]
+    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"], unique = true)]
 )
 data class AshaDueListCache(
     @PrimaryKey(autoGenerate = true)

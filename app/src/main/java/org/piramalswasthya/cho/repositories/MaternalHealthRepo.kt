@@ -94,7 +94,6 @@ class MaternalHealthRepo @Inject constructor(
     suspend fun registerPregnancyWithAncAndAshaDueList(
         pwr: PregnantWomanRegistrationCache,
         benId: String,
-        lmpDateMillis: Long,
         ashaId: Int
     ): Long = withContext(Dispatchers.IO) {
         val registrationId = maternalHealthDao.saveRecord(pwr)
@@ -120,7 +119,7 @@ class MaternalHealthRepo @Inject constructor(
 
 
     private suspend fun generateAndPersistAncSchedule(pwr: PregnantWomanRegistrationCache) {
-        if (maternalHealthDao.getLastVisitNumber(pwr.patientID) != null) return
+        if (maternalHealthDao.getLastActiveVisitNumber(pwr.patientID) != null) return
         val cal = Calendar.getInstance().apply {
             timeInMillis = pwr.lmpDate
             set(Calendar.HOUR_OF_DAY, 0)

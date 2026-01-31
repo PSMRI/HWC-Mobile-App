@@ -384,7 +384,7 @@ class PregnantWomanAncVisitDataset(
                     ancVisit.entries = arrayOf(2, 3, 4).filter {
                         it > last.visitNumber
                     }.map { it.toString() }.toTypedArray()
-
+                    if (ancVisit.entries.isNullOrEmpty()) ancVisit.entries = arrayOf("4")
                     lastAncVisitDate = last.ancDate
                 }
             }
@@ -415,7 +415,7 @@ class PregnantWomanAncVisitDataset(
             }
         }
 
-        ancVisit.value = visitNumber.toString()
+        ancVisit.value = if (ancVisit.entries?.contains(visitNumber.toString()) == true) visitNumber.toString() else (ancVisit.entries?.firstOrNull() ?: visitNumber.toString())
 
         saved?.let { savedAnc ->
 

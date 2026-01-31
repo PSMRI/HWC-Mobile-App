@@ -1466,6 +1466,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun checkAndNavigateAnc(){
+        if (viewModel.activePwrRecord == null) {
+            Toast.makeText(requireContext(), "Patient record not loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
         if(viewModel.lastCompletedAnc != null && System.currentTimeMillis() - viewModel.lastCompletedAnc!!.ancDate < minGap){
