@@ -241,57 +241,9 @@ class VisitDetailViewModel @Inject constructor(
             if (registrationId > 0) {
                 activePwrRecord = pwr.copy(id = registrationId)
                 _isLMPDateSaved.value = true
+                refreshAncData(benId)
             } else {
                 _isLMPDateSaved.value = false
-            }
-            allActiveAncRecords.value = getAllActiveAncRecords(benId)
-            completedAncRecords.value = getCompletedActiveAncRecords(benId)
-            lastAnc = getLastAnc(benId)
-            lastCompletedAnc = getLastCompletedAnc(benId)
-            lastAncVisitNumber.value = getLastAncVisitNumber(benId)
-        }
-    }
-
-   
-    suspend fun ensurePregnancyRegistration(benId: String, lmpDate: Date, isHighRisk: Boolean): Boolean {
-        if (activePwrRecord != null) return true
-        val user = userRepo.getLoggedInUser() ?: return false
-        return withContext(Dispatchers.IO) {
-            try {
-                val lmpStartOfDayMillis = Calendar.getInstance().apply {
-                    timeInMillis = lmpDate.time
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }.timeInMillis
-                val pwr = PregnantWomanRegistrationCache(
-                    patientID = benId,
-                    lmpDate = lmpStartOfDayMillis,
-                    isHrp = isHighRisk,
-                    createdBy = user.userName,
-                    syncState = SyncState.UNSYNCED,
-                    updatedBy = user.userName
-                )
-                val ashaId = user.userId
-                val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
-                    pwr = pwr,
-                    benId = benId,
-                    ashaId = ashaId
-                )
-                if (registrationId > 0) {
-                    activePwrRecord = pwr.copy(id = registrationId)
-                    lastAnc = getLastAnc(benId)
-                    lastCompletedAnc = getLastCompletedAnc(benId)
-                    allActiveAncRecords.postValue(getAllActiveAncRecords(benId))
-                    completedAncRecords.postValue(getCompletedActiveAncRecords(benId))
-                    lastAncVisitNumber.postValue(getLastAncVisitNumber(benId))
-                    _isLMPDateSaved.postValue(true)
-                    true
-                } else false
-            } catch (e: Exception) {
-                Timber.e(e, "ensurePregnancyRegistration failed for benId=$benId")
-                false
             }
         }
     }
