@@ -137,7 +137,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
 
     private fun setupPatientId(patient: PatientDisplayWithVisitInfo) {
         val patientId = patient.patient.beneficiaryID ?: patient.patient.patientID
-        binding.tvPatientId.text = "ID: $patientId"
+        binding.tvPatientId.text = getString(R.string.beneficiary_id_label, patientId)
     }
 
     private fun setupPatientPhoto(patient: PatientDisplayWithVisitInfo) {
@@ -347,7 +347,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         } catch (e: Exception) {
             Toast.makeText(
                 requireContext(),
-                "Speech recognition not available",
+                getString(R.string.speech_recognition_error),
                 Toast.LENGTH_SHORT
             ).show()
         }

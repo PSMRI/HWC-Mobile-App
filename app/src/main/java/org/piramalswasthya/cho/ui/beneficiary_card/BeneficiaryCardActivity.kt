@@ -48,7 +48,13 @@ class BeneficiaryCardActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_beneficiary_card)
 
-        statusOfWomanID = intent.getIntExtra(EXTRA_STATUS_OF_WOMAN_ID, -1).takeIf { it != -1 }
+        // Restore statusOfWomanID from savedInstanceState or intent
+        statusOfWomanID = if (savedInstanceState != null) {
+            val storedValue = savedInstanceState.getInt(EXTRA_STATUS_OF_WOMAN_ID, -1)
+            storedValue.takeIf { it != -1 }
+        } else {
+            intent.getIntExtra(EXTRA_STATUS_OF_WOMAN_ID, -1).takeIf { it != -1 }
+        }
 
         if (savedInstanceState == null) {
             @Suppress("DEPRECATION")
@@ -63,6 +69,22 @@ class BeneficiaryCardActivity : AppCompatActivity() {
                 // No patient info provided, finish the activity
                 finish()
             }
+        } else {
+            // Restore patientInfo from savedInstanceState after configuration change
+            @Suppress("DEPRECATION")
+            patientInfo = savedInstanceState.getSerializable(EXTRA_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        patientInfo?.let {
+            outState.putSerializable(EXTRA_PATIENT_INFO, it)
+        }
+        statusOfWomanID?.let {
+            outState.putInt(EXTRA_STATUS_OF_WOMAN_ID, it)
+        } ?: run {
+            outState.putInt(EXTRA_STATUS_OF_WOMAN_ID, -1)
         }
     }
 
@@ -74,15 +96,12 @@ class BeneficiaryCardActivity : AppCompatActivity() {
 
             when (statusOfWomanID) {
                 1 -> {
-                    // EC - Navigate to Eligible Couple Tracking
                     intent.putExtra("navigateToEC", true)
                 }
                 2 -> {
-                    // PW - Navigate to ANC/Pregnancy Module
                     intent.putExtra("navigateToPW", true)
                 }
                 3 -> {
-                    // Postnatal - Navigate to PNC Module
                     intent.putExtra("navigateToPN", true)
                 }
             }

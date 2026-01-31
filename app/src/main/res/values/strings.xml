@@ -761,6 +761,8 @@
     <string name="status_of_woman_required">Status of Woman is required</string>
     <string name="speak_now">Speak now...</string>
     <string name="not_available">Not Available</string>
-
+    <string name="speech_recognition_error">Speech recognition not available</string>
+    <string name="beneficiary_photo_content_description">Photo of %s</string>
+    <string name="desc_patient_photo">Patient photo</string>
 
 </resources>

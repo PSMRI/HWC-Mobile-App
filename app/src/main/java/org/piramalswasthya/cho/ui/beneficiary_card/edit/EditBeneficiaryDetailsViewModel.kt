@@ -84,6 +84,9 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
             try {
                 val list = statusOfWomanDao.getAllStatusOfWoman()
                 _statusOfWomanList.value = list
+                if (_patientInfo.value != null) {
+                    updateFilteredStatusOfWomanList()
+                }
             } catch (e: Exception) {
                 _statusOfWomanList.value = emptyList()
             }
@@ -167,7 +170,9 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
             return true
         }
 
-        val isValid = phone.length == 10 && phone[0] in listOf('6', '7', '8', '9')
+        val isValid = phone.length == 10 && 
+                      phone[0] in listOf('6', '7', '8', '9') && 
+                      phone.all { it.isDigit() }
         _phoneNumberValid.value = isValid
         return isValid
     }
@@ -210,11 +215,11 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
             try {
                 val currentPatient = _patientInfo.value?.patient ?: throw Exception("Patient not found")
 
-                // Update patient fields
+               
                 currentPatient.lastName = lastName
-                currentPatient.phoneNo = phoneNumber
+                currentPatient.phoneNo = if (phoneNumber.isNullOrBlank()) null else phoneNumber
 
-                // Update age and DOB
+              
                 val newDob = DateTimeUtil.calculateDateOfBirth(
                     ageYears ?: 0,
                     ageMonths ?: 0,

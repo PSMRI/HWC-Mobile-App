@@ -359,19 +359,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_111_112 = object : Migration(111, 112) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns to ELIGIBLE_COUPLE_TRACKING table
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN financialYear TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN visitMonth TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN lmpDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN anyOtherMethod TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDose TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraInjectionDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDueDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN dateOfSterilization INTEGER")
-            }
-        }
+
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -390,8 +378,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_107_108,
                             MIGRATION_108_109,
                             MIGRATION_109_110,
-                            MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_110_111
+
 
                         )
                         .fallbackToDestructiveMigration()

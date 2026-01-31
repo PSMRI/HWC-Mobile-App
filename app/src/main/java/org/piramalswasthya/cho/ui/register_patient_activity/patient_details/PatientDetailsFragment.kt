@@ -33,7 +33,7 @@ import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import org.piramalswasthya.cho.coroutines.DispatcherProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
@@ -81,6 +81,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
+
+    @Inject
+    lateinit var dispatcherProvider: DispatcherProvider
 
     private val binding by lazy{
         FragmentPatientDetailsBinding.inflate(layoutInflater)
@@ -133,9 +136,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             dialog = builder.create()
             dialog.show()
 
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(dispatcherProvider.IO) {
                 faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(Dispatchers.Main) {
+                withContext(dispatcherProvider.Main) {
                     if (isAdded) {
                         dialog.dismiss()
                         checkAndRequestCameraPermission()
@@ -240,16 +243,20 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                                 height
                             )
 
-                            // Clean up detector
+                            // Clean up detectoar
                             faceDetector.close()
 
                             // Get face embeddings
                             embeddings = faceNetModel.getFaceEmbedding(faceBitmap)
 
-                            // Check for face duplicates
-                            lifecycleScope.launch(Dispatchers.IO) {
+                            if (embeddings == null) {
+                                Toast.makeText(requireContext(), "Failed to generate face embeddings", Toast.LENGTH_SHORT).show()
+                                return@registerForActivityResult
+                            }
+
+                            lifecycleScope.launch(dispatcherProvider.IO) {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
-                                withContext(Dispatchers.Main) {
+                                withContext(dispatcherProvider.Main) {
                                     if (matchedPatient != null) {
                                         showDuplicateFaceDialog(matchedPatient)
                                     } else {
@@ -434,83 +441,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 if (scannedData != null) {
                     val userData = parseUserData(scannedData)
 
-                    val nameParts = userData.name?.split(" ")
-                    val firstName = nameParts?.get(0)
-                    val lastName = nameParts?.get(nameParts.size - 1)
-                    binding.firstName.text =
-                        Editable.Factory.getInstance().newEditable(firstName ?: "")
-                    binding.lastName.text =
-                        Editable.Factory.getInstance().newEditable(lastName ?: "")
+                    applyScannedName(userData)
 
-                    val inputDateFormat1 = SimpleDateFormat("dd/MM/yyyy")
-                    val inputDateFormat2 = SimpleDateFormat("dd-MM-yyyy")
-                    val inputDateFormat3 = SimpleDateFormat("yyyy-MM-dd")
-                    val inputDateFormat4 = SimpleDateFormat("yyyy/MM/dd")
+                    applyScannedDob(userData)
 
-                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-                    if (!userData.dateOfBirth.isNullOrEmpty()) {
-                        val date: Date? = when {
-                            userData.dateOfBirth[2].toString() == "/" -> {
-                                inputDateFormat1.parse(userData.dateOfBirth)
-                            }
-                            userData.dateOfBirth[2].toString() == "-" -> {
-                                inputDateFormat2.parse(userData.dateOfBirth)
-                            }
-                            userData.dateOfBirth[4].toString() == "-" -> {
-                                inputDateFormat3.parse(userData.dateOfBirth)
-                            }
-                            userData.dateOfBirth[4].toString() == "/" -> {
-                                inputDateFormat4.parse(userData.dateOfBirth)
-                            }
-                            else -> {
-                                null
-                            }
-                        } as Date
-
-                        val outputDateStr: String = outputDateFormat.format(date)
-                        val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
-
-                        viewModel.selectedDateOfBirth = outputDate
-
-                        dobUtil.showDatePickerDialog(
-                            requireContext(),
-                            viewModel.selectedDateOfBirth,
-                            maxDays = 0,
-                            minDays = -(99*365 + 25)
-                        )
-
+                    if (!userData.gender.isNullOrEmpty()){ 
+                        applyScannedGender(userData)
                     }
-                    if (!userData.gender.isNullOrEmpty()){
-                        when (userData.gender) {
-                            "M" -> {
-                                viewModel.selectedGenderMaster = viewModel.genderMasterList[0]
-                                binding.genderDropdown.setText(
-                                    viewModel.selectedGenderMaster!!.genderName,
-                                    false
-                                )
-                            }
-
-                            "F" -> {
-                                viewModel.selectedGenderMaster = viewModel.genderMasterList[1]
-                                binding.genderDropdown.setText(
-                                    viewModel.selectedGenderMaster!!.genderName,
-                                    false
-                                )
-                            }
-
-                            else -> {
-                                viewModel.selectedGenderMaster = viewModel.genderMasterList[2]
-                                binding.genderDropdown.setText(
-                                    viewModel.selectedGenderMaster!!.genderName,
-                                    false
-                                )
-                            }
-                        }
-                    }
-                    if(!userData.mobileNumber.isNullOrEmpty()){
-                        binding.phoneNo.setText(userData.mobileNumber)
-                    }
+                    applyScannedPhone(userData)
                 }
             }
         }
@@ -556,6 +494,66 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             Toast.makeText(context, "Unable to fetch details", Toast.LENGTH_SHORT).show()
         }
         return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
+    }
+
+
+    private fun applyScannedName(userData: PatientAadhaarDetails) {
+        val nameParts = userData.name?.split(" ")
+        val firstName = nameParts?.get(0)
+        val lastName = nameParts?.getOrNull(nameParts.size - 1)
+        binding.firstName.text = Editable.Factory.getInstance().newEditable(firstName ?: "")
+        binding.lastName.text = Editable.Factory.getInstance().newEditable(lastName ?: "")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun applyScannedDob(userData: PatientAadhaarDetails) {
+        val dob = userData.dateOfBirth
+        if (dob.isNullOrEmpty()) return
+
+        val inputDateFormat1 = SimpleDateFormat("dd/MM/yyyy")
+        val inputDateFormat2 = SimpleDateFormat("dd-MM-yyyy")
+        val inputDateFormat3 = SimpleDateFormat("yyyy-MM-dd")
+        val inputDateFormat4 = SimpleDateFormat("yyyy/MM/dd")
+        val outputDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        val date: Date? = when {
+            dob.length > 2 && dob[2] == '/' -> inputDateFormat1.parse(dob)
+            dob.length > 2 && dob[2] == '-' -> inputDateFormat2.parse(dob)
+            dob.length > 4 && dob[4] == '-' -> inputDateFormat3.parse(dob)
+            dob.length > 4 && dob[4] == '/' -> inputDateFormat4.parse(dob)
+            else -> null
+        }
+
+        if (date != null) {
+            val outputDateStr: String = outputDateFormat.format(date)
+            val outputDate: Date = outputDateFormat.parse(outputDateStr) as Date
+            viewModel.selectedDateOfBirth = outputDate
+
+            dobUtil.showDatePickerDialog(
+                requireContext(),
+                viewModel.selectedDateOfBirth,
+                maxDays = 0,
+                minDays = -(99*365 + 25)
+            )
+        }
+    }
+
+    private fun applyScannedGender(userData: PatientAadhaarDetails) {
+        val g = userData.gender ?: return
+        when (g) {
+            "M" -> viewModel.selectedGenderMaster = viewModel.genderMasterList.getOrNull(0)
+            "F" -> viewModel.selectedGenderMaster = viewModel.genderMasterList.getOrNull(1)
+            else -> viewModel.selectedGenderMaster = viewModel.genderMasterList.getOrNull(2)
+        }
+        viewModel.selectedGenderMaster?.let {
+            binding.genderDropdown.setText(it.genderName, false)
+        }
+    }
+
+    private fun applyScannedPhone(userData: PatientAadhaarDetails) {
+        userData.mobileNumber?.takeIf { it.isNotBlank() }?.let {
+            binding.phoneNo.setText(it)
+        }
     }
 
     private val speechToTextLauncherForFirstName = registerForActivityResult(SpeechToTextContract()) { result ->
@@ -845,7 +843,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                //No-Ops For Now
+                // Intentionally left empty
             }
         })
 
@@ -1023,7 +1021,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         dropdown.addTextChangedListener(object : TextWatcher {
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Intentionally left empty: village filtering and state updates are handled in
+            }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.setVillageBool(!s.isNullOrEmpty())
@@ -1033,7 +1033,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 }
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // No post-change work required for village input. Kept intentionally blank
+            }
         })
     }
 
@@ -1051,18 +1053,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             if (::villageAdapter.isInitialized) {
                 val itemCount = villageAdapter.count
                 if (itemCount > 0) {
-                    var itemHeightPx = 0
-                    try {
+                    val itemHeightPx = try {
                         val tempParent = android.widget.FrameLayout(requireContext())
                         val itemView = villageAdapter.getDropDownView(0, null, tempParent)
                         itemView.measure(
                             View.MeasureSpec.makeMeasureSpec(dropdown.width, View.MeasureSpec.EXACTLY),
                             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
                         )
-                        itemHeightPx = itemView.measuredHeight
+                        itemView.measuredHeight
                     } catch (e: Exception) {
                         val itemHeightDp = 50f
-                        itemHeightPx = (itemHeightDp * resources.displayMetrics.density).toInt()
+                        (itemHeightDp * resources.displayMetrics.density).toInt()
                     }
                     val bottomPaddingDp = 16f
                     val bottomPaddingPx = (bottomPaddingDp * resources.displayMetrics.density).toInt()
@@ -1191,7 +1192,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         // Check ABHA ID validation if Has ABHA ID is Yes
         if (selectedHasAbhaId == true) {
             val abhaNumber = binding.abhaIdNumber.text.toString().trim()
-            if (abhaNumber.length != 14) {
+            if (abhaNumber.length != 14 || !abhaNumber.all { it.isDigit() }) {
                 return false
             }
         }
@@ -1237,28 +1238,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         requireActivity().finish()
     }
 
-    private fun navigateBasedOnStatusOfWoman() {
-        val intent = Intent(context, EditPatientDetailsActivity::class.java)
-        intent.putExtra("benVisitInfo", viewModel.benVisitInfo)
-
-        when (viewModel.selectedStatusOfWoman?.statusID) {
-            1 -> {
-                // EC - Navigate to Eligible Couple Tracking
-                intent.putExtra("navigateToEC", true)
-            }
-            2 -> {
-                // PW - Navigate to ANC/Pregnancy Module
-                intent.putExtra("navigateToPW", true)
-            }
-            3 -> {
-                // Postnatal - Navigate to PNC Module
-                intent.putExtra("navigateToPN", true)
-            }
-        }
-
-        startActivity(intent)
-    }
-
     override fun onCancelAction() {
         requireActivity().finish()
     }
@@ -1268,11 +1247,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         var bestMatch: Patient? = null
         var bestDistance = Float.MAX_VALUE
 
-        val patients = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val patients = kotlinx.coroutines.withContext(dispatcherProvider.IO) {
             viewModel.getAllPatientsForFaceComparison()
         }
 
-        kotlinx.coroutines.withContext(Dispatchers.Default) {
+        kotlinx.coroutines.withContext(dispatcherProvider.Default) {
             for (patient in patients) {
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()
                 if (patientEmbedding == null || patientEmbedding.isEmpty()) {
@@ -1288,8 +1267,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         // L2 threshold for FaceNet model
-        val threshold = 10.0f
-        return if (bestDistance < threshold) bestMatch else null
+        return if (bestDistance < Models.FACENET.l2Threshold) bestMatch else null
     }
 
     private fun l2Norm(x1: FloatArray, x2: FloatArray): Float {
@@ -1310,7 +1288,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 // Navigate to existing patient
                 val intent = Intent(context, EditPatientDetailsActivity::class.java)
                 lifecycleScope.launch {
-                    val benVisitInfo = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                    val benVisitInfo = kotlinx.coroutines.withContext(dispatcherProvider.IO) {
                         viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
                     }
                     intent.putExtra("benVisitInfo", benVisitInfo)
@@ -1360,19 +1338,24 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         
         binding.abhaIdNumber.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Intentionally blank: ABHA validation/assignment happens in `onTextChanged`.
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val abhaNumber = s?.toString()?.trim() ?: ""
                 viewModel.abhaIdNumber = if (abhaNumber.isNotEmpty()) abhaNumber else null
-                viewModel.setAbhaIdNumber(abhaNumber.length == 14)
+                val isValidAbhaFormat = abhaNumber.length == 14 && abhaNumber.all { it.isDigit() }
+                viewModel.setAbhaIdNumber(isValidAbhaFormat)
 
-                if (abhaNumber.isNotEmpty() && abhaNumber.length != 14) {
+                if (abhaNumber.isNotEmpty() && (abhaNumber.length != 14 || !abhaNumber.all { it.isDigit() })) {
                     binding.abhaIdNumberText.error = getString(R.string.invalid_abha_format)
                 } else {
                     binding.abhaIdNumberText.error = null
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // No deferred validation or cleanup necessary after text change —
+            }
         })
     }
 
@@ -1394,7 +1377,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
                     updateStatusOfWomanVisibility()
                 }
-                else -> {}
+                else -> {
+                    //
+                }
             }
         }
 

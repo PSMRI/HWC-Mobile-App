@@ -72,6 +72,7 @@
                                 android:layout_height="100dp"
                                 android:scaleType="centerCrop"
                                 android:background="@drawable/bg_circular"
+                                android:contentDescription="@{@string/beneficiary_photo_content_description(patient.patient.firstName + ` ` + (patient.patient.lastName ?? ``))}"
                                 app:benImage="@{patient.patient.benImage}"
                                 tools:src="@drawable/ic_person" />
 
