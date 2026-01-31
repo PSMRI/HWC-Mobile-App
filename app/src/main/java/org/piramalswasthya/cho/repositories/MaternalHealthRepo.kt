@@ -1,16 +1,18 @@
 package org.piramalswasthya.cho.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import org.piramalswasthya.cho.database.room.InAppDb
-import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+//import org.piramalswasthya.cho.database.room.InAppDb
+//import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.AbortionDomain
+import org.piramalswasthya.cho.model.PatientWithPwrCache
+import org.piramalswasthya.cho.model.PmsmaDomain
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
@@ -19,7 +21,6 @@ import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 //import org.piramalswasthya.sakhi.database.room.dao.BenDao
 //import org.piramalswasthya.sakhi.database.room.dao.MaternalHealthDao
-import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.model.ANCPost
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
@@ -28,32 +29,21 @@ import org.piramalswasthya.cho.model.ANCPost
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MaternalHealthRepo @Inject constructor(
     private val amritApiService: AmritApiService,
     private val maternalHealthDao: MaternalHealthDao,
-    private val database: InAppDb,
+//    private val database: InAppDb,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
-    private val preferenceDao: PreferenceDao,
+//    private val preferenceDao: PreferenceDao,
 ) {
 
     suspend fun getSavedRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
         return maternalHealthDao.getSavedRecord(benId)
     }
 
-
-
-    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
-        return withContext(Dispatchers.IO) {
-            maternalHealthDao.getSavedActiveRecord(benId)
-        }
-    }
-//
 
     suspend fun getLastVisitNumber(benId: String): Int? {
         return maternalHealthDao.getLastVisitNumber(benId)
@@ -129,6 +119,85 @@ class MaternalHealthRepo @Inject constructor(
 
             return@withContext true
         }
+    }
+
+    /**
+     * Get all patients with their pregnancy registration data
+     */
+    fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getAllPatientsWithPWR()
+    }
+
+    /**
+     * Get specific patient with pregnancy registration
+     */
+    suspend fun getPatientWithPWR(patientID: String): PatientWithPwrCache? {
+        return withContext(Dispatchers.IO) {
+            maternalHealthDao.getPatientWithPWR(patientID)
+        }
+    }
+
+    /**
+     * Get count of pregnant women registrations
+     */
+    fun getPWRCount(): Flow<Int> {
+        return maternalHealthDao.getPWRCount()
+    }
+
+    /**
+     * Get all patients who have delivered
+     * Uses batch query to avoid N+1 queries
+     */
+    fun getAllDeliveredWomen(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getDeliveredWomenPatientIDs()
+            .transformLatest { patientIDs ->
+                if (patientIDs.isNotEmpty()) {
+                    val patients = maternalHealthDao.getDeliveredWomenByIDs(patientIDs)
+                    emit(patients)
+                } else {
+                    emit(emptyList())
+                }
+            }
+    }
+
+    /**
+     * Get count of delivered women
+     */
+    fun getDeliveredWomenCount(): Flow<Int> {
+        return maternalHealthDao.getDeliveredWomenCount()
+    }
+
+    /**
+     * Get all women with abortion records
+     */
+    fun getAbortionPregnantWomanList(): Flow<List<AbortionDomain>> {
+        return maternalHealthDao.getAllAbortionWomenList()
+            .map { list -> 
+                list.map { it.asAbortionDomainModel() }
+                    .filter { it.abortionDate != null } // Ensure abortion date exists
+            }
+    }
+
+    /**
+     * Get count of abortion women
+     */
+    fun getAbortionWomenCount(): Flow<Int> {
+        return maternalHealthDao.getAllAbortionWomenCount()
+    }
+
+    /**
+     * Get all women registered for pregnancy (eligible for PMSMA)
+     */
+    fun getRegisteredPmsmaWomenList(): Flow<List<PmsmaDomain>> {
+        return maternalHealthDao.getAllRegisteredPmsmaWomenList()
+            .map { list -> list.map { it.asPmsmaDomainModel() } }
+    }
+
+    /**
+     * Get count of PMSMA eligible women
+     */
+    fun getRegisteredPmsmaWomenCount(): Flow<Int> {
+        return maternalHealthDao.getAllRegisteredPmsmaWomenCount()
     }
 
     private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {

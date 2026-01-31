@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -71,12 +72,14 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
-//        "https://uatamrit.piramalswasthya.org/"
+    private const val baseAmritUrl =
+//        "https://assamuat.piramalswasthya.org/"
+        "https://uatamrit.piramalswasthya.org/"
     //"https://amritdemo.piramalswasthya.org/"
 
-    private const val baseFlwUrl = "https://assamuat.piramalswasthya.org/"
-//        "https://uatamrit.piramalswasthya.org/"
+    private const val baseFlwUrl =
+//        "https://assamuat.piramalswasthya.org/"
+        "https://uatamrit.piramalswasthya.org/"
 
         //"https://amritdemo.piramalswasthya.org/"
 
@@ -322,6 +325,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
+
+    @Singleton
+    @Provides
+    fun provideInfantRegDao(database: InAppDb): InfantRegDao = database.infantRegDao
 
     @Singleton
     @Provides

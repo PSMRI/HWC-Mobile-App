@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.network.getLongFromDate
+import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -183,55 +184,301 @@ data class PregnantWomanRegistrationCache(
     }
 }
 
-//data class BenWithPwrCache(
-//    @Embedded
-//    val ben: BenBasicCache,
-//    @Relation(
-//        parentColumn = "benId", entityColumn = "benId"
-//    )
-//    val pwr: List<PregnantWomanRegistrationCache>,
-//
-//    ) {
-//    fun asPwrDomainModel(): BenWithPwrDomain {
-//        return BenWithPwrDomain(
-//            ben = ben.asBasicDomainModel(),
-//            pwr = pwr.firstOrNull { it.active }
-//        )
-//    }
-//
-//    fun asBenBasicDomainModelForHRPPregAssessmentForm(): BenBasicDomainForForm {
-//
-//        return BenBasicDomainForForm(
-//            benId = ben.benId,
-//            hhId = ben.hhId,
-//            regDate = BenBasicCache.dateFormat.format(Date(ben.regDate)),
-//            benName = ben.benName,
-//            benSurname = ben.benSurname ?: "",
-//            gender = ben.gender.name,
-//            dob = ben.dob,
-//            mobileNo = ben.mobileNo.toString(),
-//            fatherName = ben.fatherName,
-//            familyHeadName = ben.familyHeadName ?: "",
-//            spouseName = ben.spouseName ?: "",
-//            lastMenstrualPeriod = getDateStringFromLong(ben.lastMenstrualPeriod),
-//            edd = getEddFromLmp(ben.lastMenstrualPeriod),
-////            typeOfList = typeOfList.name,
-//            rchId = ben.rchId ?: "Not Available",
-//            hrpStatus = ben.hrpStatus,
-//            form1Filled = ben.hrppaFilled,
-//            syncState = ben.hrppaSyncState,
-//            form2Enabled = true,
-//            form2Filled = ben.hrpmbpFilled
-//        )
-//    }
-//
-//}
+/**
+ * Patient with Pregnant Woman Registration data.
+ * Relation is a list; the active/most-recent record is selected when building the domain.
+ */
+data class PatientWithPwrCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: List<PregnantWomanRegistrationCache>
+) {
+    /**
+     * Active PWR record, or if none active the most recent by createdDate.
+     */
+    fun getActiveOrLatestPwr(): PregnantWomanRegistrationCache? =
+        pwr.filter { it.active }.maxByOrNull { it.createdDate }
+            ?: pwr.maxByOrNull { it.createdDate }
 
-//data class BenWithPwrDomain(
-////    val benId: Long,
-//    val ben: BenBasicDomain,
-//    val pwr: PregnantWomanRegistrationCache?
-//)
+    fun asDomainModel(): PatientWithPwrDomain {
+        return PatientWithPwrDomain(
+            patient = patient,
+            pwr = getActiveOrLatestPwr()
+        )
+    }
+}
+
+/**
+ * Domain model for displaying patient with pregnancy registration
+ */
+data class PatientWithPwrDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    /**
+     * Get weeks of pregnancy
+     * Returns 0 if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getWeeksOfPregnancy(): Int {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            val daysSinceLMP = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - pwr.lmpDate)
+            (daysSinceLMP / 7).toInt()
+        } else {
+            0
+        }
+    }
+
+    /**
+     * Get EDD (Expected Date of Delivery) - LMP + 280 days
+     * Returns 0L if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getEDD(): Long {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            pwr.lmpDate + TimeUnit.DAYS.toMillis(280)
+        } else {
+            0L
+        }
+    }
+
+    /**
+     * Get formatted LMP date string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getFormattedLMPDate(): String {
+        return if (pwr?.lmpDate != null && pwr.lmpDate > 0L) {
+            getDateStringFromLong(pwr.lmpDate) ?: "NA"
+        } else {
+            "NA"
+        }
+    }
+
+    /**
+     * Get formatted EDD string
+     * Returns "NA" if LMP date is missing or invalid (null or <= 0)
+     */
+    fun getFormattedEDD(): String {
+        val edd = getEDD()
+        return if (edd > 0L) {
+            getDateStringFromLong(edd) ?: "NA"
+        } else {
+            "NA"
+        }
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "29 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
+     * Check if pregnancy is active
+     */
+    fun isActive(): Boolean {
+        return pwr?.active ?: false
+    }
+
+    /**
+     * Check if this is high-risk pregnancy
+     */
+    fun isHighRisk(): Boolean {
+        return pwr?.isHrp ?: false
+    }
+}
+
+/**
+ * Patient with PWR and ANC records (for abortion list).
+ * PWR is a list; active and latest-by-createdDate are selected when building the domain.
+ */
+data class PatientWithPwrAndAncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: List<PregnantWomanRegistrationCache>,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val ancRecords: List<PregnantWomanAncCache>
+) {
+    fun asAbortionDomainModel(): AbortionDomain {
+        val abortionRecord = ancRecords.firstOrNull { it.isAborted && it.abortionDate != null }
+        val activePwr = pwr.filter { it.active }.maxByOrNull { it.createdDate }
+        val registeredPwr = pwr.maxByOrNull { it.createdDate }
+
+        // Use LMP from registered PWR (even if inactive) or abortion record
+        val lmpDateToUse = registeredPwr?.lmpDate
+            ?: abortionRecord?.let { 
+                // If no PWR, try to get LMP from abortion record (if stored)
+                // For now, use 0L if not available
+                0L
+            } ?: 0L
+
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        } else null
+
+        return AbortionDomain(
+            patient = patient,
+            pwr = activePwr,
+            abortionRecord = abortionRecord,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse,
+            abortionDate = abortionRecord?.abortionDate
+        )
+    }
+}
+
+/**
+ * Domain model for displaying abortion list
+ */
+data class AbortionDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val abortionRecord: PregnantWomanAncCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?,
+    val abortionDate: Long?
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted abortion date string
+     */
+    fun getFormattedAbortionDate(): String {
+        return abortionDate?.let { getDateStringFromLong(it) ?: "NA" } ?: "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Get age string from patient DOB for display (e.g. "25 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+
+    /**
+     * Check if abortion form is filled (has abortion type and facility)
+     */
+    val isAbortionFormFilled: Boolean
+        get() = abortionRecord?.let { 
+            it.abortionType != null && it.abortionFacility != null 
+        } ?: false
+}
+
+/**
+ * Patient with PWR for PMSMA list
+ * Shows women registered for pregnancy (eligible for PMSMA)
+ */
+data class PatientWithPwrForPmsmaCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pwr: PregnantWomanRegistrationCache?
+) {
+    fun asPmsmaDomainModel(): PmsmaDomain {
+        val activePwr = pwr?.takeIf { it.active }
+        
+        val lmpDateToUse = activePwr?.lmpDate ?: 0L
+        val eddDateToUse = if (lmpDateToUse != 0L) {
+            lmpDateToUse + TimeUnit.DAYS.toMillis(280)
+        } else 0L
+
+        val weekOfPregnancyToUse = if (lmpDateToUse != 0L) {
+            (TimeUnit.MILLISECONDS.toDays(getTodayMillis() - lmpDateToUse) / 7).toInt()
+        } else null
+
+        return PmsmaDomain(
+            patient = patient,
+            pwr = activePwr,
+            lmpDate = lmpDateToUse,
+            eddDate = eddDateToUse,
+            weekOfPregnancy = weekOfPregnancyToUse
+        )
+    }
+}
+
+/**
+ * Domain model for displaying PMSMA list
+ */
+data class PmsmaDomain(
+    val patient: Patient,
+    val pwr: PregnantWomanRegistrationCache?,
+    val lmpDate: Long,
+    val eddDate: Long,
+    val weekOfPregnancy: Int?
+) {
+    /**
+     * Get formatted LMP date string
+     */
+    fun getFormattedLMPDate(): String {
+        return if (lmpDate != 0L) {
+            getDateStringFromLong(lmpDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get formatted EDD string
+     */
+    fun getFormattedEDD(): String {
+        return if (eddDate != 0L) {
+            getDateStringFromLong(eddDate) ?: "NA"
+        } else "NA"
+    }
+
+    /**
+     * Get weeks of pregnancy string
+     */
+    fun getWeeksOfPregnancyString(): String {
+        return weekOfPregnancy?.takeIf { it <= 40 }?.toString() ?: "NA"
+    }
+
+    /**
+     * Get patient's age string for display (e.g. "30 YEARS" or "NA").
+     */
+    fun getAgeString(): String {
+        return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+    }
+}
 
 data class PwrPost(
     val id: Long = 0,
