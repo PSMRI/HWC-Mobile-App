@@ -28,6 +28,7 @@ import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -71,7 +72,9 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
+//    private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
+    private const val baseAmritUrl = "https://uatamrit.piramalswasthya.org/"
+
 //        "https://uatamrit.piramalswasthya.org/"
     //"https://amritdemo.piramalswasthya.org/"
 
@@ -306,6 +309,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideMaternalHealthDao(database: InAppDb): MaternalHealthDao = database.maternalHealthDao
+
+    @Singleton
+    @Provides
+    fun provideAshaDueListDao(database: InAppDb): AshaDueListDao = database.ashaDueListDao
 
     @Singleton
     @Provides

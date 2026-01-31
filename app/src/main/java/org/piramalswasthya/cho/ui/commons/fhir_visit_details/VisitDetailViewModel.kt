@@ -11,6 +11,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.CbacCache
 import org.piramalswasthya.cho.model.ChiefComplaintDB
@@ -38,6 +40,7 @@ import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import timber.log.Timber
+import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
@@ -120,6 +123,8 @@ class VisitDetailViewModel @Inject constructor(
 
     var allActiveAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
 
+    var completedAncRecords = MutableLiveData<List<PregnantWomanAncCache>?>()
+
     var activePwrRecord : PregnantWomanRegistrationCache? = null
 
     var lastPncVisitNumber = MutableLiveData<Int?>(null)
@@ -131,6 +136,8 @@ class VisitDetailViewModel @Inject constructor(
     var allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
 
     var lastAnc: PregnantWomanAncCache? = null
+
+    var lastCompletedAnc: PregnantWomanAncCache? = null
 
     var lastEct = MutableLiveData<EligibleCoupleTrackingCache?>()
 
@@ -145,6 +152,7 @@ class VisitDetailViewModel @Inject constructor(
         viewModelScope.launch {
             lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
             allActiveAncRecords.value = getAllActiveAncRecords(patientID)
+            completedAncRecords.value = getCompletedActiveAncRecords(patientID)
             activePwrRecord = getSavedActiveRecordObserve(patientID)
 
             lastPncVisitNumber.value = getLastPncVisitNumber(patientID)
@@ -153,6 +161,7 @@ class VisitDetailViewModel @Inject constructor(
 
             allEctRecords.value = getAllECT(patientID)
             lastAnc = getLastAnc(patientID)
+            lastCompletedAnc = getLastCompletedAnc(patientID)
             lastEct.value = getLastEct(patientID)
 
 
@@ -205,19 +214,85 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getSavedRegistrationRecord(benId)
     }
 
-    fun savePregnantWomanRegistration(benId: String, lmpDate: Date) {
+    fun savePregnantWomanRegistration(benId: String, lmpDate: Date, isHighRisk: Boolean = false) {
         viewModelScope.launch {
-            val user = userRepo.getLoggedInUser()!!
+            val user = userRepo.getLoggedInUser() ?: return@launch
+            val lmpStartOfDayMillis = Calendar.getInstance().apply {
+                timeInMillis = lmpDate.time
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
             val pwr = PregnantWomanRegistrationCache(
                 patientID = benId,
-                lmpDate = lmpDate.time,
+                lmpDate = lmpStartOfDayMillis,
+                isHrp = isHighRisk,
                 createdBy = user.userName,
                 syncState = SyncState.UNSYNCED,
                 updatedBy = user.userName
             )
-            maternalHealthRepo.persistRegisterRecord(pwr)
-            activePwrRecord = pwr
+            val ashaId = user.userId
+            val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
+                pwr = pwr,
+                benId = benId,
+                lmpDateMillis = lmpStartOfDayMillis,
+                ashaId = ashaId
+            )
+            if (registrationId > 0) {
+                activePwrRecord = pwr.copy(id = registrationId)
+            }
+            allActiveAncRecords.value = getAllActiveAncRecords(benId)
+            completedAncRecords.value = getCompletedActiveAncRecords(benId)
+            lastAnc = getLastAnc(benId)
+            lastCompletedAnc = getLastCompletedAnc(benId)
+            lastAncVisitNumber.value = getLastAncVisitNumber(benId)
             _isLMPDateSaved.value = true
+        }
+    }
+
+   
+    suspend fun ensurePregnancyRegistration(benId: String, lmpDate: Date, isHighRisk: Boolean): Boolean {
+        if (activePwrRecord != null) return true
+        val user = userRepo.getLoggedInUser() ?: return false
+        return withContext(Dispatchers.IO) {
+            try {
+                val lmpStartOfDayMillis = Calendar.getInstance().apply {
+                    timeInMillis = lmpDate.time
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+                val pwr = PregnantWomanRegistrationCache(
+                    patientID = benId,
+                    lmpDate = lmpStartOfDayMillis,
+                    isHrp = isHighRisk,
+                    createdBy = user.userName,
+                    syncState = SyncState.UNSYNCED,
+                    updatedBy = user.userName
+                )
+                val ashaId = user.userId
+                val registrationId = maternalHealthRepo.registerPregnancyWithAncAndAshaDueList(
+                    pwr = pwr,
+                    benId = benId,
+                    lmpDateMillis = lmpStartOfDayMillis,
+                    ashaId = ashaId
+                )
+                if (registrationId > 0) {
+                    activePwrRecord = pwr.copy(id = registrationId)
+                    lastAnc = getLastAnc(benId)
+                    lastCompletedAnc = getLastCompletedAnc(benId)
+                    allActiveAncRecords.postValue(getAllActiveAncRecords(benId))
+                    completedAncRecords.postValue(getCompletedActiveAncRecords(benId))
+                    lastAncVisitNumber.postValue(getLastAncVisitNumber(benId))
+                    _isLMPDateSaved.postValue(true)
+                    true
+                } else false
+            } catch (e: Exception) {
+                Timber.e(e, "ensurePregnancyRegistration failed for benId=$benId")
+                false
+            }
         }
     }
 
@@ -231,6 +306,14 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
         return maternalHealthRepo.getLastAnc(benId)
+    }
+
+    suspend fun getLastCompletedAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthRepo.getLastCompletedAnc(benId)
+    }
+
+    suspend fun getCompletedActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
+        return maternalHealthRepo.getCompletedActiveAncRecords(benId)
     }
 
     suspend fun getLastEct(benId: String): EligibleCoupleTrackingCache? {
@@ -255,6 +338,17 @@ class VisitDetailViewModel @Inject constructor(
 
     suspend fun getAllActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
         return maternalHealthRepo.getAllActiveAncRecords(benId)
+    }
+
+  
+    fun refreshAncData(patientID: String) {
+        viewModelScope.launch {
+            allActiveAncRecords.value = getAllActiveAncRecords(patientID)
+            completedAncRecords.value = getCompletedActiveAncRecords(patientID)
+            lastAnc = getLastAnc(patientID)
+            lastCompletedAnc = getLastCompletedAnc(patientID)
+            lastAncVisitNumber.value = getLastAncVisitNumber(patientID)
+        }
     }
 
     suspend fun getAllPNCsByPatId(benId: String): List<PNCVisitCache> {

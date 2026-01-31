@@ -580,3 +580,26 @@ data class ANCPost(
 //    val showViewAnc: Boolean = anc.isEmpty(),
 //    val syncState: SyncState?
 //)
+
+@Entity(
+    tableName = "ASHA_DUE_LIST",
+    foreignKeys = [ForeignKey(
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patientID"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"])]
+)
+data class AshaDueListCache(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val patientID: String,
+    val beneficiaryID: Long? = null,
+    val listType: String = "ANC",
+    val addedDate: Long = System.currentTimeMillis(),
+    val ashaId: Int = 0,
+    val createdBy: String,
+    var syncState: SyncState = SyncState.UNSYNCED
+)

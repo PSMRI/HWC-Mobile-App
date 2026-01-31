@@ -87,9 +87,10 @@ class PwAncFormViewModel @Inject constructor(
                 )
             }
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
-            maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
+            val savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            savedAnc?.let {
                 ancCache = it
-                _recordExists.value = true
+                _recordExists.value = (it.weight != null)
             } ?: run {
                 _recordExists.value = false
             }
@@ -100,7 +101,7 @@ class PwAncFormViewModel @Inject constructor(
                 ben,
                 registerRecord,
                 lastAnc,
-                if (recordExists.value == true) ancCache else null
+                savedAnc
             )
 
 
@@ -122,6 +123,12 @@ class PwAncFormViewModel @Inject constructor(
                     _state.postValue(State.SAVING)
                     dataset.mapValues(ancCache, 1)
                     maternalHealthRepo.persistAncRecord(ancCache)
+                    if (ancCache.anyHighRisk == true) {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            it.isHrp = true
+                            maternalHealthRepo.persistRegisterRecord(it)
+                        }
+                    }
                     if (ancCache.pregnantWomanDelivered == true) {
 
                     } else if (ancCache.isAborted) {

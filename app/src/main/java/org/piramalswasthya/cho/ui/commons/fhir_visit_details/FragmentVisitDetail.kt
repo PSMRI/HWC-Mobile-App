@@ -510,6 +510,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.deliveryDate.setText("")
         setSubCategoryDropdown()
         setReasonForVisitDropdown(viewModel.selectedSubCat)
+        if (::benVisitInfo.isInitialized) {
+            viewModel.refreshAncData(benVisitInfo.patient.patientID)
+        }
     }
 
     override fun onPause(){
@@ -776,7 +779,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             })
 
 
-        viewModel.allActiveAncRecords.observe(viewLifecycleOwner){
+        viewModel.completedAncRecords.observe(viewLifecycleOwner){
             (binding.rvAnc.adapter as AncVisitAdapter).submitList(it)
         }
 
@@ -1465,29 +1468,36 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     private fun checkAndNavigateAnc(){
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
-//        viewModel.lastAnc.observe(viewLifecycleOwner){
-            if(viewModel.lastAnc != null && System.currentTimeMillis() - viewModel.lastAnc!!.ancDate < minGap){
+        if(viewModel.lastCompletedAnc != null && System.currentTimeMillis() - viewModel.lastCompletedAnc!!.ancDate < minGap){
+            Toast.makeText(
+                requireContext(),
+                "ANC found within 28 days",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        else if(viewModel.lastCompletedAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
+            Toast.makeText(
+                requireContext(),
+                "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        else{
+            val nextVisitToFill = (viewModel.lastCompletedAnc?.visitNumber ?: 0) + 1
+            if (viewModel.activePwrRecord?.isHrp != true && nextVisitToFill > 4) {
                 Toast.makeText(
                     requireContext(),
-                    "ANC found within 28 days",
+                    "Maximum 4 ANC visits for non high-risk pregnancy",
                     Toast.LENGTH_SHORT
                 ).show()
+                return
             }
-            else if(viewModel.lastAnc == null && System.currentTimeMillis() - viewModel.activePwrRecord!!.lmpDate <= fiveWeeks) {
-                Toast.makeText(
-                    requireContext(),
-                    "LMP date found " + DateTimeUtil.formatCustDate(viewModel.activePwrRecord!!.lmpDate) + ". Gap with first ANC should be at least 5 weeks",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            else{
-                findNavController().navigate(
-                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
-                        benVisitInfo.patient.patientID, lastAncVisit + 1, false
-                    )
+            findNavController().navigate(
+                FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPwAncFormFragment(
+                    benVisitInfo.patient.patientID, nextVisitToFill, false
                 )
-            }
-//        }
+            )
+        }
     }
 
     fun getYearAndMonthFromEpoch(epochMillis: Long): Pair<Int, Int> {

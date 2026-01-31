@@ -38,6 +38,7 @@ import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -60,6 +61,7 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
@@ -223,11 +225,12 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class
+        ComponentOptionsMaster::class,
+        AshaDueListCache::class
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 110, exportSchema = false
+    version = 111, exportSchema = false
 )
 
 
@@ -286,6 +289,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val procedureDao: ProcedureDao
     abstract val prescriptionTemplateDao:PrescriptionTemplateDao
     abstract val maternalHealthDao: MaternalHealthDao
+    abstract val ashaDueListDao: AshaDueListDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
     abstract val pncDao: PncDao
@@ -320,6 +324,26 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
+
+        val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ASHA_DUE_LIST (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        beneficiaryID INTEGER,
+                        listType TEXT NOT NULL DEFAULT 'ANC',
+                        addedDate INTEGER NOT NULL,
+                        ashaId INTEGER NOT NULL DEFAULT 0,
+                        createdBy TEXT NOT NULL,
+                        syncState TEXT NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -334,7 +358,9 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,MIGRATION_109_110
+                            MIGRATION_108_109,
+                            MIGRATION_109_110,
+                            MIGRATION_110_111
                         )
                         .fallbackToDestructiveMigration()
                         .setQueryCallback(

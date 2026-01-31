@@ -81,7 +81,7 @@ class PregnantWomanAncVisitDataset(
         arrayId = -1,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,
-        required = false,
+        required = true,
         min = 30,
         max = 200
     )
@@ -370,14 +370,23 @@ class PregnantWomanAncVisitDataset(
         ben?.let {
             ancDate.min =
                 regis.lmpDate + TimeUnit.DAYS.toMillis(7 * Konstants.minAnc1Week.toLong() + 1)
-            ancVisit.entries = arrayOf("1", "2", "3", "4")
-            lastAnc?.let { last ->
-                ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
-                ancVisit.entries = arrayOf(2, 3, 4).filter {
-                    it > last.visitNumber
-                }.map { it.toString() }.toTypedArray()
+            if (regis.isHrp) {
+                ancVisit.entries = arrayOf("1", "2", "3", "4")
+                lastAnc?.let { last ->
+                    ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
+                    ancVisit.entries = arrayOf((last.visitNumber + 1).toString())
+                    lastAncVisitDate = last.ancDate
+                }
+            } else {
+                ancVisit.entries = arrayOf("1", "2", "3", "4")
+                lastAnc?.let { last ->
+                    ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
+                    ancVisit.entries = arrayOf(2, 3, 4).filter {
+                        it > last.visitNumber
+                    }.map { it.toString() }.toTypedArray()
 
-                lastAncVisitDate = last.ancDate
+                    lastAncVisitDate = last.ancDate
+                }
             }
             ancDate.max =
                 minOf(getEddFromLmp(regis.lmpDate), System.currentTimeMillis())
