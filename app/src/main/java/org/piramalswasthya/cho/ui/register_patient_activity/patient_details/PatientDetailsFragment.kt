@@ -807,7 +807,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.ageAtMarriage.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                  //No-Ops For Now
+                //No-Ops For Now
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -958,7 +958,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 villageAdapter.shouldAutoShowDropdown = false
             }
             isSettingVillageProgrammatically = true
-            
+
             dropdown.setText(viewModel.selectedVillage!!.villageName, false)
             dropdown.dismissDropDown()
             hideKeyboard(dropdown)

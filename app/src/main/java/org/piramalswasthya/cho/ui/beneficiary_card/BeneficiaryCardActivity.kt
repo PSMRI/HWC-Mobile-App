@@ -1,9 +1,7 @@
 package org.piramalswasthya.cho.ui.beneficiary_card
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,23 +42,17 @@ class BeneficiaryCardActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as CHOApplication).addActivity(this)
 
         setContentView(R.layout.activity_beneficiary_card)
 
-        // Get Status of Woman ID for routing
         statusOfWomanID = intent.getIntExtra(EXTRA_STATUS_OF_WOMAN_ID, -1).takeIf { it != -1 }
 
         if (savedInstanceState == null) {
-            patientInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getSerializableExtra(EXTRA_PATIENT_INFO, PatientDisplayWithVisitInfo::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getSerializableExtra(EXTRA_PATIENT_INFO) as? PatientDisplayWithVisitInfo
-            }
+            @Suppress("DEPRECATION")
+            patientInfo = intent.getSerializableExtra(EXTRA_PATIENT_INFO) as? PatientDisplayWithVisitInfo
 
             patientInfo?.let {
                 val fragment = BeneficiaryCardFragment.newInstance(it)
@@ -74,9 +66,7 @@ class BeneficiaryCardActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Navigate to appropriate screen based on Status of Woman after viewing the card.
-     */
+
     fun navigateToNextScreen() {
         patientInfo?.let { patient ->
             val intent = Intent(this, EditPatientDetailsActivity::class.java)
