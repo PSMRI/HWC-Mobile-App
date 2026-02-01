@@ -111,6 +111,7 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.work.WorkerUtils
 import android.os.Build
 import org.piramalswasthya.cho.utils.NetworkConnection
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -621,6 +622,7 @@ class PersonalDetailsFragment : Fragment() {
                     }
                     saveSuccess = true
                 } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                    Timber.e(e, "Error saving patient: SQLiteConstraintException")
                     val patientWithNullForeignKeys = patientToSave.copy(
                         ageUnitID = null,
                         maritalStatusID = null,
@@ -634,6 +636,7 @@ class PersonalDetailsFragment : Fragment() {
                         }
                         saveSuccess = true
                     } catch (e2: Exception) {
+                        Timber.e(e2, "Error saving patient with null foreign keys")
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("Error Saving Patient")
@@ -1285,24 +1288,30 @@ class PersonalDetailsFragment : Fragment() {
 
         showDownloadingNotification(fileName)
 
-        val outputStream: OutputStream
+        val outputStream: OutputStream?
         var pdfUri: Uri? = null
         var file: File? = null
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val result = createPdfForApi33(fileName)
-            outputStream = result.first
-            pdfUri = result.second
-        } else {
-            val downloadsDirectory: File =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            file = File(downloadsDirectory, fileName)
-            outputStream = FileOutputStream(file)
-        }
-
         try {
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                pdfUri = createPdfForApi33(fileName)
+                if (pdfUri == null) {
+                    throw IOException("Failed to create PDF MediaStore entry")
+                }
+                outputStream = requireContext().contentResolver.openOutputStream(pdfUri)
+                if (outputStream == null) {
+                    throw IOException("Failed to open output stream for PDF")
+                }
+            } else {
+                val downloadsDirectory: File =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                file = File(downloadsDirectory, fileName)
+                outputStream = FileOutputStream(file)
+            }
+
+            outputStream.use { stream ->
+                pdfDocument.writeTo(stream)
+            }
 
             if (pdfUri == null && file != null) {
                 pdfUri = FileProvider.getUriForFile(
@@ -1316,7 +1325,6 @@ class PersonalDetailsFragment : Fragment() {
             pdfUri?.let {
                 showDownloadCompleteNotification(fileName, it)
             }
-
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -1359,20 +1367,21 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(fileName: String): Pair<OutputStream, Uri> {
+    private fun createPdfForApi33(fileName: String): Uri? {
         val contentValues = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)
             put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
 
-        val pdfUri: Uri? = requireContext().contentResolver.insert(
-            MediaStore.Files.getContentUri("external"), contentValues
-        )
-        val outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
-        Objects.requireNonNull(outst)
-        Objects.requireNonNull(pdfUri)
-        return Pair(outst, pdfUri)
+        return try {
+            requireContext().contentResolver.insert(
+                MediaStore.Files.getContentUri("external"), contentValues
+            )
+        } catch (e: Exception) {
+            Timber.e(e, "Error creating PDF MediaStore entry")
+            null
+        }
     }
 
     private fun showDownloadingNotification(fileName: String) {

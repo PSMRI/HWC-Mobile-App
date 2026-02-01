@@ -157,7 +157,7 @@ class PatientItemAdapter(
                 binding.llBenId.visibility = View.GONE
             }
 
-            if (item.patient.syncState == SyncState.SYNCED) {
+            if (item.patient.syncState == SyncState.SYNCED && item.patient.beneficiaryID != null) {
                 //  binding.ivSyncState.visibility = View.VISIBLE
                 binding.btnAbha.isEnabled = true
             } else {

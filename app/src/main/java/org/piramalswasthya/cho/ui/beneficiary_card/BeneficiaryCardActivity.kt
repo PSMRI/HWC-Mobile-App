@@ -50,10 +50,16 @@ class BeneficiaryCardActivity : AppCompatActivity() {
 
         statusOfWomanID = intent.getIntExtra(EXTRA_STATUS_OF_WOMAN_ID, -1).takeIf { it != -1 }
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState != null) {
+            patientInfo = savedInstanceState.getSerializable(SAVED_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+        }
+
+        if (patientInfo == null) {
             @Suppress("DEPRECATION")
             patientInfo = intent.getSerializableExtra(EXTRA_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+        }
 
+        if (savedInstanceState == null) {
             patientInfo?.let {
                 val fragment = BeneficiaryCardFragment.newInstance(it)
                 supportFragmentManager.beginTransaction()
@@ -63,6 +69,13 @@ class BeneficiaryCardActivity : AppCompatActivity() {
                 // No patient info provided, finish the activity
                 finish()
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        patientInfo?.let {
+            outState.putSerializable(SAVED_PATIENT_INFO, it)
         }
     }
 
@@ -99,6 +112,7 @@ class BeneficiaryCardActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_PATIENT_INFO = "patientInfo"
+        const val SAVED_PATIENT_INFO = "SAVED_PATIENT_INFO"
         const val EXTRA_STATUS_OF_WOMAN_ID = "statusOfWomanID"
 
         fun getIntent(context: Context, patientInfo: PatientDisplayWithVisitInfo): Intent {

@@ -257,12 +257,12 @@
                                 android:id="@+id/tv_abha_id"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@{patient.patient.abhaIdNumber ?? (patient.patient.healthIdDetails != null ? patient.patient.healthIdDetails.healthIdNumber : ``)}"
+                                android:text="@{patient.patient.abhaIdNumber != null &amp;&amp; patient.patient.abhaIdNumber.length() > 0 ? patient.patient.abhaIdNumber : (patient.patient.healthIdDetails != null &amp;&amp; patient.patient.healthIdDetails.healthIdNumber != null &amp;&amp; patient.patient.healthIdDetails.healthIdNumber.length() > 0 ? patient.patient.healthIdDetails.healthIdNumber : ``)}"
                                 android:textSize="15sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/colorPrimary"
                                 android:layout_marginTop="2dp"
-                                android:visibility="@{(patient.patient.abhaIdNumber != null &amp;&amp; !patient.patient.abhaIdNumber.empty) || patient.patient.healthIdDetails != null ? android.view.View.VISIBLE : android.view.View.GONE}"
+                                android:visibility="@{(patient.patient.abhaIdNumber != null &amp;&amp; patient.patient.abhaIdNumber.length() > 0) || (patient.patient.healthIdDetails != null &amp;&amp; patient.patient.healthIdDetails.healthIdNumber != null &amp;&amp; patient.patient.healthIdDetails.healthIdNumber.length() > 0) ? android.view.View.VISIBLE : android.view.View.GONE}"
                                 tools:text="12-3456-7890-1234" />
 
                             <!-- Generate ABHA ID Button (visible when ABHA doesn't exist) -->
@@ -275,7 +275,7 @@
                                 android:layout_marginTop="4dp"
                                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                                 app:strokeColor="@color/colorPrimary"
-                                android:visibility="@{(patient.patient.abhaIdNumber == null || patient.patient.abhaIdNumber.empty) &amp;&amp; patient.patient.healthIdDetails == null ? android.view.View.VISIBLE : android.view.View.GONE}"
+                                android:visibility="@{(patient.patient.abhaIdNumber == null || patient.patient.abhaIdNumber.length() == 0) &amp;&amp; (patient.patient.healthIdDetails == null || patient.patient.healthIdDetails.healthIdNumber == null || patient.patient.healthIdDetails.healthIdNumber.length() == 0) ? android.view.View.VISIBLE : android.view.View.GONE}"
                                 android:onClick="@{() -> viewModel.onGenerateAbhaClicked()}" />
 
                         </LinearLayout>

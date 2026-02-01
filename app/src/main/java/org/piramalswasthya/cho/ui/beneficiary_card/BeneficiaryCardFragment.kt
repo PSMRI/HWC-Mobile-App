@@ -93,15 +93,7 @@ class BeneficiaryCardFragment : Fragment() {
             }
         }
 
-        // Handle Generate ABHA button click
-        binding.btnGenerateAbha.setOnClickListener {
-            navigateToAbhaGeneration()
-        }
 
-
-        binding.btnContinue.setOnClickListener {
-            onContinue()
-        }
     }
 
 
