@@ -136,6 +136,7 @@ class MaternalHealthRepo @Inject constructor(
             val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
             allPwr.mapNotNull { pwr ->
                 val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                if (ancRecords.any { it.pregnantWomanDelivered == true }) return@mapNotNull null
                 ancRecords.find { it.visitNumber == ancStage }?.let { anc ->
                     AncCompletedListItem(pwr.patientID, ancStage, anc.visitNumber)
                 }
