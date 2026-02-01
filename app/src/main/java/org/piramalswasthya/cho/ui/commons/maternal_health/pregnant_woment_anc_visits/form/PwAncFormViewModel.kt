@@ -92,7 +92,13 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
+            val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+            if (registerRecordOrNull == null) {
+                Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                _state.postValue(State.SAVE_FAILED)
+                return@launch
+            }
+            registerRecord = registerRecordOrNull
             lastAncVisitNumber = maternalHealthRepo.getLastVisitNumber(patientID) ?: 0
             val recordExists = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                 ancCache = it
@@ -120,27 +126,37 @@ class PwAncFormViewModel @Inject constructor(
         if (selectedVisit == currentVisitNumber) return
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val saved = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit)
-                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit - 1)
-                val asha = userRepo.getLoggedInUser()!!
-                ancCache = saved ?: PregnantWomanAncCache(
-                    patientID = patientID,
-                    visitNumber = selectedVisit,
-                    syncState = SyncState.UNSYNCED,
-                    createdBy = asha.userName,
-                    updatedBy = asha.userName
-                )
-                currentVisitNumber = selectedVisit
-                _recordExists.postValue(saved != null)
-                val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit < lastAncVisitNumber
-                _isOldVisit.postValue(isOld)
-                dataset.setUpPage(
-                    selectedVisit,
-                    ben,
-                    registerRecord,
-                    lastAnc,
-                    if (saved != null) ancCache else null
-                )
+                try {
+                    if (!::registerRecord.isInitialized) {
+                        Timber.w("switchToVisit: registerRecord not initialized yet")
+                        _state.postValue(State.SAVE_FAILED)
+                        return@withContext
+                    }
+                    val saved = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit)
+                    val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit - 1)
+                    val asha = userRepo.getLoggedInUser()!!
+                    ancCache = saved ?: PregnantWomanAncCache(
+                        patientID = patientID,
+                        visitNumber = selectedVisit,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha.userName,
+                        updatedBy = asha.userName
+                    )
+                    currentVisitNumber = selectedVisit
+                    _recordExists.postValue(saved != null)
+                    val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit < lastAncVisitNumber
+                    _isOldVisit.postValue(isOld)
+                    dataset.setUpPage(
+                        selectedVisit,
+                        ben,
+                        registerRecord,
+                        lastAnc,
+                        if (saved != null) ancCache else null
+                    )
+                } catch (e: Exception) {
+                    Timber.e(e, "switchToVisit failed")
+                    _state.postValue(State.SAVE_FAILED)
+                }
             }
         }
     }
