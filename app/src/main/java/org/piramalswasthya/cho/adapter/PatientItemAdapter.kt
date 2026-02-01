@@ -226,7 +226,7 @@ class PatientItemAdapter(
         }
 
         fun onClickViewCard(item: PatientDisplayWithVisitInfo) {
-            clickedViewCard?.invoke(item)
+            clickedViewCard(item)
         }
     }
 

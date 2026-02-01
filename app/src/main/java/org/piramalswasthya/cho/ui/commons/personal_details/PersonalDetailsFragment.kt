@@ -54,10 +54,10 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.coroutines.DispatcherProvider
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PatientItemAdapter
 import org.piramalswasthya.cho.adapter.ApiSearchAdapter
@@ -103,7 +103,6 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Objects
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsViewModel
 import org.piramalswasthya.cho.utils.generateUuid
@@ -182,6 +181,9 @@ class PersonalDetailsFragment : Fragment() {
     @Inject
     lateinit var blockMasterDao: BlockMasterDao
 
+    @Inject
+    lateinit var dispatcherProvider: DispatcherProvider
+
     private var _binding: FragmentPersonalDetailsBinding? = null
     private var patientCount: Int = 0
 
@@ -244,9 +246,9 @@ class PersonalDetailsFragment : Fragment() {
             dialog = builder.create()
             dialog.show()
 
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(dispatcherProvider.io) {
                 faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(Dispatchers.Main) {
+                withContext(dispatcherProvider.main) {
                     if (isAdded) {
                         dialog.dismiss()
                         checkAndRequestCameraPermission()
@@ -270,7 +272,7 @@ class PersonalDetailsFragment : Fragment() {
                             it,
                             clickListener = PatientItemAdapter.BenClickListener({ benVisitInfo ->
                                 if (isShowingSearchResults) {
-                                    lifecycleScope.launch(Dispatchers.IO) {
+                                    lifecycleScope.launch(dispatcherProvider.io) {
                                         val patient = benVisitInfo.patient
                                         val regId = patient.beneficiaryRegID
                                         if (regId != null) {
@@ -284,7 +286,7 @@ class PersonalDetailsFragment : Fragment() {
                                         } else {
                                             patientDao.insertPatient(patient)
                                         }
-                                        withContext(Dispatchers.Main) {
+                                        withContext(dispatcherProvider.main) {
                                             isShowingSearchResults = false
                                             binding.search.setText("")
                                             binding.patientListContainer.patientList.adapter = itemAdapter
@@ -396,7 +398,7 @@ class PersonalDetailsFragment : Fragment() {
                                         item.patient.registrationDate
                                     })
                                     patientCount = it.size
-                                    withContext(Dispatchers.Main) {
+                                    withContext(dispatcherProvider.main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
                                             binding.patientListContainer.patientCount.text =
@@ -414,7 +416,7 @@ class PersonalDetailsFragment : Fragment() {
                                         item.patient.registrationDate
                                     })
                                     patientCount = it.size
-                                    withContext(Dispatchers.Main) {
+                                    withContext(dispatcherProvider.main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
                                             binding.patientListContainer.patientCount.text =
@@ -432,7 +434,7 @@ class PersonalDetailsFragment : Fragment() {
                                         item.patient.registrationDate
                                     })
                                     patientCount = it.size
-                                    withContext(Dispatchers.Main) {
+                                    withContext(dispatcherProvider.main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
                                             binding.patientListContainer.patientCount.text =
@@ -450,7 +452,7 @@ class PersonalDetailsFragment : Fragment() {
                                         item.patient.registrationDate
                                     })
                                     patientCount = it.size
-                                    withContext(Dispatchers.Main) {
+                                    withContext(dispatcherProvider.main) {
                                         if (!isShowingSearchResults) {
                                             binding.patientListContainer.patientList.adapter = itemAdapter
                                             binding.patientListContainer.patientCount.text =
@@ -502,12 +504,12 @@ class PersonalDetailsFragment : Fragment() {
             try {
                 val beneficiaryID = apiPatient.patient.beneficiaryID
                 if (beneficiaryID != null) {
-                    val existingPatient = withContext(Dispatchers.IO) {
+                    val existingPatient = withContext(dispatcherProvider.io) {
                         patientDao.getBen(beneficiaryID)
                     }
 
                     if (existingPatient != null) {
-                        withContext(Dispatchers.Main) {
+                        withContext(dispatcherProvider.main) {
                             MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("Patient Already Exists")
                                 .setMessage("A patient with Beneficiary ID $beneficiaryID already exists in the system.")
@@ -533,7 +535,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 if (districtBranchID != null && blockID != null && districtID != null && stateID != null && !villageName.isNullOrBlank()) {
-                    withContext(Dispatchers.IO) {
+                    withContext(dispatcherProvider.io) {
                         if (stateMasterDao.getStateById(stateID) == null) {
                             stateMasterDao.insertStates(
                                 StateMaster(
@@ -617,7 +619,7 @@ class PersonalDetailsFragment : Fragment() {
 
                 var saveSuccess = false
                 try {
-                    withContext(Dispatchers.IO) {
+                    withContext(dispatcherProvider.io) {
                         patientRepo.insertPatient(patientToSave)
                     }
                     saveSuccess = true
@@ -631,13 +633,13 @@ class PersonalDetailsFragment : Fragment() {
                     )
 
                     try {
-                        withContext(Dispatchers.IO) {
+                        withContext(dispatcherProvider.io) {
                             patientRepo.insertPatient(patientWithNullForeignKeys)
                         }
                         saveSuccess = true
                     } catch (e2: Exception) {
                         Timber.e(e2, "Error saving patient with null foreign keys")
-                        withContext(Dispatchers.Main) {
+                        withContext(dispatcherProvider.main) {
                             MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("Error Saving Patient")
                                 .setMessage("Failed to save patient due to missing data. Please ensure all data is synced.")
@@ -649,7 +651,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 if (saveSuccess) {
-                    withContext(Dispatchers.Main) {
+                    withContext(dispatcherProvider.main) {
                         Toast.makeText(
                             requireContext(),
                             "Patient saved successfully",
@@ -661,7 +663,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
+                withContext(dispatcherProvider.main) {
                     Toast.makeText(
                         requireContext(),
                         "Error saving patient: ${e.message}",
@@ -906,10 +908,10 @@ class PersonalDetailsFragment : Fragment() {
         var bestMatch: Patient? = null
         var bestDistance = Float.MAX_VALUE
 
-        val patients = withContext(Dispatchers.IO) {
+        val patients = withContext(dispatcherProvider.io) {
             patientDao.getAllPatients()
         }
-        withContext(Dispatchers.Default) {
+        withContext(dispatcherProvider.default) {
             for (patient in patients) {
                 // Ensure that the faceEmbedding is not null and not empty, and convert it to FloatArray
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()
@@ -1476,7 +1478,7 @@ class PersonalDetailsFragment : Fragment() {
                 return
             }
 
-            searchJob = lifecycleScope.launch(Dispatchers.IO) {
+            searchJob = lifecycleScope.launch(dispatcherProvider.io) {
 
                 val local = patientDao.getPatientList()
                 val localMatches = local.filter {
@@ -1490,7 +1492,7 @@ class PersonalDetailsFragment : Fragment() {
                 }
 
                 if (!isNetworkAvailable) {
-                    withContext(Dispatchers.Main) {
+                    withContext(dispatcherProvider.main) {
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
                             viewModel.filterText(query)
@@ -1512,7 +1514,7 @@ class PersonalDetailsFragment : Fragment() {
                     val dataArr = root.optJSONArray("data") ?: JSONArray()
 
                     if (dataArr.length() == 0) {
-                        withContext(Dispatchers.Main) {
+                        withContext(dispatcherProvider.main) {
                             if (currentSearchQuery == query) {
                                 isShowingSearchResults = false
                                 viewModel.filterText(query)
@@ -1664,7 +1666,7 @@ class PersonalDetailsFragment : Fragment() {
                         )
                     }
 
-                    withContext(Dispatchers.Main) {
+                    withContext(dispatcherProvider.main) {
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = true
                             apiSearchAdapter?.submitList(list)
@@ -1677,7 +1679,7 @@ class PersonalDetailsFragment : Fragment() {
                 } catch (e: Exception) {
                     Timber.e(e, "API error → fallback to local")
 
-                    withContext(Dispatchers.Main) {
+                    withContext(dispatcherProvider.main) {
                         if (currentSearchQuery == query) {
                             isShowingSearchResults = false
                             viewModel.filterText(query)
@@ -1766,7 +1768,7 @@ class PersonalDetailsFragment : Fragment() {
                 } else {
                     viewModel.forgetUserEsanjeevani()
                 }
-                CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(dispatcherProvider.main).launch {
                     try {
                         var passWord =
                             encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))
