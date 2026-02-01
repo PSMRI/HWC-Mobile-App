@@ -103,8 +103,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             }
         }
         viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
-            if (viewModel.recordExists.value != true) return@observe
-            val formEditable = !isOld
+            val formEditable = (viewModel.recordExists.value == true) && !isOld
             binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
             ancFormAdapter = FormInputAdapter(

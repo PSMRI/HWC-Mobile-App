@@ -132,7 +132,7 @@ class PwAncFormViewModel @Inject constructor(
                 )
                 currentVisitNumber = selectedVisit
                 _recordExists.postValue(saved != null)
-                val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit != lastAncVisitNumber
+                val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit < lastAncVisitNumber
                 _isOldVisit.postValue(isOld)
                 dataset.setUpPage(
                     selectedVisit,
