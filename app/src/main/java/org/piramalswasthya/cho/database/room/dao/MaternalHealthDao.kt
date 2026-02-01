@@ -65,6 +65,9 @@ interface MaternalHealthDao {
     @Query("SELECT * FROM pregnancy_register WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPWRs(): List<PregnantWomanRegistrationCache>
 
+    @Query("SELECT * FROM pregnancy_register WHERE active = 1")
+    suspend fun getAllActivePregnancyRegistrations(): List<PregnantWomanRegistrationCache>
+
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)
 //

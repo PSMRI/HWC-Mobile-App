@@ -20,7 +20,11 @@ import org.piramalswasthya.cho.database.room.dao.PatientDao
 //import org.piramalswasthya.sakhi.database.room.dao.BenDao
 //import org.piramalswasthya.sakhi.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.helpers.Konstants
+import org.piramalswasthya.cho.helpers.getTodayMillis
+import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.ANCPost
+import org.piramalswasthya.cho.model.AncCompletedListItem
+import org.piramalswasthya.cho.model.AncDueListItem
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
 //import org.piramalswasthya.sakhi.network.GetDataPaginatedRequest
@@ -101,6 +105,43 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun getAncDueList(ancStage: Int): List<AncDueListItem> {
+        return withContext(Dispatchers.IO) {
+            val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
+            val todayMillis = getTodayMillis()
+            allPwr.filter { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                !ancRecords.any { it.pregnantWomanDelivered == true }
+            }.mapNotNull { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                val gaWeeks = getWeeksOfPregnancy(todayMillis, pwr.lmpDate)
+                // ANC 1-4: previous stage completed + GA in range
+                val isDue = when (ancStage) {
+                    1 -> !ancRecords.any { it.visitNumber == 1 } && gaWeeks <= Konstants.maxAnc1Week
+                    2 -> ancRecords.any { it.visitNumber == 1 } && !ancRecords.any { it.visitNumber == 2 } &&
+                            gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
+                    3 -> ancRecords.any { it.visitNumber == 2 } && !ancRecords.any { it.visitNumber == 3 } &&
+                            gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
+                    4 -> ancRecords.any { it.visitNumber == 3 } && !ancRecords.any { it.visitNumber == 4 } &&
+                            gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
+                    else -> false
+                }
+                if (isDue) AncDueListItem(pwr.patientID, gaWeeks, ancStage) else null
+            }
+        }
+    }
+
+    suspend fun getAncCompletedList(ancStage: Int): List<AncCompletedListItem> {
+        return withContext(Dispatchers.IO) {
+            val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
+            allPwr.mapNotNull { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                ancRecords.find { it.visitNumber == ancStage }?.let { anc ->
+                    AncCompletedListItem(pwr.patientID, ancStage, anc.visitNumber)
+                }
+            }
+        }
+    }
 
     suspend fun processNewAncVisit(): Boolean {
         return withContext(Dispatchers.IO) {

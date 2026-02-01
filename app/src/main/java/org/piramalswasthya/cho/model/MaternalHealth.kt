@@ -580,3 +580,15 @@ data class ANCPost(
 //    val showViewAnc: Boolean = anc.isEmpty(),
 //    val syncState: SyncState?
 //)
+
+data class AncDueListItem(
+    val patientID: String,
+    val gestationalAgeWeeks: Int,
+    val ancStage: Int
+)
+
+data class AncCompletedListItem(
+    val patientID: String,
+    val ancStage: Int,
+    val visitNumber: Int
+)
