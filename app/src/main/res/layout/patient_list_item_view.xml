@@ -104,11 +104,6 @@
                             android:background="@android:color/transparent"/>
                     </FrameLayout>
 
-
-
-
-
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout

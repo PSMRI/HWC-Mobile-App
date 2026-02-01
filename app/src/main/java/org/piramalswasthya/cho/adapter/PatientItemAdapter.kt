@@ -197,12 +197,12 @@ class PatientItemAdapter(
     }
 
     class BenClickListener(
-        private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedViewCard: ((benVisitInfo: PatientDisplayWithVisitInfo) -> Unit)? = null,
+        private val clickedBen: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedABHA: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedEsanjeevani: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedDownloadPrescription: (PatientDisplayWithVisitInfo) -> Unit,
+        private val syncIconButton: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedViewCard: (PatientDisplayWithVisitInfo) -> Unit
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
