@@ -51,6 +51,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -127,6 +128,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -162,6 +164,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         ReligionMaster::class,
         OccupationMaster::class,
         StateMaster::class,
+        StatusOfWomanMaster::class,
         DoseType::class,
         VaccineType::class,
         SelectedOutreachProgram::class,
@@ -251,7 +254,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 abstract class InAppDb : RoomDatabase() {
 
     abstract val userDao: UserDao
-
+    abstract val statusOfWomanDao: StatusOfWomanDao
     abstract val userAuthDao: UserAuthDao
     abstract val languageDao: LanguageDao
     abstract val stateMasterDao: StateMasterDao

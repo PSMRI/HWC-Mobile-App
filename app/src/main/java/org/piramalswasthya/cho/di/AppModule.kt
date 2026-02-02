@@ -41,6 +41,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -230,6 +231,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideStateMasterDao(database : InAppDb) : StateMasterDao = database.stateMasterDao
+
+    @Singleton
+    @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
 
     @Singleton
     @Provides
