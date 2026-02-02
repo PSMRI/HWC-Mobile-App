@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.repositories
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.piramalswasthya.cho.database.room.InAppDb
@@ -24,6 +25,8 @@ import org.piramalswasthya.cho.network.AmritApiService
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 class EcrRepo @Inject constructor(
@@ -35,39 +38,23 @@ class EcrRepo @Inject constructor(
     private val tmcNetworkApiService: AmritApiService
 ) {
 
-    // ===== Eligible Couple Registration Methods =====
-
-    fun getAllPatientsWithECR() = database.ecrDao.getAllPatientsWithECR()
-
-    suspend fun getPatientWithECR(patientId: String) =
-        database.ecrDao.getPatientWithECR(patientId)
-
-    suspend fun getSavedECR(patientId: String) =
-        database.ecrDao.getSavedECR(patientId)
-
-    suspend fun saveECR(ecrCache: org.piramalswasthya.cho.model.EligibleCoupleRegCache) {
-        database.ecrDao.upsert(ecrCache)
-    }
-
-    suspend fun updateECR(ecrCache: org.piramalswasthya.cho.model.EligibleCoupleRegCache) {
-        database.ecrDao.update(ecrCache)
-    }
-
-    suspend fun getECRCount() =
-        database.ecrDao.ecrCount()
-
-    // ===== Eligible Couple Tracking Methods =====
 
     suspend fun getAllECT(patientID: String): List<EligibleCoupleTrackingCache> {
-        return database.ecrDao.getAllECT(patientID)
+        return withContext(Dispatchers.IO) {
+            database.ecrDao.getAllECT(patientID)
+        }
     }
 
     suspend fun getEct(patientID: String, createdDate: Long): EligibleCoupleTrackingCache? {
-        return database.ecrDao.getEct(patientID, createdDate)
+        return withContext(Dispatchers.IO) {
+            database.ecrDao.getEct(patientID, createdDate)
+        }
     }
 
     suspend fun saveEct(eligibleCoupleTrackingCache: EligibleCoupleTrackingCache) {
-        database.ecrDao.upsert(eligibleCoupleTrackingCache)
+        withContext(Dispatchers.IO) {
+            database.ecrDao.upsert(eligibleCoupleTrackingCache)
+        }
     }
 
 
@@ -167,6 +154,8 @@ class EcrRepo @Inject constructor(
     }
 
     suspend fun getLatestEctByBenId(benId: String): EligibleCoupleTrackingCache? {
-        return database.ecrDao.getLatestEct(benId)
+        return withContext(Dispatchers.IO){
+            database.ecrDao.getLatestEct(benId)
+        }
     }
 }
