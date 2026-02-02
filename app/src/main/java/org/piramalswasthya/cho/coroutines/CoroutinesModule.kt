@@ -1,18 +1,17 @@
 package org.piramalswasthya.cho.coroutines
 
-import dagger.Binds
-import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module
+@dagger.Module
 @InstallIn(SingletonComponent::class)
-interface CoroutinesModule {
+object CoroutinesModule {
 
-    @Binds
+    @Provides
     @Singleton
-    fun bindDispatcherProvider(
+    fun provideDispatcherProvider(
         defaultDispatcherProvider: DefaultDispatcherProvider
-    ): DispatcherProvider
+    ): DispatcherProvider = defaultDispatcherProvider
 }

@@ -504,173 +504,142 @@ class PersonalDetailsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val beneficiaryID = apiPatient.patient.beneficiaryID
-                if (beneficiaryID != null) {
-                    val existingPatient = withContext(dispatcherProvider.io) {
-                        patientDao.getBen(beneficiaryID)
-                    }
-
-                    if (existingPatient != null) {
-                        withContext(dispatcherProvider.main) {
-                            MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Patient Already Exists")
-                                .setMessage("A patient with Beneficiary ID $beneficiaryID already exists in the system.")
-                                .setPositiveButton("OK", null)
-                                .show()
-                        }
-                        return@launch
-                    }
+                if (beneficiaryID != null && isPatientDuplicate(beneficiaryID)) {
+                    return@launch
                 }
 
-                var stateID = apiPatient.patient.stateID
-                var districtID = apiPatient.patient.districtID
-                var blockID = apiPatient.patient.blockID
-                var districtBranchID = apiPatient.patient.districtBranchID
-                val villageName = apiPatient.villageName
+                val resolvedLoc = resolveLocation(apiPatient)
+                ensureMasterDataExists(resolvedLoc)
 
-                if (districtBranchID == null) {
-                    val locData = preferenceDao.getUserLocationData()
-                    stateID = locData?.stateId
-                    districtID = locData?.districtId
-                    blockID = locData?.blockId
-                    districtBranchID = viewModelPatientDetails.selectedVillage?.districtBranchID?.toInt()
-                }
+                val patientToSave = mapPatientToLocal(apiPatient, resolvedLoc)
 
-                if (districtBranchID != null && blockID != null && districtID != null && stateID != null && !villageName.isNullOrBlank()) {
-                    withContext(dispatcherProvider.io) {
-                        if (stateMasterDao.getStateById(stateID) == null) {
-                            stateMasterDao.insertStates(
-                                StateMaster(
-                                    stateID = stateID,
-                                    stateName = "",
-                                    govtLGDStateID = null
-                                )
-                            )
-                        }
-
-                        if (districtMasterDao.getDistrictById(districtID) == null) {
-                            districtMasterDao.insertDistrict(
-                                DistrictMaster(
-                                    districtID = districtID,
-                                    stateID = stateID,
-                                    govtLGDStateID = null,
-                                    govtLGDDistrictID = null,
-                                    districtName = ""
-                                )
-                            )
-                        }
-
-                        if (blockMasterDao.getBlockById(blockID) == null) {
-                            blockMasterDao.insertBlock(
-                                BlockMaster(
-                                    blockID = blockID,
-                                    districtID = districtID,
-                                    govtLGDDistrictID = null,
-                                    govLGDSubDistrictID = null,
-                                    blockName = ""
-                                )
-                            )
-                        }
-
-                        val existingVillage = villageMasterDao.getVillageById(districtBranchID)
-                        if (existingVillage == null || existingVillage.villageName.isNullOrBlank()) {
-                            villageMasterDao.insertVillage(
-                                VillageMaster(
-                                    districtBranchID = districtBranchID,
-                                    blockID = blockID,
-                                    govtLGDVillageID = null,
-                                    govtLGDSubDistrictID = null,
-                                    villageName = villageName
-                                )
-                            )
-                        } else if (existingVillage.villageName != villageName) {
-                            villageMasterDao.insertVillage(
-                                existingVillage.copy(villageName = villageName)
-                            )
-                        }
-                    }
-                }
-
-                val patientToSave = Patient(
-                    patientID = generateUuid(),
-                    firstName = apiPatient.patient.firstName,
-                    lastName = apiPatient.patient.lastName,
-                    beneficiaryRegID = apiPatient.patient.beneficiaryRegID,
-                    beneficiaryID = apiPatient.patient.beneficiaryID,
-                    syncState = SyncState.UNSYNCED,
-                    registrationDate = Date(),
-                    phoneNo = apiPatient.patient.phoneNo,
-                    genderID = apiPatient.patient.genderID,
-                    dob = apiPatient.patient.dob,
-                    age = apiPatient.patient.age,
-                    ageUnitID = apiPatient.patient.ageUnitID,
-                    maritalStatusID = apiPatient.patient.maritalStatusID,
-                    spouseName = apiPatient.patient.spouseName,
-                    parentName = apiPatient.patient.parentName,
-                    stateID = stateID,
-                    districtID = districtID,
-                    blockID = blockID,
-                    districtBranchID = districtBranchID,
-                    communityID = apiPatient.patient.communityID,
-                    religionID = apiPatient.patient.religionID,
-                    benImage = apiPatient.patient.benImage,
-                    isNewAbha = apiPatient.patient.isNewAbha,
-                    healthIdDetails = apiPatient.patient.healthIdDetails,
-                    faceEmbedding = apiPatient.patient.faceEmbedding
-                )
-
-                var saveSuccess = false
-                try {
-                    withContext(dispatcherProvider.io) {
-                        patientRepo.insertPatient(patientToSave)
-                    }
-                    saveSuccess = true
-                } catch (e: android.database.sqlite.SQLiteConstraintException) {
-                    Timber.e(e, "Error saving patient: SQLiteConstraintException")
-                    val patientWithNullForeignKeys = patientToSave.copy(
-                        ageUnitID = null,
-                        maritalStatusID = null,
-                        communityID = null,
-                        religionID = null
-                    )
-
-                    try {
-                        withContext(dispatcherProvider.io) {
-                            patientRepo.insertPatient(patientWithNullForeignKeys)
-                        }
-                        saveSuccess = true
-                    } catch (e2: Exception) {
-                        Timber.e(e2, "Error saving patient with null foreign keys")
-                        withContext(dispatcherProvider.main) {
-                            MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Error Saving Patient")
-                                .setMessage("Failed to save patient due to missing data. Please ensure all data is synced.")
-                                .setPositiveButton("OK", null)
-                                .show()
-                        }
-                        return@launch
-                    }
-                }
-
-                if (saveSuccess) {
+                if (savePatientToLocal(patientToSave)) {
                     withContext(dispatcherProvider.main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Patient saved successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
+                        Toast.makeText(requireContext(), "Patient saved successfully", Toast.LENGTH_SHORT).show()
                         viewModel.filterText("")
                     }
                 }
-
             } catch (e: Exception) {
                 withContext(dispatcherProvider.main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error saving patient: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(requireContext(), "Error saving patient: ${e.message}", Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    private suspend fun isPatientDuplicate(beneficiaryID: Long): Boolean {
+        val existingPatient = patientDao.getBen(beneficiaryID)
+        if (existingPatient != null) {
+            withContext(dispatcherProvider.main) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Patient Already Exists")
+                    .setMessage("A patient with Beneficiary ID $beneficiaryID already exists in the system.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+            return true
+        }
+        return false
+    }
+
+    private data class ResolvedLocation(
+        val stateID: Int?,
+        val districtID: Int?,
+        val blockID: Int?,
+        val districtBranchID: Int?,
+        val villageName: String?
+    )
+
+    private fun resolveLocation(apiPatient: PatientDisplayWithVisitInfo): ResolvedLocation {
+        var stateID = apiPatient.patient.stateID
+        var districtID = apiPatient.patient.districtID
+        var blockID = apiPatient.patient.blockID
+        var districtBranchID = apiPatient.patient.districtBranchID
+
+        if (districtBranchID == null) {
+            val locData = preferenceDao.getUserLocationData()
+            stateID = locData?.stateId
+            districtID = locData?.districtId
+            blockID = locData?.blockId
+            districtBranchID = viewModelPatientDetails.selectedVillage?.districtBranchID?.toInt()
+        }
+        return ResolvedLocation(stateID, districtID, blockID, districtBranchID, apiPatient.villageName)
+    }
+
+    private suspend fun ensureMasterDataExists(loc: ResolvedLocation) {
+        val (stateID, districtID, blockID, districtBranchID, villageName) = loc
+        if (districtBranchID == null || blockID == null || districtID == null || stateID == null || villageName.isNullOrBlank()) return
+
+        if (stateMasterDao.getStateById(stateID) == null) {
+            stateMasterDao.insertStates(StateMaster(stateID, "", null))
+        }
+
+        if (districtMasterDao.getDistrictById(districtID) == null) {
+            districtMasterDao.insertDistrict(DistrictMaster(districtID, stateID, null, null, ""))
+        }
+
+        if (blockMasterDao.getBlockById(blockID) == null) {
+            blockMasterDao.insertBlock(BlockMaster(blockID, districtID, null, null, ""))
+        }
+
+        val existingVillage = villageMasterDao.getVillageById(districtBranchID)
+        if (existingVillage == null || existingVillage.villageName.isNullOrBlank()) {
+            villageMasterDao.insertVillage(VillageMaster(districtBranchID, blockID, null, null, villageName))
+        } else if (existingVillage.villageName != villageName) {
+            villageMasterDao.insertVillage(existingVillage.copy(villageName = villageName))
+        }
+    }
+
+    private fun mapPatientToLocal(apiPatient: PatientDisplayWithVisitInfo, loc: ResolvedLocation): Patient {
+        return Patient(
+            patientID = generateUuid(),
+            firstName = apiPatient.patient.firstName,
+            lastName = apiPatient.patient.lastName,
+            beneficiaryRegID = apiPatient.patient.beneficiaryRegID,
+            beneficiaryID = apiPatient.patient.beneficiaryID,
+            syncState = SyncState.UNSYNCED,
+            registrationDate = Date(),
+            phoneNo = apiPatient.patient.phoneNo,
+            genderID = apiPatient.patient.genderID,
+            dob = apiPatient.patient.dob,
+            age = apiPatient.patient.age,
+            ageUnitID = apiPatient.patient.ageUnitID,
+            maritalStatusID = apiPatient.patient.maritalStatusID,
+            spouseName = apiPatient.patient.spouseName,
+            parentName = apiPatient.patient.parentName,
+            stateID = loc.stateID,
+            districtID = loc.districtID,
+            blockID = loc.blockID,
+            districtBranchID = loc.districtBranchID,
+            communityID = apiPatient.patient.communityID,
+            religionID = apiPatient.patient.religionID,
+            benImage = apiPatient.patient.benImage,
+            isNewAbha = apiPatient.patient.isNewAbha,
+            healthIdDetails = apiPatient.patient.healthIdDetails,
+            faceEmbedding = apiPatient.patient.faceEmbedding
+        )
+    }
+
+    private suspend fun savePatientToLocal(patient: Patient): Boolean {
+        return try {
+            patientRepo.insertPatient(patient)
+            true
+        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+            Timber.e(e, "Error saving patient: SQLiteConstraintException")
+            val fallbackPatient = patient.copy(ageUnitID = null, maritalStatusID = null, communityID = null, religionID = null)
+            try {
+                patientRepo.insertPatient(fallbackPatient)
+                true
+            } catch (e2: Exception) {
+                Timber.e(e2, "Error saving patient with null foreign keys")
+                withContext(dispatcherProvider.main) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Error Saving Patient")
+                        .setMessage("Failed to save patient due to missing data. Please ensure all data is synced.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+                false
             }
         }
     }
