@@ -233,6 +233,11 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getLastAnc(benId)
     }
 
+    suspend fun isPatientDelivered(patientID: String): Boolean {
+        val lastAnc = getLastAnc(patientID)
+        return lastAnc?.pregnantWomanDelivered == true
+    }
+
     suspend fun getLastEct(benId: String): EligibleCoupleTrackingCache? {
         return ecrRepo.getLatestEctByBenId(benId)
     }

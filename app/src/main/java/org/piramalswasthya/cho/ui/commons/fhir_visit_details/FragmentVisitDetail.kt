@@ -357,14 +357,27 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun setReasonForVisitDropdown(subCat: String){
+        lifecycleScope.launch {
+            setReasonForVisitDropdownAsync(subCat)
+        }
+    }
 
+    private suspend fun setReasonForVisitDropdownAsync(subCat: String){
         Log.d("Reason for visit is ", "Working " + subCat)
         if(subCat == DropdownConst.careAndPreg){
+            val reasonList = mutableListOf(DropdownConst.anc, DropdownConst.pnc)
+            
+                // Only add Delivery Outcome if patient has delivered
+                val isDelivered = viewModel.isPatientDelivered(patientId)
+                if (isDelivered) {
+                    reasonList.add(DropdownConst.deliveryOutcome)
+                }
+            
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.anc, DropdownConst.pnc, DropdownConst.deliveryOutcome)
+                reasonList
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()

@@ -74,7 +74,7 @@ class DeliveryOutcomeDataset(
         max = System.currentTimeMillis()
     )
 
-    suspend fun setUpPage(deliveryDateMillis: Long, saved: DeliveryOutcomeCache?) {
+    suspend fun setUpPage(deliveryDateMillis: Long, saved: DeliveryOutcomeCache?, isDelivered: Boolean = false) {
         this.deliveryDateMillis = deliveryDateMillis
         dateOfDischarge.min = deliveryDateMillis
         dateOfDischarge.max = System.currentTimeMillis()

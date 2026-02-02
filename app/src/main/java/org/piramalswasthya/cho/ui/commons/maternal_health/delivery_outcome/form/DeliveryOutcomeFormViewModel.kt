@@ -15,18 +15,20 @@ import org.piramalswasthya.cho.configuration.DeliveryOutcomeDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
+import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.R
 import javax.inject.Inject
 
-@HiltViewModel
+    @HiltViewModel
 class DeliveryOutcomeFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     preferenceDao: PreferenceDao,
     @ApplicationContext private val context: Context,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
+    private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
 ) : ViewModel() {
@@ -72,6 +74,9 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             val user = userRepo.getLoggedInUser()
             val userName = user?.userName ?: ""
             val saved = withContext(Dispatchers.IO) { deliveryOutcomeRepo.getDeliveryOutcome(patientID) }
+            val lastAnc = withContext(Dispatchers.IO) { maternalHealthRepo.getLastAnc(patientID) }
+            val isDelivered = lastAnc?.pregnantWomanDelivered == true
+            
             patientRepo.getPatientDisplay(patientID)?.let { ben ->
                 _benName.value = "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
                 _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
@@ -83,7 +88,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 deliveryOutcome = saved
                 _recordExists.value = true
                 val deliveryDate = saved.dateOfDelivery ?: System.currentTimeMillis()
-                dataset.setUpPage(deliveryDate, saved)
+                dataset.setUpPage(deliveryDate, saved, isDelivered)
             } else {
                 deliveryOutcome = DeliveryOutcomeCache(
                     patientID = patientID,
@@ -93,7 +98,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     syncState = SyncState.UNSYNCED
                 )
                 _recordExists.value = false
-                dataset.setUpPage(System.currentTimeMillis(), null)
+                dataset.setUpPage(System.currentTimeMillis(), null, isDelivered)
             }
         }
     }
