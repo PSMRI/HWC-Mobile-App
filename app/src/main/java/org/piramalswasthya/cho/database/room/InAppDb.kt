@@ -35,7 +35,6 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
-import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -52,6 +51,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -86,9 +86,7 @@ import org.piramalswasthya.cho.model.DistrictMaster
 import org.piramalswasthya.cho.model.DoseType
 import org.piramalswasthya.cho.model.DrugFormMaster
 import org.piramalswasthya.cho.model.DrugFrequencyMaster
-import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
-import org.piramalswasthya.cho.model.InfantRegCache
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
@@ -130,6 +128,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -165,6 +164,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         ReligionMaster::class,
         OccupationMaster::class,
         StateMaster::class,
+        StatusOfWomanMaster::class,
         DoseType::class,
         VaccineType::class,
         SelectedOutreachProgram::class,
@@ -221,9 +221,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
-        EligibleCoupleRegCache::class,
         EligibleCoupleTrackingCache::class,
-        InfantRegCache::class,
         PrescriptionTemplateDB::class,
         CbacCache::class,
         ProcedureMaster::class,
@@ -232,7 +230,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 110, exportSchema = false
 )
 
 
@@ -256,7 +254,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 abstract class InAppDb : RoomDatabase() {
 
     abstract val userDao: UserDao
-
+    abstract val statusOfWomanDao: StatusOfWomanDao
     abstract val userAuthDao: UserAuthDao
     abstract val languageDao: LanguageDao
     abstract val stateMasterDao: StateMasterDao
@@ -295,7 +293,6 @@ abstract class InAppDb : RoomDatabase() {
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
-    abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
 
@@ -326,71 +323,6 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
-
-        val MIGRATION_110_111 = object : Migration(110, 111) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        patientID TEXT NOT NULL,
-                        dateOfReg INTEGER NOT NULL,
-                        lmpDate INTEGER,
-                        noOfChildren INTEGER NOT NULL,
-                        noOfLiveChildren INTEGER NOT NULL,
-                        noOfMaleChildren INTEGER NOT NULL,
-                        noOfFemaleChildren INTEGER NOT NULL,
-                        isRegistered INTEGER NOT NULL,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
-            }
-        }
-
-        val MIGRATION_111_112 = object : Migration(111, 112) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS INFANT_REG (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        childPatientID TEXT,
-                        motherPatientID TEXT NOT NULL,
-                        isActive INTEGER NOT NULL,
-                        babyName TEXT,
-                        babyIndex INTEGER NOT NULL,
-                        infantTerm TEXT,
-                        corticosteroidGiven TEXT,
-                        genderID INTEGER,
-                        babyCriedAtBirth INTEGER,
-                        resuscitation INTEGER,
-                        referred TEXT,
-                        hadBirthDefect TEXT,
-                        birthDefect TEXT,
-                        otherDefect TEXT,
-                        weight REAL,
-                        breastFeedingStarted INTEGER,
-                        opv0Dose INTEGER,
-                        bcgDose INTEGER,
-                        hepBDose INTEGER,
-                        vitkDose INTEGER,
-                        processed TEXT,
-                        createdBy TEXT NOT NULL,
-                        createdDate INTEGER NOT NULL,
-                        updatedBy TEXT NOT NULL,
-                        updatedDate INTEGER NOT NULL,
-                        syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
-                    )
-                """.trimIndent())
-                database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
-            }
-        }
-
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -405,11 +337,9 @@ abstract class InAppDb : RoomDatabase() {
                         .addMigrations(
                             MIGRATION_106_107,
                             MIGRATION_107_108,
-                            MIGRATION_108_109,
-                            MIGRATION_109_110,
-                            MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_108_109,MIGRATION_109_110
                         )
+                        .fallbackToDestructiveMigration()
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

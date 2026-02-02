@@ -161,6 +161,9 @@ data class Patient (
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
 
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
 //

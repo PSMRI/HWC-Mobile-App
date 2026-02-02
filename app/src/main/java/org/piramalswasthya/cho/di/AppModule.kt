@@ -25,7 +25,6 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
-import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
@@ -42,6 +41,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -234,6 +234,10 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
+
+    @Singleton
+    @Provides
     fun provideVaccinationTypeAndDoseDao(database : InAppDb) : VaccinationTypeAndDoseDao = database.vaccinationTypeAndDoseDao
 
     @Singleton
@@ -323,10 +327,6 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
-
-    @Singleton
-    @Provides
-    fun provideInfantRegDao(database: InAppDb): InfantRegDao = database.infantRegDao
 
     @Singleton
     @Provides
