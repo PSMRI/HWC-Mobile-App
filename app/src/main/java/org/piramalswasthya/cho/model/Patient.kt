@@ -391,7 +391,6 @@ data class PatientNetwork(
 //    titleId:null
 //    vanID:61
 
-    @RequiresApi(Build.VERSION_CODES.O)
     constructor(patientDisplay: PatientDisplay, user: UserDomain?) : this(
         null,
         patientDisplay.patient.ageAtMarriage,

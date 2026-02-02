@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -336,6 +337,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         try {
             speechRecognizerLauncher.launch(intent)
         } catch (e: Exception) {
+            Log.e("EditBeneficiaryDetailsFragment", "Speech recognition unavailable", e)
             Toast.makeText(
                 requireContext(),
                 "Speech recognition not available",

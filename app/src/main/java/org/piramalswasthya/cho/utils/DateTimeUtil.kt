@@ -279,7 +279,6 @@ class DateTimeUtil {
             return calendar.time
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun formatDateToUTC(date: Date): String {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             sdf.timeZone = TimeZone.getTimeZone("UTC")

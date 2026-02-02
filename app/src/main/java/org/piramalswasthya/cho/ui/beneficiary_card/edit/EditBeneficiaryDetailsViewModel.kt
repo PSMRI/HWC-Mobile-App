@@ -68,6 +68,14 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
     val statusOfWomanValid: LiveData<Boolean>
         get() = _statusOfWomanValid
 
+    private val _ageMonthsValid = MutableLiveData(true)
+    val ageMonthsValid: LiveData<Boolean>
+        get() = _ageMonthsValid
+
+    private val _ageDaysValid = MutableLiveData(true)
+    val ageDaysValid: LiveData<Boolean>
+        get() = _ageDaysValid
+
     // Status of Woman changed flag
     private val _statusOfWomanChanged = MutableLiveData(false)
     val statusOfWomanChanged: LiveData<Boolean>
@@ -82,6 +90,8 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
             try {
                 val list = statusOfWomanDao.getAllStatusOfWoman()
                 _statusOfWomanList.value = list
+                // Recompute filtered list in case patient info was already set
+                updateFilteredStatusOfWomanList()
             } catch (e: Exception) {
                 _statusOfWomanList.value = emptyList()
             }
@@ -186,12 +196,38 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
         return isValid
     }
 
+    fun validateAgeMonths(months: Int?): Boolean {
+        // Treat empty/null as valid (optional field)
+        if (months == null) {
+            _ageMonthsValid.value = true
+            return true
+        }
+
+        val isValid = months in 0..11
+        _ageMonthsValid.value = isValid
+        return isValid
+    }
+
+    fun validateAgeDays(days: Int?): Boolean {
+        // Treat empty/null as valid (optional field)
+        if (days == null) {
+            _ageDaysValid.value = true
+            return true
+        }
+
+        val isValid = days in 0..30
+        _ageDaysValid.value = isValid
+        return isValid
+    }
+
     fun validateAll(): Boolean {
         val phoneValid = validatePhoneNumber(phoneNumber)
         val ageValid = validateAgeYears(ageYears)
+        val monthsValid = validateAgeMonths(ageMonths)
+        val daysValid = validateAgeDays(ageDays)
         val statusValid = validateStatusOfWoman()
 
-        return phoneValid && ageValid && statusValid
+        return phoneValid && ageValid && monthsValid && daysValid && statusValid
     }
 
     fun saveChanges() {

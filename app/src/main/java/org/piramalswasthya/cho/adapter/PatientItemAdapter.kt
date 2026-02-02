@@ -186,6 +186,7 @@ class PatientItemAdapter(
         parent: ViewGroup, viewType: Int
     ) = BenViewHolder.from(parent)
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: BenViewHolder, position: Int) {
 //        patientId = getItem(position).patient.patientID
         holder.bind(getItem(position), clickListener, showAbha, holder.itemView.context)
