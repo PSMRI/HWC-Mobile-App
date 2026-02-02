@@ -63,6 +63,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -355,4 +356,8 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideCbacDao(database: InAppDb): CbacDao = database.cbacDao
+    @Singleton
+    @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
+
 }

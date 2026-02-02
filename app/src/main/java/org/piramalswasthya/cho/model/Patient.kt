@@ -1,6 +1,8 @@
 package org.piramalswasthya.cho.model
 
+import android.os.Build
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -160,6 +162,15 @@ data class Patient (
 
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
+
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
+    @ColumnInfo(name = "hasAbhaId")
+    var hasAbhaId: Boolean? = null,
+
+    @ColumnInfo(name = "abhaIdNumber")
+    var abhaIdNumber: String? = null
 
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
@@ -380,6 +391,7 @@ data class PatientNetwork(
 //    titleId:null
 //    vanID:61
 
+    @RequiresApi(Build.VERSION_CODES.O)
     constructor(patientDisplay: PatientDisplay, user: UserDomain?) : this(
         null,
         patientDisplay.patient.ageAtMarriage,
