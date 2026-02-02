@@ -198,6 +198,7 @@ class PatientItemAdapter(
         private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedViewCard: (PatientDisplayWithVisitInfo) -> Unit
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -218,6 +219,9 @@ class PatientItemAdapter(
 
         fun onClickSync(item: PatientDisplayWithVisitInfo) {
             syncIconButton(item)
+        }
+        fun onClickViewCard(item: PatientDisplayWithVisitInfo) {
+            clickedViewCard(item)
         }
     }
 

@@ -97,6 +97,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.work.WorkerUtils
 import android.os.Build
+import org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardActivity
 import org.piramalswasthya.cho.utils.NetworkConnection
 import javax.inject.Inject
 import kotlin.math.pow
@@ -326,6 +327,9 @@ class PersonalDetailsFragment : Fragment() {
 
                             }, { benVisitInfo ->
                                 openDialog(benVisitInfo)
+                            }, { benVisitInfo ->
+                                // View Beneficiary Card
+                                openBeneficiaryCard(benVisitInfo)
                             }),
                             showAbha = true
                         )
@@ -713,6 +717,10 @@ class PersonalDetailsFragment : Fragment() {
                 }
             }
         }
+    }
+    private fun openBeneficiaryCard(benVisitInfo: PatientDisplayWithVisitInfo) {
+        val intent = BeneficiaryCardActivity.getIntent(requireContext(), benVisitInfo)
+        startActivity(intent)
     }
 
     private lateinit var syncBottomSheet: SyncBottomSheetFragment

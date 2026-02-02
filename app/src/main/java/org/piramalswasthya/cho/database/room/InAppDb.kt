@@ -396,7 +396,7 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
             }
         }
-        val MIGRATION_112_113 = object : Migration(110, 111) {
+        val MIGRATION_112_113 = object : Migration(112, 113) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Add new columns to PATIENT table
                 database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
@@ -443,7 +443,6 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_111_112,
                             MIGRATION_112_113
                         )
-                        .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
                             override fun onCreate(db: SupportSQLiteDatabase) {
                                 super.onCreate(db)
