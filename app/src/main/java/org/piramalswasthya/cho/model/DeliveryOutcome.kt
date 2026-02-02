@@ -53,7 +53,7 @@ data class DeliveryOutcomeCache (
     var isDeathValue: String? = null,
     var dateOfDeath: String? = null,
     var placeOfDeath: String? = null,
-    var placeOfDeathId: Int? = 0,
+    var placeOfDeathId: Int? = null,
     var otherPlaceOfDeath: String? = null,
 
 //    var isActive: Boolean? = true,
@@ -101,7 +101,7 @@ data class DeliveryOutcomeCache (
             isDeathValue = isDeathValue,
             dateOfDeath = dateOfDeath,
             placeOfDeath = placeOfDeath,
-            placeOfDeathId = placeOfDeathId,
+            placeOfDeathId = placeOfDeathId?.takeIf { it > 0 },
             otherPlaceOfDeath = otherPlaceOfDeath,
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,

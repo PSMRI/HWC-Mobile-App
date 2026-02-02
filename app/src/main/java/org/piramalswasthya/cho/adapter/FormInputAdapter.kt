@@ -344,10 +344,11 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.MATCH_PARENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         )

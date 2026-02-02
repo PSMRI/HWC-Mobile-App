@@ -20,6 +20,7 @@ import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.R
+import timber.log.Timber
 import javax.inject.Inject
 
     @HiltViewModel
@@ -147,6 +148,13 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     }
 
     fun saveForm() {
+        // Guard against accessing deliveryOutcome before async initialization completes
+        if (!::deliveryOutcome.isInitialized) {
+            Timber.e("DeliveryOutcomeFormViewModel: saveForm() called before deliveryOutcome initialization")
+            _state.postValue(State.SAVE_FAILED)
+            return
+        }
+        
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
@@ -163,6 +171,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
                     _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
                 } catch (e: Exception) {
+                    Timber.e(e, "DeliveryOutcomeFormViewModel: Failed to save delivery outcome")
                     _state.postValue(State.SAVE_FAILED)
                 }
             }

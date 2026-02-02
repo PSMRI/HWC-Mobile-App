@@ -39,9 +39,18 @@ class DeliveryOutcomeRepo @Inject constructor(
 
     suspend fun saveDeliveryOutcome(deliveryOutcomeCache: DeliveryOutcomeCache) {
         withContext(Dispatchers.IO) {
-            if (deliveryOutcomeCache.id != 0L) {
+            // Upsert pattern: check for existing record by patientID and reuse its id if found
+            val existing = deliveryOutcomeDao.getDeliveryOutcome(deliveryOutcomeCache.patientID)
+            
+            if (existing != null) {
+                // Reuse existing record's id and update
+                val updatedCache = deliveryOutcomeCache.copy(id = existing.id)
+                deliveryOutcomeDao.updateDeliveryOutcome(updatedCache)
+            } else if (deliveryOutcomeCache.id != 0L) {
+                // Has id but not found in DB (shouldn't happen, but handle gracefully)
                 deliveryOutcomeDao.updateDeliveryOutcome(deliveryOutcomeCache)
             } else {
+                // New record, insert
                 deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
             }
         }
