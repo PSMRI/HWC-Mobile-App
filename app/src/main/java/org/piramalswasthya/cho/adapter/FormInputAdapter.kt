@@ -347,12 +347,10 @@ class FormInputAdapter(
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
-                        ).apply {
-                            gravity = Gravity.CENTER_HORIZONTAL
-                        }
+                        )
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(

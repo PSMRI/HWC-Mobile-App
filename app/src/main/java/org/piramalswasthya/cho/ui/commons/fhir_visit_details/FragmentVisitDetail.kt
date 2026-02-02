@@ -364,7 +364,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.anc, DropdownConst.pnc)
+                listOf(DropdownConst.anc, DropdownConst.pnc, DropdownConst.deliveryOutcome)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -460,6 +460,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             }
             binding.rvAnc.visibility = View.GONE
             binding.rvPnc.visibility = View.VISIBLE
+            binding.rvEct.visibility = View.GONE
+            changeBtnView()
+        }
+        else if(reasonForVisit == DropdownConst.deliveryOutcome){
+            binding.lmpDateText.visibility = View.GONE
+            binding.eddDateText.visibility = View.GONE
+            binding.deliveryDateText.visibility = View.GONE
+            binding.rvAnc.visibility = View.GONE
+            binding.rvPnc.visibility = View.GONE
             binding.rvEct.visibility = View.GONE
             changeBtnView()
         }
@@ -1349,6 +1358,15 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         checkAndNavigateAnc()
                     }
 //                }
+            }
+            else if(reasonForVisit == DropdownConst.deliveryOutcome){
+                // Navigate directly to Delivery Outcome form (delivery date is captured in the form itself)
+                val visitNumber = 1
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToDeliveryOutcomeFormFragment(
+                        benVisitInfo.patient.patientID, visitNumber
+                    )
+                )
             }
             else if(reasonForVisit == DropdownConst.pnc){
                 viewModel.lastPncVisitNumber.observe(viewLifecycleOwner){

@@ -21,6 +21,16 @@ class DeliveryOutcomeDataset(
 
     private var deliveryDateMillis: Long = 0L
 
+    private val deliveryDate = FormElement(
+        id = 0,
+        inputType = InputType.DATE_PICKER,
+        title = resources.getString(R.string.delivery_date),
+        arrayId = -1,
+        required = true,
+        hasDependants = false,
+        max = System.currentTimeMillis()
+    )
+
     /** 4 options: use vertical layout per requirement (vertical when >2 options). */
     private val motherCondition = FormElement(
         id = 1,
@@ -68,13 +78,20 @@ class DeliveryOutcomeDataset(
         this.deliveryDateMillis = deliveryDateMillis
         dateOfDischarge.min = deliveryDateMillis
         dateOfDischarge.max = System.currentTimeMillis()
+        deliveryDate.max = System.currentTimeMillis()
 
         val list = mutableListOf<FormElement>(
+            deliveryDate,
             motherCondition,
             motherCurrentlyAdmitted
         )
 
         if (saved != null) {
+            deliveryDate.value = saved.dateOfDelivery?.let { getDateFromLong(it) }
+            this.deliveryDateMillis = saved.dateOfDelivery ?: deliveryDateMillis
+            deliveryDate.min = this.deliveryDateMillis
+            dateOfDischarge.min = this.deliveryDateMillis
+            
             motherCondition.value = saved.motherCondition
             motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
                 true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
@@ -92,6 +109,7 @@ class DeliveryOutcomeDataset(
                 list.add(list.indexOf(motherCurrentlyAdmitted) + 1, dateOfDischarge)
             }
         } else {
+            deliveryDate.value = getDateFromLong(deliveryDateMillis)
             motherCondition.value = null
             motherCurrentlyAdmitted.value = null
             maternalComplications.value = null
@@ -132,6 +150,24 @@ class DeliveryOutcomeDataset(
                 )
             }
 
+            deliveryDate.id -> {
+                deliveryDate.value?.let { dateStr ->
+                    val selectedDeliveryLong = getLongFromDate(dateStr)
+                    if (selectedDeliveryLong != 0L) {
+                        this.deliveryDateMillis = selectedDeliveryLong
+                        dateOfDischarge.min = selectedDeliveryLong
+                        // Re-validate discharge date: if set and now before new delivery date, show error
+                        dateOfDischarge.value?.let { dischargeStr ->
+                            val dischargeLong = getLongFromDate(dischargeStr)
+                            dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < this.deliveryDateMillis) {
+                                resources.getString(R.string.do_discharge_date_before_delivery)
+                            } else null
+                        }
+                    }
+                }
+                -1
+            }
+
             dateOfDischarge.id -> {
                 dateOfDischarge.value?.let { dateStr ->
                     val dischargeLong = getLongFromDate(dateStr)
@@ -157,6 +193,7 @@ class DeliveryOutcomeDataset(
         val form = cacheModel as DeliveryOutcomeCache
         val admittedYes = resources.getStringArray(R.array.do_mother_admitted_array)[0]
         val conditionMaternalDeath = resources.getStringArray(R.array.do_mother_condition_array)[3]
+        form.dateOfDelivery = this.deliveryDate.value?.let { getLongFromDate(it) }.takeIf { it != 0L } ?: deliveryDateMillis
         form.motherCondition = this.motherCondition.value
         form.maternalComplications = this.maternalComplications.value?.takeIf { s -> s.isNotBlank() }
         form.motherCurrentlyAdmitted = this.motherCurrentlyAdmitted.value == admittedYes

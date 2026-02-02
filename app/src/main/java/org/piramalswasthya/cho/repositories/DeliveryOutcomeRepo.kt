@@ -39,7 +39,11 @@ class DeliveryOutcomeRepo @Inject constructor(
 
     suspend fun saveDeliveryOutcome(deliveryOutcomeCache: DeliveryOutcomeCache) {
         withContext(Dispatchers.IO) {
-            deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
+            if (deliveryOutcomeCache.id != 0L) {
+                deliveryOutcomeDao.updateDeliveryOutcome(deliveryOutcomeCache)
+            } else {
+                deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
+            }
         }
     }
 

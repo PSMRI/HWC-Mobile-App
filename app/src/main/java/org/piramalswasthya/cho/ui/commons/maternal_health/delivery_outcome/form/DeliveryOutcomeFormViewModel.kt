@@ -69,11 +69,15 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val user = userRepo.getLoggedInUser() ?: return@launch
+            val user = userRepo.getLoggedInUser()
+            val userName = user?.userName ?: ""
             val saved = withContext(Dispatchers.IO) { deliveryOutcomeRepo.getDeliveryOutcome(patientID) }
             patientRepo.getPatientDisplay(patientID)?.let { ben ->
                 _benName.value = "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
                 _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
+            } ?: run {
+                _benName.value = ""
+                _benAgeGender.value = ""
             }
             if (saved != null) {
                 deliveryOutcome = saved
@@ -84,8 +88,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 deliveryOutcome = DeliveryOutcomeCache(
                     patientID = patientID,
                     isActive = true,
-                    createdBy = user.userName,
-                    updatedBy = user.userName,
+                    createdBy = userName,
+                    updatedBy = userName,
                     syncState = SyncState.UNSYNCED
                 )
                 _recordExists.value = false
@@ -97,25 +101,39 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch(Dispatchers.Main.immediate) {
             dataset.updateList(formId, index)
-            checkAndEmitAlerts()
+            checkAndEmitAlerts(formId, index)
         }
     }
 
-    private fun checkAndEmitAlerts() {
-        if (dataset.isMaternalDeath()) {
-            _alert.value = Alert.InformDistrictNodalOfficer(
-                context.getString(R.string.do_inform_district_nodal_officer)
-            )
-        }
-        if (dataset.isComplicationOrCritical() && dataset.hasPphOrUterineRupture()) {
-            _alert.value = Alert.IntensivePncMonitoring(
-                context.getString(R.string.do_alert_intensive_pnc)
-            )
-        }
-        if (dataset.hasHysterectomy()) {
-            _alert.value = Alert.HysterectomyNote(
-                context.getString(R.string.do_hysterectomy_note)
-            )
+    /** Mother's condition form element id. */
+    private val motherConditionId = 1
+    /** Maternal complications form element id. */
+    private val maternalComplicationsId = 2
+    /** Index of Maternal Death in do_mother_condition_array. */
+    private val motherConditionMaternalDeathIndex = 3
+    /** Index of PPH in do_maternal_complications_array. */
+    private val complicationPphIndex = 0
+    /** Index of Uterine rupture in do_maternal_complications_array. */
+    private val complicationUterineRuptureIndex = 4
+    /** Index of Hysterectomy performed in do_maternal_complications_array. */
+    private val complicationHysterectomyIndex = 8
+
+    /**
+     * Show alert only when the option that was just selected is the one that triggers that alert.
+     * Prevents alerts from popping on other options (e.g. no Hysterectomy alert when selecting Retained placenta).
+     */
+    private fun checkAndEmitAlerts(formId: Int, index: Int) {
+        _alert.value = when {
+            // Only show "Inform District Nodal Officer" when user selected Maternal Death (index 3).
+            formId == motherConditionId && index == motherConditionMaternalDeathIndex && dataset.isMaternalDeath() ->
+                Alert.InformDistrictNodalOfficer(context.getString(R.string.do_inform_district_nodal_officer))
+            // Only show "Intensive PNC" when user just checked PPH (0) or Uterine rupture (4). index can be negative when unchecked.
+            formId == maternalComplicationsId && (index == complicationPphIndex || index == complicationUterineRuptureIndex) && dataset.hasPphOrUterineRupture() ->
+                Alert.IntensivePncMonitoring(context.getString(R.string.do_alert_intensive_pnc))
+            // Only show "Hysterectomy" when user just checked Hysterectomy performed (index 8).
+            formId == maternalComplicationsId && index == complicationHysterectomyIndex && dataset.hasHysterectomy() ->
+                Alert.HysterectomyNote(context.getString(R.string.do_hysterectomy_note))
+            else -> null
         }
     }
 
@@ -129,7 +147,14 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 try {
                     _state.postValue(State.SAVING)
                     dataset.mapValues(deliveryOutcome, 1)
-                    deliveryOutcome.dateOfDelivery = deliveryOutcome.dateOfDelivery ?: System.currentTimeMillis()
+                    // Ensure delivery date is saved (from form field or fallback to current time)
+                    if (deliveryOutcome.dateOfDelivery == null) {
+                        deliveryOutcome.dateOfDelivery = System.currentTimeMillis()
+                    }
+                    userRepo.getLoggedInUser()?.let { user ->
+                        deliveryOutcome.updatedBy = user.userName
+                        deliveryOutcome.updatedDate = System.currentTimeMillis()
+                    }
                     deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
                     _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
                 } catch (e: Exception) {
