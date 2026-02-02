@@ -141,22 +141,21 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
 
     fun saveForm() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    _state.postValue(State.SAVING)
+            try {
+                _state.value = State.SAVING
 
+                withContext(Dispatchers.IO) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
 
-                    // Check pregnancy status
+                    // Check statuses in background
                     isPregnant = dataset.isPregnancyPositive()
-
-                    // Check sterilization status
                     isSterilized = dataset.isSterilizationSelected()
-
-                    // Check ANTRA injection
                     isAntraSelected = dataset.isAntraSelected()
+                }
 
+                // Switch to Main for deterministic status and alert updates
+                withContext(Dispatchers.Main) {
                     // Update patient status if pregnant
                     if (isPregnant) {
                         updatePatientStatusToPregnant()
@@ -165,17 +164,21 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                     // Update patient status if sterilization selected
                     if (isSterilized) {
                         updatePatientStatusToSterilized()
-                        _statusUpdatedToSterilization.postValue(true)
-                        _showAlert.postValue(AlertType.STERILIZATION_INCENTIVE)
+                        _statusUpdatedToSterilization.value = true
+                        _showAlert.value = AlertType.STERILIZATION_INCENTIVE
                     } else if (isAntraSelected) {
-                        _showAlert.postValue(AlertType.ANTRA_INCENTIVE)
+                        _showAlert.value = AlertType.ANTRA_INCENTIVE
+                    } else {
+                        // Explicitly clear alert if neither selected
+                        _showAlert.value = AlertType.NONE
                     }
 
-                    _state.postValue(State.SAVE_SUCCESS)
-                } catch (e: Exception) {
-                    Timber.d("saving ECT data failed due to $e")
-                    _state.postValue(State.SAVE_FAILED)
+                    // Set SAVE_SUCCESS last so observers see alert changes first
+                    _state.value = State.SAVE_SUCCESS
                 }
+            } catch (e: Exception) {
+                Timber.e(e, "saving ECT data failed")
+                _state.value = State.SAVE_FAILED
             }
         }
     }
