@@ -9,9 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.piramalswasthya.cho.coroutines.DispatcherProvider
 import org.piramalswasthya.cho.configuration.EligibleCoupleTrackingDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.room.dao.PatientDao
@@ -32,6 +32,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     companion object {
@@ -144,7 +145,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             try {
                 _state.value = State.SAVING
 
-                withContext(Dispatchers.IO) {
+                withContext(dispatcherProvider.io) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
 
@@ -155,7 +156,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                 }
 
                 // Switch to Main for deterministic status and alert updates
-                withContext(Dispatchers.Main) {
+                withContext(dispatcherProvider.main) {
                     // Update patient status if pregnant
                     if (isPregnant) {
                         updatePatientStatusToPregnant()

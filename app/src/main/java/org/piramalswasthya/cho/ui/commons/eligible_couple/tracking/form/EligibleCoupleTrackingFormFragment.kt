@@ -132,7 +132,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 EligibleCoupleTrackingFormViewModel.AlertType.STERILIZATION_INCENTIVE -> {
                     showSterilizationIncentiveAlert()
                 }
-                EligibleCoupleTrackingFormViewModel.AlertType.NONE -> {}
+                EligibleCoupleTrackingFormViewModel.AlertType.NONE -> {
+                    //no ops for now
+                }
             }
         }
     }
