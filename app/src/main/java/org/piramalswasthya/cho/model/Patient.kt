@@ -1,8 +1,6 @@
 package org.piramalswasthya.cho.model
 
-import android.os.Build
 import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
