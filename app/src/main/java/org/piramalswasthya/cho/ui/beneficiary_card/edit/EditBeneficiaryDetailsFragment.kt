@@ -2,6 +2,7 @@ package org.piramalswasthya.cho.ui.beneficiary_card.edit
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
@@ -56,7 +58,10 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                         val digits = text.filter { it.isDigit() }.take(10)
                         binding.etPhoneNumber.setText(digits)
                     }
-                    null -> {}
+
+                    else -> {
+                        // No action needed for IDLE or SAVING states
+                    }
                 }
             }
         }
@@ -92,6 +97,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -105,6 +111,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         setupClickListeners()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupUI() {
         patientInfo?.let { patient ->
             // Set patient info summary
@@ -151,23 +158,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         }
 
         viewModel.saveState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                EditBeneficiaryDetailsViewModel.SaveState.SUCCESS -> {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.beneficiary_updated_successfully),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    handlePostSaveNavigation()
-                    viewModel.resetSaveState()
-                }
-                EditBeneficiaryDetailsViewModel.SaveState.ERROR -> {
-                    // Show validation errors
-                    showValidationErrors()
-                    viewModel.resetSaveState()
-                }
-                else -> {}
-            }
+            handleSaveState(state)
         }
 
         viewModel.ageYearsValid.observe(viewLifecycleOwner) { isValid ->
@@ -191,6 +182,27 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                 binding.statusOfWomanText.error = getString(R.string.status_of_woman_required)
             } else {
                 binding.statusOfWomanText.error = null
+            }
+        }
+    }
+
+    private fun handleSaveState(state: EditBeneficiaryDetailsViewModel.SaveState) {
+        when (state) {
+            EditBeneficiaryDetailsViewModel.SaveState.SUCCESS -> {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.beneficiary_updated_successfully),
+                    Toast.LENGTH_SHORT
+                ).show()
+                handlePostSaveNavigation()
+                viewModel.resetSaveState()
+            }
+            EditBeneficiaryDetailsViewModel.SaveState.ERROR -> {
+                showValidationErrors()
+                viewModel.resetSaveState()
+            }
+            else -> {
+                // No action needed for IDLE or SAVING states
             }
         }
     }
@@ -220,15 +232,21 @@ class EditBeneficiaryDetailsFragment : Fragment() {
 
     private fun setupTextWatchers() {
         binding.etLastName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed - we only handle onTextChanged
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.lastName = s?.toString()?.trim()
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed - we only handle onTextChanged
+            }
         })
 
         binding.etPhoneNumber.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed - we only handle onTextChanged
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val phone = s?.toString()?.trim()
                 viewModel.phoneNumber = phone
@@ -238,11 +256,15 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                     binding.phoneNumberText.error = null
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed - we only handle onTextChanged
+            }
         })
 
         binding.etAgeYears.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed - we only handle onTextChanged
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val years = s?.toString()?.toIntOrNull()
                 viewModel.ageYears = years
@@ -250,23 +272,33 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                 // Update Status of Woman options when age changes
                 viewModel.updateFilteredStatusOfWomanList()
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed - we only handle onTextChanged
+            }
         })
 
         binding.etAgeMonths.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed - we only handle onTextChanged
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.ageMonths = s?.toString()?.toIntOrNull()
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed - we only handle onTextChanged
+            }
         })
 
         binding.etAgeDays.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed - we only handle onTextChanged
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.ageDays = s?.toString()?.toIntOrNull()
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed - we only handle onTextChanged
+            }
         })
     }
 
