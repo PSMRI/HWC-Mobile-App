@@ -155,28 +155,25 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                     isAntraSelected = dataset.isAntraSelected()
                 }
 
-                // Switch to Main for deterministic status and alert updates
-                withContext(dispatcherProvider.main) {
-                    // Update patient status if pregnant
-                    if (isPregnant) {
-                        updatePatientStatusToPregnant()
-                    }
-
-                    // Update patient status if sterilization selected
-                    if (isSterilized) {
-                        updatePatientStatusToSterilized()
-                        _statusUpdatedToSterilization.value = true
-                        _showAlert.value = AlertType.STERILIZATION_INCENTIVE
-                    } else if (isAntraSelected) {
-                        _showAlert.value = AlertType.ANTRA_INCENTIVE
-                    } else {
-                        // Explicitly clear alert if neither selected
-                        _showAlert.value = AlertType.NONE
-                    }
-
-                    // Set SAVE_SUCCESS last so observers see alert changes first
-                    _state.value = State.SAVE_SUCCESS
+                // Update patient status if pregnant
+                if (isPregnant) {
+                    updatePatientStatusToPregnant()
                 }
+
+                // Update patient status if sterilization selected
+                if (isSterilized) {
+                    updatePatientStatusToSterilized()
+                    _statusUpdatedToSterilization.value = true
+                    _showAlert.value = AlertType.STERILIZATION_INCENTIVE
+                } else if (isAntraSelected) {
+                    _showAlert.value = AlertType.ANTRA_INCENTIVE
+                } else {
+                    // Explicitly clear alert if neither selected
+                    _showAlert.value = AlertType.NONE
+                }
+
+                // Set SAVE_SUCCESS last so observers see alert changes first
+                _state.value = State.SAVE_SUCCESS
             } catch (e: Exception) {
                 Timber.e(e, "saving ECT data failed")
                 _state.value = State.SAVE_FAILED
