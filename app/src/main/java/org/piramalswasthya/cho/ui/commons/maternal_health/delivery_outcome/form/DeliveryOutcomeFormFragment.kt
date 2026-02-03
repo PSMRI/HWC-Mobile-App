@@ -121,13 +121,23 @@ class DeliveryOutcomeFormFragment : Fragment() {
     private fun navigateToVitals() {
         val benVisitInfo = (activity?.intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)
         if (benVisitInfo != null) {
-            val bundle = Bundle().apply { putSerializable("benVisitInfo", benVisitInfo) }
-            findNavController().navigate(
-                R.id.action_deliveryOutcomeFormFragment_to_customVitalsFragment,
-                bundle
-            )
+            try {
+                val bundle = Bundle().apply { putSerializable("benVisitInfo", benVisitInfo) }
+                findNavController().navigate(
+                    R.id.action_deliveryOutcomeFormFragment_to_customVitalsFragment,
+                    bundle
+                )
+            } catch (e: IllegalStateException) {
+                // Not in a navigation graph, use fragment transaction or finish
+                requireActivity().supportFragmentManager.popBackStack()
+            }
         } else {
-            activity?.finish()
+            // No visit info, just go back
+            try {
+                findNavController().navigateUp()
+            } catch (e: IllegalStateException) {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
         }
     }
 

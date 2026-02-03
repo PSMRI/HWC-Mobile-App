@@ -494,7 +494,8 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true                        cbx.setOnClickListener {
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
+                        cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
                         }

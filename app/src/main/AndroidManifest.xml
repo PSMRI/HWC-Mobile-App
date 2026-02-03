@@ -110,16 +110,6 @@
             android:label="@string/anc_visits"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
-            android:name=".ui.home.rmncha.maternal_health.DeliveryOutcomeActivity"
-            android:exported="false"
-            android:label="@string/delivery_outcome"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.commons.maternal_health.delivery_outcome.DeliveryOutcomeFormActivity"
-            android:exported="false"
-            android:label="@string/delivery_outcome"
-            android:parentActivityName=".ui.home.rmncha.maternal_health.DeliveryOutcomeActivity" />
-        <activity
             android:name=".ui.home.rmncha.maternal_health.PNCMotherListActivity"
             android:exported="false"
             android:label="@string/pnc_mother_list"
