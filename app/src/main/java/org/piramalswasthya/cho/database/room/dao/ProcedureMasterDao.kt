@@ -22,6 +22,9 @@ public interface ProcedureMasterDao {
     @Query("select * from procedure_master where procedure_id = :procedureID limit 1")
     suspend fun getMasterProcedureById(procedureID: Long): ProcedureMaster?
 
+    @Query("select * from procedure_master order by procedure_id")
+    suspend fun getAllProcedures(): List<ProcedureMaster>
+
     @Query("select * from component_details_master where procedure_id = :procedureID")
     suspend fun getComponentDetails(procedureID: Long): List<ComponentDetailsMaster>
 
