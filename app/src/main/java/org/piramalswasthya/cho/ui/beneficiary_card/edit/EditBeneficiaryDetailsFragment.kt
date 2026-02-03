@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
@@ -204,6 +205,12 @@ class EditBeneficiaryDetailsFragment : Fragment() {
             getString(R.string.beneficiary_updated_successfully),
             Toast.LENGTH_SHORT
         ).show()
+        
+        // Pass updated info back to BeneficiaryCardFragment
+        viewModel.patientInfo.value?.let { updatedInfo ->
+            findNavController().previousBackStackEntry?.savedStateHandle?.set("updatedPatientInfo", updatedInfo)
+        }
+        
         handlePostSaveNavigation()
         viewModel.resetSaveState()
     }
@@ -327,7 +334,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         }
 
         binding.btnCancel.setOnClickListener {
-            activity?.finish()
+            findNavController().popBackStack()
         }
 
         binding.btnSave.setOnClickListener {
@@ -370,12 +377,12 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                 viewModel.getNewStatusOfWomanId() != null
 
         if (!shouldNavigate) {
-            activity?.finish()
+            findNavController().popBackStack()
             return
         }
 
         navigateBasedOnStatus()
-        activity?.finish()
+        findNavController().popBackStack()
     }
 
     private fun navigateBasedOnStatus() {

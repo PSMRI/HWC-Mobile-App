@@ -52,11 +52,11 @@ import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
 import org.piramalswasthya.cho.model.VillageLocationData
 import kotlin.math.pow
-import org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardActivity
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.register_patient_activity.scanAadhaar.ScanAadhaarActivity
+import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.ImgUtils
 import org.piramalswasthya.cho.utils.generateUuid
@@ -1243,11 +1243,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     
     private fun showBeneficiaryCard() {
-        val intent = BeneficiaryCardActivity.getIntent(requireContext(), viewModel.benVisitInfo)
-        // Pass Status of Woman info for routing after card view
-        intent.putExtra("statusOfWomanID", viewModel.selectedStatusOfWoman?.statusID)
-        startActivity(intent)
-        requireActivity().finish()
+        val bundle = Bundle().apply {
+            putSerializable("patientInfo", viewModel.benVisitInfo)
+            putInt("statusOfWomanID", viewModel.selectedStatusOfWoman?.statusID ?: -1)
+        }
+        findNavController().navigate(R.id.action_patientDetailsFragment_to_beneficiaryCardFragment, bundle)
     }
 
     override fun onCancelAction() {

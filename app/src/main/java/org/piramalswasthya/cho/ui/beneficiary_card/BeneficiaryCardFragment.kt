@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import org.piramalswasthya.cho.R
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.FragmentBeneficiaryCardBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
-import org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsActivity
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 
 @AndroidEntryPoint
 class BeneficiaryCardFragment : Fragment() {
@@ -22,6 +24,7 @@ class BeneficiaryCardFragment : Fragment() {
     private val viewModel: BeneficiaryCardViewModel by viewModels()
 
     private var patientInfo: PatientDisplayWithVisitInfo? = null
+    private var statusOfWomanID: Int? = null
 
     companion object {
         private const val ARG_PATIENT_INFO = "patientInfo"
@@ -40,6 +43,7 @@ class BeneficiaryCardFragment : Fragment() {
         arguments?.let {
             @Suppress("DEPRECATION")
             patientInfo = it.getSerializable(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+            statusOfWomanID = it.getInt("statusOfWomanID", -1).takeIf { it != -1 }
         }
     }
 
@@ -102,12 +106,20 @@ class BeneficiaryCardFragment : Fragment() {
         binding.btnContinue.setOnClickListener {
             onContinue()
         }
+
+        // Handle updated patient info after returning from EditBeneficiaryDetailsFragment
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<PatientDisplayWithVisitInfo>("updatedPatientInfo")?.observe(viewLifecycleOwner) { updatedInfo ->
+            patientInfo = updatedInfo
+            viewModel.setPatientInfo(updatedInfo)
+        }
     }
 
     private fun navigateToEditBeneficiaryDetails() {
         patientInfo?.let { patient ->
-            val intent = EditBeneficiaryDetailsActivity.getIntent(requireContext(), patient)
-            startActivity(intent)
+            val bundle = Bundle().apply {
+                putSerializable("patientInfo", patient)
+            }
+            findNavController().navigate(R.id.action_beneficiaryCardFragment_to_editBeneficiaryDetailsFragment, bundle)
         }
     }
 
@@ -122,7 +134,19 @@ class BeneficiaryCardFragment : Fragment() {
     }
 
     private fun onContinue() {
-        (activity as? BeneficiaryCardActivity)?.navigateToNextScreen() ?: activity?.finish()
+        patientInfo?.let { patient ->
+            val intent = Intent(requireContext(), EditPatientDetailsActivity::class.java)
+            intent.putExtra("benVisitInfo", patient)
+
+            when (statusOfWomanID) {
+                1 -> intent.putExtra("navigateToEC", true)
+                2 -> intent.putExtra("navigateToPW", true)
+                3 -> intent.putExtra("navigateToPN", true)
+            }
+
+            startActivity(intent)
+        }
+        activity?.finish()
     }
 
     override fun onDestroyView() {

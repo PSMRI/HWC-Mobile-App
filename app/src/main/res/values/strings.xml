@@ -764,5 +764,4 @@
     <string name="speech_recognition_error">Speech recognition not available</string>
     <string name="beneficiary_photo_content_description">Photo of %s</string>
     <string name="desc_patient_photo">Patient photo</string>
-
 </resources>
