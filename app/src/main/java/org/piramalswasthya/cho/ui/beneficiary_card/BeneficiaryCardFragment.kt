@@ -58,14 +58,6 @@ class BeneficiaryCardFragment : Fragment() {
         // Set patient info from arguments or activity intent
         patientInfo?.let {
             viewModel.setPatientInfo(it)
-        } ?: run {
-            // Try to get from activity intent
-            @Suppress("DEPRECATION")
-            val intentPatientInfo = activity?.intent?.getSerializableExtra(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
-            intentPatientInfo?.let {
-                viewModel.setPatientInfo(it)
-                patientInfo = it
-            }
         }
 
         // Bind data
@@ -108,8 +100,12 @@ class BeneficiaryCardFragment : Fragment() {
     }
 
     private fun onContinue() {
-
-        (activity as? BeneficiaryCardActivity)?.navigateToNextScreen() ?: activity?.finish()
+        patientInfo?.let { patient ->
+            val intent = Intent(requireContext(), org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java)
+            intent.putExtra("benVisitInfo", patient)
+            startActivity(intent)
+            requireActivity().finish()
+        }
     }
 
     override fun onDestroyView() {

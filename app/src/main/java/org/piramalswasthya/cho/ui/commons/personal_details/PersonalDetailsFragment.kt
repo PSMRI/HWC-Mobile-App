@@ -86,8 +86,8 @@ import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
-import org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.ui.home.HomeViewModel
@@ -657,8 +657,7 @@ class PersonalDetailsFragment : Fragment() {
      * Open the Beneficiary Card for the selected patient.
      */
     private fun openBeneficiaryCard(benVisitInfo: PatientDisplayWithVisitInfo) {
-        val intent = BeneficiaryCardActivity.getIntent(requireContext(), benVisitInfo)
-        startActivity(intent)
+        (activity as? org.piramalswasthya.cho.ui.home_activity.HomeActivity)?.showBeneficiaryCard(benVisitInfo)
     }
 
     var pageHeight = 1120

@@ -20,4 +20,12 @@
             android:id="@+id/action_registerPatientFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/beneficiaryCardFragment"
+        android:name="org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment"
+        android:label="BeneficiaryCardFragment" >
+        <argument
+            android:name="patientInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+    </fragment>
 </navigation>
