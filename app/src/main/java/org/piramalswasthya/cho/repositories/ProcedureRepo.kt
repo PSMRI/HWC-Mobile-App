@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.InAppDb
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.model.ComponentDetails
@@ -13,20 +14,26 @@ import org.piramalswasthya.cho.model.ComponentOptionsMaster
 import org.piramalswasthya.cho.model.MasterLabProceduresRequestModel
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.Procedure
+import org.piramalswasthya.cho.model.ProcedureDataDownsync
 import org.piramalswasthya.cho.model.ProcedureDataWithComponent
 import org.piramalswasthya.cho.model.ProcedureMaster
+import org.piramalswasthya.cho.model.ComponentDataDownsync
 import org.piramalswasthya.cho.model.ProcedureMasterDTO
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.network.NetworkResponse
 import org.piramalswasthya.cho.network.NetworkResult
 import org.piramalswasthya.cho.network.networkResultInterceptor
 import org.piramalswasthya.cho.network.refreshTokenInterceptor
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
 class ProcedureRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val procedureMasterDao: ProcedureMasterDao,
+    private val inAppDb: InAppDb,
     private val apiService: AmritApiService,
     private val userRepo: UserRepo
 ) {
@@ -39,12 +46,53 @@ class ProcedureRepo @Inject constructor(
         }
     }
 
+    suspend fun syncLabResultsToDownsyncTable(patientID: String, benVisitNo: Int) {
+        withContext(Dispatchers.IO) {
+            val procedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(patientID, benVisitNo) ?: return@withContext
+            procedureDao.deleteProcedureDownsyncByPatientIdAndVisitNo(patientID, benVisitNo)
+            val createdDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            procedures.forEach { procedure ->
+                val downsync = ProcedureDataDownsync(
+                    id = 0,
+                    prescriptionID = procedure.prescriptionID.toInt(),
+                    procedureID = procedure.procedureID.toInt(),
+                    createdDate = createdDate,
+                    procedureName = procedure.procedureName,
+                    patientID = patientID,
+                    benVisitNo = benVisitNo
+                )
+                val downsyncId = procedureDao.insert(downsync)
+                val components = procedureDao.getComponentDetails(procedure.id) ?: emptyList()
+                components.forEach { component ->
+                    procedureDao.insert(
+                        ComponentDataDownsync(
+                            id = 0,
+                            procedureDataID = downsyncId,
+                            testResultValue = component.testResultValue,
+                            testResultUnit = component.measurementUnit,
+                            testComponentID = component.testComponentID.toInt(),
+                            componentName = component.testComponentName,
+                            remarks = component.remarks
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     suspend fun pullLabProcedureMasterData(): Boolean {
         return try {
             getProcedureMasterData();
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    suspend fun ensureLabProcedureMasterSeed() {
+        withContext(Dispatchers.IO) {
+            if (procedureMasterDao.getMasterProcedureById(101L) != null) return@withContext
+            inAppDb.runSeedLabProcedureMaster()
         }
     }
 
@@ -116,21 +164,38 @@ class ProcedureRepo @Inject constructor(
     }
 
     suspend fun addProcedure(procedureID: Long, benVisitInfo: PatientDisplayWithVisitInfo) {
-        var procedureMaster = procedureMasterDao.getMasterProcedureById(procedureID)
-        procedureMaster?.let {
-            val procedure = Procedure(
-                patientID = benVisitInfo.patient.patientID,
-                benVisitNo = benVisitInfo.benVisitNo!!,
-                procedureID = procedureMaster.procedureID,
-                procedureDesc = procedureMaster.procedureDesc,
-                procedureType = procedureMaster.procedureType,
-                procedureName = procedureMaster.procedureName,
-                prescriptionID = procedureMaster.prescriptionID,
-                isMandatory = procedureMaster.isMandatory
-            )
-            val procedureId = procedureDao.insert(procedure)
-            val componentDetailsMasterList = procedureMasterDao.getComponentDetails(procedureId)
-            componentDetailsMasterList.forEach { componentDetailsMaster ->
+        addProcedureFromMaster(procedureID, benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+    }
+
+    suspend fun copyProceduresFromMasterForVisit(patientID: String, benVisitNo: Int, newTestIds: String?) {
+        if (newTestIds.isNullOrBlank()) return
+        withContext(Dispatchers.IO) {
+            ensureLabProcedureMasterSeed()
+            val existingProcedures = procedureDao.getProceduresByPatientIdAndBenVisitNo(patientID, benVisitNo)
+            val existingProcedureIds = existingProcedures?.map { it.procedureID }?.toSet() ?: emptySet()
+            newTestIds.split(",").mapNotNull { it.trim().toLongOrNull() }.forEach { procedureID ->
+                if (procedureID !in existingProcedureIds) {
+                    addProcedureFromMaster(procedureID, patientID, benVisitNo)
+                }
+            }
+        }
+    }
+
+    private suspend fun addProcedureFromMaster(procedureID: Long, patientID: String, benVisitNo: Int) {
+        val procedureMaster = procedureMasterDao.getMasterProcedureById(procedureID) ?: return
+        val procedure = Procedure(
+            patientID = patientID,
+            benVisitNo = benVisitNo,
+            procedureID = procedureMaster.procedureID,
+            procedureDesc = procedureMaster.procedureDesc,
+            procedureType = procedureMaster.procedureType,
+            procedureName = procedureMaster.procedureName,
+            prescriptionID = procedureMaster.prescriptionID,
+            isMandatory = procedureMaster.isMandatory
+        )
+        val procedureId = procedureDao.insert(procedure)
+        val componentDetailsMasterList = procedureMasterDao.getComponentDetails(procedureMaster.id)
+        componentDetailsMasterList.forEach { componentDetailsMaster ->
             val component = ComponentDetails(
                 procedureID = procedureId,
                 testComponentID = componentDetailsMaster.testComponentID,
@@ -146,18 +211,16 @@ class ProcedureRepo @Inject constructor(
                 testResultValue = null,
                 remarks = null
             )
-                val componentId = procedureDao.insert(component)
-                val componentOptionsMaster = procedureMasterDao.getComponentOptions(componentId)
-                componentOptionsMaster?.forEach { componentOptionsMaster ->
-                        val componentOption = ComponentOption(
-                            componentDetailsId = componentOptionsMaster.componentDetailsId,
-                            name = componentOptionsMaster.name
-                        )
-                        procedureDao.insert(componentOption)
-                }
+            val componentId = procedureDao.insert(component)
+            val componentOptionsMaster = procedureMasterDao.getComponentOptions(componentDetailsMaster.id)
+            componentOptionsMaster?.forEach { option ->
+                val componentOption = ComponentOption(
+                    componentDetailsId = componentId,
+                    name = option.name
+                )
+                procedureDao.insert(componentOption)
             }
         }
-
     }
 
 }
