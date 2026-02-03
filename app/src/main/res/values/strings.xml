@@ -538,6 +538,14 @@
     <string name="pnc_other_death_cause">Other Death Cause</string>
     <string name="pnc_death_place">Place of Death</string>
     <string name="pnc_remarks">Remarks</string>
+    <string name="pnc_calcium_supplementation">Calcium supplementation</string>
+    <string name="pnc_maternal_symptoms">Maternal Symptoms</string>
+    <string name="pnc_other_maternal_symptoms">Other maternal symptoms</string>
+    <string name="pnc_pallor">Pallor (Anemia check)</string>
+    <string name="pnc_vaginal_bleeding">Vaginal Bleeding</string>
+    <string name="pnc_date_of_sterilization">Date of Sterilization</string>
+    <string name="pnc_any_danger_sign">Any Danger Signs?\nAny High-risk identified?</string>
+    <string name="other_place_of_death">Other Place of Death</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
     <string name="tracking_date">Date of Visit</string>
     <string name="long_to_string">%d</string>
@@ -579,16 +587,64 @@
         <item>Any Other (Specify)</item>
     </string-array>
     <string-array name="pnc_death_cause_array">
-        <item>ECLAMPSIA</item>
-        <item>HAEMORRHAGE (PPH)</item>
-        <item>ANAEMIA</item>
-        <item>HIGH FEVER</item>
-        <item>Any Other</item>
+        <item>Eclampsia</item>
+        <item>Hemorrhage (PPH)</item>
+        <item>Anaemia</item>
+        <item>High fever</item>
+        <item>Sepsis</item>
+        <item>Accident</item>
+        <item>Other</item>
     </string-array>
     <string-array name="pnc_death_place_array">
         <item>Home</item>
-        <item>Hospital</item>
-        <item>Transit</item>
+        <item>Subcenter</item>
+        <item>PHC</item>
+        <item>CHC</item>
+        <item>District Hospital</item>
+        <item>Medical College Hospital</item>
+        <item>Private Hospital</item>
+        <item>In Transit</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="pnc_maternal_symptoms_array">
+        <item>Excessive bleeding</item>
+        <item>Foul-smelling discharge</item>
+        <item>Fever</item>
+        <item>Severe abdominal pain</item>
+        <item>Breast pain</item>
+        <item>Painful urination</item>
+        <item>Severe headache</item>
+        <item>Dizziness</item>
+        <item>Difficulty breathing</item>
+        <item>Swelling</item>
+        <item>Wound pain</item>
+        <item>Mood changes</item>
+        <item>None</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="pnc_pallor_array">
+        <item>None</item>
+        <item>Mild</item>
+        <item>Moderate</item>
+        <item>Severe</item>
+    </string-array>
+    <string-array name="pnc_vaginal_bleeding_array">
+        <item>Normal</item>
+        <item>Heavy bleeding</item>
+        <item>Foul-smelling discharge</item>
+        <item>Scanty</item>
+        <item>Stopped</item>
+    </string-array>
+    <string-array name="sterilization_methods_array">
+        <item>MALE STERILIZATION</item>
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>Minilap</item>
+    </string-array>
+    <string-array name="female_sterilization_methods_array">
+        <item>FEMALE STERILIZATION</item>
+        <item>POST PARTUM STERILIZATION (PPS WITHIN 7 DAYS OF DELIVERY)</item>
+        <item>Minilap</item>
     </string-array>
     <string-array name="visit_months">
         <item>Jan</item>

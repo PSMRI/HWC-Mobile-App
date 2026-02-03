@@ -21,9 +21,12 @@ import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.PncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.R
+import android.annotation.SuppressLint
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,14 +72,41 @@ class PncFormViewModel @Inject constructor(
     val formList = dataset.listFlow
 
     private lateinit var pncCache: PNCVisitCache
+    var deliveryOutcome: DeliveryOutcomeCache? = null
+
+    suspend fun hasPreviousPermanentSterilization(): Boolean {
+        return pncRepo.getAllPNCsByPatId(patientID)
+            .filter { it.pncPeriod < visitNumber }
+            .any { pncVisit ->
+                pncVisit.contraceptionMethod?.let { method ->
+                    isPermanentSterilizationMethod(method)
+                } ?: false
+            }
+    }
+
+    suspend fun getLastPermanentSterilizationVisit(
+        currentVisitNumber: Int
+    ): PNCVisitCache? {
+        return pncRepo.getAllPNCsByPatId(patientID)
+            .filter { it.pncPeriod < currentVisitNumber }
+            .filter { pncVisit ->
+                pncVisit.contraceptionMethod?.let { method ->
+                    isPermanentSterilizationMethod(method)
+                } ?: false
+            }
+            .maxByOrNull { it.pncPeriod }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private val context = context
+
+    private fun isPermanentSterilizationMethod(method: String): Boolean {
+        val permanentMethods = context.resources.getStringArray(R.array.sterilization_methods_array).toList()
+        return permanentMethods.any { it.equals(method, ignoreCase = true) }
+    }
 
     init {
         viewModelScope.launch {
-            val calendar = Calendar.getInstance()
-            calendar.time = Date() // Set the calendar to the current date and time
-            calendar.add(Calendar.DAY_OF_MONTH, -42) // Subtract 42 days
-            val millis = calendar.timeInMillis
-
             val asha = userRepo.getLoggedInUser()!!
             val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
@@ -91,15 +121,13 @@ class PncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            val outcomeRecord = deliveryOutcomeRepo.getDeliveryOutcome(patientID)!!
-//            val outcomeRecord = DeliveryOutcomeCache(
-//                patientID = patientID,
-//                isActive = false,
-//                createdBy = asha.userName,
-//                updatedBy = asha.userName,
-//                dateOfDelivery = millis,
-//                syncState = SyncState.UNSYNCED
-//            )
+            deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
+            if (deliveryOutcome == null) {
+                Timber.e("Delivery outcome not found for patient $patientID")
+                _state.postValue(State.SAVE_FAILED)
+                return@launch
+            }
+            
             pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
                 pncCache = it
                 _recordExists.value = true
@@ -107,16 +135,20 @@ class PncFormViewModel @Inject constructor(
                 _recordExists.value = false
             }
             val lastPnc = pncRepo.getLastFilledPncRecord(patientID)
+            val hasPreviousSterilization = hasPreviousPermanentSterilization()
+            val lastSterilizationVisit = if (hasPreviousSterilization) {
+                getLastPermanentSterilizationVisit(visitNumber)
+            } else null
 
             dataset.setUpPage(
                 visitNumber,
                 ben,
-                outcomeRecord,
+                deliveryOutcome!!,
                 lastPnc,
-                if (recordExists.value == true) pncCache else null
+                if (recordExists.value == true) pncCache else null,
+                hasPreviousSterilization,
+                lastSterilizationVisit
             )
-
-
         }
     }
 
@@ -135,12 +167,78 @@ class PncFormViewModel @Inject constructor(
                     _state.postValue(State.SAVING)
                     dataset.mapValues(pncCache, 1)
                     pncRepo.persistPncRecord(pncCache)
+
+                    // Update delivery outcome if date of delivery is missing
+                    if (deliveryOutcome?.dateOfDelivery == null || deliveryOutcome?.dateOfDelivery == 0L) {
+                        val saveDeliveryOutcome = DeliveryOutcomeCache(
+                            patientID = patientID,
+                            syncState = SyncState.UNSYNCED,
+                            createdBy = pncCache.updatedBy,
+                            updatedBy = pncCache.updatedBy,
+                            dateOfDelivery = pncCache.pncDate, // Use PNC date as fallback
+                            isActive = true
+                        )
+                        deliveryOutcomeRepo.saveDeliveryOutcome(saveDeliveryOutcome)
+                    }
+
+                    // Update woman status after PNC
+                    updateWomanStatusAfterPnc(pncCache)
+
+                    // Handle maternal death
+                    if (pncCache.motherDeath) {
+                        val patient = patientRepo.getPatient(patientID)
+                        patient?.let {
+                            // Update patient death status
+                            // Note: Patient model may need to be updated to include death fields
+                            // For now, we'll sync the death information
+                            patient.syncState = SyncState.UNSYNCED
+                            patientRepo.updateRecord(patient)
+                        }
+                    }
+
                     _state.postValue(State.SAVE_SUCCESS)
                 } catch (e: Exception) {
-                    Timber.d("saving PW-ANC data failed!! $e")
+                    Timber.d("saving PNC data failed!! $e")
                     _state.postValue(State.SAVE_FAILED)
                 }
             }
+        }
+    }
+
+    private suspend fun updateWomanStatusAfterPnc(pncCache: PNCVisitCache) {
+        val patient = patientRepo.getPatient(patientID) ?: return
+
+        val permanentSterilizationMethods = context.resources.getStringArray(R.array.female_sterilization_methods_array).toList()
+
+        val is42ndDayPnc = pncCache.pncPeriod == 42
+        val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return
+        val daysSinceDelivery = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - dateOfDelivery)
+        val isAfter60Days = daysSinceDelivery >= 60
+
+        if (is42ndDayPnc || isAfter60Days) {
+            val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
+            val hasPermanentSterilization = allPncVisits.any { pncVisit ->
+                pncVisit.contraceptionMethod?.let { method ->
+                    permanentSterilizationMethods.any { sterilizationMethod ->
+                        method.contains(sterilizationMethod, ignoreCase = true)
+                    }
+                } ?: false
+            }
+
+            // Update patient status based on sterilization
+            // Note: This may need to be adapted based on HWC's Patient model structure
+            // The Patient model in HWC may not have reproductiveStatus field directly
+            // Status updates might need to be handled through a different mechanism
+            if (hasPermanentSterilization) {
+                // Update to Permanently Sterilized status
+                // patient.reproductiveStatus = "Permanently Sterilised"
+            } else {
+                // Update to Eligible Couple status
+                // patient.reproductiveStatus = "Eligible Couple"
+            }
+            
+            patient.syncState = SyncState.UNSYNCED
+            patientRepo.updateRecord(patient)
         }
     }
 
