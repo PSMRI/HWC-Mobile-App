@@ -119,4 +119,3 @@ private fun AutoCompleteTextView.toggleDropdownState(dropdownStateTagHash: Int) 
         setTag(dropdownStateTagHash, true)
     }
 }
-

@@ -110,6 +110,7 @@ class BeneficiaryCardFragment : Fragment() {
         // Handle updated patient info after returning from EditBeneficiaryDetailsFragment
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<PatientDisplayWithVisitInfo>("updatedPatientInfo")?.observe(viewLifecycleOwner) { updatedInfo ->
             patientInfo = updatedInfo
+            statusOfWomanID = updatedInfo.patient.statusOfWomanID
             viewModel.setPatientInfo(updatedInfo)
         }
     }
@@ -138,7 +139,8 @@ class BeneficiaryCardFragment : Fragment() {
             val intent = Intent(requireContext(), EditPatientDetailsActivity::class.java)
             intent.putExtra("benVisitInfo", patient)
 
-            when (statusOfWomanID) {
+            val currentStatus = patient.patient.statusOfWomanID
+            when (currentStatus) {
                 1 -> intent.putExtra("navigateToEC", true)
                 2 -> intent.putExtra("navigateToPW", true)
                 3 -> intent.putExtra("navigateToPN", true)

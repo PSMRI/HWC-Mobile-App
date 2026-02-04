@@ -138,9 +138,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             dialog = builder.create()
             dialog.show()
 
-            lifecycleScope.launch(dispatcherProvider.IO) {
+            lifecycleScope.launch(dispatcherProvider.io) {
                 faceNetModel = FaceNetModel(requireActivity(), modelInfo, useGpu, useXNNPack)
-                withContext(dispatcherProvider.Main) {
+                withContext(dispatcherProvider.main) {
                     if (isAdded) {
                         dialog.dismiss()
                         checkAndRequestCameraPermission()
@@ -256,9 +256,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                                 return@registerForActivityResult
                             }
 
-                            lifecycleScope.launch(dispatcherProvider.IO) {
+                            lifecycleScope.launch(dispatcherProvider.io) {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
-                                withContext(dispatcherProvider.Main) {
+                                withContext(dispatcherProvider.main) {
                                     if (matchedPatient != null) {
                                         showDuplicateFaceDialog(matchedPatient)
                                     } else {
@@ -453,7 +453,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
                     applyScannedDob(userData)
 
-                    if (!userData.gender.isNullOrEmpty()){ 
+                    if (!userData.gender.isNullOrEmpty()){
                         applyScannedGender(userData)
                     }
                     applyScannedPhone(userData)
@@ -504,7 +504,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return PatientAadhaarDetails(name, gender,mobileNumber, dateOfBirth)
     }
 
-   
+
 
 
     private fun applyScannedName(userData: PatientAadhaarDetails) {
@@ -678,6 +678,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setMarriedFieldsVisibility()
             updateStatusOfWomanVisibility()
         }
+
+        // Setup keyboard handling for gender dropdown
+        binding.genderDropdown.setupDropdownKeyboardHandling()
 
         // Setup keyboard handling for gender dropdown
         binding.genderDropdown.setupDropdownKeyboardHandling()
@@ -1241,7 +1244,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
 
-    
+
     private fun showBeneficiaryCard() {
         val bundle = Bundle().apply {
             putSerializable("patientInfo", viewModel.benVisitInfo)
@@ -1254,14 +1257,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         requireActivity().finish()
     }
 
-    
+
     private suspend fun compareFacesL2Norm(newEmbedding: FloatArray): Patient? {
         var bestMatch: Patient? = null
         var bestDistance = Float.MAX_VALUE
 
         val patients = viewModel.getAllPatientsForFaceComparison()
 
-        kotlinx.coroutines.withContext(dispatcherProvider.Default) {
+        kotlinx.coroutines.withContext(dispatcherProvider.default) {
             for (patient in patients) {
                 val patientEmbedding = patient.faceEmbedding?.toFloatArray()
                 if (patientEmbedding == null || patientEmbedding.isEmpty()) {
@@ -1288,7 +1291,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         return kotlin.math.sqrt(sum)
     }
 
-    
+
     private fun showDuplicateFaceDialog(matchedPatient: Patient) {
     MaterialAlertDialogBuilder(requireContext())
         .setTitle(getString(R.string.duplicate_face_detected))
@@ -1312,8 +1315,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         .show()
     }
 
-    
-  
+
+
     private fun enableFullBoxClick(dropdown: AutoCompleteTextView) {
         dropdown.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -1358,7 +1361,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             }
         }
 
-        
+
         binding.abhaIdNumber.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Intentionally blank: ABHA validation/assignment happens in `onTextChanged`.
@@ -1381,7 +1384,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         })
     }
 
-   
+
     private fun showAbhaEnrollmentAlert() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.alert_popup))
@@ -1392,7 +1395,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             .show()
     }
 
-    
+
     private fun setupStatusOfWomanDropdown() {
         viewModel.statusOfWoman.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -1416,7 +1419,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
     }
 
-   
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateStatusOfWomanVisibility() {
         val genderId = viewModel.selectedGenderMaster?.genderID
