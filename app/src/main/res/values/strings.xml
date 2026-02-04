@@ -546,6 +546,11 @@
     <string name="pnc_date_of_sterilization">Date of Sterilization</string>
     <string name="pnc_any_danger_sign">Any Danger Signs?\nAny High-risk identified?</string>
     <string name="other_place_of_death">Other Place of Death</string>
+    <string name="pnc_ifa_max_error">IFA Tablets cannot exceed 400</string>
+    <string name="pnc_calcium_max_error">Calcium supplementation cannot exceed 400</string>
+    <string name="pnc_referral_alert_multiple_symptoms">Referral required: 2 or more maternal symptoms detected</string>
+    <string name="pnc_referral_alert_severe_pallor">Referral required: Severe pallor detected</string>
+    <string name="pnc_referral_alert_vaginal_bleeding">Referral required: Heavy bleeding or foul-smelling discharge detected</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
     <string name="tracking_date">Date of Visit</string>
     <string name="long_to_string">%d</string>

@@ -80,10 +80,16 @@ class PNCMotherListActivity : AppCompatActivity() {
     private fun observePatients() {
         lifecycleScope.launch {
             pncRepo.getAllPNCMothers().collectLatest { patientsList ->
-                // Filter for PNC-eligible mothers (already filtered by DAO query)
+                // Filter for PNC-eligible mothers
+                // PNC module opens only after Date of Discharge is entered in Delivery Outcome
                 allPatients = patientsList
                     .map { it.asDomainModel() }
-                    .filter { it.isEligibleForPNC() } // Additional filter check
+                    .filter { domain ->
+                        // Check if Date of Discharge is entered
+                        val hasDischargeDate = domain.deliveryOutcome?.dateOfDischarge != null
+                        // Additional eligibility check
+                        hasDischargeDate && domain.isEligibleForPNC()
+                    }
                     .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: 0L }
 
                 filteredPatients = allPatients

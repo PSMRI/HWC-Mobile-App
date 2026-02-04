@@ -20,6 +20,7 @@ class PncFormDataset(
 
     private var visit: Int = 0
     private var dateOfDelivery: Long = 0L
+    private var previousPncVisitDate: Long? = null
 
     private val pncPeriod = FormElement(
         id = 1,
@@ -276,6 +277,8 @@ class PncFormDataset(
             remarks
         )
         dateOfDelivery = deliveryOutcomeCache.dateOfDelivery ?: 0L
+        previousPncVisitDate = previousPnc?.pncDate
+        
         if (dateOfDelivery != 0L) {
             deathDate.min = dateOfDelivery
             dateOfSterilisation.min = dateOfDelivery
@@ -284,6 +287,9 @@ class PncFormDataset(
         deathDate.max = System.currentTimeMillis()
         dateOfSterilisation.max = System.currentTimeMillis()
         anyDangerSign.value = anyDangerSign.entries!!.last()
+        motherDeath.value = motherDeath.entries!!.last()
+        
+        // Set default value for motherDeath to "No"
         motherDeath.value = motherDeath.entries!!.last()
         
         val daysSinceDeliveryMillis = if (deliveryOutcomeCache.dateOfDelivery != null) {
@@ -377,7 +383,20 @@ class PncFormDataset(
             }
             otherMaternalSymptoms.value = it.otherMaternalSymptoms
             pallor.value = it.pallor
+            // Check for Severe pallor → referral alert
+            if (it.pallor?.equals("Severe", ignoreCase = true) == true) {
+                referralFacility.required = true
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+            }
+            
             vaginalBleeding.value = it.vaginalBleeding
+            // Check for Heavy bleeding or foul smell → referral alert
+            val vaginalBleedingValue = it.vaginalBleeding?.lowercase() ?: ""
+            if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
+                vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
+                referralFacility.required = true
+                referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+            }
             motherDangerSign.value = it.motherDangerSign
             if (it.motherDangerSign == motherDangerSign.entries!!.last()) {
                 list.add(list.indexOf(motherDangerSign) + 1, otherDangerSign)
@@ -458,106 +477,51 @@ class PncFormDataset(
                 visitDate.inputType = InputType.DATE_PICKER
                 visitDate.value = null
                 val today = Calendar.getInstance().setToStartOfTheDay().timeInMillis
+                val deliveryCal = Calendar.getInstance()
+                deliveryCal.timeInMillis = dateOfDelivery
+                deliveryCal.setToStartOfTheDay()
+                val deliveryDateStart = deliveryCal.timeInMillis
+                
+                // Previous PNC visit date (if exists) - must be after this
+                val previousVisitDateStart = previousPncVisitDate?.let {
+                    val prevCal = Calendar.getInstance()
+                    prevCal.timeInMillis = it
+                    prevCal.setToStartOfTheDay()
+                    prevCal.timeInMillis
+                }
+                
                 when (val visitNumber = pncPeriod.value!!.substring(4).toInt()) {
                     1 -> {
-                        visitDate.min = minOf(today, dateOfDelivery)
+                        // Day 1: Delivery date only (24-48 hours)
+                        visitDate.min = minOf(today, deliveryDateStart)
                         visitDate.max = minOf(
                             today,
-                            dateOfDelivery + TimeUnit.DAYS.toMillis(1)
+                            deliveryDateStart + TimeUnit.DAYS.toMillis(1)
                         )
                     }
 
                     3 -> {
-                        visitDate.min = minOf(today, dateOfDelivery + TimeUnit.DAYS.toMillis(3))
-                        visitDate.max = minOf(
-                            today,
-                            dateOfDelivery + TimeUnit.DAYS.toMillis(3)
-                        )
+                        // Day 3: Exactly Delivery + 3 days
+                        val day3Date = deliveryDateStart + TimeUnit.DAYS.toMillis(3)
+                        visitDate.min = minOf(today, day3Date)
+                        visitDate.max = minOf(today, day3Date)
                     }
 
-                    7 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(7) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(7) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    14 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(14) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(14) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    21 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(21) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(21) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    28 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(28) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(28) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                    }
-
-                    42 -> {
-                        visitDate.min =
-                            minOf(
-                                today,
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(42) - TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
-                        visitDate.max =
-                            minOf(
-                                System.currentTimeMillis(),
-                                dateOfDelivery + TimeUnit.DAYS.toMillis(42) + TimeUnit.DAYS.toMillis(
-                                    3
-                                )
-                            )
+                    7, 14, 21, 28, 42 -> {
+                        // Day 7/14/21/28/42: ±3 days from scheduled date
+                        val scheduledDate = deliveryDateStart + TimeUnit.DAYS.toMillis(visitNumber.toLong())
+                        val minDate = scheduledDate - TimeUnit.DAYS.toMillis(3)
+                        val maxDate = scheduledDate + TimeUnit.DAYS.toMillis(3)
+                        
+                        // Visit date cannot be before delivery date
+                        val minAllowed = maxOf(deliveryDateStart, minDate)
+                        // Visit date cannot be after today
+                        val maxAllowed = minOf(today, maxDate)
+                        // Visit date cannot be earlier than previous PNC visit date
+                        val finalMin = previousVisitDateStart?.let { maxOf(minAllowed, it + TimeUnit.DAYS.toMillis(1)) } ?: minAllowed
+                        
+                        visitDate.min = minOf(today, finalMin)
+                        visitDate.max = minOf(today, maxAllowed)
                     }
 
                     else -> throw IllegalStateException("Illegal PNC Date $visitNumber")
@@ -565,8 +529,29 @@ class PncFormDataset(
                 return -1
             }
 
-            ifaTabsGiven.id -> validateIntMinMax(ifaTabsGiven)
-            calciumSupplementation.id -> validateIntMinMax(calciumSupplementation)
+            ifaTabsGiven.id -> {
+                // IFA Tablets: >0 and ≤400, supports 180-day postpartum supplementation
+                val result = validateIntMinMax(ifaTabsGiven)
+                ifaTabsGiven.value?.toIntOrNull()?.let { value ->
+                    if (value > 400) {
+                        ifaTabsGiven.errorText = resources.getString(R.string.pnc_ifa_max_error)
+                        return getIndexById(ifaTabsGiven.id)
+                    }
+                }
+                result
+            }
+            
+            calciumSupplementation.id -> {
+                // Calcium: ≤400
+                val result = validateIntMinMax(calciumSupplementation)
+                calciumSupplementation.value?.toIntOrNull()?.let { value ->
+                    if (value > 400) {
+                        calciumSupplementation.errorText = resources.getString(R.string.pnc_calcium_max_error)
+                        return getIndexById(calciumSupplementation.id)
+                    }
+                }
+                result
+            }
             
             anyContraceptionMethod.id -> triggerDependants(
                 source = anyContraceptionMethod,
@@ -644,8 +629,15 @@ class PncFormDataset(
 
             maternalSymptoms.id -> {
                 // Check if "Other" is selected
-                val selectedValues = maternalSymptoms.value?.split(",") ?: emptyList()
-                val hasOther = selectedValues.any { it.trim().equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
+                val selectedValues = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
+                val hasOther = selectedValues.any { it.equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
+                
+                // If ≥2 symptoms → show referral alert
+                if (selectedValues.size >= 2) {
+                    referralFacility.required = true
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
+                }
+                
                 return triggerDependants(
                     source = maternalSymptoms,
                     passedIndex = if (hasOther) maternalSymptoms.entries!!.lastIndex else -1,
@@ -661,6 +653,43 @@ class PncFormDataset(
                     triggerIndex = motherDangerSign.entries!!.lastIndex,
                     target = otherDangerSign
                 )
+            
+            pallor.id -> {
+                // If Severe → referral alert
+                val selectedValue = pallor.entries?.getOrNull(index)?.trim() ?: ""
+                if (selectedValue.equals("Severe", ignoreCase = true)) {
+                    referralFacility.required = true
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+                    val referralFacilityIndex = getIndexById(referralFacility.id)
+                    return if (referralFacilityIndex != -1) referralFacilityIndex else -1
+                } else {
+                    // Clear referral requirement if not severe
+                    if (!anyDangerSign.value.equals(anyDangerSign.entries!!.first(), ignoreCase = true)) {
+                        referralFacility.required = false
+                        referralFacility.errorText = null
+                    }
+                }
+                return -1
+            }
+            
+            vaginalBleeding.id -> {
+                // Heavy bleeding or foul smell → referral alert
+                val selectedValue = vaginalBleeding.entries?.getOrNull(index)?.trim()?.lowercase() ?: ""
+                if (selectedValue.contains("heavy", ignoreCase = true) || 
+                    selectedValue.contains("foul smell", ignoreCase = true)) {
+                    referralFacility.required = true
+                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+                    val referralFacilityIndex = getIndexById(referralFacility.id)
+                    return if (referralFacilityIndex != -1) referralFacilityIndex else -1
+                } else {
+                    // Clear referral requirement if not heavy/foul smell
+                    if (!anyDangerSign.value.equals(anyDangerSign.entries!!.first(), ignoreCase = true)) {
+                        referralFacility.required = false
+                        referralFacility.errorText = null
+                    }
+                }
+                return -1
+            }
 
             motherDeath.id -> {
                 if (index == 0) {

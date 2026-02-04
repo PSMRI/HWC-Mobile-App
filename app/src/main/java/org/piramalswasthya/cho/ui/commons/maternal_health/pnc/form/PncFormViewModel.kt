@@ -189,10 +189,24 @@ class PncFormViewModel @Inject constructor(
                         val patient = patientRepo.getPatient(patientID)
                         patient?.let {
                             // Update patient death status
-                            // Note: Patient model may need to be updated to include death fields
+                            // Close PNC case immediately - mark all active PNC visits as inactive
+                            val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
+                            allPncVisits.forEach { visit ->
+                                visit.isActive = false
+                                visit.syncState = SyncState.UNSYNCED
+                                if (visit.processed != "N") visit.processed = "U"
+                                visit.updatedDate = System.currentTimeMillis()
+                                visit.updatedBy = pncCache.updatedBy
+                                pncRepo.persistPncRecord(visit)
+                            }
+                            
+                            // Update beneficiary status = Death
+                            // Note: Patient model may need to be updated to include death status field
                             // For now, we'll sync the death information
                             patient.syncState = SyncState.UNSYNCED
                             patientRepo.updateRecord(patient)
+                            
+                            // Sync death details to AMRIT (handled by sync worker)
                         }
                     }
 
@@ -206,17 +220,24 @@ class PncFormViewModel @Inject constructor(
     }
 
     private suspend fun updateWomanStatusAfterPnc(pncCache: PNCVisitCache) {
+        // Skip status update if maternal death occurred
+        if (pncCache.motherDeath) {
+            return
+        }
+        
         val patient = patientRepo.getPatient(patientID) ?: return
-
-        val permanentSterilizationMethods = context.resources.getStringArray(R.array.female_sterilization_methods_array).toList()
-
-        val is42ndDayPnc = pncCache.pncPeriod == 42
         val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return
+        
+        val is42ndDayPnc = pncCache.pncPeriod == 42
         val daysSinceDelivery = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - dateOfDelivery)
         val isAfter60Days = daysSinceDelivery >= 60
 
+        // Transition to Eligible Couple Tracking
+        // After 42nd day PNC visit submission OR 60 days from Date of Delivery
         if (is42ndDayPnc || isAfter60Days) {
             val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
+            val permanentSterilizationMethods = context.resources.getStringArray(R.array.sterilization_methods_array).toList()
+            
             val hasPermanentSterilization = allPncVisits.any { pncVisit ->
                 pncVisit.contraceptionMethod?.let { method ->
                     permanentSterilizationMethods.any { sterilizationMethod ->
@@ -230,10 +251,27 @@ class PncFormViewModel @Inject constructor(
             // The Patient model in HWC may not have reproductiveStatus field directly
             // Status updates might need to be handled through a different mechanism
             if (hasPermanentSterilization) {
-                // Update to Permanently Sterilized status
-                // patient.reproductiveStatus = "Permanently Sterilised"
+                // If female permanent method selected:
+                // After 42nd day PNC submission OR 60 days from delivery:
+                // Update Status of Woman = Permanently Sterilized
+                val femaleSterilizationMethods = context.resources.getStringArray(R.array.female_sterilization_methods_array).toList()
+                val hasFemalePermanentSterilization = allPncVisits.any { pncVisit ->
+                    pncVisit.contraceptionMethod?.let { method ->
+                        femaleSterilizationMethods.any { sterilizationMethod ->
+                            method.contains(sterilizationMethod, ignoreCase = true)
+                        }
+                    } ?: false
+                }
+                
+                if (hasFemalePermanentSterilization) {
+                    // Update to Permanently Sterilized status
+                    // patient.reproductiveStatus = "Permanently Sterilised"
+                    // Move record to Eligible Couple and ECT Tracking sections
+                }
             } else {
-                // Update to Eligible Couple status
+                // If no permanent sterilization selected:
+                // Update Status of Woman = Eligible Couple
+                // Move record to Eligible Couple and ECT Tracking sections
                 // patient.reproductiveStatus = "Eligible Couple"
             }
             
