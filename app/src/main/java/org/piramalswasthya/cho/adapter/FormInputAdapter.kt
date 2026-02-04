@@ -679,7 +679,7 @@ class FormInputAdapter(
                     item.value = "$displayHour:$formattedMinute $amPm"
                     binding.invalidateAll()
 
-                }, hourOfDay, minute, true) // true = 12-hour format (AM/PM), but hourOfDay is still 0-23
+                }, hourOfDay, minute, false)
                 mTimePicker.setTitle("Select Time")
                 mTimePicker.show()
             }

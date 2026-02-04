@@ -494,7 +494,9 @@ class DeliveryOutcomeDataset(
         return when (formId) {
             dateOfDelivery.id -> {
                 if (validateDeliveryDate()) {
-                    updateGestationalAge(getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY))
+                    getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.let {
+                        updateGestationalAge(it)
+                    }
                 }
                 -1
             }

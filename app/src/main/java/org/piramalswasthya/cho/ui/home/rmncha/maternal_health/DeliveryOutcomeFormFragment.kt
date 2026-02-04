@@ -173,6 +173,23 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     // Do nothing
                 }
 
+                DeliveryOutcomeFormViewModel.State.LOADING -> {
+                    binding.llContent.visibility = View.GONE
+                    binding.pbForm.visibility = View.VISIBLE
+                }
+
+                DeliveryOutcomeFormViewModel.State.LOAD_FAILED -> {
+                    binding.llContent.visibility = View.VISIBLE
+                    binding.pbForm.visibility = View.GONE
+                    context?.let {
+                        Toast.makeText(
+                            it,
+                            "Error loading form. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
                 DeliveryOutcomeFormViewModel.State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
@@ -210,15 +227,15 @@ class DeliveryOutcomeFormFragment : Fragment() {
     }
 
     private fun validateCurrentPage(): Boolean {
-        val result = binding.form.rvInputForm.adapter?.let {
+        val result: Int? = binding.form.rvInputForm.adapter?.let {
             (it as? FormInputAdapter)?.validateInput(resources, binding.form.rvInputForm)
         }
         Timber.d("Validation result: $result")
         return if (result == -1) {
             true
         } else {
-            if (result != null) {
-                binding.form.rvInputForm.scrollToPosition(result)
+            result?.let {
+                binding.form.rvInputForm.scrollToPosition(it)
             }
             false
         }
@@ -231,8 +248,8 @@ class DeliveryOutcomeFormFragment : Fragment() {
             getString(R.string.delivery_outcome)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 }

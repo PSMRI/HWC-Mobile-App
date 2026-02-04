@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -69,6 +70,17 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
                 supportActionBar?.title = getString(R.string.delivery_outcome)
             }
         }
+        
+        // Handle back button press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStack()
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 
     private fun setupRecyclerView() {
@@ -104,15 +116,6 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
             .replace(R.id.fl_delivery_outcome_form_container, fragment)
             .addToBackStack("delivery_outcome_form")
             .commit()
-    }
-
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            // If Fragment is in back stack, pop it
-            supportFragmentManager.popBackStack()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun setupSearch() {
@@ -152,8 +155,4 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
-    }
 }

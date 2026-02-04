@@ -34,7 +34,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     private val userRepo: UserRepo
 ) : ViewModel() {
 
-    enum class State { IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED }
+    enum class State { IDLE, LOADING, LOAD_FAILED, SAVING, SAVE_SUCCESS, SAVE_FAILED }
 
     private var patientID: String = ""
 
@@ -116,7 +116,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing delivery outcome form for patientID: $patientID")
-                _state.value = State.SAVE_FAILED
+                _state.value = State.LOAD_FAILED
                 _benName.value = "Error loading form"
                 _benAge.value = e.message ?: "Unknown error"
                 if (_recordExists.value == null) _recordExists.value = false
