@@ -42,6 +42,8 @@ import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
 import org.piramalswasthya.cho.model.InputType.DATE_PICKER
@@ -313,6 +315,8 @@ class FormInputAdapter(
                 return
             }
 
+            binding.actvRvDropdown.setupDropdownKeyboardHandling()
+
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
                 Timber.d("Item DD : $item")
@@ -386,9 +390,14 @@ class FormInputAdapter(
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
+                        rdBtn.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
+
 
                                 val index = item.entries!!.indexOf(it)
                                 Timber.d("Radio clicked formId=${item.id}, index=$index")
@@ -499,7 +508,7 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = optionText
                         addView(cbx)
-
+                        if (item.value?.contains(optionText) == true) cbx.isChecked = true
                         // Initial state
                         val isChecked = if (item.value.isNullOrEmpty()) {
                             false
@@ -512,6 +521,9 @@ class FormInputAdapter(
                         cbx.tag = Pair(optionText, index)
 
                         cbx.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                             if (!isEnabled) return@setOnClickListener
 
                             val isNowChecked = cbx.isChecked
@@ -526,7 +538,43 @@ class FormInputAdapter(
                             }
 
                             item.value = if (currentSelections.isEmpty()) "" else currentSelections.joinToString(",")
+                            formValueListener?.onValueChanged(item, clickedIndex)
+                        }
 
+                        cbx.setOnCheckedChangeListener { _, b ->
+                            val (_, clickedIndex) = cbx.tag as Pair<String, Int>
+
+                            if (b) {
+                                if (item.value != null) item.value = item.value + optionText
+                                else item.value = optionText
+                                if (item.hasDependants || item.hasAlertError) {
+                                    Timber.d(
+                                        "listener trigger : ${item.id} ${
+                                            item.entries!!.indexOf(
+                                                optionText
+                                            )
+                                        } $optionText"
+                                    )
+//                                    formValueListener?.onValueChanged(
+//                                        item, item.entries!!.indexOf(it)
+//                                    )
+                                }
+                            } else {
+                                if (item.value?.contains(optionText) == true) {
+                                    item.value = item.value?.replace(optionText, "")
+                                }
+                            }
+                            formValueListener?.onValueChanged(
+                                item, index * (if (b) 1 else -1)
+                            )
+                            if (item.value.isNullOrBlank()) {
+                                item.value = null
+                            } else {
+                                Timber.d("Called here!")
+                                item.errorText = null
+                                binding.clRi.setBackgroundResource(0)
+                            }
+                            Timber.d("Checkbox value : ${item.value}")
 
                             formValueListener?.onValueChanged(item, clickedIndex)
                         }
@@ -566,6 +614,9 @@ class FormInputAdapter(
             item.errorText?.also { binding.tilEditText.error = it }
                 ?: run { binding.tilEditText.error = null }
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                 item.value?.let { value ->
                     thisYear = value.substring(6).toInt()
                     thisMonth = value.substring(3, 5).trim().toInt() - 1
@@ -618,6 +669,9 @@ class FormInputAdapter(
             binding.form = item
             binding.et.isEnabled = isEnabled
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                 val hour: Int
                 val minute: Int
                 if (item.value == null) {
@@ -699,6 +753,11 @@ class FormInputAdapter(
             binding.form = item
             if (isEnabled) {
                 binding.clickListener = clickListener
+                binding.et.setOnClickListener {
+                    KeyboardUtils.hideKeyboard(binding.et)
+                    KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                    clickListener?.onAgeClick(item)
+                }
 //                if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
 //                Timber.d("Bound EditText item ${item.title} with ${item.required}")
 //                binding.tilEditText.error = item.errorText

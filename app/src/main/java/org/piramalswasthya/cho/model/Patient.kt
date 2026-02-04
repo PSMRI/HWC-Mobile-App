@@ -149,6 +149,9 @@ data class Patient (
     @ColumnInfo(name="benImageString")
     var benImage: String? = null,
 
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
     @ColumnInfo(name="isNewAbha")
     var isNewAbha: Boolean? = false,
 
