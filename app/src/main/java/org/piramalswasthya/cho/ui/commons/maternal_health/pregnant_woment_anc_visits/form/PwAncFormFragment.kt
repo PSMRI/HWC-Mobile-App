@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -62,6 +63,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     val jsonFile = "patient-visit-details-paginated.json"
 
+    private var ancFormAdapter: FormInputAdapter? = null
+    private var latestFormList: List<FormElement> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -77,28 +80,40 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
-                binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
-                if(recordExists){
+                val formEditable = !(viewModel.isOldVisit.value ?: true)
+                binding.fabEdit.visibility = View.GONE
+                if (viewModel.isOldVisit.value == true) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     btnSubmit?.visibility = View.GONE
                 }
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
-                val adapter = FormInputAdapter(
+                binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
+                ancFormAdapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
-                    }, isEnabled = !recordExists
+                    }, isEnabled = formEditable
                 )
-                binding.form.rvInputForm.adapter = adapter
+                binding.form.rvInputForm.adapter = ancFormAdapter
                 lifecycleScope.launch {
                     viewModel.formList.collect {
-                        if (it.isNotEmpty())
-
-                            adapter.submitList(it)
-
+                        latestFormList = it
+                        if (it.isNotEmpty()) ancFormAdapter?.submitList(it)
                     }
                 }
             }
+        }
+        viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
+            val formEditable = (viewModel.recordExists.value == true) && !isOld
+            binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
+            activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
+            ancFormAdapter = FormInputAdapter(
+                formValueListener = FormInputAdapter.FormValueListener { formId, index ->
+                    viewModel.updateListOnValueChanged(formId, index)
+                    hardCodedListUpdate(formId)
+                }, isEnabled = formEditable
+            )
+            binding.form.rvInputForm.adapter = ancFormAdapter
+            if (latestFormList.isNotEmpty()) ancFormAdapter?.submitList(latestFormList)
         }
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it

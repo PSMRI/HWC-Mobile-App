@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.PregnantWomanAncVisitDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
@@ -44,8 +45,10 @@ class PwAncFormViewModel @Inject constructor(
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
     private val visitNumber =
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
-    val isOldVisit =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).isOldVisit
+    private val initialIsOldVisit = PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).isOldVisit
+
+    private val _isOldVisit = MutableLiveData(initialIsOldVisit)
+    val isOldVisit: LiveData<Boolean> = _isOldVisit
 
 
     private val _state = MutableLiveData(State.IDLE)
@@ -70,14 +73,18 @@ class PwAncFormViewModel @Inject constructor(
 
     private lateinit var ancCache: PregnantWomanAncCache
     private lateinit var registerRecord: PregnantWomanRegistrationCache
+    private var ben: PatientDisplay? = null
+    private var lastAncVisitNumber: Int = 0
+    private var currentVisitNumber: Int = visitNumber
 
     init {
         viewModelScope.launch {
             val asha = userRepo.getLoggedInUser()!!
-            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
+            ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
+                _benAgeGender.value =
+                    "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                 ancCache = PregnantWomanAncCache(
                     patientID = patientID,
                     visitNumber = visitNumber,
@@ -89,30 +96,87 @@ class PwAncFormViewModel @Inject constructor(
             registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
             val savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
             savedAnc?.let {
-                ancCache = it
-                _recordExists.value = (it.weight != null)
-            } ?: run {
-                _recordExists.value = false
+                val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+                if (registerRecordOrNull == null) {
+                    Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                    _state.postValue(State.SAVE_FAILED)
+                    return@launch
+                }
+                registerRecord = registerRecordOrNull
+                lastAncVisitNumber = maternalHealthRepo.getLastVisitNumber(patientID) ?: 0
+                val recordExists =
+                    maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
+                        ancCache = it
+                        _recordExists.value = (it.weight != null)
+                        true
+                    } ?: run {
+                        _recordExists.value = false
+                        false
+                    }
+                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    registerRecord,
+                    lastAnc,
+                    if (recordExists) ancCache else null
+                )
             }
-            val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
-
-            dataset.setUpPage(
-                visitNumber,
-                ben,
-                registerRecord,
-                lastAnc,
-                savedAnc
-            )
-
-
         }
     }
+
+    private val ancPeriodFormId = 3
+
+    private fun switchToVisit(selectedVisit: Int) {
+        if (selectedVisit == currentVisitNumber) return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    if (!::registerRecord.isInitialized) {
+                        Timber.w("switchToVisit: registerRecord not initialized yet")
+                        _state.postValue(State.SAVE_FAILED)
+                        return@withContext
+                    }
+                    val saved = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit)
+                    val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit - 1)
+                    val asha = userRepo.getLoggedInUser()!!
+                    ancCache = saved ?: PregnantWomanAncCache(
+                        patientID = patientID,
+                        visitNumber = selectedVisit,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha.userName,
+                        updatedBy = asha.userName
+                    )
+                    currentVisitNumber = selectedVisit
+                    _recordExists.postValue(saved != null)
+                    val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit < lastAncVisitNumber
+                    _isOldVisit.postValue(isOld)
+                    dataset.setUpPage(
+                        selectedVisit,
+                        ben,
+                        registerRecord,
+                        lastAnc,
+                        if (saved != null) ancCache else null
+                    )
+                } catch (e: Exception) {
+                    Timber.e(e, "switchToVisit failed")
+                    _state.postValue(State.SAVE_FAILED)
+                }
+            }
+        }
+    }
+
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
+            if (formId == ancPeriodFormId) {
+                dataset.getAncVisitNumber()?.let { newVisit ->
+                    if (newVisit != currentVisitNumber) switchToVisit(newVisit)
+                }
+            }
         }
-
     }
 
 
@@ -122,6 +186,7 @@ class PwAncFormViewModel @Inject constructor(
                 try {
                     _state.postValue(State.SAVING)
                     dataset.mapValues(ancCache, 1)
+                    ancCache.updatedDate = System.currentTimeMillis()
                     maternalHealthRepo.persistAncRecord(ancCache)
                     if (ancCache.anyHighRisk == true) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {

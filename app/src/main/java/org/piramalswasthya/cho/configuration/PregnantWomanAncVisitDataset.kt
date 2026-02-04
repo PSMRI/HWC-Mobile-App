@@ -370,23 +370,17 @@ class PregnantWomanAncVisitDataset(
         ben?.let {
             ancDate.min =
                 regis.lmpDate + TimeUnit.DAYS.toMillis(7 * Konstants.minAnc1Week.toLong() + 1)
-            if (regis.isHrp) {
-                ancVisit.entries = arrayOf("1", "2", "3", "4")
-                lastAnc?.let { last ->
-                    ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
-                    ancVisit.entries = arrayOf((last.visitNumber + 1).toString())
-                    lastAncVisitDate = last.ancDate
-                }
-            } else {
-                ancVisit.entries = arrayOf("1", "2", "3", "4")
-                lastAnc?.let { last ->
-                    ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
-                    ancVisit.entries = arrayOf(2, 3, 4).filter {
-                        it > last.visitNumber
-                    }.map { it.toString() }.toTypedArray()
-                    if (ancVisit.entries.isNullOrEmpty()) ancVisit.entries = arrayOf("4")
-                    lastAncVisitDate = last.ancDate
-                }
+            ancVisit.entries = when (visitNumber) {
+                1 -> arrayOf("1", "2", "3", "4")
+                2 -> arrayOf("2", "3", "4")
+                3 -> arrayOf("3", "4")
+                4 -> arrayOf("4")
+                else -> arrayOf("1", "2", "3", "4")
+            }
+            if (visitNumber == 4) list.remove(ancVisit)
+            lastAnc?.let { last ->
+                ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
+                lastAncVisitDate = last.ancDate
             }
             ancDate.max =
                 minOf(getEddFromLmp(regis.lmpDate), System.currentTimeMillis())
@@ -805,6 +799,8 @@ class PregnantWomanAncVisitDataset(
     }
 
     fun getWeeksOfPregnancy(): Int = getIndexById(weekOfPregnancy.id)
+
+    fun getAncVisitNumber(): Int? = ancVisit.value?.toIntOrNull()
 
 //    fun updateBenRecordToDelivered(it: BenRegCache) {
 //        it.genDetails?.apply {
