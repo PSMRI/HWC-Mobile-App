@@ -52,6 +52,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -130,6 +131,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -228,11 +230,12 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class
+        ComponentOptionsMaster::class,
+        StatusOfWomanMaster::class
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 116, exportSchema = false
 )
 
 
@@ -298,6 +301,11 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val statusOfWomanDao: StatusOfWomanDao
+
+    fun runSeedLabProcedureMaster() {
+        LabProcedureMasterSeed.runSeed(openHelper.writableDatabase)
+    }
 
     companion object {
         @Volatile
@@ -329,6 +337,22 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                LabProcedureMasterSeed.runSeed(database)
+            }
+        }
+
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Remove duplicate radio options (keep one Negative, one Positive per component)
+                database.execSQL(
+                    "DELETE FROM component_options_master WHERE id NOT IN (SELECT MIN(id) FROM component_options_master GROUP BY component_details_id, name)"
+                )
+            }
+        }
+
+        //        There was conflict i have fixed and inform to Abhilash and shiva to verify
+        val MIGRATION_112_113 = object : Migration(112, 113) {
+            override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -346,14 +370,14 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
             }
         }
 
-        val MIGRATION_111_112 = object : Migration(111, 112) {
+        val MIGRATION_113_114 = object : Migration(113, 114) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS INFANT_REG (
@@ -384,12 +408,65 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
             }
         }
+
+        val MIGRATION_114_115 = object : Migration(114, 115) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate component_details_master so FK references procedure_master(id) instead of procedure(id).
+                database.execSQL("PRAGMA foreign_keys=OFF")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS component_details_master_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        test_component_id INTEGER NOT NULL,
+                        procedure_id INTEGER NOT NULL,
+                        range_normal_min INTEGER,
+                        range_normal_max INTEGER,
+                        range_min INTEGER,
+                        range_max INTEGER,
+                        isDecimal INTEGER,
+                        inputType TEXT NOT NULL,
+                        measurement_nit TEXT,
+                        test_component_name TEXT NOT NULL,
+                        test_component_desc TEXT NOT NULL,
+                        FOREIGN KEY(procedure_id) REFERENCES procedure_master(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO component_details_master_new (
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    ) SELECT
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    FROM component_details_master
+                """.trimIndent())
+                database.execSQL("DROP TABLE component_details_master")
+                database.execSQL("ALTER TABLE component_details_master_new RENAME TO component_details_master")
+                database.execSQL("PRAGMA foreign_keys=ON")
+            }
+        }
+
+        val MIGRATION_115_116 = object : Migration(115, 116) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to ELIGIBLE_COUPLE_TRACKING table
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN financialYear TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN visitMonth TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN anyOtherMethod TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDose TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraInjectionDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDueDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN dateOfSterilization INTEGER")
+            }
+        }
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -408,8 +485,26 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_108_109,
                             MIGRATION_109_110,
                             MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_111_112,
+                            MIGRATION_112_113,
+                            MIGRATION_113_114,
+                            MIGRATION_114_115,
+                            MIGRATION_115_116
                         )
+                        .fallbackToDestructiveMigration()
+                        .addCallback(object : RoomDatabase.Callback() {
+                            override fun onCreate(db: SupportSQLiteDatabase) {
+                                super.onCreate(db)
+                                // Populate STATUS_OF_WOMAN_MASTER on fresh database creation
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+                            }
+                        })
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
