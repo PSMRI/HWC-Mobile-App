@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentBeneficiaryCardBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsActivity
+import org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment
 
 @AndroidEntryPoint
 class BeneficiaryCardFragment : Fragment() {
@@ -61,7 +63,8 @@ class BeneficiaryCardFragment : Fragment() {
         } ?: run {
             // Try to get from activity intent
             @Suppress("DEPRECATION")
-            val intentPatientInfo = activity?.intent?.getSerializableExtra(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+            val intentPatientInfo =
+                activity?.intent?.getSerializableExtra(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
             intentPatientInfo?.let {
                 viewModel.setPatientInfo(it)
                 patientInfo = it
@@ -71,6 +74,7 @@ class BeneficiaryCardFragment : Fragment() {
         // Bind data
         viewModel.patientInfo.observe(viewLifecycleOwner) { patient ->
             patient?.let {
+                patientInfo = it
                 binding.patient = it
                 binding.viewModel = viewModel
                 binding.executePendingBindings()
@@ -100,9 +104,28 @@ class BeneficiaryCardFragment : Fragment() {
     }
 
     private fun navigateToEditBeneficiaryDetails() {
-        patientInfo?.let { patient ->
+        val patient = viewModel.patientInfo.value ?: return
+
+        val activity = activity
+        if (activity is BeneficiaryCardActivity) {
+            // When hosted inside BeneficiaryCardActivity, navigate to EditBeneficiaryDetailsFragment
+            val editFragment = EditBeneficiaryDetailsFragment.newInstance(patient)
+            activity.supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, editFragment)
+                .addToBackStack(null)
+                .commit()
+        } else {
+            // Fallback: open the dedicated activity
             val intent = EditBeneficiaryDetailsActivity.getIntent(requireContext(), patient)
             startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload patient data when returning from EditBeneficiaryDetailsActivity
+        patientInfo?.patient?.patientID?.let { patientID ->
+            viewModel.reloadPatientData(patientID)
         }
     }
 
@@ -118,7 +141,13 @@ class BeneficiaryCardFragment : Fragment() {
 
     private fun onContinue() {
         // Navigate to the next screen based on Status of Woman
-        (activity as? BeneficiaryCardActivity)?.navigateToNextScreen() ?: activity?.finish()
+        val beneficiaryActivity = activity as? BeneficiaryCardActivity
+        if (beneficiaryActivity != null) {
+            beneficiaryActivity.navigateToNextScreen()
+        } else {
+            // When hosted inside another container (e.g., HomeFragment), just pop this fragment
+            parentFragmentManager.popBackStack()
+        }
     }
 
     override fun onDestroyView() {
