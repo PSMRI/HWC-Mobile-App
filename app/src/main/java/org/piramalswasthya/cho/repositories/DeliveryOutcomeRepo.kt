@@ -45,10 +45,18 @@ class DeliveryOutcomeRepo @Inject constructor(
             if (existing != null) {
                 // Reuse existing record's id and update
                 val updatedCache = deliveryOutcomeCache.copy(id = existing.id)
-                deliveryOutcomeDao.updateDeliveryOutcome(updatedCache)
+                val rowsAffected = deliveryOutcomeDao.updateDeliveryOutcome(updatedCache)
+                if (rowsAffected == 0) {
+                    // Update failed (record not found by id), insert instead
+                    deliveryOutcomeDao.saveDeliveryOutcome(updatedCache)
+                }
             } else if (deliveryOutcomeCache.id != 0L) {
-                // Has id but not found in DB (shouldn't happen, but handle gracefully)
-                deliveryOutcomeDao.updateDeliveryOutcome(deliveryOutcomeCache)
+                // Has id but not found in DB, try update first
+                val rowsAffected = deliveryOutcomeDao.updateDeliveryOutcome(deliveryOutcomeCache)
+                if (rowsAffected == 0) {
+                    // Update failed (id doesn't exist), insert instead
+                    deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
+                }
             } else {
                 // New record, insert
                 deliveryOutcomeDao.saveDeliveryOutcome(deliveryOutcomeCache)
