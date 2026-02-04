@@ -81,7 +81,7 @@ class PregnantWomanAncVisitDataset(
         arrayId = -1,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,
-        required = false,
+        required = true,
         min = 30,
         max = 200
     )
@@ -409,7 +409,7 @@ class PregnantWomanAncVisitDataset(
             }
         }
 
-        ancVisit.value = visitNumber.toString()
+        ancVisit.value = if (ancVisit.entries?.contains(visitNumber.toString()) == true) visitNumber.toString() else (ancVisit.entries?.firstOrNull() ?: visitNumber.toString())
 
         saved?.let { savedAnc ->
 

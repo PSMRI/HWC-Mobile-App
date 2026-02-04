@@ -530,6 +530,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.deliveryDate.setText("")
         setSubCategoryDropdown()
         setReasonForVisitDropdown(viewModel.selectedSubCat)
+        if (::benVisitInfo.isInitialized) {
+            viewModel.refreshAncData(benVisitInfo.patient.patientID)
+        }
     }
 
     override fun onPause(){
@@ -1482,6 +1485,10 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     }
 
     private fun checkAndNavigateAnc(){
+        if (viewModel.activePwrRecord == null) {
+            Toast.makeText(requireContext(), "Patient record not loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
         val minGap : Long = (28.toLong() * 24 * 60 * 60 * 1000)
         val fiveWeeks : Long = (35.toLong() * 24 * 60 * 60 * 1000)
 //        viewModel.lastAnc.observe(viewLifecycleOwner){

@@ -83,7 +83,8 @@ class PwAncFormViewModel @Inject constructor(
             ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
+                _benAgeGender.value =
+                    "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                 ancCache = PregnantWomanAncCache(
                     patientID = patientID,
                     visitNumber = visitNumber,
@@ -92,31 +93,36 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
-            if (registerRecordOrNull == null) {
-                Timber.e("No registration record for patient $patientID; cannot load ANC form")
-                _state.postValue(State.SAVE_FAILED)
-                return@launch
-            }
-            registerRecord = registerRecordOrNull
-            lastAncVisitNumber = maternalHealthRepo.getLastVisitNumber(patientID) ?: 0
-            val recordExists = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
-                ancCache = it
-                _recordExists.value = true
-                true
-            } ?: run {
-                _recordExists.value = false
-                false
-            }
-            val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
+            val savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            savedAnc?.let {
+                val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+                if (registerRecordOrNull == null) {
+                    Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                    _state.postValue(State.SAVE_FAILED)
+                    return@launch
+                }
+                registerRecord = registerRecordOrNull
+                lastAncVisitNumber = maternalHealthRepo.getLastVisitNumber(patientID) ?: 0
+                val recordExists =
+                    maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
+                        ancCache = it
+                        _recordExists.value = (it.weight != null)
+                        true
+                    } ?: run {
+                        _recordExists.value = false
+                        false
+                    }
+                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
 
-            dataset.setUpPage(
-                visitNumber,
-                ben,
-                registerRecord,
-                lastAnc,
-                if (recordExists) ancCache else null
-            )
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    registerRecord,
+                    lastAnc,
+                    if (recordExists) ancCache else null
+                )
+            }
         }
     }
 
@@ -161,6 +167,7 @@ class PwAncFormViewModel @Inject constructor(
         }
     }
 
+
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
@@ -181,6 +188,15 @@ class PwAncFormViewModel @Inject constructor(
                     dataset.mapValues(ancCache, 1)
                     ancCache.updatedDate = System.currentTimeMillis()
                     maternalHealthRepo.persistAncRecord(ancCache)
+                    if (ancCache.anyHighRisk == true) {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            it.isHrp = true
+                            if (it.processed != "N") it.processed = "U"
+                            it.syncState = SyncState.UNSYNCED
+                            it.updatedDate = System.currentTimeMillis()
+                            maternalHealthRepo.persistRegisterRecord(it)
+                        }
+                    }
                     if (ancCache.pregnantWomanDelivered == true) {
 
                     } else if (ancCache.isAborted) {

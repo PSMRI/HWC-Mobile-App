@@ -25,9 +25,11 @@ import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.HealthCenterDao
 import org.piramalswasthya.cho.database.room.dao.HistoryDao
 import org.piramalswasthya.cho.database.room.dao.ImmunizationDao
+import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -72,13 +74,12 @@ object AppModule {
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
     private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
-//        "https://uatamrit.piramalswasthya.org/"
-    //"https://amritdemo.piramalswasthya.org/"
+    // "https://uatamrit.piramalswasthya.org/"
+    // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseFlwUrl = "https://assamuat.piramalswasthya.org/"
-//        "https://uatamrit.piramalswasthya.org/"
-
-        //"https://amritdemo.piramalswasthya.org/"
+    // "https://uatamrit.piramalswasthya.org/"
+    // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
 
@@ -309,6 +310,10 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideAshaDueListDao(database: InAppDb): AshaDueListDao = database.ashaDueListDao
+
+    @Singleton
+    @Provides
     fun provideImmunizationDao(database: InAppDb): ImmunizationDao = database.immunizationDao
 
     @Singleton
@@ -322,6 +327,10 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideEcrDao(database: InAppDb): EcrDao = database.ecrDao
+
+    @Singleton
+    @Provides
+    fun provideInfantRegDao(database: InAppDb): InfantRegDao = database.infantRegDao
 
     @Singleton
     @Provides

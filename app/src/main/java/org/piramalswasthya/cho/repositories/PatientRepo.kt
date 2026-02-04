@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
+import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
@@ -85,6 +86,7 @@ class PatientRepo @Inject constructor(
     private val blockMasterDao: BlockMasterDao,
     private val villageMasterDao: VillageMasterDao,
     private val procedureDao: ProcedureDao,
+    private val procedureMasterDao: ProcedureMasterDao,
     private val prescriptionDao: PrescriptionDao,
     private val registrarMasterDataDao: RegistrarMasterDataDao,
     private val batchDao: BatchDao,
@@ -211,6 +213,70 @@ class PatientRepo @Inject constructor(
 
     fun getPatientListFlowForLab() : Flow<List<PatientDisplay>> {
         return patientDao.getPatientListFlowForLab()
+    }
+
+    /**
+     * Get all infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllInfantList()
+    }
+
+    /**
+     * Get count of infants (0–365 days inclusive).
+     * Matches DAO day-based range; WHO RMNCHA+ infant definition.
+     */
+    fun getInfantListCount(): Flow<Int> {
+        return patientDao.getInfantListCount()
+    }
+
+    /**
+     * Get all children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildList()
+    }
+
+    /**
+     * Get count of children (365–3285 days inclusive, i.e. 1–9 years).
+     * Matches DAO day-based range; WHO RMNCHA+ child definition.
+     */
+    fun getChildListCount(): Flow<Int> {
+        return patientDao.getChildListCount()
+    }
+
+    /**
+     * Get all adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllAdolescentList()
+    }
+
+    /**
+     * Get count of adolescents (3650–6935 days inclusive, i.e. 10–19 years).
+     * Matches DAO day-based range; WHO RMNCHA+ adolescent definition.
+     */
+    fun getAdolescentListCount(): Flow<Int> {
+        return patientDao.getAdolescentListCount()
+    }
+
+    /**
+     * Get all children under 5 years (age in days <= 1825).
+     * Single list for child care services; matches DAO day-based range.
+     */
+    fun getChildrenUnderFiveList(): Flow<List<PatientDisplay>> {
+        return patientDao.getAllChildrenUnderFiveList()
+    }
+
+    /**
+     * Get count of children under 5 years (age in days <= 1825).
+     * Matches DAO day-based range.
+     */
+    fun getChildrenUnderFiveListCount(): Flow<Int> {
+        return patientDao.getChildrenUnderFiveListCount()
     }
 
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
@@ -822,6 +888,18 @@ class PatientRepo @Inject constructor(
                                 name = option.name
                             )
                             componentOptionDTOs += componentOptionDTO
+                        }
+
+                        if (componentOptionDTOs.isEmpty() && (componentDetails.inputType == "RadioButton" || componentDetails.inputType == "DropDown")) {
+                            val procedureMaster = procedureMasterDao.getMasterProcedureById(procedure.procedureID)
+                            val masterComponent = procedureMaster?.let { procMaster ->
+                                procedureMasterDao.getComponentDetails(procMaster.id).find { it.testComponentID == componentDetails.testComponentID }
+                            }
+                            masterComponent?.let { compMaster ->
+                                procedureMasterDao.getComponentOptions(compMaster.id)?.forEach { opt ->
+                                    componentOptionDTOs += ComponentOptionDTO(name = opt.name)
+                                }
+                            }
                         }
                         componentDetailDTO.compOpt = componentOptionDTOs
                         compListDetails += componentDetailDTO

@@ -1,5 +1,7 @@
 # HWC-Mobile-App
 
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-PSMRI%2FHWC--Mobile--App-blue.svg?...)](https://deepwiki.com/PSMRI/HWC-Mobile-App)
+
 ## Overview
 The HWC Mobile App is designed for healthcare programs to facilitate collaboration among health workers with different roles such as Registrar, Nurse, Pharmacist, Lab Technician, and Doctor, etc.
 This application aims to eliminate pen and paperwork for different roles, allowing them to enter patient data digitally with increased ease and accuracy.
