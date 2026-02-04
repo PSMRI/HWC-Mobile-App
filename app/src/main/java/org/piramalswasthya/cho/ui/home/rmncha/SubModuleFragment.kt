@@ -120,9 +120,12 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showPNCMotherList -> {
-                            // Navigate to PNC Mother List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to PNC Mother List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListFragment()
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
                         showAbortionList -> {
                             // Navigate to Abortion List
