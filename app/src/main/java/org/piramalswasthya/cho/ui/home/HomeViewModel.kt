@@ -66,7 +66,8 @@ class HomeViewModel @Inject constructor(
 
     }
     init {
-      masterVillageName = pref.getLoggedInUser()?.masterVillageName.toString()
+//      masterVillageName = pref.getLoggedInUser()?.masterVillageName.toString()
+      masterVillageName = pref.getLoggedInUser()?.name.toString()
     }
     val scope: CoroutineScope
         get() = viewModelScope
