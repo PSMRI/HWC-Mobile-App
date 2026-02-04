@@ -521,7 +521,11 @@ class PersonalDetailsFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(dispatcherProvider.main) {
-                    Toast.makeText(requireContext(), "Error saving patient: ${e.message}", Toast.LENGTH_LONG).show()
+                    if (isAdded) {
+                        context?.let {
+                            Toast.makeText(it, "Error saving patient: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
             }
         }
@@ -1737,7 +1741,7 @@ class PersonalDetailsFragment : Fragment() {
                 } else {
                     viewModel.forgetUserEsanjeevani()
                 }
-                CoroutineScope(dispatcherProvider.main).launch {
+                viewLifecycleOwner.lifecycleScope.launch(dispatcherProvider.main) {
                     try {
                         var passWord =
                             encryptSHA512(encryptSHA512(passwordEs) + encryptSHA512("token"))

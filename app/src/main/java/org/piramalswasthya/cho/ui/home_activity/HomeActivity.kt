@@ -756,7 +756,7 @@ private fun myMethodToRunAtSpecificTime() {
     fun showBeneficiaryCard(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
         val fragment = org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment.newInstance(patientInfo)
         supportFragmentManager.beginTransaction()
-            .add(R.id.drawer_layout, fragment)
+            .add(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }

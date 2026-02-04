@@ -104,7 +104,6 @@ class BeneficiaryCardFragment : Fragment() {
             val intent = Intent(requireContext(), org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java)
             intent.putExtra("benVisitInfo", patient)
             startActivity(intent)
-            requireActivity().finish()
         }
     }
 
