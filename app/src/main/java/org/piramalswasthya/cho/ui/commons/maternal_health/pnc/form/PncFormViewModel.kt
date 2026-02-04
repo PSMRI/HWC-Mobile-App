@@ -22,7 +22,6 @@ import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.PncRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.R
-import android.annotation.SuppressLint
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -33,7 +32,7 @@ import javax.inject.Inject
 class PncFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     preferenceDao: PreferenceDao,
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val pncRepo: PncRepo,
     private val patientRepo: PatientRepo,
@@ -96,9 +95,6 @@ class PncFormViewModel @Inject constructor(
             }
             .maxByOrNull { it.pncPeriod }
     }
-
-    @SuppressLint("StaticFieldLeak")
-    private val context = context
 
     private fun isPermanentSterilizationMethod(method: String): Boolean {
         val permanentMethods = context.resources.getStringArray(R.array.sterilization_methods_array).toList()

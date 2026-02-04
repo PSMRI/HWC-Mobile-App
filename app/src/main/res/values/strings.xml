@@ -795,7 +795,7 @@
     <string name="no_delivered_women_found">No Delivered Women Found</string>
 
     <!-- PNC Mother List Strings -->
-    <string name="delivery_date">Delivery Date</string>
+    <string name="delivery_date">Date of Delivery</string>
     <string name="days_since_delivery">Days Since Delivery</string>
     <string name="no_pnc_mothers_found">No PNC Mothers Found</string>
 

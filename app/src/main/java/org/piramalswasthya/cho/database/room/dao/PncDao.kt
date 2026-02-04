@@ -100,7 +100,7 @@ interface PncDao {
      * - Females (genderID=2) aged 15-49
      * - Have delivered (dateOfDelivery IS NOT NULL)
      * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
-     * - Marital Status = Married (maritalStatusID = 2, typically)
+     * - Marital Status = Married (maritalStatusID = 2)
      * - Status of Woman = Post Natal Mother (inferred from having active delivery outcome)
      * - Eligible for PNC (within 42 days or not completed all visits)
      */

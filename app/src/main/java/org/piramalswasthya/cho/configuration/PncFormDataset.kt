@@ -235,7 +235,7 @@ class PncFormDataset(
     private val deliveryDate = FormElement(
         id = 16,
         inputType = InputType.TEXT_VIEW,
-        title = "Date of Delivery",
+        title = resources.getString(R.string.delivery_date),
         required = false,
         hasDependants = false
     )
@@ -471,6 +471,55 @@ class PncFormDataset(
 
     }
 
+    /**
+     * Evaluates all referral conditions and updates referralFacility.required and errorText accordingly.
+     * Checks: anyDangerSign, maternalSymptoms (≥2 symptoms), pallor (Severe), vaginalBleeding (Heavy/Foul smell).
+     * Priority: anyDangerSign > multiple symptoms > severe pallor > vaginal bleeding
+     */
+    private fun updateReferralRequirement() {
+        // Check anyDangerSign - highest priority
+        val hasAnyDangerSign = anyDangerSign.value?.equals(anyDangerSign.entries!!.first(), ignoreCase = true) == true
+        
+        if (hasAnyDangerSign) {
+            referralFacility.required = true
+            // Don't set errorText for anyDangerSign as it's the primary condition
+            referralFacility.errorText = null
+            return
+        }
+        
+        // Check maternalSymptoms - ≥2 actual symptoms (excluding "None")
+        val maternalSymptomsSelected = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
+        val noneEntry = maternalSymptoms.entries?.find { it.equals("None", ignoreCase = true) }
+        val actualSymptoms = maternalSymptomsSelected.filter { it.isNotBlank() && !it.equals(noneEntry, ignoreCase = true) }
+        
+        if (actualSymptoms.size >= 2) {
+            referralFacility.required = true
+            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
+            return
+        }
+        
+        // Check pallor - Severe
+        val pallorValue = pallor.value?.trim() ?: ""
+        if (pallorValue.equals("Severe", ignoreCase = true)) {
+            referralFacility.required = true
+            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
+            return
+        }
+        
+        // Check vaginalBleeding - Heavy or Foul smell
+        val vaginalBleedingValue = vaginalBleeding.value?.trim()?.lowercase() ?: ""
+        if (vaginalBleedingValue.contains("heavy", ignoreCase = true) || 
+            vaginalBleedingValue.contains("foul smell", ignoreCase = true)) {
+            referralFacility.required = true
+            referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
+            return
+        }
+        
+        // No referral conditions met - clear requirement
+        referralFacility.required = false
+        referralFacility.errorText = null
+    }
+
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
             pncPeriod.id -> {
@@ -632,11 +681,8 @@ class PncFormDataset(
                 val selectedValues = maternalSymptoms.value?.split(",")?.map { it.trim() } ?: emptyList()
                 val hasOther = selectedValues.any { it.equals(maternalSymptoms.entries!!.last(), ignoreCase = true) }
                 
-                // If ≥2 symptoms → show referral alert
-                if (selectedValues.size >= 2) {
-                    referralFacility.required = true
-                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_multiple_symptoms)
-                }
+                // Update referral requirement based on all conditions
+                updateReferralRequirement()
                 
                 return triggerDependants(
                     source = maternalSymptoms,
@@ -655,40 +701,17 @@ class PncFormDataset(
                 )
             
             pallor.id -> {
-                // If Severe → referral alert
-                val selectedValue = pallor.entries?.getOrNull(index)?.trim() ?: ""
-                if (selectedValue.equals("Severe", ignoreCase = true)) {
-                    referralFacility.required = true
-                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_severe_pallor)
-                    val referralFacilityIndex = getIndexById(referralFacility.id)
-                    return if (referralFacilityIndex != -1) referralFacilityIndex else -1
-                } else {
-                    // Clear referral requirement if not severe
-                    if (!anyDangerSign.value.equals(anyDangerSign.entries!!.first(), ignoreCase = true)) {
-                        referralFacility.required = false
-                        referralFacility.errorText = null
-                    }
-                }
-                return -1
+                // Update referral requirement based on all conditions
+                updateReferralRequirement()
+                val referralFacilityIndex = getIndexById(referralFacility.id)
+                return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
             }
             
             vaginalBleeding.id -> {
-                // Heavy bleeding or foul smell → referral alert
-                val selectedValue = vaginalBleeding.entries?.getOrNull(index)?.trim()?.lowercase() ?: ""
-                if (selectedValue.contains("heavy", ignoreCase = true) || 
-                    selectedValue.contains("foul smell", ignoreCase = true)) {
-                    referralFacility.required = true
-                    referralFacility.errorText = resources.getString(R.string.pnc_referral_alert_vaginal_bleeding)
-                    val referralFacilityIndex = getIndexById(referralFacility.id)
-                    return if (referralFacilityIndex != -1) referralFacilityIndex else -1
-                } else {
-                    // Clear referral requirement if not heavy/foul smell
-                    if (!anyDangerSign.value.equals(anyDangerSign.entries!!.first(), ignoreCase = true)) {
-                        referralFacility.required = false
-                        referralFacility.errorText = null
-                    }
-                }
-                return -1
+                // Update referral requirement based on all conditions
+                updateReferralRequirement()
+                val referralFacilityIndex = getIndexById(referralFacility.id)
+                return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
             }
 
             motherDeath.id -> {
