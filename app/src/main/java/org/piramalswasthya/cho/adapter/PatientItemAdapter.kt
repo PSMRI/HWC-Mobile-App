@@ -150,14 +150,19 @@ class PatientItemAdapter(
             }
 
 
-            if (item.patient.syncState == SyncState.SYNCED) {
-                //  binding.ivSyncState.visibility = View.VISIBLE
+            // Show BeneficiaryID if it exists, regardless of sync state
+            if (item.patient.beneficiaryID != null) {
                 binding.patientBenId.text = item.patient.beneficiaryID.toString()
                 binding.llBenId.visibility = View.VISIBLE
+            } else {
+                binding.llBenId.visibility = View.GONE
+            }
+            
+            if (item.patient.syncState == SyncState.SYNCED) {
+                //  binding.ivSyncState.visibility = View.VISIBLE
                 binding.btnAbha.isEnabled = true
             } else {
                 binding.btnAbha.isEnabled = false
-                binding.llBenId.visibility = View.GONE
                 //   binding.ivSyncState.visibility = View.GONE
             }
             /*   Commented as prescription button should not display to user*/

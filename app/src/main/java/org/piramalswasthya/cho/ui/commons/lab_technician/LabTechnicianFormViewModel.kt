@@ -17,6 +17,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.ProcedureDTO
 import org.piramalswasthya.cho.model.UserCache
 import org.piramalswasthya.cho.repositories.BenFlowRepo
+import org.piramalswasthya.cho.repositories.CaseRecordeRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.PatientVisitInfoSyncRepo
 import org.piramalswasthya.cho.repositories.ProcedureRepo
@@ -33,7 +34,8 @@ class LabTechnicianFormViewModel @Inject constructor(
     private val patientVisitInfoSyncRepo: PatientVisitInfoSyncRepo,
     private val benFlowRepo: BenFlowRepo,
     private val patientRepo: PatientRepo,
-    private val procedureRepo: ProcedureRepo
+    private val procedureRepo: ProcedureRepo,
+    private val caseRecordeRepo: CaseRecordeRepo
 ) : ViewModel() {
 
     private var _loggedInUser: UserCache? = null
@@ -57,6 +59,9 @@ class LabTechnicianFormViewModel @Inject constructor(
     val procedures: LiveData<List<ProcedureDTO>>
         get() = _procedures
 
+    private val _benFlows = MutableLiveData<List<org.piramalswasthya.cho.model.BenFlow>?>()
+    val benFlows: LiveData<List<org.piramalswasthya.cho.model.BenFlow>?> = _benFlows
+
     @SuppressLint("StaticFieldLeak")
     val context: Context = application.applicationContext
 
@@ -64,24 +69,65 @@ class LabTechnicianFormViewModel @Inject constructor(
 
     val isEntitySaved = MutableLiveData<Boolean>()
 
-    suspend fun downloadProcedure(benVisitInfo : PatientDisplayWithVisitInfo) {
-        withContext(Dispatchers.IO) {
-            benFlowRepo.pullLabProcedureData(benVisitInfo)
-        }
-
-        // TODO:get list of procedures and ben visit info here using nearby api
-//        val procedureID = 1L
-//        addProcedure(procedureID, benVisitInfo);
-
+    /**
+     * Returns the set of procedure IDs (master IDs) that the doctor selected for this visit.
+     * Uses newTestIds (current selection) or previousTestIds (synced from server).
+     */
+    private suspend fun getDoctorSelectedTestIds(patientID: String, benVisitNo: Int): Set<Long> {
+        val investigation = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(
+            patientID,
+            benVisitNo
+        )?.investigationCaseRecord ?: return emptySet()
+        val idsStr = investigation.newTestIds?.takeIf { it.isNotBlank() }
+            ?: investigation.previousTestIds?.takeIf { it.isNotBlank() } ?: return emptySet()
+        return idsStr.split(",").mapNotNull { it.trim().toLongOrNull() }.toSet()
     }
-    private suspend fun addProcedure(procedureID: Long, benVisitInfo: PatientDisplayWithVisitInfo) {
+
+    /**
+     * Ensures lab procedures are in DB for this visit so form can render from local data (no API).
+     * First ensures procedure_master has seed data (in case migration didn't run on fresh install).
+     * If doctor already saved investigation with newTestIds, procedures were copied when saving.
+     * If procedures are missing, copy from ProcedureMaster using newTestIds or previousTestIds (synced data).
+     * Then shows only the test forms that the doctor selected (filters by newTestIds/previousTestIds).
+     */
+    suspend fun downloadProcedure(benVisitInfo: PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            procedureRepo.addProcedure(procedureID, benVisitInfo);
+            procedureRepo.ensureLabProcedureMasterSeed()
+            var procedures = patientRepo.getProcedures(benVisitInfo)
+            if (procedures.isNullOrEmpty()) {
+                val investigation = caseRecordeRepo.getInvestigationCaseRecordByPatientIDAndBenVisitNo(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )?.investigationCaseRecord
+                // Use newTestIds (doctor-selected) or previousTestIds (synced from server)
+                val idsToCopy = investigation?.newTestIds?.takeIf { it.isNotBlank() }
+                    ?: investigation?.previousTestIds?.takeIf { it.isNotBlank() }
+                idsToCopy?.let {
+                    procedureRepo.copyProceduresFromMasterForVisit(
+                        benVisitInfo.patient.patientID,
+                        benVisitInfo.benVisitNo!!,
+                        it
+                    )
+                    procedures = patientRepo.getProcedures(benVisitInfo)
+                }
+            }
+            val selectedIds = getDoctorSelectedTestIds(benVisitInfo.patient.patientID, benVisitInfo.benVisitNo!!)
+            val filtered = if (selectedIds.isEmpty()) procedures
+            else procedures?.filter { it.procedureID in selectedIds } ?: emptyList()
+            _procedures.postValue(filtered)
         }
     }
-    suspend fun getPrescribedProcedures(benVisitInfo : PatientDisplayWithVisitInfo) {
+
+    /**
+     * Fetches procedures for this visit and shows only the test forms that the doctor selected.
+     */
+    suspend fun getPrescribedProcedures(benVisitInfo: PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            _procedures.postValue(patientRepo.getProcedures(benVisitInfo))
+            val procedures = patientRepo.getProcedures(benVisitInfo)
+            val selectedIds = getDoctorSelectedTestIds(benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!)
+            val filtered = if (selectedIds.isEmpty()) procedures
+            else procedures?.filter { it.procedureID in selectedIds } ?: emptyList()
+            _procedures.postValue(filtered)
             Timber.d("fetched procedures")
         }
     }
@@ -109,6 +155,17 @@ class LabTechnicianFormViewModel @Inject constructor(
         _boolCall.value = false
     }
 
+    fun getVisitReasonByBenFlowID(beneficiaryID: Long) {
+        viewModelScope.launch {
+            try {
+                val benFlowList = benFlowRepo.getBenFlowByBenFlowID(beneficiaryID)
+                _benFlows.value = benFlowList
+            } catch (e: Exception) {
+                _benFlows.value = emptyList()
+            }
+        }
+    }
+
     fun saveLabData(dtos: List<ProcedureDTO>?, benVisitInfo: PatientDisplayWithVisitInfo) {
         try {
 
@@ -126,6 +183,13 @@ class LabTechnicianFormViewModel @Inject constructor(
                         patientRepo.updateComponentDetails(componentDetails)
                     }
 
+                }
+
+                withContext(Dispatchers.IO) {
+                    procedureRepo.syncLabResultsToDownsyncTable(
+                        benVisitInfo.patient.patientID,
+                        benVisitInfo.benVisitNo!!
+                    )
                 }
 
                 // update sync state for lab data
