@@ -11,7 +11,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.databinding.FragmentBeneficiaryCardBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
-import org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsActivity
+import org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 
 @AndroidEntryPoint
 class BeneficiaryCardFragment : Fragment() {
@@ -22,14 +23,17 @@ class BeneficiaryCardFragment : Fragment() {
     private val viewModel: BeneficiaryCardViewModel by viewModels()
 
     private var patientInfo: PatientDisplayWithVisitInfo? = null
+    private var statusOfWomanID: Int? = null
 
     companion object {
         private const val ARG_PATIENT_INFO = "patientInfo"
+        private const val ARG_STATUS_OF_WOMAN_ID = "statusOfWomanID"
 
-        fun newInstance(patientInfo: PatientDisplayWithVisitInfo): BeneficiaryCardFragment {
+        fun newInstance(patientInfo: PatientDisplayWithVisitInfo, statusOfWomanID: Int? = null): BeneficiaryCardFragment {
             return BeneficiaryCardFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_PATIENT_INFO, patientInfo)
+                    statusOfWomanID?.let { putInt(ARG_STATUS_OF_WOMAN_ID, it) }
                 }
             }
         }
@@ -40,6 +44,14 @@ class BeneficiaryCardFragment : Fragment() {
         arguments?.let {
             @Suppress("DEPRECATION")
             patientInfo = it.getSerializable(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+            statusOfWomanID = it.getInt(ARG_STATUS_OF_WOMAN_ID, -1).takeIf { id -> id != -1 }
+        }
+        
+        // Try to get from activity intent if not in arguments
+        if (patientInfo == null) {
+            @Suppress("DEPRECATION")
+            patientInfo = activity?.intent?.getSerializableExtra(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
+            statusOfWomanID = activity?.intent?.getIntExtra(ARG_STATUS_OF_WOMAN_ID, -1)?.takeIf { it != -1 }
         }
     }
 
@@ -55,17 +67,9 @@ class BeneficiaryCardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set patient info from arguments or activity intent
+        // Set patient info
         patientInfo?.let {
             viewModel.setPatientInfo(it)
-        } ?: run {
-            // Try to get from activity intent
-            @Suppress("DEPRECATION")
-            val intentPatientInfo = activity?.intent?.getSerializableExtra(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
-            intentPatientInfo?.let {
-                viewModel.setPatientInfo(it)
-                patientInfo = it
-            }
         }
 
         // Bind data
@@ -101,8 +105,11 @@ class BeneficiaryCardFragment : Fragment() {
 
     private fun navigateToEditBeneficiaryDetails() {
         patientInfo?.let { patient ->
-            val intent = EditBeneficiaryDetailsActivity.getIntent(requireContext(), patient)
-            startActivity(intent)
+            val fragment = EditBeneficiaryDetailsFragment.newInstance(patient)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(android.R.id.content, fragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 
@@ -118,7 +125,32 @@ class BeneficiaryCardFragment : Fragment() {
 
     private fun onContinue() {
         // Navigate to the next screen based on Status of Woman
-        (activity as? BeneficiaryCardActivity)?.navigateToNextScreen() ?: activity?.finish()
+        navigateToNextScreen()
+    }
+    
+    private fun navigateToNextScreen() {
+        patientInfo?.let { patient ->
+            val intent = Intent(requireContext(), EditPatientDetailsActivity::class.java)
+            intent.putExtra("benVisitInfo", patient)
+
+            when (statusOfWomanID) {
+                1 -> {
+                    // EC - Navigate to Eligible Couple Tracking
+                    intent.putExtra("navigateToEC", true)
+                }
+                2 -> {
+                    // PW - Navigate to ANC/Pregnancy Module
+                    intent.putExtra("navigateToPW", true)
+                }
+                3 -> {
+                    // Postnatal - Navigate to PNC Module
+                    intent.putExtra("navigateToPN", true)
+                }
+            }
+
+            startActivity(intent)
+        }
+        activity?.supportFragmentManager?.popBackStack()
     }
 
     override fun onDestroyView() {

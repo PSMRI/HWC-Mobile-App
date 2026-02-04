@@ -83,6 +83,9 @@ class EditBeneficiaryDetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Set window soft input mode
+        activity?.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        
         arguments?.let {
             @Suppress("DEPRECATION")
             patientInfo = it.getSerializable(ARG_PATIENT_INFO) as? PatientDisplayWithVisitInfo
@@ -318,7 +321,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
 
         // Cancel button
         binding.btnCancel.setOnClickListener {
-            activity?.finish()
+            activity?.supportFragmentManager?.popBackStack()
         }
 
         // Save button
@@ -378,7 +381,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
             }
         }
 
-        activity?.finish()
+        activity?.supportFragmentManager?.popBackStack()
     }
 
     override fun onDestroyView() {

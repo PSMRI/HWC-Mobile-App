@@ -764,7 +764,6 @@
     <string name="ifa">IFA</string>
 
     <!-- Status of Woman and ABHA -->
-    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
     <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
     <string name="abha_id_number">ABHA ID Number (14 digits)</string>
     <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
