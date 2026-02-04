@@ -1,0 +1,238 @@
+package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.FormInputAdapter
+import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import timber.log.Timber
+
+@AndroidEntryPoint
+class DeliveryOutcomeFormFragment : Fragment() {
+
+    private var _binding: FragmentNewFormBinding? = null
+    private val binding: FragmentNewFormBinding
+        get() = _binding ?: throw IllegalStateException("Fragment binding accessed after onDestroyView")
+
+    private val viewModel: DeliveryOutcomeFormViewModel by viewModels()
+
+    private val patientID: String
+        get() = arguments?.getString("patientID") ?: ""
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentNewFormBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Set patientID in ViewModel
+        if (patientID.isNotEmpty()) {
+            viewModel.setPatientID(patientID)
+        } else {
+            Timber.e("PatientID is empty, cannot initialize form")
+            activity?.supportFragmentManager?.popBackStack()
+            return
+        }
+
+        // Delivery Outcome–specific UI: form title and Case ID row (hidden by default in shared layout)
+        binding.tvFormTitle.text = getString(R.string.delivery_outcome)
+        binding.llCaseIdRow.visibility = View.VISIBLE
+
+        // Set up adapter first (will be updated when recordExists is observed)
+        var adapter: FormInputAdapter? = null
+        
+        // Observe form list and update adapter when it's ready
+        var previousFormSize = 0
+        lifecycleScope.launch {
+            viewModel.formList.collect { formElements ->
+                if (formElements.isNotEmpty() && adapter != null) {
+                    val currentSize = formElements.size
+                    adapter?.submitList(formElements)
+                    
+                    // Scroll to "Other (specify)" field (id = 9) when it's added
+                    if (currentSize > previousFormSize) {
+                        val otherFieldIndex = formElements.indexOfFirst { it.id == 9 }
+                        if (otherFieldIndex != -1) {
+                            // Post to ensure RecyclerView has updated
+                            binding.form.rvInputForm.post {
+                                binding.form.rvInputForm.scrollToPosition(otherFieldIndex)
+                                // Also request focus after a short delay to ensure the view is laid out
+                                binding.form.rvInputForm.postDelayed({
+                                    val viewHolder = binding.form.rvInputForm.findViewHolderForAdapterPosition(otherFieldIndex)
+                                    viewHolder?.itemView?.findViewById<android.widget.EditText>(R.id.et)?.requestFocus()
+                                }, 300)
+                            }
+                        }
+                    }
+                    previousFormSize = currentSize
+                }
+            }
+        }
+
+        // Observe record existence to enable/disable form and set up adapter
+        viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
+            if (recordExists != null) {
+                adapter = FormInputAdapter(
+                    formValueListener = FormInputAdapter.FormValueListener { formId, index ->
+                        viewModel.updateListOnValueChanged(formId, index)
+                    },
+                    isEnabled = !recordExists
+                )
+                binding.form.rvInputForm.adapter = adapter
+                adapter?.submitList(viewModel.formList.value)
+                binding.btnSubmit.isEnabled = !recordExists
+                
+                // Add focus listener to scroll EditText into view when keyboard appears
+                binding.form.rvInputForm.addOnChildAttachStateChangeListener(
+                    object : androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener {
+                        override fun onChildViewAttachedToWindow(view: View) {
+                            view.findViewById<android.widget.EditText>(R.id.et)?.setOnFocusChangeListener { focusedView, hasFocus ->
+                                if (hasFocus) {
+                                    // Scroll to bring the focused EditText into view
+                                    val position = binding.form.rvInputForm.getChildAdapterPosition(view)
+                                    if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                                        binding.form.rvInputForm.post {
+                                            binding.form.rvInputForm.smoothScrollToPosition(position)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        override fun onChildViewDetachedFromWindow(view: View) {}
+                    }
+                )
+            }
+        }
+
+        // Observe woman details
+        viewModel.benName.observe(viewLifecycleOwner) {
+            it?.let { name ->
+                binding.tvBenName.text = name
+            }
+        }
+
+        viewModel.benAge.observe(viewLifecycleOwner) {
+            it?.let { age ->
+                binding.tvAgeGender.text = age
+            }
+        }
+
+        viewModel.caseId.observe(viewLifecycleOwner) {
+            it?.let { caseId ->
+                binding.tvCaseId.text = caseId
+            }
+        }
+
+        // View ANC History link – show only this patient's ANC visit card(s)
+        binding.tvViewAncHistory.visibility = View.VISIBLE
+        binding.tvViewAncHistory.setOnClickListener {
+            startActivity(ANCVisitsActivity.getIntent(requireContext(), patientID))
+        }
+
+        // Observe alert messages – show as dialog (per JIRA: alerts, not toasts)
+        lifecycleScope.launch {
+            viewModel.alertMessageFlow.collect { alertMessage ->
+                alertMessage?.let { message ->
+                    if (isAdded) {
+                        val dialog = MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.alert_popup))
+                            .setMessage(message)
+                            .setPositiveButton(getString(android.R.string.ok)) { dialog, _ -> dialog.dismiss() }
+                            .setCancelable(true)
+                            .create()
+                        dialog.setOnDismissListener { viewModel.clearAlertMessage() }
+                        dialog.show()
+                    }
+                }
+            }
+        }
+
+        // Submit button click handler
+        binding.btnSubmit.setOnClickListener {
+            submitDeliveryOutcomeForm()
+        }
+
+        // Observe save state
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                DeliveryOutcomeFormViewModel.State.IDLE -> {
+                    // Do nothing
+                }
+
+                DeliveryOutcomeFormViewModel.State.SAVING -> {
+                    binding.llContent.visibility = View.GONE
+                    binding.pbForm.visibility = View.VISIBLE
+                }
+
+                DeliveryOutcomeFormViewModel.State.SAVE_SUCCESS -> {
+                    binding.llContent.visibility = View.VISIBLE
+                    binding.pbForm.visibility = View.GONE
+                    context?.let {
+                        Toast.makeText(it, "Save Successful", Toast.LENGTH_LONG).show()
+                    }
+                    // Navigate back to list
+                    parentFragmentManager.popBackStack()
+                }
+
+                DeliveryOutcomeFormViewModel.State.SAVE_FAILED -> {
+                    binding.llContent.visibility = View.VISIBLE
+                    binding.pbForm.visibility = View.GONE
+                    context?.let {
+                        Toast.makeText(
+                            it,
+                            "Something went wrong! Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun submitDeliveryOutcomeForm() {
+        if (validateCurrentPage()) {
+            viewModel.saveForm()
+        }
+    }
+
+    private fun validateCurrentPage(): Boolean {
+        val result = binding.form.rvInputForm.adapter?.let {
+            (it as? FormInputAdapter)?.validateInput(resources, binding.form.rvInputForm)
+        }
+        Timber.d("Validation result: $result")
+        return if (result == -1) {
+            true
+        } else {
+            if (result != null) {
+                binding.form.rvInputForm.scrollToPosition(result)
+            }
+            false
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Update toolbar title - parent Activity will handle this
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = 
+            getString(R.string.delivery_outcome)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+}

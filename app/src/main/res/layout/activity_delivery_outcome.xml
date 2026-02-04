@@ -94,6 +94,17 @@
             tools:itemCount="5"
             tools:listitem="@layout/rv_item_delivery_outcome" />
 
+        <!-- Fragment Container for Delivery Outcome Form -->
+        <FrameLayout
+            android:id="@+id/fl_delivery_outcome_form_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
         <!-- Empty State -->
         <FrameLayout
             android:id="@+id/flEmpty"

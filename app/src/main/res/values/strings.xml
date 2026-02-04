@@ -688,8 +688,77 @@
     <string name="add_pmsma">ADD PMSMA</string>
     <string name="no_anc_eligible_women_found">No ANC Eligible Women Found</string>
 
-    <!-- Delivery Outcome Strings -->
+    <!-- Delivery Outcome Strings (MHWC-199) -->
     <string name="no_delivered_women_found">No Delivered Women Found</string>
+    <string name="do_woman_name">Name of the woman</string>
+    <string name="do_woman_age">Age</string>
+    <string name="do_case_id">Case ID:</string>
+    <string name="do_view_anc_history">View ANC History</string>
+    <string name="do_delivery_date">Date of Delivery</string>
+    <string name="do_delivery_time">Time of Delivery</string>
+    <string name="do_gestational_age_at_delivery">Gestational Age at Delivery</string>
+    <string name="do_place_of_delivery">Place of Delivery</string>
+    <string name="do_private_hospital_name">If Private Hospital, specify name</string>
+    <string name="do_delivery_conducted_by">Delivery conducted by</string>
+    <string name="do_mode_of_delivery">Mode of Delivery</string>
+    <string name="do_indication_for_lscs">Indication for LSCS/Emergency LSCS/Assisted</string>
+    <string name="do_indication_for_lscs_other">Other (specify)</string>
+    <string name="do_error_future_date">Cannot be a future date</string>
+    <string name="do_error_date_range">Date must be between %1$s and %2$s</string>
+    <string name="do_alert_post_term_delivery">Post-term delivery</string>
+    <string name="do_alert_preterm_delivery">Preterm delivery</string>
+    <string name="do_alert_home_delivery">Home delivery occurred. Provide counselling on risks. Ensure urgent PNC home visit within 24 hours.</string>
+    <string name="do_alert_on_the_way">Urgent PNC home visit within 24 hours required.</string>
+    <string name="do_alert_unskilled_delivery">Unskilled delivery. High-risk PNC needed.</string>
+    <string name="do_alert_extremely_preterm">Extremely Preterm (&lt;28 weeks)</string>
+    <string name="do_alert_very_preterm">Very Preterm (28–32 weeks)</string>
+    <string name="do_alert_moderate_preterm">Moderate to Late Preterm (32–37 weeks)</string>
+    <string name="do_alert_term">Term (37–42 weeks)</string>
+    <string name="do_alert_post_term">Post-term (&gt;42 weeks)</string>
+    <string name="do_error_indication_required">Please select at least one indication</string>
+    <string name="do_error_indication_other_required">Please specify the indication</string>
+
+    <string-array name="do_place_of_delivery_array">
+        <item>Sub-Centre</item>
+        <item>Primary Health Centre (PHC)</item>
+        <item>Community Health Centre (CHC)</item>
+        <item>District Hospital (DH)</item>
+        <item>Medical College Hospital</item>
+        <item>Referral/Tertiary Hospital</item>
+        <item>Private Hospital</item>
+        <item>Home delivery</item>
+        <item>On the way to facility</item>
+    </string-array>
+    <string-array name="do_delivery_conducted_by_array">
+        <item>Doctor (MBBS/Specialist)</item>
+        <item>Nurse/ANM</item>
+        <item>CHO</item>
+        <item>Skilled Birth Attendant (SBA)</item>
+        <item>Dai/TBA (Traditional Birth Attendant)</item>
+        <item>Family member</item>
+        <item>Self/Unassisted</item>
+    </string-array>
+    <string-array name="do_mode_of_delivery_array">
+        <item>Normal Vaginal Delivery (NVD)</item>
+        <item>Vacuum/ Forceps Assisted</item>
+        <item>Lower Segment Cesarean Section (LSCS)</item>
+        <item>Emergency LSCS</item>
+        <item>Vaginal Birth After Cesarean (VBAC)</item>
+    </string-array>
+    <string-array name="do_indication_for_lscs_array">
+        <item>Fetal distress</item>
+        <item>Cephalopelvic disproportion (CPD)</item>
+        <item>Previous LSCS</item>
+        <item>Malpresentation (Breech/Transverse)</item>
+        <item>Prolonged/Obstructed labor</item>
+        <item>Antepartum hemorrhage (APH)</item>
+        <item>Pre-eclampsia/Eclampsia</item>
+        <item>Cord prolapse</item>
+        <item>Failed induction</item>
+        <item>Multiple pregnancies</item>
+        <item>Maternal request</item>
+        <item>Other (specify)</item>
+    </string-array>
 
     <!-- PNC Mother List Strings -->
     <string name="delivery_date">Delivery Date</string>

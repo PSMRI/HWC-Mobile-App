@@ -232,7 +232,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 112, exportSchema = false
+    version = 113, exportSchema = false
 )
 
 
@@ -353,6 +353,17 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_112_113 = object : Migration(112, 113) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN gestationalAgeAtDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN deliveryConductedBy TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN modeOfDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCS TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCSOther TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN privateHospitalName TEXT")
+            }
+        }
+
         val MIGRATION_111_112 = object : Migration(111, 112) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
@@ -408,7 +419,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_108_109,
                             MIGRATION_109_110,
                             MIGRATION_110_111,
-                            MIGRATION_111_112
+                            MIGRATION_111_112,
+                            MIGRATION_112_113
                         )
                         .setQueryCallback(
                             object : QueryCallback {

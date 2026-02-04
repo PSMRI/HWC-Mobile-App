@@ -3,7 +3,8 @@ package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,6 +45,9 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Set window soft input mode for keyboard handling
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        
         binding = ActivityDeliveryOutcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,22 +57,62 @@ class DeliveryOutcomeActivity : AppCompatActivity() {
         setupRecyclerView()
         setupSearch()
         observePatients()
+        
+        // Listen for Fragment back stack changes
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                // Back stack is empty, show list view
+                binding.flDeliveryOutcomeFormContainer.visibility = View.GONE
+                binding.rvDeliveryOutcome.visibility = View.VISIBLE
+                binding.searchLayout.visibility = View.VISIBLE
+                binding.tvCount.visibility = View.VISIBLE
+                supportActionBar?.title = getString(R.string.delivery_outcome)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
         adapter = DeliveryOutcomeAdapter(
             DeliveryOutcomeAdapter.ClickListener { patientWithPwr ->
-                // Handle click - navigate to delivery outcome form
-                Toast.makeText(
-                    this,
-                    "View Delivery Outcome: ${patientWithPwr.patient.firstName}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                navigateToForm(patientWithPwr.patient.patientID)
             }
         )
 
         binding.rvDeliveryOutcome.layoutManager = LinearLayoutManager(this)
         binding.rvDeliveryOutcome.adapter = adapter
+    }
+
+    private fun navigateToForm(patientID: String) {
+        // Hide list view and show fragment container
+        binding.rvDeliveryOutcome.visibility = View.GONE
+        binding.searchLayout.visibility = View.GONE
+        binding.tvCount.visibility = View.GONE
+        binding.flEmpty.visibility = View.GONE
+        binding.flDeliveryOutcomeFormContainer.visibility = View.VISIBLE
+
+        // Replace toolbar title
+        supportActionBar?.title = getString(R.string.delivery_outcome)
+
+        // Add Fragment
+        val fragment = DeliveryOutcomeFormFragment().apply {
+            arguments = Bundle().apply {
+                putString("patientID", patientID)
+            }
+        }
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fl_delivery_outcome_form_container, fragment)
+            .addToBackStack("delivery_outcome_form")
+            .commit()
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            // If Fragment is in back stack, pop it
+            supportFragmentManager.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun setupSearch() {

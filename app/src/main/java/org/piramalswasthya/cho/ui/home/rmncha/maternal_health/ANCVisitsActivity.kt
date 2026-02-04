@@ -40,9 +40,15 @@ class ANCVisitsActivity : AppCompatActivity() {
     companion object {
         private const val MIN_ANC_WEEKS = 5 // Minimum weeks for ANC eligibility
         private const val MIN_ANC_DAYS = MIN_ANC_WEEKS * 7 // 35 days
+        private const val EXTRA_PATIENT_ID = "patientID"
 
         fun getIntent(context: Context): Intent {
             return Intent(context, ANCVisitsActivity::class.java)
+        }
+
+        fun getIntent(context: Context, patientID: String): Intent {
+            return Intent(context, ANCVisitsActivity::class.java)
+                .putExtra(EXTRA_PATIENT_ID, patientID)
         }
     }
 
