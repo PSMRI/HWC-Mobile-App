@@ -149,6 +149,9 @@ data class Patient (
     @ColumnInfo(name="benImageString")
     var benImage: String? = null,
 
+    @ColumnInfo(name = "statusOfWomanID")
+    var statusOfWomanID: Int? = null,
+
     @ColumnInfo(name="isNewAbha")
     var isNewAbha: Boolean? = false,
 
@@ -160,9 +163,6 @@ data class Patient (
 
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
-
-    @ColumnInfo(name = "statusOfWomanID")
-    var statusOfWomanID: Int? = null,
 
     @ColumnInfo(name = "hasAbhaId")
     var hasAbhaId: Boolean? = null,

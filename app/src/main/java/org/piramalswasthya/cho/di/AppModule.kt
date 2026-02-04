@@ -73,16 +73,13 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl =
-//        "https://assamuat.piramalswasthya.org/"
-        "https://uatamrit.piramalswasthya.org/"
-    //"https://amritdemo.piramalswasthya.org/"
+    private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
+    // "https://uatamrit.piramalswasthya.org/"
+    // "https://amritdemo.piramalswasthya.org/"
 
-    private const val baseFlwUrl =
-//        "https://assamuat.piramalswasthya.org/"
-        "https://uatamrit.piramalswasthya.org/"
-
-        //"https://amritdemo.piramalswasthya.org/"
+    private const val baseFlwUrl = "https://assamuat.piramalswasthya.org/"
+    // "https://uatamrit.piramalswasthya.org/"
+    // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
 
@@ -361,5 +358,4 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
-
 }

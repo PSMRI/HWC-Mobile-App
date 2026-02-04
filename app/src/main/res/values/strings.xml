@@ -612,7 +612,23 @@
         <item>Mala N</item>
         <item>Chaya</item>
         <item>ECP</item>
+        <item>Male Sterilization</item>
+        <item>Female Sterilization</item>
+        <item>MiniLap</item>
         <item>Any Other Method</item>
+    </string-array>
+
+    <string-array name="antra_doses">
+        <item>1st Dose</item>
+        <item>2nd Dose</item>
+        <item>3rd Dose</item>
+        <item>4th Dose</item>
+        <item>5th Dose</item>
+        <item>6th Dose</item>
+        <item>7th Dose</item>
+        <item>8th Dose</item>
+        <item>9th Dose</item>
+        <item>10th Dose</item>
     </string-array>
 
     <string name="template_null">Enter Template Name</string>
@@ -625,6 +641,34 @@
     <string name="str_duration">Duration:</string>
     <string name="edd_date">EDD Date</string>
     <string name="update_btn">Update</string>
+
+    <!-- Status of Woman  -->
+    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
+
+    <!-- EC Tracking Form -->
+    <string name="ec_tracking_title">Eligible Couple Tracking</string>
+    <string name="lmp_date">LMP Date</string>
+    <string name="is_pregnancy_test_done">Is Pregnancy Test Done?</string>
+    <string name="pregnancy_test_result">Pregnancy Test Result</string>
+    <string name="is_woman_pregnant">Is the Woman Pregnant?</string>
+    <string name="using_family_planning">Are you using / Do you want to use any Family Planning Method?</string>
+    <string name="method_of_contraception_label">Method of Contraception</string>
+    <string name="any_other_method">Any Other Method</string>
+    <string name="antra_dose">ANTRA Dose</string>
+    <string name="antra_injection_date">Date of ANTRA Injection</string>
+    <string name="antra_due_date">Due Date of Next Injection</string>
+    <string name="date_of_sterilization">Date of Sterilization</string>
+    <string name="incentive_alert_title">Incentive Information</string>
+    <string name="antra_incentive_alert">Please upload MCA Card photo to claim your Incentive</string>
+    <string name="sterilization_incentive_alert">Please upload Discharge Summary photo to claim your Incentive</string>
+    <string name="one_visit_per_month_error">Only one visit is allowed per month</string>
+    <string name="visit_date_before_registration_error">Visit date cannot be before EC Registration date</string>
+    <string name="lmp_backdated_limit_error">LMP date can only be backdated up to 6 months</string>
+    <string name="sterilization_backdated_limit_error">Date of sterilization can only be backdated up to 2 months</string>
+    <string name="antra_backdated_limit_error">Date of ANTRA injection can only be backdated up to 2 months</string>
+    <string name="antra_dose_restart_alert">Gap is more than 120 days. Restarting from Dose 1.</string>
+    <string name="not_available">not available</string>
+
 
     <!-- RMNCHA+ Dashboard Module Strings -->
     <string name="all_beneficiaries">All Beneficiaries</string>
@@ -662,7 +706,6 @@
 
     <!-- Eligible Couple List Strings -->
     <string name="husband_name">Husband Name</string>
-    <string name="lmp_date">LMP Date</string>
     <string name="missed_period">Missed Period</string>
     <string name="under_review">Under Review</string>
     <string name="register">Register</string>
@@ -675,7 +718,6 @@
     <string name="age_ben">Age</string>
     <string name="tv_mob_no_ph">Mobile No</string>
     <string name="tv_rch_id">RCH ID</string>
-    <string name="not_available">Not Available</string>
 
     <!-- Pregnant Women Registration Strings -->
     <string name="no_pregnant_women_found">No Pregnant Women Found</string>
@@ -722,7 +764,6 @@
     <string name="ifa">IFA</string>
 
     <!-- Status of Woman and ABHA -->
-    <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
     <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
     <string name="abha_id_number">ABHA ID Number (14 digits)</string>
     <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
