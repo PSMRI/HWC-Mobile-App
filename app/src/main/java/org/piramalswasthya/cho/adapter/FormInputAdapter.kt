@@ -43,6 +43,8 @@ import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.configuration.Dataset
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.utils.KeyboardUtils
+import org.piramalswasthya.cho.utils.setupDropdownKeyboardHandling
 import org.piramalswasthya.cho.model.InputType.AGE_PICKER
 import org.piramalswasthya.cho.model.InputType.CHECKBOXES
 import org.piramalswasthya.cho.model.InputType.DATE_PICKER
@@ -141,19 +143,19 @@ class FormInputAdapter(
                 override fun afterTextChanged(editable: Editable?) {
                     val textValue = editable?.toString() ?: ""
                     item.value = textValue
-                    
+
                     val trimmedValue = textValue.trim()
                     if (trimmedValue.isNotBlank() && item.errorText != null) {
                         item.errorText = null
                         binding.tilEditText.isErrorEnabled = false
                         binding.tilEditText.error = null
                     }
-                    
+
                     formValueListener?.onValueChanged(item, -1)
-                    
-                    binding.tilEditText.isErrorEnabled = item.errorText != null
-                    binding.tilEditText.error = item.errorText
-                }
+                    if (item.errorText != binding.tilEditText.error) {
+                        binding.tilEditText.isErrorEnabled = item.errorText != null
+                        binding.tilEditText.error = item.errorText
+                    }
 //                        binding.tilEditText.error = null
 //                    else if(item.errorText!= null && binding.tilEditText.error==null)
 //                        binding.tilEditText.error = item.errorText
@@ -239,9 +241,8 @@ class FormInputAdapter(
                 }
             }
             binding.et.setOnFocusChangeListener { _, hasFocus ->
-                if (hasFocus) {
-                    binding.et.addTextChangedListener(textWatcher)
-                } else {
+                if (hasFocus) binding.et.addTextChangedListener(textWatcher)
+                else {
                     binding.et.removeTextChangedListener(textWatcher)
                     val imm =
                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
@@ -307,6 +308,8 @@ class FormInputAdapter(
                 return
             }
 
+            binding.actvRvDropdown.setupDropdownKeyboardHandling()
+
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
                 Timber.d("Item DD : $item")
@@ -350,10 +353,11 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         ).apply {
@@ -380,6 +384,10 @@ class FormInputAdapter(
                         rdBtn.text = it
                         addView(rdBtn)
                         if (item.value == it) rdBtn.isChecked = true
+                        rdBtn.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
@@ -493,10 +501,14 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(it) == true) cbx.isChecked = true
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
+                        cbx.setOnClickListener {
+                            KeyboardUtils.hideKeyboard(binding.root)
+                            KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                        }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
-                                if (item.value != null) item.value = item.value + it
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
                                 else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
@@ -512,7 +524,7 @@ class FormInputAdapter(
                                 }
                             } else {
                                 if (item.value?.contains(it) == true) {
-                                    item.value = item.value?.replace(it, "")
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(
@@ -565,6 +577,9 @@ class FormInputAdapter(
             item.errorText?.also { binding.tilEditText.error = it }
                 ?: run { binding.tilEditText.error = null }
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
                 item.value?.let { value ->
                     val parts = value.split("[-/]".toRegex())
                     if (parts.size >= 3) {
@@ -621,6 +636,10 @@ class FormInputAdapter(
             binding.form = item
             binding.et.isEnabled = isEnabled
             binding.et.setOnClickListener {
+                KeyboardUtils.hideKeyboard(binding.et)
+                KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+
+                val hour: Int
                 val hourOfDay: Int  // 24-hour format (0-23) for TimePickerDialog
                 val minute: Int
                 if (item.value == null) {
@@ -635,16 +654,16 @@ class FormInputAdapter(
                         val hourStr = timeParts[0].trim()
                         val minuteAndAmPm = timeParts[1].trim()
                         val minuteStr = minuteAndAmPm.substringBefore(" ").trim()
-                        
+
                         val parsedHour = hourStr.toIntOrNull() ?: 0
-                        val hasAmPm = timeValue.contains("AM", ignoreCase = true) || 
+                        val hasAmPm = timeValue.contains("AM", ignoreCase = true) ||
                                      timeValue.contains("PM", ignoreCase = true) ||
-                                     timeValue.contains("am", ignoreCase = true) || 
+                                     timeValue.contains("am", ignoreCase = true) ||
                                      timeValue.contains("pm", ignoreCase = true)
-                        
+
                         if (hasAmPm) {
                             // Already in 12-hour format with AM/PM - convert to 24-hour format
-                            val isPM = timeValue.contains("PM", ignoreCase = true) || 
+                            val isPM = timeValue.contains("PM", ignoreCase = true) ||
                                        timeValue.contains("pm", ignoreCase = true)
                             hourOfDay = when {
                                 parsedHour == 12 && !isPM -> 0   // 12 AM = 0:00
@@ -665,7 +684,7 @@ class FormInputAdapter(
                         minute = currentTime.get(Calendar.MINUTE)
                     }
                 }
-                
+
                 val mTimePicker = TimePickerDialog(it.context, { _, selectedHourOfDay, selectedMinute ->
                     // Format time in 12-hour format with AM/PM
                     // selectedHourOfDay is in 24-hour format (0-23) even when dialog is in 12-hour mode
@@ -745,6 +764,11 @@ class FormInputAdapter(
             binding.form = item
             if (isEnabled) {
                 binding.clickListener = clickListener
+                binding.et.setOnClickListener {
+                    KeyboardUtils.hideKeyboard(binding.et)
+                    KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
+                    clickListener?.onAgeClick(item)
+                }
 //                if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
 //                Timber.d("Bound EditText item ${item.title} with ${item.required}")
 //                binding.tilEditText.error = item.errorText
@@ -860,9 +884,9 @@ class FormInputAdapter(
     fun validateInput(resources: Resources, recyclerView: androidx.recyclerview.widget.RecyclerView? = null): Int {
         var retVal = -1
         if (!isEnabled) return retVal
-        
+
         recyclerView?.let { syncAllEditTextValues(it) }
-        
+
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
                 val trimmedValue = it.value?.trim()
@@ -872,7 +896,7 @@ class FormInputAdapter(
                 }
             }
         }
-        
+
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.errorText != null) {
                 retVal = index
@@ -880,7 +904,7 @@ class FormInputAdapter(
             }
         }
         if (retVal != -1) return retVal
-        
+
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
                 val trimmedValue = it.value?.trim()
@@ -893,7 +917,7 @@ class FormInputAdapter(
         }
         return retVal
     }
-    
+
     fun syncAllEditTextValues(recyclerView: androidx.recyclerview.widget.RecyclerView) {
         for (i in 0 until recyclerView.childCount) {
             val child = recyclerView.getChildAt(i)

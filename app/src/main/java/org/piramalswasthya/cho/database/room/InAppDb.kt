@@ -39,6 +39,7 @@ import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -52,6 +53,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -61,6 +63,7 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
+import org.piramalswasthya.cho.model.AshaDueListCache
 import org.piramalswasthya.cho.model.AlcoholDropdown
 import org.piramalswasthya.cho.model.AllergicReactionDropdown
 import org.piramalswasthya.cho.model.AssociateAilmentsDropdown
@@ -130,6 +133,7 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
+import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -228,11 +232,12 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class
-
+        ComponentOptionsMaster::class,
+        AshaDueListCache::class,
+        StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 113, exportSchema = false
+    version = 123, exportSchema = false
 )
 
 
@@ -291,6 +296,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val procedureDao: ProcedureDao
     abstract val prescriptionTemplateDao:PrescriptionTemplateDao
     abstract val maternalHealthDao: MaternalHealthDao
+    abstract val ashaDueListDao: AshaDueListDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
     abstract val pncDao: PncDao
@@ -298,6 +304,11 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val statusOfWomanDao: StatusOfWomanDao
+
+    fun runSeedLabProcedureMaster() {
+        LabProcedureMasterSeed.runSeed(openHelper.writableDatabase)
+    }
 
     companion object {
         @Volatile
@@ -327,7 +338,24 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+
         val MIGRATION_110_111 = object : Migration(110, 111) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                LabProcedureMasterSeed.runSeed(database)
+            }
+        }
+
+        val MIGRATION_111_112 = object : Migration(111, 112) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Remove duplicate radio options (keep one Negative, one Positive per component)
+                database.execSQL(
+                    "DELETE FROM component_options_master WHERE id NOT IN (SELECT MIN(id) FROM component_options_master GROUP BY component_details_id, name)"
+                )
+            }
+        }
+
+        //        There was conflict i have fixed and inform to Abhilash and shiva to verify
+        val MIGRATION_112_113 = object : Migration(112, 113) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS ELIGIBLE_COUPLE_REG (
@@ -346,25 +374,14 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(patientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS ecrInd ON ELIGIBLE_COUPLE_REG(patientID)")
             }
         }
 
-        val MIGRATION_112_113 = object : Migration(112, 113) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN gestationalAgeAtDelivery TEXT")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN deliveryConductedBy TEXT")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN modeOfDelivery TEXT")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCS TEXT")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCSOther TEXT")
-                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN privateHospitalName TEXT")
-            }
-        }
-
-        val MIGRATION_111_112 = object : Migration(111, 112) {
+        val MIGRATION_113_114 = object : Migration(113, 114) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS INFANT_REG (
@@ -395,10 +412,190 @@ abstract class InAppDb : RoomDatabase() {
                         updatedBy TEXT NOT NULL,
                         updatedDate INTEGER NOT NULL,
                         syncState INTEGER NOT NULL,
-                        FOREIGN KEY(motherPatientID) REFERENCES Patient(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                        FOREIGN KEY(motherPatientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())
                 database.execSQL("CREATE INDEX IF NOT EXISTS infRegInd ON INFANT_REG(motherPatientID)")
+            }
+        }
+
+        val MIGRATION_114_115 = object : Migration(114, 115) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate component_details_master so FK references procedure_master(id) instead of procedure(id).
+                database.execSQL("PRAGMA foreign_keys=OFF")
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS component_details_master_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        test_component_id INTEGER NOT NULL,
+                        procedure_id INTEGER NOT NULL,
+                        range_normal_min INTEGER,
+                        range_normal_max INTEGER,
+                        range_min INTEGER,
+                        range_max INTEGER,
+                        isDecimal INTEGER,
+                        inputType TEXT NOT NULL,
+                        measurement_nit TEXT,
+                        test_component_name TEXT NOT NULL,
+                        test_component_desc TEXT NOT NULL,
+                        FOREIGN KEY(procedure_id) REFERENCES procedure_master(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO component_details_master_new (
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    ) SELECT
+                        id, test_component_id, procedure_id, range_normal_min, range_normal_max,
+                        range_min, range_max, isDecimal, inputType, measurement_nit,
+                        test_component_name, test_component_desc
+                    FROM component_details_master
+                """.trimIndent())
+                database.execSQL("DROP TABLE component_details_master")
+                database.execSQL("ALTER TABLE component_details_master_new RENAME TO component_details_master")
+                database.execSQL("PRAGMA foreign_keys=ON")
+            }
+        }
+
+        val MIGRATION_115_116 = object : Migration(115, 116) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to ELIGIBLE_COUPLE_TRACKING table
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN financialYear TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN visitMonth TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN anyOtherMethod TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDose TEXT")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraInjectionDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDueDate INTEGER")
+                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN dateOfSterilization INTEGER")
+            }
+        }
+
+
+        val MIGRATION_116_117 = object : Migration(116, 117) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS ASHA_DUE_LIST (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        patientID TEXT NOT NULL,
+                        beneficiaryID INTEGER,
+                        listType TEXT NOT NULL DEFAULT 'ANC',
+                        addedDate INTEGER NOT NULL,
+                        ashaId INTEGER NOT NULL DEFAULT 0,
+                        createdBy TEXT NOT NULL,
+                        syncState TEXT NOT NULL,
+                        FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                database.execSQL("CREATE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
+        val MIGRATION_117_118 = object : Migration(113, 114) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP INDEX IF EXISTS ind_asha_due")
+                database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS ind_asha_due ON ASHA_DUE_LIST(patientID, listType)")
+            }
+        }
+
+        val MIGRATION_118_119 = object : Migration(118, 119) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCondition TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN maternalComplications TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCurrentlyAdmitted INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeath INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeathValue TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN dateOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeathId INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN otherPlaceOfDeath TEXT")
+            }
+        }
+
+        val MIGRATION_119_120 = object : Migration(116, 117) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PATIENT table
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN hasAbhaId INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN abhaIdNumber TEXT")
+
+                // Create STATUS_OF_WOMAN_MASTER table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS STATUS_OF_WOMAN_MASTER (
+                        statusID INTEGER PRIMARY KEY NOT NULL,
+                        statusName TEXT NOT NULL,
+                        statusCode TEXT NOT NULL
+                    )
+                """)
+
+                // Insert default status values
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+            }
+        }
+
+        val MIGRATION_120_121 = object : Migration(120, 121) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add missing ANC tracking fields from FLW app
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN visitDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN weekOfPregnancy INTEGER")
+
+                // Abortion extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN serialNo TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTermination TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTerminationId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneBy TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneById INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucdId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isYesOrNo INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucd TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dateSterilisation INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN remarks TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg1 TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg2 TEXT")
+
+                // Maternal death extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeathId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN otherPlaceOfDeath TEXT")
+
+                // MCP card image paths
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN frontFilePath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN backFilePath TEXT")
+            }
+        }
+
+        val MIGRATION_121_122 = object : Migration(121, 122) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add JIRA validation requirement fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN bloodSugarFasting INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugar TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugarId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN fetalHeartRate REAL")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN calciumGiven INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSigns TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSignsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingProvided INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopics TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopicsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN nextAncVisitDate INTEGER")
+            }
+        }
+
+        val MIGRATION_122_123 = object : Migration(122, 123) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN gestationalAgeAtDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN deliveryConductedBy TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN modeOfDelivery TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCS TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN indicationForLSCSOther TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN privateHospitalName TEXT")
             }
         }
 
@@ -420,8 +617,32 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_109_110,
                             MIGRATION_110_111,
                             MIGRATION_111_112,
-                            MIGRATION_112_113
+                            MIGRATION_112_113,
+                            MIGRATION_113_114,
+                            MIGRATION_114_115,
+                            MIGRATION_115_116,
+                            MIGRATION_116_117,
+                            MIGRATION_117_118,
+                            MIGRATION_118_119,
+                            MIGRATION_119_120,
+                            MIGRATION_120_121,
+                            MIGRATION_121_122,
+                            MIGRATION_122_123
                         )
+                        .fallbackToDestructiveMigration()
+                        .addCallback(object : RoomDatabase.Callback() {
+                            override fun onCreate(db: SupportSQLiteDatabase) {
+                                super.onCreate(db)
+                                // Populate STATUS_OF_WOMAN_MASTER on fresh database creation
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+                            }
+                        })
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

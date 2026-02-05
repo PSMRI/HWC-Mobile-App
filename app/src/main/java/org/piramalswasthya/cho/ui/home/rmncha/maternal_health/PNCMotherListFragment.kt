@@ -1,10 +1,11 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,43 +13,43 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PNCMotherAdapter
-import org.piramalswasthya.cho.databinding.ActivityPncMotherListBinding
+import org.piramalswasthya.cho.databinding.FragmentPncMotherListBinding
 import org.piramalswasthya.cho.model.PatientWithPncDomain
 import org.piramalswasthya.cho.repositories.PncRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import javax.inject.Inject
 
 /**
- * Activity to display list of PNC Mothers
+ * Fragment to display list of PNC Mothers
  * Shows women who have delivered and are eligible for PNC visits (within 42 days or not completed all visits)
  */
 @AndroidEntryPoint
-class PNCMotherListActivity : AppCompatActivity() {
+class PNCMotherListFragment : Fragment() {
 
     @Inject
     lateinit var pncRepo: PncRepo
 
-    private lateinit var binding: ActivityPncMotherListBinding
+    private var _binding: FragmentPncMotherListBinding? = null
+    private val binding: FragmentPncMotherListBinding
+        get() = _binding!!
+
     private lateinit var adapter: PNCMotherAdapter
     private var allPatients: List<PatientWithPncDomain> = emptyList()
     private var filteredPatients: List<PatientWithPncDomain> = emptyList()
 
-    companion object {
-        fun getIntent(context: Context): Intent {
-            return Intent(context, PNCMotherListActivity::class.java)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPncMotherListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPncMotherListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Set up toolbar
-        setupToolbarWithBack(binding.toolbar, getString(R.string.pnc_mother_list))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
         setupSearch()
@@ -60,14 +61,14 @@ class PNCMotherListActivity : AppCompatActivity() {
             PNCMotherAdapter.ClickListener { patientWithPnc ->
                 // Handle click - navigate to PNC form
                 Toast.makeText(
-                    this,
+                    requireContext(),
                     "View PNC: ${patientWithPnc.patient.firstName}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         )
 
-        binding.rvPncMothers.layoutManager = LinearLayoutManager(this)
+        binding.rvPncMothers.layoutManager = LinearLayoutManager(requireContext())
         binding.rvPncMothers.adapter = adapter
     }
 
@@ -80,10 +81,16 @@ class PNCMotherListActivity : AppCompatActivity() {
     private fun observePatients() {
         lifecycleScope.launch {
             pncRepo.getAllPNCMothers().collectLatest { patientsList ->
-                // Filter for PNC-eligible mothers (already filtered by DAO query)
+                // Filter for PNC-eligible mothers
+                // PNC module opens only after Date of Discharge is entered in Delivery Outcome
                 allPatients = patientsList
                     .map { it.asDomainModel() }
-                    .filter { it.isEligibleForPNC() } // Additional filter check
+                    .filter { domain ->
+                        // Check if Date of Discharge is entered
+                        val hasDischargeDate = domain.deliveryOutcome?.dateOfDischarge != null
+                        // Additional eligibility check
+                        hasDischargeDate && domain.isEligibleForPNC()
+                    }
                     .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: 0L }
 
                 filteredPatients = allPatients
@@ -109,8 +116,8 @@ class PNCMotherListActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

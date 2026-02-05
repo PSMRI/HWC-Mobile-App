@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.repositories
 
+import android.icu.util.Calendar
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +9,9 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
+import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.AshaDueListCache
 //import org.piramalswasthya.cho.database.room.InAppDb
 //import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
 import org.piramalswasthya.cho.model.AbortionDomain
@@ -17,11 +21,17 @@ import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.network.AmritApiService
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 //import org.piramalswasthya.sakhi.database.room.dao.BenDao
 //import org.piramalswasthya.sakhi.database.room.dao.MaternalHealthDao
+import org.piramalswasthya.cho.helpers.Konstants
+import org.piramalswasthya.cho.helpers.getTodayMillis
+import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
 import org.piramalswasthya.cho.model.ANCPost
+import org.piramalswasthya.cho.model.AncCompletedListItem
+import org.piramalswasthya.cho.model.AncDueListItem
 //import org.piramalswasthya.sakhi.helpers.getTodayMillis
 //import org.piramalswasthya.sakhi.model.*
 //import org.piramalswasthya.sakhi.network.GetDataPaginatedRequest
@@ -29,12 +39,14 @@ import org.piramalswasthya.cho.model.ANCPost
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MaternalHealthRepo @Inject constructor(
     private val amritApiService: AmritApiService,
     private val maternalHealthDao: MaternalHealthDao,
-//    private val database: InAppDb,
+    private val ashaDueListDao: AshaDueListDao,
+    private val database: InAppDb,
     private val userRepo: UserRepo,
     private val patientDao: PatientDao,
 //    private val preferenceDao: PreferenceDao,
@@ -44,6 +56,13 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getSavedRecord(benId)
     }
 
+
+
+    suspend fun getActiveRegistrationRecord(benId: String): PregnantWomanRegistrationCache? {
+        return withContext(Dispatchers.IO) {
+            maternalHealthDao.getSavedActiveRecord(benId)
+        }
+    }
 
     suspend fun getLastVisitNumber(benId: String): Int? {
         return maternalHealthDao.getLastVisitNumber(benId)
@@ -55,29 +74,82 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
-
-//
-//    suspend fun getLatestAncRecord(benId: Long): PregnantWomanAncCache? {
-//        return withContext(Dispatchers.IO) {
-//            maternalHealthDao.getLatestAnc(benId)
-//        }
-//    }
-//
     suspend fun getAllActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
          return maternalHealthDao.getAllActiveAncRecords(benId)
+    }
+
+    suspend fun getCompletedActiveAncRecords(benId: String): List<PregnantWomanAncCache> {
+        return maternalHealthDao.getCompletedActiveAncRecords(benId)
     }
 
     suspend fun getLastAnc(benId: String): PregnantWomanAncCache? {
         return maternalHealthDao.getLastAnc(benId)
     }
 
+    suspend fun getLastCompletedAnc(benId: String): PregnantWomanAncCache? {
+        return maternalHealthDao.getLastCompletedAnc(benId)
+    }
+
     suspend fun persistRegisterRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache) {
         withContext(Dispatchers.IO) {
             maternalHealthDao.saveRecord(pregnancyRegistrationForm)
+            generateAndPersistAncSchedule(pregnancyRegistrationForm)
         }
     }
 
 
+    suspend fun registerPregnancyWithAncAndAshaDueList(
+        pwr: PregnantWomanRegistrationCache,
+        benId: String,
+        ashaId: Int
+    ): Long = withContext(Dispatchers.IO) {
+        val registrationId = maternalHealthDao.saveRecord(pwr)
+        generateAndPersistAncSchedule(pwr)
+        addBeneficiaryToAshaDueList(benId, ashaId, pwr.createdBy)
+        registrationId
+    }
+
+    private suspend fun addBeneficiaryToAshaDueList(patientID: String, ashaId: Int, createdBy: String) {
+        val patient = patientDao.getPatient(patientID)
+        val beneficiaryID = patient?.beneficiaryID
+        val record = AshaDueListCache(
+            patientID = patientID,
+            beneficiaryID = beneficiaryID,
+            listType = "ANC",
+            addedDate = System.currentTimeMillis(),
+            ashaId = ashaId,
+            createdBy = createdBy,
+            syncState = SyncState.UNSYNCED
+        )
+        ashaDueListDao.insert(record)
+    }
+
+
+    private suspend fun generateAndPersistAncSchedule(pwr: PregnantWomanRegistrationCache) {
+        if (maternalHealthDao.getLastActiveVisitNumber(pwr.patientID) != null) return
+        val cal = Calendar.getInstance().apply {
+            timeInMillis = pwr.lmpDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val lmpStartOfDayMillis = cal.timeInMillis
+        val ancScheduleDaysFromLmp = listOf(84,98,196,252)
+        ancScheduleDaysFromLmp.forEachIndexed { index, days ->
+            val scheduledDateMillis = lmpStartOfDayMillis + TimeUnit.DAYS.toMillis(days.toLong())
+            val ancCache = PregnantWomanAncCache(
+                patientID = pwr.patientID,
+                visitNumber = index + 1,
+                ancDate = scheduledDateMillis,
+                isActive = true,
+                createdBy = pwr.createdBy,
+                updatedBy = pwr.updatedBy,
+                syncState = SyncState.UNSYNCED
+            )
+            maternalHealthDao.saveRecord(ancCache)
+        }
+    }
 
     suspend fun persistAncRecord(ancCache: PregnantWomanAncCache) {
         withContext(Dispatchers.IO) {
@@ -91,6 +163,44 @@ class MaternalHealthRepo @Inject constructor(
         }
     }
 
+    suspend fun getAncDueList(ancStage: Int): List<AncDueListItem> {
+        return withContext(Dispatchers.IO) {
+            val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
+            val todayMillis = getTodayMillis()
+            allPwr.filter { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                !ancRecords.any { it.pregnantWomanDelivered == true }
+            }.mapNotNull { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                val gaWeeks = getWeeksOfPregnancy(todayMillis, pwr.lmpDate)
+                // ANC 1-4: previous stage completed + GA in range
+                val isDue = when (ancStage) {
+                    1 -> !ancRecords.any { it.visitNumber == 1 } && gaWeeks <= Konstants.maxAnc1Week
+                    2 -> ancRecords.any { it.visitNumber == 1 } && !ancRecords.any { it.visitNumber == 2 } &&
+                            gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
+                    3 -> ancRecords.any { it.visitNumber == 2 } && !ancRecords.any { it.visitNumber == 3 } &&
+                            gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
+                    4 -> ancRecords.any { it.visitNumber == 3 } && !ancRecords.any { it.visitNumber == 4 } &&
+                            gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
+                    else -> false
+                }
+                if (isDue) AncDueListItem(pwr.patientID, gaWeeks, ancStage) else null
+            }
+        }
+    }
+
+    suspend fun getAncCompletedList(ancStage: Int): List<AncCompletedListItem> {
+        return withContext(Dispatchers.IO) {
+            val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
+            allPwr.mapNotNull { pwr ->
+                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
+                if (ancRecords.any { it.pregnantWomanDelivered == true }) return@mapNotNull null
+                ancRecords.find { it.visitNumber == ancStage }?.let { anc ->
+                    AncCompletedListItem(pwr.patientID, ancStage, anc.visitNumber)
+                }
+            }
+        }
+    }
 
     suspend fun processNewAncVisit(): Boolean {
         return withContext(Dispatchers.IO) {
@@ -112,8 +222,6 @@ class MaternalHealthRepo @Inject constructor(
                         it.syncState = SyncState.UNSYNCED
                     }
                     maternalHealthDao.updateANC(it)
-//                if (!uploadDone)
-//                    return@withContext false
                 }
             }
 
@@ -172,7 +280,7 @@ class MaternalHealthRepo @Inject constructor(
      */
     fun getAbortionPregnantWomanList(): Flow<List<AbortionDomain>> {
         return maternalHealthDao.getAllAbortionWomenList()
-            .map { list -> 
+            .map { list ->
                 list.map { it.asAbortionDomainModel() }
                     .filter { it.abortionDate != null } // Ensure abortion date exists
             }
@@ -247,7 +355,6 @@ class MaternalHealthRepo @Inject constructor(
                     e.printStackTrace()
                 }
             } else {
-                //server_resp5();
             }
             Timber.w("Bad Response from server, need to check $ancPostList $response ")
             return false

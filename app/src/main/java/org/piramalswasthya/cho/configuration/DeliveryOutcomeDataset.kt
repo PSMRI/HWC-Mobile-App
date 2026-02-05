@@ -1,6 +1,7 @@
 package org.piramalswasthya.cho.configuration
 
 import android.content.Context
+import android.widget.LinearLayout
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Dataset for Delivery Outcome form per MHWC-199 requirements
  * Implements all validations, alerts, and conditional field visibility
+ * Also handles mother's condition, complications, and admission status post-delivery
  */
 class DeliveryOutcomeDataset(
     context: Context, currentLanguage: Languages
@@ -162,10 +164,55 @@ class DeliveryOutcomeDataset(
         hasDependants = false
     )
 
+    // Mother's Condition (post-delivery)
+    /** 4 options: use vertical layout per requirement (vertical when >2 options). */
+    private val motherCondition = FormElement(
+        id = 10,
+        inputType = InputType.RADIO,
+        title = resources.getString(R.string.do_mother_condition),
+        entries = resources.getStringArray(R.array.do_mother_condition_array),
+        required = true,
+        hasDependants = true,
+        hasAlertError = true,
+        orientation = LinearLayout.VERTICAL
+    )
+
+    private val maternalComplications = FormElement(
+        id = 11,
+        inputType = InputType.CHECKBOXES,
+        title = resources.getString(R.string.do_maternal_complications),
+        entries = resources.getStringArray(R.array.do_maternal_complications_array),
+        required = true,
+        hasDependants = true,
+        hasAlertError = true
+    )
+
+    /** 2 options: use horizontal layout per requirement (horizontal when ≤2 options). */
+    private val motherCurrentlyAdmitted = FormElement(
+        id = 12,
+        inputType = InputType.RADIO,
+        title = resources.getString(R.string.do_mother_currently_admitted),
+        entries = resources.getStringArray(R.array.do_mother_admitted_array),
+        required = true,
+        hasDependants = true,
+        orientation = LinearLayout.HORIZONTAL
+    )
+
+    private val dateOfDischarge = FormElement(
+        id = 13,
+        inputType = InputType.DATE_PICKER,
+        title = resources.getString(R.string.do_discharge_date),
+        arrayId = -1,
+        required = true,
+        hasDependants = false,
+        max = System.currentTimeMillis()
+    )
+
     // Store EDD and LMP for calculations
     private var eddDate: Long = 0L
     private var lmpDate: Long = 0L
     private var patientCaseId: String? = null
+    private var deliveryDateMillis: Long = 0L
 
     /**
      * Set up the form page with patient and pregnancy data
@@ -212,11 +259,23 @@ class DeliveryOutcomeDataset(
         if (saved == null) {
             // New record - set default date to today (dd/MM/yyyy per JIRA)
             dateOfDelivery.value = getDateFromLong(System.currentTimeMillis(), DATE_FORMAT_DD_MM_YYYY)
+            deliveryDateMillis = System.currentTimeMillis()
+            dateOfDischarge.min = deliveryDateMillis
             // Calculate and display initial gestational age
             updateGestationalAge(System.currentTimeMillis())
+            
+            // Initialize mother condition fields
+            motherCondition.value = null
+            motherCurrentlyAdmitted.value = null
+            maternalComplications.value = null
+            dateOfDischarge.value = null
         } else {
             // Load saved values (dd/MM/yyyy per JIRA)
             dateOfDelivery.value = saved.dateOfDelivery?.let { getDateFromLong(it, DATE_FORMAT_DD_MM_YYYY) }
+            deliveryDateMillis = saved.dateOfDelivery ?: System.currentTimeMillis()
+            dateOfDischarge.min = deliveryDateMillis
+            dateOfDischarge.max = System.currentTimeMillis()
+            
             timeOfDelivery.value = saved.timeOfDelivery
             placeOfDelivery.value = getLocalValueInArray(
                 R.array.do_place_of_delivery_array,
@@ -234,6 +293,16 @@ class DeliveryOutcomeDataset(
             indicationForLSCSOther.value = saved.indicationForLSCSOther
             privateHospitalName.value = saved.privateHospitalName
 
+            // Load mother condition fields
+            motherCondition.value = saved.motherCondition
+            motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
+                true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
+                false -> resources.getStringArray(R.array.do_mother_admitted_array)[1]
+                null -> null
+            }
+            maternalComplications.value = saved.maternalComplications
+            dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
+
             // Update gestational age for saved date
             saved.dateOfDelivery?.let { updateGestationalAge(it) }
 
@@ -241,9 +310,74 @@ class DeliveryOutcomeDataset(
             handlePlaceOfDeliveryChange(placeOfDelivery.value)
             handleModeOfDeliveryChange(modeOfDelivery.value)
             handleDeliveryConductedByChange(deliveryConductedBy.value)
+            
+            // Add conditional mother condition fields if needed
+            val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
+            if (conditionIndex == 1 || conditionIndex == 2) {
+                val insertIndex = formElements.size
+                formElements.add(insertIndex, motherCondition)
+                formElements.add(insertIndex + 1, maternalComplications)
+            } else {
+                formElements.add(motherCondition)
+            }
+            
+            if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
+                formElements.add(motherCurrentlyAdmitted)
+                formElements.add(dateOfDischarge)
+            } else {
+                formElements.add(motherCurrentlyAdmitted)
+            }
         }
 
         setUpPage(formElements)
+    }
+
+    /**
+     * Alternative setUpPage for simpler use case (backward compatibility)
+     */
+    suspend fun setUpPage(deliveryDateMillis: Long, saved: DeliveryOutcomeCache?, isDelivered: Boolean = false) {
+        this.deliveryDateMillis = deliveryDateMillis
+        dateOfDischarge.min = deliveryDateMillis
+        dateOfDischarge.max = System.currentTimeMillis()
+        dateOfDelivery.max = System.currentTimeMillis()
+
+        val list = mutableListOf<FormElement>(
+            dateOfDelivery,
+            motherCondition,
+            motherCurrentlyAdmitted
+        )
+
+        if (saved != null) {
+            dateOfDelivery.value = saved.dateOfDelivery?.let { getDateFromLong(it) }
+            this.deliveryDateMillis = saved.dateOfDelivery ?: deliveryDateMillis
+            dateOfDelivery.min = this.deliveryDateMillis
+            dateOfDischarge.min = this.deliveryDateMillis
+            
+            motherCondition.value = saved.motherCondition
+            motherCurrentlyAdmitted.value = when (saved.motherCurrentlyAdmitted) {
+                true -> resources.getStringArray(R.array.do_mother_admitted_array)[0]
+                false -> resources.getStringArray(R.array.do_mother_admitted_array)[1]
+                null -> null
+            }
+            maternalComplications.value = saved.maternalComplications
+            dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
+
+            val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
+            if (conditionIndex == 1 || conditionIndex == 2) {
+                list.add(list.indexOf(motherCondition) + 1, maternalComplications)
+            }
+            if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
+                list.add(list.indexOf(motherCurrentlyAdmitted) + 1, dateOfDischarge)
+            }
+        } else {
+            dateOfDelivery.value = getDateFromLong(deliveryDateMillis)
+            motherCondition.value = null
+            motherCurrentlyAdmitted.value = null
+            maternalComplications.value = null
+            dateOfDischarge.value = null
+        }
+
+        setUpPage(list)
     }
 
     /**
@@ -496,6 +630,15 @@ class DeliveryOutcomeDataset(
                 if (validateDeliveryDate()) {
                     getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.let {
                         updateGestationalAge(it)
+                        deliveryDateMillis = it
+                        dateOfDischarge.min = it
+                        // Re-validate discharge date: if set and now before new delivery date, show error
+                        dateOfDischarge.value?.let { dischargeStr ->
+                            val dischargeLong = getLongFromDate(dischargeStr)
+                            dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < deliveryDateMillis) {
+                                resources.getString(R.string.do_discharge_date_before_delivery)
+                            } else null
+                        }
                     }
                 }
                 -1
@@ -551,22 +694,111 @@ class DeliveryOutcomeDataset(
                 -1
             }
 
+            motherCondition.id -> {
+                maternalComplications.value = null
+                maternalComplications.errorText = null
+                when (index) {
+                    0, 3 -> triggerDependants(
+                        source = motherCondition,
+                        removeItems = listOf(maternalComplications),
+                        addItems = emptyList()
+                    )
+                    1, 2 -> triggerDependants(
+                        source = motherCondition,
+                        removeItems = emptyList(),
+                        addItems = listOf(maternalComplications)
+                    )
+                    else -> -1
+                }
+            }
+
+            motherCurrentlyAdmitted.id -> {
+                dateOfDischarge.value = null
+                dateOfDischarge.errorText = null
+                triggerDependants(
+                    source = motherCurrentlyAdmitted,
+                    passedIndex = index,
+                    triggerIndex = 1,
+                    target = dateOfDischarge
+                )
+            }
+
+            dateOfDischarge.id -> {
+                dateOfDischarge.value?.let { dateStr ->
+                    val dischargeLong = getLongFromDate(dateStr)
+                    dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < deliveryDateMillis) {
+                        resources.getString(R.string.do_discharge_date_before_delivery)
+                    } else null
+                } ?: run { dateOfDischarge.errorText = null }
+                -1
+            }
+
+            maternalComplications.id -> {
+                if (!maternalComplications.value.isNullOrBlank()) {
+                    maternalComplications.errorText = null
+                }
+                -1
+            }
+
             else -> -1
         }
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
-        (cacheModel as? DeliveryOutcomeCache)?.let { form ->
-            form.dateOfDelivery = getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)
-            form.timeOfDelivery = timeOfDelivery.value
-            form.placeOfDelivery = placeOfDelivery.value
-            form.modeOfDelivery = modeOfDelivery.value
-            form.deliveryConductedBy = deliveryConductedBy.value
-            form.gestationalAgeAtDelivery = gestationalAgeAtDelivery.value
-            form.indicationForLSCS = indicationForLSCS.value
-            form.indicationForLSCSOther = indicationForLSCSOther.value
-            form.privateHospitalName = privateHospitalName.value
-        } ?: return
+        val form = cacheModel as DeliveryOutcomeCache
+        val admittedYes = resources.getStringArray(R.array.do_mother_admitted_array)[0]
+        val conditionMaternalDeath = resources.getStringArray(R.array.do_mother_condition_array)[3]
+        
+        // Map delivery details fields
+        form.dateOfDelivery = getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.takeIf { it != 0L } ?: deliveryDateMillis
+        form.timeOfDelivery = timeOfDelivery.value
+        form.placeOfDelivery = placeOfDelivery.value
+        form.modeOfDelivery = modeOfDelivery.value
+        form.deliveryConductedBy = deliveryConductedBy.value
+        form.gestationalAgeAtDelivery = gestationalAgeAtDelivery.value
+        form.indicationForLSCS = indicationForLSCS.value
+        form.indicationForLSCSOther = indicationForLSCSOther.value
+        form.privateHospitalName = privateHospitalName.value
+        
+        // Map mother condition fields
+        form.motherCondition = motherCondition.value
+        form.maternalComplications = maternalComplications.value?.takeIf { s -> s.isNotBlank() }
+        form.motherCurrentlyAdmitted = motherCurrentlyAdmitted.value == admittedYes
+        form.dateOfDischarge = dateOfDischarge.value?.let { getLongFromDate(it) }.takeIf { it != 0L }
+        form.isDeath = motherCondition.value == conditionMaternalDeath
+        if (form.isDeath == true) {
+            form.isDeathValue = "Maternal Death"
+        }
     }
 
+    /** Index of Maternal Complications element (for showing intensive PNC / hysterectomy alerts). */
+    fun getIndexOfMaternalComplications() = getIndexById(maternalComplications.id)
+
+    /** True if Mother's Condition is Complication (specify) or Critical/ICU. */
+    fun isComplicationOrCritical(): Boolean {
+        val v = motherCondition.value ?: return false
+        val arr = resources.getStringArray(R.array.do_mother_condition_array)
+        return v == arr.getOrNull(1) || v == arr.getOrNull(2)
+    }
+
+    /** True if Mother's Condition is Maternal Death. */
+    fun isMaternalDeath(): Boolean {
+        val v = motherCondition.value ?: return false
+        return v == resources.getStringArray(R.array.do_mother_condition_array).getOrNull(3)
+    }
+
+    /** True if selected complications include PPH or Uterine rupture (intensive PNC alert). */
+    fun hasPphOrUterineRupture(): Boolean {
+        val raw = maternalComplications.value ?: return false
+        val pph = resources.getStringArray(R.array.do_maternal_complications_array).getOrNull(0) ?: "Post-Partum Hemorrhage (PPH)"
+        val uterine = resources.getStringArray(R.array.do_maternal_complications_array).getOrNull(4) ?: "Uterine rupture"
+        return raw.contains(pph) || raw.contains(uterine)
+    }
+
+    /** True if Hysterectomy performed is selected (family planning / EC update). */
+    fun hasHysterectomy(): Boolean {
+        val raw = maternalComplications.value ?: return false
+        val hyst = resources.getStringArray(R.array.do_maternal_complications_array).getOrNull(8) ?: "Hysterectomy performed"
+        return raw.contains(hyst)
+    }
 }
