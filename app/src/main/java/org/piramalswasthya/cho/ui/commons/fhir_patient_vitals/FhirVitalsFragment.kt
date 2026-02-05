@@ -289,7 +289,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
    /* private fun validateTemperature(temperature: String) {
         try {
-            val isValid = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val isValid = temperature.matches(Regex("^\\d{2,3}(\.\d{1,2})?$"))
             if (isValid) {
                 binding.temperatureEditTxt.helperText = null
             } else {
@@ -304,7 +304,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
     private fun validateTemperature(temperature: String) {
         try {
-            val isValidFormat = temperature.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val isValidFormat = temperature.matches(Regex("^\\d{2,3}(^\\\\d{1,2})?$"))
             if (!isValidFormat) {
                 binding.temperatureEditTxt.helperText = "Invalid format. Eg: 98.6"
                 return
@@ -335,7 +335,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
  /*   private fun validateHeight(hei: String) {
         try {
-            val isValid = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val isValid = hei.matches(Regex("^\\d{2,3}(\.\d{1,2})?$"))
             if (isValid) {
                 binding.heightEditTxt.helperText = null
             } else {
@@ -350,7 +350,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
     private fun validateHeight(hei: String) {
         try {
-            val isValidFormat = hei.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val isValidFormat = hei.matches(Regex("^\\d{2,3}(^\\\\d{1,2})?$"))
             val heightValue = hei.toFloatOrNull()
 
             if (isValidFormat && heightValue != null && heightValue in 35.0..200.0) {
@@ -365,7 +365,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
   /*  private fun validateWeight(w: String) {
         try {
-            val isValid = w.matches(Regex("^\\d{2,3}(\\.\\d{1,2})?$"))
+            val isValid = w.matches(Regex("^\\d{2,3}(\.\d{1,2})?$"))
             if (isValid) {
                 binding.weightEditTxt.helperText = null
             } else {
@@ -380,7 +380,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
 
     private fun validateWeight(w: String) {
         try {
-            val isValidFormat = w.matches(Regex("^\\d{1,3}(\\.\\d{1,2})?$"))
+            val isValidFormat = w.matches(Regex("^\\d{1,3}(^\\\\d{1,2})?$"))
 
             if (!isValidFormat) {
                 binding.weightEditTxt.helperText = "Invalid format. Example: 72 or 72.5"
@@ -626,15 +626,13 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
     }
 
     override fun onSubmitAction() {
-    //        saveEntity()
         navigateNext()
     }
 
     override fun onCancelAction() {
-    //        findNavController().navigate(
-    //            FhirVitalsFragmentDirections.actionFhirVitalsFragmentToFhirVisitDetailsFragment()
-    //        )
-        findNavController().navigateUp()
+    val intent = Intent(context, HomeActivity::class.java)
+    startActivity(intent)
+    requireActivity().finish()
     }
 
     fun navigateNext() {
@@ -650,7 +648,7 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
                 if (emptyFields.isEmpty()) {
                     setVitalsMasterData()
                     findNavController().navigate(
-                        R.id.action_customVitalsFragment_to_caseRecordCustom, bundle
+                        R.id.action_customVitalsFragment_to_pharmacistFormFragment, bundle
                     )
                 } else {
                     val message: String = if (emptyFields.size == 1) {
