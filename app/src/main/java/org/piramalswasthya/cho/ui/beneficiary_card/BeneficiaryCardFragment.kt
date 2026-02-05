@@ -13,6 +13,7 @@ import org.piramalswasthya.cho.databinding.FragmentBeneficiaryCardBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import androidx.navigation.fragment.findNavController
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
+import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 
 @AndroidEntryPoint
 class BeneficiaryCardFragment : Fragment() {
@@ -80,14 +81,12 @@ class BeneficiaryCardFragment : Fragment() {
             }
         }
 
-        // Navigate to ABHA generation
         viewModel.navigateToAbha.observe(viewLifecycleOwner) { navigate ->
             if (navigate == true) {
                 navigateToAbhaGeneration()
                 viewModel.onAbhaNavigated()
             }
         }
-
 
         viewModel.navigateToContinue.observe(viewLifecycleOwner) { navigate ->
             if (navigate == true) {
@@ -137,7 +136,7 @@ class BeneficiaryCardFragment : Fragment() {
 
     private fun onContinue() {
         patientInfo?.let { patient ->
-            val intent = Intent(requireContext(), org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java)
+            val intent = Intent(requireContext(), EditPatientDetailsActivity::class.java)
             intent.putExtra("benVisitInfo", patient)
 
             val currentStatus = patient.patient.statusOfWomanID

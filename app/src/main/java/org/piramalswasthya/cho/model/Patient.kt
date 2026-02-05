@@ -164,7 +164,6 @@ data class Patient (
     @ColumnInfo(name = "faceEmbedding")
     var faceEmbedding: List<Float>? = null,
 
-
     @ColumnInfo(name = "hasAbhaId")
     var hasAbhaId: Boolean? = null,
 

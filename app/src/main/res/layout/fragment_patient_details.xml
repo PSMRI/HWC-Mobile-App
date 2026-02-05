@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:scrollbars="none"
-    android:background="@color/white"
     tools:context=".ui.register_patient_activity.patient_details.PatientDetailsFragment">
 
     <LinearLayout
