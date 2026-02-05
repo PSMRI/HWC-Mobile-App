@@ -269,6 +269,10 @@ class DeliveryOutcomeDataset(
             motherCurrentlyAdmitted.value = null
             maternalComplications.value = null
             dateOfDischarge.value = null
+            
+            // Add mother condition fields for new records (both halves of form)
+            formElements.add(motherCondition)
+            formElements.add(motherCurrentlyAdmitted)
         } else {
             // Load saved values (dd/MM/yyyy per JIRA)
             dateOfDelivery.value = saved.dateOfDelivery?.let { getDateFromLong(it, DATE_FORMAT_DD_MM_YYYY) }
@@ -311,21 +315,21 @@ class DeliveryOutcomeDataset(
             handleModeOfDeliveryChange(modeOfDelivery.value)
             handleDeliveryConductedByChange(deliveryConductedBy.value)
             
-            // Add conditional mother condition fields if needed
+            // Add mother condition fields (second half of form)
+            formElements.add(motherCondition)
+            
+            // Add maternal complications if mother condition is "Complication" or "Critical"
             val conditionIndex = resources.getStringArray(R.array.do_mother_condition_array).indexOf(motherCondition.value)
             if (conditionIndex == 1 || conditionIndex == 2) {
-                val insertIndex = formElements.size
-                formElements.add(insertIndex, motherCondition)
-                formElements.add(insertIndex + 1, maternalComplications)
-            } else {
-                formElements.add(motherCondition)
+                formElements.add(maternalComplications)
             }
             
+            // Always add admission status field
+            formElements.add(motherCurrentlyAdmitted)
+            
+            // Add discharge date if mother is discharged (not currently admitted)
             if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
-                formElements.add(motherCurrentlyAdmitted)
                 formElements.add(dateOfDischarge)
-            } else {
-                formElements.add(motherCurrentlyAdmitted)
             }
         }
 
@@ -415,9 +419,14 @@ class DeliveryOutcomeDataset(
 
         if (lmpDate > 0) {
             val weeks = TimeUnit.MILLISECONDS.toDays(deliveryDate - lmpDate).toInt() / DAYS_IN_WEEK
-            val classification = getGestationalAgeClassification(weeks)
-            classification?.let {
-                gestationalAgeAtDelivery.errorText = it
+            
+            // Show gestational age classification alert in dialog
+            when {
+                weeks < EXTREMELY_PRETERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_extremely_preterm)
+                weeks < VERY_PRETERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_very_preterm)
+                weeks < PRETERM_THRESHOLD_WEEKS -> emitAlertErrorMessage(R.string.do_alert_moderate_preterm)
+                weeks >= POST_TERM_WEEKS -> emitAlertErrorMessage(R.string.do_alert_post_term)
+                // Term (37-42 weeks) - no alert needed, it's normal
             }
         }
     }
@@ -698,16 +707,24 @@ class DeliveryOutcomeDataset(
                 maternalComplications.value = null
                 maternalComplications.errorText = null
                 when (index) {
-                    0, 3 -> triggerDependants(
-                        source = motherCondition,
-                        removeItems = listOf(maternalComplications),
-                        addItems = emptyList()
-                    )
-                    1, 2 -> triggerDependants(
-                        source = motherCondition,
-                        removeItems = emptyList(),
-                        addItems = listOf(maternalComplications)
-                    )
+                    0, 3 -> { // Healthy/Stable or Maternal Death
+                        triggerDependants(
+                            source = motherCondition,
+                            removeItems = listOf(maternalComplications),
+                            addItems = emptyList()
+                        )
+                        getIndexOfElement(motherCondition)
+                    }
+                    1, 2 -> { // Complication or Critical
+                        val currentIndex = getIndexOfElement(motherCondition)
+                        triggerDependants(
+                            source = motherCondition,
+                            removeItems = emptyList(),
+                            addItems = listOf(maternalComplications),
+                            position = if (currentIndex != -1) currentIndex + 1 else -1
+                        )
+                        getIndexOfElement(motherCondition)
+                    }
                     else -> -1
                 }
             }
@@ -715,12 +732,13 @@ class DeliveryOutcomeDataset(
             motherCurrentlyAdmitted.id -> {
                 dateOfDischarge.value = null
                 dateOfDischarge.errorText = null
-                triggerDependants(
+                val result = triggerDependants(
                     source = motherCurrentlyAdmitted,
                     passedIndex = index,
-                    triggerIndex = 1,
+                    triggerIndex = 1, // Index 1 = "No (Discharged)"
                     target = dateOfDischarge
                 )
+                result
             }
 
             dateOfDischarge.id -> {
