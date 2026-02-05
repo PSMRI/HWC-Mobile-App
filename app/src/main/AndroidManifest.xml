@@ -115,6 +115,11 @@
             android:label="@string/delivery_outcome"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
+            android:name=".ui.home.rmncha.maternal_health.PNCMotherListActivity"
+            android:exported="false"
+            android:label="@string/pnc_mother_list"
+            android:parentActivityName=".ui.home_activity.HomeActivity" />
+        <activity
             android:name=".ui.home.rmncha.maternal_health.AbortionListActivity"
             android:exported="false"
             android:label="@string/abortion_list"
