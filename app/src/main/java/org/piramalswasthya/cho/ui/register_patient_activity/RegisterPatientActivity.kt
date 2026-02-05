@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +18,6 @@ import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {
@@ -70,8 +68,20 @@ class RegisterPatientActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.patientDetailsFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_information)
+                    binding.bottomNavigation.visibility = android.view.View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit_btn_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+                R.id.beneficiaryCardFragment -> {
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.beneficiary_card_title)
+                    binding.bottomNavigation.visibility = android.view.View.GONE
+                }
+                R.id.editBeneficiaryDetailsFragment -> {
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.edit_beneficiary_details)
+                    binding.bottomNavigation.visibility = android.view.View.GONE
+                }
+                else -> {
+                    binding.bottomNavigation.visibility = android.view.View.VISIBLE
                 }
             }
         }

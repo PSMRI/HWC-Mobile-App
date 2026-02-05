@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -115,14 +116,20 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showDeliveryOutcome -> {
-                            // Navigate to Delivery Outcome List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Delivery Outcome List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showPNCMotherList -> {
-                            // Navigate to PNC Mother List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to PNC Mother List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListFragment()
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
                         showAbortionList -> {
                             // Navigate to Abortion List

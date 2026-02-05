@@ -15,7 +15,7 @@ class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
     private object MyDiffUtilCallBack : DiffUtil.ItemCallback<PregnantWomanAncCache>() {
         override fun areItemsTheSame(
             oldItem: PregnantWomanAncCache, newItem: PregnantWomanAncCache
-        ) = oldItem.patientID == newItem.patientID
+        ) = oldItem.patientID == newItem.patientID && oldItem.visitNumber == newItem.visitNumber
 
         override fun areContentsTheSame(
             oldItem: PregnantWomanAncCache, newItem: PregnantWomanAncCache
@@ -52,13 +52,8 @@ class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
     }
 
 
-    class AncVisitClickListener(
-        private val clickedForm: (patientID: String, visitNumber: Int) -> Unit,
-
-        ) {
-        fun onClickedVisit(item: PregnantWomanAncCache) = clickedForm(
-            item.patientID, item.visitNumber
-        )
+    fun interface AncVisitClickListener {
+        fun onClickedVisit(item: PregnantWomanAncCache)
     }
 
 }

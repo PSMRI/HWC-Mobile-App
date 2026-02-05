@@ -5,8 +5,10 @@ class DropdownConst {
 
         val careAndPreg: String = "Care in Pregnancy & Childbirth"
         val pwr: String = "Pregnant Women Registration"
+        val pregnancyRegistration: String = "Pregnancy Registration"
         val anc: String = "ANC"
         val pnc: String = "PNC"
+        val deliveryOutcome: String = "Delivery Outcome"
 
         val fpAndOtherRep: String = "Family Planning, Contraceptives Services & other Reproductive Health Care Services"
         val fpAndCs: String = "Eligible couple tracking"
