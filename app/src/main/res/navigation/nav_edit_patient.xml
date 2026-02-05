@@ -24,6 +24,9 @@
             android:id="@+id/action_fhirVisitDetailsFragment_to_pwAncFormFragment"
             app:destination="@id/pwAncFormFragment" />
         <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_deliveryOutcomeFormFragment"
+            app:destination="@id/deliveryOutcomeFormFragment" />
+        <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_pncFormFragment"
             app:destination="@id/pncFormFragment" />
         <action
@@ -137,6 +140,21 @@
         <argument
             android:name="isOldVisit"
             app:argType="boolean" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryOutcomeFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormFragment"
+        android:label="@string/delivery_outcome">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="visitNumber"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_deliveryOutcomeFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
     </fragment>
 
     <fragment

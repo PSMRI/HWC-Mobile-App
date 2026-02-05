@@ -304,7 +304,7 @@ class FormInputAdapter(
             }
 
             binding.actvRvDropdown.setupDropdownKeyboardHandling()
-            
+
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
                 Timber.d("Item DD : $item")
@@ -348,15 +348,14 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
-                        ).apply {
-                            gravity = Gravity.CENTER_HORIZONTAL
-                        }
+                        )
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(
@@ -495,14 +494,14 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(it) == true) cbx.isChecked = true
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
-                                if (item.value != null) item.value = item.value + it
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
                                 else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
@@ -518,7 +517,7 @@ class FormInputAdapter(
                                 }
                             } else {
                                 if (item.value?.contains(it) == true) {
-                                    item.value = item.value?.replace(it, "")
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(
@@ -573,7 +572,7 @@ class FormInputAdapter(
             binding.et.setOnClickListener {
                 KeyboardUtils.hideKeyboard(binding.et)
                 KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
-                
+
                 item.value?.let { value ->
                     thisYear = value.substring(6).toInt()
                     thisMonth = value.substring(3, 5).trim().toInt() - 1
@@ -628,7 +627,7 @@ class FormInputAdapter(
             binding.et.setOnClickListener {
                 KeyboardUtils.hideKeyboard(binding.et)
                 KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
-                
+
                 val hour: Int
                 val minute: Int
                 if (item.value == null) {

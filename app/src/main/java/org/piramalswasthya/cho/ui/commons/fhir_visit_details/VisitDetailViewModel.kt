@@ -260,6 +260,11 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getLastAnc(benId)
     }
 
+    suspend fun isPatientDelivered(patientID: String): Boolean {
+        val lastAnc = getLastAnc(patientID)
+        return lastAnc?.pregnantWomanDelivered == true
+    }
+
     suspend fun getLastCompletedAnc(benId: String): PregnantWomanAncCache? {
         return maternalHealthRepo.getLastCompletedAnc(benId)
     }
@@ -292,7 +297,7 @@ class VisitDetailViewModel @Inject constructor(
         return maternalHealthRepo.getAllActiveAncRecords(benId)
     }
 
-  
+
     fun refreshAncData(patientID: String) {
         viewModelScope.launch {
             allActiveAncRecords.value = getAllActiveAncRecords(patientID)

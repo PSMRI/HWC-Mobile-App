@@ -237,7 +237,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 118, exportSchema = false
+    version = 119, exportSchema = false
 )
 
 
@@ -497,6 +497,20 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_118_119 = object : Migration(118, 119) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCondition TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN maternalComplications TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN motherCurrentlyAdmitted INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeath INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN isDeathValue TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN dateOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN placeOfDeathId INTEGER")
+                database.execSQL("ALTER TABLE DELIVERY_OUTCOME ADD COLUMN otherPlaceOfDeath TEXT")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -520,7 +534,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_114_115,
                             MIGRATION_115_116,
                             MIGRATION_116_117,
-                            MIGRATION_117_118
+                            MIGRATION_117_118,
+                            MIGRATION_118_119
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

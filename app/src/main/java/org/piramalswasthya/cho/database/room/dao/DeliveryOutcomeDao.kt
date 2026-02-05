@@ -25,7 +25,7 @@ interface DeliveryOutcomeDao {
     suspend fun getAllUnprocessedDeliveryOutcomes(): List<DeliveryOutcomeCache>
 
     @Update
-    suspend fun updateDeliveryOutcome(it: DeliveryOutcomeCache)
+    suspend fun updateDeliveryOutcome(it: DeliveryOutcomeCache): Int
 
 //    @MapInfo(keyColumn = "benId", valueColumn ="dateOfDelivery")
 //    @Query("select * from delivery_outcome where isActive = 1")
