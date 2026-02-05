@@ -21,7 +21,16 @@
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment
+        android:id="@+id/beneficiaryCardFragment"
+        android:name="org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment"
+        android:label="BeneficiaryCardFragment" >
+        <argument
+            android:name="patientInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+    </fragment>
+    <fragment
         android:id="@+id/pncMotherListFragment"
         android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListFragment"
         android:label="@string/pnc_mother_list" />
+
 </navigation>
