@@ -524,6 +524,8 @@
     <string name="anc_visits">ANC Visits</string>
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
+    <string name="icon_title_pmr">Pregnant Women Registration</string>
+    <string name="pwr_eligibility_error">Pregnancy Registration form is not available </string>
     <!--  Post Natal Care  -->
     <string name="pnc_period">PNC Period</string>
     <string name="pnc_visit_date">PNC Visit Date</string>

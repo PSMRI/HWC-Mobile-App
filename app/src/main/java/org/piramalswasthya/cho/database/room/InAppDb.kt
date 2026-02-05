@@ -237,7 +237,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 123, exportSchema = false
+    version = 125, exportSchema = false
 )
 
 
@@ -337,7 +337,6 @@ abstract class InAppDb : RoomDatabase() {
                 database.execSQL("ALTER TABLE BenFlow ADD COLUMN externalInvestigation TEXT")
             }
         }
-
 
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -471,7 +470,6 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-
         val MIGRATION_116_117 = object : Migration(116, 117) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
@@ -599,6 +597,28 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_123_124 = object : Migration(123, 124) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PREGNANCY_ANC table
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN pregnancyTestAtFacility INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResult TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResultId INTEGER DEFAULT -1")
+            }
+        }
+        val MIGRATION_124_125 = object : Migration(124, 125) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions INTEGER"
+                )
+                db.execSQL(
+                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS INTEGER"
+                )
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -627,7 +647,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_119_120,
                             MIGRATION_120_121,
                             MIGRATION_121_122,
-                            MIGRATION_122_123
+                            MIGRATION_122_123,
+                            MIGRATION_123_124,
+                            MIGRATION_124_125
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
