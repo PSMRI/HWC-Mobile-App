@@ -828,6 +828,18 @@ data class ANCPost(
 //    val syncState: SyncState?
 //)
 
+data class AncDueListItem(
+    val patientID: String,
+    val gestationalAgeWeeks: Int,
+    val ancStage: Int
+)
+
+data class AncCompletedListItem(
+    val patientID: String,
+    val ancStage: Int,
+    val visitNumber: Int
+)
+
 
 @Entity(
     tableName = "ASHA_DUE_LIST",
