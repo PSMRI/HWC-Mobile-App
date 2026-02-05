@@ -183,7 +183,7 @@
     <fragment
         android:id="@+id/pregnantWomanRegistrationFragment"
         android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
-        android:label="PregnantWomanRegistrationFragment">
+        android:label="@string/icon_title_pmr">
 
         <argument
             android:name="patientID"
@@ -199,7 +199,10 @@
             android:id="@+id/action_pregnantWomanRegistrationFragment_to_patientHomeFragment"
             app:destination="@id/patientHomeFragment"
             app:popUpTo="@id/patientHomeFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_eligibleCoupleTrackingFormFragment"
+            app:destination="@id/eligibleCoupleTrackingFormFragment" />
     </fragment>
 
 

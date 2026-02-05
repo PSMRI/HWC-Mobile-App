@@ -1390,14 +1390,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if (reasonForVisit == DropdownConst.pwr) {
-
                 findNavController().navigate(
-                    FragmentVisitDetailDirections
-                        .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
-                            patientID = benVisitInfo.patient.patientID,
-                            benId = benVisitInfo.patient.beneficiaryID.toString()
-                        )
-                )
+                        FragmentVisitDetailDirections
+                            .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
+                                patientID = benVisitInfo.patient.patientID,
+                                benId = benVisitInfo.patient.beneficiaryID.toString()
+                            )
+                    )
+                
+//                if (!isEligibleForPregnancyRegistration()) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        getString(R.string.pwr_eligibility_error),
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                } else {
+//                    findNavController().navigate(
+//                        FragmentVisitDetailDirections
+//                            .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
+//                                patientID = benVisitInfo.patient.patientID,
+//                                benId = benVisitInfo.patient.beneficiaryID.toString()
+//                            )
+//                    )
+//                }
             }
 
             else if(reasonForVisit == DropdownConst.immunization){
@@ -1476,6 +1491,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
         }
+    }
+
+    
+//  Pre-conditions for Pregnancy Identification & Registration form:
+   
+    private fun isEligibleForPregnancyRegistration(): Boolean {
+        val isFemale = benVisitInfo.patient.genderID == 2
+        val isMarried = benVisitInfo.maritalStatus?.lowercase() == "married"
+        val isPregnantWoman = benVisitInfo.patient.statusOfWomanID == 2
+        return isFemale && isMarried && isPregnantWoman
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -75,9 +75,8 @@ class FormInputAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: FormElement, newItem: FormElement): Boolean {
-            return oldItem.value == newItem.value &&
-                    oldItem.errorText == newItem.errorText &&
-                    oldItem.isEnabled == newItem.isEnabled
+            Timber.d("${oldItem.id}   ${oldItem.errorText} ${newItem.errorText}")
+            return oldItem.errorText == newItem.errorText
         }
     }
 
@@ -92,31 +91,20 @@ class FormInputAdapter(
             }
         }
 
-        fun bind(
-            item: FormElement,
-            enabled: Boolean,
-            formValueListener: FormValueListener?
-        ) {
-            Timber.d("binding triggered!!! $enabled ${item.id}")
-
-
-            binding.et.apply {
-                isEnabled = enabled
-                isClickable = enabled
-                isFocusable = enabled
-                isFocusableInTouchMode = enabled
-                isCursorVisible = enabled
-            }
-
-
-            if (!enabled) {
+        fun bind(item: FormElement, isEnabled: Boolean, formValueListener: FormValueListener?) {
+            Timber.d("binding triggered!!! $isEnabled ${item.id}")
+            if (!isEnabled) {
+                binding.et.isClickable = false
+                binding.et.isFocusable = false
                 handleHintLength(item)
                 binding.form = item
                 binding.et.setText(item.value)
                 binding.executePendingBindings()
                 return
+            } else {
+                binding.et.isClickable = true
+                binding.et.isFocusable = true
             }
-
             binding.form = item
             if (item.errorText == null) binding.tilEditText.isErrorEnabled = false
             Timber.d("Bound EditText item ${item.title} with ${item.required}")
@@ -253,7 +241,7 @@ class FormInputAdapter(
                     binding.et.removeTextChangedListener(textWatcher)
                     val imm =
                         binding.root.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?
-                    imm?.hideSoftInputFromWindow(binding.et.windowToken, 0)
+                    imm!!.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
                 }
             }
             binding.et.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -360,15 +348,14 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
-                        ).apply {
-                            gravity = Gravity.CENTER_HORIZONTAL
-                        }
+                        )
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(
@@ -397,14 +384,18 @@ class FormInputAdapter(
                         rdBtn.setOnCheckedChangeListener { _, b ->
                             if (b) {
                                 item.value = it
-
-
-                                val index = item.entries!!.indexOf(it)
-                                Timber.d("Radio clicked formId=${item.id}, index=$index")
-
-
-                                formValueListener?.onValueChanged(item, index)
-
+                                if (item.hasDependants || item.hasAlertError) {
+                                    Timber.d(
+                                        "listener trigger : ${item.id} ${
+                                            item.entries!!.indexOf(
+                                                it
+                                            )
+                                        } $it"
+                                    )
+                                    formValueListener?.onValueChanged(
+                                        item, item.entries!!.indexOf(it)
+                                    )
+                                }
                             }
                             item.errorText = null
                             binding.llContent.setBackgroundResource(0)
@@ -465,7 +456,6 @@ class FormInputAdapter(
 
     class CheckBoxesInputViewHolder private constructor(private val binding: RvItemFormCheckV2Binding) :
         ViewHolder(binding.root) {
-
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
@@ -481,87 +471,53 @@ class FormInputAdapter(
 
             if (item.errorText != null) binding.clRi.setBackgroundResource(R.drawable.state_errored)
             else binding.clRi.setBackgroundResource(0)
-
             binding.llChecks.removeAllViews()
             binding.llChecks.apply {
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.VERTICAL
                     weightSum = items.size.toFloat()
-
-                    items.forEachIndexed { index, optionText ->
+                    items.forEachIndexed { index, it ->
                         val cbx = CheckBox(this.context)
                         cbx.layoutParams = RadioGroup.LayoutParams(
                             RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         )
-
                         if (!isEnabled) {
                             cbx.isClickable = false
                             cbx.isFocusable = false
                         }
-
                         cbx.id = View.generateViewId()
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) cbx.setTextAppearance(
                             context, android.R.style.TextAppearance_Material_Medium
                         )
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
-                        cbx.text = optionText
+                        cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(optionText) == true) cbx.isChecked = true
-                        // Initial state
-                        val isChecked = if (item.value.isNullOrEmpty()) {
-                            false
-                        } else {
-                            val selections = item.value!!.split(",").map { it.trim() }
-                            selections.contains(optionText)
-                        }
-                        cbx.isChecked = isChecked
-
-                        cbx.tag = Pair(optionText, index)
-
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
-
-                            if (!isEnabled) return@setOnClickListener
-
-                            val isNowChecked = cbx.isChecked
-                            val (clickedOption, clickedIndex) = cbx.tag as Pair<String, Int>
-
-                            val currentSelections = item.value?.split(",")?.map { it.trim() }?.toMutableSet() ?: mutableSetOf()
-
-                            if (isNowChecked) {
-                                currentSelections.add(clickedOption)
-                            } else {
-                                currentSelections.remove(clickedOption)
-                            }
-
-                            item.value = if (currentSelections.isEmpty()) "" else currentSelections.joinToString(",")
-                            formValueListener?.onValueChanged(item, clickedIndex)
                         }
-
                         cbx.setOnCheckedChangeListener { _, b ->
-                            val (_, clickedIndex) = cbx.tag as Pair<String, Int>
-
                             if (b) {
-                                if (item.value != null) item.value = item.value + optionText
-                                else item.value = optionText
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
+                                else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
                                         "listener trigger : ${item.id} ${
                                             item.entries!!.indexOf(
-                                                optionText
+                                                it
                                             )
-                                        } $optionText"
+                                        } $it"
                                     )
 //                                    formValueListener?.onValueChanged(
 //                                        item, item.entries!!.indexOf(it)
 //                                    )
                                 }
                             } else {
-                                if (item.value?.contains(optionText) == true) {
-                                    item.value = item.value?.replace(optionText, "")
+                                if (item.value?.contains(it) == true) {
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(
@@ -576,12 +532,12 @@ class FormInputAdapter(
                             }
                             Timber.d("Checkbox value : ${item.value}")
 
-                            formValueListener?.onValueChanged(item, clickedIndex)
                         }
                     }
                 }
             }
             binding.executePendingBindings()
+
         }
     }
 

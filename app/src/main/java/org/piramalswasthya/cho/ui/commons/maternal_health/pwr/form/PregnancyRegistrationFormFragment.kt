@@ -3,6 +3,7 @@ package org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_regist
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.activity.OnBackPressedCallback
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -43,12 +44,32 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
         return binding.root
     }
 
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
 
         requireActivity().title = getString(R.string.icon_title_pmr)
         setupForm()
         observeViewModel()
+
+        viewModel.benName.observe(viewLifecycleOwner) { name ->
+            binding.tvBenName.text = name ?: ""
+        }
+        viewModel.benAgeGender.observe(viewLifecycleOwner) { ageGender ->
+            binding.tvAgeGender.text = ageGender ?: ""
+        }
 
         binding.btnSubmit.setOnClickListener {
             submitRegistrationForm()
@@ -238,7 +259,12 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             event?.let { navigationEvent ->
                 when (navigationEvent) {
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToEligibleCouple -> {
-                        findNavController().navigate(R.id.eligibleCoupleTrackingFormFragment)
+                        val action = PregnantWomanRegistrationFragmentDirections
+                            .actionPregnantWomanRegistrationFragmentToEligibleCoupleTrackingFormFragment(
+                                patientID = navigationEvent.patientID,
+                                createdDate = 0L
+                            )
+                        findNavController().navigate(action)
                         viewModel.clearNavigation()
                     }
 
@@ -284,7 +310,8 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
-        if (viewModel.recordExists.value == true) {
+        val goToHome = viewModel.recordExists.value == true || viewModel.isFormReadOnly()
+        if (goToHome) {
             val action = PregnantWomanRegistrationFragmentDirections.actionPregnantWomanRegistrationFragmentToPatientHomeFragment()
             findNavController().navigate(action)
         } else {

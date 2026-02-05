@@ -124,6 +124,7 @@ data class PregnantWomanRegistrationCache(
     var otherPastIllness: String? = null,
     var is1st: Boolean = true,
     var numPrevPregnancy: Int? = null,
+    var para: Int? = null,
     var complicationPrevPregnancy: String? = null,
     var complicationPrevPregnancyId: Int? = null,
     var otherComplication: String? = null,

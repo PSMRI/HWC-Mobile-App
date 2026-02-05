@@ -42,7 +42,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     val navigateTo: LiveData<NavigationEvent?> get() = _navigateTo
 
     sealed class NavigationEvent {
-        object ToEligibleCouple : NavigationEvent()
+        data class ToEligibleCouple(val patientID: String) : NavigationEvent()
         object ToVitalsAndPrescription : NavigationEvent()
     }
 
@@ -119,13 +119,16 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
         }
     }
 
+    /** True when form is locked (first ANC already submitted). Used for back navigation to home. */
+    fun isFormReadOnly(): Boolean = dataset.isFormReadOnly
+
     fun getIndexOfEdd(): Int = dataset.getIndexById(6) // Updated from 5 to 6
     fun getIndexOfGestationalAge(): Int = dataset.getIndexById(7) // Updated from 6 to 7
     fun getIndexOfTrimester(): Int = dataset.getIndexById(8) // Updated from 7 to 8
-    fun getIndexOfPara(): Int = dataset.getIndexById(11) // Updated from 10 to 11
+    fun getIndexOfPara(): Int = dataset.getIndexById(dataset.getParaId()) // dynamic ID
     fun getIndexOfComplications(): Int = dataset.getIndexById(14) // Updated from 13 to 14
     fun getIndexOfPreExistingConditions(): Int = dataset.getIndexById(18) // Updated from 17 to 18
-    fun getIndexOfBmi(): Int = dataset.getIndexById(17) // Updated from 16 to 17
+    fun getIndexOfBmi(): Int = dataset.getIndexById(dataset.getBmiId()) // Updated from 16 to 17
     fun getIndexOfHeight(): Int = dataset.getIndexById(15) // Updated from 14 to 15
 
     // Add methods for test date fields
@@ -152,7 +155,9 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
         // Setup navigation callbacks
         dataset.onNavigateToEligibleCouple = {
-            _navigateTo.postValue(NavigationEvent.ToEligibleCouple)
+            patientID?.let { id ->
+                _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id))
+            }
         }
 
         dataset.onNavigateToVitalsAndPrescription = {

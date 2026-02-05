@@ -73,6 +73,7 @@ class PregnantWomanRegistrationDataset(
     private lateinit var registrationCache: PregnantWomanRegistrationCache
     private var dateOfRegMillis: Long = System.currentTimeMillis()
     private var oneYearBeforeRegMillis: Long = 0L
+    private var patientAgeYears: Int? = null
 
     var onShowAlert: ((String) -> Unit)? = null
     var onNavigateToEligibleCouple: (() -> Unit)? = null
@@ -179,7 +180,7 @@ class PregnantWomanRegistrationDataset(
         hasDependants = true
     )
 
-    private val para = FormElement(
+    private val para1 = FormElement(
         id = 11,
         inputType = InputType.EDIT_TEXT,
         title = "Para",
@@ -187,6 +188,19 @@ class PregnantWomanRegistrationDataset(
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
         etMaxLength = 2
     )
+
+    private val para2 = FormElement(
+        id = 1100,
+        inputType = InputType.EDIT_TEXT,
+        title = "Para",
+        required = true,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
+        etMaxLength = 2
+    )
+
+    private var _para = para1
+    private val para get() = _para
+    fun getParaId(): Int = _para.id
 
     // History Fields
     private val historyOfAbortions = FormElement(
@@ -196,7 +210,7 @@ class PregnantWomanRegistrationDataset(
         entries = arrayOf("Yes", "No"),
         required = false,
         isEnabled = false,
-        hasDependants = false
+        hasDependants = true
     )
 
     private val previousLSCS = FormElement(
@@ -245,17 +259,30 @@ class PregnantWomanRegistrationDataset(
         required = true,
         min = 30,
         max = 150,
+        minDecimal = 30.0,
+        maxDecimal = 150.0,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL,
         etMaxLength = 6,
         hasDependants = true
     )
 
-    private val bmi = FormElement(
+    private val bmi1 = FormElement(
         id = 17,
         inputType = InputType.TEXT_VIEW,
         title = "BMI",
         required = false,
     )
+
+    private val bmi2 = FormElement(
+        id = 1700,
+        inputType = InputType.TEXT_VIEW,
+        title = "BMI",
+        required = false,
+    )
+
+    private var _bmi = bmi1
+    private val bmi get() = _bmi
+    fun getBmiId(): Int = _bmi.id
 
     // Pre-existing Conditions
     private val preExistingConditions = FormElement(
@@ -351,10 +378,16 @@ class PregnantWomanRegistrationDataset(
     ) {
         this.registrationCache = savedRecord ?: createDefaultRegistrationCache(ben)
         _isFormReadOnly = savedRecord?.isFirstAncSubmitted == true
+        patientAgeYears = ben?.patient?.age
 
         // Initialize date of registration
         dateOfRegMillis = savedRecord?.dateOfRegistration ?: System.currentTimeMillis()
+        // Initialize date of registration
+        dateOfRegMillis = savedRecord?.dateOfRegistration ?: System.currentTimeMillis()
         oneYearBeforeRegMillis = dateOfRegMillis - TimeUnit.DAYS.toMillis(365)
+
+        _para = para1
+        _bmi = bmi1
 
         val list = mutableListOf<FormElement>()
 
@@ -387,7 +420,13 @@ class PregnantWomanRegistrationDataset(
             uptResult,
             lmp, edd, gestationalAge, trimester,
             bloodGroup,
-            gravida, para,
+            gravida, para
+        ))
+
+        // Add history fields if gravida > 1
+        addHistoryFieldsIfNeeded(cache, list)
+
+        list.addAll(listOf(
             preExistingConditions,
             height, weight, bmi,
             vdrlRprResult,
@@ -395,9 +434,6 @@ class PregnantWomanRegistrationDataset(
             hbsAgResult,
             isHighRiskPregnancy
         ))
-
-        // Add history fields if gravida > 1
-        addHistoryFieldsIfNeeded(cache, list)
 
         // Add test date fields conditionally
         addTestDateFieldsIfNeeded(cache, list)
@@ -414,6 +450,10 @@ class PregnantWomanRegistrationDataset(
         list: MutableList<FormElement>
     ) {
         list.add(pregnancyTestAtFacility)
+
+        if (savedRecord == null) {
+            rchId.value = "0"
+        }
 
         savedRecord?.let { cache ->
             populateFormFromCache(cache)
@@ -525,6 +565,7 @@ class PregnantWomanRegistrationDataset(
             otherPastIllness = null,
             is1st = true,
             numPrevPregnancy = null,
+            para = null,
             complicationPrevPregnancy = null,
             otherComplication = null,
             isHrp = false,
@@ -550,7 +591,7 @@ class PregnantWomanRegistrationDataset(
      */
     private fun populateBasicFields(cache: PregnantWomanRegistrationCache) {
         dateOfReg.value = getDateFromLong(cache.dateOfRegistration)
-        rchId.value = cache.rchId?.toString()
+        rchId.value = (cache.rchId ?: 0L).toString()
         pregnancyTestAtFacility.value = cache.pregnancyTestAtFacility
         uptResult.value = cache.uptResult
 
@@ -561,7 +602,9 @@ class PregnantWomanRegistrationDataset(
 
         bloodGroup.value = cache.bloodGroup
         gravida.value = cache.numPrevPregnancy?.toString()
-        para.value = (cache.numPrevPregnancy?.let { it - 1 })?.toString()
+        // Use stored Para if available, else calculate default
+        // Also handle the case where cache.para might be null (legacy data)
+        para.value = cache.para?.toString() ?: (cache.numPrevPregnancy?.let { it - 1 })?.toString()
         height.value = cache.height?.toString()
         weight.value = cache.weight?.toString()
         updateBMI()
@@ -653,7 +696,8 @@ class PregnantWomanRegistrationDataset(
             lmp.id -> handleLmpChange()
             historyOfAbortions.id -> handleHistoryOfAbortionsChange(index)
             gravida.id -> handleGravidaChange()
-            para.id -> handleParaChange()
+            gravida.id -> handleGravidaChange()
+            para1.id, para2.id -> handleParaChange()
             height.id, weight.id -> handleAnthropometryChange()
             vdrlRprResult.id -> {
                 handleVdrlRprResultChange(index)
@@ -722,7 +766,7 @@ class PregnantWomanRegistrationDataset(
             isHighRiskPregnancy
         )
 
-        return if (index == 0) { // Positive
+        return (if (index == 0) { // Positive
             // Get current gravida value to decide if history fields should be included
             val gravidaValue = gravida.value?.toIntOrNull() ?: 1
 
@@ -743,15 +787,19 @@ class PregnantWomanRegistrationDataset(
                 addItems = registrationFields,
                 removeItems = emptyList()
             )
-        } else { // Negative
+        } else { // Negative - Redirect to Eligible Couple Tracking Form
             triggerDependants(
                 source = uptResult,
                 addItems = emptyList(),
                 removeItems = baseRegistrationFields +
-                        listOf(historyOfAbortions, previousLSCS, complicationsInPreviousPregnancy,
-                            vdrlRprDate, hivTestDate, hbsAgTestDate) // Remove date fields if they exist
+                        listOf(
+                            historyOfAbortions, previousLSCS, complicationsInPreviousPregnancy,
+                            vdrlRprDate, hivTestDate, hbsAgTestDate
+                        ) // Remove date fields if they exist
             )
-        }
+            onNavigateToEligibleCouple?.invoke()
+            -1
+        })
     }
 
     private fun handleLmpChange(): Int {
@@ -839,20 +887,37 @@ class PregnantWomanRegistrationDataset(
     /**
      * Handle Para field based on gravida value
      */
+    /**
+     * Handle Para field based on gravida value
+     */
     private fun handleParaFieldForGravida(gravidaValue: Int) {
+        // Swap para field to force UI refresh
+        val oldPara = _para
+        val newPara = if (_para.id == para1.id) para2 else para1
+        _para = newPara
+
         if (gravidaValue == 1) {
-            para.value = "0"
-            para.isEnabled = false
-            para.required = false
-            para.errorText = null
+            newPara.value = "0"
+            newPara.isEnabled = false
+            newPara.required = false
+            newPara.errorText = null
             Timber.d("Para auto-set to 0 and disabled")
         } else {
-            para.isEnabled = true
-            para.required = true
-            if (para.value == "0") {
-                para.value = null
+            newPara.isEnabled = true
+            newPara.required = true
+            newPara.value = oldPara.value // Preserve value if switching
+            if (newPara.value == "0") {
+                newPara.value = null
             }
         }
+
+        // Trigger the swap in the list
+        triggerDependants(
+            source = gravida,
+            removeItems = listOf(oldPara),
+            addItems = listOf(newPara),
+            position = getIndexById(oldPara.id)
+        )
     }
 
     private fun handleHistoryOfAbortionsChange(index: Int): Int {
@@ -1004,26 +1069,29 @@ class PregnantWomanRegistrationDataset(
         alertMessage: String? = null
     ): Int {
         val entries = field.entries!!
-        val clickedOption = entries[index]
+        val realIndex = if (index < 0) -index else index
+        val clickedOption = entries[realIndex]
         val currentValue = field.value ?: ""
-
-        if (index == 0) { // "None" clicked
-            field.value = clickedOption
+        if (realIndex == 0) { 
+            if (currentValue.contains(clickedOption)) {
+                field.value = clickedOption
+            }
         } else {
             val selections = mutableSetOf<String>()
             if (currentValue.isNotEmpty()) {
                 selections.addAll(currentValue.split(",").map { it.trim() }.filter { it.isNotEmpty() })
             }
-            selections.remove("None")
-
+            
+            // If the option is present, it was checked.
             if (selections.contains(clickedOption)) {
-                selections.remove(clickedOption)
-            } else {
-                selections.add(clickedOption)
+                // Remove "None" if it exists
+                if (selections.contains("None")) {
+                    selections.remove("None")
+                }
                 alertMessage?.let { onShowAlert?.invoke(it) }
+                field.value = selections.joinToString(",")
             }
-
-            field.value = if (selections.isEmpty()) "" else selections.joinToString(",")
+            // If option is NOT present, it was unchecked. Nothing extra to do.
         }
 
         updateHighRiskStatus()
@@ -1042,9 +1110,9 @@ class PregnantWomanRegistrationDataset(
         val paraValue = para.value?.toIntOrNull() ?: return -1
         val gravidaValue = gravida.value?.toIntOrNull() ?: return -1
 
-        return if (paraValue >= gravidaValue) {
-            para.errorText = "Para cannot be greater than or equal to Gravida"
-            para.value = (gravidaValue - 1).toString()
+        return if (paraValue > gravidaValue) {
+            para.errorText = "Para cannot exceed Gravida"
+            para.value = gravidaValue.toString()
             -1
         } else {
             para.errorText = null
@@ -1054,7 +1122,7 @@ class PregnantWomanRegistrationDataset(
 
     private fun handleAnthropometryChange(): Int {
         validateIntMinMax(height)
-        validateIntMinMax(weight)
+        validateDoubleMinMax(weight)
         updateBMI()
         updateHighRiskStatus()
         if (getIndexById(bmi.id) >= 0) {
@@ -1095,9 +1163,23 @@ class PregnantWomanRegistrationDataset(
         if (heightValue != null && heightValue > 0 && weightValue != null && weightValue > 0) {
             val bmiValue = calculateBMI(weightValue, heightValue)
             val category = getBMICategory(bmiValue)
-            bmi.value = String.format("%.1f (%s)", bmiValue, category)
+            
+            // Swap BMI element to force UI refresh
+            val oldBmi = _bmi
+            val newBmi = if (_bmi.id == bmi1.id) bmi2 else bmi1
+            _bmi = newBmi
+            
+            newBmi.value = String.format("%.1f (%s)", bmiValue, category)
 
-            Timber.d("BMI updated: Height=$heightValue, Weight=$weightValue, BMI=${bmi.value}")
+            // Trigger the swap in the list
+            triggerDependants(
+                source = weight, // Using weight as source (it's adjacent usually) or we can use specific position
+                removeItems = listOf(oldBmi),
+                addItems = listOf(newBmi),
+                position = getIndexById(oldBmi.id)
+            )
+
+            Timber.d("BMI updated: Height=$heightValue, Weight=$weightValue, BMI=${newBmi.value}")
 
             // Check for height < 145 cm HRP condition
             if (heightValue < 145) {
@@ -1105,7 +1187,18 @@ class PregnantWomanRegistrationDataset(
             }
         } else {
             // Clear BMI if values are invalid
-            bmi.value = ""
+             val oldBmi = _bmi
+             val newBmi = if (_bmi.id == bmi1.id) bmi2 else bmi1
+             _bmi = newBmi
+             
+             newBmi.value = ""
+             
+             triggerDependants(
+                source = weight,
+                removeItems = listOf(oldBmi),
+                addItems = listOf(newBmi),
+                position = getIndexById(oldBmi.id)
+            )
             Timber.d("BMI cleared - invalid height or weight values")
         }
     }
@@ -1119,12 +1212,20 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun checkHighRiskConditions(): Boolean {
-        return checkHeightCondition() ||
+        return checkAgeCondition() ||
+                checkHeightCondition() ||
                 checkHistoryOfAbortions() ||
                 checkPreviousLSCS() ||
                 checkPreExistingConditions() ||
                 checkComplicationsInPreviousPregnancy() ||
                 checkLabResults()
+    }
+
+    /**
+     * Check if age < 18 or > 35 years (HRP condition)
+     */
+    private fun checkAgeCondition(): Boolean {
+        return patientAgeYears?.let { age -> age < 18 || age > 35 } == true
     }
 
     /**
@@ -1223,6 +1324,7 @@ class PregnantWomanRegistrationDataset(
 
             // Map obstetric history
             cache.numPrevPregnancy = gravida.value?.toIntOrNull()
+            cache.para = para.value?.toIntOrNull()
             cache.is1st = (gravida.value?.toIntOrNull() ?: 1) == 1
             cache.historyOfAbortions = historyOfAbortions.value == "Yes"
             cache.previousLSCS = previousLSCS.value == "Yes"
