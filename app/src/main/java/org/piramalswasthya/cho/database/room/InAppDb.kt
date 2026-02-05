@@ -52,7 +52,6 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
-import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -131,7 +130,6 @@ import org.piramalswasthya.cho.model.ReferRevisitModel
 import org.piramalswasthya.cho.model.RelationshipMaster
 import org.piramalswasthya.cho.model.ReligionMaster
 import org.piramalswasthya.cho.model.StateMaster
-import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.model.SubVisitCategory
 import org.piramalswasthya.cho.model.SurgeryDropdown
 import org.piramalswasthya.cho.model.TobaccoAlcoholHistory
@@ -230,12 +228,11 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         CbacCache::class,
         ProcedureMaster::class,
         ComponentDetailsMaster::class,
-        ComponentOptionsMaster::class,
-        StatusOfWomanMaster::class
+        ComponentOptionsMaster::class
 
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 116, exportSchema = false
+    version = 115, exportSchema = false
 )
 
 
@@ -301,11 +298,6 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
-    abstract val statusOfWomanDao: StatusOfWomanDao
-
-    fun runSeedLabProcedureMaster() {
-        LabProcedureMasterSeed.runSeed(openHelper.writableDatabase)
-    }
 
     companion object {
         @Volatile
@@ -337,7 +329,7 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                LabProcedureMasterSeed.runSeed(database)
+                // Lab procedure master seed is now applied via ProcedureRepo.ensureLabProcedureMasterSeed() (DAO) when user opens lab technician
             }
         }
 
@@ -453,21 +445,6 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_115_116 = object : Migration(115, 116) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns to ELIGIBLE_COUPLE_TRACKING table
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN financialYear TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN visitMonth TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN lmpDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN anyOtherMethod TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDose TEXT")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraInjectionDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN antraDueDate INTEGER")
-                database.execSQL("ALTER TABLE ELIGIBLE_COUPLE_TRACKING ADD COLUMN dateOfSterilization INTEGER")
-            }
-        }
-
-
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -488,23 +465,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_111_112,
                             MIGRATION_112_113,
                             MIGRATION_113_114,
-                            MIGRATION_114_115,
-                            MIGRATION_115_116
+                            MIGRATION_114_115
                         )
-                        .fallbackToDestructiveMigration()
-                        .addCallback(object : RoomDatabase.Callback() {
-                            override fun onCreate(db: SupportSQLiteDatabase) {
-                                super.onCreate(db)
-                                // Populate STATUS_OF_WOMAN_MASTER on fresh database creation
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
-                                db.execSQL("INSERT OR IGNORE INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
-                            }
-                        })
                         .setQueryCallback(
                             object : QueryCallback {
                                 override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {

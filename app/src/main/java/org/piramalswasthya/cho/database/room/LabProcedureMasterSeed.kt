@@ -1,7 +1,9 @@
 package org.piramalswasthya.cho.database.room
 
-import androidx.sqlite.db.SupportSQLiteDatabase
-
+/**
+ * Seed data for lab procedure master. Seeding is done via [ProcedureRepo.ensureLabProcedureMasterSeed]
+ * using Room DAO inserts (avoids raw SQL binding issues with procedureDesc NOT NULL).
+ */
 object LabProcedureMasterSeed {
 
     const val PRESCRIPTION_ID = 2802381L
@@ -35,44 +37,4 @@ object LabProcedureMasterSeed {
         emptyList(),
         emptyList()
     )
-
-    fun runSeed(database: SupportSQLiteDatabase) {
-        val prescriptionId = PRESCRIPTION_ID
-        for (i in procedures.indices) {
-            val (procId, name, procType) = procedures[i]
-            database.execSQL(
-                "INSERT INTO procedure_master (procedure_id, procedureDesc, procedureType, prescriptionID, procedureName, isMandatory) SELECT ?, ?, ?, ?, ?, 0 WHERE NOT EXISTS (SELECT 1 FROM procedure_master WHERE procedure_id = ?)",
-                arrayOf(procId, name, procType, prescriptionId, name, procId)
-            )
-            val cursor = database.query("SELECT id FROM procedure_master WHERE procedure_id = ? ORDER BY id DESC LIMIT 1", arrayOf(procId))
-            var masterProcId: Long = 0
-            if (cursor.moveToFirst()) {
-                masterProcId = cursor.getLong(0)
-            }
-            cursor.close()
-            if (masterProcId == 0L) continue
-            val comp = components[i]
-            val testComponentId = comp[0]
-            val rangeNormMin = comp[1]
-            val rangeNormMax = comp[2]
-            val rangeMin = comp[3]
-            val rangeMax = comp[4]
-            database.execSQL(
-                "INSERT INTO component_details_master (test_component_id, procedure_id, range_normal_min, range_normal_max, range_min, range_max, isDecimal, inputType, measurement_nit, test_component_name, test_component_desc) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM component_details_master WHERE procedure_id = ? AND test_component_id = ?)",
-                arrayOf(testComponentId, masterProcId, rangeNormMin, rangeNormMax, rangeMin, rangeMax, comp[5], comp[6], comp[7], comp[8], comp[9], masterProcId, testComponentId)
-            )
-            val compCursor = database.query("SELECT id FROM component_details_master WHERE procedure_id = ? AND test_component_id = ? ORDER BY id DESC LIMIT 1", arrayOf(masterProcId, testComponentId))
-            var compDetailsId: Long = 0
-            if (compCursor.moveToFirst()) {
-                compDetailsId = compCursor.getLong(0)
-            }
-            compCursor.close()
-            for (optName in componentOptions[i]) {
-                database.execSQL(
-                    "INSERT OR IGNORE INTO component_options_master (component_details_id, name) VALUES (?, ?)",
-                    arrayOf(compDetailsId, optName)
-                )
-            }
-        }
-    }
 }
