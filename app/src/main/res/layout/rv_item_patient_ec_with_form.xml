@@ -142,6 +142,29 @@
                             tools:text="30 YEARS" />
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no_of_children"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.ecr != null ? String.valueOf(patientWithEcr.ecr.noOfChildren) : `0`}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="2" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <!-- Row 2: Beneficiary ID, Mobile Number, RCH ID -->
@@ -223,7 +246,7 @@
 
                 </LinearLayout>
 
-                <!-- Row 3: LMP Date, Status, VIEW Button -->
+                <!-- Row 3: LMP Date, Status, Last Visit Date -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -281,17 +304,64 @@
                             tools:text="Missed Period" />
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_form_ec1"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/llLastVisitDate"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:onClick="@{() -> clickListener.onClickForm(patientWithEcr)}"
-                        android:text="@string/view"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/last_visit_date"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tvLastVisitDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{patientWithEcr.getLastVisitDateString()}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            tools:text="29-01-2026" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Row 4: Action Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_add_visit"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:onClick="@{() -> clickListener.onAddVisit(patientWithEcr)}"
+                        android:text="@string/add_visit"
                         android:textColor="@color/white"
-                        app:strokeColor="@color/white"
-                        tools:backgroundTint="@android:color/holo_green_dark" />
+                        android:backgroundTint="@android:color/holo_green_dark" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_view_visit"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:onClick="@{() -> clickListener.onViewVisit(patientWithEcr)}"
+                        android:text="@string/view_visit"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@android:color/holo_green_dark" />
 
                 </LinearLayout>
 

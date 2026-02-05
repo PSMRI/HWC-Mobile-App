@@ -554,6 +554,7 @@
     <string name="pnc_referral_alert_severe_pallor">Referral required: Severe pallor detected</string>
     <string name="pnc_referral_alert_vaginal_bleeding">Referral required: Heavy bleeding or foul-smelling discharge detected</string>
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
+    <string name="form_save_failed">Failed to save form. Please try again.</string>
     <string name="tracking_date">Date of Visit</string>
     <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
@@ -971,4 +972,8 @@
     <string name="speech_recognition_error">Speech recognition not available</string>
     <string name="beneficiary_photo_content_description">Photo of %s</string>
     <string name="desc_patient_photo">Patient photo</string>
+    <string name="add_visit">Add Visit</string>
+    <string name="view_visit">View Visit</string>
+    <string name="visit_history">Visit History</string>
+    <string name="no_of_children">No. of Children</string>
 </resources>
