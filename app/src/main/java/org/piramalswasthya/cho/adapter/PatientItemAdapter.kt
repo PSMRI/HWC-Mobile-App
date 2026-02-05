@@ -157,8 +157,8 @@ class PatientItemAdapter(
             } else {
                 binding.llBenId.visibility = View.GONE
             }
-            
-            if (item.patient.syncState == SyncState.SYNCED) {
+
+            if (item.patient.syncState == SyncState.SYNCED && item.patient.beneficiaryID != null) {
                 //  binding.ivSyncState.visibility = View.VISIBLE
                 binding.btnAbha.isEnabled = true
             } else {
@@ -168,10 +168,10 @@ class PatientItemAdapter(
             /*   Commented as prescription button should not display to user*/
 
             if(item.doctorFlag == 9){
-                   binding.prescriptionDownloadBtn.visibility = View.VISIBLE
-               }else{
-                   binding.prescriptionDownloadBtn.visibility = View.GONE
-               }
+                binding.prescriptionDownloadBtn.visibility = View.VISIBLE
+            }else{
+                binding.prescriptionDownloadBtn.visibility = View.GONE
+            }
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
@@ -198,11 +198,12 @@ class PatientItemAdapter(
     }
 
     class BenClickListener(
-        private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
-        private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedBen: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedABHA: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedEsanjeevani: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedDownloadPrescription: (PatientDisplayWithVisitInfo) -> Unit,
+        private val syncIconButton: (PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedViewCard: (PatientDisplayWithVisitInfo) -> Unit
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -223,6 +224,10 @@ class PatientItemAdapter(
 
         fun onClickSync(item: PatientDisplayWithVisitInfo) {
             syncIconButton(item)
+        }
+
+        fun onClickViewCard(item: PatientDisplayWithVisitInfo) {
+            clickedViewCard(item)
         }
     }
 

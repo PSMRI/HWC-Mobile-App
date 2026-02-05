@@ -309,7 +309,7 @@ class HomeActivity : AppCompatActivity() {
             tab.addTab(tab.newTab().setText("Dashboard"))
             tab.addTab(tab.newTab().setText("RMNCH"))
 
-        // Adding the Adapter to the ViewPager
+// Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
         if(!showDashboard && (dashboardBool == null || !dashboardBool)) {
             pager.post {
