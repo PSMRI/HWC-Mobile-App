@@ -214,3 +214,76 @@ data class PncDomain(
     val visitNumber: Int,
     val syncState: SyncState? = null
 )
+
+/**
+ * Patient with Delivery Outcome and PNC data
+ */
+data class PatientWithDeliveryOutcomeAndPncCache(
+    @Embedded
+    val patient: Patient,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val deliveryOutcome: List<DeliveryOutcomeCache>?,
+    @Relation(
+        parentColumn = "patientID",
+        entityColumn = "patientID"
+    )
+    val pncRecords: List<PNCVisitCache>
+) {
+    fun asDomainModel(): PatientWithPncDomain {
+        val activeDo = deliveryOutcome?.firstOrNull { it.isActive }
+        val latestPnc = pncRecords.maxByOrNull { it.pncPeriod }
+        
+        return PatientWithPncDomain(
+            patient = patient,
+            deliveryOutcome = activeDo,
+            latestPnc = latestPnc,
+            allPncRecords = pncRecords
+        )
+    }
+}
+
+/**
+ * Domain model for displaying patient with PNC data
+ */
+data class PatientWithPncDomain(
+    val patient: Patient,
+    val deliveryOutcome: DeliveryOutcomeCache?,
+    val latestPnc: PNCVisitCache?,
+    val allPncRecords: List<PNCVisitCache>
+) {
+    /**
+     * Get formatted delivery date string
+     */
+    fun getFormattedDeliveryDate(): String {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong(it) ?: "NA"
+        } ?: "NA"
+    }
+
+    /**
+     * Get days since delivery
+     * Returns null if deliveryOutcome or dateOfDelivery is missing
+     */
+    fun getDaysSinceDelivery(): Long? {
+        return deliveryOutcome?.dateOfDelivery?.let {
+            TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it)
+        }
+    }
+
+    /**
+     * Check if eligible for PNC (within 42 days or not completed all visits)
+     */
+    fun isEligibleForPNC(): Boolean {
+        // Return false if there is no delivery date
+        val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return false
+        
+        val daysSinceDelivery = getDaysSinceDelivery() ?: return false
+        val lastPncPeriod = latestPnc?.pncPeriod ?: 0
+        
+        // Eligible if within 42 days OR haven't completed all PNC visits
+        return daysSinceDelivery <= 42 || lastPncPeriod < 42
+    }
+}

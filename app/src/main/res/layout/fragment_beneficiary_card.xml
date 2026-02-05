@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="patient"
+            type="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+
+        <variable
+            name="viewModel"
+            type="org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/beneficiary_card_title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Beneficiary Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/beneficiary_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="10dp"
+                app:cardCornerRadius="20dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/colorPrimary"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Top Section: Photo and Basic Info -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- Photo Container -->
+                        <FrameLayout
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:layout_marginEnd="16dp">
+
+                            <ImageView
+                                android:id="@+id/iv_beneficiary_photo"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:scaleType="centerCrop"
+                                android:background="@drawable/bg_circular"
+                                android:contentDescription="@{@string/beneficiary_photo_content_description(patient.patient.firstName + ` ` + (patient.patient.lastName ?? ``))}"
+                                app:benImage="@{patient.patient.benImage}"
+                                tools:src="@drawable/ic_person" />
+
+                        </FrameLayout>
+
+                        <!-- Name and ID -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <!-- Full Name -->
+                            <TextView
+                                android:id="@+id/tv_beneficiary_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{patient.patient.firstName + ` ` + (patient.patient.lastName ?? ``)}"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:maxLines="2"
+                                android:ellipsize="end"
+                                tools:text="John Doe" />
+
+                            <!-- Beneficiary ID -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="4dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/beneficiary_id_label"
+                                    android:textSize="14sp"
+                                    android:textColor="@color/gray_dark" />
+
+                                <TextView
+                                    android:id="@+id/tv_beneficiary_id"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{patient.patient.beneficiaryID != null ? String.valueOf(patient.patient.beneficiaryID) : patient.patient.patientID}"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/colorPrimary"
+                                    android:layout_marginStart="4dp"
+                                    tools:text="123456789" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gray_light"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Details Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Row 1: Age/Gender and Phone -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <!-- Age / Gender -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/age_gender_label"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray_dark" />
+
+                                <TextView
+                                    android:id="@+id/tv_age_gender"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{(patient.patient.age != null ? String.valueOf(patient.patient.age) : `--`) + ` Years / ` + (patient.genderName ?? `--`)}"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="25 Years / Male" />
+
+                            </LinearLayout>
+
+                            <!-- Phone Number -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/phone_number_label"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray_dark" />
+
+                                <TextView
+                                    android:id="@+id/tv_phone"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{patient.patient.phoneNo != null &amp;&amp; !patient.patient.phoneNo.empty ? patient.patient.phoneNo : @string/not_available}"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="9876543210" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Row 2: Village Name -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/village_name_label"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray_dark" />
+
+                            <TextView
+                                android:id="@+id/tv_village"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{patient.villageName ?? @string/not_available}"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="2dp"
+                                tools:text="Sample Village" />
+
+                        </LinearLayout>
+
+                        <!-- Divider before ABHA -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/gray_light"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- ABHA ID Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/abha_id_label"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray_dark" />
+
+                            <!-- ABHA ID Display (visible when ABHA exists) -->
+                            <TextView
+                                android:id="@+id/tv_abha_id"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{patient.patient.abhaIdNumber ?? (patient.patient.healthIdDetails != null ? patient.patient.healthIdDetails.healthIdNumber : ``)}"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/colorPrimary"
+                                android:layout_marginTop="2dp"
+                                android:visibility="@{(patient.patient.abhaIdNumber != null &amp;&amp; !patient.patient.abhaIdNumber.empty) || patient.patient.healthIdDetails != null ? android.view.View.VISIBLE : android.view.View.GONE}"
+                                tools:text="12-3456-7890-1234" />
+
+                            <!-- Generate ABHA ID Button (visible when ABHA doesn't exist) -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_generate_abha"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/generate_abha_id_btn"
+                                android:textAllCaps="false"
+                                android:layout_marginTop="4dp"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                app:strokeColor="@color/colorPrimary"
+                                android:visibility="@{(patient.patient.abhaIdNumber == null || patient.patient.abhaIdNumber.empty) &amp;&amp; patient.patient.healthIdDetails == null ? android.view.View.VISIBLE : android.view.View.GONE}"
+                                android:onClick="@{() -> viewModel.onGenerateAbhaClicked()}" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/edit_btn"
+                    android:textAllCaps="false"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_continue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/continue_btn"
+                    android:textAllCaps="false"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:onClick="@{() -> viewModel.onContinueClicked()}" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</layout>
