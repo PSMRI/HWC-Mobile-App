@@ -22,14 +22,23 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where patientID = :patientID order by ancDate desc limit 1")
     suspend fun getLastAnc(patientID: String): PregnantWomanAncCache?
 
+    @Query("select * from pregnancy_anc where patientID = :patientID and weight IS NOT NULL and isActive = 1 order by visitNumber desc limit 1")
+    suspend fun getLastCompletedAnc(patientID: String): PregnantWomanAncCache?
+
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
     suspend fun getLastVisitNumber(patientID: String): Int?
+
+    @Query("select visitNumber from pregnancy_anc where patientID = :patientID and isActive = 1 order by visitNumber desc limit 1")
+    suspend fun getLastActiveVisitNumber(patientID: String): Int?
 
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
     suspend fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
 
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
     suspend fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
+
+    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID and weight IS NOT NULL order by visitNumber")
+    suspend fun getCompletedActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
 //    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
 //    fun getAllActiveAncRecordsObserve(patientID: String): LiveData<List<PregnantWomanAncCache>>
@@ -43,7 +52,7 @@ interface MaternalHealthDao {
 //    fun getLatestAnc(benId: Long): PregnantWomanAncCache?
 //
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache)
+    suspend fun saveRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveRecord(ancCache: PregnantWomanAncCache)
@@ -64,6 +73,9 @@ interface MaternalHealthDao {
 
     @Query("SELECT * FROM pregnancy_register WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPWRs(): List<PregnantWomanRegistrationCache>
+
+    @Query("SELECT * FROM pregnancy_register WHERE active = 1")
+    suspend fun getAllActivePregnancyRegistrations(): List<PregnantWomanRegistrationCache>
 
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)

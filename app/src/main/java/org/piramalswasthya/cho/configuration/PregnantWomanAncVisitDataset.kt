@@ -81,7 +81,7 @@ class PregnantWomanAncVisitDataset(
         arrayId = -1,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,
-        required = false,
+        required = true,
         min = 30,
         max = 200
     )
@@ -370,13 +370,16 @@ class PregnantWomanAncVisitDataset(
         ben?.let {
             ancDate.min =
                 regis.lmpDate + TimeUnit.DAYS.toMillis(7 * Konstants.minAnc1Week.toLong() + 1)
-            ancVisit.entries = arrayOf("1", "2", "3", "4")
+            ancVisit.entries = when (visitNumber) {
+                1 -> arrayOf("1", "2", "3", "4")
+                2 -> arrayOf("2", "3", "4")
+                3 -> arrayOf("3", "4")
+                4 -> arrayOf("4")
+                else -> arrayOf("1", "2", "3", "4")
+            }
+            if (visitNumber == 4) list.remove(ancVisit)
             lastAnc?.let { last ->
                 ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
-                ancVisit.entries = arrayOf(2, 3, 4).filter {
-                    it > last.visitNumber
-                }.map { it.toString() }.toTypedArray()
-
                 lastAncVisitDate = last.ancDate
             }
             ancDate.max =
@@ -406,7 +409,7 @@ class PregnantWomanAncVisitDataset(
             }
         }
 
-        ancVisit.value = visitNumber.toString()
+        ancVisit.value = if (ancVisit.entries?.contains(visitNumber.toString()) == true) visitNumber.toString() else (ancVisit.entries?.firstOrNull() ?: visitNumber.toString())
 
         saved?.let { savedAnc ->
 
@@ -796,6 +799,8 @@ class PregnantWomanAncVisitDataset(
     }
 
     fun getWeeksOfPregnancy(): Int = getIndexById(weekOfPregnancy.id)
+
+    fun getAncVisitNumber(): Int? = ancVisit.value?.toIntOrNull()
 
 //    fun updateBenRecordToDelivered(it: BenRegCache) {
 //        it.genDetails?.apply {

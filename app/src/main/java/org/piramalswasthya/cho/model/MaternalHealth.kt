@@ -827,3 +827,39 @@ data class ANCPost(
 //    val showViewAnc: Boolean = anc.isEmpty(),
 //    val syncState: SyncState?
 //)
+
+data class AncDueListItem(
+    val patientID: String,
+    val gestationalAgeWeeks: Int,
+    val ancStage: Int
+)
+
+data class AncCompletedListItem(
+    val patientID: String,
+    val ancStage: Int,
+    val visitNumber: Int
+)
+
+
+@Entity(
+    tableName = "ASHA_DUE_LIST",
+    foreignKeys = [ForeignKey(
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patientID"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"], unique = true)]
+)
+data class AshaDueListCache(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val patientID: String,
+    val beneficiaryID: Long? = null,
+    val listType: String = "ANC",
+    val addedDate: Long = System.currentTimeMillis(),
+    val ashaId: Int = 0,
+    val createdBy: String,
+    var syncState: SyncState = SyncState.UNSYNCED
+)
