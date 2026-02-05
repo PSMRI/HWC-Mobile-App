@@ -4,29 +4,40 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ECTrackingAdapter
-import org.piramalswasthya.cho.databinding.BottomSheetEligibleCoupleVisitHistoryBinding
+import org.piramalswasthya.cho.databinding.BottomSheetEcVisitHistoryBinding
 import org.piramalswasthya.cho.repositories.EcrRepo
-import org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment
+import org.piramalswasthya.cho.repositories.PatientRepo
+import timber.log.Timber
 import javax.inject.Inject
 
+/**
+ * Bottom Sheet to display visit history for Eligible Couple Tracking
+ * Shows all past visits with their dates and allows viewing details
+ */
 @AndroidEntryPoint
 class EligibleCoupleVisitHistoryBottomSheet : BottomSheetDialogFragment() {
+
+    private var _binding: BottomSheetEcVisitHistoryBinding? = null
+    private val binding: BottomSheetEcVisitHistoryBinding
+        get() = _binding!!
 
     @Inject
     lateinit var ecrRepo: EcrRepo
 
-    private var _binding: BottomSheetEligibleCoupleVisitHistoryBinding? = null
-    private val binding: BottomSheetEligibleCoupleVisitHistoryBinding
-        get() = _binding!!
+    @Inject
+    lateinit var patientRepo: PatientRepo
 
     private lateinit var patientID: String
-    private lateinit var adapter: ECTrackingAdapter
 
     companion object {
         private const val ARG_PATIENT_ID = "patient_id"
@@ -50,7 +61,7 @@ class EligibleCoupleVisitHistoryBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = BottomSheetEligibleCoupleVisitHistoryBinding.inflate(inflater, container, false)
+        _binding = BottomSheetEcVisitHistoryBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,37 +69,92 @@ class EligibleCoupleVisitHistoryBottomSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
+        loadPatientInfo()
         loadVisitHistory()
     }
 
     private fun setupRecyclerView() {
-        adapter = ECTrackingAdapter(
+        val adapter = ECTrackingAdapter(
             ECTrackingAdapter.ECTrackViewClickListener { benId, visitDate ->
-                // Navigate to form with specific visit date
-                val fragment = EligibleCoupleTrackingFormFragment().apply {
+                // Navigate to tracking form in view mode
+                val fragment = org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment().apply {
                     arguments = Bundle().apply {
                         putString("patientID", benId)
                         putLong("createdDate", visitDate)
                     }
                 }
+
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.fragment_container, fragment)
+                    addToBackStack(null)
+                }
                 
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(org.piramalswasthya.cho.R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-                
+                // Dismiss bottom sheet after navigation
                 dismiss()
             }
         )
 
-        binding.rvVisitHistory.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvVisitHistory.adapter = adapter
+        binding.rvVisitHistory.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            this.adapter = adapter
+            
+            // Add divider for better visual separation
+            addItemDecoration(
+                DividerItemDecoration(requireContext(), LinearLayout.VERTICAL)
+            )
+        }
+    }
+
+    private fun loadPatientInfo() {
+        lifecycleScope.launch {
+            try {
+                val patientDisplay = patientRepo.getPatientDisplay(patientID)
+                patientDisplay?.let { patient ->
+                    val name = "${patient.patient.firstName} ${patient.patient.lastName ?: ""}".trim()
+                    val ageGender = "${patient.patient.age} ${patient.ageUnit?.name ?: ""} | ${patient.gender?.genderName ?: ""}".trim()
+                    
+                    binding.tvPatientName.text = name
+                    binding.tvPatientAgeGender.text = ageGender
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to load patient info for $patientID")
+            }
+        }
     }
 
     private fun loadVisitHistory() {
         lifecycleScope.launch {
-            val visits = ecrRepo.getAllECT(patientID)
-            adapter.submitList(visits.sortedByDescending { it.visitDate })
+            try {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.rvVisitHistory.visibility = View.GONE
+                binding.tvEmptyState.visibility = View.GONE
+
+                val visits = ecrRepo.getAllECT(patientID)
+                    .sortedByDescending { it.visitDate } // Most recent first
+
+                if (visits.isEmpty()) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.tvEmptyState.visibility = View.VISIBLE
+                    binding.tvCount.text = getString(R.string.no_visits_found)
+                } else {
+                    (binding.rvVisitHistory.adapter as? ECTrackingAdapter)?.submitList(visits)
+                    binding.progressBar.visibility = View.GONE
+                    binding.rvVisitHistory.visibility = View.VISIBLE
+                    
+                    // Update count
+                    val count = visits.size
+                    binding.tvCount.text = resources.getQuantityString(
+                        R.plurals.visit_count,
+                        count,
+                        count
+                    )
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to load visit history for $patientID")
+                binding.progressBar.visibility = View.GONE
+                binding.tvEmptyState.visibility = View.VISIBLE
+                binding.tvEmptyState.text = getString(R.string.error_loading_visits)
+            }
         }
     }
 

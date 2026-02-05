@@ -12,4 +12,8 @@
         <item quantity="one">%d day old</item>
         <item quantity="other">%d days old</item>
     </plurals>
+    <plurals name="visit_count">
+        <item quantity="one">%d Visit</item>
+        <item quantity="other">%d Visits</item>
+    </plurals>
 </resources>

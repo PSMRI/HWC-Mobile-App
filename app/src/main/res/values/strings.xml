@@ -556,6 +556,10 @@
     <string name="tracking_form_filled_successfully">Tracking form filled successfully</string>
     <string name="form_save_failed">Failed to save form. Please try again.</string>
     <string name="tracking_date">Date of Visit</string>
+    <string name="visit_history_title">Visit History</string>
+    <string name="no_visits_found">No visits found</string>
+    <string name="visit_count_icon">Visit count icon</string>
+    <string name="error_loading_visits">Error loading visits. Please try again.</string>
     <string name="long_to_string">%d</string>
     <string-array name="pnc_period_array">
         <item>1st Day</item>
