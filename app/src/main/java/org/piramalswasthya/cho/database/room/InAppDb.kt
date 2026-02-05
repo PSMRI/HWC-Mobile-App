@@ -237,7 +237,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 119, exportSchema = false
+    version = 122, exportSchema = false
 )
 
 
@@ -539,6 +539,54 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_120_121 = object : Migration(120, 121) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add missing ANC tracking fields from FLW app
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN lmpDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN visitDate INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN weekOfPregnancy INTEGER")
+
+                // Abortion extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN serialNo TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTermination TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN methodOfTerminationId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneBy TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN terminationDoneById INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucdId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isYesOrNo INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN isPaiucd TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dateSterilisation INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN remarks TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg1 TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN abortionImg2 TEXT")
+
+                // Maternal death extended fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN placeOfDeathId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN otherPlaceOfDeath TEXT")
+
+                // MCP card image paths
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN frontFilePath TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN backFilePath TEXT")
+            }
+        }
+
+        val MIGRATION_121_122 = object : Migration(121, 122) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add JIRA validation requirement fields
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN bloodSugarFasting INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugar TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN urineSugarId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN fetalHeartRate REAL")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN calciumGiven INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSigns TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN dangerSignsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingProvided INTEGER")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopics TEXT")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN counsellingTopicsId INTEGER DEFAULT 0")
+                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN nextAncVisitDate INTEGER")
+            }
+        }
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -565,7 +613,9 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_116_117,
                             MIGRATION_117_118,
                             MIGRATION_118_119,
-                            MIGRATION_119_120
+                            MIGRATION_119_120,
+                            MIGRATION_120_121,
+                            MIGRATION_121_122
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
