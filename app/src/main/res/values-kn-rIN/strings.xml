@@ -15,7 +15,6 @@
     <string name="PREF_current_saved_language" translatable="false">Locale.Helper.Selected.Language</string>
     <string name="til_username_hint_text">ಬಳಕೆದಾರ ಹೆಸರು</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="next">ಮುಂದೆ</string>
     <string name="cancel">ರದ್ದುಮಾಡು</string>
@@ -94,7 +93,6 @@
     <string name="revisit_details_text">Revisit Details</string>
     <string name="case_record_text">ಕೇಸ್ ರೆಕಾರ್ಡ್</string>
 
-<!--    <string name="cbac">CBAC</string>-->
     <string name="anc">ANC</string>
     <string name="pnc">PNC</string>
     <string name="immunization">Immunization</string>
@@ -461,4 +459,49 @@
     <string name="form_input_error_invalid_mcp">Invalid MCP Number !</string>
     <string name="form_input_error_invalid_aadhar">Invalid Aadhaar Number !</string>
     <string name="edd_date">EDD Date</string>
+    
+    <!-- Status of Woman and ABHA -->
+    <string name="status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿ <font color="#FF0000">*</font></string>
+    <string name="does_beneficiary_have_abha">ಲಾಭಾರ್ಥಿಗೆ ABHA ID ಇದೆಯೇ?</string>
+    <string name="abha_id_number">ABHA ID ಸಂಖ್ಯೆ (14 ಅಂಕಿ)</string>
+    <string name="abha_enrollment_alert">ದಯವಿಟ್ಟು ಲಾಭಾರ್ಥಿಗೆ ABHA ID ನೋಂದಣಿಗೆ ಸಲಹೆ ನೀಡಿ</string>
+    <string name="patient_details_edited_successfully">ರೋಗಿ ವಿವರಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಂಪಾದಿಸಲಾಗಿದೆ</string>
+    <string name="invalid_abha_format">ABHA ID 14 ಅಂಕಿಗಳಾಗಿರಬೇಕು</string>
+    <string name="select_status_of_woman">ಮಹಿಳೆಯ ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="duplicate_face_detected">ನಕಲಿ ಮುಖ ಕಂಡುಬಂದಿದೆ</string>
+    <string name="duplicate_face_message">ಸಿಸ್ಟಮ್‌ನಲ್ಲಿ ಒಂದೇ ರೀತಿಯ ಮುಖವು ಕಂಡುಬಂದಿದೆ. ನೀವು ಮೌಜೂದಾ ರೆಕಾರ್ಡ್‌ನ್ನು ಬಳಸಬೇಕೆ ಅಥವಾ ಹೊಸ ನೋಂದಣಿಯನ್ನು ಮುಂದುವರಿಸಬೇಕೆ?</string>
+    <string name="use_existing">ಮೌಜೂದಾ ಬಳಸಿ</string>
+    <string name="continue_new">ಹೊಸದನ್ನು ಮುಂದುವರಿಸಿ</string>
+
+    <!-- Beneficiary Card -->
+    <string name="beneficiary_card_title">ಲಾಭಾರ್ಥಿ ಕಾರ್ಡ್</string>
+    <string name="beneficiary_id_label">ಲಾಭಾರ್ಥಿ ID: </string>
+    <string name="age_gender_label">ವಯಸ್ಸು / ಲಿಂಗ</string>
+    <string name="phone_number_label">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</string>
+    <string name="village_name_label">ಗ್ರಾಮದ ಹೆಸರು</string>
+    <string name="abha_id_label">ABHA ID</string>
+    <string name="generate_abha_id_btn">ABHA ID ರೂಪಿಸಿ</string>
+    <string name="continue_btn">ಮುಂದುವರಿಸಿ</string>
+    <string name="view_beneficiary_card">ಕಾರ್ಡ್ ವೀಕ್ಷಿಸಿ</string>
+
+    <!-- Edit Beneficiary Details -->
+    <string name="edit_beneficiary_details">ಲಾಭಾರ್ಥಿ ವಿವರಗಳನ್ನು ಸಂಪಾದಿಸಿ</string>
+    <string name="last_name_optional">ಕೊನೆಯ ಹೆಸರು (ಐಚ್ಛಿಕ)</string>
+    <string name="phone_number_optional">ದೂರವಾಣಿ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)</string>
+    <string name="age_mandatory">ವಯಸ್ಸು <font color="#FF0000">*</font></string>
+    <string name="years_mandatory">ವರ್ಷಗಳು <font color="#FF0000">*</font></string>
+    <string name="months_optional">ತಿಂಗಳುಗಳು</string>
+    <string name="days_optional">ದಿನಗಳು</string>
+    <string name="save_btn">ಸಂಗ್ರಹಿಸಿ</string>
+    <string name="cancel_btn">ರದ್ದುಮಾಡು</string>
+    <string name="edit_btn">ಸಂಪಾದಿಸಿ</string>
+    <string name="age_years_required">ವರ್ಷಗಳಲ್ಲಿ ವಯಸ್ಸು ಅಗತ್ಯವಾಗಿದೆ</string>
+    <string name="beneficiary_updated_successfully">ಲಾಭಾರ್ಥಿ ವಿವರಗಳು ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಣಗೊಂಡಿದೆ</string>
+    <string name="status_of_woman_required">ಮಹಿಳೆಯ ಸ್ಥಿತಿ ಅಗತ್ಯವಾಗಿದೆ</string>
+    <string name="speak_now">ಈಗ ಮಾತನಾಡಿ...</string>
+    <string name="not_available">ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="speech_recognition_error">ಮಾತು ಗುರುತಿಸುವಿಕೆ ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="beneficiary_photo_content_description">%s ದ ಫೋಟೋ</string>
+    <string name="desc_patient_photo">ರೋಗಿ ಫೋಟೋ</string>
+
 </resources>

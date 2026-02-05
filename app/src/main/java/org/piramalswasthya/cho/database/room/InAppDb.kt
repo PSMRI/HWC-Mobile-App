@@ -338,6 +338,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 LabProcedureMasterSeed.runSeed(database)
@@ -511,6 +512,34 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_119_120 = object : Migration(116, 117) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns to PATIENT table
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN hasAbhaId INTEGER")
+                database.execSQL("ALTER TABLE PATIENT ADD COLUMN abhaIdNumber TEXT")
+
+                // Create STATUS_OF_WOMAN_MASTER table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS STATUS_OF_WOMAN_MASTER (
+                        statusID INTEGER PRIMARY KEY NOT NULL,
+                        statusName TEXT NOT NULL,
+                        statusCode TEXT NOT NULL
+                    )
+                """)
+
+                // Insert default status values
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (1, 'Eligible Couple', 'EC')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (2, 'Pregnant Woman', 'PW')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (3, 'Postnatal', 'PN')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (4, 'Elderly', 'EL')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (5, 'Adolescent', 'AD')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (6, 'Permanent Sterilization', 'ST')")
+                database.execSQL("INSERT INTO STATUS_OF_WOMAN_MASTER (statusID, statusName, statusCode) VALUES (7, 'Not Applicable', 'NA')")
+            }
+        }
+
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -535,7 +564,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_115_116,
                             MIGRATION_116_117,
                             MIGRATION_117_118,
-                            MIGRATION_118_119
+                            MIGRATION_118_119,
+                            MIGRATION_119_120
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
