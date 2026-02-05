@@ -41,7 +41,7 @@ class DeliveryOutcomeRepo @Inject constructor(
         withContext(Dispatchers.IO) {
             // Upsert pattern: check for existing record by patientID and reuse its id if found
             val existing = deliveryOutcomeDao.getDeliveryOutcome(deliveryOutcomeCache.patientID)
-            
+
             if (existing != null) {
                 // Reuse existing record's id and update
                 val updatedCache = deliveryOutcomeCache.copy(id = existing.id)
