@@ -101,14 +101,20 @@ class SubModuleFragment : Fragment() {
                     
                     when {
                         showECTracking -> {
-                            // Navigate to Eligible Couple Tracking List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Eligible Couple Tracking List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showPWR -> {
-                            // Navigate to Pregnant Women Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Maternal Health Nav Host (which uses nav_maternal_health.xml)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showANCVisits -> {
                             // Navigate to ANC Visits List

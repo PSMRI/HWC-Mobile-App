@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserDomain
 import org.piramalswasthya.cho.model.VisitDB
+import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.commons.OtherCPHCServicesViewModel
@@ -48,7 +49,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     @Inject
     lateinit var userRepo: UserRepo
 
-    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    @Inject
+    lateinit var patientRepo: PatientRepo
+
+    private var benVisitInfo: PatientDisplayWithVisitInfo? = null
 
     val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
@@ -71,7 +75,17 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        // Load benVisitInfo from patientID - try intent first, then load from DB
+        lifecycleScope.launch {
+            benVisitInfo = try {
+                // Try to get from intent (for navigation from visit details)
+                requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+                    ?: throw ClassCastException("No benVisitInfo in intent")
+            } catch (e: Exception) {
+                // Load from database using patientID from ViewModel
+                patientRepo.getPatientDisplayListForNurseByPatient(viewModel.patientID)
+            }
+        }
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
@@ -82,11 +96,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         hardCodedListUpdate(formId)
                     }, isEnabled = !recordExists
                 )
-                if(recordExists){
-                    val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
-                    btnSubmit?.visibility = View.GONE
-                }
-//                binding.btnSubmit.isEnabled = !recordExists
+                // Hide submit button if record exists (view mode)
+                binding.btnSubmit.visibility = if(recordExists) View.GONE else View.VISIBLE
+                binding.btnSubmit.isEnabled = !recordExists
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {
                     viewModel.formList.collect {
@@ -97,29 +109,45 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it
         }
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
-//        binding.btnSubmit.setOnClickListener {
-//            submitEligibleTrackingForm()
-//        }
+
+        // Wire up submit button from fragment layout
+        binding.btnSubmit.setOnClickListener {
+            submitEligibleTrackingForm()
+        }
 
         viewModel.state.observe(viewLifecycleOwner) {
             when (it) {
+                EligibleCoupleTrackingFormViewModel.State.SAVING -> {
+                    binding.btnSubmit.isEnabled = false
+                    binding.pbForm.visibility = View.VISIBLE
+                }
                 EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS -> {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.tracking_form_filled_successfully),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    // Check for alerts before saving nurse data
+                    binding.btnSubmit.isEnabled = true
+                    binding.pbForm.visibility = View.GONE
+                    // Check for alerts - if no alert, will show toast and navigate
+                    // If alert exists, the alert observer will handle it
                     checkForAlerts()
                 }
-
-                else -> {}
+                EligibleCoupleTrackingFormViewModel.State.SAVE_FAILED -> {
+                    binding.btnSubmit.isEnabled = true
+                    binding.pbForm.visibility = View.GONE
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.form_save_failed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> {
+                    binding.btnSubmit.isEnabled = true
+                    binding.pbForm.visibility = View.GONE
+                }
             }
         }
 
@@ -142,9 +170,29 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     private fun checkForAlerts() {
         // If no alert to show, proceed directly
         if (viewModel.showAlert.value == EligibleCoupleTrackingFormViewModel.AlertType.NONE) {
-            saveNurseData()
+            // Show success message
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.tracking_form_filled_successfully),
+                Toast.LENGTH_SHORT
+            ).show()
+            // Save nurse data in background, but navigate back immediately
+            // ECT data is already saved, so visit history will show it
+            saveNurseDataInBackground()
+            // Navigate back to eligible couple tracking list
+            navigateBackToList()
         }
         // Alerts will be handled by the observer
+    }
+
+    private fun navigateBackToList() {
+        try {
+            findNavController().navigateUp()
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to navigate back from ECT form")
+            // If navigateUp fails, try to pop back stack
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun showAntraIncentiveAlert() {
@@ -154,7 +202,15 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 viewModel.resetAlert()
-                saveNurseData()
+                // Show success message
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.tracking_form_filled_successfully),
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Save nurse data in background, but navigate back immediately
+                saveNurseDataInBackground()
+                navigateBackToList()
             }
             .setCancelable(false)
             .show()
@@ -167,70 +223,57 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 viewModel.resetAlert()
-                saveNurseData()
+                // Show success message
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.tracking_form_filled_successfully),
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Save nurse data in background, but navigate back immediately
+                saveNurseDataInBackground()
+                navigateBackToList()
             }
             .setCancelable(false)
             .show()
     }
 
-    private fun navigateToNextScreen() {
-        if (viewModel.isPregnant) {
-//            findNavController().navigate(
-//                EligibleCoupleTrackingFormFragmentDirections.actionEligibleCoupleTrackingFormFragmentToPregnancyRegistrationFormFragment(
-//                    benId = viewModel.benId
-//                )
-//            )
-            viewModel.resetState()
-        } else {
-            findNavController().navigateUp()
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.tracking_form_filled_successfully),
-                Toast.LENGTH_SHORT
-            ).show()
-            viewModel.resetState()
+
+    private fun saveNurseDataInBackground(){
+        val currentBenVisitInfo = benVisitInfo
+        if (currentBenVisitInfo == null) {
+            Timber.e("benVisitInfo is null, cannot save nurse data")
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                var benVisitNo = 0;
+                var createNewBenflow = false;
+                CPHCviewModel.getLastVisitInfoSync(currentBenVisitInfo.patient.patientID).let {
+                    if(it == null){
+                        benVisitNo = 1;
+                    }
+                    else if(it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    }
+                    else {
+                        benVisitNo = it.benVisitNo + 1
+                        createNewBenflow = true;
+                    }
+                }
+
+                val user = userRepo.getLoggedInUser()
+                saveNurseData(benVisitNo, createNewBenflow, user, currentBenVisitInfo)
+                
+                // Trigger sync worker
+                WorkerUtils.triggerAmritSyncWorker(requireContext())
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to save nurse data in background")
+            }
         }
     }
 
-    private fun saveNurseData(){
-        CoroutineScope(Dispatchers.Main).launch {
-            var benVisitNo = 0;
-            var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
-                if(it == null){
-                    benVisitNo = 1;
-                }
-                else if(it.nurseFlag == 1) {
-                    benVisitNo = it.benVisitNo
-                }
-                else {
-                    benVisitNo = it.benVisitNo + 1
-                    createNewBenflow = true;
-                }
-            }
-
-            val user = userRepo.getLoggedInUser()
-
-            saveNurseData(benVisitNo, createNewBenflow, user)
-
-            CPHCviewModel.isDataSaved.observe(viewLifecycleOwner){
-                when(it!!){
-                    true ->{
-                        WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
-                        requireActivity().finish()
-                    }
-                    else ->{
-
-                    }
-                }
-            }
-
-        }
-    }
-
-    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?){
+    fun saveNurseData(benVisitNo: Int, createNewBenflow: Boolean, user: UserDomain?, benVisitInfo: PatientDisplayWithVisitInfo){
 
         val visitDB = VisitDB(
             visitId = generateUuid(),

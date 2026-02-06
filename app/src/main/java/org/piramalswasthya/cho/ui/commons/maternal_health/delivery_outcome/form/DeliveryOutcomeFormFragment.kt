@@ -1,5 +1,6 @@
 package org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.Alert
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.State
+import org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity
 
 @AndroidEntryPoint
 class DeliveryOutcomeFormFragment : Fragment() {
@@ -42,6 +44,10 @@ class DeliveryOutcomeFormFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.fabEdit.visibility = View.GONE
         binding.btnSubmit.text = getString(R.string.do_next)
+        
+        // Show form title for Delivery Outcome
+        binding.tvFormTitle.visibility = View.VISIBLE
+        binding.tvFormTitle.text = getString(R.string.delivery_outcome)
 
         var adapter: FormInputAdapter? = null
         viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
@@ -63,13 +69,31 @@ class DeliveryOutcomeFormFragment : Fragment() {
             }
         }
 
+        // Observe patient details
         viewModel.benName.observe(viewLifecycleOwner) { binding.tvBenName.text = it }
         viewModel.benAgeGender.observe(viewLifecycleOwner) { binding.tvAgeGender.text = it }
+        
+        // Observe and display Case ID
+        viewModel.caseId.observe(viewLifecycleOwner) { caseId ->
+            caseId?.let {
+                binding.llCaseIdRow.visibility = View.VISIBLE
+                binding.tvCaseId.text = it
+            }
+        }
+        
+        // View ANC History link - show and set click listener
+        binding.tvViewAncHistory.visibility = View.VISIBLE
+        binding.tvViewAncHistory.setOnClickListener {
+            val intent = ANCVisitsActivity.getIntent(requireContext(), viewModel.patientID)
+            startActivity(intent)
+        }
 
+        // Observe mother condition specific alerts (PPH, Hysterectomy, Maternal Death)
         viewModel.alert.observe(viewLifecycleOwner) { alert ->
             alert?.let {
                 viewModel.clearAlert()
                 MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
+                    .setTitle(getString(R.string.alert_popup))
                     .setMessage(
                         when (it) {
                             is Alert.InformDistrictNodalOfficer -> it.message
@@ -79,6 +103,27 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     )
                     .setPositiveButton(getString(android.R.string.ok)) { d, _ -> d.dismiss() }
                     .show()
+            }
+        }
+        
+        // Observe general alerts (date, place, gestational age, unskilled delivery, etc.)
+        lifecycleScope.launch {
+            viewModel.alertMessageFlow.collect { message ->
+                message?.let {
+                    if (isAdded) {
+                        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
+                            .setTitle(getString(R.string.alert_popup))
+                            .setMessage(it)
+                            .setPositiveButton(getString(android.R.string.ok)) { dialog, _ -> 
+                                dialog.dismiss()
+                                viewModel.clearAlertMessage()
+                            }
+                            .setOnDismissListener {
+                                viewModel.clearAlertMessage()
+                            }
+                            .show()
+                    }
+                }
             }
         }
 
