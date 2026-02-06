@@ -1,0 +1,30 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_maternal_health_graph"
+    app:startDestination="@id/pregnantWomenRegistrationListFragment">
+
+    <!-- List Fragment: Shows list of pregnant women -->
+    <fragment
+        android:id="@+id/pregnantWomenRegistrationListFragment"
+        android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationFragment"
+        android:label="Pregnant Women Registration"
+        tools:layout="@layout/fragment_pregnant_women_registration">
+        <action
+            android:id="@+id/action_pregnantWomenRegistrationListFragment_to_pregnancyRegistrationFormFragment"
+            app:destination="@id/pregnancyRegistrationFormFragment" />
+    </fragment>
+
+    <!-- Form Fragment: Pregnancy registration form -->
+    <fragment
+        android:id="@+id/pregnancyRegistrationFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
+        android:label="Pregnancy Registration Form"
+        tools:layout="@layout/fragment_new_form">
+        <argument
+            android:name="patientID"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+</navigation>

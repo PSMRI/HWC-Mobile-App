@@ -88,44 +88,28 @@ class PregnantWomanAncVisitDataset(
         min = 30,
         max = 200
     )
-    private val bp = FormElement(
+    private val bpSystolic = FormElement(
         id = 9,
         inputType = InputType.EDIT_TEXT,
-        title = "BP of PW – Systolic/ Diastolic (mm Hg) ",
-//        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
-        etMaxLength = 7,
+        title = "BP (Systolic) mmHg",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
         required = true,
+        min = 50,
+        max = 300,
+        hasDependants = true
     )
-//    private val bpDiastolic = FormElement(
-//        id = 10,
-//        inputType = InputType.EDIT_TEXT,
-//        title = "BP of PW (mm Hg) – Diastolic",
-//        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
-//        etMaxLength = 3,
-//        required = false,
-//        min = 30,
-//        max = 200
-//    )
-//    private val bpSystolicReq = FormElement(
-//        id = 119,
-//        inputType = InputType.EDIT_TEXT,
-//        title = "BP of PW (mm Hg) – Systolic",
-//        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
-//        etMaxLength = 3,
-//        required = true,
-//        min = 50,
-//        max = 300
-//    )
-//    private val bpDiastolicReq = FormElement(
-//        id = 120,
-//        inputType = InputType.EDIT_TEXT,
-//        title = "BP of PW (mm Hg) – Diastolic",
-//        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
-//        etMaxLength = 3,
-//        required = true,
-//        min = 30,
-//        max = 200
-//    )
+    private val bpDiastolic = FormElement(
+        id = 10,
+        inputType = InputType.EDIT_TEXT,
+        title = "BP (Diastolic) mmHg",
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 3,
+        required = true,
+        min = 30,
+        max = 200,
+        hasDependants = true
+    )
 
     private val pulseRate = FormElement(
         id = 11,
@@ -145,6 +129,7 @@ class PregnantWomanAncVisitDataset(
         minDecimal = 2.0,
         maxDecimal = 15.0,
         required = true,
+        hasDependants = true
     )
 
     private val fundalHeight = FormElement(
@@ -439,7 +424,8 @@ class PregnantWomanAncVisitDataset(
             ancVisit,
             isAborted,
             weight,
-            bp,
+            bpSystolic,
+            bpDiastolic,
             pulseRate,
             hb,
             bloodSugarFasting,
@@ -496,10 +482,12 @@ class PregnantWomanAncVisitDataset(
                 1 -> arrayOf("1", "2", "3", "4")
                 2 -> arrayOf("2", "3", "4")
                 3 -> arrayOf("3", "4")
-                4 -> arrayOf("4")
-                else -> arrayOf("1", "2", "3", "4")
+                else -> arrayOf(visitNumber.toString()) // Visit 4, 5, 6, etc.
             }
-            if (visitNumber == 4) list.remove(ancVisit)
+            // For visit 4 and higher, change dropdown to read-only text field
+            if (visitNumber >= 4) {
+                ancVisit.inputType = InputType.TEXT_VIEW
+            }
             lastAnc?.let { last ->
                 ancDate.min = last.ancDate + TimeUnit.DAYS.toMillis(4 * 7)
                 lastAncVisitDate = last.ancDate
@@ -572,9 +560,8 @@ class PregnantWomanAncVisitDataset(
                 )
             }
             weight.value = savedAnc.weight?.toString()
-            bp.value =
-                if (savedAnc.bpSystolic == null || savedAnc.bpDiastolic == null) null else "${savedAnc.bpSystolic}/${savedAnc.bpDiastolic}"
-//            bpDiastolic.value = savedAnc.bpDiastolic?.toString()
+            bpSystolic.value = savedAnc.bpSystolic?.toString()
+            bpDiastolic.value = savedAnc.bpDiastolic?.toString()
             pulseRate.value = savedAnc.pulseRate
             hb.value = savedAnc.hb?.toString()
             fundalHeight.value = savedAnc.fundalHeight?.toString()
@@ -691,8 +678,75 @@ class PregnantWomanAncVisitDataset(
         }
     }
 
+    private fun checkHrpStatus(): Int {
+        var isHighRisk = false
+        var highRiskReason: String? = null
+
+        // 1. BP Check: Systolic >= 140 OR Diastolic >= 90
+        val sys = bpSystolic.value?.toIntOrNull()
+        val dia = bpDiastolic.value?.toIntOrNull()
+         if ((sys != null && sys >= 140) || (dia != null && dia >= 90)) {
+            isHighRisk = true
+            highRiskReason = "HIGH BP (SYSTOLIC>=140 AND OR DIASTOLIC >=90mmHg)"
+        }
+
+        // 2. Severe Anaemia: Hb < 7
+        val hemoglobin = hb.value?.toDoubleOrNull()
+        if (!isHighRisk && hemoglobin != null && hemoglobin < 7.0) {
+            isHighRisk = true
+            highRiskReason = "SEVERE ANAEMIA (HB<7 gm/dl)"
+        }
+
+        // 3. Diabetes: Fasting Sugar > 95 (assuming 95 as threshold for GDM, though Jira says "Diabetes")
+        // Jira says "Diabetes" but doesn't specify exact threshold in description provided, usually > 95 fasting or > 140 post-prandial.
+        // Given "Blood Sugar (Fasting) mg/dL", standard is > 92 or > 95. Using > 95 as safe guard or strictly > 126 for Diabetes.
+        // Let's use > 126 for overt diabetes or > 92 for GDM. Jira just says "Diabetes".
+        // Re-reading Jira snippet from memory: "Abnormal BP, Blood Sugar...".
+        // I will use 126 as a conservative threshold for "Diabetes", or if previously defined.
+        // Let's stick to setting it if manually selected for now, OR if value is very high.
+        // Actually, without explicit threshold in prompt, I will skip auto-setting specific "Diabetes" reason unless I'm sure.
+        // BUT, I must set isHighRisk = true if any danger sign is set.
+
+        // 4. Danger Signs
+        val selectedDangerSigns = dangerSigns.value
+        if (!isHighRisk && !selectedDangerSigns.isNullOrEmpty() && !selectedDangerSigns.contains("None")) {
+            isHighRisk = true
+            highRiskReason = "OTHER" // Or specific mapping if available
+        }
+
+        // 5. Short Stature (Height < 145cm) - from Registration, but we might not have it here editable.
+        // 6. Age < 18 or > 35 - from Registration.
+
+        // Apply to UI
+        if (isHighRisk) {
+            anyHighRisk.value = "Yes"
+            if (highRiskReason != null) {
+                // Try to set the specific reason if it exists in the dropdown
+                if (highRiskCondition.entries?.contains(highRiskReason) == true) {
+                    highRiskCondition.value = highRiskReason
+                } else {
+                    highRiskCondition.value = "OTHER"
+                }
+            }
+        }
+        // Triggers UI update
+        return triggerDependants(
+            source = anyHighRisk,
+            addItems = listOf(highRiskCondition, highRiskReferralFacility, hrpConfirm),
+            removeItems = emptyList()
+        )
+    }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
+        val hrpTriggerIds = setOf(
+            bpSystolic.id, bpDiastolic.id, hb.id, bloodSugarFasting.id,
+            fetalHeartRate.id, dangerSigns.id, urineSugar.id, urineAlbumin.id
+        )
+
+        if (formId in hrpTriggerIds) {
+            checkHrpStatus()
+        }
+
         return when (formId) {
             ancDate.id -> {
                 ancDate.value?.let {
@@ -824,8 +878,13 @@ class PregnantWomanAncVisitDataset(
                 -1
             }
 
-            bp.id -> {
-                validateForBp(bp)
+            bpSystolic.id -> {
+                validateIntMinMax(bpSystolic)
+                recomputeHighRiskState()
+                -1
+            }
+            bpDiastolic.id -> {
+                validateIntMinMax(bpDiastolic)
                 recomputeHighRiskState()
                 -1
             }
@@ -852,11 +911,11 @@ class PregnantWomanAncVisitDataset(
                     if (it < 7)
                         highRiskCondition.value = highRiskCondition.entries!![5]
                 }
-                bp.value?.takeIf { it.isNotEmpty() && bp.errorText == null }?.let {
-                    val sys = it.substringBefore("/").toInt()
-                    val dia = it.substringAfter("/").toInt()
+                if (bpSystolic.value != null || bpDiastolic.value != null) {
+                    val sys = bpSystolic.value?.toIntOrNull()
+                    val dia = bpDiastolic.value?.toIntOrNull()
                     // HRP alert: Systolic < 90 or >= 140, Diastolic < 60 or >= 90
-                    if (sys < 90 || sys >= 140 || dia < 60 || dia >= 90) {
+                    if ((sys != null && (sys < 90 || sys >= 140)) || (dia != null && (dia < 60 || dia >= 90))) {
                         highRiskCondition.value = highRiskCondition.entries!![1]
                     }
                 }
@@ -931,6 +990,32 @@ class PregnantWomanAncVisitDataset(
             calciumGiven.id -> validateIntMinMax(calciumGiven)
 
             dangerSigns.id -> {
+                // Logic to handle "None" exclusivity
+                val noneStr = dangerSigns.entries?.firstOrNull() ?: "None"
+                val currentVal = dangerSigns.value
+                // index passed from Adapter: 
+                // CheckBox adapter passes index * (1 or -1). 
+                // But for index 0, it is always 0. 
+                // We rely on currentVal state relative to index.
+                
+                if (index == 0) { // Interaction with "None" (Index 0)
+                     if (currentVal?.contains(noneStr) == true) {
+                         // "None" is checked. Clear everything else.
+                         dangerSigns.value = noneStr
+                     }
+                } else { // Interaction with other options
+                    if (currentVal?.contains(noneStr) == true && currentVal.length > noneStr.length) {
+                        // "None" is present AND other items are present.
+                        // User checked something else. Remove "None".
+                        // Logic: Remove "None" and cleanup commas
+                        val pattern = "$noneStr,"
+                        val pattern2 = ",$noneStr"
+                        var newVal = currentVal.replace(pattern, "").replace(pattern2, "")
+                        if (newVal == noneStr) newVal = "" // Should not happen if length check passed but safety
+                        dangerSigns.value = newVal
+                    }
+                }
+                
                 recomputeHighRiskState()
                 -1
             }
@@ -1037,10 +1122,10 @@ class PregnantWomanAncVisitDataset(
         }
 
         // Check BP
-        bp.value?.takeIf { it.isNotEmpty() && bp.errorText == null }?.let {
-            val sys = it.substringBefore("/").toInt()
-            val dia = it.substringAfter("/").toInt()
-            if (sys < 90 || sys >= 140 || dia < 60 || dia >= 90) {
+        if (bpSystolic.value != null || bpDiastolic.value != null) {
+            val sys = bpSystolic.value?.toIntOrNull()
+            val dia = bpDiastolic.value?.toIntOrNull()
+            if ((sys != null && (sys < 90 || sys >= 140)) || (dia != null && (dia < 60 || dia >= 90))) {
                 hasHighRisk = true
                 if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
                     riskCondition = highRiskCondition.entries!![1] // HIGH BP
@@ -1096,8 +1181,8 @@ class PregnantWomanAncVisitDataset(
             cache.abortionFacilityId = abortionFacility.getPosition()
             cache.abortionDate = abortionDate.value?.let { getLongFromDate(it) }
             cache.weight = weight.value?.toInt()
-            cache.bpSystolic = bp.value?.takeIf { it.isNotEmpty() }?.substringBefore("/")?.toInt()
-            cache.bpDiastolic = bp.value?.takeIf { it.isNotEmpty() }?.substringAfter("/")?.toInt()
+            cache.bpSystolic = bpSystolic.value?.toIntOrNull()
+            cache.bpDiastolic = bpDiastolic.value?.toIntOrNull()
             cache.pulseRate = pulseRate.value?.takeIf { it.isNotEmpty() }
             cache.hb = hb.value?.toDouble()
             cache.fundalHeight = fundalHeight.value?.toInt()

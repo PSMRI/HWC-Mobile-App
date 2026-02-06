@@ -115,6 +115,22 @@ data class PatientWithEcrDomain(
     fun getAgeString(): String {
         return patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
     }
+
+    /**
+     * Get last visit date string for display.
+     * This will be set by the adapter/fragment after loading ECT data.
+     */
+    var lastVisitDate: Long? = null
+
+    /**
+     * Get formatted last visit date string
+     */
+    fun getLastVisitDateString(): String {
+        return lastVisitDate?.let { visitDate ->
+            if (visitDate > 0L) HelperUtil.getDateStringFromLong(visitDate) ?: "NA"
+            else "NA"
+        } ?: "NA"
+    }
 }
 
 /**

@@ -29,6 +29,7 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_pncFormFragment"
             app:destination="@id/pncFormFragment" />
+
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_immunizationFormFragment"
             app:destination="@id/immunizationFormFragment" />
@@ -38,6 +39,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
             app:destination="@id/cbacFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_pregnantWomanRegistrationFragment"
+            app:destination="@id/pregnantWomanRegistrationFragment" />
     </fragment>
 
     <fragment
@@ -48,6 +52,9 @@
         <action
             android:id="@+id/action_customVitalsFragment_to_caseRecordCustom"
             app:destination="@id/caseRecordCustom" />
+        <action
+            android:id="@+id/action_customVitalsFragment_to_pharmacistFormFragment"
+            app:destination="@id/pharmacistFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
@@ -191,6 +198,32 @@
             android:name="createdDate"
             app:argType="long" />
     </fragment>
+    <fragment
+        android:id="@+id/pregnantWomanRegistrationFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
+        android:label="@string/icon_title_pmr">
+
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+
+        <argument
+            android:name="benId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment"
+            app:popUpTo="@id/patientHomeFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_eligibleCoupleTrackingFormFragment"
+            app:destination="@id/eligibleCoupleTrackingFormFragment" />
+    </fragment>
+
+
     <fragment
         android:id="@+id/cbacFragment"
         android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"

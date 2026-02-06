@@ -360,9 +360,7 @@ class FormInputAdapter(
                             if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
-                        ).apply {
-                            gravity = Gravity.CENTER_HORIZONTAL
-                        }
+                        )
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(

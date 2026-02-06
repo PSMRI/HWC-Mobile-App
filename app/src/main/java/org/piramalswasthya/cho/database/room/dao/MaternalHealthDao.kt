@@ -99,6 +99,18 @@ interface MaternalHealthDao {
     """)
     fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>>
 
+    @Transaction
+    @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
+        WHERE ect.pregnancyTestResult = 'Positive'
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY ect.createdDate DESC
+    """)
+    fun getAllPatientsWithPWRFromEligibleCoupleTracking(): Flow<List<PatientWithPwrCache>>
+
+
     /**
      * Get specific patient with pregnancy registration
      */

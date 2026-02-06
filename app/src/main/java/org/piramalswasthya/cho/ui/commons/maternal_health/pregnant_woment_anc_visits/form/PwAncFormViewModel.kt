@@ -79,7 +79,12 @@ class PwAncFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val asha = userRepo.getLoggedInUser()!!
+            val asha = userRepo.getLoggedInUser()
+            if (asha == null) {
+                Timber.e("No logged in user found")
+                // Handle error state appropriately
+                return@launch
+            }
             ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
@@ -93,8 +98,36 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
-            val savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID) ?: run {
+                Timber.e("No registration record found for $patientID")
+                return@launch
+            }
+            
+            // Get or create ANC record for this visit
+            var savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            
+            // CRITICAL FIX: If savedAnc is null (e.g., HRP visit 5+), create it on-demand
+            if (savedAnc == null) {
+                Timber.d("Creating new ANC record for visit $visitNumber (likely HRP > 4)")
+                val newAncRecord = PregnantWomanAncCache(
+                    patientID = patientID,
+                    visitNumber = visitNumber,
+                    ancDate = System.currentTimeMillis(), // Current date
+                    isActive = true,
+                    createdBy = asha.userName,
+                    updatedBy = asha.userName,
+                    syncState = SyncState.UNSYNCED
+                )
+                maternalHealthRepo.persistAncRecord(newAncRecord)
+                savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            }
+            
+            // Per Jira MHWC-197: Previous forms become read-only when a NEWER visit is started (completed).
+            // Schedule pre-creates all 4 visit records (no weight); so lock only when a later visit has weight.
+            val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
+            val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
+            val isOldVisit = visitNumber < maxCompletedVisitNumber
+            
             savedAnc?.let {
                 val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
                 if (registerRecordOrNull == null) {
@@ -103,7 +136,7 @@ class PwAncFormViewModel @Inject constructor(
                     return@launch
                 }
                 registerRecord = registerRecordOrNull
-                lastAncVisitNumber = maternalHealthRepo.getLastVisitNumber(patientID) ?: 0
+                lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
                 val recordExists =
                     maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
                         ancCache = it
@@ -114,6 +147,9 @@ class PwAncFormViewModel @Inject constructor(
                         false
                     }
                 val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+                
+                // Set isOldVisit based on whether a newer visit exists
+                _isOldVisit.value = isOldVisit
 
                 dataset.setUpPage(
                     visitNumber,
@@ -121,6 +157,21 @@ class PwAncFormViewModel @Inject constructor(
                     registerRecord,
                     lastAnc,
                     if (recordExists) ancCache else null
+                )
+            } ?: run {
+                // Even if savedAnc is null, we MUST still set up the form
+                _isOldVisit.value = isOldVisit
+                lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
+                _recordExists.value = false
+                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+                
+                // CRITICAL: Set up the form even for new visits
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    registerRecord,
+                    lastAnc,
+                    null  // No existing data for new visit
                 )
             }
         }
@@ -140,7 +191,7 @@ class PwAncFormViewModel @Inject constructor(
                     }
                     val saved = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit)
                     val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit - 1)
-                    val asha = userRepo.getLoggedInUser()!!
+                    val asha = userRepo.getLoggedInUser() ?: return@withContext
                     ancCache = saved ?: PregnantWomanAncCache(
                         patientID = patientID,
                         visitNumber = selectedVisit,
@@ -150,7 +201,12 @@ class PwAncFormViewModel @Inject constructor(
                     )
                     currentVisitNumber = selectedVisit
                     _recordExists.postValue(saved != null)
-                    val isOld = if (lastAncVisitNumber == 0) selectedVisit != 1 else selectedVisit < lastAncVisitNumber
+                    
+                    // Per Jira MHWC-197: Lock when a newer visit is completed (weight set). Schedule pre-creates all visits.
+                    val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
+                    val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
+                    val isOld = selectedVisit < maxCompletedVisitNumber
+                    lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
                     _isOldVisit.postValue(isOld)
                     dataset.setUpPage(
                         selectedVisit,
@@ -185,8 +241,17 @@ class PwAncFormViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     _state.postValue(State.SAVING)
+                    val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
                     ancCache.updatedDate = System.currentTimeMillis()
+                    val isCompletedNow = ancCache.weight != null
+                    
+                    // Per Jira MHWC-196: Log when patient moves from due list to completed list
+                    if (!wasCompletedBefore && isCompletedNow) {
+                        Timber.d("ANC Visit Completed: Patient $patientID, ANC Visit ${ancCache.visitNumber} completed. " +
+                                "Moving from ANC ${ancCache.visitNumber} due list to completed list.")
+                    }
+                    
                     maternalHealthRepo.persistAncRecord(ancCache)
                     if (ancCache.anyHighRisk == true) {
                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
@@ -252,6 +317,8 @@ class PwAncFormViewModel @Inject constructor(
     fun getIndexOfTT1(): Int = dataset.getIndexOfTd1()
     fun getIndexOfTT2(): Int = dataset.getIndexOfTd2()
     fun getIndexOfTTBooster(): Int = dataset.getIndexOfTdBooster()
+    
+    fun getPatientID(): String = patientID
 
 
 }
