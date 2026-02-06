@@ -143,11 +143,23 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun saveForm() {
         viewModelScope.launch {
             try {
+                // Ensure eligibleCoupleTracking is initialized
+                if (!::eligibleCoupleTracking.isInitialized) {
+                    val asha = userRepo.getLoggedInUser()
+                    eligibleCoupleTracking = EligibleCoupleTrackingCache(
+                        patientID = patientID,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha?.userName ?: "",
+                        updatedBy = asha?.userName ?: "",
+                    )
+                }
+
                 _state.value = State.SAVING
 
                 withContext(dispatcherProvider.io) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
+                    Timber.d("ECT data saved successfully for patient: $patientID")
 
                     // Check statuses in background
                     isPregnant = dataset.isPregnancyPositive()
