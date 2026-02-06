@@ -34,8 +34,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     private val userRepo: UserRepo,
 ) : ViewModel() {
 
-    val patientID: String = savedStateHandle.get<String>("patientID") ?: ""
-    val visitNumber: Int = savedStateHandle.get<Int>("visitNumber") ?: 1
+    val patientID: String = DeliveryOutcomeFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
+    val visitNumber: Int = DeliveryOutcomeFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
 
     sealed class State {
         object IDLE : State()
@@ -61,7 +61,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
 
     private val _benAgeGender = MutableLiveData<String>()
     val benAgeGender: LiveData<String> get() = _benAgeGender
-    
+
     private val _caseId = MutableLiveData<String>()
     val caseId: LiveData<String> get() = _caseId
 
@@ -81,22 +81,22 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 val userName = user?.userName ?: ""
                 val saved = withContext(Dispatchers.IO) { deliveryOutcomeRepo.getDeliveryOutcome(patientID) }
                 val lastAnc = withContext(Dispatchers.IO) { maternalHealthRepo.getLastAnc(patientID) }
-                
+
                 // Get PWR for LMP/EDD calculations
-                val pwr = withContext(Dispatchers.IO) { 
+                val pwr = withContext(Dispatchers.IO) {
                     maternalHealthRepo.getSavedRegistrationRecord(patientID)
                         ?: throw IllegalStateException("No pregnancy registration found for patient: $patientID")
                 }
-                
+
                 patientRepo.getPatientDisplay(patientID)?.let { ben ->
                     val patientName = "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
                     val patientAge = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                     val caseId = ben.patient.patientID
-                    
+
                     _benName.value = patientName
                     _benAgeGender.value = patientAge
                     _caseId.value = caseId
-                    
+
                     if (saved != null) {
                         deliveryOutcome = saved
                         _recordExists.value = true
@@ -148,7 +148,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             checkAndEmitAlerts(formId, index)
         }
     }
-    
+
     fun clearAlertMessage() {
         viewModelScope.launch {
             dataset.resetErrorMessageFlow()
@@ -180,14 +180,14 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                 Alert.InformDistrictNodalOfficer(context.getString(R.string.do_inform_district_nodal_officer))
             // Only show "Intensive PNC" when user just checked PPH (0) or Uterine rupture (4).
             // Index is positive when checkbox is checked, negative when unchecked.
-            formId == maternalComplicationsId && 
-            (index == complicationPphIndex || index == complicationUterineRuptureIndex) && 
+            formId == maternalComplicationsId &&
+            (index == complicationPphIndex || index == complicationUterineRuptureIndex) &&
             index >= 0 && // Only when checking (not unchecking)
             dataset.hasPphOrUterineRupture() ->
                 Alert.IntensivePncMonitoring(context.getString(R.string.do_alert_intensive_pnc))
             // Only show "Hysterectomy" when user just checked Hysterectomy performed (index 8).
-            formId == maternalComplicationsId && 
-            index == complicationHysterectomyIndex && 
+            formId == maternalComplicationsId &&
+            index == complicationHysterectomyIndex &&
             index >= 0 && // Only when checking (not unchecking)
             dataset.hasHysterectomy() ->
                 Alert.HysterectomyNote(context.getString(R.string.do_hysterectomy_note))

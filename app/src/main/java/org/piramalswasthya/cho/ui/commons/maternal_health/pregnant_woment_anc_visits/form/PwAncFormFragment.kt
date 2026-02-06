@@ -55,7 +55,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     val viewModel: PwAncFormViewModel by viewModels()
 
-    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private var benVisitInfo: PatientDisplayWithVisitInfo? = null
 
     val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
@@ -76,7 +76,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
@@ -103,7 +103,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             }
         }
         viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
-            val formEditable = (viewModel.recordExists.value == true) && !isOld
+            // Form is editable if it's NOT an old visit
+            val formEditable = !isOld
             binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
             ancFormAdapter = FormInputAdapter(
@@ -141,7 +142,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    saveNurseData()
+                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    requireActivity().finish()
                 }
 
                 State.SAVE_FAILED -> {
@@ -159,7 +161,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+            val patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID()
+            CPHCviewModel.getLastVisitInfoSync(patientID).let {
                 if(it == null){
                     benVisitNo = 1;
                 }
@@ -180,8 +183,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                 when(it!!){
                     true ->{
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
                         requireActivity().finish()
                     }
                     else ->{
@@ -200,19 +201,19 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             category = "ANC",
             reasonForVisit = "New Chief Complaint",
             subCategory = "ANC",
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
             createdBy = user?.userName
         )
 
         val patientVitals = PatientVitalsModel(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
         )
 
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
             createNewBenFlow = false,
             nurseDataSynced = SyncState.SYNCED,
@@ -284,7 +285,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        requireActivity().finish()
     }
 
     override fun onDestroy() {

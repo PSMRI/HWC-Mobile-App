@@ -52,8 +52,13 @@ class AncVisitAdapter(private val clickListener: AncVisitClickListener) :
     }
 
 
-    fun interface AncVisitClickListener {
-        fun onClickedVisit(item: PregnantWomanAncCache)
+    class AncVisitClickListener(
+        private val clickedForm: (patientID: String, visitNumber: Int) -> Unit,
+
+        ) {
+        fun onClickedVisit(item: PregnantWomanAncCache) = clickedForm(
+            item.patientID, item.visitNumber
+        )
     }
 
 }

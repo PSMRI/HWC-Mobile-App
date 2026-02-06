@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
@@ -15,6 +16,7 @@ import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -669,7 +671,6 @@ data class PregnantWomanAncCache(
     var frontFilePath : String? = null,
     var backFilePath : String? = null,
 
-    // NEW FIELDS - JIRA Validation Requirements
     var bloodSugarFasting: Int? = null,  // Blood Sugar (Fasting) mg/dL
     var urineSugar: String? = null,  // Urine Sugar dropdown value
     var urineSugarId: Int = 0,  // Urine Sugar dropdown ID
@@ -681,7 +682,6 @@ data class PregnantWomanAncCache(
     var counsellingTopics: String? = null,  // Counselling Topics value
     var counsellingTopicsId: Int = 0,  // Counselling Topics ID
     var nextAncVisitDate: Long? = null  // Next ANC Visit Date
-
 ) : FormDataModel {
     fun asPostModel(benId: Long): ANCPost {
         return ANCPost(
