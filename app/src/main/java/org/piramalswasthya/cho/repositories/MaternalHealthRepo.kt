@@ -173,18 +173,38 @@ class MaternalHealthRepo @Inject constructor(
             }.mapNotNull { pwr ->
                 val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
                 val gaWeeks = getWeeksOfPregnancy(todayMillis, pwr.lmpDate)
-                // ANC 1-4: previous stage completed + GA in range
+                // ANC 1-4: previous stage completed (weight IS NOT NULL) + GA in range
+                // Per Jira MHWC-196: Check if previous visit is COMPLETED, not just exists
                 val isDue = when (ancStage) {
-                    1 -> !ancRecords.any { it.visitNumber == 1 } && gaWeeks <= Konstants.maxAnc1Week
-                    2 -> ancRecords.any { it.visitNumber == 1 } && !ancRecords.any { it.visitNumber == 2 } &&
-                            gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
-                    3 -> ancRecords.any { it.visitNumber == 2 } && !ancRecords.any { it.visitNumber == 3 } &&
-                            gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
-                    4 -> ancRecords.any { it.visitNumber == 3 } && !ancRecords.any { it.visitNumber == 4 } &&
-                            gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
+                    1 -> {
+                        // ANC 1: Pregnancy registered AND GA ≤12 weeks (≤84 days from LMP)
+                        val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
+                        !anc1Completed && gaWeeks <= Konstants.maxAnc1Week
+                    }
+                    2 -> {
+                        // ANC 2: ANC 1 completed AND GA ≥14 weeks AND <28 weeks
+                        val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
+                        val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
+                        anc1Completed && !anc2Completed && gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
+                    }
+                    3 -> {
+                        // ANC 3: ANC 2 completed AND GA ≥28 weeks AND <36 weeks
+                        val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
+                        val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
+                        anc2Completed && !anc3Completed && gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
+                    }
+                    4 -> {
+                        // ANC 4: ANC 3 completed AND GA ≥36 weeks AND ≤40 weeks
+                        val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
+                        val anc4Completed = ancRecords.any { it.visitNumber == 4 && it.weight != null }
+                        anc3Completed && !anc4Completed && gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
+                    }
                     else -> false
                 }
-                if (isDue) AncDueListItem(pwr.patientID, gaWeeks, ancStage) else null
+                if (isDue) {
+                    Timber.d("ANC Due List: Patient ${pwr.patientID} added to ANC $ancStage due list (GA: $gaWeeks weeks)")
+                    AncDueListItem(pwr.patientID, gaWeeks, ancStage)
+                } else null
             }
         }
     }
@@ -195,7 +215,9 @@ class MaternalHealthRepo @Inject constructor(
             allPwr.mapNotNull { pwr ->
                 val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
                 if (ancRecords.any { it.pregnantWomanDelivered == true }) return@mapNotNull null
-                ancRecords.find { it.visitNumber == ancStage }?.let { anc ->
+                // Per Jira MHWC-196: Only include visits that are COMPLETED (weight IS NOT NULL)
+                ancRecords.find { it.visitNumber == ancStage && it.weight != null }?.let { anc ->
+                    Timber.d("ANC Completed List: Patient ${pwr.patientID} in ANC $ancStage completed list (Visit: ${anc.visitNumber})")
                     AncCompletedListItem(pwr.patientID, ancStage, anc.visitNumber)
                 }
             }

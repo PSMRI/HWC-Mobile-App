@@ -109,6 +109,21 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
                 ))
         }
+        else if (intent.getStringExtra("navigateTo") == "ANC") {
+            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            val patientID = intent.getStringExtra("patientID") ?: ""
+            val visitNumber = intent.getIntExtra("visitNumber", 1)
+            val isOldVisit = intent.getBooleanExtra("isOldVisit", false)
+            
+            navHostFragment.navController.navigate(
+                R.id.pwAncFormFragment,
+                Bundle().apply {
+                    putString("patientID", patientID)
+                    putInt("visitNumber", visitNumber)
+                    putBoolean("isOldVisit", isOldVisit)
+                }
+            )
+        }
         else{
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController

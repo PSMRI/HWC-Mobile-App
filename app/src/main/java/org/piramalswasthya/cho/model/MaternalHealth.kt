@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import org.piramalswasthya.cho.configuration.FormDataModel
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.helpers.Konstants
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.helpers.getTodayMillis
 import org.piramalswasthya.cho.helpers.getWeeksOfPregnancy
@@ -15,6 +16,7 @@ import org.piramalswasthya.cho.network.getLongFromDate
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.utils.HelperUtil.getDateStringFromLong
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -578,27 +580,6 @@ data class PregnantWomanAncCache(
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
-
-    var lmpDate: Long? = null,
-    var visitDate: Long? = null,
-    var weekOfPregnancy: Int? = null,
-
-    var serialNo: String? = null,
-    var methodOfTermination: String? = null,
-    var methodOfTerminationId: Int? = 0,
-    var terminationDoneBy: String? = null,
-    var terminationDoneById: Int? = 0,
-    var isPaiucdId: Int? = 0,
-    var isYesOrNo: Boolean? = false,
-    var isPaiucd: String? = null,
-    var dateSterilisation: Long? = null,
-    var remarks: String? = null,
-    var abortionImg1: String? = null,
-    var abortionImg2: String? = null,
-    var placeOfDeath: String? = null,
-    var placeOfDeathId: Int? = 0,
-    var otherPlaceOfDeath: String? = null,
-
     var isAborted: Boolean = false,
     var abortionType: String? = null,
     var abortionTypeId: Int = 0,
@@ -640,7 +621,6 @@ data class PregnantWomanAncCache(
     var syncState: SyncState,
     var frontFilePath : String? = null,
     var backFilePath : String? = null,
-
     // NEW FIELDS - JIRA Validation Requirements
     var bloodSugarFasting: Int? = null,  // Blood Sugar (Fasting) mg/dL
     var urineSugar: String? = null,  // Urine Sugar dropdown value
@@ -653,7 +633,6 @@ data class PregnantWomanAncCache(
     var counsellingTopics: String? = null,  // Counselling Topics value
     var counsellingTopicsId: Int = 0,  // Counselling Topics ID
     var nextAncVisitDate: Long? = null  // Next ANC Visit Date
-
 ) : FormDataModel {
     fun asPostModel(benId: Long): ANCPost {
         return ANCPost(
@@ -671,11 +650,7 @@ data class PregnantWomanAncCache(
             pulseRate = pulseRate?.toInt(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbuminPresent = when (urineAlbumin) {
-                null, "Negative", "Trace", "Absent" -> false
-                "Present", "+", "++", "+++" -> true
-                else -> null
-            },
+            urineAlbuminPresent = urineAlbumin == "Present",
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,
             ifaTabs = numIfaAcidTabGiven,
@@ -771,11 +746,7 @@ data class ANCPost(
             pulseRate = pulseRate.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbumin = when (urineAlbuminPresent) {
-                true -> "+"
-                false -> "Negative"
-                null -> null
-            },
+            urineAlbumin = if (urineAlbuminPresent == true) "Present" else "Absent",
 //            urineAlbuminId
             randomBloodSugarTest = if (bloodSugarTestDone == true) "Done" else "Not Done",
 //            randomBloodSugarTestId
@@ -802,7 +773,6 @@ data class ANCPost(
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED,
-            // Map new ANC fields
             bloodSugarFasting = bloodSugarFasting,
             urineSugar = urineSugar,
             fetalHeartRate = fetalHeartRate,

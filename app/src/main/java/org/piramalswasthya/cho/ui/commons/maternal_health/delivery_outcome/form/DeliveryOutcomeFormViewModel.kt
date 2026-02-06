@@ -112,9 +112,9 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     }
 
     /** Mother's condition form element id. */
-    private val motherConditionId = 1
+    private val motherConditionId = 10
     /** Maternal complications form element id. */
-    private val maternalComplicationsId = 2
+    private val maternalComplicationsId = 11
     /** Index of Maternal Death in do_mother_condition_array. */
     private val motherConditionMaternalDeathIndex = 3
     /** Index of PPH in do_maternal_complications_array. */
