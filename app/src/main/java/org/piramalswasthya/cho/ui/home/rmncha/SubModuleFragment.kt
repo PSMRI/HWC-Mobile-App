@@ -109,8 +109,8 @@ class SubModuleFragment : Fragment() {
                             }
                         }
                         showPWR -> {
-                            // Navigate to Pregnant Women Registration List Fragment
-                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationFragment()
+                            // Navigate to Maternal Health Nav Host (which uses nav_maternal_health.xml)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment()
                             requireActivity().supportFragmentManager.commit {
                                 replace(R.id.fragment_container, fragment)
                                 addToBackStack(null)

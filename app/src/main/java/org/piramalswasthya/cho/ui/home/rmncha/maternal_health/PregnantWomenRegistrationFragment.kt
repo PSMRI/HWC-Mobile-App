@@ -58,21 +58,24 @@ class PregnantWomenRegistrationFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = PregnantWomenAdapter(
             PregnantWomenAdapter.ClickListener { patientWithPwr ->
-                // Handle click - navigate to pregnancy registration form
-                if (patientWithPwr.pwr == null) {
-                    // Navigate to registration form
+                // Handle click - navigate to pregnancy registration form with patient ID
+                try {
+                    val bundle = Bundle().apply {
+                        putString("patientID", patientWithPwr.patient.patientID)
+                    }
+                    androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .navigate(
+                            R.id.action_pregnantWomenRegistrationListFragment_to_pregnancyRegistrationFormFragment,
+                            bundle
+                        )
+                } catch (e: Exception) {
+                    // Fallback: show toast if navigation fails
                     Toast.makeText(
                         requireContext(),
-                        "Register Pregnancy: ${patientWithPwr.patient.firstName}",
+                        "Navigation failed: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
-                } else {
-                    // Navigate to view/edit form
-                    Toast.makeText(
-                        requireContext(),
-                        "View Pregnancy: ${patientWithPwr.patient.firstName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    timber.log.Timber.e(e, "Failed to navigate to pregnancy registration form")
                 }
             }
         )
