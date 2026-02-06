@@ -480,18 +480,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.rvEct.visibility = View.GONE
             changeBtnView()
         }
-        else if(reasonForVisit == DropdownConst.anc){
-            if (lmpDate != null){
-                lmpDate = null
-                binding.lmpDate.text?.clear()
-                binding.eddDate.text?.clear()
-            }
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.VISIBLE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.GONE
-            changeBtnView()
-        }
         else if(reasonForVisit == DropdownConst.pnc){
             binding.lmpDateText.visibility = View.GONE
             binding.eddDateText.visibility = View.GONE
