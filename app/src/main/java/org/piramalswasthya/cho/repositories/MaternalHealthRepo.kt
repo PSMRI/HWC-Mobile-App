@@ -236,6 +236,10 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getAllPatientsWithPWR()
     }
 
+    fun getAllPatientsWithPWRFromEligibleCoupleTracking(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getAllPatientsWithPWRFromEligibleCoupleTracking()
+    }
+
     /**
      * Get specific patient with pregnancy registration
      */

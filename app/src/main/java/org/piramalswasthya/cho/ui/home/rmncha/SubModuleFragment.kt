@@ -109,9 +109,12 @@ class SubModuleFragment : Fragment() {
                             }
                         }
                         showPWR -> {
-                            // Navigate to Pregnant Women Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Pregnant Women Registration List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showANCVisits -> {
                             // Navigate to ANC Visits List

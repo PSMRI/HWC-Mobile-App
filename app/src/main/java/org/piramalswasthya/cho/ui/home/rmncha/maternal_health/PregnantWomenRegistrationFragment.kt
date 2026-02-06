@@ -1,10 +1,11 @@
 package org.piramalswasthya.cho.ui.home.rmncha.maternal_health
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,43 +13,42 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.PregnantWomenAdapter
-import org.piramalswasthya.cho.databinding.ActivityPregnantWomenRegistrationBinding
+import org.piramalswasthya.cho.databinding.FragmentPregnantWomenRegistrationBinding
 import org.piramalswasthya.cho.model.PatientWithPwrDomain
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import javax.inject.Inject
 
 /**
- * Activity to display list of Pregnant Women Registration
+ * Fragment to display list of Pregnant Women Registration
  * Shows women of reproductive age (15-49) with their pregnancy registration status
  */
 @AndroidEntryPoint
-class PregnantWomenRegistrationActivity : AppCompatActivity() {
+class PregnantWomenRegistrationFragment : Fragment() {
 
     @Inject
     lateinit var maternalHealthRepo: MaternalHealthRepo
 
-    private lateinit var binding: ActivityPregnantWomenRegistrationBinding
+    private var _binding: FragmentPregnantWomenRegistrationBinding? = null
+    private val binding get() = _binding!!
+    
     private lateinit var adapter: PregnantWomenAdapter
     private var allPatients: List<PatientWithPwrDomain> = emptyList()
     private var filteredPatients: List<PatientWithPwrDomain> = emptyList()
 
-    companion object {
-        fun getIntent(context: Context): Intent {
-            return Intent(context, PregnantWomenRegistrationActivity::class.java)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPregnantWomenRegistrationBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPregnantWomenRegistrationBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Set up toolbar
-        setupToolbarWithBack(binding.toolbar, getString(R.string.pregnant_women_registration))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
         setupSearch()
@@ -62,14 +62,14 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
                 if (patientWithPwr.pwr == null) {
                     // Navigate to registration form
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         "Register Pregnancy: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
                     // Navigate to view/edit form
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         "View Pregnancy: ${patientWithPwr.patient.firstName}",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -77,7 +77,7 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
             }
         )
 
-        binding.rvPregnantWomen.layoutManager = LinearLayoutManager(this)
+        binding.rvPregnantWomen.layoutManager = LinearLayoutManager(requireContext())
         binding.rvPregnantWomen.adapter = adapter
     }
 
@@ -88,8 +88,8 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
     }
 
     private fun observePatients() {
-        lifecycleScope.launch {
-            maternalHealthRepo.getAllPatientsWithPWR().collectLatest { patientsList ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            maternalHealthRepo.getAllPatientsWithPWRFromEligibleCoupleTracking().collectLatest { patientsList ->
                 // Filter for women of reproductive age
                 allPatients = patientsList
                     .map { it.asDomainModel() }
@@ -128,8 +128,8 @@ class PregnantWomenRegistrationActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
