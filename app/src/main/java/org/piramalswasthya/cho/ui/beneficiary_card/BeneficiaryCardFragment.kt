@@ -58,9 +58,23 @@ class BeneficiaryCardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Listen for updates from EditBeneficiaryDetailsFragment
+        parentFragmentManager.setFragmentResultListener(
+            "beneficiary_updated",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            @Suppress("DEPRECATION")
+            val updatedInfo = bundle.getSerializable("updatedPatientInfo") as? PatientDisplayWithVisitInfo
+            updatedInfo?.let {
+                viewModel.setPatientInfo(it)
+                patientInfo = it
+            }
+        }
+
         // Set patient info from arguments or activity intent
         patientInfo?.let {
             viewModel.setPatientInfo(it)
+            viewModel.refreshPatientInfo(it.patient.patientID)
         } ?: run {
             // Try to get from activity intent
             @Suppress("DEPRECATION")
@@ -74,6 +88,8 @@ class BeneficiaryCardFragment : Fragment() {
         // Bind data
         viewModel.patientInfo.observe(viewLifecycleOwner) { patient ->
             patient?.let {
+                patientInfo = it
+                statusOfWomanID = it.patient.statusOfWomanID
                 binding.patient = it
                 binding.viewModel = viewModel
                 binding.executePendingBindings()
@@ -100,30 +116,42 @@ class BeneficiaryCardFragment : Fragment() {
             navigateToAbhaGeneration()
         }
 
-//        binding.btnEdit.setOnClickListener {
-//            navigateToEditBeneficiaryDetails()
-//        }
+        binding.btnEdit.setOnClickListener {
+            navigateToEditBeneficiaryDetails()
+        }
 
         binding.btnContinue.setOnClickListener {
             onContinue()
         }
 
-        // Handle updated patient info after returning from EditBeneficiaryDetailsFragment
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<PatientDisplayWithVisitInfo>("updatedPatientInfo")?.observe(viewLifecycleOwner) { updatedInfo ->
-            patientInfo = updatedInfo
-            statusOfWomanID = updatedInfo.patient.statusOfWomanID
-            viewModel.setPatientInfo(updatedInfo)
+
+    }
+
+    fun navigateToEditBeneficiaryDetails() {
+        try {
+            val currentDest = findNavController().currentDestination?.id
+            if (currentDest == R.id.beneficiaryCardFragment) {
+                patientInfo?.let {
+                    val bundle = Bundle().apply {
+                        putSerializable("patientInfo", it)
+                    }
+                    findNavController().navigate(
+                        R.id.action_beneficiaryCardFragment_to_editBeneficiaryDetailsFragment,
+                        bundle
+                    )
+                    return
+                }
+            }
+        } catch (e: Exception) {
+            // Fallback to manual navigation
+        }
+        
+        // Fallback for manual transaction
+        patientInfo?.let {
+             (activity as? org.piramalswasthya.cho.ui.home_activity.HomeActivity)?.showEditBeneficiaryDetails(it)
         }
     }
 
-    private fun navigateToEditBeneficiaryDetails() {
-        patientInfo?.let { patient ->
-            val bundle = Bundle().apply {
-                putSerializable("patientInfo", patient)
-            }
-            findNavController().navigate(R.id.action_beneficiaryCardFragment_to_editBeneficiaryDetailsFragment, bundle)
-        }
-    }
 
     private fun navigateToAbhaGeneration() {
         patientInfo?.let { patient ->
@@ -150,6 +178,13 @@ class BeneficiaryCardFragment : Fragment() {
             startActivity(intent)
         }
         activity?.finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        patientInfo?.let {
+            viewModel.refreshPatientInfo(it.patient.patientID)
+        }
     }
 
     override fun onDestroyView() {

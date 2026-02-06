@@ -137,8 +137,10 @@ class EditBeneficiaryDetailsFragment : Fragment() {
     }
 
     private fun setupPatientId(patient: PatientDisplayWithVisitInfo) {
-        val patientId = patient.patient.beneficiaryID ?: patient.patient.patientID
-        binding.tvPatientId.text = getString(R.string.beneficiary_id_label, patientId)
+        val patientId = patient.patient.beneficiaryID?.toString() 
+            ?: patient.patient.beneficiaryRegID?.toString() 
+            ?: patient.patient.patientID
+        binding.tvPatientId.text = getString(R.string.beneficiary_id_format, patientId)
     }
 
     private fun setupPatientPhoto(patient: PatientDisplayWithVisitInfo) {
@@ -208,7 +210,13 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         
         // Pass updated info back to BeneficiaryCardFragment
         viewModel.patientInfo.value?.let { updatedInfo ->
-            findNavController().previousBackStackEntry?.savedStateHandle?.set("updatedPatientInfo", updatedInfo)
+            // Set result for parent fragment to pick up
+            parentFragmentManager.setFragmentResult(
+                "beneficiary_updated",
+                Bundle().apply {
+                    putSerializable("updatedPatientInfo", updatedInfo)
+                }
+            )
         }
         
         handlePostSaveNavigation()
@@ -260,6 +268,13 @@ class EditBeneficiaryDetailsFragment : Fragment() {
 
         viewModel.selectedStatusOfWoman?.let { selected ->
             binding.dropdownStatusOfWoman.setText(selected.statusName, false)
+        }
+        
+        // Listen for async load of initial status
+        viewModel.initialStatusOfWoman.observe(viewLifecycleOwner) { status ->
+             status?.let {
+                 binding.dropdownStatusOfWoman.setText(it.statusName, false)
+             }
         }
 
         binding.dropdownStatusOfWoman.setOnItemClickListener { _, _, position, _ ->
@@ -322,6 +337,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
         binding.lastNameText.setEndIconOnClickListener {
             currentSpeechTarget = SpeechTarget.LAST_NAME
@@ -334,7 +350,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         }
 
         binding.btnCancel.setOnClickListener {
-            findNavController().popBackStack()
+            parentFragmentManager.popBackStack()
         }
 
         binding.btnSave.setOnClickListener {
@@ -373,42 +389,10 @@ class EditBeneficiaryDetailsFragment : Fragment() {
     }
 
     private fun handlePostSaveNavigation() {
-        val shouldNavigate = viewModel.statusOfWomanChanged.value == true &&
-                viewModel.getNewStatusOfWomanId() != null
-
-        if (!shouldNavigate) {
-            findNavController().popBackStack()
-            return
-        }
-
-        navigateBasedOnStatus()
-        findNavController().popBackStack()
+        parentFragmentManager.popBackStack()
     }
 
-    private fun navigateBasedOnStatus() {
-        val newStatusId = viewModel.getNewStatusOfWomanId() ?: return
-        viewModel.patientInfo.value?.let { patient ->
-            createNavigationIntent(patient, newStatusId)?.let { intent ->
-                startActivity(intent)
-            }
-        }
-    }
 
-    private fun createNavigationIntent(
-        patient: PatientDisplayWithVisitInfo,
-        statusId: Int
-    ): Intent? {
-        return Intent(requireContext(), EditPatientDetailsActivity::class.java).apply {
-            putExtra("benVisitInfo", patient)
-
-            when (statusId) {
-                1 -> putExtra("navigateToEC", true)
-                2 -> putExtra("navigateToPW", true)
-                3 -> putExtra("navigateToPN", true)
-                else -> return null
-            }
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

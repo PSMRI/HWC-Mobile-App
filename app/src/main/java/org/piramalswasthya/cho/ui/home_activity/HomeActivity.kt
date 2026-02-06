@@ -775,4 +775,12 @@ class HomeActivity : AppCompatActivity() {
             .addToBackStack(null)
             .commit()
     }
+
+    fun showEditBeneficiaryDetails(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
+        val fragment = org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment.newInstance(patientInfo)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
 }
