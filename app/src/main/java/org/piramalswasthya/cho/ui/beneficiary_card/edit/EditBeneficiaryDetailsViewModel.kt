@@ -93,6 +93,10 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
         }
     }
 
+    private val _initialStatusOfWoman = MutableLiveData<StatusOfWomanMaster?>()
+    val initialStatusOfWoman: LiveData<StatusOfWomanMaster?>
+        get() = _initialStatusOfWoman
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setPatientInfo(patient: PatientDisplayWithVisitInfo) {
         _patientInfo.value = patient
@@ -114,7 +118,9 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
       
         patient.patient.statusOfWomanID?.let { statusId ->
             viewModelScope.launch {
-                selectedStatusOfWoman = statusOfWomanDao.getStatusById(statusId)
+                val status = statusOfWomanDao.getStatusById(statusId)
+                selectedStatusOfWoman = status
+                _initialStatusOfWoman.value = status
             }
         }
 

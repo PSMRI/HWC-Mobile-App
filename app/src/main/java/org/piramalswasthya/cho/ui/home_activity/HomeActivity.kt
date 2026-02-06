@@ -102,10 +102,10 @@ class HomeActivity : AppCompatActivity() {
         ).preferenceDao
         super.attachBaseContext(
             MyContextWrapper.wrap(
-            newBase,
-            newBase.applicationContext,
-            pref.getCurrentLanguage().symbol
-        ))
+                newBase,
+                newBase.applicationContext,
+                pref.getCurrentLanguage().symbol
+            ))
     }
 
     private lateinit var drawerLayout: DrawerLayout
@@ -304,10 +304,10 @@ class HomeActivity : AppCompatActivity() {
 
         val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
-            homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-            tab.addTab(tab.newTab().setText("Home"))
-            tab.addTab(tab.newTab().setText("Dashboard"))
-            tab.addTab(tab.newTab().setText("RMNCH"))
+        homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        tab.addTab(tab.newTab().setText("Home"))
+        tab.addTab(tab.newTab().setText("Dashboard"))
+        tab.addTab(tab.newTab().setText("RMNCH"))
 
         // Adding the Adapter to the ViewPager
         pager.adapter = homeAdapter
@@ -402,6 +402,17 @@ class HomeActivity : AppCompatActivity() {
 
         setObservers()
 
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                binding.fragmentContainer.visibility = android.view.View.VISIBLE
+                binding.viewPager.visibility = android.view.View.GONE
+                binding.tabsId.visibility = android.view.View.GONE
+            } else {
+                binding.fragmentContainer.visibility = android.view.View.GONE
+                binding.viewPager.visibility = android.view.View.VISIBLE
+                binding.tabsId.visibility = android.view.View.VISIBLE
+            }
+        }
     }
 
     private fun setObservers() {
@@ -420,8 +431,8 @@ class HomeActivity : AppCompatActivity() {
             AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build()
         connectionsClient.startAdvertising(
             buildString { append(userRole)
-            append("-")
-            append(userName)},
+                append("-")
+                append(userName)},
             Constants.serviceId,
             connectionLifecycleCallback,
             advertisingOptions
@@ -546,34 +557,38 @@ class HomeActivity : AppCompatActivity() {
 
                 dialog.dismiss()
             }.create()
-        }
-private fun triggerAlarmManager(){
-    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
-    alarmIntent.putExtra("alarmMgrLatitude", myLocation?.latitude)
-    alarmIntent.putExtra("alarmMgrLongitude", myLocation?.longitude)
-    alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
-    val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
-
-    // Set the alarm to trigger at 5 PM
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
-    calendar.set(Calendar.MINUTE, 0)
-    calendar.set(Calendar.SECOND, 0)
-
-    // Schedule the alarm to repeat daily
-    alarmManager.setRepeating(
-        AlarmManager.RTC,
-        calendar.timeInMillis,
-        AlarmManager.INTERVAL_DAY,
-        pendingIntent
-    )
-}
-    override fun onBackPressed() {
-//        super.onBackPressed()
-        if (!exitAlert.isShowing)
-            exitAlert.show()
     }
+    private fun triggerAlarmManager(){
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmIntent = Intent(this, AutoLogoutReceiver::class.java)
+        alarmIntent.putExtra("alarmMgrLatitude", myLocation?.latitude)
+        alarmIntent.putExtra("alarmMgrLongitude", myLocation?.longitude)
+        alarmIntent.action = "com.yourapp.ACTION_AUTO_LOGOUT"
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        // Set the alarm to trigger at 5 PM
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 17) // 5 PM
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+
+        // Schedule the alarm to repeat daily
+        alarmManager.setRepeating(
+            AlarmManager.RTC,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+    }
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            if (!exitAlert.isShowing)
+                exitAlert.show()
+        }
+    }
+
     private val exitAlert by lazy {
         MaterialAlertDialogBuilder(this)
             .setTitle(resources.getString(R.string.exit_application))
@@ -640,12 +655,12 @@ private fun triggerAlarmManager(){
         CoroutineScope(Dispatchers.IO).launch {
             val user = userRepo.getLoggedInUser()
             val headerView = binding.navView.getHeaderView(0)
-                headerView.findViewById<TextView>(R.id.tv_nav_name).text =
-                    getString(R.string.nav_item_1_text, user?.name)
-                headerView.findViewById<TextView>(R.id.tv_nav_role).text =
-                    getString(R.string.nav_item_2_text, user?.userName)
-                headerView.findViewById<TextView>(R.id.tv_nav_id).text =
-                    getString(R.string.nav_item_3_text, user?.userId)
+            headerView.findViewById<TextView>(R.id.tv_nav_name).text =
+                getString(R.string.nav_item_1_text, user?.name)
+            headerView.findViewById<TextView>(R.id.tv_nav_role).text =
+                getString(R.string.nav_item_2_text, user?.userName)
+            headerView.findViewById<TextView>(R.id.tv_nav_id).text =
+                getString(R.string.nav_item_3_text, user?.userId)
             userName = user?.name.toString()
             userRole = user?.roles.toString()
         }
@@ -721,29 +736,29 @@ private fun triggerAlarmManager(){
         }
     }
 
-private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.HOUR_OF_DAY, desiredHour)
-    calendar.set(Calendar.MINUTE, desiredMinute)
-    calendar.set(Calendar.SECOND, 0)
-    calendar.set(Calendar.MILLISECOND, 0)
+    private fun calculateDelayMillis(currentHour: Int, currentMinute: Int, desiredHour: Int, desiredMinute: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, desiredHour)
+        calendar.set(Calendar.MINUTE, desiredMinute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
-    val desiredTimeMillis = calendar.timeInMillis
-    val currentTimeMillis = Calendar.getInstance().timeInMillis
+        val desiredTimeMillis = calendar.timeInMillis
+        val currentTimeMillis = Calendar.getInstance().timeInMillis
 
-    if (currentTimeMillis > desiredTimeMillis) {
-        // The desired time is already in the past, schedule it for the next day
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        if (currentTimeMillis > desiredTimeMillis) {
+            // The desired time is already in the past, schedule it for the next day
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        // Calculate the delay in milliseconds
+        return calendar.timeInMillis - currentTimeMillis
     }
 
-    // Calculate the delay in milliseconds
-    return calendar.timeInMillis - currentTimeMillis
-}
-
-private fun myMethodToRunAtSpecificTime() {
-    // Your method code here
+    private fun myMethodToRunAtSpecificTime() {
+        // Your method code here
 //    viewModel.logout(myLocation,"By System")
-}
+    }
 
     /**
      * Switch to the Home tab (index 0) from RMNCHA dashboard
@@ -751,5 +766,21 @@ private fun myMethodToRunAtSpecificTime() {
      */
     fun switchToHomeTab() {
         pager.setCurrentItem(0, true) // true for smooth scroll animation
+    }
+
+    fun showBeneficiaryCard(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
+        val fragment = org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment.newInstance(patientInfo)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun showEditBeneficiaryDetails(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
+        val fragment = org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment.newInstance(patientInfo)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

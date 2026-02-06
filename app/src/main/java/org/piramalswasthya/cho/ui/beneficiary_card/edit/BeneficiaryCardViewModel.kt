@@ -7,8 +7,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import javax.inject.Inject
 
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.database.room.dao.PatientDao
+
 @HiltViewModel
-class BeneficiaryCardViewModel @Inject constructor() : ViewModel() {
+class BeneficiaryCardViewModel @Inject constructor(
+    private val patientDao: PatientDao
+) : ViewModel() {
 
     private val _patientInfo = MutableLiveData<PatientDisplayWithVisitInfo?>()
     val patientInfo: LiveData<PatientDisplayWithVisitInfo?>
@@ -24,6 +30,17 @@ class BeneficiaryCardViewModel @Inject constructor() : ViewModel() {
 
     fun setPatientInfo(patient: PatientDisplayWithVisitInfo) {
         _patientInfo.value = patient
+    }
+
+    fun refreshPatientInfo(patientID: String) {
+        viewModelScope.launch {
+            try {
+                val patient = patientDao.getPatientDisplayListForNurseByPatient(patientID)
+                _patientInfo.value = patient
+            } catch (e: Exception) {
+                // handle error or keep old data
+            }
+        }
     }
 
     fun onGenerateAbhaClicked() {

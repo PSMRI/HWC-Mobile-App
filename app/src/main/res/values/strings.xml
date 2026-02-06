@@ -416,6 +416,8 @@
     <string name="reason_for_visit">Reason For Visit</string>
     <string name="ben_card_name">Name:</string>
     <string name="beneficiary_id">Beneficiary ID:</string>
+    <string name="beneficiary_id_format">Beneficiary ID: %s</string>
+    <string name="beneficiary_id_label">Beneficiary ID: </string>
     <string name="master_longitude">Master Longitude</string>
     <string name="get_location">Get Location</string>
     <string name="master_latitude">Master Latitude</string>
@@ -951,7 +953,6 @@
 
     <!-- Beneficiary Card -->
     <string name="beneficiary_card_title">Beneficiary Card</string>
-    <string name="beneficiary_id_label">Beneficiary ID: </string>
     <string name="age_gender_label">Age / Gender</string>
     <string name="phone_number_label">Phone Number</string>
     <string name="village_name_label">Village Name</string>
