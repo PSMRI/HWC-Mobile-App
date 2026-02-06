@@ -153,6 +153,12 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                             resources.getString(R.string.submit_to_doctor_text)
                     }
                 }
+                R.id.pregnantWomanRegistrationFragment -> {
+                    binding.headerTextRegisterPatient.text = resources.getString(R.string.icon_title_pmr)
+                    binding.bottomNavigation.visibility = View.GONE
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
                 R.id.cbacFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.cbac)
                     binding.bottomNavigation.visibility = View.GONE
