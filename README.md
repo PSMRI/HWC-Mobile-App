@@ -65,7 +65,6 @@ The application eliminates pen-and-paper workflows by enabling digital patient d
 
 ---
 
-
 ## Installation & Setup
 
 ### Prerequisites
