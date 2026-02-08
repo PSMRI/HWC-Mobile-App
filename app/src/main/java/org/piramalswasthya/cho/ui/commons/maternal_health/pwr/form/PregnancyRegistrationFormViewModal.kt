@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.configuration.PregnantWomanRegistrationDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -44,6 +45,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     sealed class NavigationEvent {
         data class ToEligibleCouple(val patientID: String) : NavigationEvent()
         object ToVitalsAndPrescription : NavigationEvent()
+        data class ToVitalsActivity(val benVisitInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) : NavigationEvent()
     }
 
     private val patientID: String? = savedStateHandle["patientID"]
@@ -64,6 +66,10 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     val recordExists: LiveData<Boolean>
         get() = _recordExists
 
+    private val _isReadOnly = MutableLiveData<Boolean>(false)
+    val isReadOnly: LiveData<Boolean>
+        get() = _isReadOnly
+
     private val dataset = PregnantWomanRegistrationDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
@@ -78,16 +84,30 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Fetch patient data
-                val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
+                val patientDeferred = async { patientID?.let { patientRepo.getPatientDisplay(it) } }
+                val recordDeferred = async { patientID?.let { maternalHealthRepo.getSavedRegistrationRecord(it) } }
+
+                val patient = patientDeferred.await()
+                val existingRecord = recordDeferred.await()
 
                 patient?.let { ben ->
                     _benName.value = "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
                     _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
 
-                    // Check if registration record already exists
-                    val existingRecord = maternalHealthRepo.getSavedRegistrationRecord(ben.patient.patientID)
                     if (existingRecord != null) {
+                        // Self-healing: Check if ANC 1 is actually completed
+                        if (existingRecord.isFirstAncSubmitted) {
+                            val completedAncRecords = maternalHealthRepo.getCompletedActiveAncRecords(patientID!!)
+                            val isAnc1Completed = completedAncRecords.any { it.visitNumber == 1 }
+
+                            if (!isAnc1Completed) {
+                                Timber.w("Validation Fixed: isFirstAncSubmitted was true but ANC 1 not completed. Resetting flag.")
+                                existingRecord.isFirstAncSubmitted = false
+                                // Update DB asynchronously to fix persistent state
+                                maternalHealthRepo.persistRegisterRecord(existingRecord)
+                            }
+                        }
+
                         // Use existing record
                         registrationCache = existingRecord
                         _recordExists.value = true
@@ -107,6 +127,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                         ben = ben,
                         savedRecord = if (_recordExists.value == true) registrationCache else null
                     )
+                    _isReadOnly.value = dataset.isFormReadOnly
                 } ?: run {
                     Timber.e("Patient not found for ID: $patientID")
                     // Handle case where patient is not found
@@ -121,20 +142,17 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
     /** True when form is locked (first ANC already submitted). Used for back navigation to home. */
     fun isFormReadOnly(): Boolean = dataset.isFormReadOnly
+    
+    fun validateHeight(): Boolean = dataset.validateHeightStrict()
 
-    fun getIndexOfEdd(): Int = dataset.getIndexById(6) // Updated from 5 to 6
-    fun getIndexOfGestationalAge(): Int = dataset.getIndexById(7) // Updated from 6 to 7
-    fun getIndexOfTrimester(): Int = dataset.getIndexById(8) // Updated from 7 to 8
-    fun getIndexOfPara(): Int = dataset.getIndexById(dataset.getParaId()) // dynamic ID
-    fun getIndexOfComplications(): Int = dataset.getIndexById(14) // Updated from 13 to 14
-    fun getIndexOfPreExistingConditions(): Int = dataset.getIndexById(18) // Updated from 17 to 18
-    fun getIndexOfBmi(): Int = dataset.getIndexById(dataset.getBmiId()) // Updated from 16 to 17
-    fun getIndexOfHeight(): Int = dataset.getIndexById(15) // Updated from 14 to 15
-
-    // Add methods for test date fields
-    fun getIndexOfVdrlRprDate(): Int = dataset.getIndexById(20) // vdrlRprDate.id
-    fun getIndexOfHivTestDate(): Int = dataset.getIndexById(22) // hivTestDate.id
-    fun getIndexOfHbsAgTestDate(): Int = dataset.getIndexById(24) // hbsAgTestDate.id
+    fun getIndexOfEdd(): Int = dataset.getIndexById(6)
+    fun getIndexOfGestationalAge(): Int = dataset.getIndexById(7)
+    fun getIndexOfTrimester(): Int = dataset.getIndexById(8)
+    fun getIndexOfPara(): Int = dataset.getIndexById(dataset.getParaId())
+    fun getIndexOfComplications(): Int = dataset.getIndexById(14)
+    fun getIndexOfPreExistingConditions(): Int = dataset.getIndexById(18)
+    fun getIndexOfBmi(): Int = dataset.getIndexById(dataset.getBmiId())
+    fun getIndexOfHeight(): Int = dataset.getIndexById(15)
 
     // Helper method to get index of any test date by ID
     fun getIndexOfTestDate(testDateId: Int): Int = dataset.getIndexById(testDateId)
@@ -192,6 +210,15 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
             try {
                 _state.postValue(State.SAVING)
 
+                // Check for UPT Negative Flow first
+                if (dataset.shouldNavigateToEligibleCouple()) {
+                    patientID?.let { id ->
+                        _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id))
+                    }
+                    _state.postValue(State.IDLE) 
+                    return@launch
+                }
+
                 // Check if patientID is available
                 check(this@PregnancyRegistrationFormViewModel::registrationCache.isInitialized) {
                     "Registration cache not initialized"
@@ -218,7 +245,8 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
                 // Check if we should navigate to vitals after save
                 if (dataset.shouldNavigateToVitals()) {
-                    _navigateTo.postValue(NavigationEvent.ToVitalsAndPrescription)
+                    val benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(registrationCache.patientID!!)
+                    _navigateTo.postValue(NavigationEvent.ToVitalsActivity(benVisitInfo))
                 }
 
                 _state.postValue(State.SAVE_SUCCESS)

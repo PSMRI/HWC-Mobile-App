@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 import org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragmentDirections
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -74,7 +75,21 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-        if(preferenceDao.isDoctorSelected()){
+        if (intent.getStringExtra("navigateTo") == "ANC") {
+            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            val patientID = intent.getStringExtra("patientID") ?: ""
+            val visitNumber = intent.getIntExtra("visitNumber", 1)
+            val isOldVisit = intent.getBooleanExtra("isOldVisit", false)
+
+            navHostFragment.navController.navigate(
+                R.id.pwAncFormFragment,
+                Bundle().apply {
+                    putString("patientID", patientID)
+                    putInt("visitNumber", visitNumber)
+                    putBoolean("isOldVisit", isOldVisit)
+                }
+            )
+        } else if (preferenceDao.isDoctorSelected()) {
 //            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
 //            binding.patientDetalis.visibility= View.GONE
 //            binding.onlyDoctor.visibility=View.VISIBLE
@@ -87,49 +102,51 @@ class EditPatientDetailsActivity: AppCompatActivity() {
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
             navHostFragment.navController
                 .navigate(
-                    R.id.action_patientHomeFragment_to_caseRecordCustom, Bundle().apply {
+                    R.id.caseRecordCustom, Bundle().apply {
                         putBoolean("viewRecord", viewRecord)
                         putBoolean("isFlowComplete", isFlowComplete)
                         putBoolean("isFollowupVisit", isFollowupVisit)
-                        putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo))
+                        putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo))
                     }
                 )
-        }
-        else if(preferenceDao.isLabSelected()){
+        } else if (preferenceDao.isLabSelected()) {
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            navHostFragment.navController
-                .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
-                    (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
-                ))
-        }
-        else if(preferenceDao.isPharmaSelected()){
+            (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
+                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(it))
+            }
+        } else if (preferenceDao.isPharmaSelected()) {
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            navHostFragment.navController
-                .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
-                    (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
-                ))
-        }
-        else if (intent.getStringExtra("navigateTo") == "ANC") {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            val patientID = intent.getStringExtra("patientID") ?: ""
-            val visitNumber = intent.getIntExtra("visitNumber", 1)
-            val isOldVisit = intent.getBooleanExtra("isOldVisit", false)
-            
-            navHostFragment.navController.navigate(
-                R.id.pwAncFormFragment,
-                Bundle().apply {
-                    putString("patientID", patientID)
-                    putInt("visitNumber", visitNumber)
-                    putBoolean("isOldVisit", isOldVisit)
+            (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
+                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(it))
+            }
+        } else if (intent.getStringExtra("navigateTo") == "VITALS") {
+            navHostFragment =
+                supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            val benVisitInfo =
+                intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+            if (benVisitInfo != null) {
+                val masterDb = org.piramalswasthya.cho.model.MasterDb(benVisitInfo.patient.patientID).apply {
+                    visitMasterDb.category = "RMNCH"
+                    visitMasterDb.subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.careAndPreg
+                    visitMasterDb.reason = org.piramalswasthya.cho.ui.commons.DropdownConst.anc
                 }
-            )
-        }
-        else{
+                navHostFragment.navController.navigate(
+                    R.id.customVitalsFragment,
+                    Bundle().apply {
+                        putSerializable("MasterDb", masterDb)
+                    }
+                )
+            }
+        } else {
             navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            navHostFragment.navController
-                .navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
-                    (intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo)
-                ))
+            val benVisitInfo = intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+            if (benVisitInfo != null) {
+                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(benVisitInfo))
+            } else {
+                // Fallback or log error
+                Timber.e("No benVisitInfo provided for navigation")
+                // If patientID is available, we might still be able to do something, but for now just avoid crash
+            }
         }
 
         navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->

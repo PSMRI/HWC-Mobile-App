@@ -168,6 +168,17 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     }
 
     private fun checkForAlerts() {
+        if(viewModel.isPregnant) {
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.tracking_form_filled_successfully),
+                Toast.LENGTH_SHORT
+            ).show()
+            saveNurseDataInBackground()
+            viewModel.resetState()
+            navigateToPregnancyRegistration()
+            return
+        }
         // If no alert to show, proceed directly
         if (viewModel.showAlert.value == EligibleCoupleTrackingFormViewModel.AlertType.NONE) {
             // Show success message
@@ -180,18 +191,51 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             // ECT data is already saved, so visit history will show it
             saveNurseDataInBackground()
             // Navigate back to eligible couple tracking list
+            viewModel.resetState()
             navigateBackToList()
         }
         // Alerts will be handled by the observer
     }
 
-    private fun navigateBackToList() {
+    private fun navigateToPregnancyRegistration() {
         try {
-            findNavController().navigateUp()
+            // Navigate to MaternalHealthNavHostFragment with arguments to open PWR form
+            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment().apply {
+                arguments = Bundle().apply {
+                    putInt("destinationId", R.id.pregnancyRegistrationFormFragment)
+                    putString("patientID", viewModel.patientID)
+                    putBoolean("fromECT", true)
+                }
+            }
+            
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+                
         } catch (e: Exception) {
-            Timber.e(e, "Failed to navigate back from ECT form")
-            // If navigateUp fails, try to pop back stack
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            Timber.e(e, "Failed to navigate to Pregnancy Registration form")
+            navigateBackToList()
+        }
+    }
+
+    private fun navigateBackToList() {
+        if (!isAdded || isRemoving) return
+        
+        try {
+            // Try standard navigation first
+            androidx.navigation.fragment.NavHostFragment.findNavController(this).navigateUp()
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "NavController not found for ECT form, falling back to activity back press")
+            try {
+                // Fallback to manual back press if NavController is missing
+                activity?.onBackPressedDispatcher?.onBackPressed()
+            } catch (inner: Exception) {
+                Timber.e(inner, "Critical failure during manual back press fallback")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Generic failure during navigateBackToList")
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 
@@ -202,15 +246,20 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 viewModel.resetAlert()
-                // Show success message
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.tracking_form_filled_successfully),
-                    Toast.LENGTH_SHORT
-                ).show()
-                // Save nurse data in background, but navigate back immediately
-                saveNurseDataInBackground()
-                navigateBackToList()
+                
+                // Only navigate if form was actually submitted and saved (post-save alert)
+                if (viewModel.state.value == EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS) {
+                    // Show success message
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.tracking_form_filled_successfully),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Save nurse data in background, but navigate back immediately
+                    saveNurseDataInBackground()
+                    navigateBackToList()
+                }
+                // Else (immediate alert on selection): just dismiss and reset, staying on form
             }
             .setCancelable(false)
             .show()
@@ -223,15 +272,20 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 viewModel.resetAlert()
-                // Show success message
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.tracking_form_filled_successfully),
-                    Toast.LENGTH_SHORT
-                ).show()
-                // Save nurse data in background, but navigate back immediately
-                saveNurseDataInBackground()
-                navigateBackToList()
+                
+                // Only navigate if form was actually submitted and saved (post-save alert)
+                if (viewModel.state.value == EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS) {
+                    // Show success message
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.tracking_form_filled_successfully),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Save nurse data in background, but navigate back immediately
+                    saveNurseDataInBackground()
+                    navigateBackToList()
+                }
+                // Else (immediate alert on selection): just dismiss and reset, staying on form
             }
             .setCancelable(false)
             .show()
@@ -361,6 +415,12 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         findNavController().navigateUp()
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.ec_tracking_title)
+    }
 
     override fun onDestroy() {
         super.onDestroy()

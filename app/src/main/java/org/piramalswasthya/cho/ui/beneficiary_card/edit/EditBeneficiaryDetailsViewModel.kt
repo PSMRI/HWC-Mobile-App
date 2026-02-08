@@ -143,23 +143,33 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
         val currentAgeYears = ageYears ?: return
 
         val filtered = when {
-            // Female, ≥50 → Elderly only
+            // Female < 10 -> Not Applicable
+            currentAgeYears < 10 ->
+                allStatuses.filter { it.statusID == 7 }
+
+            // Female, ≥50 -> Elderly only
             currentAgeYears >= 50 ->
                 allStatuses.filter { it.statusID == 4 }
 
-            // Female, 10-19, Unmarried → Adolescent only
-            currentAgeYears in 10..19 && maritalStatusId == 1 ->
+            // Ranges where Marital Status matters (15-49)
+            currentAgeYears in 15..49 -> {
+                when (maritalStatusId) {
+                    2 -> allStatuses.filter { it.statusID in listOf(1, 2, 3, 6) } // Married
+                    1 -> { // Unmarried
+                        if (currentAgeYears in 15..19) allStatuses.filter { it.statusID == 5 } // Adolescent
+                        else allStatuses.filter { it.statusID == 7 } // 20+ unmarried -> NA
+                    }
+                    null -> emptyList() // Wait for marital status to avoid auto-selecting NA
+                    else -> allStatuses.filter { it.statusID == 7 } // Widow/Divorced -> NA
+                }
+            }
+
+            // Female 10-14 (always Adolescent regardless of marital status, though usually unmarried)
+            currentAgeYears in 10..14 ->
                 allStatuses.filter { it.statusID == 5 }
 
-            // Female, ≥15, Married → EC, PW, Postnatal, Sterilization
-            currentAgeYears >= 15 && maritalStatusId == 2 ->
-                allStatuses.filter { it.statusID in listOf(1, 2, 3, 6) }
-
-            // Female, 20-49, Unmarried → Not Applicable only
-            currentAgeYears in 20..49 && maritalStatusId == 1 ->
-                allStatuses.filter { it.statusID == 7 }
-
-            else -> emptyList()
+            // Default
+            else -> allStatuses.filter { it.statusID == 7 }
         }
 
         _filteredStatusOfWomanList.value = filtered
@@ -167,7 +177,7 @@ class EditBeneficiaryDetailsViewModel @Inject constructor(
 
     fun shouldShowStatusOfWoman(): Boolean {
         val patient = _patientInfo.value?.patient ?: return false
-        return patient.genderID == 2 && (ageYears ?: 0) >= 10
+        return patient.genderID == 2
     }
 
     fun validatePhoneNumber(phone: String?): Boolean {

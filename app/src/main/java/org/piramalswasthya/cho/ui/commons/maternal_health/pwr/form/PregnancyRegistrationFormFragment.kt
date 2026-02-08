@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -18,7 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
-import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
+import org.piramalswasthya.cho.databinding.FragmentPregnancyRegistrationFormBinding
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 import timber.log.Timber
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
-    private var _binding: FragmentNewFormBinding? = null
+    private var _binding: FragmentPregnancyRegistrationFormBinding? = null
     private val binding get() = _binding!!
 
     @Inject
@@ -35,13 +36,28 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
     private val viewModel: PregnancyRegistrationFormViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentNewFormBinding.inflate(inflater, container, false)
+        _binding = FragmentPregnancyRegistrationFormBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onCancelAction()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private val onBackPressedCallback by lazy {
@@ -60,7 +76,6 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             onBackPressedCallback
         )
 
-        requireActivity().title = getString(R.string.icon_title_pmr)
         setupForm()
         observeViewModel()
 
@@ -75,6 +90,10 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             submitRegistrationForm()
         }
 
+        binding.btnCancel.setOnClickListener {
+            onCancelAction()
+        }
+
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
@@ -82,9 +101,15 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
     private fun setupForm() {
         viewModel.recordExists.observe(viewLifecycleOwner) { exists ->
-            binding.fabEdit.visibility = if (exists) View.VISIBLE else View.GONE
+            val isReadOnly = viewModel.isReadOnly.value ?: false
+            val title = if (exists) {
+                getString(R.string.title_view_pregnancy_registration)
+            } else {
+                getString(R.string.title_register_pregnancy)
+            }
+            (activity as? AppCompatActivity)?.supportActionBar?.title = title
+            binding.fabEdit.visibility = if (exists && !isReadOnly) View.VISIBLE else View.GONE
             binding.btnSubmit.visibility = if (exists) View.GONE else View.VISIBLE
-
             val adapter = FormInputAdapter(
                 formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                     viewModel.updateListOnValueChanged(formId, index)
@@ -101,6 +126,11 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+        
+        viewModel.isReadOnly.observe(viewLifecycleOwner) { isReadOnly ->
+             val exists = viewModel.recordExists.value ?: false
+             binding.fabEdit.visibility = if (exists && !isReadOnly) View.VISIBLE else View.GONE
+        }
     }
 
     /**
@@ -116,7 +146,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             14 -> handleComplicationsFieldChange(adapter)
             15, 16 -> handleAnthropometryFieldChange(adapter)
             18 -> handlePreExistingConditionsFieldChange(adapter)
-            19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
+            3, 4, 19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
             5 -> handleLmpFieldChange(adapter)
             10 -> handleGravidaFieldChange(adapter)
         }
@@ -274,8 +304,17 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                         findNavController().navigate(action)
                         viewModel.clearNavigation()
                     }
-                    else -> {
-                        //Do nothing
+
+                    is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsActivity -> {
+                        val intent = android.content.Intent(
+                            requireActivity(),
+                            org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
+                        )
+                        intent.putExtra("benVisitInfo", navigationEvent.benVisitInfo)
+                        intent.putExtra("navigateTo", "VITALS")
+                        startActivity(intent)
+                        requireActivity().finish()
+                        viewModel.clearNavigation()
                     }
                 }
             }
@@ -295,6 +334,15 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             return false
         }
 
+        if (!viewModel.validateHeight()) {
+            val heightIndex = viewModel.getIndexOfHeight()
+            if (heightIndex >= 0) {
+                adapter.notifyItemChanged(heightIndex)
+                binding.form.rvInputForm.scrollToPosition(heightIndex)
+                return false
+            }
+        }
+
         val result = adapter.validateInput(resources)
         Timber.d("Validation result = $result")
 
@@ -310,12 +358,17 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
-        val goToHome = viewModel.recordExists.value == true || viewModel.isFormReadOnly()
-        if (goToHome) {
-            val action = PregnantWomanRegistrationFragmentDirections.actionPregnantWomanRegistrationFragmentToPatientHomeFragment()
-            findNavController().navigate(action)
-        } else {
-            findNavController().navigateUp()
+        arguments?.getBoolean("fromECT", false)?.let { fromECT ->
+            if (fromECT) {
+                requireActivity().finish()
+                return
+            }
+        }
+
+        if (!findNavController().navigateUp()) {
+            onBackPressedCallback.isEnabled = false
+            requireActivity().onBackPressed()
+            onBackPressedCallback.isEnabled = true
         }
     }
 

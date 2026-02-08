@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/pregnantWomenRegistrationListFragment"
         android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationFragment"
-        android:label="Pregnant Women Registration"
         tools:layout="@layout/fragment_pregnant_women_registration">
         <action
             android:id="@+id/action_pregnantWomenRegistrationListFragment_to_pregnancyRegistrationFormFragment"
@@ -19,12 +18,50 @@
     <fragment
         android:id="@+id/pregnancyRegistrationFormFragment"
         android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
-        android:label="Pregnancy Registration Form"
         tools:layout="@layout/fragment_new_form">
         <argument
             android:name="patientID"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="fromECT"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_eligibleCoupleTrackingFormFragment"
+            app:destination="@id/eligibleCoupleTrackingFormFragment" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment"
+            app:popUpTo="@id/patientHomeFragment"
+            app:popUpToInclusive="false" />
     </fragment>
+
+    <fragment
+        android:id="@+id/eligibleCoupleTrackingFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.eligible_couple.tracking.form.EligibleCoupleTrackingFormFragment">
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="createdDate"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_pregnancyRegistrationFormFragment"
+            app:destination="@id/pregnancyRegistrationFormFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customVitalsFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.fhir_patient_vitals.FhirVitalsFragment"
+        android:label="fragment_fhir_vitals"
+        tools:layout="@layout/fragment_vitals_custom" />
+    <fragment
+        android:id="@+id/patientHomeFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.patient_home.PatientHomeFragment"
+        android:label="PatientHomeFragment" />
 
 </navigation>

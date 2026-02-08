@@ -302,6 +302,7 @@
     <string name="registration_date">Registration Date</string>
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
     <string name="spouse_name">Spouse Name</string>
+    <string name="wife_name">Wife Name</string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>
@@ -360,11 +361,18 @@
     <string name="fill_dob">Fill Your Date Of Birth</string>
     <string name="enter_your_age">Enter Your Age</string>
     <string name="select_age_in_unit">Select Age in Unit</string>
-    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="select_marital_status">Select Marital Status</string>
     <string name="enter_spouse_name">Enter Spouse Name</string>
+    <string name="enter_husband_name">Enter Husband Name</string>
+    <string name="enter_wife_name">Enter Wife Name</string>
     <string name="enter_age_at_marriage">Enter age at Marriage</string>
     <string name="select_gender">Select Gender</string>
     <string name="select_village">Select Village</string>
+    <string name="enter_father_s_name_error">Enter a valid Father\'s Name</string>
+    <string name="are_you_sure">Are you Sure?</string>
+    <string name="cancel_confirmation_message">Do you want to cancel? Any unsaved data will be lost.</string>
+    <string name="patient_registered_successfully_title">Patient Registered successfully</string>
+    <string name="patient_edited_successfully_title">Patient details edited successfully</string>
     <string name="network_error">Network Error!!</string>
     <string name="linked_to_beneficiary">Linked to Beneficiary</string>
     <string name="duration_tv">Duration</string>
@@ -527,6 +535,8 @@
     <string name="pnc_visit_number">PNC Visit on Day %1d</string>
 
     <string name="icon_title_pmr">Pregnant Women Registration</string>
+    <string name="title_register_pregnancy">Pregnant Woman Registration</string>
+    <string name="title_view_pregnancy_registration">View Pregnancy Registration</string>
     <string name="pwr_eligibility_error">Pregnancy Registration form is not available </string>
     <!--  Post Natal Care  -->
     <string name="pnc_period">PNC Period</string>
