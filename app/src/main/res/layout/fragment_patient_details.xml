@@ -1,17 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:scrollbars="none"
     tools:context=".ui.register_patient_activity.patient_details.PatientDetailsFragment">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_margin="8dp"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_margin="8dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_ri"
             android:layout_width="match_parent"
@@ -101,12 +104,10 @@
                 android:id="@+id/first_name"
                 android:layout_width="match_parent"
                 android:textSize="18sp"
-                android:inputType="textCapCharacters"
-                android:capitalize="characters"
+                android:inputType="textCapWords"
                 android:imeOptions="actionDone"
                 android:drawableEnd="@null"
-                android:layout_height="wrap_content"
-                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -117,7 +118,6 @@
             android:textSize="18sp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_mic"
-            android:textColorHint="#888888"
             android:hint="@string/last_name_surname">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -126,10 +126,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:imeOptions="actionDone"
-                android:drawableEnd="@null"
-                android:capitalize="characters"
-                android:inputType="textCapCharacters"
-                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
+                android:inputType="textCapWords"
+                android:drawableEnd="@null" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -178,7 +176,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
-            android:textColorHint="#888888"
             android:hint="@string/age">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -223,9 +220,6 @@
             android:textSize="18sp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_mic"
-            android:maxLength="2"
-            android:inputType="number"
-            android:textColorHint="#888888"
             android:hint="@string/phone_number">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -317,7 +311,6 @@
             android:layout_marginTop="@dimen/margin_normal"
             android:textSize="18sp"
             android:visibility="gone"
-            android:textColorHint="#888888"
             android:hint="@string/status_of_woman"
             android:layout_height="wrap_content">
 
@@ -392,11 +385,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
+                android:inputType="textCapWords"
                 android:imeOptions="actionDone"
-                android:capitalize="characters"
-                android:drawableEnd="@null"
-                android:inputType="textCapCharacters"
-                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
+                android:drawableEnd="@null" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -423,5 +414,17 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/bottom_space_height" />
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_edit"
+        android:contentDescription="Edit" />
+
+</FrameLayout>

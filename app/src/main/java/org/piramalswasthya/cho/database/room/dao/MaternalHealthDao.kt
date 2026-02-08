@@ -94,6 +94,8 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
         WHERE pwr.active = 1
         AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY pwr.createdDate DESC
     """)
@@ -105,6 +107,8 @@ interface MaternalHealthDao {
         INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
         WHERE ect.pregnancyTestResult = 'Positive'
         AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY ect.createdDate DESC
     """)

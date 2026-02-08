@@ -87,7 +87,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
                     
                     requireActivity().supportFragmentManager.commit {
                         replace(R.id.fragment_container, fragment)
-                        addToBackStack(null)
+                        addToBackStack("ECT_FORM_TRANSACTION")
                     }
                 },
                 onViewVisit = { patientWithEcr ->
@@ -172,6 +172,7 @@ class EligibleCoupleTrackingFragment : Fragment() {
     }
 
     private fun updateUI() {
+        if (_binding == null) return
         adapter.submitList(filteredPatients)
         updateListUI(
             filteredList = filteredPatients,
@@ -181,6 +182,12 @@ class EligibleCoupleTrackingFragment : Fragment() {
             resultString = getString(R.string.result),
             logMessage = "Displaying eligible couples for tracking"
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.ec_tracking_title)
     }
 
     override fun onDestroyView() {

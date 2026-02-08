@@ -110,6 +110,10 @@ class PatientDetailsViewModel @Inject constructor(
     val ageAtMarraigeVal: MutableLiveData<Boolean>
         get() = _ageAtMarraigeVal
 
+    private val _fatherNameVal = MutableLiveData<Boolean>(false)
+    val fatherNameVal: MutableLiveData<Boolean>
+        get() = _fatherNameVal
+
     private val _phoneN=MutableLiveData<PhoneNumberValidation>()
     val phoneN: MutableLiveData<PhoneNumberValidation>
         get() = _phoneN
@@ -152,10 +156,10 @@ class PatientDetailsViewModel @Inject constructor(
     var enteredAge: Int?  = null
     var maritalStatusId: Int?  = null
     var maritalStatusName: String?  = null
-    var enteredAgeYears: Int?  = 0
-    var enteredAgeMonths: Int?  = 0
-    var enteredAgeWeeks: Int?  = 0
-    var enteredAgeDays: Int?  = 0
+    var enteredAgeYears: Int?  = null
+    var enteredAgeMonths: Int?  = null
+    var enteredAgeWeeks: Int?  = null
+    var enteredAgeDays: Int?  = null
     var selectedDateOfBirth: Date?  = null
     var selectedAgeUnit : AgeUnit? = AgeUnit(3,"Years");
     var selectedMaritalStatus : MaritalStatusMaster? = null;
@@ -202,6 +206,10 @@ class PatientDetailsViewModel @Inject constructor(
         _firstNameVal.value = boolean
     }
 
+    fun setIsDataSaved(value: Boolean?) {
+        _isDataSaved.value = value ?: false
+    }
+
     fun setDataSaved(value: Boolean) {
         _isDataSaved.postValue(value)
     }
@@ -229,6 +237,9 @@ class PatientDetailsViewModel @Inject constructor(
         _ageAtMarraigeVal.value = boolean
     }   fun setSpouse(boolean: Boolean){
         _spouseNameVal.value = boolean
+    }
+    fun setFatherName(boolean: Boolean){
+        _fatherNameVal.value = boolean
     }
     fun setAgeGreaterThan11(boolean: Boolean){
         _ageGreaterThan11.value = boolean
@@ -348,37 +359,73 @@ class PatientDetailsViewModel @Inject constructor(
      * 6 - Permanent Sterilization (ST)
      * 7 - Not Applicable (NA)
      */
-    fun getFilteredStatusOfWomanOptions(genderId: Int?, ageInYears: Int?, maritalStatusId: Int?): List<StatusOfWomanMaster> {
-        // Only for females (genderId = 2)
+    fun getFilteredStatusOfWomanOptions(genderId: Int?, ageInYears: Int?, maritalStatusName: String?): List<StatusOfWomanMaster> {
+        // Strictly for females (genderId = 2)
         if (genderId != 2) return emptyList()
 
+        val mStatus = maritalStatusName?.lowercase()
+
+        // Handle age-based logic
         return when {
-            // Female, ≥50 → Elderly only
-            ageInYears != null && ageInYears >= 50 ->
-                statusOfWomanList.filter { it.statusID == 4 }
+            // Age not entered yet -> empty list
+            ageInYears == null -> emptyList()
 
-            // Female, 10-19, Unmarried → Adolescent only
-            ageInYears != null && ageInYears in 10..19 && maritalStatusId == 1 ->
-                statusOfWomanList.filter { it.statusID == 5 }
-
-            // Female, ≥15, Married → EC, PW, Postnatal, Sterilization
-            ageInYears != null && ageInYears >= 15 && maritalStatusId == 2 ->
-                statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
-
-            // Female, 20-49, Unmarried → Not Applicable only
-            ageInYears != null && ageInYears in 20..49 && maritalStatusId == 1 ->
+            // Female < 10 -> Not Applicable
+            ageInYears < 10 ->
                 statusOfWomanList.filter { it.statusID == 7 }
 
-            else -> emptyList()
+            // Female, ≥50 -> Elderly only
+            ageInYears >= 50 ->
+                statusOfWomanList.filter { it.statusID == 4 }
+
+            // Ranges where Marital Status matters (15-49)
+            ageInYears in 15..49 -> {
+                when (mStatus) {
+                    "married" -> statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
+                    "unmarried" -> {
+                        if (ageInYears in 15..19) statusOfWomanList.filter { it.statusID == 5 } // Adolescent
+                        else statusOfWomanList.filter { it.statusID == 7 } // 20+ unmarried -> NA
+                    }
+                    null -> emptyList() // Wait for marital status to avoid auto-selecting NA
+                    else -> statusOfWomanList.filter { it.statusID == 7 } // Widow/Divorced -> NA
+                }
+            }
+            
+            // Female 10-14 (always Adolescent regardless of marital status, though usually unmarried)
+            ageInYears in 10..14 ->
+                statusOfWomanList.filter { it.statusID == 5 }
+
+            // Default
+            else -> statusOfWomanList.filter { it.statusID == 7 }
         }
     }
 
     /**
      * Check if Status of Woman field should be visible.
-     * Visible only for females with age >= 10.
+     * Visible for females with age >= 15 (Adolescent starts at 15 as per new image).
      */
     fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?): Boolean {
-        return genderId == 2 && ageInYears != null && ageInYears >= 10
+        // Now visible for all females
+        return genderId == 2
+    }
+
+    
+    fun shouldShowMaritalStatus(genderId: Int?, ageInYears: Int?): Boolean {
+        // Show only if gender is selected and age >= 15 years
+        return genderId != null && ageInYears != null && ageInYears >= 15
+    }
+
+    /**
+     * Returns filtered Marital Status options based on gender.
+     * Widow/Widower logic.
+     */
+    fun getFilteredMaritalStatusOptions(genderId: Int?): List<MaritalStatusMaster> {
+        val list = maritalStatusList
+        return when (genderId) {
+            1 -> list.filter { it.status.lowercase() != "widow" } // Male: No "Widow" (Show Widower)
+            2 -> list.filter { it.status.lowercase() != "widower" } // Female: No "Widower" (Show Widow)
+            else -> list
+        }
     }
 
     /**

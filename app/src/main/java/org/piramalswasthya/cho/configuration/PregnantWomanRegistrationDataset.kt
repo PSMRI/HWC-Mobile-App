@@ -165,7 +165,7 @@ class PregnantWomanRegistrationDataset(
             "AB -ve",
             "O -ve"
         ),
-        required = true
+        required = false
     )
 
     // Gravida & Para
@@ -391,8 +391,7 @@ class PregnantWomanRegistrationDataset(
 
         val list = mutableListOf<FormElement>()
 
-        // Always add Date of Registration first
-        list.add(dateOfReg)
+        // Always add RCH ID first
         list.add(rchId)
 
         // Build form based on read-only or editable mode
@@ -696,9 +695,8 @@ class PregnantWomanRegistrationDataset(
             lmp.id -> handleLmpChange()
             historyOfAbortions.id -> handleHistoryOfAbortionsChange(index)
             gravida.id -> handleGravidaChange()
-            gravida.id -> handleGravidaChange()
             para1.id, para2.id -> handleParaChange()
-            height.id, weight.id -> handleAnthropometryChange()
+            height.id, weight.id -> handleAnthropometryChange(formId)
             vdrlRprResult.id -> {
                 handleVdrlRprResultChange(index)
                 return vdrlRprResult.id // Return the ID so Fragment can update UI
@@ -797,9 +795,14 @@ class PregnantWomanRegistrationDataset(
                             vdrlRprDate, hivTestDate, hbsAgTestDate
                         ) // Remove date fields if they exist
             )
-            onNavigateToEligibleCouple?.invoke()
-            -1
+//            Removed to defer navigation
+          
         })
+    }
+
+    fun shouldNavigateToEligibleCouple(): Boolean {
+   
+        return uptResult.value == "Negative"
     }
 
     private fun handleLmpChange(): Int {
@@ -1120,15 +1123,47 @@ class PregnantWomanRegistrationDataset(
         }
     }
 
-    private fun handleAnthropometryChange(): Int {
-        validateIntMinMax(height)
-        validateDoubleMinMax(weight)
+    private fun handleAnthropometryChange(formId: Int): Int {
+
+        if (formId == height.id) {
+            val heightText = height.value ?: ""
+            val heightValue = heightText.toIntOrNull()
+
+            when {
+                heightValue != null && heightValue < 100 -> {
+                    height.errorText = "Height should be greater than or equal to 100 cm"
+                }
+
+                heightValue != null && heightText.length >= 3 && heightValue > 220 -> {
+                    height.errorText = "Height should be less than or equal to 220 cm"
+                }
+
+                heightValue != null && heightValue in 100..220 -> {
+                    height.errorText = null
+
+                    if (heightValue < 145 && heightText.length >= 3) {
+                        onShowAlert?.invoke("Height < 145 cm detected - High Risk Pregnancy")
+                    }
+                }
+
+                else -> {
+                    height.errorText = null
+                }
+            }
+        }
+
+
         updateBMI()
         updateHighRiskStatus()
-        if (getIndexById(bmi.id) >= 0) {
-            return bmi.id
-        }
-        return -1
+
+        return if (getIndexById(bmi.id) >= 0) bmi.id else -1
+    }
+
+
+
+    fun validateHeightStrict(): Boolean {
+        validateIntMinMax(height)
+        return height.errorText == null
     }
 
     private fun handlePreExistingConditionsChange(index: Int): Int {
@@ -1156,7 +1191,7 @@ class PregnantWomanRegistrationDataset(
         }
     }
 
-    private fun updateBMI() {
+    private fun updateBMI(isHeightChange: Boolean = false) {
         val heightValue = height.value?.toDoubleOrNull()
         val weightValue = weight.value?.toDoubleOrNull()
 
@@ -1182,7 +1217,9 @@ class PregnantWomanRegistrationDataset(
             Timber.d("BMI updated: Height=$heightValue, Weight=$weightValue, BMI=${newBmi.value}")
 
             // Check for height < 145 cm HRP condition
-            if (heightValue < 145) {
+            // Only trigger alert if user has typed at least 3 digits to avoid premature alerts
+            // AND if the height field is the one that was actively changed
+            if (isHeightChange && heightValue < 145 && (height.value?.length ?: 0) >= 3) {
                 onShowAlert?.invoke("Height < 145 cm detected - HRP condition")
             }
         } else {
@@ -1232,7 +1269,7 @@ class PregnantWomanRegistrationDataset(
      * Check if height < 145 cm (HRP condition)
      */
     private fun checkHeightCondition(): Boolean {
-        return height.value?.toDoubleOrNull()?.let { it < 145 } == true
+        return height.value?.toDoubleOrNull()?.let { it < 145 && (height.value?.length ?: 0) >= 3 } == true
     }
 
     /**

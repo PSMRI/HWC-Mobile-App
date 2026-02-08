@@ -621,6 +621,14 @@ class FhirVitalsFragment : Fragment(R.layout.fragment_vitals_custom), Navigation
         }
     }
 
+
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.vital_signs)
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_vitals_info;
     }

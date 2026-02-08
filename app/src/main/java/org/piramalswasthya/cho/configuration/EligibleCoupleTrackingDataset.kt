@@ -61,11 +61,11 @@ class EligibleCoupleTrackingDataset(
 
     private val month = FormElement(
         id = 3,
-        inputType = InputType.TEXT_VIEW,
+        inputType = InputType.DROPDOWN,
         title = "Month",
         arrayId = R.array.visit_months,
         entries = resources.getStringArray(R.array.visit_months),
-        required = false
+        required = true
     )
 
     private val lmpDate = FormElement(
@@ -84,7 +84,7 @@ class EligibleCoupleTrackingDataset(
         inputType = InputType.RADIO,
         title = resources.getString(R.string.is_pregnancy_test_done),
         entries = arrayOf("Yes", "No"),
-        required = false,
+        required = true,
         hasDependants = true
     )
 
@@ -182,6 +182,7 @@ class EligibleCoupleTrackingDataset(
     private var lastAntraDose: String? = null
 
     fun getIndexOfIsPregnant() = getIndexById(isPregnant.id)
+    fun getContraceptionMethodId() = methodOfContraception.id
 
     fun setNumberOfChildren(count: Int) {
         numberOfChildren = count
@@ -222,14 +223,14 @@ class EligibleCoupleTrackingDataset(
         methodOfContraception.entries = allOptions.toTypedArray()
     }
 
-    private fun calculateNextAntraDose(): String {
+    private fun calculateNextAntraDose(visitDate: Long): String {
         if (lastAntraInjectionDate == null || lastAntraDose == null) {
             return resources.getStringArray(R.array.antra_doses)[0] // 1st Dose
         }
 
-        val daysSinceLastInjection = ((System.currentTimeMillis() - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
+        val daysSinceLastInjection = ((visitDate - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
 
-        // If gap > 120 days, restart from Dose 1
+        // If gap is more than 120 days between any 2 doses then restart from "Dose-1"
         if (daysSinceLastInjection > ANTRA_MAX_GAP_DAYS) {
             return resources.getStringArray(R.array.antra_doses)[0]
         }
@@ -240,16 +241,23 @@ class EligibleCoupleTrackingDataset(
         return if (currentDoseIndex >= 0 && currentDoseIndex < doses.size - 1) {
             doses[currentDoseIndex + 1]
         } else {
-            doses[0]
+            // After 10th dose, stay on 10th or loop? Usually stays/repeats.
+            doses.last()
         }
     }
 
-    private fun calculateAntraDueDate(injectionDate: Long): Long {
-        // Due date = Injection Date + 76 days (minimum gap)
-        return Calendar.getInstance().apply {
-            timeInMillis = injectionDate
-            add(Calendar.DAY_OF_YEAR, ANTRA_MIN_GAP_DAYS + 1)
-        }.timeInMillis
+    private fun calculateAntraDueDateRange(injectionDate: Long): String {
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = injectionDate
+        
+        cal.add(Calendar.DAY_OF_YEAR, 76)
+        val startDate = getDateFromLong(cal.timeInMillis)
+        
+        cal.timeInMillis = injectionDate
+        cal.add(Calendar.DAY_OF_YEAR, 120)
+        val endDate = getDateFromLong(cal.timeInMillis)
+        
+        return "$startDate to $endDate"
     }
 
     suspend fun setUpPage(
@@ -266,15 +274,10 @@ class EligibleCoupleTrackingDataset(
             isPregnancyTestDone,
         )
 
+        val now = System.currentTimeMillis()
         if (saved == null) {
-            dateOfVisit.value = getDateFromLong(System.currentTimeMillis())
-            dateOfVisit.value?.let {
-                financialYear.value = getFinancialYear(it)
-                month.value = resources.getStringArray(R.array.visit_months)[getMonth(it)!!]
-            }
-
             // Set minimum date for visit (next month after last visit or registration date)
-            dateOfVisit.min = lastTrack?.let {
+            val minDate = lastTrack?.let {
                 Calendar.getInstance().apply {
                     timeInMillis = it.visitDate
                     val currentMonth = get(Calendar.MONTH)
@@ -288,6 +291,18 @@ class EligibleCoupleTrackingDataset(
                     setToStartOfTheDay()
                 }.timeInMillis
             } ?: dateOfReg
+            
+            dateOfVisit.min = minDate
+            // Ensure max is never less than min to avoid DatePicker crash
+            dateOfVisit.max = if (now < minDate) minDate else now
+            
+            // Set initial value within [min, max] range
+            val initialValue = if (now < minDate) minDate else now
+            dateOfVisit.value = getDateFromLong(initialValue)
+            dateOfVisit.value?.let {
+                financialYear.value = getFinancialYear(it)
+                month.value = resources.getStringArray(R.array.visit_months)[getMonth(it)!!]
+            }
 
             // ANTRA dose restart alert is handled in ViewModel/Fragment level
         } else {
@@ -295,6 +310,9 @@ class EligibleCoupleTrackingDataset(
             dateOfVisit.value = getDateFromLong(saved.visitDate)
             financialYear.value = saved.financialYear ?: getFinancialYear(dateOfVisit.value)
             month.value = saved.visitMonth ?: resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
+            
+            // Still refresh max to avoid stale current time
+            dateOfVisit.max = if (now < (dateOfVisit.min ?: 0L)) dateOfVisit.min else now
 
             saved.lmpDate?.let {
                 lmpDate.value = getDateFromLong(it)
@@ -409,16 +427,14 @@ class EligibleCoupleTrackingDataset(
                         )
                     }
                     "Negative" -> {
-                        // Clear pregnant, enable it, show isPregnant
-                        isPregnant.value = null
-                        isPregnant.isEnabled = true
+                        // Auto-set pregnant = No, hide it, show family planning
+                        isPregnant.value = "No"
+                        isPregnant.isEnabled = false
                         clearFamilyPlanningFields()
                         triggerDependants(
                             source = pregnancyTestResult,
-                            passedIndex = index,
-                            triggerIndex = 1,
-                            target = isPregnant,
-                            targetSideEffect = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
+                            removeItems = listOf(isPregnant),
+                            addItems = listOf(usingFamilyPlanning)
                         )
                     }
                     else -> -1
@@ -466,7 +482,20 @@ class EligibleCoupleTrackingDataset(
                         // Show ANTRA fields, remove others
                         anyOtherMethod.value = null
                         dateOfSterilization.value = null
-                        antraDose.value = calculateNextAntraDose()
+                        antraDose.value = calculateNextAntraDose(getLongFromDate(dateOfVisit.value))
+                        
+                        // Set backdating limit based on dose
+                        val now = System.currentTimeMillis()
+                        if (antraDose.value == resources.getStringArray(R.array.antra_doses)[0]) {
+                            antraInjectionDate.min = Calendar.getInstance().apply {
+                                add(Calendar.DAY_OF_YEAR, -ANTRA_BACKDATE_LIMIT_DAYS)
+                            }.timeInMillis
+                        } else {
+                            // Validate from previous dose logic can be added here or in handler
+                            antraInjectionDate.min = lastAntraInjectionDate ?: 0L
+                        }
+                        antraInjectionDate.max = if (now < (antraInjectionDate.min ?: 0L)) antraInjectionDate.min else now
+
                         triggerDependants(
                             source = methodOfContraception,
                             removeItems = listOf(anyOtherMethod, dateOfSterilization),
@@ -479,6 +508,10 @@ class EligibleCoupleTrackingDataset(
                         antraDose.value = null
                         antraInjectionDate.value = null
                         antraDueDate.value = null
+                        
+                        val now = System.currentTimeMillis()
+                        dateOfSterilization.max = if (now < (dateOfSterilization.min ?: 0L)) dateOfSterilization.min else now
+                        
                         triggerDependants(
                             source = methodOfContraception,
                             removeItems = listOf(anyOtherMethod, antraDose, antraInjectionDate, antraDueDate),
@@ -514,11 +547,20 @@ class EligibleCoupleTrackingDataset(
             }
 
             antraInjectionDate.id -> {
-                // Calculate and set due date
+                // Calculate and set due date range
                 antraInjectionDate.value?.let {
                     val injectionDateLong = getLongFromDate(it)
-                    val dueDate = calculateAntraDueDate(injectionDateLong)
-                    antraDueDate.value = getDateFromLong(dueDate)
+                    antraDueDate.value = calculateAntraDueDateRange(injectionDateLong)
+                    
+                    // Gap validation: 75 to 120 days
+                    if (antraDose.value != resources.getStringArray(R.array.antra_doses)[0] && lastAntraInjectionDate != null) {
+                        val gap = ((injectionDateLong - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
+                        if (gap < 75 || gap > 120) {
+                            antraInjectionDate.errorText = "Gap between doses should be 75-120 days"
+                        } else {
+                            antraInjectionDate.errorText = null
+                        }
+                    }
                 }
                 -1
             }
@@ -555,7 +597,11 @@ class EligibleCoupleTrackingDataset(
             if (methodOfContraception.value == ANTRA_INJECTION) {
                 form.antraDose = antraDose.value
                 form.antraInjectionDate = antraInjectionDate.value?.let { getLongFromDate(it) }
-                form.antraDueDate = antraDueDate.value?.let { getLongFromDate(it) }
+                // Save the first date of the range to database
+                form.antraDueDate = antraDueDate.value?.let { 
+                    val firstDateStr = it.split(" to ")[0]
+                    getLongFromDate(firstDateStr)
+                }
             } else {
                 form.antraDose = null
                 form.antraInjectionDate = null

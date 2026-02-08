@@ -28,6 +28,7 @@ import org.piramalswasthya.cho.model.StatusOfWomanMaster
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
 import org.piramalswasthya.cho.utils.DateTimeUtil
 import java.util.Locale
+import android.text.InputFilter
 
 @AndroidEntryPoint
 class EditBeneficiaryDetailsFragment : Fragment() {
@@ -118,6 +119,20 @@ class EditBeneficiaryDetailsFragment : Fragment() {
         setupObservers()
         setupTextWatchers()
         setupClickListeners()
+        setupNameFilters()
+    }
+
+    private fun setupNameFilters() {
+        val nameFilter = InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                val char = source[i]
+                if (!char.isLetter() && char != ' ' && char != '-') {
+                    return@InputFilter ""
+                }
+            }
+            null
+        }
+        binding.etLastName.filters = arrayOf(nameFilter)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -197,6 +212,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
                 EditBeneficiaryDetailsViewModel.SaveState.ERROR -> handleSaveError()
                 EditBeneficiaryDetailsViewModel.SaveState.IDLE -> Unit
                 EditBeneficiaryDetailsViewModel.SaveState.SAVING -> Unit
+                null -> Unit
             }
         }
     }
@@ -204,7 +220,7 @@ class EditBeneficiaryDetailsFragment : Fragment() {
     private fun handleSaveSuccess() {
         Toast.makeText(
             requireContext(),
-            getString(R.string.beneficiary_updated_successfully),
+            getString(R.string.patient_edited_successfully_title),
             Toast.LENGTH_SHORT
         ).show()
         
@@ -389,7 +405,19 @@ class EditBeneficiaryDetailsFragment : Fragment() {
     }
 
     private fun handlePostSaveNavigation() {
-        parentFragmentManager.popBackStack()
+        // If in RegisterPatientActivity, finish the activity to return to HomeActivity
+        if (requireActivity() is org.piramalswasthya.cho.ui.register_patient_activity.RegisterPatientActivity) {
+            requireActivity().finish()
+            return
+        }
+
+        val fragmentManager = parentFragmentManager
+        if (fragmentManager.backStackEntryCount > 0) {
+            val firstEntry = fragmentManager.getBackStackEntryAt(0)
+            fragmentManager.popBackStack(firstEntry.id, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        } else {
+            parentFragmentManager.popBackStack()
+        }
     }
 
 

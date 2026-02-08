@@ -2,10 +2,10 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragment_new_form"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_pregnancy_registration_form"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/ll_content"
@@ -15,8 +15,7 @@
         android:orientation="vertical"
         android:padding="@dimen/padding_normal">
 
-
-
+        <!-- Patient Information Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_patient_information"
             android:layout_width="match_parent"
@@ -52,7 +51,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_age_gender"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Patient Name" />
 
                     <TextView
                         android:id="@+id/tv_age_gender"
@@ -64,7 +64,8 @@
                         android:textColor="@android:color/white"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="25 Years | Female" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -109,21 +110,22 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Form Title -->
         <TextView
-            android:id="@+id/tv_form_title"
+            android:id="@+id/pwr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
             android:visibility="gone"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            tools:text="Delivery Outcome"
+            tools:text="Pregnancy Registration"
             tools:visibility="visible" />
 
+        <!-- Form Content -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
-
 
             <include
                 android:id="@+id/form"
@@ -132,7 +134,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
-
+            <!-- Edit FAB -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_edit"
                 android:layout_width="wrap_content"
@@ -148,26 +150,48 @@
         </FrameLayout>
 
         <Space
-            android:layout_width="397dp"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_space_height"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/form" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_submit"
+        <!-- Bottom Navigation with Cancel and Next Buttons -->
+        <LinearLayout
+            android:id="@+id/ll_bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_margin="@dimen/margin_small"
-            android:text="@string/btn_submit"
-            android:visibility="gone"
-            android:textColor="@android:color/white" />
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/padding_normal"
+            android:paddingEnd="@dimen/padding_normal">
 
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginEnd="@dimen/padding_normal"
+                android:layout_weight="1"
+                android:backgroundTint="@color/default_button"
+                android:text="@string/cancel"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btn_submit"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="1"
+                android:backgroundTint="@color/default_button"
+                android:text="@string/next"
+                android:visibility="visible"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-
-
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/pb_form"
         android:layout_width="wrap_content"
@@ -175,7 +199,5 @@
         android:layout_gravity="center"
         android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone" />
-
-
 
 </FrameLayout>

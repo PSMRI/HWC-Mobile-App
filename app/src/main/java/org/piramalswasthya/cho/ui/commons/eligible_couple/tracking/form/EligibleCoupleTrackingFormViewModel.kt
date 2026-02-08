@@ -107,6 +107,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             }
 
             val pastTrack = ecrRepo.getLatestEctByBenId(patientID)
+            val ecr = ecrRepo.getSavedECR(patientID)
 
             Log.d("patient Id is ", patientID)
             Log.d("createdDate is ", createdDate.toString())
@@ -119,6 +120,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             }
 
 
+            dataset.setNumberOfChildren(ecr?.noOfChildren ?: 0)
             dataset.setUpPage(
                 ben,
                 pastTrack?.visitDate ?: 0,
@@ -134,6 +136,17 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
+            
+            // Trigger alerts immediately on selection (Requirement Phase 2)
+            if (formId == dataset.getContraceptionMethodId()) {
+                if (dataset.isAntraSelected()) {
+                    _showAlert.value = AlertType.ANTRA_INCENTIVE
+                } else if (dataset.isSterilizationSelected()) {
+                    _showAlert.value = AlertType.STERILIZATION_INCENTIVE
+                } else {
+                    _showAlert.value = AlertType.NONE
+                }
+            }
         }
 
     }

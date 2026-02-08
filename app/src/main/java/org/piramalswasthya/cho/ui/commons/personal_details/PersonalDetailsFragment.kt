@@ -277,17 +277,14 @@ class PersonalDetailsFragment : Fragment() {
                                 if (isShowingSearchResults) {
                                     lifecycleScope.launch(dispatcherProvider.io) {
                                         val patient = benVisitInfo.patient
-                                        val regId = patient.beneficiaryRegID
-                                        if (regId != null) {
-                                            val existing = patientDao.getPatientByBenRegId(regId)
-                                            if (existing == null) {
-                                                patientDao.insertPatient(patient)
-                                            } else {
-                                                patient.patientID = existing.patientID
-                                                patientDao.updatePatient(patient)
-                                            }
-                                        } else {
+                                        val existing = (patient.beneficiaryRegID?.let { patientDao.getPatientByBenRegId(it) })
+                                            ?: (patient.beneficiaryID?.let { patientDao.getBen(it) })
+
+                                        if (existing == null) {
                                             patientDao.insertPatient(patient)
+                                        } else {
+                                            patient.patientID = existing.patientID
+                                            patientDao.updatePatient(patient)
                                         }
                                         withContext(dispatcherProvider.main) {
                                             isShowingSearchResults = false

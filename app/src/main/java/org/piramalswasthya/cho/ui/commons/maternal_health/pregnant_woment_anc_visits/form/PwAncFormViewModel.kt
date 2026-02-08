@@ -262,6 +262,18 @@ class PwAncFormViewModel @Inject constructor(
                             maternalHealthRepo.persistRegisterRecord(it)
                         }
                     }
+                    
+                    // Set isFirstAncSubmitted to true if this is the 1st ANC visit and it's being completed
+                    if (ancCache.visitNumber == 1 && isCompletedNow) {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            it.isFirstAncSubmitted = true
+                            if (it.processed != "N") it.processed = "U"
+                            it.syncState = SyncState.UNSYNCED
+                            it.updatedDate = System.currentTimeMillis()
+                            maternalHealthRepo.persistRegisterRecord(it)
+                            Timber.d("Setting isFirstAncSubmitted to true for patient $patientID")
+                        }
+                    }
                     if (ancCache.pregnantWomanDelivered == true) {
 
                     } else if (ancCache.isAborted) {

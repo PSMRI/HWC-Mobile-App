@@ -191,6 +191,19 @@ class SubModuleFragment : Fragment() {
         rvAdapter.submitList(iconList)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val titleRes = when (moduleType) {
+            MODULE_MATERNAL_HEALTH -> R.string.maternal_health
+            MODULE_CHILD_CARE -> R.string.child_care
+            MODULE_ELIGIBLE_COUPLE -> R.string.eligible_couple_list
+            else -> null
+        }
+        titleRes?.let {
+            (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = getString(it)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

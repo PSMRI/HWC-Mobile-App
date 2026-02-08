@@ -55,6 +55,12 @@ class PregnantWomenRegistrationFragment : Fragment() {
         observePatients()
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            getString(R.string.pregnant_women_registration)
+    }
+
     private fun setupRecyclerView() {
         adapter = PregnantWomenAdapter(
             PregnantWomenAdapter.ClickListener { patientWithPwr ->
@@ -99,12 +105,16 @@ class PregnantWomenRegistrationFragment : Fragment() {
                     .filter { patient ->
                         // Filter criteria:
                         // 1. Female gender (genderID = 2)
-                        // 2. Age between 15-49 years (reproductive age)
+                        // 2. Married (maritalStatusID = 2)
+                        // 3. Status of woman is Pregnant Woman (statusOfWomanID = 2)
+                        // 4. Age between 15-49 years (reproductive age)
                         val isFemale = patient.patient.genderID == 2
+                        val isMarried = patient.patient.maritalStatusID == 2
+                        val isPregnantWoman = patient.patient.statusOfWomanID == 2
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
 
-                        isFemale && isReproductiveAge
+                        isFemale && isMarried && isPregnantWoman && isReproductiveAge
                     }
                     .sortedByDescending { it.patient.registrationDate }
 
@@ -120,6 +130,9 @@ class PregnantWomenRegistrationFragment : Fragment() {
     }
 
     private fun updateUI() {
+        // Safe access to binding - if view is destroyed, _binding will be null
+        if (_binding == null) return
+        
         adapter.submitList(filteredPatients)
         updateListUI(
             filteredList = filteredPatients,
