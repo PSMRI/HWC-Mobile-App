@@ -122,7 +122,14 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    saveNurseData()
+                    WorkerUtils.triggerAmritSyncWorker(requireContext())
+                    
+                    // Navigate back to PNC list instead of going to Home
+                    try {
+                        findNavController().navigateUp()
+                    } catch (e: Exception) {
+                        requireActivity().finish()
+                    }
                 }
 
                 State.SAVE_FAILED -> {
@@ -257,7 +264,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        requireActivity().finish()
     }
 
 }
