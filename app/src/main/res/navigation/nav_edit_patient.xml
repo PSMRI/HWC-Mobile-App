@@ -147,6 +147,9 @@
         <argument
             android:name="isOldVisit"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_pwAncFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
     </fragment>
 
     <fragment

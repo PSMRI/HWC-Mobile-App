@@ -82,11 +82,12 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             notIt?.let { recordExists ->
                 val formEditable = !(viewModel.isOldVisit.value ?: true)
                 binding.fabEdit.visibility = View.GONE
+                // Hide fragment's submit button, use only bottom navigation button
+                binding.btnSubmit.visibility = View.GONE
                 if (viewModel.isOldVisit.value == true) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     btnSubmit?.visibility = View.GONE
                 }
-                binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
                 ancFormAdapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
@@ -105,7 +106,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
             // Form is editable if it's NOT an old visit
             val formEditable = !isOld
-            binding.btnSubmit.visibility = if (formEditable) View.VISIBLE else View.GONE
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
             ancFormAdapter = FormInputAdapter(
                 formValueListener = FormInputAdapter.FormValueListener { formId, index ->
@@ -143,7 +143,14 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    requireActivity().finish()
+                    
+                    // Navigate to Vitals instead of finishing
+                    try {
+                        findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
+                    } catch (e: Exception) {
+                        // Fallback: finish if navigation fails
+                        requireActivity().finish()
+                    }
                 }
 
                 State.SAVE_FAILED -> {

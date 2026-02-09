@@ -118,6 +118,22 @@ class PNCMotherListFragment : Fragment() {
 
     private fun navigateToAddPncVisit(patientWithPnc: PatientWithPncDomain) {
         lifecycleScope.launch {
+            // Check if delivery date exists
+            val deliveryDateTimestamp = patientWithPnc.deliveryOutcome?.dateOfDischarge
+            if (deliveryDateTimestamp == null) {
+                Toast.makeText(requireContext(), "Delivery date not found", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            
+            // Calculate days since delivery (convert timestamp to LocalDate)
+            val deliveryDate = java.time.Instant.ofEpochMilli(deliveryDateTimestamp)
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate()
+            val daysSinceDelivery = java.time.temporal.ChronoUnit.DAYS.between(
+                deliveryDate,
+                java.time.LocalDate.now()
+            ).toInt()
+            
             // Calculate next visit number
             val lastVisitNumber = pncRepo.getLastVisitNumber(patientWithPnc.patient.patientID) ?: 0
             val availableVisits = listOf(1, 3, 7, 14, 21, 28, 42).filter { it > lastVisitNumber }
@@ -128,6 +144,16 @@ class PNCMotherListFragment : Fragment() {
             }
             
             val nextVisitNumber = availableVisits.first()
+            
+            // Check if enough days have elapsed for next visit
+            if (daysSinceDelivery < nextVisitNumber) {
+                Toast.makeText(
+                    requireContext(),
+                    "PNC Visit Day $nextVisitNumber not yet due (${daysSinceDelivery} days since delivery)",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@launch
+            }
             
             // Navigate to PNC form
             val intent = android.content.Intent(
