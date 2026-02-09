@@ -76,9 +76,10 @@ class PNCMotherAdapter(
     }
 
     class ClickListener(
-        private val clickedView: ((patientWithPnc: PatientWithPncDomain) -> Unit)? = null
+        private val onAddVisit: ((patientWithPnc: PatientWithPncDomain) -> Unit)? = null,
+        private val onViewVisits: ((patientWithPnc: PatientWithPncDomain) -> Unit)? = null
     ) {
-        fun onClickView(item: PatientWithPncDomain) =
-            clickedView?.let { it(item) }
+        fun clickAddVisit(item: PatientWithPncDomain) = onAddVisit?.invoke(item)
+        fun clickViewVisits(item: PatientWithPncDomain) = onViewVisits?.invoke(item)
     }
 }

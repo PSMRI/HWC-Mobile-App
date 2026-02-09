@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.room.SyncState
-import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.configuration.PncFormDataset
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -75,7 +74,7 @@ class PncFormViewModel @Inject constructor(
 
     suspend fun hasPreviousPermanentSterilization(): Boolean {
         return pncRepo.getAllPNCsByPatId(patientID)
-            .filter { it.pncPeriod < visitNumber }
+            .filter { it.pncPeriod.toInt() < visitNumber.toInt() }
             .any { pncVisit ->
                 pncVisit.contraceptionMethod?.let { method ->
                     isPermanentSterilizationMethod(method)

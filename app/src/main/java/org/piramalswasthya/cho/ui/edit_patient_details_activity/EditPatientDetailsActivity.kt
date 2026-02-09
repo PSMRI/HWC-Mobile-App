@@ -89,6 +89,18 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     putBoolean("isOldVisit", isOldVisit)
                 }
             )
+        } else if (intent.getStringExtra("navigateTo") == "PNC") {
+            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
+            val patientID = intent.getStringExtra("patientID") ?: ""
+            val visitNumber = intent.getIntExtra("visitNumber", 1)
+
+            navHostFragment.navController.navigate(
+                R.id.pncFormFragment,
+                Bundle().apply {
+                    putString("patientID", patientID)
+                    putInt("visitNumber", visitNumber)
+                }
+            )
         } else if (preferenceDao.isDoctorSelected()) {
 //            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
 //            binding.patientDetalis.visibility= View.GONE
