@@ -8,9 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import org.piramalswasthya.cho.databinding.RvItemPncMotherBinding
 import org.piramalswasthya.cho.model.PatientWithPncDomain
 import org.piramalswasthya.cho.utils.DateTimeUtil
+import org.piramalswasthya.cho.repositories.PncRepo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PNCMotherAdapter(
-    private val clickListener: ClickListener? = null
+    private val clickListener: ClickListener? = null,
+    private val pncRepo: PncRepo
 ) : ListAdapter<PatientWithPncDomain, PNCMotherAdapter.PNCMotherViewHolder>(
     PNCMotherDiffUtilCallBack
 ) {
@@ -41,7 +47,8 @@ class PNCMotherAdapter(
 
         fun bind(
             item: PatientWithPncDomain,
-            clickListener: ClickListener?
+            clickListener: ClickListener?,
+            pncRepo: PncRepo
         ) {
             binding.patientWithPnc = item
             binding.clickListener = clickListener
@@ -64,7 +71,39 @@ class PNCMotherAdapter(
                 else -> "Today"
             }
 
+            // Enable/disable Add Visit button based on eligibility
+            CoroutineScope(Dispatchers.Main).launch {
+                val isEnabled = withContext(Dispatchers.IO) {
+                    checkAddVisitEligibility(item, pncRepo)
+                }
+                binding.btnAddVisit.isEnabled = isEnabled
+                binding.btnAddVisit.alpha = if (isEnabled) 1.0f else 0.5f
+            }
+
             binding.executePendingBindings()
+        }
+        
+        private suspend fun checkAddVisitEligibility(
+            item: PatientWithPncDomain,
+            pncRepo: PncRepo
+        ): Boolean {
+            // Get last visit number
+            val lastVisitNumber = pncRepo.getLastVisitNumber(item.patient.patientID) ?: 0
+            val availableVisits = listOf(1, 3, 7, 14, 21, 28, 42).filter { it > lastVisitNumber }
+            
+            // No more visits available
+            if (availableVisits.isEmpty()) return false
+            
+            val nextVisitNumber = availableVisits.first()
+            
+            // First visit is always allowed
+            if (lastVisitNumber == 0) return true
+            
+            // For subsequent visits, check days since delivery
+            val daysSinceDelivery = item.getDaysSinceDelivery() ?: return false
+            
+            // Enable button if enough days have elapsed
+            return daysSinceDelivery >= nextVisitNumber
         }
     }
 
@@ -72,7 +111,7 @@ class PNCMotherAdapter(
         PNCMotherViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: PNCMotherViewHolder, position: Int) {
-        holder.bind(getItem(position), clickListener)
+        holder.bind(getItem(position), clickListener, pncRepo)
     }
 
     class ClickListener(

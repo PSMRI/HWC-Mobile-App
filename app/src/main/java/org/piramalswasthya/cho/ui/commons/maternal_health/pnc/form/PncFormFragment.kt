@@ -124,12 +124,8 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                     Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
                     
-                    // Navigate back to PNC list instead of going to Home
-                    try {
-                        findNavController().navigateUp()
-                    } catch (e: Exception) {
-                        requireActivity().finish()
-                    }
+                    // Finish activity to return to PNC list
+                    requireActivity().finish()
                 }
 
                 State.SAVE_FAILED -> {
