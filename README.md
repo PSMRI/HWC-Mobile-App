@@ -3,9 +3,9 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-PSMRI%2FHWC--Mobile--App-blue.svg?...)](https://deepwiki.com/PSMRI/HWC-Mobile-App)
 
 ## Overview
+
 The HWC Mobile App is designed for healthcare programs to facilitate collaboration among health workers with different roles such as Registrar, Nurse, Pharmacist, Lab Technician, and Doctor, etc.
 This application aims to eliminate pen and paperwork for different roles, allowing them to enter patient data digitally with increased ease and accuracy.
-
 
 ## Functional Description
 
@@ -28,7 +28,6 @@ This application aims to eliminate pen and paperwork for different roles, allowi
 - **Architecture & Architectural Components**: MVVM, Android Architectural Components
 - **SDK**: Android SDK 23-34
 
-
 ## Installation
 
 Make sure you have the following installed:
@@ -45,7 +44,6 @@ To run this project, Follow these steps:
 5. Wait for Android Studio to sync the project and download the dependencies.
 6. Once the sync is done, you can run the project on an emulator or a physical device.
 
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -59,13 +57,12 @@ Contributions are welcome! Please follow these steps:
 
 ## Filing Issues
 
-If you encounter any issues, bugs, or have feature requests, please file them in the [main AMRIT repository](https://github.com/PSMRI/AMRIT/issues). Centralizing all feedback helps us streamline improvements and address concerns efficiently.  
+If you encounter any issues, bugs, or have feature requests, please file them in the [main AMRIT repository](https://github.com/PSMRI/AMRIT/issues). Centralizing all feedback helps us streamline improvements and address concerns efficiently.
 
 ## Join Our Community
 
 We’d love to have you join our community discussions and get real-time support!  
-Join our [Discord server](https://discord.gg/FVQWsf5ENS) to connect with contributors, ask questions, and stay updated.  
-
+Join our [Discord server](https://discord.gg/FVQWsf5ENS) to connect with contributors, ask questions, and stay updated.
 
 ## Credits
 
@@ -75,24 +72,24 @@ This project uses third-party open-source models and resources. Full acknowledge
 
 ### **1. FaceNet (facenet.tflite)**
 
-* Original FaceNet implementation
+- Original FaceNet implementation
   **Repository:** [https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
   **License:** MIT License
   **Architecture:** Inception-ResNet-v1 trained on CASIA-WebFace
-* Android TFLite model source used in this project:
+- Android TFLite model source used in this project:
   **Repository:** [https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android](https://github.com/shubham0204/FaceRecognition_With_FaceNet_Android)
-* The Facenet `.tflite` in our repo (`app/src/main/assets/facenet.tflite`) was sourced directly from the above repository.
-* If any developer wishes to convert a FaceNet `.pb` model to `.tflite`, refer to this conversion script:
+- The Facenet `.tflite` in our repo (`app/src/main/assets/facenet.tflite`) was sourced directly from the above repository.
+- If any developer wishes to convert a FaceNet `.pb` model to `.tflite`, refer to this conversion script:
   **File:** [`src/train_model/tflite_convert.py`](https://github.com/davidsandberg/facenet/blob/master/src/train_model/tflite_convert.py)
 
 ---
 
 ### **2. MediaPipe Face Detection (BlazeFace – Short Range)**
 
-* Replaced Google ML Kit with MediaPipe implementation.
-* Current face detection model used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
-* Downloaded from official source:
+- Replaced Google ML Kit with MediaPipe implementation.
+- Current face detection model used: **BlazeFace Short-Range (`face_detection_short_range.tflite`)**
+- Downloaded from official source:
   [https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models](https://ai.google.dev/edge/mediapipe/solutions/vision/face_detector#models)
-* Face Detector is part of **Mediapipe Solutions**
+- Face Detector is part of **Mediapipe Solutions**
   **Repository:** [https://github.com/google/mediapipe](https://github.com/google/mediapipe)
   **License:** Apache 2.0
