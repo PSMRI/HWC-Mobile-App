@@ -48,7 +48,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
 
     val viewModel: PncFormViewModel by viewModels()
 
-    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private var benVisitInfo: PatientDisplayWithVisitInfo? = null
 
     val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
@@ -71,7 +71,7 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
 
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
@@ -140,8 +140,9 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
-                if(it == null){
+            benVisitInfo?.let { visitInfo ->
+                CPHCviewModel.getLastVisitInfoSync(visitInfo.patient.patientID).let {
+                    if(it == null){
                     benVisitNo = 1;
                 }
                 else if(it.nurseFlag == 1) {
@@ -149,7 +150,8 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
                 }
                 else {
                     benVisitNo = it.benVisitNo + 1
-                    createNewBenflow = true;
+                        createNewBenflow = true;
+                    }
                 }
             }
 
@@ -181,19 +183,19 @@ class PncFormFragment() : Fragment(), NavigationAdapter{
             category = "PNC",
             reasonForVisit = "New Chief Complaint",
             subCategory = "PNC",
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
             createdBy = user?.userName
         )
 
         val patientVitals = PatientVitalsModel(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
         )
 
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: "",
             benVisitNo = benVisitNo,
             createNewBenFlow = false,
             nurseDataSynced = SyncState.SYNCED,

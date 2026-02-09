@@ -24,7 +24,7 @@ interface PncDao {
     suspend fun getLastSavedRecord(patientID: String): PNCVisitCache?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(pncCache: PNCVisitCache)
+    suspend fun insert(pncCache: PNCVisitCache): Long
 
     @Query("SELECT * FROM pnc_visit WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPncVisits(): List<PNCVisitCache>

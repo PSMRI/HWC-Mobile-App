@@ -44,6 +44,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.fabEdit.visibility = View.GONE
         binding.btnSubmit.text = getString(R.string.do_next)
+        binding.btnSubmit.visibility = View.VISIBLE
         
         // Show form title for Delivery Outcome
         binding.tvFormTitle.visibility = View.VISIBLE

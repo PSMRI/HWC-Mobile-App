@@ -58,14 +58,14 @@ class PNCMotherListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = PNCMotherAdapter(
-            PNCMotherAdapter.ClickListener { patientWithPnc ->
-                // Handle click - navigate to PNC form
-                Toast.makeText(
-                    requireContext(),
-                    "View PNC: ${patientWithPnc.patient.firstName}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            PNCMotherAdapter.ClickListener(
+                onAddVisit = { patientWithPnc ->
+                    navigateToAddPncVisit(patientWithPnc)
+                },
+                onViewVisits = { patientWithPnc ->
+                    showPncVisitsBottomSheet(patientWithPnc)
+                }
+            )
         )
 
         binding.rvPncMothers.layoutManager = LinearLayoutManager(requireContext())
@@ -114,6 +114,37 @@ class PNCMotherListFragment : Fragment() {
             resultString = getString(R.string.result),
             logMessage = "Displaying PNC mothers"
         )
+    }
+
+    private fun navigateToAddPncVisit(patientWithPnc: PatientWithPncDomain) {
+        lifecycleScope.launch {
+            // Calculate next visit number
+            val lastVisitNumber = pncRepo.getLastVisitNumber(patientWithPnc.patient.patientID) ?: 0
+            val availableVisits = listOf(1, 3, 7, 14, 21, 28, 42).filter { it > lastVisitNumber }
+            
+            if (availableVisits.isEmpty()) {
+                Toast.makeText(requireContext(), "All PNC visits completed", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            
+            val nextVisitNumber = availableVisits.first()
+            
+            // Navigate to PNC form
+            val intent = android.content.Intent(
+                requireContext(),
+                org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
+            ).apply {
+                putExtra("navigateTo", "PNC")
+                putExtra("patientID", patientWithPnc.patient.patientID)
+                putExtra("visitNumber", nextVisitNumber)
+            }
+            startActivity(intent)
+        }
+    }
+
+    private fun showPncVisitsBottomSheet(patientWithPnc: PatientWithPncDomain) {
+        val bottomSheet = PncBottomSheetFragment.newInstance(patientWithPnc.patient.patientID)
+        bottomSheet.show(childFragmentManager, "PncVisitsBottomSheet")
     }
 
     override fun onDestroyView() {
