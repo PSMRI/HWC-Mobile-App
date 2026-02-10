@@ -150,12 +150,12 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 createNavAction(MODULE_MATERNAL_HEALTH)
             ),
-//            Icon(
-//                R.drawable.ic__child_care,
-//                resources.getString(R.string.child_care),
-//                null,
-//                createNavAction(MODULE_CHILD_CARE)
-//            ) // Hide as per BRD
+            Icon(
+                R.drawable.ic__child_care,
+                resources.getString(R.string.child_care),
+                null,
+                createNavAction(MODULE_CHILD_CARE)
+            )
         ).mapIndexed { index, icon ->
             icon.copy(colorPrimary = index % 2 == 0)
         }
@@ -206,30 +206,30 @@ class RMNCHAIconDataset @Inject constructor() {
      */
     fun getChildCareDataset(resources: Resources): List<Icon> {
         return listOf(
-            Icon(
-                R.drawable.ic__infant,
-                resources.getString(R.string.infant_list),
-                null,
-                showInfantListAction
-            ),
-            Icon(
-                R.drawable.ic__child,
-                resources.getString(R.string.child_list),
-                null,
-                showChildListAction
-            ),
+//            Icon(
+//                R.drawable.ic__infant,
+//                resources.getString(R.string.infant_list),
+//                null,
+//                showInfantListAction
+//            ),
+//            Icon(
+//                R.drawable.ic__child,
+//                resources.getString(R.string.child_list),
+//                null,
+//                showChildListAction
+//            ),
             Icon(
                 R.drawable.ic__adolescent,
                 resources.getString(R.string.adolescent_list),
                 null,
                 showAdolescentListAction
             ),
-            Icon(
-                R.drawable.ic__adolescent,
-                resources.getString(R.string.children_under_5_years),
-                null,
-                showChildrenUnderFiveListAction
-            )
+//            Icon(
+//                R.drawable.ic__adolescent,
+//                resources.getString(R.string.children_under_5_years),
+//                null,
+//                showChildrenUnderFiveListAction
+//            )
         ).mapIndexed { index, icon ->
             icon.copy(colorPrimary = index % 2 == 0)
         }

@@ -143,24 +143,36 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showInfantList -> {
-                            // Navigate to Infant List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.InfantListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Infant List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.InfantListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showChildList -> {
-                            // Navigate to Child List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Child List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showAdolescentList -> {
-                            // Navigate to Adolescent List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Adolescent List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showChildrenUnderFiveList -> {
-                            // Navigate to Children under 5 Years List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildrenUnderFiveYearsActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Children under 5 Years List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildrenUnderFiveYearsFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         else -> {
                             // Other sub-modules - placeholder
