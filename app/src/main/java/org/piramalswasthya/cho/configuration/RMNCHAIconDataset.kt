@@ -150,12 +150,12 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 createNavAction(MODULE_MATERNAL_HEALTH)
             ),
-//            Icon(
-//                R.drawable.ic__child_care,
-//                resources.getString(R.string.child_care),
-//                null,
-//                createNavAction(MODULE_CHILD_CARE)
-//            ) // Hide as per BRD
+            Icon(
+                R.drawable.ic__child_care,
+                resources.getString(R.string.child_care),
+                null,
+                createNavAction(MODULE_CHILD_CARE)
+            )
         ).mapIndexed { index, icon ->
             icon.copy(colorPrimary = index % 2 == 0)
         }

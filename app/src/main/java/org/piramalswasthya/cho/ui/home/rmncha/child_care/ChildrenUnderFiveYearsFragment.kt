@@ -1,9 +1,10 @@
 package org.piramalswasthya.cho.ui.home.rmncha.child_care
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -11,44 +12,43 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ChildrenUnderFiveYearsAdapter
-import org.piramalswasthya.cho.databinding.ActivityChildrenUnderFiveYearsListBinding
+import org.piramalswasthya.cho.databinding.FragmentChildrenUnderFiveYearsListBinding
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import javax.inject.Inject
 
 /**
- * Activity to display list of children under 5 years (age <= 5 years).
+ * Fragment to display list of children under 5 years (age <= 5 years).
  * This combines infants and young children into a single list for child care services.
  */
 @AndroidEntryPoint
-class ChildrenUnderFiveYearsActivity : AppCompatActivity() {
+class ChildrenUnderFiveYearsFragment : Fragment() {
 
     @Inject
     lateinit var patientRepo: PatientRepo
 
-    private lateinit var binding: ActivityChildrenUnderFiveYearsListBinding
+    private var _binding: FragmentChildrenUnderFiveYearsListBinding? = null
+    private val binding get() = _binding!!
+    
     private lateinit var adapter: ChildrenUnderFiveYearsAdapter
     private var allChildren: List<PatientDisplay> = emptyList()
     private var filteredChildren: List<PatientDisplay> = emptyList()
 
-    companion object {
-        fun getIntent(context: Context): Intent {
-            return Intent(context, ChildrenUnderFiveYearsActivity::class.java)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChildrenUnderFiveYearsListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityChildrenUnderFiveYearsListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Set up toolbar
-        setupToolbarWithBack(binding.toolbar, getString(R.string.children_under_5_years))
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
         setupRecyclerView()
         setupSearch()
         observeChildrenUnderFive()
@@ -63,7 +63,7 @@ class ChildrenUnderFiveYearsActivity : AppCompatActivity() {
             )
         )
 
-        binding.rvChildrenUnderFiveList.layoutManager = LinearLayoutManager(this)
+        binding.rvChildrenUnderFiveList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvChildrenUnderFiveList.adapter = adapter
     }
 
@@ -100,9 +100,13 @@ class ChildrenUnderFiveYearsActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = getString(R.string.children_under_5_years)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
-

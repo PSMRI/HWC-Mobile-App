@@ -62,13 +62,6 @@ class AdolescentListAdapter(
                 binding.tvAge.text = "NA"
             }
 
-            // Set DOB
-            item.patient.dob?.let {
-                binding.tvDob.text = DateTimeUtil.formattedDate(it)
-            } ?: run {
-                binding.tvDob.text = "NA"
-            }
-
             // Set beneficiary ID
             binding.tvBeneficiaryId.text = item.patient.beneficiaryID?.toString() ?: "NA"
 
