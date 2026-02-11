@@ -29,6 +29,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
+import org.piramalswasthya.cho.database.room.dao.NeonatalOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
@@ -92,6 +93,7 @@ import org.piramalswasthya.cho.model.DrugFrequencyMaster
 import org.piramalswasthya.cho.model.EligibleCoupleRegCache
 import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.InfantRegCache
+import org.piramalswasthya.cho.model.NeonatalOutcomeCache
 import org.piramalswasthya.cho.model.FamilyMemberDiseaseTypeDropdown
 import org.piramalswasthya.cho.model.FamilyMemberDropdown
 import org.piramalswasthya.cho.model.GenderMaster
@@ -225,6 +227,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         Vaccine::class,
         ImmunizationCache::class,
         DeliveryOutcomeCache::class,
+        NeonatalOutcomeCache::class,
         EligibleCoupleRegCache::class,
         EligibleCoupleTrackingCache::class,
         InfantRegCache::class,
@@ -237,7 +240,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 125, exportSchema = false
+    version = 126, exportSchema = false
 )
 
 
@@ -299,6 +302,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val ashaDueListDao: AshaDueListDao
     abstract val immunizationDao: ImmunizationDao
     abstract val deliveryOutcomeDao: DeliveryOutcomeDao
+    abstract val neonatalOutcomeDao: NeonatalOutcomeDao
     abstract val pncDao: PncDao
     abstract val ecrDao: EcrDao
     abstract val infantRegDao: InfantRegDao
@@ -618,6 +622,53 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        
+        val MIGRATION_125_126 = object : Migration(125, 126) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Create NEONATAL_OUTCOME table for tracking detailed newborn health information
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS NEONATAL_OUTCOME (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        deliveryOutcomeId INTEGER NOT NULL,
+                        neonateIndex INTEGER NOT NULL,
+                        neonateUniqueId TEXT,
+                        outcomeAtBirth TEXT,
+                        outcomeAtBirthId INTEGER,
+                        sex TEXT,
+                        sexId INTEGER,
+                        criedImmediately TEXT,
+                        criedImmediatelyId INTEGER,
+                        typeOfResuscitation TEXT,
+                        birthWeight INTEGER,
+                        congenitalAnomalyDetected TEXT,
+                        congenitalAnomalyDetectedId INTEGER,
+                        typeOfCongenitalAnomaly TEXT,
+                        otherCongenitalAnomaly TEXT,
+                        newbornComplications TEXT,
+                        currentStatusOfBaby TEXT,
+                        currentStatusOfBabyId INTEGER,
+                        causeOfDeath TEXT,
+                        otherCauseOfDeath TEXT,
+                        birthDoseVaccinesGiven TEXT,
+                        reasonForNoVaccines TEXT,
+                        vitaminKInjectionGiven INTEGER,
+                        reasonForNoVitaminK TEXT,
+                        birthCertificateIssued TEXT,
+                        birthCertificateIssuedId INTEGER,
+                        isStillbirth INTEGER,
+                        isNeonatalDeath INTEGER,
+                        processed TEXT,
+                        createdBy TEXT NOT NULL,
+                        createdDate INTEGER NOT NULL,
+                        updatedBy TEXT NOT NULL,
+                        updatedDate INTEGER NOT NULL,
+                        syncState INTEGER NOT NULL,
+                        FOREIGN KEY(deliveryOutcomeId) REFERENCES DELIVERY_OUTCOME(id) ON UPDATE CASCADE ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS neonatalOutcomeInd ON NEONATAL_OUTCOME(deliveryOutcomeId)")
+            }
+        }
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -649,7 +700,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_121_122,
                             MIGRATION_122_123,
                             MIGRATION_123_124,
-                            MIGRATION_124_125
+                            MIGRATION_124_125,
+                            MIGRATION_125_126
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

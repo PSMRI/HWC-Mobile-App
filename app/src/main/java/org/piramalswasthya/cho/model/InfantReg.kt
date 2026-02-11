@@ -274,7 +274,12 @@ data class ChildRegDomain(
      * Get formatted baby name (baby 0, baby 1, etc.)
      */
     val customName: String
-        get() = "baby ${infant.babyIndex} of ${motherPatient.firstName}"
+        get() = when (infant.babyIndex) {
+            0 -> "1st baby of ${motherPatient.firstName}"
+            1 -> "2nd baby of ${motherPatient.firstName}"
+            2 -> "3rd baby of ${motherPatient.firstName}"
+            else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
+        }
 
     /**
      * Get mother's full name

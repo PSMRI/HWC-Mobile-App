@@ -72,7 +72,11 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     val formList = dataset.listFlow
     val alertMessageFlow = dataset.alertErrorMessageFlow
 
-    private lateinit var deliveryOutcome: DeliveryOutcomeCache
+    lateinit var deliveryOutcome: DeliveryOutcomeCache
+        private set
+    
+    private val _deliveryOutcomeId = MutableLiveData<Long>(0L)
+    val deliveryOutcomeId: LiveData<Long> get() = _deliveryOutcomeId
 
     init {
         viewModelScope.launch {
@@ -99,6 +103,7 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
 
                     if (saved != null) {
                         deliveryOutcome = saved
+                        _deliveryOutcomeId.value = saved.id
                         _recordExists.value = true
                         // Use full setUpPage method to show ALL fields (both delivery details and mother condition)
                         dataset.setUpPage(
@@ -220,7 +225,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                         deliveryOutcome.updatedBy = user.userName
                         deliveryOutcome.updatedDate = System.currentTimeMillis()
                     }
-                    deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
+                    val savedId = deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
+                    _deliveryOutcomeId.postValue(deliveryOutcome.id)
                     _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
                 } catch (e: Exception) {
                     Timber.e(e, "DeliveryOutcomeFormViewModel: Failed to save delivery outcome")

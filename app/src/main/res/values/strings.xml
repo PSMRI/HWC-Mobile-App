@@ -818,6 +818,10 @@
     <string name="do_maternal_complications">Maternal Complications</string>
     <string name="do_mother_currently_admitted">Mother Currently Admitted?</string>
     <string name="do_discharge_date">Date of Discharge</string>
+    <string name="do_discharge_time">Time of Discharge</string>
+    <string name="do_delivery_outcome">Outcomes of Delivery</string>
+    <string name="do_live_birth">Live Birth</string>
+    <string name="do_still_birth">Still Birth</string>
     <string name="do_next">Next</string>
     <string name="do_inform_district_nodal_officer">Inform District Nodal Officer</string>
     <string name="do_alert_intensive_pnc">Intensive PNC monitoring recommended for this mother.</string>
@@ -995,4 +999,145 @@
     <string name="view_visit">View Visit</string>
     <string name="visit_history">Visit History</string>
     <string name="no_of_children">No. of Children</string>
+
+    <!-- Neonatal Outcome Strings -->
+    <string name="neonatal_outcome">Neonatal Outcome</string>
+    <string name="neonatal_outcome_form_title">Neonatal Outcome Form</string>
+    <string name="baby_number">Baby %1d</string>
+    <string name="no_outcome_at_birth">Outcome at Birth</string>
+    <string name="no_sex">Sex</string>
+    <string name="no_cried_immediately">Cried immediately after birth?</string>
+    <string name="no_type_of_resuscitation">Type of Resuscitation</string>
+    <string name="no_birth_weight">Birth Weight (in grams)</string>
+    <string name="no_congenital_anomaly_detected">Any congenital anomaly detected?</string>
+    <string name="no_type_of_congenital_anomaly">Type of congenital anomaly</string>
+    <string name="no_other_congenital_anomaly">Other congenital anomaly (specify)</string>
+    <string name="no_newborn_complications">Newborn Complications</string>
+    <string name="no_current_status_of_baby">Current Status of Baby</string>
+    <string name="no_cause_of_death">Cause of Death</string>
+    <string name="no_other_cause_of_death">Other cause of death (specify)</string>
+    <string name="no_birth_dose_vaccines_given">Birth dose vaccines given</string>
+    <string name="no_reason_for_no_vaccines">Reason for not giving birth dose vaccines</string>
+    <string name="no_vitamin_k_injection_given">Vitamin K injection given?</string>
+    <string name="no_reason_for_no_vitamin_k">Reason for not giving Vitamin K injection</string>
+    <string name="no_birth_certificate_issued">Birth Certificate issued?</string>
+    
+    <!-- Alerts -->
+    <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
+    <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
+    <string name="no_alert_elbw">Extremely Low Birth Weight (ELBW): \u003c1000g. Critical - NICU care required.</string>
+    <string name="no_alert_macrosomia">Macrosomia: \u003e4000g. Screen mother for gestational diabetes.</string>
+    <string name="no_alert_ambiguous_sex">Ambiguous genitalia detected. Immediate pediatric/specialist review required.</string>
+    <string name="no_alert_stillbirth">Stillbirth recorded. Stillbirth audit form will be triggered.</string>
+    <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
+    <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
+    <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
+    
+    <!-- Validation -->
+    <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
+    <string name="no_error_birth_weight_required">Please enter birth weight</string>
+    <string name="no_error_outcome_required">Please select outcome at birth</string>
+    <string name="no_error_sex_required">Please select sex</string>
+    <string name="no_error_crying_status_required">Please select crying status</string>
+    <string name="no_error_resuscitation_required">Please select type of resuscitation</string>
+    <string name="no_error_current_status_required">Please select current status of baby</string>
+    <string name="no_error_cause_of_death_required">Please select cause of death</string>
+    <string name="no_error_vaccines_required">Please select vaccines given</string>
+    <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
+    
+    <string-array name="no_outcome_at_birth_array">
+        <item>Live Birth</item>
+        <item>Still Birth (Fresh)</item>
+        <item>Still Birth (Macerated)</item>
+        <item>Diedrelative during delivery</item>
+    </string-array>
+    
+    <string-array name="no_sex_array">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Ambiguous</item>
+    </string-array>
+    
+    <string-array name="no_cried_immediately_array">
+        <item>Immediate cry</item>
+        <item>Cried after resuscitation</item>
+        <item>Did not cry</item>
+    </string-array>
+    
+    <string-array name="no_type_of_resuscitation_array">
+        <item>Stimulation</item>
+        <item>Suctioning</item>
+        <item>Bag and mask ventilation</item>
+        <item>Oxygen</item>
+        <item>Intubation</item>
+        <item>Chest compressions</item>
+        <item>Medications</item>
+        <item>None</item>
+    </string-array>
+    
+    <string-array name="no_congenital_anomaly_array">
+        <item>Yes</item>
+        <item>No</item>
+        <item>Suspected (under evaluation)</item>
+    </string-array>
+    
+    <string-array name="no_type_of_congenital_anomaly_array">
+        <item>Neural tube defect</item>
+        <item>Cleft lip/palate</item>
+        <item>Club foot</item>
+        <item>Down syndrome</item>
+        <item>Congenital heart defect</item>
+        <item>Hydrocephalus</item>
+        <item>Spina bifida</item>
+        <item>Polydactyly/Syndactyly</item>
+        <item>Gastroschisis/Omphalocele</item>
+        <item>Other</item>
+        <item>None</item>
+    </string-array>
+    
+    <string-array name="no_newborn_complications_array">
+        <item>Birth asphyxia</item>
+        <item>Respiratory distress</item>
+        <item>Neonatal jaundice</item>
+        <item>Sepsis</item>
+        <item>Hypothermia</item>
+        <item>Hypoglycemia</item>
+        <item>Feeding difficulties</item>
+        <item>Convulsions/Seizures</item>
+        <item>Meconium aspiration</item>
+        <item>None</item>
+        <item>Other</item>
+    </string-array>
+    
+    <string-array name="no_current_status_array">
+        <item>Healthy and with mother</item>
+        <item>Admitted (SNCU/NICU)</item>
+        <item>Admitted (General ward)</item>
+        <item>Died</item>
+    </string-array>
+    
+    <string-array name="no_cause_of_death_array">
+        <item>Birth asphyxia</item>
+        <item>Prematurity</item>
+        <item>Low birth weight complications</item>
+        <item>Sepsis</item>
+        <item>Respiratory distress syndrome</item>
+        <item>Congenital anomalies</item>
+        <item>Meconium aspiration</item>
+        <item>Unknown</item>
+        <item>Other</item>
+    </string-array>
+    
+    <string-array name="no_birth_dose_vaccines_array">
+        <item>BCG</item>
+        <item>Hepatitis B (Birth dose)</item>
+        <item>OPV-0</item>
+        <item>None</item>
+    </string-array>
+    
+    <string-array name="no_birth_certificate_array">
+        <item>Yes</item>
+        <item>In process</item>
+        <item>No (Not applied)</item>
+    </string-array>
 </resources>
