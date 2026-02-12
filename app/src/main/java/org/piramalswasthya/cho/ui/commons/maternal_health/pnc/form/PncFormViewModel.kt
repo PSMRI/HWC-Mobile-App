@@ -180,30 +180,7 @@ class PncFormViewModel @Inject constructor(
                     updateWomanStatusAfterPnc(pncCache)
 
                     // Handle maternal death
-                    if (pncCache.motherDeath) {
-                        val patient = patientRepo.getPatient(patientID)
-                        patient?.let {
-                            // Update patient death status
-                            // Close PNC case immediately - mark all active PNC visits as inactive
-                            val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
-                            allPncVisits.forEach { visit ->
-                                visit.isActive = false
-                                visit.syncState = SyncState.UNSYNCED
-                                if (visit.processed != "N") visit.processed = "U"
-                                visit.updatedDate = System.currentTimeMillis()
-                                visit.updatedBy = pncCache.updatedBy
-                                pncRepo.persistPncRecord(visit)
-                            }
-                            
-                            // Update beneficiary status = Death
-                            // Note: Patient model may need to be updated to include death status field
-                            // For now, we'll sync the death information
-                            patient.syncState = SyncState.UNSYNCED
-                            patientRepo.updateRecord(patient)
-                            
-                            // Sync death details to AMRIT (handled by sync worker)
-                        }
-                    }
+                    handleMaternalDeath(pncCache)
 
                     _state.postValue(State.SAVE_SUCCESS)
                 } catch (e: Exception) {
@@ -212,6 +189,30 @@ class PncFormViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    // ─── Helper: close PNC visits and update patient on maternal death ───
+    private suspend fun handleMaternalDeath(pncCache: PNCVisitCache) {
+        if (!pncCache.motherDeath) return
+        val patient = patientRepo.getPatient(patientID) ?: return
+
+        // Close PNC case immediately - mark all active PNC visits as inactive
+        val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
+        allPncVisits.forEach { visit ->
+            visit.isActive = false
+            visit.syncState = SyncState.UNSYNCED
+            if (visit.processed != "N") visit.processed = "U"
+            visit.updatedDate = System.currentTimeMillis()
+            visit.updatedBy = pncCache.updatedBy
+            pncRepo.persistPncRecord(visit)
+        }
+
+        // Update beneficiary status = Death
+        // Note: Patient model may need to be updated to include death status field
+        // For now, we'll sync the death information
+        patient.syncState = SyncState.UNSYNCED
+        patientRepo.updateRecord(patient)
+        // Sync death details to AMRIT (handled by sync worker)
     }
 
     private suspend fun updateWomanStatusAfterPnc(pncCache: PNCVisitCache) {

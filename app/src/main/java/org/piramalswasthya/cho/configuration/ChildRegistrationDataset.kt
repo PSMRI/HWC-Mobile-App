@@ -291,6 +291,120 @@ class ChildRegistrationDataset(
         hasDependants = false
     )
 
+    // ─── Helper: generate baby name from patient & delivery data ────────
+    private fun generateBabyName(
+        ben: Patient?,
+        deliveryOutcomeCache: DeliveryOutcomeCache,
+        babyIndex: Int
+    ): String? {
+        if (ben == null) return null
+        return if (deliveryOutcomeCache.liveBirth == null || deliveryOutcomeCache.liveBirth == 1)
+            "baby of ${ben.firstName}"
+        else
+            "baby ${babyIndex + 1} of ${ben.firstName}"
+    }
+
+    // ─── Helper: restore all saved field values from cache ─────────────
+    private fun restoreSavedValues(saved: InfantRegCache) {
+        infantTerm.value = saved.infantTerm
+        corticosteroidGiven.value = saved.corticosteroidGiven
+        outcomeAtBirth.value = saved.outcomeAtBirth
+
+        gender.value = saved.genderID?.let {
+             if (it > 0 && it <= (gender.entries?.size ?: 0)) gender.entries?.get(it - 1) else null
+        }
+        babyCriedAtBirth.value = when {
+            saved.babyCriedAtBirth == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0) // Immediate cry
+            saved.resuscitation == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1) // Cried after resuscitation
+            else -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0)
+        }
+        typeOfResuscitation.value = saved.typeOfResuscitation
+        resuscitation.value = if (saved.resuscitation == true) "Yes" else "No"
+        referred.value = saved.referred
+        hadBirthDefect.value = saved.hadBirthDefect
+        birthDefect.value = saved.birthDefect
+        otherDefect.value = saved.otherDefect
+        weight.value = saved.weight?.let { (it * 1000).toInt().toString() } // Convert kg to grams for display
+        breastFeedingStarted.value = if (saved.breastFeedingStarted == true) "Yes" else "No"
+        newbornComplications.value = saved.newbornComplications
+        currentStatusOfBaby.value = saved.currentStatusOfBaby
+        causeOfDeath.value = saved.causeOfDeath
+        otherCauseOfDeath.value = saved.otherCauseOfDeath
+        birthDoseVaccinesGiven.value = saved.birthDoseVaccinesGiven
+        reasonForNoVaccines.value = saved.reasonForNoVaccines
+        vitaminKInjectionGiven.value = when (saved.vitaminKInjectionGiven) {
+            true -> resources.getString(R.string.yes)
+            false -> resources.getString(R.string.no)
+            else -> null
+        }
+        reasonForNoVitaminK.value = saved.reasonForNoVitaminK
+        birthCertificateIssued.value = saved.birthCertificateIssued
+
+        opv0Dose.value = saved.opv0Dose?.let { getDateFromLong(it) }
+        bcgDose.value = saved.bcgDose?.let { getDateFromLong(it) }
+        hepBDose.value = saved.hepBDose?.let { getDateFromLong(it) }
+        vitkDose.value = saved.vitkDose?.let { getDateFromLong(it) }
+    }
+
+    // ─── Helper: restore conditional (dependant) fields into the list ──
+    private fun restoreConditionalFields(
+        saved: InfantRegCache,
+        list: MutableList<FormElement>
+    ) {
+        if (saved.babyCriedAtBirth == false || saved.resuscitation == true) {
+            val criedIdx = list.indexOf(babyCriedAtBirth)
+            if (criedIdx >= 0 && saved.typeOfResuscitation != null) {
+                list.add(criedIdx + 1, typeOfResuscitation)
+            }
+        }
+        if (saved.hadBirthDefect == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0)) { // Yes
+            val idx = list.indexOf(hadBirthDefect)
+            if (idx >= 0) {
+                list.add(idx + 1, birthDefect)
+                if (saved.birthDefect?.contains("Other") == true) {
+                    list.add(idx + 2, otherDefect)
+                }
+            }
+        }
+        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) { // Died
+            val idx = list.indexOf(currentStatusOfBaby)
+            if (idx >= 0) {
+                list.add(idx + 1, causeOfDeath)
+                if (saved.causeOfDeath?.contains("Other") == true) {
+                    list.add(idx + 2, otherCauseOfDeath)
+                }
+            }
+        }
+        if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
+            val idx = list.indexOf(birthDoseVaccinesGiven)
+            if (idx >= 0) list.add(idx + 1, reasonForNoVaccines)
+        }
+        if (saved.vitaminKInjectionGiven == false) {
+            val idx = list.indexOf(vitaminKInjectionGiven)
+            if (idx >= 0) list.add(idx + 1, reasonForNoVitaminK)
+        }
+    }
+
+    // ─── Helper: pre-populate defaults from delivery outcome ───────────
+    private fun prepopulateDefaults(deliveryOutcomeCache: DeliveryOutcomeCache) {
+        if (infantTerm.value.isNullOrBlank()) {
+            deliveryOutcomeCache.gestationalAgeAtDelivery?.let { gaString ->
+                val weeks = gaString.substringBefore("w").trim().toIntOrNull()
+                if (weeks != null) {
+                    infantTerm.value = if (weeks < 37) "Pre Term" else "Full Term"
+                }
+            }
+        }
+
+        val deliveryDate = deliveryOutcomeCache.dateOfDelivery?.let { getDateFromLong(it) }
+        if (deliveryDate != null) {
+            if (opv0Dose.value == null) opv0Dose.value = deliveryDate
+            if (bcgDose.value == null) bcgDose.value = deliveryDate
+            if (hepBDose.value == null) hepBDose.value = deliveryDate
+            if (vitkDose.value == null) vitkDose.value = deliveryDate
+        }
+    }
+
     suspend fun setUpPage(
         ben: Patient?,
         deliveryOutcomeCache: DeliveryOutcomeCache,
@@ -309,123 +423,36 @@ class ChildRegistrationDataset(
             birthCertificateIssued
         )
 
-        if (deliveryOutcomeCache != null) {
-             deliveryOutcomeCache.dateOfDelivery?.let {
-                opv0Dose.min = it
-                bcgDose.min = it
-                hepBDose.min = it
-                vitkDose.min = it
-            }
+        deliveryOutcomeCache.dateOfDelivery?.let {
+            opv0Dose.min = it
+            bcgDose.min = it
+            hepBDose.min = it
+            vitkDose.min = it
         }
 
-        if (saved == null) {
-            if (ben != null) {
-                babyName.value =
-                    if (deliveryOutcomeCache.liveBirth == null || deliveryOutcomeCache.liveBirth == 1) "baby of ${ben.firstName}"
-                    else "baby ${babyIndex + 1} of ${ben.firstName}"
-            }
-        } else {
-            babyName.value = saved.babyName ?: run {
-                 if (ben != null) {
-                    if (deliveryOutcomeCache.liveBirth == null || deliveryOutcomeCache.liveBirth == 1) "baby of ${ben.firstName}"
-                    else "baby ${babyIndex + 1} of ${ben.firstName}"
-                 } else null
-            }
-            infantTerm.value = saved.infantTerm
-            corticosteroidGiven.value = saved.corticosteroidGiven
-            outcomeAtBirth.value = saved.outcomeAtBirth
+        babyName.value = saved?.babyName ?: generateBabyName(ben, deliveryOutcomeCache, babyIndex)
 
-            gender.value = saved.genderID?.let {
-                 if (it > 0 && it <= (gender.entries?.size ?: 0)) gender.entries?.get(it - 1) else null
-            }
-            babyCriedAtBirth.value = when {
-                saved.babyCriedAtBirth == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0) // Immediate cry
-                saved.resuscitation == true -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1) // Cried after resuscitation
-                else -> resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(0)
-            }
-            typeOfResuscitation.value = saved.typeOfResuscitation
-            resuscitation.value = if (saved.resuscitation == true) "Yes" else "No"
-            referred.value = saved.referred
-            hadBirthDefect.value = saved.hadBirthDefect
-            birthDefect.value = saved.birthDefect
-            otherDefect.value = saved.otherDefect
-            weight.value = saved.weight?.let { (it * 1000).toInt().toString() } // Convert kg to grams for display
-            breastFeedingStarted.value = if (saved.breastFeedingStarted == true) "Yes" else "No"
-            newbornComplications.value = saved.newbornComplications
-            currentStatusOfBaby.value = saved.currentStatusOfBaby
-            causeOfDeath.value = saved.causeOfDeath
-            otherCauseOfDeath.value = saved.otherCauseOfDeath
-            birthDoseVaccinesGiven.value = saved.birthDoseVaccinesGiven
-            reasonForNoVaccines.value = saved.reasonForNoVaccines
-            vitaminKInjectionGiven.value = when (saved.vitaminKInjectionGiven) {
-                true -> resources.getString(R.string.yes)
-                false -> resources.getString(R.string.no)
-                else -> null
-            }
-            reasonForNoVitaminK.value = saved.reasonForNoVitaminK
-            birthCertificateIssued.value = saved.birthCertificateIssued
-
-            opv0Dose.value = saved.opv0Dose?.let { getDateFromLong(it) }
-            bcgDose.value = saved.bcgDose?.let { getDateFromLong(it) }
-            hepBDose.value = saved.hepBDose?.let { getDateFromLong(it) }
-            vitkDose.value = saved.vitkDose?.let { getDateFromLong(it) }
-
-            // Restore conditional fields
-            if (saved.babyCriedAtBirth == false || saved.resuscitation == true) {
-                val criedIdx = list.indexOf(babyCriedAtBirth)
-                if (criedIdx >= 0) {
-                    if (saved.typeOfResuscitation != null) {
-                        list.add(criedIdx + 1, typeOfResuscitation)
-                    }
-                }
-            }
-            if (saved.hadBirthDefect == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0)) { // Yes
-                val idx = list.indexOf(hadBirthDefect)
-                if (idx >= 0) {
-                    list.add(idx + 1, birthDefect)
-                    if (saved.birthDefect?.contains("Other") == true) {
-                        list.add(idx + 2, otherDefect)
-                    }
-                }
-            }
-            if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) { // Died
-                val idx = list.indexOf(currentStatusOfBaby)
-                if (idx >= 0) {
-                    list.add(idx + 1, causeOfDeath)
-                    if (saved.causeOfDeath?.contains("Other") == true) {
-                        list.add(idx + 2, otherCauseOfDeath)
-                    }
-                }
-            }
-            if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
-                val idx = list.indexOf(birthDoseVaccinesGiven)
-                if (idx >= 0) list.add(idx + 1, reasonForNoVaccines)
-            }
-            if (saved.vitaminKInjectionGiven == false) {
-                val idx = list.indexOf(vitaminKInjectionGiven)
-                if (idx >= 0) list.add(idx + 1, reasonForNoVitaminK)
-            }
+        if (saved != null) {
+            restoreSavedValues(saved)
+            restoreConditionalFields(saved, list)
         }
 
-        // Pre-populate logic if values are still empty
-        if (infantTerm.value.isNullOrBlank()) {
-            deliveryOutcomeCache.gestationalAgeAtDelivery?.let { gaString ->
-                val weeks = gaString.substringBefore("w").trim().toIntOrNull()
-                if (weeks != null) {
-                    infantTerm.value = if (weeks < 37) "Pre Term" else "Full Term"
-                }
-            }
-        }
-
-        val deliveryDate = deliveryOutcomeCache.dateOfDelivery?.let { getDateFromLong(it) }
-        if (deliveryDate != null) {
-            if (opv0Dose.value == null) opv0Dose.value = deliveryDate
-            if (bcgDose.value == null) bcgDose.value = deliveryDate
-            if (hepBDose.value == null) hepBDose.value = deliveryDate
-            if (vitkDose.value == null) vitkDose.value = deliveryDate
-        }
-
+        prepopulateDefaults(deliveryOutcomeCache)
         setUpPage(list)
+    }
+
+    // ─── Helper: toggle dependant fields based on a condition ──────────
+    private fun toggleDependant(
+        source: FormElement,
+        condition: Boolean,
+        showItems: List<FormElement>,
+        hideItems: List<FormElement> = emptyList()
+    ): Int {
+        return if (condition) {
+            triggerDependants(source = source, removeItems = hideItems, addItems = showItems)
+        } else {
+            triggerDependants(source = source, removeItems = showItems + hideItems, addItems = emptyList())
+        }
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
@@ -434,124 +461,70 @@ class ChildRegistrationDataset(
                 val selected = babyCriedAtBirth.entries?.getOrNull(index)
                 babyCriedAtBirth.value = selected
                 // "Cried after resuscitation" is index 1 — show typeOfResuscitation
-                if (selected == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1)) {
-                    triggerDependants(
-                        source = babyCriedAtBirth,
-                        removeItems = emptyList(),
-                        addItems = listOf(typeOfResuscitation)
-                    )
-                } else {
-                    triggerDependants(
-                        source = babyCriedAtBirth,
-                        removeItems = listOf(typeOfResuscitation),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = babyCriedAtBirth,
+                    condition = selected == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1),
+                    showItems = listOf(typeOfResuscitation)
+                )
             }
 
             hadBirthDefect.id -> {
                 val selected = hadBirthDefect.entries?.getOrNull(index)
                 hadBirthDefect.value = selected
                 // "Yes" or "Suspected" (index 0 or 2) → show birthDefect
-                if (selected == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0) ||
-                    selected == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(2)) {
-                    triggerDependants(
-                        source = hadBirthDefect,
-                        removeItems = emptyList(),
-                        addItems = listOf(birthDefect)
-                    )
-                } else {
-                    triggerDependants(
-                        source = hadBirthDefect,
-                        removeItems = listOf(birthDefect, otherDefect),
-                        addItems = emptyList()
-                    )
-                }
+                val anomalyArray = resources.getStringArray(R.array.no_congenital_anomaly_array)
+                toggleDependant(
+                    source = hadBirthDefect,
+                    condition = selected == anomalyArray.getOrNull(0) || selected == anomalyArray.getOrNull(2),
+                    showItems = listOf(birthDefect),
+                    hideItems = listOf(otherDefect)
+                )
             }
 
             birthDefect.id -> {
-                if (birthDefect.value?.contains("Other") == true) {
-                    triggerDependants(
-                        source = birthDefect,
-                        removeItems = emptyList(),
-                        addItems = listOf(otherDefect)
-                    )
-                } else {
-                    triggerDependants(
-                        source = birthDefect,
-                        removeItems = listOf(otherDefect),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = birthDefect,
+                    condition = birthDefect.value?.contains("Other") == true,
+                    showItems = listOf(otherDefect)
+                )
             }
 
             currentStatusOfBaby.id -> {
                 val selected = currentStatusOfBaby.entries?.getOrNull(index)
                 currentStatusOfBaby.value = selected
                 // "Died" (index 3) → show causeOfDeath
-                if (selected == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) {
-                    triggerDependants(
-                        source = currentStatusOfBaby,
-                        removeItems = emptyList(),
-                        addItems = listOf(causeOfDeath)
-                    )
-                } else {
-                    triggerDependants(
-                        source = currentStatusOfBaby,
-                        removeItems = listOf(causeOfDeath, otherCauseOfDeath),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = currentStatusOfBaby,
+                    condition = selected == resources.getStringArray(R.array.no_current_status_array).getOrNull(3),
+                    showItems = listOf(causeOfDeath),
+                    hideItems = listOf(otherCauseOfDeath)
+                )
             }
 
             causeOfDeath.id -> {
-                if (causeOfDeath.value?.contains("Other") == true) {
-                    triggerDependants(
-                        source = causeOfDeath,
-                        removeItems = emptyList(),
-                        addItems = listOf(otherCauseOfDeath)
-                    )
-                } else {
-                    triggerDependants(
-                        source = causeOfDeath,
-                        removeItems = listOf(otherCauseOfDeath),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = causeOfDeath,
+                    condition = causeOfDeath.value?.contains("Other") == true,
+                    showItems = listOf(otherCauseOfDeath)
+                )
             }
 
             birthDoseVaccinesGiven.id -> {
-                if (birthDoseVaccinesGiven.value?.contains("None") == true) {
-                    triggerDependants(
-                        source = birthDoseVaccinesGiven,
-                        removeItems = emptyList(),
-                        addItems = listOf(reasonForNoVaccines)
-                    )
-                } else {
-                    triggerDependants(
-                        source = birthDoseVaccinesGiven,
-                        removeItems = listOf(reasonForNoVaccines),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = birthDoseVaccinesGiven,
+                    condition = birthDoseVaccinesGiven.value?.contains("None") == true,
+                    showItems = listOf(reasonForNoVaccines)
+                )
             }
 
             vitaminKInjectionGiven.id -> {
                 val selected = vitaminKInjectionGiven.entries?.getOrNull(index)
                 vitaminKInjectionGiven.value = selected
-                if (selected == resources.getString(R.string.no)) {
-                    triggerDependants(
-                        source = vitaminKInjectionGiven,
-                        removeItems = emptyList(),
-                        addItems = listOf(reasonForNoVitaminK)
-                    )
-                } else {
-                    triggerDependants(
-                        source = vitaminKInjectionGiven,
-                        removeItems = listOf(reasonForNoVitaminK),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = vitaminKInjectionGiven,
+                    condition = selected == resources.getString(R.string.no),
+                    showItems = listOf(reasonForNoVitaminK)
+                )
             }
 
             weight.id -> {

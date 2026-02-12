@@ -90,43 +90,10 @@ class DeliveryOutcomeFormFragment : Fragment() {
         }
 
         // Observe mother condition specific alerts (PPH, Hysterectomy, Maternal Death)
-        viewModel.alert.observe(viewLifecycleOwner) { alert ->
-            alert?.let {
-                viewModel.clearAlert()
-                MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
-                    .setTitle(getString(R.string.alert_popup))
-                    .setMessage(
-                        when (it) {
-                            is Alert.InformDistrictNodalOfficer -> it.message
-                            is Alert.IntensivePncMonitoring -> it.message
-                            is Alert.HysterectomyNote -> it.message
-                        }
-                    )
-                    .setPositiveButton(getString(android.R.string.ok)) { d, _ -> d.dismiss() }
-                    .show()
-            }
-        }
+        observeMotherConditionAlerts()
         
         // Observe general alerts (date, place, gestational age, unskilled delivery, etc.)
-        lifecycleScope.launch {
-            viewModel.alertMessageFlow.collect { message ->
-                message?.let {
-                    if (isAdded) {
-                        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
-                            .setTitle(getString(R.string.alert_popup))
-                            .setMessage(it)
-                            .setPositiveButton(getString(android.R.string.ok)) { dialog, _ -> 
-                                dialog.dismiss()
-                                viewModel.clearAlertMessage()
-                            }
-                            .setOnDismissListener {
-                                viewModel.clearAlertMessage()
-                            }
-                            .show()
-                    }
-                }
-            }
-        }
+        observeGeneralAlerts()
 
         binding.btnSubmit.setOnClickListener { onNextClicked() }
 
@@ -150,6 +117,49 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     viewModel.resetState()
                 }
                 else -> { }
+            }
+        }
+    }
+
+    // ─── Helper: observe mother condition alerts (PPH, Hysterectomy, Death) ──
+    private fun observeMotherConditionAlerts() {
+        viewModel.alert.observe(viewLifecycleOwner) { alert ->
+            alert?.let {
+                viewModel.clearAlert()
+                MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
+                    .setTitle(getString(R.string.alert_popup))
+                    .setMessage(
+                        when (it) {
+                            is Alert.InformDistrictNodalOfficer -> it.message
+                            is Alert.IntensivePncMonitoring -> it.message
+                            is Alert.HysterectomyNote -> it.message
+                        }
+                    )
+                    .setPositiveButton(getString(android.R.string.ok)) { d, _ -> d.dismiss() }
+                    .show()
+            }
+        }
+    }
+
+    // ─── Helper: observe general alert messages via Flow ─────────────────────
+    private fun observeGeneralAlerts() {
+        lifecycleScope.launch {
+            viewModel.alertMessageFlow.collect { message ->
+                message?.let {
+                    if (isAdded) {
+                        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_App_MaterialAlertDialog)
+                            .setTitle(getString(R.string.alert_popup))
+                            .setMessage(it)
+                            .setPositiveButton(getString(android.R.string.ok)) { dialog, _ -> 
+                                dialog.dismiss()
+                                viewModel.clearAlertMessage()
+                            }
+                            .setOnDismissListener {
+                                viewModel.clearAlertMessage()
+                            }
+                            .show()
+                    }
+                }
             }
         }
     }
