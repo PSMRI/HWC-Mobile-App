@@ -50,6 +50,7 @@ import org.piramalswasthya.cho.facenet.Models
 import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.model.Patient
 import org.piramalswasthya.cho.model.PatientAadhaarDetails
+import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.VillageLocationData
 import kotlin.math.pow
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
@@ -77,7 +78,6 @@ import javax.inject.Inject
 import android.text.InputType
 import android.view.inputmethod.InputMethodManager
 import android.text.InputFilter
-import android.text.Spanned
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -100,6 +100,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var patient = Patient()
     private lateinit var villageAdapter :VillageDropdownAdapter
     private var isSettingVillageProgrammatically = false
+    private var isProgrammaticChange = false
     private var isReadOnly = false
     private var isEditModeAfterRegistration = false
     private val dobUtil : DateTimeUtil = DateTimeUtil()
@@ -117,10 +118,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private lateinit var dialog: AlertDialog
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
-    // Status of Woman and ABHA
     private var statusOfWomanAdapter: DropdownAdapter? = null
-    private var hasAbhaIdAdapter: DropdownAdapter? = null
-    private var selectedHasAbhaId: Boolean? = null
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
@@ -351,16 +349,34 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         hideMarriedFields()
+
         setChangeListeners()
         setAdapters()
         setupVillageDropdown()
-        setupHasAbhaIdDropdown()
         setupStatusOfWomanDropdown()
 
         enableFullBoxClick(binding.genderDropdown)
         enableFullBoxClick(binding.maritalStatusDropdown)
         enableFullBoxClick(binding.statusOfWomanDropdown)
-        enableFullBoxClick(binding.hasAbhaIdDropdown)
+
+        val patientInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getSerializable("patientInfo", org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getSerializable("patientInfo") as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+        }
+        val isEditMode = arguments?.getBoolean("isEditMode", false) ?: false
+
+        if (patientInfo != null) {
+            populateForm(patientInfo)
+            if (isEditMode) {
+                isEditModeAfterRegistration = true
+                setFormEditable(true)
+            } else {
+                setFormEditable(false)
+            }
+        }
+
 
         sharedViewModel.photoUri.observe(viewLifecycleOwner) { uriString ->
             val photoUri = Uri.parse(uriString)
@@ -370,24 +386,43 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
 
+        binding.dateOfBirthText.setEndIconOnClickListener {
+            if (binding.dateOfBirth.isEnabled) {
+                // Hide keyboard when clicking on date of birth field
+                KeyboardUtils.hideKeyboard(binding.dateOfBirth)
+                KeyboardUtils.hideKeyboardFromActivity(requireContext())
+
+                dobUtil.showDatePickerDialog(
+                    requireContext(),
+                    viewModel.selectedDateOfBirth,
+                    maxDays = 0,
+                    minDays = -(99*365 + 25)
+                ).show()
+            }
+        }
+
         binding.firstNameText.setEndIconOnClickListener {
-            if (!isReadOnly) speechToTextLauncherForFirstName.launch(Unit)
+            if (binding.firstName.isEnabled) speechToTextLauncherForFirstName.launch(Unit)
         }
         binding.lastNameText.setEndIconOnClickListener {
-            if (!isReadOnly) speechToTextLauncherForLastName.launch(Unit)
+            if (binding.lastName.isEnabled) speechToTextLauncherForLastName.launch(Unit)
         }
         binding.phoneNoText.setEndIconOnClickListener {
-            if (!isReadOnly) speechToTextLauncherForPhoneNumber.launch(Unit)
+            if (binding.phoneNo.isEnabled) speechToTextLauncherForPhoneNumber.launch(Unit)
         }
         binding.spouseNameText.setEndIconOnClickListener {
-            if (!isReadOnly) speechToTextLauncherForSpouseName.launch(Unit)
+            if (binding.spouseName.isEnabled) speechToTextLauncherForSpouseName.launch(Unit)
         }
         binding.fatherNameText.setEndIconOnClickListener {
-            if (!isReadOnly) speechToTextLauncherForFatherName.launch(Unit)
+            if (binding.fatherNameEditText.isEnabled) speechToTextLauncherForFatherName.launch(Unit)
+        }
+
+        binding.ageAtMarriageText.setEndIconOnClickListener {
+            if (binding.ageAtMarriage.isEnabled) speechToTextLauncherForPhoneNumber.launch(Unit) // Reusing phone launcher for numeric or create new if needed
         }
 
         binding.age.setOnClickListener {
-            if (!isReadOnly) {
+            if (binding.age.isEnabled) {
                 ageAlertDialog.show()
             }
         }
@@ -418,26 +453,43 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private fun setFormEditable(isEditable: Boolean) {
         isReadOnly = !isEditable
-        
-        // Fields that are ALWAYS read-only after registration
-        // Fields that are editable in edit mode (as per requirement)
         binding.lastName.isEnabled = isEditable
         binding.phoneNo.isEnabled = isEditable
         binding.statusOfWomanDropdown.isEnabled = isEditable
         binding.age.isEnabled = isEditable
         binding.ageInUnitDropdown.isEnabled = isEditable
+        val isCoreEditable = isEditable && !isEditModeAfterRegistration
+        binding.firstName.isEnabled = isCoreEditable
+        binding.genderDropdown.isEnabled = isCoreEditable
+        binding.dateOfBirth.isEnabled = isCoreEditable
+        binding.maritalStatusDropdown.isEnabled = isCoreEditable
+        binding.spouseName.isEnabled = isCoreEditable
+        binding.fatherNameEditText.isEnabled = isCoreEditable
+        binding.villageDropdown.isEnabled = isCoreEditable
+        binding.ivImgCapture.isEnabled = isCoreEditable
+        binding.btnScanAadhaar.isEnabled = isCoreEditable
+
+        // Disable end icons (mic/dropdown/calendar) for non-editable fields
+        binding.firstNameText.isEndIconVisible = binding.firstName.isEnabled
+        binding.lastNameText.isEndIconVisible = binding.lastName.isEnabled
+        binding.phoneNoText.isEndIconVisible = binding.phoneNo.isEnabled
+        val currentStatus = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim() ?: ""
+        val isUnmarried = currentStatus.contains("unmarried") || currentStatus.contains("never") || currentStatus.contains("single")
+        val canEditUnmarriedFields = isEditable && (isUnmarried || !isEditModeAfterRegistration)
+        binding.maritalStatusDropdown.isEnabled = canEditUnmarriedFields
+        binding.fatherNameEditText.isEnabled = canEditUnmarriedFields
+        binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
+        binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
+        binding.ageAtMarriageText.isEndIconVisible = binding.ageAtMarriage.isEnabled
+        binding.dateOfBirthText.isEndIconVisible = binding.dateOfBirth.isEnabled
         
-        // Disable these in Edit mode as they are set during registration usually
-        binding.firstName.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.genderDropdown.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.dateOfBirth.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.maritalStatusDropdown.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.spouseName.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.fatherNameEditText.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.hasAbhaIdDropdown.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.villageDropdown.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.ivImgCapture.isEnabled = isEditable && !isEditModeAfterRegistration
-        binding.btnScanAadhaar.isEnabled = isEditable && !isEditModeAfterRegistration
+        // Handle dropdown icons
+        // Using setEndIconVisible(false) might hide the dropdown arrow
+        binding.genderText.isEndIconVisible = binding.genderDropdown.isEnabled
+        binding.maritalStatusText.isEndIconVisible = binding.maritalStatusDropdown.isEnabled
+        binding.statusOfWomanText.isEndIconVisible = binding.statusOfWomanDropdown.isEnabled
+        binding.ageInUnitText.isEndIconVisible = binding.ageInUnitDropdown.isEnabled
+        binding.villageText.isEndIconVisible = binding.villageDropdown.isEnabled
 
         // Clear focus if moving to read-only
         if (!isEditable) {
@@ -741,11 +793,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     binding.spouseNameText.setBoxColor(it, message)
                 }
             }
-            viewModel.abhaIdNumberVal.observe(viewLifecycleOwner) {
-                if (binding.abhaIdNumberText.visibility == View.VISIBLE && selectedHasAbhaId == true) {
-                    binding.abhaIdNumberText.setBoxColor(it, resources.getString(R.string.invalid_abha_format))
-                }
-            }
             viewModel.fatherNameVal.observe(viewLifecycleOwner) {
                 if (binding.fatherNameText.visibility == View.VISIBLE) {
                     binding.fatherNameText.setBoxColor(it, resources.getString(R.string.enter_father_s_name_error))
@@ -775,21 +822,31 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if (viewModel.shouldShowMaritalStatus(genderId, ageInYears)) {
             binding.maritalStatusText.visibility = View.VISIBLE
             
-            val status = viewModel.selectedMaritalStatus?.status?.lowercase()
-            when (status) {
-                "married" -> {
+            val status = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim()
+            when {
+                status?.contains("married") == true && !status.contains("unmarried") && !status.contains("never") -> {
                     binding.fatherNameText.visibility = View.GONE
                     binding.spouseNameText.visibility = View.VISIBLE
                     
                     // Update hint based on gender
                     val hintRes = if (genderId == 2) R.string.husband_name else if (genderId == 1) R.string.wife_name else R.string.spouse_name
                     binding.spouseNameText.hint = getString(hintRes)
+                    
+                    // If we just changed from Unmarried to Married in Edit mode, allow editing Spouse Name
+                    binding.spouseName.isEnabled = !isReadOnly
+                    binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
+                    
                     viewModel.setFatherName(true) // Not mandatory if married
                 }
-                "unmarried" -> {
+                status?.contains("unmarried") == true || status?.contains("never") == true || status?.contains("single") == true -> {
                     binding.spouseNameText.visibility = View.GONE
                     binding.fatherNameText.visibility = View.VISIBLE
                     binding.spouseName.setText("") // Clear if was married before
+                    
+                    // Allow editing Father Name if we are in Edit mode
+                    binding.fatherNameEditText.isEnabled = !isReadOnly
+                    binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
+                    
                     val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
                     viewModel.setFatherName(isFatherNameFilled)
                     viewModel.setSpouse(true) // Not mandatory if not married
@@ -803,11 +860,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 }
             }
         } else {
-            hideMarriedFields()
-            viewModel.selectedMaritalStatus = null
-            binding.maritalStatusDropdown.setText("", false)
-            viewModel.setMarital(true) // Hidden, so not mandatory
-            viewModel.setSpouse(true)
+            if (!isProgrammaticChange) {
+                hideMarriedFields()
+                viewModel.selectedMaritalStatus = null
+                binding.maritalStatusDropdown.setText("", false)
+                viewModel.setMarital(true) // Hidden, so not mandatory
+                viewModel.setSpouse(true)
+            }
             
             // Show Father Name for children (Age < 15) and make it mandatory
             if (ageInYears != null && ageInYears < 15) {
@@ -826,13 +885,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         // Setup keyboard handling for marital status dropdown
         binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
 
-        binding.maritalStatusDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.selectedMaritalStatus = viewModel.maritalStatusList[position]
-            viewModel.maritalStatusId = viewModel.maritalStatusList[position].maritalStatusID
-            viewModel.maritalStatusName = viewModel.maritalStatusList[position].status
-            binding.maritalStatusDropdown.setText(viewModel.selectedMaritalStatus!!.status, false)
-            setMarriedFieldsVisibility()
-            updateStatusOfWomanVisibility()
+        binding.maritalStatusDropdown.setOnItemClickListener { parent, _, position, _ ->
+            val selectedItem = parent.getItemAtPosition(position) as? DropdownList
+            selectedItem?.let { item ->
+                viewModel.selectedMaritalStatus = viewModel.maritalStatusList.find { it.maritalStatusID == item.id }
+                viewModel.maritalStatusId = item.id
+                viewModel.maritalStatusName = item.display
+                binding.maritalStatusDropdown.setText(item.display, false)
+                setMarriedFieldsVisibility()
+                updateStatusOfWomanVisibility()
+            }
         }
 
         // Setup keyboard handling for gender dropdown
@@ -841,12 +903,15 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         // Setup keyboard handling for gender dropdown
         binding.genderDropdown.setupDropdownKeyboardHandling()
 
-        binding.genderDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.selectedGenderMaster = viewModel.genderMasterList[position]
-            binding.genderDropdown.setText(viewModel.selectedGenderMaster!!.genderName, false)
-            updateMaritalStatusOptions()
-            setMarriedFieldsVisibility()
-            updateStatusOfWomanVisibility()
+        binding.genderDropdown.setOnItemClickListener { parent, _, position, _ ->
+            val selectedItem = parent.getItemAtPosition(position) as? DropdownList
+            selectedItem?.let { item ->
+                viewModel.selectedGenderMaster = viewModel.genderMasterList.find { it.genderID == item.id }
+                binding.genderDropdown.setText(item.display, false)
+                updateMaritalStatusOptions()
+                setMarriedFieldsVisibility()
+                updateStatusOfWomanVisibility()
+            }
         }
 
         binding.dateOfBirth.setOnClickListener {
@@ -1115,6 +1180,17 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     }
                     binding.villageDropdown.setAdapter(villageAdapter)
                     setVillageDropdownMaxHeight()
+
+                    // Pre-fill if patient data exists
+                    if (patient.districtBranchID != null) {
+                        viewModel.selectedVillage = viewModel.villageList.find { it.districtBranchID.toInt() == patient.districtBranchID }
+                        viewModel.selectedVillage?.let { v ->
+                             isSettingVillageProgrammatically = true
+                             binding.villageDropdown.setText(v.villageName, false)
+                             binding.villageDropdown.dismissDropDown()
+                             isSettingVillageProgrammatically = false
+                        }
+                    }
                 }
                 else -> {
                     //No-Ops For Now
@@ -1130,6 +1206,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
                     // Ensure keyboard handling is set up (in case it wasn't set earlier)
                     binding.maritalStatusDropdown.setupDropdownKeyboardHandling()
+
+                    // Pre-fill if patient data exists
+                    if (patient.maritalStatusID != null) {
+                        viewModel.selectedMaritalStatus = viewModel.maritalStatusList.find { it.maritalStatusID == patient.maritalStatusID }
+                        viewModel.selectedMaritalStatus?.let { m ->
+                            isProgrammaticChange = true
+                            binding.maritalStatusDropdown.setText(m.status, false)
+                            setMarriedFieldsVisibility()
+                            updateStatusOfWomanVisibility()
+                            isProgrammaticChange = false
+                        }
+                    }
                 }
                 else -> {
                     //No-Ops For Now
@@ -1145,6 +1233,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     binding.genderDropdown.setAdapter(dropdownAdapter)
                     // Setup keyboard handling for gender dropdown
                     binding.genderDropdown.setupDropdownKeyboardHandling()
+
+                    // Pre-fill if patient data exists
+                    if (patient.genderID != null) {
+                        viewModel.selectedGenderMaster = viewModel.genderMasterList.find { it.genderID == patient.genderID }
+                        viewModel.selectedGenderMaster?.let { master ->
+                            isProgrammaticChange = true
+                            binding.genderDropdown.setText(master.genderName, false)
+                            setMarriedFieldsVisibility()
+                            updateStatusOfWomanVisibility()
+                            isProgrammaticChange = false
+                        }
+                    }
                 }
                 else -> {
                     //No-Ops For Now
@@ -1347,11 +1447,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
         patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
-
-        // New fields for Status of Woman and ABHA
         patient.statusOfWomanID = viewModel.selectedStatusOfWoman?.statusID
-        patient.hasAbhaId = viewModel.hasAbhaId
-        patient.abhaIdNumber = viewModel.abhaIdNumber
+
     }
 
     private fun setLocationDetails(){
@@ -1362,6 +1459,37 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.districtBranchID = viewModel.selectedVillage?.districtBranchID!!.toInt()
     }
 
+    private fun populateForm(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
+        val p = patientInfo.patient
+        this.patient = p // Set current patient object
+
+        isProgrammaticChange = true
+        binding.firstName.setText(p.firstName)
+        binding.lastName.setText(p.lastName)
+        binding.phoneNo.setText(p.phoneNo)
+        binding.spouseName.setText(p.spouseName)
+        binding.fatherNameEditText.setText(p.parentName)
+
+        // Age
+        p.age?.let {
+             viewModel.enteredAge = it
+             viewModel.enteredAgeYears = it
+             binding.age.setText("$it years")
+        }
+
+        // DOB
+        p.dob?.let {
+            viewModel.selectedDateOfBirth = it
+            binding.dateOfBirth.setText(DateTimeUtil.formattedDate(it))
+        }
+
+        // Photo
+        p.benImage?.let { img ->
+            com.bumptech.glide.Glide.with(this).load(android.net.Uri.parse(img)).placeholder(R.drawable.ic_person).circleCrop().into(binding.ivImgCapture)
+        }
+        isProgrammaticChange = false
+    }
+
     override fun getFragmentId(): Int {
         return R.id.fragment_add_patient_location
     }
@@ -1370,7 +1498,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             return false
         }
 
-        // Check Status of Woman if visible (Now mandatory for all females)
         if (binding.statusOfWomanText.visibility == View.VISIBLE && !viewModel.statusOfWomanVal.value!!) {
             return false
         }
@@ -1380,24 +1507,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             return false
         }
 
-        // Check Spouse Name if visible
         if (binding.spouseNameText.visibility == View.VISIBLE && !viewModel.spouseNameVal.value!!) {
             return false
         }
 
-        // Check Father's Name if visible
         if (binding.fatherNameText.visibility == View.VISIBLE && !viewModel.fatherNameVal.value!!) {
             return false
         }
-
-        // Check ABHA ID validation if Has ABHA ID is Yes
-        if (selectedHasAbhaId == true) {
-            val abhaNumber = binding.abhaIdNumber.text.toString().trim()
-            if (abhaNumber.length != 14 || !abhaNumber.all { it.isDigit() }) {
-                return false
-            }
-        }
-
         return true
     }
     @RequiresApi(Build.VERSION_CODES.O)
@@ -1406,28 +1522,25 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             requireActivity().finish()
             return
         }
-        
+
         watchAllFields()
         if (checkVisibleFieldIsEmpty()) {
             setPatientDetails()
             setLocationDetails()
-            
-            if (patient.patientID.isBlank() || patient.patientID == "null") {
-                // Initial Registration
-                patient.patientID = generateUuid()
+
+            if (isEditModeAfterRegistration) {
+                 patient.syncState = SyncState.UNSYNCED
+                 viewModel.updatePatient(patient)
+            } else {
+                if (patient.patientID.isBlank() || patient.patientID == "null") {
+                    // Initial Registration
+                    patient.patientID = generateUuid()
+                }
+                viewModel.insertPatient(patient)
             }
-            viewModel.insertPatient(patient)
         }
     }
 
-
-    private fun showBeneficiaryCard() {
-        val bundle = Bundle().apply {
-            putSerializable("patientInfo", viewModel.benVisitInfo)
-            putInt("statusOfWomanID", viewModel.selectedStatusOfWoman?.statusID ?: -1)
-        }
-        findNavController().navigate(R.id.action_patientDetailsFragment_to_beneficiaryCardFragment, bundle)
-    }
 
     override fun onCancelAction() {
         MaterialAlertDialogBuilder(requireContext())
@@ -1505,88 +1618,33 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private fun enableFullBoxClick(dropdown: AutoCompleteTextView) {
         dropdown.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
+            if (dropdown.isEnabled && event.action == MotionEvent.ACTION_UP) {
                 dropdown.showDropDown()
             }
             false
         }
 
         dropdown.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) dropdown.showDropDown()
+            if (dropdown.isEnabled && hasFocus) dropdown.showDropDown()
         }
     }
-
-    private fun setupHasAbhaIdDropdown() {
-        val options = listOf(
-            DropdownList(1, getString(R.string.select_yes)),
-            DropdownList(0, getString(R.string.select_no))
-        )
-
-        hasAbhaIdAdapter = DropdownAdapter(
-            requireContext(),
-            R.layout.drop_down,
-            options,
-            binding.hasAbhaIdDropdown
-        )
-        binding.hasAbhaIdDropdown.setAdapter(hasAbhaIdAdapter)
-        binding.hasAbhaIdDropdown.setupDropdownKeyboardHandling()
-
-        binding.hasAbhaIdDropdown.setOnItemClickListener { _, _, position, _ ->
-            selectedHasAbhaId = position == 0
-            viewModel.hasAbhaId = selectedHasAbhaId
-            viewModel.setHasAbhaId(true)
-
-            if (selectedHasAbhaId == true) {
-                binding.abhaIdNumberText.visibility = View.VISIBLE
-            } else {
-                binding.abhaIdNumberText.visibility = View.GONE
-                binding.abhaIdNumber.setText("")
-                viewModel.abhaIdNumber = null
-                // Show alert to counsel beneficiary for ABHA enrollment
-                showAbhaEnrollmentAlert()
-            }
-        }
-
-
-        binding.abhaIdNumber.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Intentionally blank: ABHA validation/assignment happens in `onTextChanged`.
-            }
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val abhaNumber = s?.toString()?.trim() ?: ""
-                viewModel.abhaIdNumber = if (abhaNumber.isNotEmpty()) abhaNumber else null
-                val isValidAbhaFormat = abhaNumber.length == 14 && abhaNumber.all { it.isDigit() }
-                viewModel.setAbhaIdNumber(isValidAbhaFormat)
-
-                if (abhaNumber.isNotEmpty() && (abhaNumber.length != 14 || !abhaNumber.all { it.isDigit() })) {
-                    binding.abhaIdNumberText.error = getString(R.string.invalid_abha_format)
-                } else {
-                    binding.abhaIdNumberText.error = null
-                }
-            }
-            override fun afterTextChanged(s: Editable?) {
-                // No deferred validation or cleanup necessary after text change —
-            }
-        })
-    }
-
-
-    private fun showAbhaEnrollmentAlert() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.alert_popup))
-            .setMessage(getString(R.string.abha_enrollment_alert))
-            .setPositiveButton(getString(R.string.ok_button)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-
     private fun setupStatusOfWomanDropdown() {
         viewModel.statusOfWoman.observe(viewLifecycleOwner) { state ->
             when (state) {
                 PatientDetailsViewModel.NetworkState.SUCCESS -> {
                     updateStatusOfWomanVisibility()
+                    
+                    // Pre-fill if patient data exists
+                    if (patient.statusOfWomanID != null) {
+                        val status = viewModel.statusOfWomanList.find { it.statusID == patient.statusOfWomanID }
+                        status?.let { s ->
+                            isProgrammaticChange = true
+                            viewModel.selectedStatusOfWoman = s
+                            binding.statusOfWomanDropdown.setText(s.statusName, false)
+                            viewModel.setStatusOfWoman(true)
+                            isProgrammaticChange = false
+                        }
+                    }
                 }
                 else -> {
                     //No-Ops For Now
@@ -1596,10 +1654,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
         binding.statusOfWomanDropdown.setupDropdownKeyboardHandling()
 
-        binding.statusOfWomanDropdown.setOnItemClickListener { _, _, position, _ ->
-            if (position >= 0 && position < viewModel.filteredStatusOfWomanList.size) {
-                viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[position]
-                binding.statusOfWomanDropdown.setText(viewModel.selectedStatusOfWoman!!.statusName, false)
+        binding.statusOfWomanDropdown.setOnItemClickListener { parent, _, position, _ ->
+            val selectedItem = parent.getItemAtPosition(position) as? DropdownList
+            selectedItem?.let { item ->
+                viewModel.selectedStatusOfWoman = viewModel.statusOfWomanList.find { it.statusID == item.id }
+                binding.statusOfWomanDropdown.setText(item.display, false)
                 viewModel.setStatusOfWoman(true)
             }
         }
@@ -1614,7 +1673,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         if (viewModel.shouldShowStatusOfWoman(genderId, ageInYears)) {
             binding.statusOfWomanText.visibility = View.VISIBLE
 
-            val maritalStatusName = viewModel.selectedMaritalStatus?.status
+            val maritalStatusName = viewModel.selectedMaritalStatus?.status?.trim()
             viewModel.filteredStatusOfWomanList = viewModel.getFilteredStatusOfWomanOptions(genderId, ageInYears, maritalStatusName)
 
             if (viewModel.filteredStatusOfWomanList.isNotEmpty()) {
@@ -1629,29 +1688,44 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 )
                 binding.statusOfWomanDropdown.setAdapter(statusOfWomanAdapter)
 
-                // If only one option, auto-select it
-                if (viewModel.filteredStatusOfWomanList.size == 1) {
-                    viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[0]
-                    binding.statusOfWomanDropdown.setText(viewModel.selectedStatusOfWoman!!.statusName, false)
-                    viewModel.setStatusOfWoman(true)
-                } else {
-                    // Clear previous selection
+                // Check if current selection is still valid
+                if (viewModel.selectedStatusOfWoman != null && viewModel.filteredStatusOfWomanList.none { it.statusID == viewModel.selectedStatusOfWoman!!.statusID }) {
                     viewModel.selectedStatusOfWoman = null
                     binding.statusOfWomanDropdown.setText("", false)
                     viewModel.setStatusOfWoman(false)
                 }
+
+                // Restore text if already selected
+                viewModel.selectedStatusOfWoman?.let { s ->
+                    val oldFlag = isProgrammaticChange
+                    isProgrammaticChange = true
+                    binding.statusOfWomanDropdown.setText(s.statusName, false)
+                    isProgrammaticChange = oldFlag
+                }
+
+                // If only one option and none selected, auto-select it
+                if (viewModel.selectedStatusOfWoman == null && viewModel.filteredStatusOfWomanList.size == 1) {
+                    viewModel.selectedStatusOfWoman = viewModel.filteredStatusOfWomanList[0]
+                    binding.statusOfWomanDropdown.setText(viewModel.selectedStatusOfWoman!!.statusName, false)
+                    viewModel.setStatusOfWoman(true)
+                } else if (viewModel.selectedStatusOfWoman != null) {
+                    // Already selected, ensure validation is true
+                    viewModel.setStatusOfWoman(true)
+                }
             } else {
-                // List is empty (e.g. Marital Status not selected yet), clear dropdown
-                statusOfWomanAdapter = DropdownAdapter(
-                    requireContext(),
-                    R.layout.drop_down,
-                    emptyList(),
-                    binding.statusOfWomanDropdown
-                )
-                binding.statusOfWomanDropdown.setAdapter(statusOfWomanAdapter)
-                viewModel.selectedStatusOfWoman = null
-                binding.statusOfWomanDropdown.setText("", false)
-                viewModel.setStatusOfWoman(false)
+                if (!isProgrammaticChange) {
+                    // List is empty (e.g. Marital Status not selected yet), clear dropdown
+                    statusOfWomanAdapter = DropdownAdapter(
+                        requireContext(),
+                        R.layout.drop_down,
+                        emptyList(),
+                        binding.statusOfWomanDropdown
+                    )
+                    binding.statusOfWomanDropdown.setAdapter(statusOfWomanAdapter)
+                    viewModel.selectedStatusOfWoman = null
+                    binding.statusOfWomanDropdown.setText("", false)
+                    viewModel.setStatusOfWoman(false)
+                }
             }
             
             // Re-validate Father Name if status of woman changes (e.g. to Adolescent Girl)
@@ -1679,11 +1753,18 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             DropdownAdapter(requireContext(), R.layout.drop_down, dropdownList, binding.maritalStatusDropdown)
         binding.maritalStatusDropdown.setAdapter(dropdownAdapter)
 
+        // Restore text if already selected
+        viewModel.selectedMaritalStatus?.let {
+            val oldFlag = isProgrammaticChange
+            isProgrammaticChange = true
+            binding.maritalStatusDropdown.setText(it.status, false)
+            isProgrammaticChange = oldFlag
+        }
+
         // If current selection is no longer in filtered list, clear it
-        if (viewModel.selectedMaritalStatus != null && filteredList.none { it.maritalStatusID == viewModel.selectedMaritalStatus!!.maritalStatusID }) {
+        if (!isProgrammaticChange && viewModel.selectedMaritalStatus != null && filteredList.none { it.maritalStatusID == viewModel.selectedMaritalStatus!!.maritalStatusID }) {
             viewModel.selectedMaritalStatus = null
             binding.maritalStatusDropdown.setText("", false)
         }
     }
 }
-

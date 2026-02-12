@@ -87,7 +87,6 @@ import org.piramalswasthya.cho.repositories.VisitReasonsAndCategoriesRepo
 import org.piramalswasthya.cho.repositories.VitalsRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
-
 import org.piramalswasthya.cho.ui.abha_id_activity.AbhaIdActivity
 import org.piramalswasthya.cho.ui.commons.SpeechToTextContract
 import org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity
@@ -358,8 +357,12 @@ class PersonalDetailsFragment : Fragment() {
                             }, { benVisitInfo ->
                                 openDialog(benVisitInfo)
                             }, { benVisitInfo ->
-                                // View Beneficiary Card
-                                openBeneficiaryCard(benVisitInfo)
+
+                                val intent = Intent(requireContext(), RegisterPatientActivity::class.java).apply {
+                                    putExtra("isEdit", true)
+                                    putExtra("patientInfo", benVisitInfo)
+                                }
+                                startActivity(intent)
                             }),
                             showAbha = true
                         )
@@ -568,6 +571,13 @@ class PersonalDetailsFragment : Fragment() {
         }
         return ResolvedLocation(stateID, districtID, blockID, districtBranchID, apiPatient.villageName)
     }
+    private fun openPatientInEditMode(ben: PatientDisplayWithVisitInfo) {
+        val intent = Intent(requireContext(), RegisterPatientActivity::class.java)
+        intent.putExtra("mode", "VIEW")
+        intent.putExtra("benVisitInfo", ben)
+        startActivity(intent)
+    }
+
 
     private suspend fun ensureMasterDataExists(loc: ResolvedLocation) {
         val (stateID, districtID, blockID, districtBranchID, villageName) = loc
@@ -654,13 +664,6 @@ class PersonalDetailsFragment : Fragment() {
             childFragmentManager, resources.getString(R.string.sync)
         )
         Timber.tag("sync").i("${benVisitInfo}")
-    }
-
-    /**
-     * Open the Beneficiary Card for the selected patient.
-     */
-    private fun openBeneficiaryCard(benVisitInfo: PatientDisplayWithVisitInfo) {
-        (activity as? org.piramalswasthya.cho.ui.home_activity.HomeActivity)?.showBeneficiaryCard(benVisitInfo)
     }
 
     var pageHeight = 1120

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,11 +15,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+import org.piramalswasthya.cho.model.EligibleCoupleTrackingCache
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
 import org.piramalswasthya.cho.model.UserDomain
@@ -35,6 +36,7 @@ import org.piramalswasthya.cho.work.WorkerUtils
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -96,8 +98,12 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         hardCodedListUpdate(formId)
                     }, isEnabled = !recordExists
                 )
-                // Hide submit button if record exists (view mode)
+                // Show submit button if record does not exist (new form mode)
+                // Hide parent activity's bottom navigation to avoid duplicate buttons
                 binding.btnSubmit.visibility = if(recordExists) View.GONE else View.VISIBLE
+                if (!recordExists) {
+                    activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+                }
                 binding.btnSubmit.isEnabled = !recordExists
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {
@@ -115,6 +121,16 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
+        }
+
+        // Populate ANTRA table in view mode
+        viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
+            if (recordExists == true) {
+                // In view mode, populate ANTRA table if patient has ANTRA injection history
+                viewModel.allEctRecords.observe(viewLifecycleOwner) { ectRecords ->
+                    populateAntraTable(ectRecords)
+                }
+            }
         }
 
         // Wire up submit button from fragment layout
@@ -165,6 +181,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+
     }
 
     private fun checkForAlerts() {
@@ -389,9 +406,15 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                     notifyItemChanged(2)
 
                 }
-                4,5 -> {
+                4,5,9,12 -> {
                     notifyDataSetChanged()
                     //notifyItemChanged(viewModel.getIndexOfIsPregnant())
+                    if (formId == 9) {
+                        lifecycleScope.launch {
+                            // Small yield to allow ViewModel update to finish if it's in a launch
+                            yield()
+                        }
+                    }
                 }
 
             }
@@ -411,6 +434,12 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         navigateNext()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Restore bottom navigation visibility when leaving fragment
+        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+    }
+
     override fun onCancelAction() {
         findNavController().navigateUp()
     }
@@ -422,9 +451,95 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             getString(R.string.ec_tracking_title)
     }
 
+    private fun populateAntraTable(ectRecords: List<EligibleCoupleTrackingCache>?) {
+        // Filter records that have ANTRA injection
+        val antraRecords = ectRecords?.filter {
+            it.methodOfContraception == "ANTRA Injection" && it.antraInjectionDate != null
+        }?.sortedBy { it.antraInjectionDate } ?: emptyList()
+
+        if (antraRecords.isEmpty()) {
+            // Hide the ANTRA section if no ANTRA injections found
+            binding.llAntraSection.visibility = View.GONE
+            return
+        }
+
+        // Show the ANTRA section
+        binding.llAntraSection.visibility = View.VISIBLE
+
+        // Clear existing rows (except header)
+        val tableLayout = binding.tableAntraHistory
+        val childCount = tableLayout.childCount
+        if (childCount > 1) {
+            tableLayout.removeViews(1, childCount - 1)
+        }
+
+        // Add rows for each ANTRA injection
+        antraRecords.forEach { record ->
+            val tableRow = android.widget.TableRow(requireContext())
+            tableRow.layoutParams = android.widget.TableLayout.LayoutParams(
+                android.widget.TableLayout.LayoutParams.MATCH_PARENT,
+                android.widget.TableLayout.LayoutParams.WRAP_CONTENT
+            )
+            tableRow.setPadding(8, 8, 8, 8)
+
+            // Dose column
+            val doseTextView = android.widget.TextView(requireContext())
+            doseTextView.text = record.antraDose ?: ""
+            doseTextView.setPadding(8, 8, 8, 8)
+            doseTextView.gravity = android.view.Gravity.CENTER
+            doseTextView.layoutParams = android.widget.TableRow.LayoutParams(
+                0,
+                android.widget.TableRow.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+            tableRow.addView(doseTextView)
+
+            // Date column
+            val dateTextView = android.widget.TextView(requireContext())
+            dateTextView.text = record.antraInjectionDate?.let {
+                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(it))
+            } ?: ""
+            dateTextView.setPadding(8, 8, 8, 8)
+            dateTextView.gravity = android.view.Gravity.CENTER
+            dateTextView.layoutParams = android.widget.TableRow.LayoutParams(
+                0,
+                android.widget.TableRow.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+            tableRow.addView(dateTextView)
+
+            // Next Due Date column
+            val dueDateTextView = android.widget.TextView(requireContext())
+            dueDateTextView.text = record.antraInjectionDate?.let { injectionDate ->
+                val cal = java.util.Calendar.getInstance()
+                cal.timeInMillis = injectionDate
+                
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
+                val startDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(cal.time)
+                
+                cal.timeInMillis = injectionDate
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
+                val endDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(cal.time)
+                
+                "$startDate to $endDate"
+            } ?: ""
+            dueDateTextView.setPadding(8, 8, 8, 8)
+            dueDateTextView.gravity = android.view.Gravity.CENTER
+            dueDateTextView.layoutParams = android.widget.TableRow.LayoutParams(
+                0,
+                android.widget.TableRow.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+            tableRow.addView(dueDateTextView)
+
+            tableLayout.addView(tableRow)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
     }
+
 
 }

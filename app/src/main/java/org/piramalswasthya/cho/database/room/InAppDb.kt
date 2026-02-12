@@ -514,8 +514,6 @@ abstract class InAppDb : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Add new columns to PATIENT table
                 database.execSQL("ALTER TABLE PATIENT ADD COLUMN statusOfWomanID INTEGER")
-                database.execSQL("ALTER TABLE PATIENT ADD COLUMN hasAbhaId INTEGER")
-                database.execSQL("ALTER TABLE PATIENT ADD COLUMN abhaIdNumber TEXT")
 
                 // Create STATUS_OF_WOMAN_MASTER table
                 database.execSQL("""
@@ -597,15 +595,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_123_124 = object : Migration(123, 124) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns to PREGNANCY_ANC table
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN pregnancyTestAtFacility INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResult TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResultId INTEGER DEFAULT -1")
-            }
-        }
-        val MIGRATION_124_125 = object : Migration(124, 125) {
+        val MIGRATION_123_124 = object : Migration(124, 125) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
@@ -648,8 +638,7 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_120_121,
                             MIGRATION_121_122,
                             MIGRATION_122_123,
-                            MIGRATION_123_124,
-                            MIGRATION_124_125
+                            MIGRATION_123_124
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {
