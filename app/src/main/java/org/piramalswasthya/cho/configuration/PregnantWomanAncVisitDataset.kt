@@ -1399,36 +1399,44 @@ class PregnantWomanAncVisitDataset(
 
     private fun updateHighRiskUI(hasHighRisk: Boolean, riskCondition: String?) {
         if (hasHighRisk) {
-            if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                anyHighRisk.value = anyHighRisk.entries?.last()
+            setHighRiskFlags(riskCondition)
+        } else {
+            clearHighRiskFlags()
+        }
+    }
+
+    private fun setHighRiskFlags(riskCondition: String?) {
+        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+            anyHighRisk.value = anyHighRisk.entries?.last()
+            triggerDependants(
+                source = anyHighRisk,
+                removeItems = emptyList(),
+                addItems = listOf(highRiskCondition),
+                position = getIndexById(anyHighRisk.id) + 1
+            )
+        }
+        updateHighRiskConditionValue(riskCondition)
+    }
+
+    private fun updateHighRiskConditionValue(riskCondition: String?) {
+        if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
+            highRiskCondition.value = riskCondition
+            if (riskCondition == highRiskCondition.entries!!.last()) {
                 triggerDependants(
-                    source = anyHighRisk,
-                    removeItems = emptyList(),
-                    addItems = listOf(highRiskCondition),
-                    position = getIndexById(anyHighRisk.id) + 1
+                    source = highRiskCondition,
+                    passedIndex = highRiskCondition.entries!!.lastIndex,
+                    triggerIndex = highRiskCondition.entries!!.lastIndex,
+                    target = otherHighRiskCondition,
                 )
             }
-            // Update high risk condition if needed
-            if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
-                highRiskCondition.value = riskCondition
-                if (riskCondition == highRiskCondition.entries!!.last()) {
-                    triggerDependants(
-                        source = highRiskCondition,
-                        passedIndex = highRiskCondition.entries!!.lastIndex,
-                        triggerIndex = highRiskCondition.entries!!.lastIndex,
-                        target = otherHighRiskCondition,
-                    )
-                }
-            }
-        } else {
-            // Clear high-risk flags when no triggers apply
-            // Only clear if currently set to "Yes" (likely auto-set) and no triggers apply
-            if (anyHighRisk.value == anyHighRisk.entries?.last()) {
-                anyHighRisk.value = anyHighRisk.entries?.first()
-                // Reset high risk condition to "NONE" when clearing
-                if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
-                    highRiskCondition.value = highRiskCondition.entries?.first()
-                }
+        }
+    }
+
+    private fun clearHighRiskFlags() {
+        if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+            anyHighRisk.value = anyHighRisk.entries?.first()
+            if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
+                highRiskCondition.value = highRiskCondition.entries?.first()
             }
         }
     }
