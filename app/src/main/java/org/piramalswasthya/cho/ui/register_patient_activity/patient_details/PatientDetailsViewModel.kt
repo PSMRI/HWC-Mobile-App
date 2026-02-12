@@ -167,7 +167,7 @@ class PatientDetailsViewModel @Inject constructor(
     var selectedVillage : VillageLocationData? = null;
     lateinit var benVisitInfo: PatientDisplayWithVisitInfo
 
-    // Status of Woman related variables
+    // Status of Woman
     private val _statusOfWoman = MutableLiveData(NetworkState.IDLE)
     val statusOfWoman: LiveData<NetworkState>
         get() = _statusOfWoman
@@ -175,20 +175,9 @@ class PatientDetailsViewModel @Inject constructor(
     private val _statusOfWomanVal = MutableLiveData<Boolean>(false)
     val statusOfWomanVal: MutableLiveData<Boolean>
         get() = _statusOfWomanVal
-
-    private val _hasAbhaIdVal = MutableLiveData<Boolean>(false)
-    val hasAbhaIdVal: MutableLiveData<Boolean>
-        get() = _hasAbhaIdVal
-
-    private val _abhaIdNumberVal = MutableLiveData<Boolean>(false)
-    val abhaIdNumberVal: MutableLiveData<Boolean>
-        get() = _abhaIdNumberVal
-
     var statusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
     var filteredStatusOfWomanList: List<StatusOfWomanMaster> = mutableListOf()
     var selectedStatusOfWoman: StatusOfWomanMaster? = null
-    var hasAbhaId: Boolean? = null
-    var abhaIdNumber: String? = null
 
     init {
         viewModelScope.launch {
@@ -325,17 +314,18 @@ class PatientDetailsViewModel @Inject constructor(
         }
     }
 
+    fun updatePatient(patient: Patient) {
+        viewModelScope.launch {
+            patientRepo.updateRecord(patient)
+            benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(patient.patientID)
+            _isDataSaved.value = true
+        }
+    }
+
     fun setStatusOfWoman(boolean: Boolean) {
         _statusOfWomanVal.value = boolean
     }
 
-    fun setHasAbhaId(boolean: Boolean) {
-        _hasAbhaIdVal.value = boolean
-    }
-
-    fun setAbhaIdNumber(boolean: Boolean) {
-        _abhaIdNumberVal.value = boolean
-    }
 
     private suspend fun fetchStatusOfWoman() {
         _statusOfWoman.value = NetworkState.LOADING
@@ -347,18 +337,6 @@ class PatientDetailsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Returns filtered Status of Woman options based on gender, age, and marital status.
-     *
-     * Status IDs:
-     * 1 - Eligible Couple (EC)
-     * 2 - Pregnant Woman (PW)
-     * 3 - Postnatal (PN)
-     * 4 - Elderly (EL)
-     * 5 - Adolescent (AD)
-     * 6 - Permanent Sterilization (ST)
-     * 7 - Not Applicable (NA)
-     */
     fun getFilteredStatusOfWomanOptions(genderId: Int?, ageInYears: Int?, maritalStatusName: String?): List<StatusOfWomanMaster> {
         // Strictly for females (genderId = 2)
         if (genderId != 2) return emptyList()
@@ -378,20 +356,20 @@ class PatientDetailsViewModel @Inject constructor(
             ageInYears >= 50 ->
                 statusOfWomanList.filter { it.statusID == 4 }
 
-            // Ranges where Marital Status matters (15-49)
-            ageInYears in 15..49 -> {
-                when (mStatus) {
-                    "married" -> statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
-                    "unmarried" -> {
-                        if (ageInYears in 15..19) statusOfWomanList.filter { it.statusID == 5 } // Adolescent
-                        else statusOfWomanList.filter { it.statusID == 7 } // 20+ unmarried -> NA
-                    }
-                    null -> emptyList() // Wait for marital status to avoid auto-selecting NA
-                    else -> statusOfWomanList.filter { it.statusID == 7 } // Widow/Divorced -> NA
+        // Ranges where Marital Status matters (15-49)
+        ageInYears in 15..49 -> {
+            when {
+                mStatus == null -> emptyList()
+                mStatus.contains("married") && !mStatus.contains("unmarried") && !mStatus.contains("never") -> 
+                    statusOfWomanList.filter { it.statusID in listOf(1, 2, 3, 6) }
+                mStatus.contains("unmarried") || mStatus.contains("never") || mStatus.contains("single") -> {
+                    if (ageInYears in 15..19) statusOfWomanList.filter { it.statusID == 5 } // Adolescent
+                    else statusOfWomanList.filter { it.statusID == 7 } // 20+ unmarried -> NA
                 }
+                else -> statusOfWomanList.filter { it.statusID == 7 } // Widow/Divorced -> NA
             }
+        }
             
-            // Female 10-14 (always Adolescent regardless of marital status, though usually unmarried)
             ageInYears in 10..14 ->
                 statusOfWomanList.filter { it.statusID == 5 }
 
@@ -400,12 +378,8 @@ class PatientDetailsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Check if Status of Woman field should be visible.
-     * Visible for females with age >= 15 (Adolescent starts at 15 as per new image).
-     */
+
     fun shouldShowStatusOfWoman(genderId: Int?, ageInYears: Int?): Boolean {
-        // Now visible for all females
         return genderId == 2
     }
 

@@ -60,9 +60,9 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             val date = dateString?.let { f.parse(it) }
             return date?.let {
                 if (it.month >= 3) {
-                    "" + (it.year + 1900) + " - " + (it.year + 1902)
+                    "" + (it.year + 1900) + " - " + (it.year + 1901)
                 } else {
-                    "" + (it.year + 1899) + " - " + (it.year + 1901)
+                    "" + (it.year + 1899) + " - " + (it.year + 1900)
                 }
             }
         }
@@ -393,7 +393,7 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         return TimeUnit.MILLISECONDS.toDays(millisDiff).toInt()
     }
 
-    fun getEddFromLmp(lmp: Long) =
+    protected fun getEddFromLmp(lmp: Long) =
 
         Calendar.getInstance().apply {
             timeInMillis = lmp
