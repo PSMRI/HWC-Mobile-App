@@ -767,20 +767,4 @@ class HomeActivity : AppCompatActivity() {
     fun switchToHomeTab() {
         pager.setCurrentItem(0, true) // true for smooth scroll animation
     }
-
-    fun showBeneficiaryCard(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
-        val fragment = org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment.newInstance(patientInfo)
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    fun showEditBeneficiaryDetails(patientInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) {
-        val fragment = org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment.newInstance(patientInfo)
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
 }

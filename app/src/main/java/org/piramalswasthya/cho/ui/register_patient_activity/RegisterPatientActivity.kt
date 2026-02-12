@@ -72,17 +72,33 @@ class RegisterPatientActivity : AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.submit_btn_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
-                R.id.beneficiaryCardFragment -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.beneficiary_card_title)
-                    binding.bottomNavigation.visibility = android.view.View.GONE
-                }
-                R.id.editBeneficiaryDetailsFragment -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.edit_beneficiary_details)
-                    binding.bottomNavigation.visibility = android.view.View.GONE
-                }
                 else -> {
                     binding.bottomNavigation.visibility = android.view.View.VISIBLE
                 }
+            }
+        }
+
+        if (intent.getBooleanExtra("isEdit", false)) {
+
+            val patientInfo =
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    intent.getSerializableExtra(
+                        "patientInfo",
+                        org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getSerializableExtra("patientInfo")
+                            as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+                }
+
+            patientInfo?.let {
+                val graph = navHostFragment.navController.navInflater.inflate(R.navigation.register_nav)
+                val bundle = Bundle().apply {
+                    putSerializable("patientInfo", it)
+                    putBoolean("isEditMode", true)
+                }
+                navHostFragment.navController.setGraph(graph, bundle)
             }
         }
 

@@ -323,36 +323,39 @@ class EligibleCoupleTrackingDataset(
                 list.add(list.indexOf(isPregnancyTestDone) + 1, pregnancyTestResult)
                 pregnancyTestResult.value = saved.pregnancyTestResult
 
-                if (pregnancyTestResult.value == "Negative") {
+                if (pregnancyTestResult.value == "Positive") {
                     list.add(isPregnant)
-                    isPregnant.value = saved.isPregnant
+                    isPregnant.value = "Yes"
+                    isPregnant.isEnabled = false
                 }
-            } else if (isPregnancyTestDone.value == "No") {
-                list.add(usingFamilyPlanning)
+            }
+
+            if (isPregnancyTestDone.value == "No" || pregnancyTestResult.value == "Negative") {
+                if (!list.contains(usingFamilyPlanning)) {
+                    list.add(usingFamilyPlanning)
+                }
                 saved.usingFamilyPlanning?.let {
                     usingFamilyPlanning.value = if (it) "Yes" else "No"
                 }
 
-                if (saved.usingFamilyPlanning == true) {
+                if (usingFamilyPlanning.value == "Yes") {
                     list.add(methodOfContraception)
                     methodOfContraception.value = saved.methodOfContraception
 
                     // Handle ANTRA fields
-                    if (saved.methodOfContraception == ANTRA_INJECTION) {
+                    if (methodOfContraception.value == ANTRA_INJECTION) {
                         list.add(antraDose)
                         list.add(antraInjectionDate)
                         list.add(antraDueDate)
                         antraDose.value = saved.antraDose
                         saved.antraInjectionDate?.let {
                             antraInjectionDate.value = getDateFromLong(it)
-                        }
-                        saved.antraDueDate?.let {
-                            antraDueDate.value = getDateFromLong(it)
+                            antraDueDate.value = calculateAntraDueDateRange(it)
                         }
                     }
 
                     // Handle Sterilization fields
-                    if (saved.methodOfContraception in listOf(MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL)) {
+                    if (methodOfContraception.value in listOf(MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL)) {
                         list.add(dateOfSterilization)
                         saved.dateOfSterilization?.let {
                             dateOfSterilization.value = getDateFromLong(it)
@@ -360,18 +363,15 @@ class EligibleCoupleTrackingDataset(
                     }
 
                     // Handle Any Other Method
-                    if (saved.methodOfContraception !in resources.getStringArray(R.array.method_of_contraception)) {
-                        methodOfContraception.value = resources.getStringArray(R.array.method_of_contraception).last()
+                    val contraceptionOptions = resources.getStringArray(R.array.method_of_contraception)
+                    if (methodOfContraception.value != null && methodOfContraception.value !in contraceptionOptions && methodOfContraception.value != ANTRA_INJECTION) {
+                        methodOfContraception.value = contraceptionOptions.last()
                         list.add(anyOtherMethod)
                         anyOtherMethod.value = saved.anyOtherMethod ?: saved.methodOfContraception
+                    } else if (methodOfContraception.value == contraceptionOptions.last()) {
+                        list.add(anyOtherMethod)
+                        anyOtherMethod.value = saved.anyOtherMethod
                     }
-                }
-            }
-
-            if (saved.isPregnant == "No" && !list.contains(usingFamilyPlanning)) {
-                list.add(usingFamilyPlanning)
-                saved.usingFamilyPlanning?.let {
-                    usingFamilyPlanning.value = if (it) "Yes" else "No"
                 }
             }
         }
@@ -384,7 +384,11 @@ class EligibleCoupleTrackingDataset(
             dateOfVisit.id -> {
                 financialYear.value = getFinancialYear(dateOfVisit.value)
                 month.value = resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
-                -1
+                triggerDependants(
+                    source = dateOfVisit,
+                    removeItems = emptyList(),
+                    addItems = listOf(financialYear, month)
+                )
             }
 
             isPregnancyTestDone.id -> {
@@ -394,10 +398,8 @@ class EligibleCoupleTrackingDataset(
                         clearFamilyPlanningFields()
                         triggerDependants(
                             source = isPregnancyTestDone,
-                            passedIndex = index,
-                            triggerIndex = 0,
-                            target = pregnancyTestResult,
-                            targetSideEffect = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
+                            removeItems = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
+                            addItems = listOf(pregnancyTestResult)
                         )
                     }
                     "No" -> {
@@ -422,14 +424,13 @@ class EligibleCoupleTrackingDataset(
                         clearFamilyPlanningFields()
                         triggerDependants(
                             source = pregnancyTestResult,
-                            removeItems = listOf(isPregnant, usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
-                            addItems = emptyList()
+                            removeItems = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
+                            addItems = listOf(isPregnant)
                         )
                     }
                     "Negative" -> {
                         // Auto-set pregnant = No, hide it, show family planning
                         isPregnant.value = "No"
-                        isPregnant.isEnabled = false
                         clearFamilyPlanningFields()
                         triggerDependants(
                             source = pregnancyTestResult,
@@ -562,7 +563,11 @@ class EligibleCoupleTrackingDataset(
                         }
                     }
                 }
-                -1
+                triggerDependants(
+                    source = antraInjectionDate,
+                    removeItems = emptyList(),
+                    addItems = listOf(antraDueDate)
+                )
             }
 
             anyOtherMethod.id -> {

@@ -953,19 +953,24 @@
     <string name="check_sam">Check SAM</string>
     <string name="ors">ORS</string>
     <string name="ifa">IFA</string>
+    <string name="add_visit">Add Visit</string>
+    <string name="view_visit">View Visit</string>
+    <string name="visit_history">Visit History</string>
+    <string name="no_of_children">No. of Children</string>
+    <string name="select_mariital_status">Select Marital Status</string>
+    <string name="select_status_of_woman">Select Status of Woman</string>
+    <string name="duplicate_face_detected">Duplicate face detected</string>
+    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
+    <string name="use_existing">Use Existing</string>
+    <string name="continue_new">Continue New</string>
 
-    <!-- Status of Woman and ABHA -->
+    <!-- Status of Woman -->
     <string name="status_of_woman">Status of Woman <font color="#FF0000">*</font></string>
     <string name="does_beneficiary_have_abha">Does beneficiary have ABHA ID?</string>
     <string name="abha_id_number">ABHA ID Number (14 digits)</string>
     <string name="abha_enrollment_alert">Please counsel the beneficiary to enroll for ABHA ID</string>
     <string name="patient_details_edited_successfully">Patient details edited successfully</string>
     <string name="invalid_abha_format">ABHA ID must be 14 digits</string>
-    <string name="select_status_of_woman">Select Status of Woman</string>
-    <string name="duplicate_face_detected">Duplicate face detected</string>
-    <string name="duplicate_face_message">A similar face was found in the system. Do you want to use the existing record or continue with new registration?</string>
-    <string name="use_existing">Use Existing</string>
-    <string name="continue_new">Continue New</string>
 
     <!-- Beneficiary Card -->
     <string name="beneficiary_card_title">Beneficiary Card</string>
@@ -995,10 +1000,6 @@
     <string name="speech_recognition_error">Speech recognition not available</string>
     <string name="beneficiary_photo_content_description">Photo of %s</string>
     <string name="desc_patient_photo">Patient photo</string>
-    <string name="add_visit">Add Visit</string>
-    <string name="view_visit">View Visit</string>
-    <string name="visit_history">Visit History</string>
-    <string name="no_of_children">No. of Children</string>
 
     <!-- Neonatal Outcome Strings -->
     <string name="neonatal_outcome">Neonatal Outcome</string>
@@ -1020,7 +1021,7 @@
     <string name="no_vitamin_k_injection_given">Vitamin K injection given?</string>
     <string name="no_reason_for_no_vitamin_k">Reason for not giving Vitamin K injection</string>
     <string name="no_birth_certificate_issued">Birth Certificate issued?</string>
-    
+
     <!-- Alerts -->
     <string name="no_alert_lbw">Low Birth Weight (LBW): 1500-2499g. Close monitoring required.</string>
     <string name="no_alert_vlbw">Very Low Birth Weight (VLBW): 1000-1499g. Immediate SNCU referral recommended.</string>
@@ -1031,7 +1032,7 @@
     <string name="no_alert_neonatal_death">Neonatal death recorded. Death audit form will be triggered.</string>
     <string name="no_alert_complications">Immediate pediatric/specialist review required for complications.</string>
     <string name="no_alert_pnc_counseling">Ensure proper PNC counseling for mother on newborn care.</string>
-    
+
     <!-- Validation -->
     <string name="no_error_birth_weight_range">Birth weight must be between 500g and 6000g</string>
     <string name="no_error_birth_weight_required">Please enter birth weight</string>
@@ -1043,26 +1044,26 @@
     <string name="no_error_cause_of_death_required">Please select cause of death</string>
     <string name="no_error_vaccines_required">Please select vaccines given</string>
     <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
-    
+
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
         <item>Still Birth (Fresh)</item>
         <item>Still Birth (Macerated)</item>
         <item>Diedrelative during delivery</item>
     </string-array>
-    
+
     <string-array name="no_sex_array">
         <item>Male</item>
         <item>Female</item>
         <item>Ambiguous</item>
     </string-array>
-    
+
     <string-array name="no_cried_immediately_array">
         <item>Immediate cry</item>
         <item>Cried after resuscitation</item>
         <item>Did not cry</item>
     </string-array>
-    
+
     <string-array name="no_type_of_resuscitation_array">
         <item>Stimulation</item>
         <item>Suctioning</item>
@@ -1073,13 +1074,13 @@
         <item>Medications</item>
         <item>None</item>
     </string-array>
-    
+
     <string-array name="no_congenital_anomaly_array">
         <item>Yes</item>
         <item>No</item>
         <item>Suspected (under evaluation)</item>
     </string-array>
-    
+
     <string-array name="no_type_of_congenital_anomaly_array">
         <item>Neural tube defect</item>
         <item>Cleft lip/palate</item>
@@ -1093,7 +1094,7 @@
         <item>Other</item>
         <item>None</item>
     </string-array>
-    
+
     <string-array name="no_newborn_complications_array">
         <item>Birth asphyxia</item>
         <item>Respiratory distress</item>
@@ -1107,14 +1108,14 @@
         <item>None</item>
         <item>Other</item>
     </string-array>
-    
+
     <string-array name="no_current_status_array">
         <item>Healthy and with mother</item>
         <item>Admitted (SNCU/NICU)</item>
         <item>Admitted (General ward)</item>
         <item>Died</item>
     </string-array>
-    
+
     <string-array name="no_cause_of_death_array">
         <item>Birth asphyxia</item>
         <item>Prematurity</item>
@@ -1126,14 +1127,14 @@
         <item>Unknown</item>
         <item>Other</item>
     </string-array>
-    
+
     <string-array name="no_birth_dose_vaccines_array">
         <item>BCG</item>
         <item>Hepatitis B (Birth dose)</item>
         <item>OPV-0</item>
         <item>None</item>
     </string-array>
-    
+
     <string-array name="no_birth_certificate_array">
         <item>Yes</item>
         <item>In process</item>
