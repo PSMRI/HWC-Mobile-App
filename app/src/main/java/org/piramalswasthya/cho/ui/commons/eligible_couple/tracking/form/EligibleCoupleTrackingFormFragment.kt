@@ -42,6 +42,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
+    companion object {
+        private const val DATE_FORMAT_DD_MM_YYYY = "dd-MM-yyyy"
+    }
+
     private var _binding: FragmentNewFormBinding? = null
     private val binding: FragmentNewFormBinding
         get() = _binding!!
@@ -76,8 +80,16 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadBeneficiaryInfo()
+        setupFormAdapterAndVisibility()
+        observeBasicBeneficiaryInfo()
+        setupAntraTableObserver()
+        setupClickListeners()
+        observeViewModelState()
+        observeAlerts()
+    }
 
-        // Load benVisitInfo from patientID - try intent first, then load from DB
+    private fun loadBeneficiaryInfo() {
         lifecycleScope.launch {
             benVisitInfo = try {
                 // Try to get from intent (for navigation from visit details)
@@ -88,7 +100,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 patientRepo.getPatientDisplayListForNurseByPatient(viewModel.patientID)
             }
         }
+    }
 
+    private fun setupFormAdapterAndVisibility() {
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
 //                binding.fabEdit.visibility = if(recordExists) View.VISIBLE else View.GONE
@@ -115,14 +129,18 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+    }
 
+    private fun observeBasicBeneficiaryInfo() {
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it
         }
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
+    }
 
+    private fun setupAntraTableObserver() {
         // Populate ANTRA table in view mode
         viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
             if (recordExists == true) {
@@ -132,12 +150,16 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+    }
 
+    private fun setupClickListeners() {
         // Wire up submit button from fragment layout
         binding.btnSubmit.setOnClickListener {
             submitEligibleTrackingForm()
         }
+    }
 
+    private fun observeViewModelState() {
         viewModel.state.observe(viewLifecycleOwner) {
             when (it) {
                 EligibleCoupleTrackingFormViewModel.State.SAVING -> {
@@ -166,7 +188,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
+    }
 
+    private fun observeAlerts() {
         // Observe alert LiveData
         viewModel.showAlert.observe(viewLifecycleOwner) { alertType ->
             when (alertType) {
@@ -181,7 +205,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 }
             }
         }
-
     }
 
     private fun checkForAlerts() {
@@ -216,7 +239,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     private fun navigateToPregnancyRegistration() {
         try {
-            // Navigate to MaternalHealthNavHostFragment with arguments to open PWR form
             val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment().apply {
                 arguments = Bundle().apply {
                     putInt("destinationId", R.id.pregnancyRegistrationFormFragment)
@@ -240,12 +262,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         if (!isAdded || isRemoving) return
         
         try {
-            // Try standard navigation first
             androidx.navigation.fragment.NavHostFragment.findNavController(this).navigateUp()
         } catch (e: IllegalStateException) {
             Timber.e(e, "NavController not found for ECT form, falling back to activity back press")
             try {
-                // Fallback to manual back press if NavController is missing
                 activity?.onBackPressedDispatcher?.onBackPressed()
             } catch (inner: Exception) {
                 Timber.e(inner, "Critical failure during manual back press fallback")
@@ -264,7 +284,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 dialog.dismiss()
                 viewModel.resetAlert()
                 
-                // Only navigate if form was actually submitted and saved (post-save alert)
                 if (viewModel.state.value == EligibleCoupleTrackingFormViewModel.State.SAVE_SUCCESS) {
                     // Show success message
                     Toast.makeText(
@@ -302,7 +321,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                     saveNurseDataInBackground()
                     navigateBackToList()
                 }
-                // Else (immediate alert on selection): just dismiss and reset, staying on form
+                // Else (immediate alert on selection)
             }
             .setCancelable(false)
             .show()
@@ -436,7 +455,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Restore bottom navigation visibility when leaving fragment
         activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
     }
 
@@ -462,18 +480,12 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             binding.llAntraSection.visibility = View.GONE
             return
         }
-
-        // Show the ANTRA section
         binding.llAntraSection.visibility = View.VISIBLE
-
-        // Clear existing rows (except header)
         val tableLayout = binding.tableAntraHistory
         val childCount = tableLayout.childCount
         if (childCount > 1) {
             tableLayout.removeViews(1, childCount - 1)
         }
-
-        // Add rows for each ANTRA injection
         antraRecords.forEach { record ->
             val tableRow = android.widget.TableRow(requireContext())
             tableRow.layoutParams = android.widget.TableLayout.LayoutParams(
@@ -481,8 +493,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 android.widget.TableLayout.LayoutParams.WRAP_CONTENT
             )
             tableRow.setPadding(8, 8, 8, 8)
-
-            // Dose column
             val doseTextView = android.widget.TextView(requireContext())
             doseTextView.text = record.antraDose ?: ""
             doseTextView.setPadding(8, 8, 8, 8)
@@ -493,11 +503,9 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 1f
             )
             tableRow.addView(doseTextView)
-
-            // Date column
             val dateTextView = android.widget.TextView(requireContext())
             dateTextView.text = record.antraInjectionDate?.let {
-                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(it))
+                SimpleDateFormat(DATE_FORMAT_DD_MM_YYYY, Locale.getDefault()).format(Date(it))
             } ?: ""
             dateTextView.setPadding(8, 8, 8, 8)
             dateTextView.gravity = android.view.Gravity.CENTER
@@ -507,19 +515,17 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 1f
             )
             tableRow.addView(dateTextView)
-
-            // Next Due Date column
             val dueDateTextView = android.widget.TextView(requireContext())
             dueDateTextView.text = record.antraInjectionDate?.let { injectionDate ->
                 val cal = java.util.Calendar.getInstance()
                 cal.timeInMillis = injectionDate
                 
                 cal.add(java.util.Calendar.DAY_OF_YEAR, 76)
-                val startDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(cal.time)
+                val startDate = SimpleDateFormat(DATE_FORMAT_DD_MM_YYYY, Locale.getDefault()).format(cal.time)
                 
                 cal.timeInMillis = injectionDate
                 cal.add(java.util.Calendar.DAY_OF_YEAR, 120)
-                val endDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(cal.time)
+                val endDate = SimpleDateFormat(DATE_FORMAT_DD_MM_YYYY, Locale.getDefault()).format(cal.time)
                 
                 "$startDate to $endDate"
             } ?: ""
@@ -540,6 +546,5 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         super.onDestroy()
         _binding = null
     }
-
 
 }

@@ -45,77 +45,61 @@ fun AutoCompleteTextView.setupDropdownKeyboardHandling() {
 
     showSoftInputOnFocus = false
 
-    val lastClickTimeTag = "last_click_time"
-    val dropdownStateTag = "dropdown_is_showing"
-    val tagExistingClickListener = View.generateViewId()
+    val LAST_CLICK_TIME_TAG = "last_click_time"
+    val DROPDOWN_STATE_TAG = "dropdown_is_showing"
 
     isFocusable = true
     isFocusableInTouchMode = true
     isClickable = true
 
-    val existingClickListener = getTag(tagExistingClickListener) as? View.OnClickListener
+    val existingClickListener = getTag(android.R.id.text1) as? View.OnClickListener
 
     setOnTouchListener { view, event ->
-        when (event.action) {
-            MotionEvent.ACTION_UP -> {
-                if (isRapidClick(lastClickTimeTag.hashCode())) return@setOnTouchListener true
+        if (event.action == MotionEvent.ACTION_UP) {
+            val currentTime = System.currentTimeMillis()
+            val lastClickTime = getTag(LAST_CLICK_TIME_TAG.hashCode()) as? Long ?: 0L
 
-                hideKeyboardForSelfAndActivity()
-
-                performClickSafely(view, existingClickListener)
-
-                toggleDropdownState(dropdownStateTag.hashCode())
-
+            if (currentTime - lastClickTime < 300) {
                 return@setOnTouchListener true
             }
-            MotionEvent.ACTION_DOWN -> {
-                hideKeyboardForSelfAndActivity()
+            setTag(LAST_CLICK_TIME_TAG.hashCode(), currentTime)
+
+            KeyboardUtils.hideKeyboard(this)
+            KeyboardUtils.hideKeyboardFromActivity(this.context)
+
+            existingClickListener?.onClick(view)
+
+            if (adapter != null && adapter.count > 0) {
+                val isDropdownShowing = getTag(DROPDOWN_STATE_TAG.hashCode()) as? Boolean ?: false
+                val actualPopupShowing = isPopupShowing
+
+                if (isDropdownShowing || actualPopupShowing) {
+                    dismissDropDown()
+                    setTag(DROPDOWN_STATE_TAG.hashCode(), false)
+                } else {
+                    showDropDown()
+                    setTag(DROPDOWN_STATE_TAG.hashCode(), true)
+                }
             }
-            else -> Unit
+
+            return@setOnTouchListener true
+        } else if (event.action == MotionEvent.ACTION_DOWN) {
+            KeyboardUtils.hideKeyboard(this)
+            KeyboardUtils.hideKeyboardFromActivity(this.context)
         }
         false
     }
 
     setOnFocusChangeListener { view, hasFocus ->
         if (hasFocus) {
-            hideKeyboardForSelfAndActivity()
+            KeyboardUtils.hideKeyboard(this)
+            KeyboardUtils.hideKeyboardFromActivity(this.context)
         } else {
             post {
-                setTag(dropdownStateTag.hashCode(), isPopupShowing)
+                val actualState = isPopupShowing
+                setTag(DROPDOWN_STATE_TAG.hashCode(), actualState)
             }
         }
         existingFocusListener?.onFocusChange(view, hasFocus)
-    }
-}
-
-// --- Small, focused helpers to reduce cognitive complexity of the public method ---
-private fun AutoCompleteTextView.hideKeyboardForSelfAndActivity() {
-    KeyboardUtils.hideKeyboard(this)
-    KeyboardUtils.hideKeyboardFromActivity(context)
-}
-
-private fun AutoCompleteTextView.isRapidClick(lastClickTimeTagHash: Int): Boolean {
-    val currentTime = System.currentTimeMillis()
-    val lastClickTime = getTag(lastClickTimeTagHash) as? Long ?: 0L
-    if (currentTime - lastClickTime < 300) return true
-    setTag(lastClickTimeTagHash, currentTime)
-    return false
-}
-
-private fun AutoCompleteTextView.performClickSafely(view: View, existingClickListener: View.OnClickListener?) {
-    existingClickListener?.onClick(view)
-    view.performClick()
-}
-
-private fun AutoCompleteTextView.toggleDropdownState(dropdownStateTagHash: Int) {
-    if (adapter == null || adapter.count == 0) return
-    val isDropdownShowing = getTag(dropdownStateTagHash) as? Boolean ?: false
-    val actualPopupShowing = isPopupShowing
-    if (isDropdownShowing || actualPopupShowing) {
-        dismissDropDown()
-        setTag(dropdownStateTagHash, false)
-    } else {
-        showDropDown()
-        setTag(dropdownStateTagHash, true)
     }
 }

@@ -125,6 +125,6 @@ object HelperUtil {
     fun getEddDateFromLmpDate(lmpDate: Long): Long =
         Calendar.getInstance().apply {
             timeInMillis = lmpDate
-            add(Calendar.WEEK_OF_YEAR, 40)
+            add(Calendar.WEEK_OF_YEAR, 42)
         }.timeInMillis
 }

@@ -6,8 +6,4 @@ import com.squareup.moshi.JsonClass
 data class DropdownList(
     val id: Int,
     var display: String?
-) {
-    override fun toString(): String {
-        return display ?: ""
-    }
-}
+)
