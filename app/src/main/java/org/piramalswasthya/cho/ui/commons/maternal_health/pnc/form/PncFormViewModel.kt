@@ -194,7 +194,7 @@ class PncFormViewModel @Inject constructor(
     // ─── Helper: close PNC visits and update patient on maternal death ───
     private suspend fun handleMaternalDeath(pncCache: PNCVisitCache) {
         if (!pncCache.motherDeath) return
-        val patient = patientRepo.getPatient(patientID) ?: return
+        val patient = patientRepo.getPatient(patientID)
 
         // Close PNC case immediately - mark all active PNC visits as inactive
         val allPncVisits = pncRepo.getAllPNCsByPatId(patientID)
@@ -221,7 +221,7 @@ class PncFormViewModel @Inject constructor(
             return
         }
         
-        val patient = patientRepo.getPatient(patientID) ?: return
+        val patient = patientRepo.getPatient(patientID)
         val dateOfDelivery = deliveryOutcome?.dateOfDelivery ?: return
         
         val is42ndDayPnc = pncCache.pncPeriod == 42

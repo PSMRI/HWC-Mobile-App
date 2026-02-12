@@ -346,6 +346,19 @@ class ChildRegistrationDataset(
         vitkDose.value = saved.vitkDose?.let { getDateFromLong(it) }
     }
 
+    // ─── Helper: insert a field (and optional sub-field) after anchor ──
+    private fun insertAfter(
+        list: MutableList<FormElement>,
+        anchor: FormElement,
+        primary: FormElement,
+        secondary: FormElement? = null
+    ) {
+        val idx = list.indexOf(anchor)
+        if (idx < 0) return
+        list.add(idx + 1, primary)
+        if (secondary != null) list.add(idx + 2, secondary)
+    }
+
     // ─── Helper: restore conditional (dependant) fields into the list ──
     private fun restoreConditionalFields(
         saved: InfantRegCache,
@@ -357,44 +370,36 @@ class ChildRegistrationDataset(
                 list.add(criedIdx + 1, typeOfResuscitation)
             }
         }
-        if (saved.hadBirthDefect == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0)) { // Yes
-            val idx = list.indexOf(hadBirthDefect)
-            if (idx >= 0) {
-                list.add(idx + 1, birthDefect)
-                if (saved.birthDefect?.contains("Other") == true) {
-                    list.add(idx + 2, otherDefect)
-                }
-            }
+        if (saved.hadBirthDefect == resources.getStringArray(R.array.no_congenital_anomaly_array).getOrNull(0)) {
+            val other = if (saved.birthDefect?.contains("Other") == true) otherDefect else null
+            insertAfter(list, hadBirthDefect, birthDefect, other)
         }
-        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) { // Died
-            val idx = list.indexOf(currentStatusOfBaby)
-            if (idx >= 0) {
-                list.add(idx + 1, causeOfDeath)
-                if (saved.causeOfDeath?.contains("Other") == true) {
-                    list.add(idx + 2, otherCauseOfDeath)
-                }
-            }
+        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array).getOrNull(3)) {
+            val other = if (saved.causeOfDeath?.contains("Other") == true) otherCauseOfDeath else null
+            insertAfter(list, currentStatusOfBaby, causeOfDeath, other)
         }
         if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
-            val idx = list.indexOf(birthDoseVaccinesGiven)
-            if (idx >= 0) list.add(idx + 1, reasonForNoVaccines)
+            insertAfter(list, birthDoseVaccinesGiven, reasonForNoVaccines)
         }
         if (saved.vitaminKInjectionGiven == false) {
-            val idx = list.indexOf(vitaminKInjectionGiven)
-            if (idx >= 0) list.add(idx + 1, reasonForNoVitaminK)
+            insertAfter(list, vitaminKInjectionGiven, reasonForNoVitaminK)
+        }
+    }
+
+    // ─── Helper: infer infant term from gestational age ────────────────
+    private fun inferInfantTerm(deliveryOutcomeCache: DeliveryOutcomeCache) {
+        if (!infantTerm.value.isNullOrBlank()) return
+        deliveryOutcomeCache.gestationalAgeAtDelivery?.let { gaString ->
+            val weeks = gaString.substringBefore("w").trim().toIntOrNull()
+            if (weeks != null) {
+                infantTerm.value = if (weeks < 37) "Pre Term" else "Full Term"
+            }
         }
     }
 
     // ─── Helper: pre-populate defaults from delivery outcome ───────────
     private fun prepopulateDefaults(deliveryOutcomeCache: DeliveryOutcomeCache) {
-        if (infantTerm.value.isNullOrBlank()) {
-            deliveryOutcomeCache.gestationalAgeAtDelivery?.let { gaString ->
-                val weeks = gaString.substringBefore("w").trim().toIntOrNull()
-                if (weeks != null) {
-                    infantTerm.value = if (weeks < 37) "Pre Term" else "Full Term"
-                }
-            }
-        }
+        inferInfantTerm(deliveryOutcomeCache)
 
         val deliveryDate = deliveryOutcomeCache.dateOfDelivery?.let { getDateFromLong(it) }
         if (deliveryDate != null) {
