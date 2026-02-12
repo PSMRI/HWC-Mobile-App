@@ -85,8 +85,6 @@ class NeonatalOutcomeFormFragment : Fragment() {
                 viewModel.clearError()
             }
         }
-
-        binding.tvNeonateCount.text = getString(R.string.baby_number, viewModel.babyIndex)
     }
 
     private fun setupClickListeners() {

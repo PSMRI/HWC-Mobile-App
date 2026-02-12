@@ -1002,7 +1002,6 @@
 
     <!-- Neonatal Outcome Strings -->
     <string name="neonatal_outcome">Neonatal Outcome</string>
-    <string name="neonatal_outcome_form_title">Neonatal Outcome Form</string>
     <string name="baby_number">Baby %1d</string>
     <string name="no_outcome_at_birth">Outcome at Birth</string>
     <string name="no_sex">Sex</string>

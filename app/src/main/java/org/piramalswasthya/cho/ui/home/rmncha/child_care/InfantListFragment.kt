@@ -56,7 +56,18 @@ class InfantListFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = InfantRegistrationAdapter(
             InfantRegistrationAdapter.ClickListener { motherPatientID: String, babyIndex: Int ->
-                // Handle click - navigate to infant details/form or child registration
+                // Navigate to ChildRegistrationFragment
+                val fragment = ChildRegistrationFragment()
+                val args = Bundle().apply {
+                    putString("patientID", motherPatientID)
+                    putInt("babyIndex", babyIndex)
+                }
+                fragment.arguments = args
+                
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
         )
 

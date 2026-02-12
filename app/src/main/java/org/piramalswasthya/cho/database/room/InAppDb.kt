@@ -240,7 +240,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 126, exportSchema = false
+    version = 127, exportSchema = false
 )
 
 
@@ -670,6 +670,23 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_126_127 = object : Migration(126, 127) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add BRD Neonatal Outcome fields to INFANT_REG table
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN outcomeAtBirth TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN typeOfResuscitation TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN newbornComplications TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN currentStatusOfBaby TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN causeOfDeath TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN otherCauseOfDeath TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN birthDoseVaccinesGiven TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN reasonForNoVaccines TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN vitaminKInjectionGiven INTEGER")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN reasonForNoVitaminK TEXT")
+                db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN birthCertificateIssued TEXT")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -701,7 +718,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_122_123,
                             MIGRATION_123_124,
                             MIGRATION_124_125,
-                            MIGRATION_125_126
+                            MIGRATION_125_126,
+                            MIGRATION_126_127
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

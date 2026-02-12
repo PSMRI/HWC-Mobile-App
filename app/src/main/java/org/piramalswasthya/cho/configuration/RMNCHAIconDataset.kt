@@ -195,16 +195,22 @@ class RMNCHAIconDataset @Inject constructor() {
                 showDeliveryOutcomeAction
             ),
             Icon(
-                R.drawable.ic__child_registration,
-                resources.getString(R.string.neonatal_outcome),
-                null,
-                showNeonatalOutcomeAction
-            ),
-            Icon(
                 R.drawable.ic__mother,
                 resources.getString(R.string.pnc_mother_list),
                 null,
                 showPNCMotherListAction
+            ),
+            Icon(
+                R.drawable.ic__infant_registration,
+                resources.getString(R.string.infant_registration),
+                null,
+                showInfantListAction
+            ),
+            Icon(
+                R.drawable.ic__child_registration,
+                resources.getString(R.string.child_registration),
+                null,
+                showChildListAction
             ),
             Icon(
                 R.drawable.ic__child_registration,
