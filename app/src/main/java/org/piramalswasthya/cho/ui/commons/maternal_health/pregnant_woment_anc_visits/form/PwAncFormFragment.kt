@@ -78,16 +78,25 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
         benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
 
+        setupFormAdapter()
+        setupOldVisitObserver()
+        setupPatientDetailsObservers()
+        setupButtonListeners()
+        setupStateObserver()
+    }
+
+    private fun setupFormAdapter() {
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
                 val formEditable = !(viewModel.isOldVisit.value ?: true)
                 binding.fabEdit.visibility = View.GONE
-                // Hide fragment's submit button, use only bottom navigation button
                 binding.btnSubmit.visibility = View.GONE
+                
                 if (viewModel.isOldVisit.value == true) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     btnSubmit?.visibility = View.GONE
                 }
+                
                 ancFormAdapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
@@ -95,6 +104,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                     }, isEnabled = formEditable
                 )
                 binding.form.rvInputForm.adapter = ancFormAdapter
+                
                 lifecycleScope.launch {
                     viewModel.formList.collect {
                         latestFormList = it
@@ -103,10 +113,13 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                 }
             }
         }
+    }
+
+    private fun setupOldVisitObserver() {
         viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
-            // Form is editable if it's NOT an old visit
             val formEditable = !isOld
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
+            
             ancFormAdapter = FormInputAdapter(
                 formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                     viewModel.updateListOnValueChanged(formId, index)
@@ -116,51 +129,58 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             binding.form.rvInputForm.adapter = ancFormAdapter
             if (latestFormList.isNotEmpty()) ancFormAdapter?.submitList(latestFormList)
         }
+    }
+
+    private fun setupPatientDetailsObservers() {
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it
         }
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
+    }
+
+    private fun setupButtonListeners() {
         binding.btnSubmit.setOnClickListener {
             submitAncForm()
         }
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
+    }
+
+    private fun setupStateObserver() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {
+                    // No action needed
                 }
-
                 State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
                 }
-
                 State.SAVE_SUCCESS -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    
-                    // Navigate to Vitals instead of finishing
-                    try {
-                        findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
-                    } catch (e: Exception) {
-                        // Fallback: finish if navigation fails
-                        requireActivity().finish()
-                    }
+                    handleSaveSuccess()
                 }
-
                 State.SAVE_FAILED -> {
-                    Toast.makeText(
-
-                        context, "Something went wrong! Contact testing!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Something went wrong! Contact testing!", Toast.LENGTH_LONG).show()
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                 }
             }
+        }
+    }
+
+    private fun handleSaveSuccess() {
+        binding.llContent.visibility = View.VISIBLE
+        binding.pbForm.visibility = View.GONE
+        Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
+        WorkerUtils.triggerAmritSyncWorker(requireContext())
+        
+        try {
+            findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
         }
     }
 

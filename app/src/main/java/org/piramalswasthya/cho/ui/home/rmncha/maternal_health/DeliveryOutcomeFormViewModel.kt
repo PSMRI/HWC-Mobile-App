@@ -72,40 +72,10 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
             try {
                 val user = userRepo.getLoggedInUser()
                     ?: throw IllegalStateException("No user logged in")
-                val patientDisplay = patientRepo.getPatientDisplay(patientID)
-                    ?: throw IllegalStateException("Patient not found: $patientID")
-                val patient = patientDisplay.patient
-                val patientName = "${patient.firstName ?: ""} ${patient.lastName ?: ""}".trim()
-                val patientAge = patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
-                val genderName = patientDisplay.gender?.genderName ?: "NA"
-                val patientAgeGender = "$patientAge | $genderName"
-                val patientCaseId = patient.patientID
-
-                _benName.value = patientName
-                _benAge.value = patientAgeGender
-                _caseId.value = patientCaseId
-
-                val pwr = maternalHealthRepo.getSavedRegistrationRecord(patientID)
-                    ?: throw IllegalStateException("No pregnancy registration found")
-                if (pwr.lmpDate <= 0) {
-                    throw IllegalStateException("Invalid LMP date in pregnancy registration")
-                }
-                val anc: PregnantWomanAncCache? = maternalHealthRepo.getLastAnc(patientID)
-
-                deliveryOutcome = DeliveryOutcomeCache(
-                    patientID = patientID,
-                    syncState = SyncState.UNSYNCED,
-                    createdBy = user.userName,
-                    updatedBy = user.userName,
-                    isActive = true
-                )
-                deliveryOutcomeRepo.getDeliveryOutcome(patientID)?.let {
-                    deliveryOutcome = it
-                    _recordExists.value = true
-                } ?: run {
-                    _recordExists.value = false
-                }
-
+                val (patientName, patientAge, patientCaseId) = loadPatientDetails()
+                val (pwr, anc) = loadPregnancyData()
+                loadDeliveryOutcome(user)
+                
                 dataset.setUpPage(
                     pwr = pwr,
                     anc = anc,
@@ -115,26 +85,77 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     caseId = patientCaseId
                 )
             } catch (e: Exception) {
-                Timber.e(e, "Error initializing delivery outcome form for patientID: $patientID")
-                _state.value = State.LOAD_FAILED
-                _benName.value = "Error loading form"
-                _benAge.value = e.message ?: "Unknown error"
-                if (_recordExists.value == null) _recordExists.value = false
-                if (deliveryOutcome == null) {
-                    try {
-                        val u = userRepo.getLoggedInUser()
-                        deliveryOutcome = DeliveryOutcomeCache(
-                            patientID = patientID,
-                            syncState = SyncState.UNSYNCED,
-                            createdBy = u?.userName ?: "Unknown",
-                            updatedBy = u?.userName ?: "Unknown",
-                            isActive = true
-                        )
-                    } catch (ex: Exception) {
-                        Timber.e(ex, "Failed to init delivery outcome cache")
-                    }
-                }
+                handleInitializationError(e)
             }
+        }
+    }
+
+    private suspend fun loadPatientDetails(): Triple<String, String, String> {
+        val patientDisplay = patientRepo.getPatientDisplay(patientID)
+            ?: throw IllegalStateException("Patient not found: $patientID")
+        val patient = patientDisplay.patient
+        val patientName = "${patient.firstName ?: ""} ${patient.lastName ?: ""}".trim()
+        val patientAge = patient.dob?.let { DateTimeUtil.calculateAgeString(it) } ?: "NA"
+        val genderName = patientDisplay.gender?.genderName ?: "NA"
+        val patientAgeGender = "$patientAge | $genderName"
+        val patientCaseId = patient.patientID
+
+        _benName.value = patientName
+        _benAge.value = patientAgeGender
+        _caseId.value = patientCaseId
+
+        return Triple(patientName, patientAge, patientCaseId)
+    }
+
+    private suspend fun loadPregnancyData(): Pair<PregnantWomanRegistrationCache, PregnantWomanAncCache?> {
+        val pwr = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+            ?: throw IllegalStateException("No pregnancy registration found")
+        if (pwr.lmpDate <= 0) {
+            throw IllegalStateException("Invalid LMP date in pregnancy registration")
+        }
+        val anc: PregnantWomanAncCache? = maternalHealthRepo.getLastAnc(patientID)
+        return Pair(pwr, anc)
+    }
+
+    private suspend fun loadDeliveryOutcome(user: org.piramalswasthya.cho.model.UserDomain) {
+        deliveryOutcome = DeliveryOutcomeCache(
+            patientID = patientID,
+            syncState = SyncState.UNSYNCED,
+            createdBy = user.userName,
+            updatedBy = user.userName,
+            isActive = true
+        )
+        deliveryOutcomeRepo.getDeliveryOutcome(patientID)?.let {
+            deliveryOutcome = it
+            _recordExists.value = true
+        } ?: run {
+            _recordExists.value = false
+        }
+    }
+
+    private suspend fun handleInitializationError(e: Exception) {
+        Timber.e(e, "Error initializing delivery outcome form for patientID: $patientID")
+        _state.value = State.LOAD_FAILED
+        _benName.value = "Error loading form"
+        _benAge.value = e.message ?: "Unknown error"
+        if (_recordExists.value == null) _recordExists.value = false
+        if (deliveryOutcome == null) {
+            createFallbackDeliveryOutcome()
+        }
+    }
+
+    private suspend fun createFallbackDeliveryOutcome() {
+        try {
+            val u = userRepo.getLoggedInUser()
+            deliveryOutcome = DeliveryOutcomeCache(
+                patientID = patientID,
+                syncState = SyncState.UNSYNCED,
+                createdBy = u?.userName ?: "Unknown",
+                updatedBy = u?.userName ?: "Unknown",
+                isActive = true
+            )
+        } catch (ex: Exception) {
+            Timber.e(ex, "Failed to init delivery outcome cache")
         }
     }
 
