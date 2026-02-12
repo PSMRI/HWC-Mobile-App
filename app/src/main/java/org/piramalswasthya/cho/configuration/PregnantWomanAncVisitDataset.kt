@@ -746,43 +746,27 @@ class PregnantWomanAncVisitDataset(
         var isHighRisk = false
         var highRiskReason: String? = null
 
-        // 1. BP Check: Systolic >= 140 OR Diastolic >= 90
-        val bpValue = bp.value
-        if (!bpValue.isNullOrEmpty() && bpValue.contains("/")) {
-            val sys = bpValue.substringBefore("/").toIntOrNull()
-            val dia = bpValue.substringAfter("/").toIntOrNull()
-            if ((sys != null && sys >= 140) || (dia != null && dia >= 90)) {
+        // Check BP for high risk
+        checkBpForHighRisk()?.let {
+            isHighRisk = true
+            highRiskReason = it
+        }
+
+        // Check HB for severe anaemia
+        if (!isHighRisk) {
+            checkHbForSevereAnaemia()?.let {
                 isHighRisk = true
-                highRiskReason = "HIGH BP (SYSTOLIC>=140 AND OR DIASTOLIC >=90mmHg)"
+                highRiskReason = it
             }
         }
 
-        // 2. Severe Anaemia: Hb < 7
-        val hemoglobin = hb.value?.toDoubleOrNull()
-        if (!isHighRisk && hemoglobin != null && hemoglobin < 7.0) {
-            isHighRisk = true
-            highRiskReason = "SEVERE ANAEMIA (HB<7 gm/dl)"
+        // Check danger signs
+        if (!isHighRisk) {
+            checkDangerSignsForHighRisk()?.let {
+                isHighRisk = true
+                highRiskReason = it
+            }
         }
-
-        // 3. Diabetes: Fasting Sugar > 95 (assuming 95 as threshold for GDM, though Jira says "Diabetes")
-        // Jira says "Diabetes" but doesn't specify exact threshold in description provided, usually > 95 fasting or > 140 post-prandial.
-        // Given "Blood Sugar (Fasting) mg/dL", standard is > 92 or > 95. Using > 95 as safe guard or strictly > 126 for Diabetes.
-        // Let's use > 126 for overt diabetes or > 92 for GDM. Jira just says "Diabetes".
-        // Re-reading Jira snippet from memory: "Abnormal BP, Blood Sugar...".
-        // I will use 126 as a conservative threshold for "Diabetes", or if previously defined.
-        // Let's stick to setting it if manually selected for now, OR if value is very high.
-        // Actually, without explicit threshold in prompt, I will skip auto-setting specific "Diabetes" reason unless I'm sure.
-        // BUT, I must set isHighRisk = true if any danger sign is set.
-
-        // 4. Danger Signs
-        val selectedDangerSigns = dangerSigns.value
-        if (!isHighRisk && !selectedDangerSigns.isNullOrEmpty() && !selectedDangerSigns.contains("None")) {
-            isHighRisk = true
-            highRiskReason = "OTHER" // Or specific mapping if available
-        }
-
-        // 5. Short Stature (Height < 145cm) - from Registration, but we might not have it here editable.
-        // 6. Age < 18 or > 35 - from Registration.
 
         // Apply to UI
         if (isHighRisk) {
@@ -802,6 +786,34 @@ class PregnantWomanAncVisitDataset(
             addItems = listOf(highRiskCondition, highRiskReferralFacility, hrpConfirm),
             removeItems = emptyList()
         )
+    }
+
+    private fun checkBpForHighRisk(): String? {
+        val bpValue = bp.value
+        if (!bpValue.isNullOrEmpty() && bpValue.contains("/")) {
+            val sys = bpValue.substringBefore("/").toIntOrNull()
+            val dia = bpValue.substringAfter("/").toIntOrNull()
+            if ((sys != null && sys >= 140) || (dia != null && dia >= 90)) {
+                return "HIGH BP (SYSTOLIC>=140 AND OR DIASTOLIC >=90mmHg)"
+            }
+        }
+        return null
+    }
+
+    private fun checkHbForSevereAnaemia(): String? {
+        val hemoglobin = hb.value?.toDoubleOrNull()
+        if (hemoglobin != null && hemoglobin < 7.0) {
+            return "SEVERE ANAEMIA (HB<7 gm/dl)"
+        }
+        return null
+    }
+
+    private fun checkDangerSignsForHighRisk(): String? {
+        val selectedDangerSigns = dangerSigns.value
+        if (!selectedDangerSigns.isNullOrEmpty() && !selectedDangerSigns.contains("None")) {
+            return "OTHER"
+        }
+        return null
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
@@ -1261,130 +1273,170 @@ class PregnantWomanAncVisitDataset(
         var hasHighRisk = false
         var riskCondition: String? = null
 
-        // Check blood sugar fasting
-        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
-            if (bsValue > 95) {
-                hasHighRisk = true
-                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                    riskCondition = highRiskCondition.entries!![6] // DIABETES
-                }
-            }
+        // Check all health parameters
+        checkBloodSugarForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
         }
 
-        // Check urine sugar
+        checkUrineSugarForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
+        }
+
+        checkFetalHeartRateForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
+        }
+
+        if (checkUrineAlbuminForRisk()) {
+            hasHighRisk = true
+        }
+
+        checkDangerSignsForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
+        }
+
+        checkHbForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
+        }
+
+        checkBpForRisk()?.let {
+            hasHighRisk = true
+            riskCondition = updateRiskCondition(riskCondition, it)
+        }
+
+        // Update UI based on risk assessment
+        updateHighRiskUI(hasHighRisk, riskCondition)
+    }
+
+    private fun checkBloodSugarForRisk(): Int? {
+        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
+            if (bsValue > 95) {
+                return 6 // DIABETES
+            }
+        }
+        return null
+    }
+
+    private fun checkUrineSugarForRisk(): Int? {
         urineSugar.value?.let { value ->
             val riskLevels = arrayOf("+", "++", "+++")
             if (value in riskLevels) {
-                hasHighRisk = true
-                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                    riskCondition = highRiskCondition.entries!![6] // DIABETES
-                }
+                return 6 // DIABETES
             }
         }
+        return null
+    }
 
-        // Check fetal heart rate
+    private fun checkFetalHeartRateForRisk(): Int? {
         fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
             if (fhrValue < 110.0 || fhrValue > 160.0) {
-                hasHighRisk = true
-                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                    riskCondition = highRiskCondition.entries!!.last() // OTHER
-                }
+                return highRiskCondition.entries!!.lastIndex // OTHER
             }
         }
+        return null
+    }
 
-        // Check urine albumin
+    private fun checkUrineAlbuminForRisk(): Boolean {
         urineAlbumin.value?.let { value ->
             val riskLevels = arrayOf("+", "++", "+++")
             if (value in riskLevels) {
-                hasHighRisk = true
+                return true
             }
         }
+        return false
+    }
 
-        // Check danger signs
+    private fun checkDangerSignsForRisk(): Int? {
         dangerSigns.value?.let { value ->
             val selectedSigns = dangerSigns.entries?.filter { entry ->
                 value.contains(entry)
             } ?: emptyList()
             val hasDangerSigns = selectedSigns.any { it != "None" }
             if (hasDangerSigns) {
-                hasHighRisk = true
-                when {
-                    selectedSigns.contains("Vaginal Bleeding") -> {
-                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                            riskCondition = highRiskCondition.entries!![3]
-                        }
-                    }
-                    selectedSigns.contains("Convulsions/ seizures") -> {
-                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                            riskCondition = highRiskCondition.entries!![2]
-                        }
-                    }
-                    else -> {
-                        if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                            riskCondition = highRiskCondition.entries!!.last()
-                        }
-                    }
+                return when {
+                    selectedSigns.contains("Vaginal Bleeding") -> 3
+                    selectedSigns.contains("Convulsions/ seizures") -> 2
+                    else -> highRiskCondition.entries!!.lastIndex
                 }
             }
         }
+        return null
+    }
 
-        // Check HB
+    private fun checkHbForRisk(): Int? {
         hb.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.toDouble()?.let {
             if (it < 7) {
-                hasHighRisk = true
-                if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                    riskCondition = highRiskCondition.entries!![5] // SEVERE ANAEMIA
-                }
+                return 5 // SEVERE ANAEMIA
             }
         }
+        return null
+    }
 
-        // Check BP
+    private fun checkBpForRisk(): Int? {
         if (bp.value != null) {
             val bpValue = bp.value!!
-             if (bpValue.contains("/")) {
+            if (bpValue.contains("/")) {
                 val sys = bpValue.substringBefore("/").toIntOrNull()
                 val dia = bpValue.substringAfter("/").toIntOrNull()
                 if ((sys != null && (sys < 90 || sys >= 140)) || (dia != null && (dia < 60 || dia >= 90))) {
-                    hasHighRisk = true
-                    if (riskCondition == null || riskCondition == highRiskCondition.entries?.first()) {
-                        riskCondition = highRiskCondition.entries!![1] // HIGH BP
-                    }
+                    return 1 // HIGH BP
                 }
-             }
+            }
         }
+        return null
+    }
 
-        // Update anyHighRisk flag
+    private fun updateRiskCondition(current: String?, newRiskIndex: Int): String? {
+        if (current == null || current == highRiskCondition.entries?.first()) {
+            return highRiskCondition.entries!![newRiskIndex]
+        }
+        return current
+    }
+
+    private fun updateHighRiskUI(hasHighRisk: Boolean, riskCondition: String?) {
         if (hasHighRisk) {
-            if (anyHighRisk.value != anyHighRisk.entries?.last()) {
-                anyHighRisk.value = anyHighRisk.entries?.last()
+            setHighRiskFlags(riskCondition)
+        } else {
+            clearHighRiskFlags()
+        }
+    }
+
+    private fun setHighRiskFlags(riskCondition: String?) {
+        if (anyHighRisk.value != anyHighRisk.entries?.last()) {
+            anyHighRisk.value = anyHighRisk.entries?.last()
+            triggerDependants(
+                source = anyHighRisk,
+                removeItems = emptyList(),
+                addItems = listOf(highRiskCondition),
+                position = getIndexById(anyHighRisk.id) + 1
+            )
+        }
+        updateHighRiskConditionValue(riskCondition)
+    }
+
+    private fun updateHighRiskConditionValue(riskCondition: String?) {
+        if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
+            highRiskCondition.value = riskCondition
+            if (riskCondition == highRiskCondition.entries!!.last()) {
                 triggerDependants(
-                    source = anyHighRisk,
-                    removeItems = emptyList(),
-                    addItems = listOf(highRiskCondition),
-                    position = getIndexById(anyHighRisk.id) + 1
+                    source = highRiskCondition,
+                    passedIndex = highRiskCondition.entries!!.lastIndex,
+                    triggerIndex = highRiskCondition.entries!!.lastIndex,
+                    target = otherHighRiskCondition,
                 )
             }
-            // Update high risk condition if needed
-            if (riskCondition != null && (highRiskCondition.value == null || highRiskCondition.value == highRiskCondition.entries?.first())) {
-                highRiskCondition.value = riskCondition
-                if (riskCondition == highRiskCondition.entries!!.last()) {
-                    triggerDependants(
-                        source = highRiskCondition,
-                        passedIndex = highRiskCondition.entries!!.lastIndex,
-                        triggerIndex = highRiskCondition.entries!!.lastIndex,
-                        target = otherHighRiskCondition,
-                    )
-                }
-            }
-        } else {
-            // Clear high-risk flags when no triggers apply
-            // Only clear if currently set to "Yes" (likely auto-set) and no triggers apply
-            if (anyHighRisk.value == anyHighRisk.entries?.last()) {
-                anyHighRisk.value = anyHighRisk.entries?.first()
-                // Reset high risk condition to "NONE" when clearing
-                if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
-                    highRiskCondition.value = highRiskCondition.entries?.first()
-                }
+        }
+    }
+
+    private fun clearHighRiskFlags() {
+        if (anyHighRisk.value == anyHighRisk.entries?.last()) {
+            anyHighRisk.value = anyHighRisk.entries?.first()
+            if (highRiskCondition.value != null && highRiskCondition.value != highRiskCondition.entries?.first()) {
+                highRiskCondition.value = highRiskCondition.entries?.first()
             }
         }
     }

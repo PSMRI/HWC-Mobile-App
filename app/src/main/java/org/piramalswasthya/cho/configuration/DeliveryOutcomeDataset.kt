@@ -320,11 +320,11 @@ class DeliveryOutcomeDataset(
             deliveryOutcome.value = null
             liveBirth.value = null
             timeOfDischarge.value = null
-            
+
             // Add mother condition fields for new records (both halves of form)
             formElements.add(motherCondition)
             formElements.add(motherCurrentlyAdmitted)
-            
+
             // Add delivery outcome fields
             formElements.add(deliveryOutcome)
             formElements.add(liveBirth)
@@ -392,7 +392,7 @@ class DeliveryOutcomeDataset(
                 formElements.add(dateOfDischarge)
                 formElements.add(timeOfDischarge)
             }
-            
+
             // Add delivery outcome fields at the end
             formElements.add(deliveryOutcome)
             formElements.add(liveBirth)
@@ -701,148 +701,129 @@ class DeliveryOutcomeDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            dateOfDelivery.id -> {
-                if (validateDeliveryDate()) {
-                    getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.let {
-                        updateGestationalAge(it)
-                        deliveryDateMillis = it
-                        dateOfDischarge.min = it
-                        // Re-validate discharge date: if set and now before new delivery date, show error
-                        dateOfDischarge.value?.let { dischargeStr ->
-                            val dischargeLong = getLongFromDate(dischargeStr)
-                            dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < deliveryDateMillis) {
-                                resources.getString(R.string.do_discharge_date_before_delivery)
-                            } else null
-                        }
-                    }
-                }
-                -1
-            }
-
-            timeOfDelivery.id -> {
-                -1
-            }
-
+            dateOfDelivery.id -> handleDateOfDeliveryChange()
+            timeOfDelivery.id -> -1
             placeOfDelivery.id -> {
                 val selectedValue = placeOfDelivery.entries?.getOrNull(index)
                 placeOfDelivery.value = selectedValue
                 handlePlaceOfDeliveryChange(selectedValue)
                 getIndexOfElement(placeOfDelivery)
             }
-
             deliveryConductedBy.id -> {
                 val selectedValue = deliveryConductedBy.entries?.getOrNull(index)
                 deliveryConductedBy.value = selectedValue
                 handleDeliveryConductedByChange(selectedValue, index)
                 -1
             }
-
             modeOfDelivery.id -> {
                 val selectedValue = modeOfDelivery.entries?.getOrNull(index)
                 modeOfDelivery.value = selectedValue
                 handleModeOfDeliveryChange(selectedValue)
                 getIndexOfElement(modeOfDelivery)
             }
+            indicationForLSCS.id -> handleIndicationForLSCSValidation()
+            indicationForLSCSOther.id -> handleIndicationForLSCSOtherValidation()
+            privateHospitalName.id -> -1
+            motherCondition.id -> handleMotherConditionChange(index)
+            motherCurrentlyAdmitted.id -> handleMotherAdmittedChange(index)
+            dateOfDischarge.id -> handleDateOfDischargeValidation()
+            maternalComplications.id -> handleMaternalComplicationsValidation()
+            else -> -1
+        }
+    }
 
-            indicationForLSCS.id -> {
-                handleIndicationForLSCSChange()
-                // Validate indication is selected if required
-                if (indicationForLSCS.required && indicationForLSCS.value.isNullOrBlank()) {
-                    indicationForLSCS.errorText = resources.getString(R.string.do_error_indication_required)
-                } else {
-                    indicationForLSCS.errorText = null
-                }
-                getIndexOfElement(indicationForLSCS)
-            }
-
-            indicationForLSCSOther.id -> {
-                val value = indicationForLSCSOther.value?.trim()
-                if (indicationForLSCSOther.required && value.isNullOrBlank()) {
-                    indicationForLSCSOther.errorText = resources.getString(R.string.do_error_indication_other_required)
-                } else {
-                    indicationForLSCSOther.errorText = null
-                }
-                -1
-            }
-
-            privateHospitalName.id -> {
-                -1
-            }
-
-            motherCondition.id -> {
-                maternalComplications.value = null
-                maternalComplications.errorText = null
-                when (index) {
-                    0, 3 -> { // Healthy/Stable or Maternal Death
-                        triggerDependants(
-                            source = motherCondition,
-                            removeItems = listOf(maternalComplications),
-                            addItems = emptyList()
-                        )
-                        getIndexOfElement(motherCondition)
-                    }
-                    1, 2 -> { // Complication or Critical
-                        val currentIndex = getIndexOfElement(motherCondition)
-                        triggerDependants(
-                            source = motherCondition,
-                            removeItems = emptyList(),
-                            addItems = listOf(maternalComplications),
-                            position = if (currentIndex != -1) currentIndex + 1 else -1
-                        )
-                        getIndexOfElement(motherCondition)
-                    }
-                    else -> -1
-                }
-            }
-
-            motherCurrentlyAdmitted.id -> {
-                dateOfDischarge.value = null
-                dateOfDischarge.errorText = null
-                val result = triggerDependants(
-                    source = motherCurrentlyAdmitted,
-                    passedIndex = index,
-                    triggerIndex = 1, // Index 1 = "No (Discharged)"
-                    target = dateOfDischarge
-                )
-                result
-            }
-
-            dateOfDischarge.id -> {
-                dateOfDischarge.value?.let { dateStr ->
-                    val dischargeLong = getLongFromDate(dateStr)
+    private suspend fun handleDateOfDeliveryChange(): Int {
+        if (validateDeliveryDate()) {
+            getLongFromDate(dateOfDelivery.value, DATE_FORMAT_DD_MM_YYYY)?.let {
+                updateGestationalAge(it)
+                deliveryDateMillis = it
+                dateOfDischarge.min = it
+                // Re-validate discharge date: if set and now before new delivery date, show error
+                dateOfDischarge.value?.let { dischargeStr ->
+                    val dischargeLong = getLongFromDate(dischargeStr)
                     dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < deliveryDateMillis) {
                         resources.getString(R.string.do_discharge_date_before_delivery)
                     } else null
-                } ?: run { dateOfDischarge.errorText = null }
-                -1
-            }
-
-            maternalComplications.id -> {
-                if (!maternalComplications.value.isNullOrBlank()) {
-                    maternalComplications.errorText = null
                 }
-                -1
             }
+        }
+        return -1
+    }
 
-            deliveryOutcome.id -> {
-                validateDeliveryOutcome(deliveryOutcome)
+    private suspend fun handleIndicationForLSCSValidation(): Int {
+        handleIndicationForLSCSChange()
+        // Validate indication is selected if required
+        if (indicationForLSCS.required && indicationForLSCS.value.isNullOrBlank()) {
+            indicationForLSCS.errorText = resources.getString(R.string.do_error_indication_required)
+        } else {
+            indicationForLSCS.errorText = null
+        }
+        return getIndexOfElement(indicationForLSCS)
+    }
+
+    private fun handleIndicationForLSCSOtherValidation(): Int {
+        val value = indicationForLSCSOther.value?.trim()
+        if (indicationForLSCSOther.required && value.isNullOrBlank()) {
+            indicationForLSCSOther.errorText = resources.getString(R.string.do_error_indication_other_required)
+        } else {
+            indicationForLSCSOther.errorText = null
+        }
+        return -1
+    }
+
+    private suspend fun handleMotherConditionChange(index: Int): Int {
+        maternalComplications.value = null
+        maternalComplications.errorText = null
+        return when (index) {
+            0, 3 -> { // Healthy/Stable or Maternal Death
+                triggerDependants(
+                    source = motherCondition,
+                    removeItems = listOf(maternalComplications),
+                    addItems = emptyList()
+                )
+                getIndexOfElement(motherCondition)
             }
-
-            liveBirth.id -> {
-                validateDeliveryOutcome(liveBirth)
+            1, 2 -> { // Complication or Critical
+                val currentIndex = getIndexOfElement(motherCondition)
+                triggerDependants(
+                    source = motherCondition,
+                    removeItems = emptyList(),
+                    addItems = listOf(maternalComplications),
+                    position = if (currentIndex != -1) currentIndex + 1 else -1
+                )
+                getIndexOfElement(motherCondition)
             }
-
-            stillBirth.id -> {
-                validateDeliveryOutcome(stillBirth)
-            }
-
-            timeOfDischarge.id -> {
-                -1
-            }
-
-
             else -> -1
         }
+    }
+
+    private suspend fun handleMotherAdmittedChange(index: Int): Int {
+        dateOfDischarge.value = null
+        dateOfDischarge.errorText = null
+        val result = triggerDependants(
+            source = motherCurrentlyAdmitted,
+            passedIndex = index,
+            triggerIndex = 1, // Index 1 = "No (Discharged)"
+            target = dateOfDischarge
+        )
+        return result
+    }
+
+    private fun handleDateOfDischargeValidation(): Int {
+        dateOfDischarge.value?.let { dateStr ->
+            val dischargeLong = getLongFromDate(dateStr)
+            dateOfDischarge.errorText = if (dischargeLong != 0L && dischargeLong < deliveryDateMillis) {
+                resources.getString(R.string.do_discharge_date_before_delivery)
+            } else null
+        } ?: run { dateOfDischarge.errorText = null }
+        return -1
+    }
+
+    private fun handleMaternalComplicationsValidation(): Int {
+        if (!maternalComplications.value.isNullOrBlank()) {
+            maternalComplications.errorText = null
+        }
+        return -1
     }
 
     /**
@@ -864,7 +845,7 @@ class DeliveryOutcomeDataset(
                 }
             }
         }
-        
+
         if (!liveBirth.value.isNullOrEmpty() && !stillBirth.value.isNullOrEmpty() &&
             !deliveryOutcome.value.isNullOrEmpty() && formElement.errorText.isNullOrEmpty()
         ) {
@@ -877,7 +858,7 @@ class DeliveryOutcomeDataset(
                 stillBirth.errorText = null
             }
         }
-        
+
         if (!deliveryOutcome.value.isNullOrEmpty()) {
             stillBirth.max = deliveryOutcome.value?.toLongOrNull()
             liveBirth.max = deliveryOutcome.value?.toLongOrNull()

@@ -882,11 +882,19 @@ class FormInputAdapter(
      * @param recyclerView Optional RecyclerView to sync EditText values before validation
      */
     fun validateInput(resources: Resources, recyclerView: androidx.recyclerview.widget.RecyclerView? = null): Int {
-        var retVal = -1
-        if (!isEnabled) return retVal
+        if (!isEnabled) return -1
 
         recyclerView?.let { syncAllEditTextValues(it) }
 
+        clearErrorsForValidFields()
+
+        val firstErrorIndex = findFirstFieldWithError()
+        if (firstErrorIndex != -1) return firstErrorIndex
+
+        return validateRequiredFields(resources)
+    }
+
+    private fun clearErrorsForValidFields() {
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
                 val trimmedValue = it.value?.trim()
@@ -896,15 +904,19 @@ class FormInputAdapter(
                 }
             }
         }
+    }
 
+    private fun findFirstFieldWithError(): Int {
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.errorText != null) {
-                retVal = index
-                return@forEachIndexed
+                return index
             }
         }
-        if (retVal != -1) return retVal
+        return -1
+    }
 
+    private fun validateRequiredFields(resources: Resources): Int {
+        var retVal = -1
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
                 val trimmedValue = it.value?.trim()

@@ -167,45 +167,53 @@ class MaternalHealthRepo @Inject constructor(
         return withContext(Dispatchers.IO) {
             val allPwr = maternalHealthDao.getAllActivePregnancyRegistrations()
             val todayMillis = getTodayMillis()
-            allPwr.filter { pwr ->
+            allPwr.mapNotNull { pwr ->
                 val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
-                !ancRecords.any { it.pregnantWomanDelivered == true }
-            }.mapNotNull { pwr ->
-                val ancRecords = maternalHealthDao.getAllActiveAncRecords(pwr.patientID)
-                val gaWeeks = getWeeksOfPregnancy(todayMillis, pwr.lmpDate)
-                // ANC 1-4: previous stage completed (weight IS NOT NULL) + GA in range
-                // Per Jira MHWC-196: Check if previous visit is COMPLETED, not just exists
-                val isDue = when (ancStage) {
-                    1 -> {
-                        // ANC 1: Pregnancy registered AND GA ≤12 weeks (≤84 days from LMP)
-                        val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
-                        !anc1Completed && gaWeeks <= Konstants.maxAnc1Week
-                    }
-                    2 -> {
-                        // ANC 2: ANC 1 completed AND GA ≥14 weeks AND <28 weeks
-                        val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
-                        val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
-                        anc1Completed && !anc2Completed && gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
-                    }
-                    3 -> {
-                        // ANC 3: ANC 2 completed AND GA ≥28 weeks AND <36 weeks
-                        val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
-                        val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
-                        anc2Completed && !anc3Completed && gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
-                    }
-                    4 -> {
-                        // ANC 4: ANC 3 completed AND GA ≥36 weeks AND ≤40 weeks
-                        val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
-                        val anc4Completed = ancRecords.any { it.visitNumber == 4 && it.weight != null }
-                        anc3Completed && !anc4Completed && gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
-                    }
-                    else -> false
+                
+                // Skip if already delivered
+                if (ancRecords.any { it.pregnantWomanDelivered == true }) {
+                    return@mapNotNull null
                 }
+                
+                val gaWeeks = getWeeksOfPregnancy(todayMillis, pwr.lmpDate)
+                val isDue = isAncStageDue(ancStage, ancRecords, gaWeeks)
+                
                 if (isDue) {
                     Timber.d("ANC Due List: Patient ${pwr.patientID} added to ANC $ancStage due list (GA: $gaWeeks weeks)")
                     AncDueListItem(pwr.patientID, gaWeeks, ancStage)
                 } else null
             }
+        }
+    }
+
+    private fun isAncStageDue(ancStage: Int, ancRecords: List<PregnantWomanAncCache>, gaWeeks: Int): Boolean {
+        // ANC 1-4: previous stage completed (weight IS NOT NULL) + GA in range
+        // Per Jira MHWC-196: Check if previous visit is COMPLETED, not just exists
+        return when (ancStage) {
+            1 -> {
+                // ANC 1: Pregnancy registered AND GA ≤12 weeks (≤84 days from LMP)
+                val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
+                !anc1Completed && gaWeeks <= Konstants.maxAnc1Week
+            }
+            2 -> {
+                // ANC 2: ANC 1 completed AND GA ≥14 weeks AND <28 weeks
+                val anc1Completed = ancRecords.any { it.visitNumber == 1 && it.weight != null }
+                val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
+                anc1Completed && !anc2Completed && gaWeeks >= Konstants.minAnc2Week && gaWeeks < 28
+            }
+            3 -> {
+                // ANC 3: ANC 2 completed AND GA ≥28 weeks AND <36 weeks
+                val anc2Completed = ancRecords.any { it.visitNumber == 2 && it.weight != null }
+                val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
+                anc2Completed && !anc3Completed && gaWeeks >= Konstants.minAnc3Week && gaWeeks < 36
+            }
+            4 -> {
+                // ANC 4: ANC 3 completed AND GA ≥36 weeks AND ≤40 weeks
+                val anc3Completed = ancRecords.any { it.visitNumber == 3 && it.weight != null }
+                val anc4Completed = ancRecords.any { it.visitNumber == 4 && it.weight != null }
+                anc3Completed && !anc4Completed && gaWeeks >= Konstants.minAnc4Week && gaWeeks <= Konstants.maxAnc4Week
+            }
+            else -> false
         }
     }
 

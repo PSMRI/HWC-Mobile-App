@@ -73,10 +73,10 @@ object AppModule {
 
     private const val baseD2DUrl = "http://d2dapi.piramalswasthya.org:9090/api/"
 
-    private const val baseTmcUrl =  "http://assamt.piramalswasthya.org:8080/"
+    private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl =  "https://uatamrit.piramalswasthya.org/"
-//     "https://uatamrit.piramalswasthya.org/"
+    private const val baseAmritUrl = "https://uatamrit.piramalswasthya.org/"
+    // "https://uatamrit.piramalswasthya.org/"
     // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseFlwUrl = "https://uatamrit.piramalswasthya.org/"
