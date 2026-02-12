@@ -409,6 +409,13 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
+        setupDobClickListener()
+        setupSpeechToTextClickListeners()
+        setupOtherClickListeners()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setupDobClickListener() {
         binding.dateOfBirthText.setEndIconOnClickListener {
             if (binding.dateOfBirth.isEnabled) {
                 // Hide keyboard when clicking on date of birth field
@@ -423,7 +430,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 ).show()
             }
         }
+    }
 
+    private fun setupSpeechToTextClickListeners() {
         binding.firstNameText.setEndIconOnClickListener {
             if (binding.firstName.isEnabled) speechToTextLauncherForFirstName.launch(Unit)
         }
@@ -445,7 +454,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 Unit
             ) // Reusing phone launcher for numeric or create new if needed
         }
+    }
 
+    private fun setupOtherClickListeners() {
         binding.age.setOnClickListener {
             if (binding.age.isEnabled) {
                 ageAlertDialog.show()
