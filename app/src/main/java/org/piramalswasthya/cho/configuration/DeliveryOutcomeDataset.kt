@@ -208,6 +208,51 @@ class DeliveryOutcomeDataset(
         max = System.currentTimeMillis()
     )
 
+    private val timeOfDischarge = FormElement(
+        id = 14,
+        inputType = InputType.TIME_PICKER,
+        title = resources.getString(R.string.do_discharge_time),
+        arrayId = -1,
+        required = false,
+        hasDependants = false
+    )
+
+    private val deliveryOutcome = FormElement(
+        id = 15,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.do_delivery_outcome),
+        required = true,
+        hasDependants = false,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 1,
+        max = 6,
+        min = 0
+    )
+
+    private val liveBirth = FormElement(
+        id = 16,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.do_live_birth),
+        required = true,
+        hasDependants = false,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 1,
+        max = 6,
+        min = 0
+    )
+
+    private val stillBirth = FormElement(
+        id = 17,
+        inputType = InputType.EDIT_TEXT,
+        title = resources.getString(R.string.do_still_birth),
+        required = true,
+        hasDependants = false,
+        etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
+        etMaxLength = 1,
+        max = 6,
+        min = 0
+    )
+
     // Store EDD and LMP for calculations
     private var eddDate: Long = 0L
     private var lmpDate: Long = 0L
@@ -270,9 +315,20 @@ class DeliveryOutcomeDataset(
             maternalComplications.value = null
             dateOfDischarge.value = null
             
+            // Initialize new outcome fields
+            stillBirth.value = "0"
+            deliveryOutcome.value = null
+            liveBirth.value = null
+            timeOfDischarge.value = null
+
             // Add mother condition fields for new records (both halves of form)
             formElements.add(motherCondition)
             formElements.add(motherCurrentlyAdmitted)
+
+            // Add delivery outcome fields
+            formElements.add(deliveryOutcome)
+            formElements.add(liveBirth)
+            formElements.add(stillBirth)
         } else {
             // Load saved values (dd/MM/yyyy per JIRA)
             dateOfDelivery.value = saved.dateOfDelivery?.let { getDateFromLong(it, DATE_FORMAT_DD_MM_YYYY) }
@@ -306,6 +362,10 @@ class DeliveryOutcomeDataset(
             }
             maternalComplications.value = saved.maternalComplications
             dateOfDischarge.value = saved.dateOfDischarge?.let { getDateFromLong(it) }
+            timeOfDischarge.value = saved.timeOfDischarge
+            deliveryOutcome.value = saved.deliveryOutcome?.toString()
+            liveBirth.value = saved.liveBirth?.toString()
+            stillBirth.value = saved.stillBirth?.toString()
 
             // Update gestational age for saved date
             saved.dateOfDelivery?.let { updateGestationalAge(it) }
@@ -330,7 +390,13 @@ class DeliveryOutcomeDataset(
             // Add discharge date if mother is discharged (not currently admitted)
             if (motherCurrentlyAdmitted.value == resources.getStringArray(R.array.do_mother_admitted_array)[1]) {
                 formElements.add(dateOfDischarge)
+                formElements.add(timeOfDischarge)
             }
+
+            // Add delivery outcome fields at the end
+            formElements.add(deliveryOutcome)
+            formElements.add(liveBirth)
+            formElements.add(stillBirth)
         }
 
         setUpPage(formElements)
@@ -760,6 +826,46 @@ class DeliveryOutcomeDataset(
         return -1
     }
 
+    /**
+     * Validate delivery outcome fields: ensures deliveryOutcome = liveBirth + stillBirth
+     */
+    private fun validateDeliveryOutcome(formElement: FormElement): Int {
+        formElement.errorText = formElement.value?.takeIf { it.isNotEmpty() }?.toLongOrNull()?.let {
+            formElement.min?.let { min ->
+                formElement.max?.let { max ->
+                    if (it < min) {
+                        resources.getString(
+                            R.string.form_input_min_limit_error, formElement.title, min
+                        )
+                    } else if (it > max) {
+                        resources.getString(
+                            R.string.form_input_max_limit_error, formElement.title, max
+                        )
+                    } else null
+                }
+            }
+        }
+
+        if (!liveBirth.value.isNullOrEmpty() && !stillBirth.value.isNullOrEmpty() &&
+            !deliveryOutcome.value.isNullOrEmpty() && formElement.errorText.isNullOrEmpty()
+        ) {
+            if (deliveryOutcome.value!!.toInt() != liveBirth.value!!.toInt() + stillBirth.value!!.toInt()) {
+                formElement.errorText =
+                    "Outcome of Delivery should be equal to sum of Live and Still births"
+            } else {
+                deliveryOutcome.errorText = null
+                liveBirth.errorText = null
+                stillBirth.errorText = null
+            }
+        }
+
+        if (!deliveryOutcome.value.isNullOrEmpty()) {
+            stillBirth.max = deliveryOutcome.value?.toLongOrNull()
+            liveBirth.max = deliveryOutcome.value?.toLongOrNull()
+        }
+        return -1
+    }
+
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         val form = cacheModel as DeliveryOutcomeCache
         val admittedYes = resources.getStringArray(R.array.do_mother_admitted_array)[0]
@@ -781,6 +887,10 @@ class DeliveryOutcomeDataset(
         form.maternalComplications = maternalComplications.value?.takeIf { s -> s.isNotBlank() }
         form.motherCurrentlyAdmitted = motherCurrentlyAdmitted.value == admittedYes
         form.dateOfDischarge = dateOfDischarge.value?.let { getLongFromDate(it) }.takeIf { it != 0L }
+        form.timeOfDischarge = timeOfDischarge.value
+        form.deliveryOutcome = deliveryOutcome.value?.toIntOrNull()
+        form.liveBirth = liveBirth.value?.toIntOrNull()
+        form.stillBirth = stillBirth.value?.toIntOrNull()
         form.isDeath = motherCondition.value == conditionMaternalDeath
         if (form.isDeath == true) {
             form.isDeathValue = "Maternal Death"

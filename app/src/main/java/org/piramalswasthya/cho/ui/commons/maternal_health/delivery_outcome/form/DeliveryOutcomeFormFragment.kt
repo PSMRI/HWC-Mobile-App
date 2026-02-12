@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +21,7 @@ import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.Alert
 import org.piramalswasthya.cho.ui.commons.maternal_health.delivery_outcome.form.DeliveryOutcomeFormViewModel.State
 import org.piramalswasthya.cho.ui.home.rmncha.maternal_health.ANCVisitsActivity
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DeliveryOutcomeFormFragment : Fragment() {
@@ -165,6 +165,29 @@ class DeliveryOutcomeFormFragment : Fragment() {
     }
 
     private fun navigateToVitals() {
+        // Navigate to neonatal outcome form first
+        val deliveryOutcomeId = viewModel.deliveryOutcome.id
+        val patientID = viewModel.patientID
+        
+        if (deliveryOutcomeId > 0) {
+            try {
+                val action = DeliveryOutcomeFormFragmentDirections
+                    .actionDeliveryOutcomeFormFragmentToNeonatalOutcomeFormFragment(
+                        deliveryOutcomeId = deliveryOutcomeId,
+                        patientID = patientID
+                    )
+                findNavController().navigate(action)
+            } catch (e: Exception) {
+                Timber.e(e, "Navigation to neonatal outcome failed")
+                // Fallback: navigate to vitals
+                fallbackToVitals()
+            }
+        } else {
+            fallbackToVitals()
+        }
+    }
+    
+    private fun fallbackToVitals() {
         val benVisitInfo = (activity?.intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)
         if (benVisitInfo != null) {
             try {
@@ -174,11 +197,9 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     bundle
                 )
             } catch (e: IllegalStateException) {
-                // Not in a navigation graph, use fragment transaction or finish
                 requireActivity().supportFragmentManager.popBackStack()
             }
         } else {
-            // No visit info, just go back
             try {
                 findNavController().navigateUp()
             } catch (e: IllegalStateException) {

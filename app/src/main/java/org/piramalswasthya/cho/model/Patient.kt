@@ -165,12 +165,6 @@ data class Patient (
     var faceEmbedding: List<Float>? = null,
 
 
-    @ColumnInfo(name = "hasAbhaId")
-    var hasAbhaId: Boolean? = null,
-
-    @ColumnInfo(name = "abhaIdNumber")
-    var abhaIdNumber: String? = null,
-
 //    @ColumnInfo(name = "referDate")
 //    var referDate: String? = null,
 //

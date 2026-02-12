@@ -549,22 +549,17 @@
                                 app:layout_constraintStart_toStartOf="parent" />
                         </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_view_card"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:backgroundTint="@color/colorPrimary"
-                            android:onClick="@{()-> clickListener.onClickViewCard(benVisitInfo)}"
-                            android:text="@string/view_beneficiary_card"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
-                            app:cornerRadius="@dimen/padding_normal"
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/fab_edit"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="16dp"
+                            android:contentDescription="Edit"
+                            android:onClick="@{() -> clickListener.onClickEdit(benVisitInfo)}"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/ll_abha_button"
-                            tools:ignore="MissingConstraints" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:srcCompat="@drawable/ic_edit" />
+
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_eSanjeevani"

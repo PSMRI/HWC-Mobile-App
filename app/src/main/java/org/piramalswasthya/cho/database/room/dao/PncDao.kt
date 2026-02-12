@@ -51,7 +51,6 @@ interface PncDao {
         INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
-        AND do.dateOfDischarge IS NOT NULL
         AND p.maritalStatusID = 2
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit pnc
@@ -76,7 +75,6 @@ interface PncDao {
         INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
-        AND do.dateOfDischarge IS NOT NULL
         AND p.maritalStatusID = 2
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit p
@@ -110,7 +108,6 @@ interface PncDao {
         INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
-        AND do.dateOfDischarge IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
         AND p.maritalStatusID = 2

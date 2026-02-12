@@ -47,6 +47,31 @@ data class InfantRegCache(
     var bcgDose: Long? = null,
     var hepBDose: Long? = null,
     var vitkDose: Long? = null,
+
+    // BRD Neonatal Outcome fields
+    /** Q2: Live Birth / Still Birth (Macerated) / Still Birth (Fresh) / Died during delivery */
+    var outcomeAtBirth: String? = null,
+    /** Q5: Comma-separated multi-select resuscitation types */
+    var typeOfResuscitation: String? = null,
+    /** Q10: Comma-separated multi-select newborn complications */
+    var newbornComplications: String? = null,
+    /** Q11: Healthy and with mother / Admitted (SNCU/NICU) / Admitted (General ward) / Died */
+    var currentStatusOfBaby: String? = null,
+    /** Q12: Comma-separated multi-select cause of death */
+    var causeOfDeath: String? = null,
+    /** Q13: Other cause of death free text */
+    var otherCauseOfDeath: String? = null,
+    /** Q14: Comma-separated multi-select vaccines (BCG, Hepatitis B, OPV-0, None) */
+    var birthDoseVaccinesGiven: String? = null,
+    /** Q15: Reason for not giving vaccines */
+    var reasonForNoVaccines: String? = null,
+    /** Q16: Vitamin K injection given */
+    var vitaminKInjectionGiven: Boolean? = null,
+    /** Q17: Reason for not giving Vitamin K */
+    var reasonForNoVitaminK: String? = null,
+    /** Q18: Yes / In process / No (Not applied) */
+    var birthCertificateIssued: String? = null,
+
     var processed: String? = "N",
     var createdBy: String,
     val createdDate: Long = System.currentTimeMillis(),
@@ -87,6 +112,17 @@ data class InfantRegCache(
             bcgDose = bcgDose?.let { getDateStringFromLong(it) },
             hepBDose = hepBDose?.let { getDateStringFromLong(it) },
             vitkDose = vitkDose?.let { getDateStringFromLong(it) },
+            outcomeAtBirth = outcomeAtBirth,
+            typeOfResuscitation = typeOfResuscitation,
+            newbornComplications = newbornComplications,
+            currentStatusOfBaby = currentStatusOfBaby,
+            causeOfDeath = causeOfDeath,
+            otherCauseOfDeath = otherCauseOfDeath,
+            birthDoseVaccinesGiven = birthDoseVaccinesGiven,
+            reasonForNoVaccines = reasonForNoVaccines,
+            vitaminKInjectionGiven = vitaminKInjectionGiven,
+            reasonForNoVitaminK = reasonForNoVitaminK,
+            birthCertificateIssued = birthCertificateIssued,
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
@@ -197,6 +233,17 @@ data class InfantRegPost(
     val bcgDose: String? = null,
     val hepBDose: String? = null,
     val vitkDose: String? = null,
+    val outcomeAtBirth: String? = null,
+    val typeOfResuscitation: String? = null,
+    val newbornComplications: String? = null,
+    val currentStatusOfBaby: String? = null,
+    val causeOfDeath: String? = null,
+    val otherCauseOfDeath: String? = null,
+    val birthDoseVaccinesGiven: String? = null,
+    val reasonForNoVaccines: String? = null,
+    val vitaminKInjectionGiven: Boolean? = null,
+    val reasonForNoVitaminK: String? = null,
+    val birthCertificateIssued: String? = null,
     val createdDate: String? = null,
     val createdBy: String,
     val updatedDate: String? = null,
@@ -225,6 +272,17 @@ data class InfantRegPost(
             bcgDose = getLongFromDate(bcgDose),
             hepBDose = getLongFromDate(hepBDose),
             vitkDose = getLongFromDate(vitkDose),
+            outcomeAtBirth = outcomeAtBirth,
+            typeOfResuscitation = typeOfResuscitation,
+            newbornComplications = newbornComplications,
+            currentStatusOfBaby = currentStatusOfBaby,
+            causeOfDeath = causeOfDeath,
+            otherCauseOfDeath = otherCauseOfDeath,
+            birthDoseVaccinesGiven = birthDoseVaccinesGiven,
+            reasonForNoVaccines = reasonForNoVaccines,
+            vitaminKInjectionGiven = vitaminKInjectionGiven,
+            reasonForNoVitaminK = reasonForNoVitaminK,
+            birthCertificateIssued = birthCertificateIssued,
             processed = "P",
             createdBy = createdBy,
             createdDate = getLongFromDate(createdDate),
@@ -274,7 +332,12 @@ data class ChildRegDomain(
      * Get formatted baby name (baby 0, baby 1, etc.)
      */
     val customName: String
-        get() = "baby ${infant.babyIndex} of ${motherPatient.firstName}"
+        get() = when (infant.babyIndex) {
+            0 -> "1st baby of ${motherPatient.firstName}"
+            1 -> "2nd baby of ${motherPatient.firstName}"
+            2 -> "3rd baby of ${motherPatient.firstName}"
+            else -> "${infant.babyIndex + 1}th baby of ${motherPatient.firstName}"
+        }
 
     /**
      * Get mother's full name

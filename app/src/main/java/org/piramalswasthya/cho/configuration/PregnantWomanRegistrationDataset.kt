@@ -382,8 +382,6 @@ class PregnantWomanRegistrationDataset(
 
         // Initialize date of registration
         dateOfRegMillis = savedRecord?.dateOfRegistration ?: System.currentTimeMillis()
-        // Initialize date of registration
-        dateOfRegMillis = savedRecord?.dateOfRegistration ?: System.currentTimeMillis()
         oneYearBeforeRegMillis = dateOfRegMillis - TimeUnit.DAYS.toMillis(365)
 
         _para = para1
@@ -413,29 +411,20 @@ class PregnantWomanRegistrationDataset(
     ) {
         populateFormFromCache(cache)
 
-        // Add all main fields
-        list.addAll(listOf(
-            pregnancyTestAtFacility,
-            uptResult,
-            lmp, edd, gestationalAge, trimester,
-            bloodGroup,
-            gravida, para
-        ))
+        // Add all main fields in consistent order
+        list.add(pregnancyTestAtFacility)
+        list.add(uptResult)
+        
+        list.addAll(getPregnancyBasicFields())
 
         // Add history fields if gravida > 1
         addHistoryFieldsIfNeeded(cache, list)
 
-        list.addAll(listOf(
-            preExistingConditions,
-            height, weight, bmi,
-            vdrlRprResult,
-            hivResult,
-            hbsAgResult,
-            isHighRiskPregnancy
-        ))
+        list.addAll(getPhysicalFields())
 
-        // Add test date fields conditionally
-        addTestDateFieldsIfNeeded(cache, list)
+        addLabFieldsCombined(list)
+
+        list.add(isHighRiskPregnancy)
 
         // Make all fields read-only
         makeFormReadOnly(list)
@@ -460,9 +449,19 @@ class PregnantWomanRegistrationDataset(
 
             if (hasLmpDate) {
                 list.add(uptResult)
-                list.addAll(getBaseRegistrationFields())
+                list.addAll(getPregnancyBasicFields())
+                
+                // Add history fields after Para
                 addHistoryFieldsIfNeeded(cache, list)
-                addTestDateFieldsIfNeeded(cache, list)
+                
+                // Add physical fields
+                list.addAll(getPhysicalFields())
+                
+                // Add lab fields combined (results and dates)
+                addLabFieldsCombined(list)
+                
+                // Finally add High Risk status
+                list.add(isHighRiskPregnancy)
             } else {
                 list.add(uptResult)
             }
@@ -488,19 +487,19 @@ class PregnantWomanRegistrationDataset(
     }
 
     /**
-     * Add test date fields if test results indicate they should be shown
+     * Helper to add lab result fields and their corresponding date fields together
      */
-    private fun addTestDateFieldsIfNeeded(
-        cache: PregnantWomanRegistrationCache,
-        list: MutableList<FormElement>
-    ) {
-        if (shouldShowTestDateField(cache.vdrlRprTestResult, isHbsAg = false)) {
+    private fun addLabFieldsCombined(list: MutableList<FormElement>) {
+        list.add(vdrlRprResult)
+        if (shouldShowTestDateField(vdrlRprResult.value, isHbsAg = false)) {
             list.add(vdrlRprDate)
         }
-        if (shouldShowTestDateField(cache.hivTestResult, isHbsAg = false)) {
+        list.add(hivResult)
+        if (shouldShowTestDateField(hivResult.value, isHbsAg = false)) {
             list.add(hivTestDate)
         }
-        if (shouldShowTestDateField(cache.hbsAgTestResult, isHbsAg = true)) {
+        list.add(hbsAgResult)
+        if (shouldShowTestDateField(hbsAgResult.value, isHbsAg = true)) {
             list.add(hbsAgTestDate)
         }
     }
@@ -516,17 +515,18 @@ class PregnantWomanRegistrationDataset(
         }
     }
 
-    private fun getBaseRegistrationFields(): List<FormElement> {
+    private fun getPregnancyBasicFields(): List<FormElement> {
         return listOf(
             lmp, edd, gestationalAge, trimester,
             bloodGroup,
-            gravida, para,
-            height, weight, bmi,
+            gravida, para
+        )
+    }
+
+    private fun getPhysicalFields(): List<FormElement> {
+        return listOf(
             preExistingConditions,
-            vdrlRprResult,
-            hivResult,
-            hbsAgResult,
-            isHighRiskPregnancy
+            height, weight, bmi
         )
     }
 
@@ -769,15 +769,18 @@ class PregnantWomanRegistrationDataset(
             val gravidaValue = gravida.value?.toIntOrNull() ?: 1
 
             val registrationFields = mutableListOf<FormElement>().apply {
-                addAll(baseRegistrationFields)
+                addAll(getPregnancyBasicFields())
+                
                 // Only add history fields if gravida > 1
                 if (gravidaValue > 1) {
                     add(historyOfAbortions)
                     add(previousLSCS)
                     add(complicationsInPreviousPregnancy)
                 }
-                // IMPORTANT: DO NOT add date fields here initially
-                // They will be added dynamically when test results are selected
+                
+                addAll(getPhysicalFields())
+                addLabFieldsCombined(this)
+                add(isHighRiskPregnancy)
             }
 
             triggerDependants(
@@ -786,17 +789,26 @@ class PregnantWomanRegistrationDataset(
                 removeItems = emptyList()
             )
         } else { // Negative - Redirect to Eligible Couple Tracking Form
+            val allFieldsToRemove = mutableListOf<FormElement>().apply {
+                addAll(getPregnancyBasicFields())
+                addAll(getPhysicalFields())
+                add(vdrlRprResult)
+                add(hivResult)
+                add(hbsAgResult)
+                add(isHighRiskPregnancy)
+                add(historyOfAbortions)
+                add(previousLSCS)
+                add(complicationsInPreviousPregnancy)
+                add(vdrlRprDate)
+                add(hivTestDate)
+                add(hbsAgTestDate)
+            }
+            
             triggerDependants(
                 source = uptResult,
                 addItems = emptyList(),
-                removeItems = baseRegistrationFields +
-                        listOf(
-                            historyOfAbortions, previousLSCS, complicationsInPreviousPregnancy,
-                            vdrlRprDate, hivTestDate, hbsAgTestDate
-                        ) // Remove date fields if they exist
+                removeItems = allFieldsToRemove
             )
-//            Removed to defer navigation
-          
         })
     }
 
