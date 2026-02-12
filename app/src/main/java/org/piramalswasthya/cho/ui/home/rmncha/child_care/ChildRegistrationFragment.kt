@@ -1,0 +1,195 @@
+package org.piramalswasthya.cho.ui.home.rmncha.child_care
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+
+import androidx.lifecycle.asLiveData
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import org.piramalswasthya.cho.R
+import org.piramalswasthya.cho.adapter.FormInputAdapter
+import org.piramalswasthya.cho.configuration.ChildRegistrationDataset
+import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.databinding.FragmentNeonatalOutcomeBinding
+import org.piramalswasthya.cho.model.InfantRegCache
+import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
+import org.piramalswasthya.cho.repositories.InfantRegRepo
+import org.piramalswasthya.cho.repositories.PatientRepo
+import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.database.room.SyncState
+import timber.log.Timber
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class ChildRegistrationFragment : Fragment() {
+
+    @Inject
+    lateinit var infantRegRepo: InfantRegRepo
+    
+    @Inject
+    lateinit var deliveryOutcomeRepo: DeliveryOutcomeRepo
+    
+    @Inject
+    lateinit var patientRepo: PatientRepo
+    
+    @Inject
+    lateinit var userRepo: UserRepo
+    
+    @Inject
+    lateinit var preferenceDao: PreferenceDao
+
+    private var _binding: FragmentNeonatalOutcomeBinding? = null
+    private val binding get() = _binding!!
+
+    // Using arguments directly instead of SafeArgs since we don't have nav graph entry yet
+    private val patientID: String? by lazy { arguments?.getString("patientID") }
+    private val babyIndex: Int by lazy { arguments?.getInt("babyIndex", 0) ?: 0 }
+
+    private lateinit var dataset: ChildRegistrationDataset
+    private var currentInfantReg: InfantRegCache? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentNeonatalOutcomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        // Reusing the same layout as NeonatalOutcome since it's just a recycler view + buttons
+
+        dataset = ChildRegistrationDataset(requireContext(), preferenceDao.getCurrentLanguage())
+        
+        val adapter = FormInputAdapter(
+            formValueListener = FormInputAdapter.FormValueListener { id, index ->
+                lifecycleScope.launch {
+                    dataset.updateList(id, index)
+                }
+            }
+        )
+
+        binding.rvForm.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+        binding.rvForm.adapter = adapter
+
+        dataset.listFlow.asLiveData().observe(viewLifecycleOwner) { elements ->
+            adapter.submitList(elements)
+        }
+
+        setupClickListeners()
+        loadData()
+    }
+
+    private fun loadData() {
+        val pid = patientID ?: return
+        
+        lifecycleScope.launch {
+            try {
+                binding.progressBar.visibility = View.VISIBLE
+                
+                val user = userRepo.getLoggedInUser()
+                val userName = user?.userName ?: ""
+                
+                // Load mother patient
+                val mother = patientRepo.getPatient(pid)
+                
+                // Load delivery outcome
+                val deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(pid)
+                
+                if (deliveryOutcome == null) {
+                    showError("Delivery outcome not found")
+                    return@launch
+                }
+
+                // Load existing infant reg
+                val existing = infantRegRepo.getInfantReg(pid, babyIndex)
+                
+                currentInfantReg = existing ?: InfantRegCache(
+                    motherPatientID = pid,
+                    babyIndex = babyIndex,
+                    isActive = true,
+                    createdBy = userName,
+                    updatedBy = userName,
+                    syncState = SyncState.UNSYNCED
+                )
+                
+                dataset.setUpPage(mother, deliveryOutcome, babyIndex, currentInfantReg)
+                binding.progressBar.visibility = View.GONE
+                
+            } catch (e: Exception) {
+                Timber.e(e, "Error loading child registration data")
+                showError("Error loading data: ${e.message}")
+            }
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.btnSave.setOnClickListener {
+            saveForm()
+        }
+
+        binding.btnCancel.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+    }
+
+    private fun saveForm() {
+        val reg = currentInfantReg ?: return
+        
+        lifecycleScope.launch {
+            try {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.btnSave.isEnabled = false
+                binding.btnCancel.isEnabled = false
+                
+                dataset.mapValues(reg)
+                
+                val user = userRepo.getLoggedInUser()
+                val userName = user?.userName ?: ""
+                val currentTime = System.currentTimeMillis()
+
+                val updated = reg.copy(
+                    updatedBy = userName,
+                    updatedDate = currentTime,
+                    syncState = SyncState.UNSYNCED,
+                    isActive = true
+                )
+
+                infantRegRepo.saveInfantReg(updated)
+                
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Child registered successfully", Toast.LENGTH_SHORT).show()
+                    parentFragmentManager.popBackStack()
+                }
+                
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to save child registration")
+                if (isAdded) {
+                    showError("Failed to save: ${e.message}")
+                    binding.btnSave.isEnabled = true
+                    binding.btnCancel.isEnabled = true
+                    binding.progressBar.visibility = View.GONE
+                }
+            }
+        }
+    }
+    
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+        binding.progressBar.visibility = View.GONE
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

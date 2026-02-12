@@ -11,31 +11,30 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.InfantListAdapter
+import org.piramalswasthya.cho.adapter.InfantRegistrationAdapter
 import org.piramalswasthya.cho.databinding.FragmentInfantListBinding
-import org.piramalswasthya.cho.model.PatientDisplay
-import org.piramalswasthya.cho.repositories.PatientRepo
-import org.piramalswasthya.cho.utils.filterPatientsByQuery
+import org.piramalswasthya.cho.model.InfantRegDomain
+import org.piramalswasthya.cho.repositories.InfantRegRepo
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
 import javax.inject.Inject
 
 /**
- * Fragment to display list of infants (age <= 61 days)
- * Shows all registered infants for child care services
+ * Fragment to display list of infants eligible for registration
+ * Shows infants grouped by mother with "Nth baby of [Mother's Name]" format
  */
 @AndroidEntryPoint
 class InfantListFragment : Fragment() {
 
     @Inject
-    lateinit var patientRepo: PatientRepo
+    lateinit var infantRegRepo: InfantRegRepo
 
     private var _binding: FragmentInfantListBinding? = null
     private val binding get() = _binding!!
     
-    private lateinit var adapter: InfantListAdapter
-    private var allInfants: List<PatientDisplay> = emptyList()
-    private var filteredInfants: List<PatientDisplay> = emptyList()
+    private lateinit var adapter: InfantRegistrationAdapter
+    private var allInfants: List<InfantRegDomain> = emptyList()
+    private var filteredInfants: List<InfantRegDomain> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,10 +54,20 @@ class InfantListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = InfantListAdapter(
-            InfantListAdapter.ClickListener { patient ->
-                // Handle click - navigate to infant details/form
-                // TODO: Navigate to infant form or details screen
+        adapter = InfantRegistrationAdapter(
+            InfantRegistrationAdapter.ClickListener { motherPatientID: String, babyIndex: Int ->
+                // Navigate to ChildRegistrationFragment
+                val fragment = ChildRegistrationFragment()
+                val args = Bundle().apply {
+                    putString("patientID", motherPatientID)
+                    putInt("babyIndex", babyIndex)
+                }
+                fragment.arguments = args
+                
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
         )
 
@@ -74,8 +83,8 @@ class InfantListFragment : Fragment() {
 
     private fun observeInfants() {
         lifecycleScope.launch {
-            patientRepo.getInfantList().collectLatest { infantsList ->
-                allInfants = infantsList.sortedByDescending { it.patient.dob?.time ?: 0L }
+            infantRegRepo.getListForInfantReg().collectLatest { infantsList: List<InfantRegDomain> ->
+                allInfants = infantsList.sortedByDescending { it.deliveryOutcome.dateOfDelivery ?: 0L }
                 filteredInfants = allInfants
                 updateUI()
             }
@@ -83,7 +92,14 @@ class InfantListFragment : Fragment() {
     }
 
     private fun filterInfants(query: String) {
-        filteredInfants = allInfants.filterPatientsByQuery(query) { it.patient }
+        filteredInfants = if (query.isBlank()) {
+            allInfants
+        } else {
+            allInfants.filter { infant ->
+                infant.getMotherFullName().contains(query, ignoreCase = true) ||
+                        infant.motherPatient.patientID.contains(query, ignoreCase = true)
+            }
+        }
         updateUI()
     }
 
@@ -95,7 +111,7 @@ class InfantListFragment : Fragment() {
             recyclerView = binding.rvInfantList,
             countTextView = binding.tvCount,
             resultString = getString(R.string.result),
-            logMessage = "Displaying infants"
+            logMessage = "Displaying registered infants"
         )
     }
 

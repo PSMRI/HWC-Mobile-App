@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
+import org.piramalswasthya.cho.database.room.dao.NeonatalOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
@@ -320,6 +321,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideDeliveryOutcomeDao(database: InAppDb): DeliveryOutcomeDao = database.deliveryOutcomeDao
+
+    @Singleton
+    @Provides
+    fun provideNeonatalOutcomeDao(database: InAppDb): NeonatalOutcomeDao = database.neonatalOutcomeDao
 
     @Singleton
     @Provides

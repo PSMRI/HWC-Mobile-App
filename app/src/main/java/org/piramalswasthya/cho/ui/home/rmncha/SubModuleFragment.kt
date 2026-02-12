@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_DELIVERY_OUTCOME_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_NEONATAL_OUTCOME_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PNC_MOTHER_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
@@ -92,6 +93,7 @@ class SubModuleFragment : Fragment() {
                     val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
                     val showANCVisits = navDirections.arguments.getBoolean(SHOW_ANC_VISITS_KEY, false)
                     val showDeliveryOutcome = navDirections.arguments.getBoolean(SHOW_DELIVERY_OUTCOME_KEY, false)
+                    val showNeonatalOutcome = navDirections.arguments.getBoolean(SHOW_NEONATAL_OUTCOME_KEY, false)
                     val showPNCMotherList = navDirections.arguments.getBoolean(SHOW_PNC_MOTHER_LIST_KEY, false)
                     val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
@@ -124,6 +126,14 @@ class SubModuleFragment : Fragment() {
                         showDeliveryOutcome -> {
                             // Navigate to Delivery Outcome List Fragment
                             val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
+                        }
+                        showNeonatalOutcome -> {
+                            // Navigate to Neonatal Outcome List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.NeonatalOutcomeFragment()
                             requireActivity().supportFragmentManager.commit {
                                 replace(R.id.fragment_container, fragment)
                                 addToBackStack(null)

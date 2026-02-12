@@ -107,8 +107,6 @@ interface MaternalHealthDao {
         INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
         WHERE ect.pregnancyTestResult = 'Positive'
         AND p.genderID = 2
-        AND p.maritalStatusID = 2
-        AND p.statusOfWomanID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY ect.createdDate DESC
     """)
@@ -234,4 +232,27 @@ interface MaternalHealthDao {
         AND p.age BETWEEN 15 AND 49
     """)
     fun getAllRegisteredPmsmaWomenCount(): Flow<Int>
+
+    /**
+     * Get patientIDs of women who have a saved delivery outcome (eligible for neonatal outcome)
+     */
+    @Query("""
+        SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
+        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
+        WHERE pwr.active = 1
+        AND do.isActive = 1
+        ORDER BY do.updatedDate DESC
+    """)
+    fun getNeonatalOutcomeEligibleWomenPatientIDs(): Flow<List<String>>
+
+    /**
+     * Get count of women eligible for neonatal outcome
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
+        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
+        WHERE pwr.active = 1
+        AND do.isActive = 1
+    """)
+    fun getNeonatalOutcomeEligibleWomenCount(): Flow<Int>
 }

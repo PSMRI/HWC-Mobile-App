@@ -165,6 +165,9 @@
         <action
             android:id="@+id/action_deliveryOutcomeFormFragment_to_customVitalsFragment"
             app:destination="@id/customVitalsFragment" />
+        <action
+            android:id="@+id/action_deliveryOutcomeFormFragment_to_neonatalOutcomeFormFragment"
+            app:destination="@id/neonatalOutcomeFormFragment" />
     </fragment>
 
     <fragment
@@ -245,6 +248,23 @@
         android:id="@+id/selectBatchFragment"
         android:name="org.piramalswasthya.cho.ui.commons.pharmacist.SelectBatchFragment"
         android:label="SelectBatchFragment" />
+
+    <!-- Neonatal Outcome Form Fragment -->
+    <fragment
+        android:id="@+id/neonatalOutcomeFormFragment"
+        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.neonatal_outcome.form.NeonatalOutcomeFormFragment"
+        android:label="@string/neonatal_outcome"
+        tools:layout="@layout/fragment_neonatal_outcome">
+        <argument
+            android:name="deliveryOutcomeId"
+            app:argType="long" />
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_neonatalOutcomeFormFragment_to_customVitalsFragment"
+            app:destination="@id/customVitalsFragment" />
+    </fragment>
 
 
 </navigation>

@@ -334,6 +334,28 @@ class MaternalHealthRepo @Inject constructor(
         return maternalHealthDao.getAllRegisteredPmsmaWomenCount()
     }
 
+    /**
+     * Get all women eligible for neonatal outcome (those with a saved delivery outcome)
+     */
+    fun getNeonatalOutcomeEligibleWomen(): Flow<List<PatientWithPwrCache>> {
+        return maternalHealthDao.getNeonatalOutcomeEligibleWomenPatientIDs()
+            .transformLatest { patientIDs ->
+                if (patientIDs.isNotEmpty()) {
+                    val patients = maternalHealthDao.getDeliveredWomenByIDs(patientIDs)
+                    emit(patients)
+                } else {
+                    emit(emptyList())
+                }
+            }
+    }
+
+    /**
+     * Get count of women eligible for neonatal outcome
+     */
+    fun getNeonatalOutcomeEligibleWomenCount(): Flow<Int> {
+        return maternalHealthDao.getNeonatalOutcomeEligibleWomenCount()
+    }
+
     private suspend fun postDataToAmritServer(ancPostList: MutableSet<ANCPost>): Boolean {
         if (ancPostList.isEmpty()) return false
         val user =
