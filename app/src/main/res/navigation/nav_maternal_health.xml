@@ -2,15 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_maternal_health_graph"
-    app:startDestination="@id/pregnantWomenRegistrationListFragment">
+    app:startDestination="@id/pregnantWomanRegistrationFragment">
 
     <!-- List Fragment: Shows list of pregnant women -->
     <fragment
-        android:id="@+id/pregnantWomenRegistrationListFragment"
+        android:id="@+id/pregnantWomanRegistrationFragment"
         android:name="org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationFragment"
         tools:layout="@layout/fragment_pregnant_women_registration">
         <action
-            android:id="@+id/action_pregnantWomenRegistrationListFragment_to_pregnancyRegistrationFormFragment"
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_pregnancyRegistrationFormFragment"
             app:destination="@id/pregnancyRegistrationFormFragment" />
     </fragment>
 

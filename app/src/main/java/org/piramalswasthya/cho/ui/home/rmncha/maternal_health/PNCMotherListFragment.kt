@@ -87,10 +87,8 @@ class PNCMotherListFragment : Fragment() {
                 allPatients = patientsList
                     .map { it.asDomainModel() }
                     .filter { domain ->
-                        // Check if Date of Discharge is entered
-                        val hasDischargeDate = domain.deliveryOutcome?.dateOfDischarge != null
                         // Additional eligibility check
-                        hasDischargeDate && domain.isEligibleForPNC()
+                        domain.isEligibleForPNC()
                     }
                     .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: 0L }
 

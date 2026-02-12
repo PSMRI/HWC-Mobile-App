@@ -71,7 +71,7 @@ class PregnantWomenRegistrationFragment : Fragment() {
                     }
                     androidx.navigation.fragment.NavHostFragment.findNavController(this)
                         .navigate(
-                            R.id.action_pregnantWomenRegistrationListFragment_to_pregnancyRegistrationFormFragment,
+                            R.id.action_pregnantWomanRegistrationFragment_to_pregnancyRegistrationFormFragment,
                             bundle
                         )
                 } catch (e: Exception) {
@@ -105,16 +105,12 @@ class PregnantWomenRegistrationFragment : Fragment() {
                     .filter { patient ->
                         // Filter criteria:
                         // 1. Female gender (genderID = 2)
-                        // 2. Married (maritalStatusID = 2)
-                        // 3. Status of woman is Pregnant Woman (statusOfWomanID = 2)
-                        // 4. Age between 15-49 years (reproductive age)
+                        // 2. Age between 15-49 years (reproductive age)
                         val isFemale = patient.patient.genderID == 2
-                        val isMarried = patient.patient.maritalStatusID == 2
-                        val isPregnantWoman = patient.patient.statusOfWomanID == 2
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
 
-                        isFemale && isMarried && isPregnantWoman && isReproductiveAge
+                        isFemale && isReproductiveAge
                     }
                     .sortedByDescending { it.patient.registrationDate }
 
