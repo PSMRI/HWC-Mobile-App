@@ -188,7 +188,8 @@ interface MaternalHealthDao {
         AND anc.abortionDate IS NOT NULL
         AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
+        AND p.age BETWEEN 15 AND 49 
+        AND anc.abortionType = 'Spontaneous'
         ORDER BY anc.abortionDate DESC
     """)
     fun getAllAbortionWomenList(): Flow<List<PatientWithPwrAndAncCache>>
