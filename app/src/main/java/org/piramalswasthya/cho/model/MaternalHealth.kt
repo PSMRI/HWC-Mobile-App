@@ -723,16 +723,15 @@ data class PregnantWomanAncCache(
             createdDate = getDateStringFromLong(createdDate),
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
-            updatedBy = updatedBy,
-            // Include new ANC fields
-            bloodSugarFasting = bloodSugarFasting,
-            urineSugar = urineSugar,
-            fetalHeartRate = fetalHeartRate,
-            calciumGiven = calciumGiven,
-            dangerSigns = dangerSigns,
-            counsellingProvided = counsellingProvided,
-            counsellingTopics = counsellingTopics,
-            nextAncVisitDate = nextAncVisitDate?.let { getDateStringFromLong(it) }
+            updatedBy = updatedBy
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = nextAncVisitDate?.let { getDateStringFromLong(it) }
         )
     }
 }
@@ -776,14 +775,14 @@ data class ANCPost(
     val updatedDate: String? = null,
     val updatedBy: String,
     // New ANC fields
-    val bloodSugarFasting: Int? = null,
-    val urineSugar: String? = null,
-    val fetalHeartRate: Double? = null,
-    val calciumGiven: Int? = null,
-    val dangerSigns: String? = null,
-    val counsellingProvided: Boolean? = null,
-    val counsellingTopics: String? = null,
-    val nextAncVisitDate: String? = null
+//    val bloodSugarFasting: Int? = null,
+//    val urineSugar: String? = null,
+//    val fetalHeartRate: Double? = null,
+//    val calciumGiven: Int? = null,
+//    val dangerSigns: String? = null,
+//    val counsellingProvided: Boolean? = null,
+//    val counsellingTopics: String? = null,
+//    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
         return PregnantWomanAncCache(
@@ -850,14 +849,14 @@ data class ANCPost(
             updatedDate = getLongFromDate(updatedDate),
             syncState = SyncState.SYNCED,
             // Map new ANC fields
-            bloodSugarFasting = bloodSugarFasting,
-            urineSugar = urineSugar,
-            fetalHeartRate = fetalHeartRate,
-            calciumGiven = calciumGiven ?: 0,
-            dangerSigns = dangerSigns,
-            counsellingProvided = counsellingProvided,
-            counsellingTopics = counsellingTopics,
-            nextAncVisitDate = getLongFromDate(nextAncVisitDate)
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = getLongFromDate(nextAncVisitDate)
         )
     }
 }

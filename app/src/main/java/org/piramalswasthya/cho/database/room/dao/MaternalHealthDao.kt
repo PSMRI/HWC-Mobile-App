@@ -187,7 +187,8 @@ interface MaternalHealthDao {
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
         AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
+        AND p.age BETWEEN 15 AND 49 
+        AND anc.abortionType = 'Spontaneous'
         ORDER BY anc.abortionDate DESC
     """)
     fun getAllAbortionWomenList(): Flow<List<PatientWithPwrAndAncCache>>
@@ -200,6 +201,7 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_ANC anc ON p.patientID = anc.patientID
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
+        AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
     """)
