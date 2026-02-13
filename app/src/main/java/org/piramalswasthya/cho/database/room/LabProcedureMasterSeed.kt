@@ -40,10 +40,16 @@ object LabProcedureMasterSeed {
         val prescriptionId = PRESCRIPTION_ID
         for (i in procedures.indices) {
             val (procId, name, procType) = procedures[i]
-            database.execSQL(
-                "INSERT INTO procedure_master (procedure_id, procedureDesc, procedureType, prescriptionID, procedureName, isMandatory) SELECT ?, ?, ?, ?, ?, 0 WHERE NOT EXISTS (SELECT 1 FROM procedure_master WHERE procedure_id = ?)",
-                arrayOf(procId, name, procType, prescriptionId, name, procId)
-            )
+            val procedureDesc = name ?: ""
+            val procedureName = name ?: ""
+            val cursorExists = database.query("SELECT 1 FROM procedure_master WHERE procedure_id = ?", arrayOf(procId))
+            val exists = cursorExists.use { it.moveToFirst() }
+            if (!exists) {
+                database.execSQL(
+                    "INSERT INTO procedure_master (procedure_id, procedureDesc, procedureType, prescriptionID, procedureName, isMandatory) VALUES (?, ?, ?, ?, ?, ?)",
+                    arrayOf(procId, procedureDesc, procType, prescriptionId, procedureName, 0)
+                )
+            }
             val cursor = database.query("SELECT id FROM procedure_master WHERE procedure_id = ? ORDER BY id DESC LIMIT 1", arrayOf(procId))
             var masterProcId: Long = 0
             if (cursor.moveToFirst()) {
