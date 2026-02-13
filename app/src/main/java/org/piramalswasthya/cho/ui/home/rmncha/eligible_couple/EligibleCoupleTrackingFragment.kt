@@ -74,6 +74,29 @@ class EligibleCoupleTrackingFragment : Fragment() {
         adapter = ECRegistrationAdapter(
             ECRegistrationAdapter.ClickListener(
                 onAddVisit = { patientWithEcr ->
+                    // Check if visit already done this month
+                    val lastVisit = patientWithEcr.lastVisitDate
+                    if (lastVisit != null && lastVisit > 0) {
+                        val calendar = java.util.Calendar.getInstance()
+                        calendar.timeInMillis = lastVisit
+                        val lastMonth = calendar.get(java.util.Calendar.MONTH)
+                        val lastYear = calendar.get(java.util.Calendar.YEAR)
+
+                        calendar.timeInMillis = System.currentTimeMillis()
+                        val currentMonth = calendar.get(java.util.Calendar.MONTH)
+                        val currentYear = calendar.get(java.util.Calendar.YEAR)
+
+                        if (lastMonth == currentMonth && lastYear == currentYear) {
+                            android.widget.Toast.makeText(
+                                requireContext(),
+                                "Eligible Couple tracking is done for this month",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                            return@ClickListener
+                        }
+                    }
+
+
                     // Navigate to tracking form for new visit
                     val patientId = patientWithEcr.patient.patientID
                     

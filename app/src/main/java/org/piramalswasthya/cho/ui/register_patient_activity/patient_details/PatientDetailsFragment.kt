@@ -99,6 +99,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     private var patient = Patient()
     private lateinit var villageAdapter :VillageDropdownAdapter
     private var isSettingVillageProgrammatically = false
+    private var isAgeChangedInEditMode = false
     private var isProgrammaticChange = false
     private var isReadOnly = false
     private var isEditModeAfterRegistration = false
@@ -450,9 +451,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         binding.ageAtMarriageText.setEndIconOnClickListener {
-            if (binding.ageAtMarriage.isEnabled) speechToTextLauncherForPhoneNumber.launch(
-                Unit
-            ) // Reusing phone launcher for numeric or create new if needed
+            if (binding.ageAtMarriage.isEnabled) speechToTextLauncherForAgeAtMarriage.launch(Unit)
         }
     }
 
@@ -487,6 +486,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
 
     private fun setFormEditable(isEditable: Boolean) {
         isReadOnly = !isEditable
+        isAgeChangedInEditMode = false
         binding.lastName.isEnabled = isEditable
         binding.phoneNo.isEnabled = isEditable
         binding.statusOfWomanDropdown.isEnabled = isEditable
@@ -496,9 +496,11 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.firstName.isEnabled = isCoreEditable
         binding.genderDropdown.isEnabled = isCoreEditable
         binding.dateOfBirth.isEnabled = isCoreEditable
-        binding.maritalStatusDropdown.isEnabled = isCoreEditable
+
+        val canEditAgeDependentFields = isEditable && (!isEditModeAfterRegistration || isAgeChangedInEditMode)
+        binding.maritalStatusDropdown.isEnabled = canEditAgeDependentFields
+
         binding.spouseName.isEnabled = isCoreEditable
-        binding.fatherNameEditText.isEnabled = isCoreEditable
         binding.villageDropdown.isEnabled = isCoreEditable
         binding.ivImgCapture.isEnabled = isCoreEditable
         binding.btnScanAadhaar.isEnabled = isCoreEditable
@@ -509,9 +511,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         binding.phoneNoText.isEndIconVisible = binding.phoneNo.isEnabled
         val currentStatus = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim() ?: ""
         val isUnmarried = currentStatus.contains("unmarried") || currentStatus.contains("never") || currentStatus.contains("single")
-        val canEditUnmarriedFields = isEditable && (isUnmarried || !isEditModeAfterRegistration)
-        binding.maritalStatusDropdown.isEnabled = canEditUnmarriedFields
-        binding.fatherNameEditText.isEnabled = canEditUnmarriedFields
+        val isChild = (viewModel.enteredAgeYears ?: 0) < 15
+        val canEditFatherName = isEditable && (isUnmarried || isChild || !isEditModeAfterRegistration)
+        binding.fatherNameEditText.isEnabled = canEditFatherName
         binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
         binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
         binding.ageAtMarriageText.isEndIconVisible = binding.ageAtMarriage.isEnabled
@@ -736,7 +738,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                 viewModel.selectedDateOfBirth,
                 maxDays = 0,
                 minDays = -(99*365 + 25)
-            )
+            ).show()
         }
     }
 
@@ -787,6 +789,14 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             binding.phoneNo.setText(last10Digits)
         }
     }
+
+    private val speechToTextLauncherForAgeAtMarriage = registerForActivityResult(SpeechToTextContract()) { result ->
+        if (result.isNotBlank()) {
+            val cleanedResult = result.replace("\\s".toRegex(), "") // Remove all spaces
+            // Age at marriage usually doesn't need substring, but we'll clean spaces
+            binding.ageAtMarriage.setText(cleanedResult)
+        }
+    }
     fun watchAllFields(){
         if (!viewModel.isClickedSS.value!!) {
             watchBasicDetailsFields()
@@ -794,7 +804,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             watchMaritalStatusField()
             watchSpouseNameField()
             watchFatherNameField()
-            
+
             viewModel.setIsClickedSS(true)
         }
     }
@@ -875,86 +885,77 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val ageInYears = viewModel.enteredAgeYears
 
         if (viewModel.shouldShowMaritalStatus(genderId, ageInYears)) {
-            handleMaritalStatusVisible(genderId)
+            binding.maritalStatusText.visibility = View.VISIBLE
+
+            // Enable Marital Status if age changed in Edit mode
+            if (!isReadOnly && isEditModeAfterRegistration && isAgeChangedInEditMode) {
+                binding.maritalStatusDropdown.isEnabled = true
+                binding.maritalStatusText.isEndIconVisible = true
+            }
+
+            val status = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim()
+            when {
+                status?.contains("married") == true && !status.contains("unmarried") && !status.contains("never") -> {
+                    binding.fatherNameText.visibility = View.GONE
+                    binding.spouseNameText.visibility = View.VISIBLE
+
+                    // Update hint based on gender
+                    val hintRes = if (genderId == 2) R.string.husband_name else if (genderId == 1) R.string.wife_name else R.string.spouse_name
+                    binding.spouseNameText.hint = getString(hintRes)
+
+                    binding.spouseName.isEnabled = !isReadOnly
+                    binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
+
+                    val isSpouseNameFilled = binding.spouseName.text?.isNotEmpty() == true && isValidName(binding.spouseName.text.toString())
+                    viewModel.setSpouse(isSpouseNameFilled)
+                    viewModel.setFatherName(true) // Not mandatory if married
+                }
+                status?.contains("unmarried") == true || status?.contains("never") == true || status?.contains("single") == true -> {
+                    binding.spouseNameText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.VISIBLE
+                    binding.spouseName.setText("") // Clear if was married before
+
+                    // Allow editing Father Name if we are in Edit mode
+                    binding.fatherNameEditText.isEnabled = !isReadOnly
+                    binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
+
+                    val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
+                    viewModel.setFatherName(isFatherNameFilled)
+                    viewModel.setSpouse(true) // Not mandatory if not married
+                }
+                else -> {
+                    binding.spouseNameText.visibility = View.GONE
+                    binding.fatherNameText.visibility = View.GONE
+                    binding.spouseName.setText("") // Clear selection
+                    viewModel.setFatherName(true)
+                    viewModel.setSpouse(true)
+                }
+            }
         } else {
-            handleMaritalStatusHidden(ageInYears)
-        }
-    }
-
-    private fun handleMaritalStatusVisible(genderId: Int?) {
-        binding.maritalStatusText.visibility = View.VISIBLE
-
-        val status = viewModel.selectedMaritalStatus?.status?.lowercase()?.trim()
-        when {
-            status?.contains("married") == true && !status.contains("unmarried") && !status.contains("never") -> {
-                handleMarriedStatus(genderId)
+            if (!isProgrammaticChange) {
+                hideMarriedFields()
+                viewModel.selectedMaritalStatus = null
+                binding.maritalStatusDropdown.setText("", false)
+                viewModel.setMarital(true) // Hidden, so not mandatory
+                viewModel.setSpouse(true)
             }
-            status?.contains("unmarried") == true || status?.contains("never") == true || status?.contains("single") == true -> {
-                handleUnmarriedStatus()
+
+            // Show Father Name for children (Age < 15) and make it mandatory
+            if (ageInYears != null && ageInYears < 15) {
+                binding.fatherNameText.visibility = View.VISIBLE
+
+                // Allow editing Father Name if we are in Edit mode
+                binding.fatherNameEditText.isEnabled = !isReadOnly
+                binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
+
+                val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
+                viewModel.setFatherName(isFatherNameFilled)
+            } else {
+                viewModel.setFatherName(true)
             }
-            else -> {
-                handleUnknownMaritalStatus()
-            }
         }
     }
 
-    private fun handleMarriedStatus(genderId: Int?) {
-        binding.fatherNameText.visibility = View.GONE
-        binding.spouseNameText.visibility = View.VISIBLE
-
-        // Update hint based on gender
-        val hintRes = if (genderId == 2) R.string.husband_name else if (genderId == 1) R.string.wife_name else R.string.spouse_name
-        binding.spouseNameText.hint = getString(hintRes)
-
-        // If we just changed from Unmarried to Married in Edit mode, allow editing Spouse Name
-        binding.spouseName.isEnabled = !isReadOnly
-        binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
-
-        viewModel.setFatherName(true) // Not mandatory if married
-    }
-
-    private fun handleUnmarriedStatus() {
-        binding.spouseNameText.visibility = View.GONE
-        binding.fatherNameText.visibility = View.VISIBLE
-        binding.fatherNameText.hint = getString(R.string.father_s_name) + " *"
-        binding.spouseName.setText("") // Clear if was married before
-
-        // Allow editing Father Name if we are in Edit mode
-        binding.fatherNameEditText.isEnabled = !isReadOnly
-        binding.fatherNameText.isEndIconVisible = binding.fatherNameEditText.isEnabled
-
-        val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
-        viewModel.setFatherName(isFatherNameFilled)
-        viewModel.setSpouse(true) // Not mandatory if not married
-    }
-
-    private fun handleUnknownMaritalStatus() {
-        binding.spouseNameText.visibility = View.GONE
-        binding.fatherNameText.visibility = View.GONE
-        binding.spouseName.setText("") // Clear selection
-        viewModel.setFatherName(true)
-        viewModel.setSpouse(true)
-    }
-
-    private fun handleMaritalStatusHidden(ageInYears: Int?) {
-        if (!isProgrammaticChange) {
-            hideMarriedFields()
-            viewModel.selectedMaritalStatus = null
-            binding.maritalStatusDropdown.setText("", false)
-            viewModel.setMarital(true) // Hidden, so not mandatory
-            viewModel.setSpouse(true)
-        }
-
-        // Show Father Name for children (Age < 15) and make it mandatory
-        if (ageInYears != null && ageInYears < 15) {
-            binding.fatherNameText.visibility = View.VISIBLE
-            binding.fatherNameText.hint = getString(R.string.father_s_name) + " *"
-            val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true && isValidName(binding.fatherNameEditText.text.toString())
-            viewModel.setFatherName(isFatherNameFilled)
-        } else {
-            viewModel.setFatherName(true)
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setChangeListeners(){
@@ -1231,6 +1232,9 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
             setAgeToDateOfBirth()
             val isAgeFilled = s?.isNotEmpty() == true
             viewModel.setAge(isAgeFilled)
+            if (!isReadOnly && isEditModeAfterRegistration && !isProgrammaticChange) {
+                isAgeChangedInEditMode = true
+            }
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -1310,16 +1314,16 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             binding.maritalStatusDropdown.setText(m.status, false)
                             setMarriedFieldsVisibility()
                             updateStatusOfWomanVisibility()
-                            
+
                             // Fix: Ensure dropdown is enabled for Unmarried status in Edit mode
                             if (isEditModeAfterRegistration) {
                                 val currentStatus = m.status.lowercase().trim()
-                                val isUnmarried = currentStatus.contains("unmarried") || 
-                                                  currentStatus.contains("never") || 
+                                val isUnmarried = currentStatus.contains("unmarried") ||
+                                                  currentStatus.contains("never") ||
                                                   currentStatus.contains("single")
                                 binding.maritalStatusDropdown.isEnabled = isUnmarried
                             }
-                            
+
                             isProgrammaticChange = false
                         }
                     }
@@ -1629,6 +1633,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
 
         if (binding.fatherNameText.visibility == View.VISIBLE && !viewModel.fatherNameVal.value!!) {
+            binding.fatherNameText.setBoxColor(false, resources.getString(R.string.enter_father_s_name_error))
             return false
         }
         return true
@@ -1797,6 +1802,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun handleStatusOfWomanVisible(genderId: Int?, ageInYears: Int?) {
         binding.statusOfWomanText.visibility = View.VISIBLE
+
+        val canEdit = !isReadOnly || (isEditModeAfterRegistration && isAgeChangedInEditMode)
+        binding.statusOfWomanDropdown.isEnabled = canEdit
+        binding.statusOfWomanText.isEndIconVisible = canEdit
 
         val maritalStatusName = viewModel.selectedMaritalStatus?.status?.trim()
         viewModel.filteredStatusOfWomanList = viewModel.getFilteredStatusOfWomanOptions(

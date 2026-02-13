@@ -123,7 +123,7 @@ class PregnantWomanRegistrationDataset(
         id = 5,
         inputType = InputType.DATE_PICKER,
         title = "LMP",
-        required = false,
+        required = true,
         hasDependants = true,
         max = System.currentTimeMillis(),
         min = getMinLmpMillis()
@@ -1114,11 +1114,11 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun handleComplicationsChange(index: Int): Int {
+        val realIndex = if (index < 0) -index else index
         return handleCheckboxFieldChange(
             field = complicationsInPreviousPregnancy,
             index = index,
-            alertMessage = "Previous pregnancy complication: ${complicationsInPreviousPregnancy.entries!![index]} - High Risk Pregnancy"
-        )
+            alertMessage = "Previous pregnancy complication: ${complicationsInPreviousPregnancy.entries!![realIndex]} - High Risk Pregnancy"        )
     }
 
     private fun handleParaChange(): Int {
@@ -1179,11 +1179,11 @@ class PregnantWomanRegistrationDataset(
     }
 
     private fun handlePreExistingConditionsChange(index: Int): Int {
+        val realIndex = if (index < 0) -index else index
         return handleCheckboxFieldChange(
             field = preExistingConditions,
             index = index,
-            alertMessage = "Pre-existing condition: ${preExistingConditions.entries!![index]} - High Risk Pregnancy"
-        )
+            alertMessage = "Pre-existing condition: ${preExistingConditions.entries!![realIndex]} - High Risk Pregnancy"        )
     }
 
     private fun updateCalculatedFields(currentDate: Long) {
