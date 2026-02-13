@@ -1313,7 +1313,7 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun checkBloodSugarForRisk(): Int? {
-        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toInt()?.let { bsValue ->
+        bloodSugarFasting.value?.takeIf { it.isNotEmpty() && bloodSugarFasting.errorText == null }?.toIntOrNull()?.let { bsValue ->
             if (bsValue > 95) {
                 return 6 // DIABETES
             }
@@ -1332,7 +1332,7 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun checkFetalHeartRateForRisk(): Int? {
-        fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDouble()?.let { fhrValue ->
+        fetalHeartRate.value?.takeIf { it.isNotEmpty() && fetalHeartRate.errorText == null }?.toDoubleOrNull()?.let { fhrValue ->
             if (fhrValue < 110.0 || fhrValue > 160.0) {
                 return highRiskCondition.entries!!.lastIndex // OTHER
             }
@@ -1368,7 +1368,7 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun checkHbForRisk(): Int? {
-        hb.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.toDouble()?.let {
+        hb.value?.takeIf { it.isNotEmpty() && hb.errorText == null }?.toDoubleOrNull()?.let {
             if (it < 7) {
                 return 5 // SEVERE ANAEMIA
             }
@@ -1452,7 +1452,7 @@ class PregnantWomanAncVisitDataset(
             cache.abortionFacility = abortionFacility.value
             cache.abortionFacilityId = abortionFacility.getPosition()
             cache.abortionDate = abortionDate.value?.let { getLongFromDate(it) }
-            cache.weight = weight.value?.toInt()
+            cache.weight = weight.value?.toIntOrNull()
             bp.value?.let {
                 if (it.contains("/")) {
                     cache.bpSystolic = it.substringBefore("/").toIntOrNull()
@@ -1460,15 +1460,15 @@ class PregnantWomanAncVisitDataset(
                 }
             }
             cache.pulseRate = pulseRate.value?.takeIf { it.isNotEmpty() }
-            cache.hb = hb.value?.toDouble()
-            cache.fundalHeight = fundalHeight.value?.toInt()
+            cache.hb = hb.value?.toDoubleOrNull()
+            cache.fundalHeight = fundalHeight.value?.toIntOrNull()
             cache.urineAlbumin = urineAlbumin.value
             cache.urineAlbuminId = urineAlbumin.getPosition()
             cache.randomBloodSugarTest = randomBloodSugarTest.value
             cache.randomBloodSugarTestId = randomBloodSugarTest.getPosition()
             updateRegistrationForTdX()
-            cache.numFolicAcidTabGiven = numFolicAcidTabGiven.value?.toInt() ?: 0
-            cache.numIfaAcidTabGiven = numIfaAcidTabGiven.value?.toInt() ?: 0
+            cache.numFolicAcidTabGiven = numFolicAcidTabGiven.value?.toIntOrNull() ?: 0
+            cache.numIfaAcidTabGiven = numIfaAcidTabGiven.value?.toIntOrNull() ?: 0
             anyHighRisk.value?.let {
                 cache.anyHighRisk = it == anyHighRisk.entries!!.last()
             }
@@ -1490,11 +1490,11 @@ class PregnantWomanAncVisitDataset(
             }
 
 
-            cache.bloodSugarFasting = bloodSugarFasting.value?.toInt()
+            cache.bloodSugarFasting = bloodSugarFasting.value?.toIntOrNull()
             cache.urineSugar = urineSugar.value
             cache.urineSugarId = urineSugar.getPosition()
-            cache.fetalHeartRate = fetalHeartRate.value?.toDouble()
-            cache.calciumGiven = calciumGiven.value?.toInt() ?: 0
+            cache.fetalHeartRate = fetalHeartRate.value?.toDoubleOrNull()
+            cache.calciumGiven = calciumGiven.value?.toIntOrNull() ?: 0
             cache.dangerSigns = dangerSigns.value
             // For multi-select checkboxes, getPosition() doesn't work correctly
             // Store 0 since the value itself contains all the information
