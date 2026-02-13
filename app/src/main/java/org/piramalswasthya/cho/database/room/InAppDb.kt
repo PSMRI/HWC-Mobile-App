@@ -240,7 +240,7 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         StatusOfWomanMaster::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 129, exportSchema = false
+    version = 127, exportSchema = false
 )
 
 
@@ -624,34 +624,6 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_125_126 = object : Migration(125, 126) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
-                )
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions INTEGER"
-                )
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS INTEGER"
-                )
-            }
-        }
-
-        val MIGRATION_126_127 = object : Migration(126, 127) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN isFirstAncSubmitted INTEGER NOT NULL DEFAULT 0"
-                )
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN historyOfAbortions INTEGER"
-                )
-                db.execSQL(
-                    "ALTER TABLE PREGNANCY_REGISTER ADD COLUMN previousLSCS INTEGER"
-                )
-            }
-        }
-
-        val MIGRATION_127_128 = object : Migration(127, 128) {
-            override fun migrate(db: SupportSQLiteDatabase) {
                 // Create NEONATAL_OUTCOME table for tracking detailed newborn health information
                 db.execSQL("""
                     CREATE TABLE IF NOT EXISTS NEONATAL_OUTCOME (
@@ -697,7 +669,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_128_129 = object : Migration(128, 129) {
+        val MIGRATION_126_127 = object : Migration(126, 127) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Add BRD Neonatal Outcome fields to INFANT_REG table
                 db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN outcomeAtBirth TEXT")
@@ -746,9 +718,7 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_123_124,
                             MIGRATION_124_125,
                             MIGRATION_125_126,
-                            MIGRATION_126_127,
-                            MIGRATION_127_128,
-                            MIGRATION_128_129
+                            MIGRATION_126_127
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

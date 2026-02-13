@@ -202,6 +202,31 @@ class NeonatalOutcomeDataset(
         hasDependants = false
     )
 
+    // ─── Helper: restore conditional (dependant) fields into the list ──
+    private fun restoreConditionalFields(
+        saved: NeonatalOutcomeCache,
+        formElements: MutableList<FormElement>
+    ) {
+        if (saved.congenitalAnomalyDetected == resources.getStringArray(R.array.no_congenital_anomaly_array)[0]) { // Yes
+            formElements.add(formElements.indexOf(congenitalAnomalyDetected) + 1, typeOfCongenitalAnomaly)
+            if (saved.typeOfCongenitalAnomaly?.contains("Other") == true) {
+                formElements.add(formElements.indexOf(typeOfCongenitalAnomaly) + 1, otherCongenitalAnomaly)
+            }
+        }
+        if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array)[3]) { // Died
+            formElements.add(formElements.indexOf(currentStatusOfBaby) + 1, causeOfDeath)
+            if (saved.causeOfDeath?.contains("Other") == true) {
+                formElements.add(formElements.indexOf(causeOfDeath) + 1, otherCauseOfDeath)
+            }
+        }
+        if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
+            formElements.add(formElements.indexOf(birthDoseVaccinesGiven) + 1, reasonForNoVaccines)
+        }
+        if (saved.vitaminKInjectionGiven == false) {
+            formElements.add(formElements.indexOf(vitaminKInjectionGiven) + 1, reasonForNoVitaminK)
+        }
+    }
+
     suspend fun setUpPage(saved: NeonatalOutcomeCache?) {
         val formElements = mutableListOf(
             outcomeAtBirth,
@@ -238,28 +263,24 @@ class NeonatalOutcomeDataset(
             reasonForNoVitaminK.value = saved.reasonForNoVitaminK
             birthCertificateIssued.value = saved.birthCertificateIssued
 
-            // Add conditional fields if needed
-            if (saved.congenitalAnomalyDetected == resources.getStringArray(R.array.no_congenital_anomaly_array)[0]) { // Yes
-                formElements.add(formElements.indexOf(congenitalAnomalyDetected) + 1, typeOfCongenitalAnomaly)
-                if (saved.typeOfCongenitalAnomaly?.contains("Other") == true) {
-                    formElements.add(formElements.indexOf(typeOfCongenitalAnomaly) + 1, otherCongenitalAnomaly)
-                }
-            }
-            if (saved.currentStatusOfBaby == resources.getStringArray(R.array.no_current_status_array)[3]) { // Died
-                formElements.add(formElements.indexOf(currentStatusOfBaby) + 1, causeOfDeath)
-                if (saved.causeOfDeath?.contains("Other") == true) {
-                    formElements.add(formElements.indexOf(causeOfDeath) + 1, otherCauseOfDeath)
-                }
-            }
-            if (saved.birthDoseVaccinesGiven?.contains("None") == true) {
-                formElements.add(formElements.indexOf(birthDoseVaccinesGiven) + 1, reasonForNoVaccines)
-            }
-            if (saved.vitaminKInjectionGiven == false) {
-                formElements.add(formElements.indexOf(vitaminKInjectionGiven) + 1, reasonForNoVitaminK)
-            }
+            restoreConditionalFields(saved, formElements)
         }
 
         setUpPage(formElements)
+    }
+
+    // ─── Helper: toggle dependant fields based on a condition ──────────
+    private fun toggleDependant(
+        source: FormElement,
+        condition: Boolean,
+        showItems: List<FormElement>,
+        hideItems: List<FormElement> = emptyList()
+    ): Int {
+        return if (condition) {
+            triggerDependants(source = source, removeItems = hideItems, addItems = showItems)
+        } else {
+            triggerDependants(source = source, removeItems = showItems + hideItems, addItems = emptyList())
+        }
     }
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
@@ -267,99 +288,53 @@ class NeonatalOutcomeDataset(
             congenitalAnomalyDetected.id -> {
                 val selectedValue = congenitalAnomalyDetected.entries?.getOrNull(index)
                 congenitalAnomalyDetected.value = selectedValue
-                if (selectedValue == resources.getStringArray(R.array.no_congenital_anomaly_array)[0]) { // Yes
-                    triggerDependants(
-                        source = congenitalAnomalyDetected,
-                        removeItems = emptyList(),
-                        addItems = listOf(typeOfCongenitalAnomaly)
-                    )
-                } else {
-                    triggerDependants(
-                        source = congenitalAnomalyDetected,
-                        removeItems = listOf(typeOfCongenitalAnomaly, otherCongenitalAnomaly),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = congenitalAnomalyDetected,
+                    condition = selectedValue == resources.getStringArray(R.array.no_congenital_anomaly_array)[0], // Yes
+                    showItems = listOf(typeOfCongenitalAnomaly),
+                    hideItems = listOf(otherCongenitalAnomaly)
+                )
             }
             typeOfCongenitalAnomaly.id -> {
                 // handle multi-select and "Other"
-                if (typeOfCongenitalAnomaly.value?.contains("Other") == true) {
-                    triggerDependants(
-                        source = typeOfCongenitalAnomaly,
-                        removeItems = emptyList(),
-                        addItems = listOf(otherCongenitalAnomaly)
-                    )
-                } else {
-                    triggerDependants(
-                        source = typeOfCongenitalAnomaly,
-                        removeItems = listOf(otherCongenitalAnomaly),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = typeOfCongenitalAnomaly,
+                    condition = typeOfCongenitalAnomaly.value?.contains("Other") == true,
+                    showItems = listOf(otherCongenitalAnomaly)
+                )
             }
             currentStatusOfBaby.id -> {
                 val selectedValue = currentStatusOfBaby.entries?.getOrNull(index)
                 currentStatusOfBaby.value = selectedValue
-                if (selectedValue == resources.getStringArray(R.array.no_current_status_array)[3]) { // Died
-                    triggerDependants(
-                        source = currentStatusOfBaby,
-                        removeItems = emptyList(),
-                        addItems = listOf(causeOfDeath)
-                    )
-                } else {
-                    triggerDependants(
-                        source = currentStatusOfBaby,
-                        removeItems = listOf(causeOfDeath, otherCauseOfDeath),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = currentStatusOfBaby,
+                    condition = selectedValue == resources.getStringArray(R.array.no_current_status_array)[3], // Died
+                    showItems = listOf(causeOfDeath),
+                    hideItems = listOf(otherCauseOfDeath)
+                )
             }
             causeOfDeath.id -> {
-                if (causeOfDeath.value?.contains("Other") == true) {
-                    triggerDependants(
-                        source = causeOfDeath,
-                        removeItems = emptyList(),
-                        addItems = listOf(otherCauseOfDeath)
-                    )
-                } else {
-                    triggerDependants(
-                        source = causeOfDeath,
-                        removeItems = listOf(otherCauseOfDeath),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = causeOfDeath,
+                    condition = causeOfDeath.value?.contains("Other") == true,
+                    showItems = listOf(otherCauseOfDeath)
+                )
             }
             birthDoseVaccinesGiven.id -> {
-                if (birthDoseVaccinesGiven.value?.contains("None") == true) {
-                    triggerDependants(
-                        source = birthDoseVaccinesGiven,
-                        removeItems = emptyList(),
-                        addItems = listOf(reasonForNoVaccines)
-                    )
-                } else {
-                    triggerDependants(
-                        source = birthDoseVaccinesGiven,
-                        removeItems = listOf(reasonForNoVaccines),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = birthDoseVaccinesGiven,
+                    condition = birthDoseVaccinesGiven.value?.contains("None") == true,
+                    showItems = listOf(reasonForNoVaccines)
+                )
             }
             vitaminKInjectionGiven.id -> {
                 val selectedValue = vitaminKInjectionGiven.entries?.getOrNull(index)
                 vitaminKInjectionGiven.value = selectedValue
-                if (selectedValue == resources.getString(R.string.no)) {
-                    triggerDependants(
-                        source = vitaminKInjectionGiven,
-                        removeItems = emptyList(),
-                        addItems = listOf(reasonForNoVitaminK)
-                    )
-                } else {
-                    triggerDependants(
-                        source = vitaminKInjectionGiven,
-                        removeItems = listOf(reasonForNoVitaminK),
-                        addItems = emptyList()
-                    )
-                }
+                toggleDependant(
+                    source = vitaminKInjectionGiven,
+                    condition = selectedValue == resources.getString(R.string.no),
+                    showItems = listOf(reasonForNoVitaminK)
+                )
             }
             birthWeight.id -> {
                 validateIntMinMax(birthWeight)

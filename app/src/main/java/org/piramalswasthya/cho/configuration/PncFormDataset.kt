@@ -520,63 +520,183 @@ class PncFormDataset(
         referralFacility.errorText = null
     }
 
+    // ─── Helper: handle PNC period selection and compute visit date range ─
+    private fun handlePncPeriodChange(): Int {
+        visitDate.inputType = InputType.DATE_PICKER
+        visitDate.value = null
+        val today = Calendar.getInstance().setToStartOfTheDay().timeInMillis
+        val deliveryCal = Calendar.getInstance()
+        deliveryCal.timeInMillis = dateOfDelivery
+        deliveryCal.setToStartOfTheDay()
+        val deliveryDateStart = deliveryCal.timeInMillis
+
+        // Previous PNC visit date (if exists) - must be after this
+        val previousVisitDateStart = previousPncVisitDate?.let {
+            val prevCal = Calendar.getInstance()
+            prevCal.timeInMillis = it
+            prevCal.setToStartOfTheDay()
+            prevCal.timeInMillis
+        }
+
+        when (val visitNumber = pncPeriod.value!!.substring(4).toInt()) {
+            1 -> {
+                // Day 1: Delivery date only (24-48 hours)
+                visitDate.min = minOf(today, deliveryDateStart)
+                visitDate.max = minOf(
+                    today,
+                    deliveryDateStart + TimeUnit.DAYS.toMillis(1)
+                )
+            }
+
+            3 -> {
+                // Day 3: Exactly Delivery + 3 days
+                val day3Date = deliveryDateStart + TimeUnit.DAYS.toMillis(3)
+                visitDate.min = minOf(today, day3Date)
+                visitDate.max = minOf(today, day3Date)
+            }
+
+            7, 14, 21, 28, 42 -> {
+                // Day 7/14/21/28/42: ±3 days from scheduled date
+                val scheduledDate = deliveryDateStart + TimeUnit.DAYS.toMillis(visitNumber.toLong())
+                val minDate = scheduledDate - TimeUnit.DAYS.toMillis(3)
+                val maxDate = scheduledDate + TimeUnit.DAYS.toMillis(3)
+
+                // Visit date cannot be before delivery date
+                val minAllowed = maxOf(deliveryDateStart, minDate)
+                // Visit date cannot be after today
+                val maxAllowed = minOf(today, maxDate)
+                // Visit date cannot be earlier than previous PNC visit date
+                val finalMin = previousVisitDateStart?.let { maxOf(minAllowed, it + TimeUnit.DAYS.toMillis(1)) } ?: minAllowed
+
+                visitDate.min = minOf(today, finalMin)
+                visitDate.max = minOf(today, maxAllowed)
+            }
+
+            else -> throw IllegalStateException("Illegal PNC Date $visitNumber")
+        }
+        return -1
+    }
+
+    // ─── Helper: handle contraception method selection ─────────────────
+    private fun handleContraceptionMethodChange(index: Int): Int {
+        val selected = contraceptionMethod.entries?.getOrNull(index)?.trim() ?: ""
+        val anyOtherValue = contraceptionMethod.entries!!.last().trim()
+        val result1 = if (selected.equals(anyOtherValue, ignoreCase = true)) {
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = index,
+                triggerIndex = contraceptionMethod.entries!!.lastIndex,
+                target = otherPpcMethod
+            )
+        } else {
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = -1,
+                triggerIndex = contraceptionMethod.entries!!.lastIndex,
+                target = otherPpcMethod
+            )
+        }
+
+        val isSterilisation = sterilisation.any { it.equals(selected, ignoreCase = true) }
+        val result2 = if (isSterilisation) {
+            dateOfSterilisation.min = dateOfDelivery
+            dateOfSterilisation.max = System.currentTimeMillis()
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = index,
+                triggerIndex = index,
+                target = dateOfSterilisation
+            )
+        } else {
+            dateOfSterilisation.value = null
+            triggerDependants(
+                source = contraceptionMethod,
+                passedIndex = -1,
+                triggerIndex = index,
+                target = dateOfSterilisation
+            )
+        }
+
+        return if (result1 != -1) result1 else result2
+    }
+
+    // ─── Helper: handle danger sign toggle and referral requirement ────
+    private fun handleDangerSignChange(index: Int): Int {
+        val result = triggerDependants(
+            source = anyDangerSign,
+            passedIndex = index,
+            triggerIndex = 0,
+            target = motherDangerSign,
+            targetSideEffect = listOf(otherDangerSign)
+        )
+
+        val oldRequiredState = referralFacility.required
+        if (index == 0) {
+            referralFacility.required = true
+        } else {
+            referralFacility.required = false
+            referralFacility.errorText = null
+        }
+        val referralFacilityIndex = getIndexById(referralFacility.id)
+        return if (oldRequiredState != referralFacility.required && referralFacilityIndex != -1) {
+            referralFacilityIndex
+        } else {
+            result
+        }
+    }
+
+    // ─── Helper: handle mother death toggle ───────────────────────────
+    private fun handleMotherDeathChange(index: Int): Int {
+        return if (index == 0) {
+            triggerDependants(
+                source = motherDeath,
+                removeItems = listOf(
+                    ifaTabsGiven,
+                    calciumSupplementation,
+                    anyContraceptionMethod,
+                    anyDangerSign,
+                    maternalSymptoms,
+                    pallor,
+                    vaginalBleeding,
+                    referralFacility,
+                    remarks
+                ),
+                addItems = listOf(
+                    deathDate,
+                    causeOfDeath,
+                    placeOfDeath,
+                    otherDeathCause,
+                    otherPlaceOfDeath
+                )
+            )
+        } else {
+            triggerDependants(
+                source = motherDeath,
+                removeItems = listOf(
+                    deathDate,
+                    causeOfDeath,
+                    placeOfDeath,
+                    otherDeathCause,
+                    otherPlaceOfDeath
+                ),
+                addItems = listOf(
+                    ifaTabsGiven,
+                    calciumSupplementation,
+                    anyContraceptionMethod,
+                    anyDangerSign,
+                    maternalSymptoms,
+                    pallor,
+                    vaginalBleeding,
+                    referralFacility,
+                    remarks
+                )
+            )
+        }
+    }
+
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            pncPeriod.id -> {
-                visitDate.inputType = InputType.DATE_PICKER
-                visitDate.value = null
-                val today = Calendar.getInstance().setToStartOfTheDay().timeInMillis
-                val deliveryCal = Calendar.getInstance()
-                deliveryCal.timeInMillis = dateOfDelivery
-                deliveryCal.setToStartOfTheDay()
-                val deliveryDateStart = deliveryCal.timeInMillis
-                
-                // Previous PNC visit date (if exists) - must be after this
-                val previousVisitDateStart = previousPncVisitDate?.let {
-                    val prevCal = Calendar.getInstance()
-                    prevCal.timeInMillis = it
-                    prevCal.setToStartOfTheDay()
-                    prevCal.timeInMillis
-                }
-                
-                when (val visitNumber = pncPeriod.value!!.substring(4).toInt()) {
-                    1 -> {
-                        // Day 1: Delivery date only (24-48 hours)
-                        visitDate.min = minOf(today, deliveryDateStart)
-                        visitDate.max = minOf(
-                            today,
-                            deliveryDateStart + TimeUnit.DAYS.toMillis(1)
-                        )
-                    }
-
-                    3 -> {
-                        // Day 3: Exactly Delivery + 3 days
-                        val day3Date = deliveryDateStart + TimeUnit.DAYS.toMillis(3)
-                        visitDate.min = minOf(today, day3Date)
-                        visitDate.max = minOf(today, day3Date)
-                    }
-
-                    7, 14, 21, 28, 42 -> {
-                        // Day 7/14/21/28/42: ±3 days from scheduled date
-                        val scheduledDate = deliveryDateStart + TimeUnit.DAYS.toMillis(visitNumber.toLong())
-                        val minDate = scheduledDate - TimeUnit.DAYS.toMillis(3)
-                        val maxDate = scheduledDate + TimeUnit.DAYS.toMillis(3)
-                        
-                        // Visit date cannot be before delivery date
-                        val minAllowed = maxOf(deliveryDateStart, minDate)
-                        // Visit date cannot be after today
-                        val maxAllowed = minOf(today, maxDate)
-                        // Visit date cannot be earlier than previous PNC visit date
-                        val finalMin = previousVisitDateStart?.let { maxOf(minAllowed, it + TimeUnit.DAYS.toMillis(1)) } ?: minAllowed
-                        
-                        visitDate.min = minOf(today, finalMin)
-                        visitDate.max = minOf(today, maxAllowed)
-                    }
-
-                    else -> throw IllegalStateException("Illegal PNC Date $visitNumber")
-                }
-                return -1
-            }
+            pncPeriod.id -> handlePncPeriodChange()
 
             ifaTabsGiven.id -> {
                 // IFA Tablets: >0 and ≤400, supports 180-day postpartum supplementation
@@ -610,71 +730,9 @@ class PncFormDataset(
                 targetSideEffect = listOf(otherPpcMethod, dateOfSterilisation)
             )
 
-            contraceptionMethod.id -> {
-                val selected = contraceptionMethod.entries?.getOrNull(index)?.trim() ?: ""
-                val anyOtherValue = contraceptionMethod.entries!!.last().trim()
-                val result1 = if (selected.equals(anyOtherValue, ignoreCase = true)) {
-                    triggerDependants(
-                        source = contraceptionMethod,
-                        passedIndex = index,
-                        triggerIndex = contraceptionMethod.entries!!.lastIndex,
-                        target = otherPpcMethod
-                    )
-                } else {
-                    triggerDependants(
-                        source = contraceptionMethod,
-                        passedIndex = -1,
-                        triggerIndex = contraceptionMethod.entries!!.lastIndex,
-                        target = otherPpcMethod
-                    )
-                }
+            contraceptionMethod.id -> handleContraceptionMethodChange(index)
 
-                val isSterilisation = sterilisation.any { it.equals(selected, ignoreCase = true) }
-                val result2 = if (isSterilisation) {
-                    dateOfSterilisation.min = dateOfDelivery
-                    dateOfSterilisation.max = System.currentTimeMillis()
-                    triggerDependants(
-                        source = contraceptionMethod,
-                        passedIndex = index,
-                        triggerIndex = index,
-                        target = dateOfSterilisation
-                    )
-                } else {
-                    dateOfSterilisation.value = null
-                    triggerDependants(
-                        source = contraceptionMethod,
-                        passedIndex = -1,
-                        triggerIndex = index,
-                        target = dateOfSterilisation
-                    )
-                }
-
-                if (result1 != -1) result1 else result2
-            }
-
-            anyDangerSign.id -> {
-                val result = triggerDependants(
-                    source = anyDangerSign,
-                    passedIndex = index,
-                    triggerIndex = 0,
-                    target = motherDangerSign,
-                    targetSideEffect = listOf(otherDangerSign)
-                )
-
-                val oldRequiredState = referralFacility.required
-                if (index == 0) {
-                    referralFacility.required = true
-                } else {
-                    referralFacility.required = false
-                    referralFacility.errorText = null
-                }
-                val referralFacilityIndex = getIndexById(referralFacility.id)
-                return if (oldRequiredState != referralFacility.required && referralFacilityIndex != -1) {
-                    referralFacilityIndex
-                } else {
-                    result
-                }
-            }
+            anyDangerSign.id -> handleDangerSignChange(index)
 
             maternalSymptoms.id -> {
                 // Check if "Other" is selected
@@ -714,53 +772,7 @@ class PncFormDataset(
                 return if (referralFacility.required && referralFacilityIndex != -1) referralFacilityIndex else -1
             }
 
-            motherDeath.id -> {
-                if (index == 0) {
-                    triggerDependants(
-                        source = motherDeath,
-                        removeItems = listOf(
-                            ifaTabsGiven,
-                            calciumSupplementation,
-                            anyContraceptionMethod,
-                            anyDangerSign,
-                            maternalSymptoms,
-                            pallor,
-                            vaginalBleeding,
-                            referralFacility,
-                            remarks
-                        ),
-                        addItems = listOf(
-                            deathDate,
-                            causeOfDeath,
-                            placeOfDeath,
-                            otherDeathCause,
-                            otherPlaceOfDeath
-                        )
-                    )
-                } else {
-                    triggerDependants(
-                        source = motherDeath,
-                        removeItems = listOf(
-                            deathDate,
-                            causeOfDeath,
-                            placeOfDeath,
-                            otherDeathCause,
-                            otherPlaceOfDeath
-                        ),
-                        addItems = listOf(
-                            ifaTabsGiven,
-                            calciumSupplementation,
-                            anyContraceptionMethod,
-                            anyDangerSign,
-                            maternalSymptoms,
-                            pallor,
-                            vaginalBleeding,
-                            referralFacility,
-                            remarks
-                        )
-                    )
-                }
-            }
+            motherDeath.id -> handleMotherDeathChange(index)
 
             causeOfDeath.id -> {
                 triggerDependants(
