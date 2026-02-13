@@ -93,7 +93,7 @@ class NeonatalOutcomeFormFragment : Fragment() {
         }
 
         binding.btnCancel.setOnClickListener {
-            findNavController().popBackStack()
+            safeNavigateBack()
         }
     }
 
@@ -106,7 +106,21 @@ class NeonatalOutcomeFormFragment : Fragment() {
         } catch (e: Exception) {
             Timber.e(e, "Navigation error")
             // Fallback: just go back
+            safeNavigateBack()
+        }
+    }
+
+    /**
+     * Safely navigate back, handling both NavController-hosted and
+     * FragmentManager-hosted scenarios.
+     */
+    private fun safeNavigateBack() {
+        try {
             findNavController().popBackStack()
+        } catch (e: IllegalStateException) {
+            if (!parentFragmentManager.popBackStackImmediate()) {
+                requireActivity().finish()
+            }
         }
     }
 

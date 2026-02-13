@@ -226,8 +226,10 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                         deliveryOutcome.updatedDate = System.currentTimeMillis()
                     }
                     val savedId = deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
-                    _deliveryOutcomeId.postValue(deliveryOutcome.id)
-                    _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
+                    if(savedId != null){
+                        _deliveryOutcomeId.postValue(deliveryOutcome.id)
+                        _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
+                    }
                 } catch (e: Exception) {
                     Timber.e(e, "DeliveryOutcomeFormViewModel: Failed to save delivery outcome")
                     _state.postValue(State.SAVE_FAILED)

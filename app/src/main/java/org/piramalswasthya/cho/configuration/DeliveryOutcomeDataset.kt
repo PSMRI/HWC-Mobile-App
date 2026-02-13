@@ -728,6 +728,9 @@ class DeliveryOutcomeDataset(
             motherCurrentlyAdmitted.id -> handleMotherAdmittedChange(index)
             dateOfDischarge.id -> handleDateOfDischargeValidation()
             maternalComplications.id -> handleMaternalComplicationsValidation()
+            deliveryOutcome.id -> validateDeliveryOutcome(deliveryOutcome)
+            liveBirth.id -> validateDeliveryOutcome(liveBirth)
+            stillBirth.id -> validateDeliveryOutcome(stillBirth)
             else -> -1
         }
     }

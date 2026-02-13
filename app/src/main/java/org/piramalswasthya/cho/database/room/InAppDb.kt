@@ -485,7 +485,7 @@ abstract class InAppDb : RoomDatabase() {
                         addedDate INTEGER NOT NULL,
                         ashaId INTEGER NOT NULL DEFAULT 0,
                         createdBy TEXT NOT NULL,
-                        syncState TEXT NOT NULL,
+                        syncState INTEGER NOT NULL,
                         FOREIGN KEY(patientID) REFERENCES PATIENT(patientID) ON UPDATE CASCADE ON DELETE CASCADE
                     )
                 """.trimIndent())

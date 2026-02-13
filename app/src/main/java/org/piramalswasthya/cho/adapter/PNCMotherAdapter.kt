@@ -11,6 +11,9 @@ import org.piramalswasthya.cho.utils.DateTimeUtil
 import org.piramalswasthya.cho.repositories.PncRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,6 +39,8 @@ class PNCMotherAdapter(
     class PNCMotherViewHolder private constructor(
         private val binding: RvItemPncMotherBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        private var bindJob: Job? = null
 
         companion object {
             fun from(parent: ViewGroup): PNCMotherViewHolder {
@@ -72,10 +77,12 @@ class PNCMotherAdapter(
             }
 
             // Enable/disable Add Visit button based on eligibility
-            CoroutineScope(Dispatchers.Main).launch {
+            bindJob?.cancel()
+            bindJob = CoroutineScope(Dispatchers.Main + SupervisorJob()).launch {
                 val isEnabled = withContext(Dispatchers.IO) {
                     checkAddVisitEligibility(item, pncRepo)
                 }
+                if (!isActive) return@launch  // ViewHolder may have been recycled
                 binding.btnAddVisit.isEnabled = isEnabled
                 binding.btnAddVisit.alpha = if (isEnabled) 1.0f else 0.5f
             }

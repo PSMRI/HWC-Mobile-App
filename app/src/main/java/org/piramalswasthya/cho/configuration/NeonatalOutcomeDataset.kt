@@ -207,6 +207,14 @@ class NeonatalOutcomeDataset(
         saved: NeonatalOutcomeCache,
         formElements: MutableList<FormElement>
     ) {
+        // Restore typeOfResuscitation if "Cried after resuscitation" was selected
+        val criedAfterResuscitation = resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1)
+        if (saved.criedImmediately == criedAfterResuscitation && saved.typeOfResuscitation != null) {
+            val criedIdx = formElements.indexOf(criedImmediately)
+            if (criedIdx >= 0) {
+                formElements.add(criedIdx + 1, typeOfResuscitation)
+            }
+        }
         if (saved.congenitalAnomalyDetected == resources.getStringArray(R.array.no_congenital_anomaly_array)[0]) { // Yes
             formElements.add(formElements.indexOf(congenitalAnomalyDetected) + 1, typeOfCongenitalAnomaly)
             if (saved.typeOfCongenitalAnomaly?.contains("Other") == true) {
@@ -285,6 +293,16 @@ class NeonatalOutcomeDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
+            criedImmediately.id -> {
+                val selectedValue = criedImmediately.entries?.getOrNull(index)
+                criedImmediately.value = selectedValue
+                // "Cried after resuscitation" is index 1 — show typeOfResuscitation
+                toggleDependant(
+                    source = criedImmediately,
+                    condition = selectedValue == resources.getStringArray(R.array.no_cried_immediately_array).getOrNull(1),
+                    showItems = listOf(typeOfResuscitation)
+                )
+            }
             congenitalAnomalyDetected.id -> {
                 val selectedValue = congenitalAnomalyDetected.entries?.getOrNull(index)
                 congenitalAnomalyDetected.value = selectedValue
