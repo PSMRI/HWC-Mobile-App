@@ -108,6 +108,8 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                 getString(R.string.title_register_pregnancy)
             }
             (activity as? AppCompatActivity)?.supportActionBar?.title = title
+            activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+            
             binding.fabEdit.visibility = if (exists && !isReadOnly) View.VISIBLE else View.GONE
             binding.btnSubmit.visibility = if (exists) View.GONE else View.VISIBLE
             val adapter = FormInputAdapter(
@@ -374,8 +376,8 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
     override fun getFragmentId(): Int = R.id.pregnantWomanRegistrationFragment
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 }

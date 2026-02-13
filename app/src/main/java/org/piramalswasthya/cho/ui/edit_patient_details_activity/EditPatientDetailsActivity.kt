@@ -75,93 +75,121 @@ class EditPatientDetailsActivity: AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(EditPatientDetailsViewModel::class.java)
 
-        if (intent.getStringExtra("navigateTo") == "ANC") {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            val patientID = intent.getStringExtra("patientID") ?: ""
-            val visitNumber = intent.getIntExtra("visitNumber", 1)
-            val isOldVisit = intent.getBooleanExtra("isOldVisit", false)
+        navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
 
-            navHostFragment.navController.navigate(
-                R.id.pwAncFormFragment,
-                Bundle().apply {
-                    putString("patientID", patientID)
-                    putInt("visitNumber", visitNumber)
-                    putBoolean("isOldVisit", isOldVisit)
-                }
-            )
-        } else if (intent.getStringExtra("navigateTo") == "PNC") {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            val patientID = intent.getStringExtra("patientID") ?: ""
-            val visitNumber = intent.getIntExtra("visitNumber", 1)
+        handleInitialNavigation()
+        setupNavigationListener()
+        setupUIListeners()
+    }
 
-            navHostFragment.navController.navigate(
-                R.id.pncFormFragment,
-                Bundle().apply {
-                    putString("patientID", patientID)
-                    putInt("visitNumber", visitNumber)
-                }
-            )
-        } else if (preferenceDao.isDoctorSelected()) {
-//            navHostFragment = supportFragmentManager.findFragmentById(binding.onlyDoctor.id) as NavHostFragment
-//            binding.patientDetalis.visibility= View.GONE
-//            binding.onlyDoctor.visibility=View.VISIBLE
-//            if ((intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo).doctorFlag == 9) {
-//                binding.bottomNavigation.visibility = View.GONE
-//            }
-            val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
-            val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
-            val isFollowupVisit = intent?.getBooleanExtra("isFollowupVisit", false) ?: false
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            navHostFragment.navController
-                .navigate(
-                    R.id.caseRecordCustom, Bundle().apply {
-                        putBoolean("viewRecord", viewRecord)
-                        putBoolean("isFlowComplete", isFlowComplete)
-                        putBoolean("isFollowupVisit", isFollowupVisit)
-                        putSerializable("benVisitInfo", (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo))
-                    }
-                )
-        } else if (preferenceDao.isLabSelected()) {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
-                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(it))
-            }
-        } else if (preferenceDao.isPharmaSelected()) {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
-                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(it))
-            }
-        } else if (intent.getStringExtra("navigateTo") == "VITALS") {
-            navHostFragment =
-                supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            val benVisitInfo =
-                intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
-            if (benVisitInfo != null) {
-                val masterDb = org.piramalswasthya.cho.model.MasterDb(benVisitInfo.patient.patientID).apply {
-                    visitMasterDb.category = "RMNCH"
-                    visitMasterDb.subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.careAndPreg
-                    visitMasterDb.reason = org.piramalswasthya.cho.ui.commons.DropdownConst.anc
-                }
+    private fun handleInitialNavigation() {
+        val navigateTo = intent.getStringExtra("navigateTo")
+        when {
+            navigateTo == "ANC" -> {
+                val patientID = intent.getStringExtra("patientID") ?: ""
+                val visitNumber = intent.getIntExtra("visitNumber", 1)
+                val isOldVisit = intent.getBooleanExtra("isOldVisit", false)
+
                 navHostFragment.navController.navigate(
-                    R.id.customVitalsFragment,
+                    R.id.pwAncFormFragment,
                     Bundle().apply {
-                        putSerializable("MasterDb", masterDb)
+                        putString("patientID", patientID)
+                        putInt("visitNumber", visitNumber)
+                        putBoolean("isOldVisit", isOldVisit)
                     }
                 )
             }
-        } else {
-            navHostFragment = supportFragmentManager.findFragmentById(binding.patientDetalis.id) as NavHostFragment
-            val benVisitInfo = intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
-            if (benVisitInfo != null) {
-                navHostFragment.navController.navigate(PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(benVisitInfo))
-            } else {
-                // Fallback or log error
-                Timber.e("No benVisitInfo provided for navigation")
-                // If patientID is available, we might still be able to do something, but for now just avoid crash
+
+            navigateTo == "PNC" -> {
+                val patientID = intent.getStringExtra("patientID") ?: ""
+                val visitNumber = intent.getIntExtra("visitNumber", 1)
+
+                navHostFragment.navController.navigate(
+                    R.id.pncFormFragment,
+                    Bundle().apply {
+                        putString("patientID", patientID)
+                        putInt("visitNumber", visitNumber)
+                    }
+                )
+            }
+
+            preferenceDao.isDoctorSelected() -> {
+                val viewRecord = intent?.getBooleanExtra("viewRecord", false) ?: false
+                val isFlowComplete = intent?.getBooleanExtra("isFlowComplete", false) ?: false
+                val isFollowupVisit = intent?.getBooleanExtra("isFollowupVisit", false) ?: false
+                navHostFragment.navController
+                    .navigate(
+                        R.id.caseRecordCustom, Bundle().apply {
+                            putBoolean("viewRecord", viewRecord)
+                            putBoolean("isFlowComplete", isFlowComplete)
+                            putBoolean("isFollowupVisit", isFollowupVisit)
+                            putSerializable(
+                                "benVisitInfo",
+                                (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)
+                            )
+                        }
+                    )
+            }
+
+            preferenceDao.isLabSelected() -> {
+                (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
+                    navHostFragment.navController.navigate(
+                        PatientHomeFragmentDirections.actionPatientHomeFragmentToLabTechnicianFormFragment(
+                            it
+                        )
+                    )
+                }
+            }
+
+            preferenceDao.isPharmaSelected() -> {
+                (intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)?.let {
+                    navHostFragment.navController.navigate(
+                        PatientHomeFragmentDirections.actionPatientHomeFragmentToPharmacistFormFragment(
+                            it
+                        )
+                    )
+                }
+            }
+
+            navigateTo == "VITALS" -> {
+                val benVisitInfo =
+                    intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+                if (benVisitInfo != null) {
+                    val masterDb =
+                        org.piramalswasthya.cho.model.MasterDb(benVisitInfo.patient.patientID).apply {
+                            visitMasterDb.category = "RMNCH"
+                            visitMasterDb.subCategory =
+                                org.piramalswasthya.cho.ui.commons.DropdownConst.careAndPreg
+                            visitMasterDb.reason =
+                                org.piramalswasthya.cho.ui.commons.DropdownConst.anc
+                        }
+                    navHostFragment.navController.navigate(
+                        R.id.customVitalsFragment,
+                        Bundle().apply {
+                            putSerializable("MasterDb", masterDb)
+                        }
+                    )
+                }
+            }
+
+            else -> {
+                val benVisitInfo =
+                    intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
+                if (benVisitInfo != null) {
+                    navHostFragment.navController.navigate(
+                        PatientHomeFragmentDirections.actionPatientHomeFragmentToFhirVisitDetailsFragment(
+                            benVisitInfo
+                        )
+                    )
+                } else {
+                    Timber.e("No benVisitInfo provided for navigation")
+                }
             }
         }
+    }
 
-        navHostFragment.navController.addOnDestinationChangedListener { controller, destination, arguments ->
+    private fun setupNavigationListener() {
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.fhirVisitDetailsFragment -> {
                     binding.bottomNavigation.visibility = View.GONE
@@ -170,71 +198,87 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.btnSubmit.text = resources.getString(R.string.next)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.customVitalsFragment -> {
                     binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.vitals_text)
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.vitals_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                     if (preferenceDao.isUserCHO()) {
                         binding.btnSubmit.text = resources.getString(R.string.next)
-                    }
-                    else {
+                    } else {
                         binding.btnSubmit.text =
                             resources.getString(R.string.submit_to_doctor_text)
                     }
                 }
-                R.id.pregnantWomanRegistrationFragment -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.icon_title_pmr)
+
+                R.id.pregnantWomanRegistrationFragment, R.id.pregnancyRegistrationFormFragment -> {
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.title_register_pregnancy)
                     binding.bottomNavigation.visibility = View.GONE
+                    binding.linearLayout.visibility = View.GONE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.cbacFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.cbac)
                     binding.bottomNavigation.visibility = View.GONE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.pwAncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.anc)
                     binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.pncFormFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.pnc)
                     binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.immunizationFormFragment -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.immunization)
-                    binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.btnSubmit.text = resources.getString(R.string.submit)
-                    binding.btnCancel.text = resources.getString(R.string.cancel)
-                }
-                R.id.eligibleCoupleTrackingFormFragment -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.eligible_couple_tracking)
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.immunization)
                     binding.bottomNavigation.visibility = View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
 
-                R.id.caseRecordCustom -> {
-                    binding.headerTextRegisterPatient.text = resources.getString(R.string.case_record_text)
+                R.id.eligibleCoupleTrackingFormFragment -> {
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.eligible_couple_tracking)
+                    binding.bottomNavigation.visibility = View.GONE
+                    binding.linearLayout.visibility = View.GONE
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
+                R.id.caseRecordCustom -> {
+                    binding.headerTextRegisterPatient.text =
+                        resources.getString(R.string.case_record_text)
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
+                }
+
                 R.id.labTechnicianFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.lab_record_text)
                     binding.btnSubmit.text = resources.getString(R.string.submit)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.selectBatchFragment -> {
                     binding.headerTextRegisterPatient.text = "Batch Selection"
                     binding.btnSubmit.text = resources.getString(R.string.save)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+
                 R.id.pharmacistFormFragment -> {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.pharmacist_record_text)
@@ -243,8 +287,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                 }
             }
         }
+    }
 
-
+    private fun setupUIListeners() {
         binding.homeButton.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
@@ -252,14 +297,14 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         }
 
         binding.btnSubmit.setOnClickListener {
-            binding.btnSubmit.visibility = View.VISIBLE
-            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+            currFragment =
+                navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onSubmitAction()
         }
 
         binding.btnCancel.setOnClickListener {
-            binding.btnSubmit.visibility = View.VISIBLE
-            currFragment = navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
+            currFragment =
+                navHostFragment.childFragmentManager.primaryNavigationFragment as NavigationAdapter
             currFragment.onCancelAction()
         }
 
@@ -268,11 +313,9 @@ class EditPatientDetailsActivity: AppCompatActivity() {
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
         (application as CHOApplication).activityList.remove(this)
     }
-
 }

@@ -370,10 +370,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         Log.d("Reason for visit is ", "Working " + subCat)
         val isDelivered = viewModel.isPatientDelivered(patientId)
         if(subCat == DropdownConst.careAndPreg){
-            val reasons = if (viewModel.activePwrRecord == null)
-            listOf(DropdownConst.pregnancyRegistration, DropdownConst.pnc)
-            else
-                listOf(DropdownConst.anc, DropdownConst.deliveryOutcome, DropdownConst.pnc)
+            val reasons = mutableListOf<String>()
+            if (viewModel.activePwrRecord == null) {
+                val isFemale = benVisitInfo.genderName?.equals("Female", ignoreCase = true) == true
+                val mStatus = benVisitInfo.maritalStatus?.lowercase() ?: ""
+                val isMarried = mStatus.contains("married") && !mStatus.contains("unmarried") && !mStatus.contains("never")
+                val isPregnantWoman = benVisitInfo.patient.statusOfWomanID == 2
+
+                if (isFemale && isMarried && isPregnantWoman) {
+                    reasons.add(DropdownConst.pregnancyRegistration)
+                }
+                reasons.add(DropdownConst.pnc)
+            } else {
+                reasons.add(DropdownConst.anc)
+                reasons.add(DropdownConst.deliveryOutcome)
+                reasons.add(DropdownConst.pnc)
+            }
 
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
@@ -389,16 +401,26 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.fpAndOtherRep){
+            val reasons = mutableListOf<String>()
+            val isFemale = benVisitInfo.genderName?.equals("Female", ignoreCase = true) == true
+            val mStatus = benVisitInfo.maritalStatus?.lowercase() ?: ""
+            val isMarried = mStatus.contains("married") && !mStatus.contains("unmarried") && !mStatus.contains("never")
+            val isEligibleCouple = benVisitInfo.patient.statusOfWomanID == 1
+
+            if (isFemale && isMarried && isEligibleCouple) {
+                reasons.add(DropdownConst.fpAndCs)
+            }
+
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.fpAndCs)
+                reasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            viewModel.selectedReasonForVisit = ""
+            binding.reasonForVisitInput.setText("", false)
             changeBtnView()
-//            viewModel.selectedReasonForVisit = DropdownConst.fpAndCs
-//            binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
         }
         else if(subCat == DropdownConst.neonatalAndInfant){
             val subCatAdapter = SubCategoryAdapter(
@@ -436,104 +458,106 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         binding.rvEct.visibility = View.GONE
     }
 
-    fun setVisibility(){
-
+    fun setVisibility() {
         binding.eddDateText.boxBackgroundColor =
             ContextCompat.getColor(requireContext(), R.color.lighter_gray)
 
-        val reasonForVisit = binding.reasonForVisitInput.text.toString()
-        if(reasonForVisit == DropdownConst.pregnancyRegistration){
-            if (lmpDate != null){
-                lmpDate = null
-                binding.lmpDate.text?.clear()
-                binding.eddDate.text?.clear()
-            }
-
-//            viewModel.activePwrRecord.observe(viewLifecycleOwner){
-            if (lmpDate == null){
-                binding.lmpDateText.visibility = View.VISIBLE
-                binding.eddDateText.visibility = View.VISIBLE
-            }
-//            }
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.GONE
-            changeBtnView()
-        }
-        else if(reasonForVisit == DropdownConst.anc){
-            if (lmpDate != null){
-                lmpDate = null
-                binding.lmpDate.text?.clear()
-                binding.eddDate.text?.clear()
-            }
-
-//            viewModel.activePwrRecord.observe(viewLifecycleOwner){
-            if(viewModel.activePwrRecord == null && lmpDate == null){
-                binding.lmpDateText.visibility = View.VISIBLE
-                binding.eddDateText.visibility = View.VISIBLE
-            }
-//            }
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.GONE
-            changeBtnView()
-        }
-        else if(reasonForVisit == DropdownConst.pnc){
-            binding.lmpDateText.visibility = View.GONE
-            binding.eddDateText.visibility = View.GONE
-
-            if (deliveryDate != null){
-                deliveryDate = null
-                binding.deliveryDate.text?.clear()
-            }
-
-            viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
-                if(it == null && deliveryDate == null){
-                    binding.deliveryDateText.visibility = View.VISIBLE
+        when (viewModel.selectedReasonForVisit) {
+            DropdownConst.pregnancyRegistration -> {
+                if (lmpDate != null) {
+                    lmpDate = null
+                    binding.lmpDate.text?.clear()
+                    binding.eddDate.text?.clear()
                 }
-            }
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.VISIBLE
-            binding.rvEct.visibility = View.GONE
-            changeBtnView()
-        }
-        else if(reasonForVisit == DropdownConst.deliveryOutcome){
-            binding.lmpDateText.visibility = View.GONE
-            binding.eddDateText.visibility = View.GONE
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.GONE
-            changeBtnView()
-        }
-        else if(reasonForVisit == DropdownConst.fpAndCs){
-            binding.lmpDateText.visibility = View.GONE
-            binding.eddDateText.visibility = View.GONE
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.VISIBLE
-            changeBtnView()
-        }
-        else if(reasonForVisit == DropdownConst.ncdScreening){
-            binding.lmpDateText.visibility = View.GONE
-            binding.eddDateText.visibility = View.GONE
-            binding.deliveryDateText.visibility = View.GONE
-            binding.rvAnc.visibility = View.GONE
-            binding.rvPnc.visibility = View.GONE
-            binding.rvEct.visibility = View.GONE
-            if (viewModel.cbacId != 0) {
-                binding.btnSubmit.text = resources.getString(R.string.view)
-                binding.btnSubmit.backgroundTintList = resources.getColorStateList(R.color.colorAccent)
-            } else {
+                binding.lmpDateText.visibility = View.GONE
+                binding.eddDateText.visibility = View.GONE
+                binding.deliveryDateText.visibility = View.GONE
+                binding.rvAnc.visibility = View.GONE
+                binding.rvPnc.visibility = View.GONE
+                binding.rvEct.visibility = View.GONE
                 changeBtnView()
             }
 
-        }
-        else{
-            removeVisibility()
+            DropdownConst.anc -> {
+                if (lmpDate != null) {
+                    lmpDate = null
+                    binding.lmpDate.text?.clear()
+                    binding.eddDate.text?.clear()
+                }
+                if (viewModel.activePwrRecord == null && lmpDate == null) {
+                    binding.lmpDateText.visibility = View.VISIBLE
+                    binding.eddDateText.visibility = View.VISIBLE
+                }
+                binding.deliveryDateText.visibility = View.GONE
+                binding.rvAnc.visibility = View.VISIBLE
+                binding.rvPnc.visibility = View.GONE
+                binding.rvEct.visibility = View.GONE
+                changeBtnView()
+            }
+
+            DropdownConst.pnc -> {
+                binding.lmpDateText.visibility = View.GONE
+                binding.eddDateText.visibility = View.GONE
+
+                if (deliveryDate != null) {
+                    deliveryDate = null
+                    binding.deliveryDate.text?.clear()
+                }
+
+                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner) {
+                    if (deliveryDate == null) {
+                        binding.deliveryDateText.visibility = View.VISIBLE
+                        binding.deliveryDate.visibility = View.VISIBLE
+                    } else {
+                        binding.deliveryDateText.visibility = View.GONE
+                        binding.deliveryDate.visibility = View.GONE
+                    }
+                }
+                binding.rvAnc.visibility = View.GONE
+                binding.rvPnc.visibility = View.VISIBLE
+                binding.rvEct.visibility = View.GONE
+                changeBtnView()
+            }
+
+            DropdownConst.deliveryOutcome -> {
+                binding.lmpDateText.visibility = View.GONE
+                binding.eddDateText.visibility = View.GONE
+                binding.deliveryDateText.visibility = View.GONE
+                binding.rvAnc.visibility = View.GONE
+                binding.rvPnc.visibility = View.GONE
+                binding.rvEct.visibility = View.GONE
+                changeBtnView()
+            }
+
+            DropdownConst.fpAndCs -> {
+                binding.lmpDateText.visibility = View.GONE
+                binding.eddDateText.visibility = View.GONE
+                binding.deliveryDateText.visibility = View.GONE
+                binding.rvAnc.visibility = View.GONE
+                binding.rvPnc.visibility = View.GONE
+                binding.rvEct.visibility = View.VISIBLE
+                changeBtnView()
+            }
+
+            DropdownConst.ncdScreening -> {
+                binding.lmpDateText.visibility = View.GONE
+                binding.eddDateText.visibility = View.GONE
+                binding.deliveryDateText.visibility = View.GONE
+                binding.rvAnc.visibility = View.GONE
+                binding.rvPnc.visibility = View.GONE
+                binding.rvEct.visibility = View.GONE
+                if (viewModel.cbacId != 0) {
+                    binding.btnSubmit.text = resources.getString(R.string.view)
+                    binding.btnSubmit.backgroundTintList =
+                        resources.getColorStateList(R.color.colorAccent)
+                } else {
+                    changeBtnView()
+                }
+            }
+
+            else -> {
+                removeVisibility()
+            }
         }
     }
 
@@ -678,62 +702,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             viewModel.selectedReasonForVisit = parent.getItemAtPosition(position) as String
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
             setVisibility()
-            if(viewModel.selectedReasonForVisit == DropdownConst.pregnancyRegistration){
-                if (lmpDate == null){
-                    binding.lmpDateText.visibility = View.VISIBLE
-                    binding.eddDateText.visibility = View.VISIBLE
-                }
-            }
-            else if(viewModel.selectedReasonForVisit == DropdownConst.anc){
-                binding.rvAnc.visibility = View.VISIBLE
-            }
-            if(viewModel.selectedReasonForVisit == DropdownConst.pregnancyRegistration){
-                if (lmpDate == null){
-                    binding.lmpDateText.visibility = View.VISIBLE
-                    binding.eddDateText.visibility = View.VISIBLE
-                }
-            }
-            else if(viewModel.selectedReasonForVisit == DropdownConst.anc){
-                binding.rvAnc.visibility = View.VISIBLE
-                /* viewModel.activePwrRecord.observe(viewLifecycleOwner){ */
-                    if(viewModel.activePwrRecord == null && lmpDate == null){
-                        binding.lmpDateText.visibility = View.VISIBLE
-                        binding.eddDateText.visibility = View.VISIBLE
-                    }
-                /* } */
-//                viewModel.activePwrRecord.observe(viewLifecycleOwner){
-                if(viewModel.activePwrRecord == null && lmpDate == null){
-                    binding.lmpDateText.visibility = View.VISIBLE
-                    binding.eddDateText.visibility = View.VISIBLE
-                }
-//                }
-            }
-            else if(viewModel.selectedReasonForVisit == DropdownConst.pwr){
-                                binding.rvPnc.visibility = View.GONE
-                            }
-
-
-            else if(viewModel.selectedReasonForVisit == DropdownConst.pnc){
-                binding.rvPnc.visibility = View.VISIBLE
-                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
-                    if(deliveryDate == null){
-                        binding.deliveryDateText.visibility = View.VISIBLE
-                        binding.deliveryDate.visibility = View.VISIBLE
-                    } else {
-                        binding.deliveryDateText.visibility = View.GONE
-                        binding.deliveryDate.visibility = View.GONE
-                    }
-
-                }
-            }
-            else if(viewModel.selectedReasonForVisit == DropdownConst.fpAndCs){
-                binding.rvEct.visibility = View.VISIBLE
-//                viewModel.activeDeliveryRecord.observe(viewLifecycleOwner){
-//                    if(it == null && deliveryDate == null){
-//                        binding.deliveryDate.visibility = View.VISIBLE
-//                    }
-//                }
-            }
         }
 
         binding.lmpDate.setCustomOnClickListener{
@@ -1409,23 +1377,29 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if(selectedCategory == "Other CPHC Services"){
             val reasonForVisit = binding.reasonForVisitInput.text.toString()
             if(reasonForVisit == DropdownConst.pregnancyRegistration){
-                if (lmpDate == null){
-                    Toast.makeText(
-                        requireContext(),
-                        "Select LMP Date",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
-                    viewModel.isLMPDateSaved.observe(viewLifecycleOwner) { saved ->
-                        if (saved == true) {
-                            setReasonForVisitDropdown(DropdownConst.careAndPreg)
-                            viewModel.selectedReasonForVisit = DropdownConst.anc
-                            binding.reasonForVisitInput.setText(DropdownConst.anc, false)
-                            setVisibility()
-                        }
-                    }
-                }
+//                if (lmpDate == null){
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Select LMP Date",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                } else {
+//                    viewModel.savePregnantWomanRegistration(benVisitInfo.patient.patientID, lmpDate!!)
+//                    viewModel.isLMPDateSaved.observe(viewLifecycleOwner) { saved ->
+//                        if (saved == true) {
+//                            setReasonForVisitDropdown(DropdownConst.careAndPreg)
+//                            viewModel.selectedReasonForVisit = DropdownConst.anc
+//                            binding.reasonForVisitInput.setText(DropdownConst.anc, false)
+//                            setVisibility()
+//                        }
+//                    }
+//                }
+                findNavController().navigate(
+                    FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
+                        benVisitInfo.patient.patientID,
+                        benVisitInfo.patient.beneficiaryID.toString()
+                    )
+                )
             }
             else if(reasonForVisit == DropdownConst.anc){
                 checkAndNavigateAnc()
@@ -1433,6 +1407,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else if(reasonForVisit == DropdownConst.deliveryOutcome){
                 // Navigate directly to Delivery Outcome form (delivery date is captured in the form itself)
                 val visitNumber = 1
+                isNavigationInProgress = false
+                binding.btnSubmit.isEnabled = true
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToDeliveryOutcomeFormFragment(
                         benVisitInfo.patient.patientID, visitNumber
@@ -1490,13 +1466,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if (reasonForVisit == DropdownConst.pwr) {
-                findNavController().navigate(
-                        FragmentVisitDetailDirections
-                            .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
-                                patientID = benVisitInfo.patient.patientID,
-                                benId = benVisitInfo.patient.beneficiaryID.toString()
-                            )
-                    )
+                val navController = findNavController()
+                val navOptions = androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(navController.graph.startDestinationId, true)
+                    .build()
+                navController.navigate(
+                    FragmentVisitDetailDirections
+                        .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benId = benVisitInfo.patient.beneficiaryID.toString()
+                        ), navOptions
+                )
+            }
 
 //                if (!isEligibleForPregnancyRegistration()) {
 //                    Toast.makeText(
@@ -1513,7 +1494,6 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //                            )
 //                    )
 //                }
-            }
 
             else if(reasonForVisit == DropdownConst.immunization){
                 isNavigationInProgress = false
@@ -1692,10 +1672,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else{
                 isNavigationInProgress = false
                 binding.btnSubmit.isEnabled = true
-                findNavController().navigate(
+                val navController = findNavController()
+                val navOptions = androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(navController.graph.startDestinationId, true)
+                    .build()
+                navController.navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
                         benVisitInfo.patient.patientID, 0L
-                    )
+                    ), navOptions
                 )
             }
         }

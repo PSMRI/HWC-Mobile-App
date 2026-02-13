@@ -405,8 +405,8 @@ class PatientDetailsViewModel @Inject constructor(
     /**
      * Get all patients for face comparison.
      */
-    fun getAllPatientsForFaceComparison(): List<Patient> {
+    suspend fun getAllPatientsForFaceComparison(): List<Patient> {
         return patientDao.getAllPatients()
-    }
+        }
 
 }
