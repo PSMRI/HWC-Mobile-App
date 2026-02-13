@@ -378,7 +378,7 @@ class PncFormDataset(
                 }
             }
             maternalSymptoms.value = it.maternalSymptoms
-            if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(contraceptionMethod.entries!!.last()) == true) {
+            if (it.maternalSymptoms?.contains("Other") == true || it.maternalSymptoms?.contains(maternalSymptoms.entries!!.last()) == true) {
                 list.add(list.indexOf(maternalSymptoms) + 1, otherMaternalSymptoms)
             }
             otherMaternalSymptoms.value = it.otherMaternalSymptoms
