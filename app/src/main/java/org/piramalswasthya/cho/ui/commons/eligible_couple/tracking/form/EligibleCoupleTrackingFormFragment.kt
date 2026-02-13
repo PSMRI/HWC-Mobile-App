@@ -98,12 +98,10 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                         hardCodedListUpdate(formId)
                     }, isEnabled = !recordExists
                 )
-                // Show submit button if record does not exist (new form mode)
                 // Hide parent activity's bottom navigation to avoid duplicate buttons
+                activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
+                
                 binding.btnSubmit.visibility = if(recordExists) View.GONE else View.VISIBLE
-                if (!recordExists) {
-                    activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-                }
                 binding.btnSubmit.isEnabled = !recordExists
                 binding.form.rvInputForm.adapter = adapter
                 lifecycleScope.launch {
@@ -204,10 +202,8 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 resources.getString(R.string.tracking_form_filled_successfully),
                 Toast.LENGTH_SHORT
             ).show()
-            // Save nurse data in background, but navigate back immediately
             // ECT data is already saved, so visit history will show it
             saveNurseDataInBackground()
-            // Navigate back to eligible couple tracking list
             viewModel.resetState()
             navigateBackToList()
         }
@@ -215,24 +211,57 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     }
 
     private fun navigateToPregnancyRegistration() {
+        val bundle = Bundle().apply {
+            putString("patientID", viewModel.patientID)
+            putBoolean("fromECT", true)
+        }
         try {
-            // Navigate to MaternalHealthNavHostFragment with arguments to open PWR form
-            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment().apply {
-                arguments = Bundle().apply {
-                    putInt("destinationId", R.id.pregnancyRegistrationFormFragment)
-                    putString("patientID", viewModel.patientID)
-                    putBoolean("fromECT", true)
-                }
+            // First attempt: use NavController which is the modern way
+            val navController = androidx.navigation.fragment.NavHostFragment.findNavController(this)
+            
+            val destId = when {
+                navController.graph.findNode(R.id.pregnantWomanRegistrationFragment) != null -> R.id.pregnantWomanRegistrationFragment
+                navController.graph.findNode(R.id.pregnancyRegistrationFormFragment) != null -> R.id.pregnancyRegistrationFormFragment
+                else -> throw Exception("No PWR destination found in nav graph")
             }
             
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-                
+            navController.navigate(destId, bundle)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to navigate to Pregnancy Registration form")
-            navigateBackToList()
+            timber.log.Timber.e(e, "NavController navigation failed, falling back to manual transaction")
+            
+            // Fallback: manual transaction with dynamic container detection
+            val containerId = if (requireActivity().findViewById<android.view.View>(R.id.fragment_container) != null) {
+                R.id.fragment_container
+            } else if (requireActivity().findViewById<android.view.View>(R.id.patient_detalis) != null) {
+                R.id.patient_detalis
+            } else {
+                // Last resort fallback to try and avoid a crash
+                android.R.id.content
+            }
+
+            // Manually update the Activity UI as NavController listener won't be triggered
+            (requireActivity() as? androidx.appcompat.app.AppCompatActivity)?.let { activity ->
+                activity.supportActionBar?.title = getString(R.string.title_register_pregnancy)
+                // Also update the custom header text if it exists (for EditPatientDetailsActivity)
+                activity.findViewById<android.widget.TextView>(R.id.header_text_register_patient)?.text = getString(R.string.title_register_pregnancy)
+                // Hide bottom navigation
+                activity.findViewById<android.view.View>(R.id.bottom_navigation)?.visibility = android.view.View.GONE
+            }
+
+            val fragment = org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment().apply {
+                arguments = bundle
+            }
+            
+            try {
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(containerId, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            } catch (ex: Exception) {
+                timber.log.Timber.e(ex, "Manual transaction also failed")
+                Toast.makeText(requireContext(), "Unable to open registration form", Toast.LENGTH_SHORT).show()
+                navigateBackToList()
+            }
         }
     }
 
