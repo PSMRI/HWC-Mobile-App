@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import org.piramalswasthya.cho.database.room.InAppDb
+import org.piramalswasthya.cho.database.room.LabProcedureMasterSeed
 import org.piramalswasthya.cho.database.room.dao.ProcedureDao
 import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.model.ComponentDetails
@@ -33,7 +33,6 @@ import javax.inject.Inject
 class ProcedureRepo @Inject constructor(
     private val procedureDao: ProcedureDao,
     private val procedureMasterDao: ProcedureMasterDao,
-    private val inAppDb: InAppDb,
     private val apiService: AmritApiService,
     private val userRepo: UserRepo
 ) {
@@ -92,17 +91,65 @@ class ProcedureRepo @Inject constructor(
     suspend fun ensureLabProcedureMasterSeed() {
         withContext(Dispatchers.IO) {
             if (procedureMasterDao.getMasterProcedureById(101L) != null) return@withContext
-            inAppDb.runSeedLabProcedureMaster()
+            for (i in LabProcedureMasterSeed.procedures.indices) {
+                val (procId, name, procType) = LabProcedureMasterSeed.procedures[i]
+                val procedureMaster = procedureMasterDao.getMasterProcedureById(procId)
+                val procedureId = if (procedureMaster == null) {
+                    procedureMasterDao.insert(
+                        ProcedureMaster(
+                            procedureID = procId,
+                            procedureDesc = name,
+                            procedureType = procType,
+                            prescriptionID = LabProcedureMasterSeed.PRESCRIPTION_ID,
+                            procedureName = name,
+                            isMandatory = false
+                        )
+                    )
+                } else {
+                    procedureMaster.id
+                }
+                val comp = LabProcedureMasterSeed.components[i]
+                val testComponentId = (comp[0] as Number).toLong()
+                val existingComponents = procedureMasterDao.getComponentDetails(procedureId)
+                val existingComp = existingComponents.find { it.testComponentID == testComponentId }
+                val componentDetailsId = if (existingComp == null) {
+                    procedureMasterDao.insert(
+                        ComponentDetailsMaster(
+                            testComponentID = testComponentId,
+                            procedureID = procedureId,
+                            rangeNormalMin = (comp[1] as? Number)?.toInt(),
+                            rangeNormalMax = (comp[2] as? Number)?.toInt(),
+                            rangeMin = (comp[3] as? Number)?.toInt(),
+                            rangeMax = (comp[4] as? Number)?.toInt(),
+                            isDecimal = (comp[5] as? Number)?.toInt() == 1,
+                            inputType = comp[6] as String,
+                            measurementUnit = comp[7] as? String,
+                            testComponentName = (comp[8] as? String) ?: "",
+                            testComponentDesc = (comp[9] as? String) ?: ""
+                        )
+                    )
+                } else {
+                    existingComp.id
+                }
+                val existingOptions = procedureMasterDao.getComponentOptions(componentDetailsId)?.map { it.name }.orEmpty()
+                for (optName in LabProcedureMasterSeed.componentOptions[i]) {
+                    if (optName !in existingOptions) {
+                        procedureMasterDao.insert(
+                            ComponentOptionsMaster(componentDetailsId = componentDetailsId, name = optName)
+                        )
+                    }
+                }
+            }
         }
     }
 
 
     private suspend fun getProcedureMasterData(): NetworkResult<NetworkResponse> {
         return networkResultInterceptor {
-                val procedureMasterDataRequest = MasterLabProceduresRequestModel(
-                    providerServiceMapID = userRepo.getLoggedInUser()?.serviceMapId
+            val procedureMasterDataRequest = MasterLabProceduresRequestModel(
+                providerServiceMapID = userRepo.getLoggedInUser()?.serviceMapId
 
-                )
+            )
 
             val response = apiService.getMasterLabProceduresDate(procedureMasterDataRequest)
             val responseBody = response.body()?.string()
