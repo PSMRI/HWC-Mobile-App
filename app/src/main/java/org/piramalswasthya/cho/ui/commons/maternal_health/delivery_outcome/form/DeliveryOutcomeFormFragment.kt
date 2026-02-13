@@ -43,7 +43,6 @@ class DeliveryOutcomeFormFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fabEdit.visibility = View.GONE
-        binding.btnSubmit.text = getString(R.string.do_next)
         binding.btnSubmit.visibility = View.VISIBLE
         
         // Show form title for Delivery Outcome
@@ -52,6 +51,16 @@ class DeliveryOutcomeFormFragment : Fragment() {
 
         var adapter: FormInputAdapter? = null
         viewModel.recordExists.observe(viewLifecycleOwner) { recordExists ->
+            if (recordExists == true) {
+                // Record already filled → show "Back" button, navigate back
+                binding.btnSubmit.text = getString(R.string.back)
+                binding.btnSubmit.setOnClickListener { findNavController().navigateUp() }
+            } else {
+                // No record yet → show "Register" button, validate & save on click
+                binding.btnSubmit.text = getString(R.string.register)
+                binding.btnSubmit.setOnClickListener { onNextClicked() }
+            }
+
             if (adapter == null) {
                 adapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
@@ -94,8 +103,6 @@ class DeliveryOutcomeFormFragment : Fragment() {
         
         // Observe general alerts (date, place, gestational age, unskilled delivery, etc.)
         observeGeneralAlerts()
-
-        binding.btnSubmit.setOnClickListener { onNextClicked() }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
