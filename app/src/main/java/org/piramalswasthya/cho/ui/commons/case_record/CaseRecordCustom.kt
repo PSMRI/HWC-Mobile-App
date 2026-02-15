@@ -367,13 +367,20 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             getVisitResObserver(benVisitInfo)
 
             // Use latest pharmacist_flag from DB so completed (lab+pharmacist) cases get correct UI even if intent was stale
-            val sync = runBlocking(Dispatchers.IO) {
-                viewModel.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
-                    benVisitInfo.patient.patientID,
-                    benVisitInfo.benVisitNo!!
-                )
-            }
-            effectivePharmacistFlag = sync?.pharmacist_flag ?: benVisitInfo.pharmacist_flag
+            val benVisitNo = benVisitInfo.benVisitNo
+            val sync = if (benVisitNo != null) {
+                runBlocking(Dispatchers.IO) {
+                    try {
+                        viewModel.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                            benVisitInfo.patient.patientID,
+                            benVisitNo
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            } else null
+            effectivePharmacistFlag = sync?.pharmacist_flag ?: benVisitInfo.pharmacist_flag ?: 0
             effectivePharmacistFlagForVisibility = effectivePharmacistFlag
 
             // New card from CHO to doctor: show editable sections only when pharmacist has NOT yet dispensed (use DB value)
