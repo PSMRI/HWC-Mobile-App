@@ -203,7 +203,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2)")
+            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2 OR vis.doctorFlag = 3)")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

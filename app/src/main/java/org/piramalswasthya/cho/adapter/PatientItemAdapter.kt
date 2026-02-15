@@ -165,13 +165,11 @@ class PatientItemAdapter(
                 binding.btnAbha.isEnabled = false
                 //   binding.ivSyncState.visibility = View.GONE
             }
-            /*   Commented as prescription button should not display to user*/
-
-            if(item.doctorFlag == 9){
-                   binding.prescriptionDownloadBtn.visibility = View.VISIBLE
-               }else{
-                   binding.prescriptionDownloadBtn.visibility = View.GONE
-               }
+            // Show prescription download when doctor has submitted (medicine prescribed) or pharmacist has submitted
+            // doctorFlag 2 = submitted with test pending, 3 = post-lab, 9 = submitted without test
+            val showPrescriptionDownload = item.pharmacist_flag == 9 ||
+                    item.doctorFlag == 2 || item.doctorFlag == 3 || item.doctorFlag == 9
+            binding.prescriptionDownloadBtn.visibility = if (showPrescriptionDownload) View.VISIBLE else View.GONE
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
