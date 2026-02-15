@@ -214,7 +214,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             }else{
                 binding.patientList.visibility = View.GONE
             }
-            Log.i("CaseRecordOne", "onViewCreated:1 ")
+
             binding.plusButtonD.visibility = View.GONE
             binding.plusButtonP.visibility = View.GONE
             binding.tempName.visibility = View.GONE
@@ -232,7 +232,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             getVisitResObserver(benVisitInfo)
              if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 ){
                  btnSubmit?.visibility = View.VISIBLE
-                 Log.i("CaseRecordOne", "onViewCreated:2")
                  binding.plusButtonD.visibility = View.VISIBLE
                  binding.plusButtonP.visibility = View.VISIBLE
                  binding.useTempForFields.visibility = View.VISIBLE
@@ -249,7 +248,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
              } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 )
             {
                  btnSubmit?.visibility = View.VISIBLE
-                Log.i("CaseRecordOne", "onViewCreated:3")
                 binding.plusButtonD.visibility = View.VISIBLE
                 binding.plusButtonP.visibility = View.VISIBLE
                 binding.useTempForFields.visibility = View.VISIBLE
@@ -268,7 +266,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                  btnSubmit?.visibility = View.GONE
                  btnCancel?.visibility = View.VISIBLE
                  btnCancel?.text = getString(R.string.close)
-                 Log.i("CaseRecordOne", "onViewCreated:4")
                  binding.plusButtonD.visibility = View.GONE
                  binding.plusButtonP.visibility = View.GONE
                  binding.useTempForFields.visibility = View.GONE
@@ -401,7 +398,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             // New card from CHO to doctor: show editable sections only when pharmacist has NOT yet dispensed (use DB value)
             if (effectivePharmacistFlag == 0) {
                 activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = View.VISIBLE
-                Log.i("CaseRecordOne", "onViewCreated:5 $effectivePharmacistFlag")
                 binding.plusButtonD.visibility = View.VISIBLE
                 binding.plusButtonP.visibility = View.VISIBLE
                 binding.useTempForFields.visibility = View.VISIBLE
@@ -419,15 +415,12 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 binding.vitalsExtra.visibility = View.VISIBLE
                 binding.vitalsLayout.visibility = View.VISIBLE
             }else{
-                Log.i("CaseRecordOne", "onViewCreated:5.0 $effectivePharmacistFlag")
                 if (effectivePharmacistFlag == 1) {
-                    Log.i("CaseRecordOne", "onViewCreated:5.1 $effectivePharmacistFlag")
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
                     btnSubmit?.visibility = View.GONE
                     btnCancel?.visibility = View.VISIBLE
                     btnCancel?.text = getString(R.string.close)
-//                Log.i("CaseRecordOne", "onViewCreated:4")
                     binding.plusButtonD.visibility = View.GONE
                     binding.plusButtonP.visibility = View.GONE
                     binding.useTempForFields.visibility = View.GONE
@@ -454,7 +447,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             activity?.findViewById<Button>(R.id.btnCancel)?.visibility = View.VISIBLE
             activity?.findViewById<Button>(R.id.btnCancel)?.text = getString(R.string.close)
             binding.plusButtonD.visibility = View.GONE
-            Log.i("CaseRecordOne", "onViewCreated:6")
             binding.plusButtonP.visibility = View.GONE
             binding.useTempForFields.visibility = View.GONE
             binding.tvAddTemplateTitle.visibility = View.GONE
@@ -785,7 +777,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
                     binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
-                    Log.i("CaseRecordOne", "onViewCreated:7")
                 }
             }
         )
@@ -794,7 +785,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.diagnosisExtra.layoutManager = layoutManager
         dAdapter.notifyItemInserted(itemListD.size - 1)
         binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
-        Log.i("CaseRecordOne", "onViewCreated:8")
         binding.plusButtonD.setOnClickListener {
             val newItem = DiagnosisValue()
             itemListD.add(newItem)
@@ -803,7 +793,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             dAdapter.notifyDataSetChanged()
             binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
             binding.plusButtonD.isEnabled = false
-            Log.i("CaseRecordOne", "onViewCreated:9")
         }
         val isMedicineDispensedByPharmacist = effectivePharmacistFlag == 9
         pAdapter = PrescriptionAdapter(
