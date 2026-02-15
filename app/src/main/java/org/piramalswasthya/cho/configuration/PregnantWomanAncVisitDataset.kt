@@ -132,7 +132,7 @@ class PregnantWomanAncVisitDataset(
         inputType = InputType.DROPDOWN,
         title = "Urine Albumin",
         entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
-        required = true,
+        required = false,
         hasDependants = true
     )
     private val randomBloodSugarTest = FormElement(
@@ -295,7 +295,7 @@ class PregnantWomanAncVisitDataset(
         title = "Blood Sugar (Fasting) mg/dL",
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,
-        required = true,
+        required = false,
         min = 40,
         max = 400,
         hasDependants = true
@@ -306,7 +306,7 @@ class PregnantWomanAncVisitDataset(
         inputType = InputType.DROPDOWN,
         title = "Urine Sugar",
         entries = arrayOf("Negative", "Trace", "+", "++", "+++"),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
@@ -316,7 +316,7 @@ class PregnantWomanAncVisitDataset(
         title = "Fetal Heart Rate (FHR) bpm",
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL,
         etMaxLength = 5,
-        required = true,
+        required = false,
         minDecimal = 40.0,
         maxDecimal = 200.0,
         hasDependants = true
@@ -352,7 +352,7 @@ class PregnantWomanAncVisitDataset(
             "Persistent vomiting",
             "Breathlessness/ chest pain"
         ),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
@@ -377,14 +377,14 @@ class PregnantWomanAncVisitDataset(
             "Immunization",
             "Hygiene and Infection Prevention"
         ),
-        required = true
+        required = false
     )
 
     private val nextAncVisitDate = FormElement(
         id = 40,
         inputType = InputType.DATE_PICKER,
         title = "Next ANC Visit Date",
-        required = true
+        required = false
     )
 
     private var toggleBp = false
@@ -411,14 +411,14 @@ class PregnantWomanAncVisitDataset(
             pulseRate,
             hb,
             bloodSugarFasting,
-            fundalHeight,
+//            fundalHeight,
             urineAlbumin,
             urineSugar,
             fetalHeartRate,
             randomBloodSugarTest,
             dateOfTTOrTd1,
-            dateOfTTOrTd2,
-            dateOfTTOrTdBooster,
+//            dateOfTTOrTd2,             // Added dynamically
+//            dateOfTTOrTdBooster,       // Added dynamically
             numFolicAcidTabGiven,
             numIfaAcidTabGiven,
             calciumGiven,
@@ -428,7 +428,7 @@ class PregnantWomanAncVisitDataset(
             hrpConfirm,
             counsellingProvided,
             nextAncVisitDate
-        )
+        ).toMutableList()
         
         val list = mutableListOf(
             lmpDate,
@@ -442,13 +442,57 @@ class PregnantWomanAncVisitDataset(
             list.addAll(ancFields)
         }
 
+        // Dynamic Field Insertion based on History
+        val td1Index = list.indexOf(dateOfTTOrTd1)
+        if (td1Index != -1) {
+            // If Td1 is present (history or current), add Td2
+            if (regis.tt1 != null || dateOfTTOrTd1.value != null) {
+                if (!list.contains(dateOfTTOrTd2)) {
+                    val td1Date = regis.tt1 ?: getLongFromDate(dateOfTTOrTd1.value)
+                    if (td1Date != null) {
+                         val minTd2Date = td1Date + TimeUnit.DAYS.toMillis(4 * 7)
+                         val maxTd2Date = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+                         
+                         // Always add, just set type based on validity
+                         if (minTd2Date <= maxTd2Date) {
+                             dateOfTTOrTd2.inputType = InputType.DATE_PICKER
+                             dateOfTTOrTd2.min = minTd2Date
+                             dateOfTTOrTd2.max = maxTd2Date
+                         } else {
+                             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                         }
+                         list.add(td1Index + 1, dateOfTTOrTd2)
+                    }
+                }
+            }
+            // If Td2 is present (history or current), add Booster
+            if (regis.tt2 != null || dateOfTTOrTd2.value != null) {
+                 val td2Index = list.indexOf(dateOfTTOrTd2)
+                 if (td2Index != -1) { 
+                     if (!list.contains(dateOfTTOrTdBooster)) {
+                         val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
+                         val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+                         
+                         if (minBoosterDate <= maxBoosterDate) {
+                            dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                            dateOfTTOrTdBooster.min = minBoosterDate
+                            dateOfTTOrTdBooster.max = maxBoosterDate
+                         } else {
+                            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                         }
+                         list.add(td2Index + 1, dateOfTTOrTdBooster)
+                     }
+                 }
+            }
+        }
+
         lmpDate.value = this.regis.getDateStringFromLong(this.regis.lmpDate)
         abortionDate.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
         // TD Dose 1: 5 weeks from LMP to 36 weeks of LMP, ≤ today
-        dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+        dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
         dateOfTTOrTd1.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
         // TT Booster: 5 weeks from LMP to 36 weeks of LMP, ≤ today
-        dateOfTTOrTdBooster.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+        dateOfTTOrTdBooster.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
         dateOfTTOrTdBooster.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
         // Abortion date: 5-21 weeks (unchanged)
         abortionDate.max =
@@ -706,17 +750,8 @@ class PregnantWomanAncVisitDataset(
                 dateOfTTOrTd2.title += allTdDosesMessage
             }
             
-            // Booster Enabled (since Td2 is present)
-            val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
-            val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
-            
-            if (minBoosterDate <= maxBoosterDate) {
-                 dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
-                 dateOfTTOrTdBooster.min = minBoosterDate
-                 dateOfTTOrTdBooster.max = maxBoosterDate
-            } else {
-                 dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW // Disable if invalid range
-            }
+            // Booster Disabled (since Td2 present means series complete)
+            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
 
         } else if (regis.tt1 != null) {
             // Td1 given
@@ -731,14 +766,18 @@ class PregnantWomanAncVisitDataset(
             // Booster Disabled (Need Td2 first)
             dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
         } else {
-            // No Td given
+            // No Td given - Enable BOTH Td1 and Booster
             dateOfTTOrTd1.inputType = InputType.DATE_PICKER
              // Td1 Range: 5 weeks from LMP to 36 weeks, max Today
-            dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
+            dateOfTTOrTd1.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
             dateOfTTOrTd1.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
             
             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
-            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+            
+            // Booster Range: 5 weeks from LMP to 36 weeks, max Today
+            dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+            dateOfTTOrTdBooster.min = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
+            dateOfTTOrTdBooster.max = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
         }
     }
 
@@ -934,13 +973,29 @@ class PregnantWomanAncVisitDataset(
             )
 
             dateOfTTOrTd1.id -> {
+                var result = -1
                 if (dateOfTTOrTd1.value == null) {
                     // If Td1 removed, disable Td2 and Booster
-                    dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                    if (dateOfTTOrTd2.inputType != InputType.TEXT_VIEW) {
+                        dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                        result = 1
+                    }
                     dateOfTTOrTd2.value = null
                     
-                    dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
-                    dateOfTTOrTdBooster.value = null
+                    // Re-enable Booster if Td1 is cleared
+                    if (dateOfTTOrTdBooster.inputType != InputType.DATE_PICKER) {
+                        dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                        result = 1
+                    }
+                    
+                    // Remove Td2 (and Booster if present)
+                    val res = triggerDependants(
+                        source = dateOfTTOrTd1,
+                        addItems = emptyList(),
+                        removeItems = listOf(dateOfTTOrTd2, dateOfTTOrTdBooster),
+                        position = getIndexById(dateOfTTOrTd1.id) + 1
+                    )
+                    if (res != -1) result = res
                 } else {
                     // If Td1 entered, enable Td2
                     
@@ -949,74 +1004,136 @@ class PregnantWomanAncVisitDataset(
                     // Set max to 36 weeks LMP or Today
                     val maxDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
                     
+                    // Always add Td2 if Td1 is entered
+                    if (getIndexOfTd2() == -1) {
+                         val res = triggerDependants(
+                            source = dateOfTTOrTd1,
+                            addItems = listOf(dateOfTTOrTd2),
+                            removeItems = emptyList(),
+                            position = getIndexById(dateOfTTOrTd1.id) + 1
+                         )
+                         if (res != -1) result = res
+                    }
+
+                    // Check if Td2 is valid (Min <= Max) to Enable it
                     if (minDate <= maxDate) {
-                        dateOfTTOrTd2.inputType = InputType.DATE_PICKER
-                        dateOfTTOrTd2.min = minDate
-                        dateOfTTOrTd2.max = maxDate
+                         if (dateOfTTOrTd2.inputType != InputType.DATE_PICKER) {
+                             dateOfTTOrTd2.inputType = InputType.DATE_PICKER
+                             result = 1
+                         }
+                         dateOfTTOrTd2.min = minDate
+                         dateOfTTOrTd2.max = maxDate
                     } else {
-                         // Invalid range, disable Td2
-                        dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
-                        dateOfTTOrTd2.value = null
+                        // Td2 not possible yet -> Disable it (Show as TextView)
+                         if (dateOfTTOrTd2.inputType != InputType.TEXT_VIEW) {
+                             dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                             result = 1
+                         }
+                         dateOfTTOrTd2.value = null
                     }
                     
-                    // Disable Booster until Td2 is done (Strict sequence)
-                    dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
-                    dateOfTTOrTdBooster.value = null
+                    // Disable Booster (Mutual Exclusion) - DO NOT CLEAR VALUE
+                    if (dateOfTTOrTdBooster.inputType != InputType.TEXT_VIEW) {
+                        dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                        result = 1
+                    }
                 }
-                -1
+                result
             }
 
             dateOfTTOrTd2.id -> {
+                var result = -1
                 if (dateOfTTOrTd2.value != null) {
                     if (!dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
                         dateOfTTOrTd2.title += allTdDosesMessage
+                        result = 1
                     }
-                    // Enable Booster if Td2 is documented
-                    val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7 + 1)
-                    val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+                    // Always Add Booster if Td2 is entered
+                    if (getIndexOfTdBooster() == -1) {
+                         val res = triggerDependants(
+                            source = dateOfTTOrTd2,
+                            addItems = listOf(dateOfTTOrTdBooster),
+                            removeItems = emptyList(),
+                            position = getIndexById(dateOfTTOrTd2.id) + 1
+                         )
+                         if (res != -1) result = res
+                    }
                     
+                    val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
+                    val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+
+                    // Check availability
                     if (minBoosterDate <= maxBoosterDate) {
-                        dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                        if (dateOfTTOrTdBooster.inputType != InputType.DATE_PICKER) {
+                            dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                            result = 1
+                        }
                         dateOfTTOrTdBooster.min = minBoosterDate
                         dateOfTTOrTdBooster.max = maxBoosterDate
                     } else {
-                        dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                        // Booster not possible yet -> Disable
+                        if (dateOfTTOrTdBooster.inputType != InputType.TEXT_VIEW) {
+                            dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                            result = 1
+                        }
                         dateOfTTOrTdBooster.value = null
                     }
                 } else {
                     // Remove message if cleared
                     if (dateOfTTOrTd2.title.contains(allTdDosesMessage)) {
                          dateOfTTOrTd2.title = dateOfTTOrTd2.title.replace(allTdDosesMessage, "")
+                         result = 1
                     }
-                    // Disable Booster if Td2 cleared
-                    dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                    // Disable Booster if Td2 cleared -> Remove Booster
+                    if (dateOfTTOrTdBooster.inputType != InputType.TEXT_VIEW) {
+                        dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                        result = 1
+                    }
                     dateOfTTOrTdBooster.value = null
+                    
+                    val res = triggerDependants(
+                        source = dateOfTTOrTd2,
+                        addItems = emptyList(),
+                        removeItems = listOf(dateOfTTOrTdBooster),
+                        position = getIndexById(dateOfTTOrTd2.id) + 1
+                    )
+                    if (res != -1) result = res
                 }
-                -1
+                result
             }
 
             dateOfTTOrTdBooster.id -> {
+                var result = -1
                 if (dateOfTTOrTdBooster.value != null) {
-                    // Booster entered -> Disable Td1
-                    dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
-                    dateOfTTOrTd1.value = null
-                    dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
-                    dateOfTTOrTd2.value = null
+                    // Booster entered -> Disable Td1/Td2 (Mutual Exclusion) - DO NOT CLEAR VALUE
+                    if (dateOfTTOrTd1.inputType != InputType.TEXT_VIEW) {
+                        dateOfTTOrTd1.inputType = InputType.TEXT_VIEW
+                        result = 1
+                    }
+                    if (dateOfTTOrTd2.inputType != InputType.TEXT_VIEW) {
+                        dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                        result = 1
+                    }
                     
                     if (!dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
                         dateOfTTOrTdBooster.title += allTdDosesMessage
+                        result = 1
                     }
                 } else {
                     // Booster removed -> Enable Td1 (if eligible)
                     if (regis.tt1 == null) {
-                         dateOfTTOrTd1.inputType = InputType.DATE_PICKER
+                        if (dateOfTTOrTd1.inputType != InputType.DATE_PICKER) {
+                            dateOfTTOrTd1.inputType = InputType.DATE_PICKER
+                            result = 1
+                        }
                     }
                     // Remove message
                      if (dateOfTTOrTdBooster.title.contains(allTdDosesMessage)) {
                         dateOfTTOrTdBooster.title = dateOfTTOrTdBooster.title.replace(allTdDosesMessage, "")
+                         result = 1
                     }
                 }
-                -1
+                result
             }
 
             bp.id -> {
@@ -1089,14 +1206,15 @@ class PregnantWomanAncVisitDataset(
                     pulseRate,
                     hb,
                     bloodSugarFasting,
-                    fundalHeight,
+//                    fundalHeight,
                     urineAlbumin,
                     urineSugar,
                     fetalHeartRate,
                     randomBloodSugarTest,
                     dateOfTTOrTd1,
-                    dateOfTTOrTd2,
-                    dateOfTTOrTdBooster,
+                    // Td2 and Booster added conditionally below
+//                    dateOfTTOrTd2,
+//                    dateOfTTOrTdBooster,
                     numFolicAcidTabGiven,
                     numIfaAcidTabGiven,
                     calciumGiven,
@@ -1168,6 +1286,49 @@ class PregnantWomanAncVisitDataset(
                      
                      if (counsellingProvided.value == counsellingProvided.entries!!.last()) {
                          ancFields.add(ancFields.indexOf(counsellingProvided) + 1, counsellingTopics)
+                     }
+
+                     // Re-apply Td Logic dynamically
+                     val td1Index = ancFields.indexOf(dateOfTTOrTd1)
+                     if (td1Index != -1) {
+                         // If Td1 is present (history or current), add Td2
+                         if (regis.tt1 != null || dateOfTTOrTd1.value != null) {
+                             if (!ancFields.contains(dateOfTTOrTd2)) {
+                                 val td1Date = regis.tt1 ?: getLongFromDate(dateOfTTOrTd1.value)
+                                 if (td1Date != null) {
+                                      val minTd2Date = td1Date + TimeUnit.DAYS.toMillis(4 * 7)
+                                      val maxTd2Date = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+                                      
+                                      if (minTd2Date <= maxTd2Date) {
+                                          dateOfTTOrTd2.inputType = InputType.DATE_PICKER
+                                          dateOfTTOrTd2.min = minTd2Date
+                                          dateOfTTOrTd2.max = maxTd2Date
+                                      } else {
+                                          dateOfTTOrTd2.inputType = InputType.TEXT_VIEW
+                                      }
+                                      ancFields.add(td1Index + 1, dateOfTTOrTd2)
+                                 }
+                             }
+                         }
+                         // If Td2 is present (history or current), add Booster
+                         val td2Index = ancFields.indexOf(dateOfTTOrTd2)
+                         if (td2Index != -1) {
+                             if (regis.tt2 != null || dateOfTTOrTd2.value != null) {
+                                  if (!ancFields.contains(dateOfTTOrTdBooster)) {
+                                      val minBoosterDate = regis.lmpDate + TimeUnit.DAYS.toMillis(5 * 7)
+                                      val maxBoosterDate = minOf(System.currentTimeMillis(), regis.lmpDate + TimeUnit.DAYS.toMillis(36 * 7))
+                                      
+                                      if (minBoosterDate <= maxBoosterDate) {
+                                         dateOfTTOrTdBooster.inputType = InputType.DATE_PICKER
+                                         dateOfTTOrTdBooster.min = minBoosterDate
+                                         dateOfTTOrTdBooster.max = maxBoosterDate
+                                      } else {
+                                         dateOfTTOrTdBooster.inputType = InputType.TEXT_VIEW
+                                      }
+                                      ancFields.add(td2Index + 1, dateOfTTOrTdBooster)
+                                  }
+                             }
+                         }
                      }
                      
                      triggerDependants(
@@ -1509,28 +1670,56 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun updateRegistrationForTdX() {
-        if (dateOfTTOrTd1.value.isNullOrBlank() || dateOfTTOrTd2.value.isNullOrBlank() || dateOfTTOrTdBooster.value.isNullOrBlank())
-            return
-        else {
-            val td1 = if (dateOfTTOrTd1.inputType == InputType.DATE_PICKER) getLongFromDate(
-                dateOfTTOrTd1.value
-            ) else null
-            val td2 = if (dateOfTTOrTd2.inputType == InputType.DATE_PICKER) getLongFromDate(
-                dateOfTTOrTd2.value
-            ) else null
-            val tdBooster =
-                if (dateOfTTOrTdBooster.inputType == InputType.DATE_PICKER) getLongFromDate(
-                    dateOfTTOrTdBooster.value
-                ) else null
-            if (td1 == null && td2 == null && tdBooster == null)
-                return
+        var updated = false
+        // Save each field individually. Explicitly handle nulls to allow clearing.
+        
+        // Td1
+        if (dateOfTTOrTd1.inputType == InputType.DATE_PICKER || dateOfTTOrTd1.inputType == InputType.TEXT_VIEW) {
+            val newVal = dateOfTTOrTd1.value?.let { getLongFromDate(it) }
+            if (regis.tt1 != newVal) {
+                regis.tt1 = newVal
+                updated = true
+            }
         }
-        regis.tt1 = dateOfTTOrTd1.value?.let { getLongFromDate(it) }
-        regis.tt2 = dateOfTTOrTd2.value?.let { getLongFromDate(it) }
-        regis.ttBooster = dateOfTTOrTdBooster.value?.let { getLongFromDate(it) }
-        regis.updatedDate = System.currentTimeMillis()
-        if (regis.processed != "N") regis.processed = "U"
-        regis.syncState = SyncState.UNSYNCED
+
+        // Td2
+        // Only update if the field is visible/relevant (not completely hidden/irrelevant)
+        // But since we use TEXT_VIEW for disabled, we should update.
+        if (dateOfTTOrTd2.inputType == InputType.DATE_PICKER || dateOfTTOrTd2.inputType == InputType.TEXT_VIEW) {
+             val newVal = dateOfTTOrTd2.value?.let { getLongFromDate(it) }
+             if (regis.tt2 != newVal) {
+                 regis.tt2 = newVal
+                 updated = true
+             }
+        } else if (dateOfTTOrTd1.value == null) {
+            // Logic: If Td1 is null, Td2 must be null (strict sequence)
+            if (regis.tt2 != null) {
+                regis.tt2 = null
+                updated = true
+            }
+        }
+
+        // Booster
+        if (dateOfTTOrTdBooster.inputType == InputType.DATE_PICKER || dateOfTTOrTdBooster.inputType == InputType.TEXT_VIEW) {
+             val newVal = dateOfTTOrTdBooster.value?.let { getLongFromDate(it) }
+             if (regis.ttBooster != newVal) {
+                 regis.ttBooster = newVal
+                 updated = true
+             }
+        } else if (dateOfTTOrTd2.value == null) {
+             // Logic: If Td2 is null, Booster must be null
+             if (regis.ttBooster != null) {
+                 regis.ttBooster = null
+                 updated = true
+             }
+        }
+        
+        // Mark as updated if any change
+        if (updated) {
+            regis.updatedDate = System.currentTimeMillis()
+            if (regis.processed != "N") regis.processed = "U"
+            regis.syncState = SyncState.UNSYNCED
+        }
     }
 
     fun getWeeksOfPregnancy(): Int = getIndexById(weekOfPregnancy.id)
