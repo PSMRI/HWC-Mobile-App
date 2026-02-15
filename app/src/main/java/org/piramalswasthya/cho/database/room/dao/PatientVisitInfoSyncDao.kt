@@ -138,6 +138,10 @@ interface PatientVisitInfoSyncDao {
     suspend fun updatePharmacistFlag(patientID: String, benVisitNo: Int)
 
     @Transaction
+    @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET pharmacist_flag = 1, visitCategory = 'General OPD' WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
+    suspend fun updatePharmacistFlagToPending(patientID: String, benVisitNo: Int)
+
+    @Transaction
     @Query("UPDATE PATIENT_VISIT_INFO_SYNC SET doctorDataSynced = :syncing WHERE patientID = :patientID AND benVisitNo = :benVisitNo")
     suspend fun updatePatientDoctorDataSyncSyncing(syncing: SyncState? = SyncState.SYNCING, patientID: String, benVisitNo: Int)
 
@@ -199,7 +203,7 @@ interface PatientVisitInfoSyncDao {
             "LEFT JOIN VILLAGE_MASTER vilN ON pat.districtBranchID = vilN.districtBranchID "+
             "LEFT JOIN AGE_UNIT age ON age.id = pat.ageUnitID " +
             "LEFT JOIN MARITAL_STATUS_MASTER mat on mat.maritalStatusID = pat.maritalStatusID " +
-            "WHERE vis.doctorFlag = 9 AND vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1")
+            "WHERE vis.visitCategory = 'General OPD' AND vis.pharmacist_flag = 1 AND (vis.doctorFlag = 9 OR vis.doctorFlag = 2)")
     fun getPatientDisplayListForPharmacist(): Flow<List<PatientDisplayWithVisitInfo>>
 
     @Transaction

@@ -256,6 +256,12 @@ class HomeActivityViewModel @Inject constructor (application: Application,
                         dummyPatientDoctorBundle.patientVisitInfoSync.doctorDataSynced = SyncState.SYNCED
                         dummyPatientDoctorBundle.patientVisitInfoSync.pharmacistDataSynced = SyncState.SYNCED
                         patientVisitInfoSyncDao.insertPatientVisitInfoSync( dummyPatientDoctorBundle.patientVisitInfoSync)
+                    } else {
+                        // When both test and prescription are selected, move card to pharmacist module
+                        patientVisitInfoSyncDao.updatePharmacistFlagToPending(
+                            dummyPatientDoctorBundle.patientVisitInfoSync.patientID,
+                            dummyPatientDoctorBundle.patientVisitInfoSync.benVisitNo!!
+                        )
                     }
                 }catch (e:Exception){
                     e.printStackTrace()

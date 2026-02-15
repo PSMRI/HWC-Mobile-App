@@ -25,6 +25,7 @@ import org.piramalswasthya.cho.utils.HelperUtil
 class PrescriptionAdapter(
     private val isVisitDetail: Boolean? = null,
     private val isFollowupVisit: Boolean? = null,
+    private val isMedicineDispensedByPharmacist: Boolean = false,
     private val itemList: MutableList<PrescriptionValues>,
     private val formMD: List<ItemMasterList>,
     private val frequencyDropDown: List<String>,
@@ -161,7 +162,9 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        if (isVisitDetail == true && isFollowupVisit == false){
+        // Always show row; disable when case read-only, pharmacist dispensed, or row was pre-filled from DB (has id)
+        val isRowReadOnly = (isVisitDetail == true && isFollowupVisit == false) || isMedicineDispensedByPharmacist || itemData.id != null
+        if (isRowReadOnly) {
             holder.subtractButton.isEnabled = false
             holder.addButton.isEnabled = false
 
@@ -175,6 +178,9 @@ class PrescriptionAdapter(
 
             holder.resetButton.isVisible = false
             holder.cancelButton.isVisible = false
+        } else {
+            holder.resetButton.isVisible = true
+            holder.cancelButton.isVisible = true
         }
 
         // Bind data and set listeners for user interactions
