@@ -335,15 +335,16 @@ class CaseRecordViewModel @Inject constructor(
                     prescriptionList.forEach {
                         savePrescriptionToCache(it)
                     }
-                    // When doctor has prescribed medicines (with or without test), move card to pharmacist module first
-                    // so it appears in pharmacist list same as when medicine is added after lab (test+medicine in one go)
+                    updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                    // When doctor has prescribed medicines (with or without test), move card to pharmacist module.
+                    // Called after updateDoctorDataSubmitted so pharmacist_flag and visitCategory are set last and
+                    // card shows in pharmacist list even when both test and prescription are selected together.
                     if (prescriptionList.isNotEmpty()) {
                         patientVisitInfoSyncRepo.updatePharmacistFlagToPending(
                             benVisitInfo.patient.patientID,
                             benVisitInfo.benVisitNo!!
                         )
                     }
-                    updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
                 }
                 _isDataSaved.value = true
             } catch (e: Exception){
@@ -394,6 +395,10 @@ class CaseRecordViewModel @Inject constructor(
 
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientId : String) : PatientVisitInfoSync?{
         return patientVisitInfoSyncRepo.getSinglePatientDoctorDataNotSubmitted(patientId);
+    }
+
+    suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVisitInfoSync? {
+        return patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID, benVisitNo)
     }
 
    suspend fun getTestNameTypeMap(): Map<Int, String> {

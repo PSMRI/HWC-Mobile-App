@@ -162,8 +162,13 @@ class PrescriptionAdapter(
             holder.addButton.isEnabled = true
         }
 
-        // Always show row; disable when case read-only, pharmacist dispensed, or row was pre-filled from DB (has id)
-        val isRowReadOnly = (isVisitDetail == true && isFollowupVisit == false) || isMedicineDispensedByPharmacist || itemData.id != null
+        // When already filled (read-only): only show rows that have data; when editable show all rows
+        val isCaseReadOnly = (isVisitDetail == true && isFollowupVisit == false) || isMedicineDispensedByPharmacist
+        val isRowReadOnly = isCaseReadOnly || itemData.id != null
+        val hasData = itemData.form.isNotBlank() || itemData.frequency.isNotBlank() ||
+                itemData.duration.isNotBlank() || itemData.instructions.isNotBlank() || itemData.unit.isNotBlank()
+        holder.itemView.visibility = if (isCaseReadOnly && !hasData) View.GONE else View.VISIBLE
+
         if (isRowReadOnly) {
             holder.subtractButton.isEnabled = false
             holder.addButton.isEnabled = false

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.CHOCaseRecordItemAdapter
 import org.piramalswasthya.cho.adapter.ChiefComplaintMultiAdapter
@@ -193,19 +196,25 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         isFlowComplete = arguments?.getBoolean("isFlowComplete")
         isFollowupVisit = arguments?.getBoolean("isFollowupVisit")
 
+        // Use DB value for pharmacist_flag in edit path so completed (lab+pharmacist) cases show correct UI even if intent was stale
+        var effectivePharmacistFlag: Int? = null
+
         if (viewRecordFragment == true) {
+            benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
+            effectivePharmacistFlag = benVisitInfo.pharmacist_flag
             viewModel.getFormMaster()
             val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
             val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
             btnSubmit?.visibility = View.GONE
             btnCancel?.text = getString(R.string.close)
+            btnCancel?.visibility = View.VISIBLE
 
             if (isFlowComplete == true){
                 binding.patientList.visibility = View.VISIBLE
             }else{
                 binding.patientList.visibility = View.GONE
             }
-
+            Log.i("CaseRecordOne", "onViewCreated:1 ")
             binding.plusButtonD.visibility = View.GONE
             binding.plusButtonP.visibility = View.GONE
             binding.tempName.visibility = View.GONE
@@ -220,10 +229,10 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.referDropdown.visibility = View.GONE
             binding.textReferHeading.visibility = View.GONE
 
-            benVisitInfo = arguments?.getSerializable("benVisitInfo") as PatientDisplayWithVisitInfo
             getVisitResObserver(benVisitInfo)
              if( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 3 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 ){
                  btnSubmit?.visibility = View.VISIBLE
+                 Log.i("CaseRecordOne", "onViewCreated:2")
                  binding.plusButtonD.visibility = View.VISIBLE
                  binding.plusButtonP.visibility = View.VISIBLE
                  binding.useTempForFields.visibility = View.VISIBLE
@@ -240,6 +249,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
              } else if ( benVisitInfo.nurseFlag == 9 && benVisitInfo.doctorFlag == 1 && preferenceDao.isDoctorSelected() && benVisitInfo.pharmacist_flag != 9 )
             {
                  btnSubmit?.visibility = View.VISIBLE
+                Log.i("CaseRecordOne", "onViewCreated:3")
                 binding.plusButtonD.visibility = View.VISIBLE
                 binding.plusButtonP.visibility = View.VISIBLE
                 binding.useTempForFields.visibility = View.VISIBLE
@@ -254,17 +264,32 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 binding.textReferHeading.visibility = View.VISIBLE
 
             } else {
+                 // Already filled (lab + pharmacist submitted): only Close button; no Submit/Cancel; no plus icons; no refer section
                  btnSubmit?.visibility = View.GONE
+                 btnCancel?.visibility = View.VISIBLE
+                 btnCancel?.text = getString(R.string.close)
+                 Log.i("CaseRecordOne", "onViewCreated:4")
                  binding.plusButtonD.visibility = View.GONE
                  binding.plusButtonP.visibility = View.GONE
                  binding.useTempForFields.visibility = View.GONE
-
+                 binding.tvAddTemplateTitle.visibility = View.GONE
+                 binding.tempName.visibility = View.GONE
+                 binding.saveTemplate.visibility = View.GONE
+                 binding.deleteTemp.visibility = View.GONE
+                 binding.referReason.visibility = View.GONE
+                 binding.referDropdown.visibility = View.GONE
+                 binding.textReferHeading.visibility = View.GONE
+                 binding.referDateLabel.visibility = View.GONE
+                 binding.referToLabel.visibility = View.GONE
+                 binding.referalReasonLabel.visibility = View.GONE
              }
 
 
             lifecycleScope.launch {
-
-                if (isFollowupVisit == true){
+                val isDoctorCanEditInView = benVisitInfo.nurseFlag == 9 &&
+                    (benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) &&
+                    benVisitInfo.pharmacist_flag != 9 && preferenceDao.isDoctorSelected()
+                if (isFollowupVisit == true && isDoctorCanEditInView){
                     btnSubmit?.visibility = View.VISIBLE
                     btnSubmit?.text = getString(R.string.update_btn)
                     viewModel.benFlows.observe(viewLifecycleOwner) { benFlowList ->
@@ -364,9 +389,19 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
 
             getVisitResObserver(benVisitInfo)
 
-            // New card from CHO to doctor (incl. new registration without complaint): show all sections
-            if (benVisitInfo.pharmacist_flag != 9) {
+            // Use latest pharmacist_flag from DB so completed (lab+pharmacist) cases get correct UI even if intent was stale
+            val sync = runBlocking(Dispatchers.IO) {
+                viewModel.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                    benVisitInfo.patient.patientID,
+                    benVisitInfo.benVisitNo!!
+                )
+            }
+            effectivePharmacistFlag = sync?.pharmacist_flag ?: benVisitInfo.pharmacist_flag
+
+            // New card from CHO to doctor: show editable sections only when pharmacist has NOT yet dispensed (use DB value)
+            if (effectivePharmacistFlag == 0) {
                 activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = View.VISIBLE
+                Log.i("CaseRecordOne", "onViewCreated:5 $effectivePharmacistFlag")
                 binding.plusButtonD.visibility = View.VISIBLE
                 binding.plusButtonP.visibility = View.VISIBLE
                 binding.useTempForFields.visibility = View.VISIBLE
@@ -383,14 +418,55 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
                 binding.diagnosisExtra.visibility = View.VISIBLE
                 binding.vitalsExtra.visibility = View.VISIBLE
                 binding.vitalsLayout.visibility = View.VISIBLE
+            }else{
+                Log.i("CaseRecordOne", "onViewCreated:5.0 $effectivePharmacistFlag")
+                if (effectivePharmacistFlag == 1) {
+                    Log.i("CaseRecordOne", "onViewCreated:5.1 $effectivePharmacistFlag")
+                    val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
+                    val btnCancel = activity?.findViewById<Button>(R.id.btnCancel)
+                    btnSubmit?.visibility = View.GONE
+                    btnCancel?.visibility = View.VISIBLE
+                    btnCancel?.text = getString(R.string.close)
+//                Log.i("CaseRecordOne", "onViewCreated:4")
+                    binding.plusButtonD.visibility = View.GONE
+                    binding.plusButtonP.visibility = View.GONE
+                    binding.useTempForFields.visibility = View.GONE
+                    binding.tvAddTemplateTitle.visibility = View.GONE
+                    binding.tempName.visibility = View.GONE
+                    binding.saveTemplate.visibility = View.GONE
+                    binding.deleteTemp.visibility = View.GONE
+                    binding.referReason.visibility = View.GONE
+                    binding.referDropdown.visibility = View.GONE
+                    binding.textReferHeading.visibility = View.GONE
+                    binding.referDateLabel.visibility = View.GONE
+                    binding.referToLabel.visibility = View.GONE
+                    binding.referalReasonLabel.visibility = View.GONE
+                }
             }
         }
 
-        // When pharmacist has dispensed, show medicine as read-only and hide edit actions
-        if (benVisitInfo.pharmacist_flag == 9) {
+        // When already filled (lab + pharmacist submitted): only Close button; no Submit/Cancel; no plus icons; no refer section
+        val isDoctorCanEdit = preferenceDao.isDoctorSelected() && benVisitInfo.nurseFlag == 9 &&
+            (benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) && effectivePharmacistFlag != 9
+        val isAlreadyFilledReadOnly = (viewRecordFragment == true && !isDoctorCanEdit) || effectivePharmacistFlag == 9
+        if (isAlreadyFilledReadOnly) {
             activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = View.GONE
+            activity?.findViewById<Button>(R.id.btnCancel)?.visibility = View.VISIBLE
+            activity?.findViewById<Button>(R.id.btnCancel)?.text = getString(R.string.close)
+            binding.plusButtonD.visibility = View.GONE
+            Log.i("CaseRecordOne", "onViewCreated:6")
             binding.plusButtonP.visibility = View.GONE
             binding.useTempForFields.visibility = View.GONE
+            binding.tvAddTemplateTitle.visibility = View.GONE
+            binding.tempName.visibility = View.GONE
+            binding.saveTemplate.visibility = View.GONE
+            binding.deleteTemp.visibility = View.GONE
+            binding.referReason.visibility = View.GONE
+            binding.referDropdown.visibility = View.GONE
+            binding.textReferHeading.visibility = View.GONE
+            binding.referDateLabel.visibility = View.GONE
+            binding.referToLabel.visibility = View.GONE
+            binding.referalReasonLabel.visibility = View.GONE
         }
 
         // Provisional/Final Diagnosis and Medicine fields: always show; filled = disabled, fresh = editable (handled in adapters)
@@ -400,19 +476,22 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             binding.prescriptionExtra.visibility = View.VISIBLE
         }
 
-        if (benVisitInfo.referDate != null) {
-            binding.referDateLabel.visibility = View.VISIBLE
-            binding.referDate.setText(benVisitInfo.referDate)
-        }
-        if (benVisitInfo.referTo != null) {
-            binding.referToLabel.visibility = View.VISIBLE
-            binding.referTo.setText(benVisitInfo.referTo)
-            disableTextInputLayout(binding.referToLabel)
-        }
-        if (benVisitInfo.referralReason != null) {
-            binding.referalReasonLabel.visibility = View.VISIBLE
-            binding.referalReason.setText(benVisitInfo.referralReason!!.split(pattern)[0])
-            disableTextInputLayout(binding.referalReasonLabel)
+        // Show refer section (labels) only when case is editable, not when already filled read-only
+        if (!isAlreadyFilledReadOnly) {
+            if (benVisitInfo.referDate != null) {
+                binding.referDateLabel.visibility = View.VISIBLE
+                binding.referDate.setText(benVisitInfo.referDate)
+            }
+            if (benVisitInfo.referTo != null) {
+                binding.referToLabel.visibility = View.VISIBLE
+                binding.referTo.setText(benVisitInfo.referTo)
+                disableTextInputLayout(binding.referToLabel)
+            }
+            if (benVisitInfo.referralReason != null) {
+                binding.referalReasonLabel.visibility = View.VISIBLE
+                binding.referalReason.setText(benVisitInfo.referralReason!!.split(pattern)[0])
+                disableTextInputLayout(binding.referalReasonLabel)
+            }
         }
 
         if (preferenceDao.isDoctorSelected() || viewRecordFragment == true) {
@@ -696,8 +775,6 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         }
 
         // When doctor can edit (fresh card or post-lab, pharmacist not dispensed), show all fields in diagnosis/prescription
-        val isDoctorCanEdit = preferenceDao.isDoctorSelected() && benVisitInfo.nurseFlag == 9 &&
-                (benVisitInfo.doctorFlag == 1 || benVisitInfo.doctorFlag == 3) && benVisitInfo.pharmacist_flag != 9
         val isCaseRecordReadOnly = viewRecordFragment == true && !isDoctorCanEdit
 
         dAdapter = DiagnosisAdapter(
@@ -708,6 +785,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             object : RecyclerViewItemChangeListenerD {
                 override fun onItemChanged() {
                     binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
+                    Log.i("CaseRecordOne", "onViewCreated:7")
                 }
             }
         )
@@ -716,6 +794,7 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
         binding.diagnosisExtra.layoutManager = layoutManager
         dAdapter.notifyItemInserted(itemListD.size - 1)
         binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
+        Log.i("CaseRecordOne", "onViewCreated:8")
         binding.plusButtonD.setOnClickListener {
             val newItem = DiagnosisValue()
             itemListD.add(newItem)
@@ -724,8 +803,9 @@ class CaseRecordCustom : Fragment(R.layout.case_record_custom_layout), Navigatio
             dAdapter.notifyDataSetChanged()
             binding.plusButtonD.isEnabled = !isAnyItemEmptyD()
             binding.plusButtonD.isEnabled = false
+            Log.i("CaseRecordOne", "onViewCreated:9")
         }
-        val isMedicineDispensedByPharmacist = benVisitInfo.pharmacist_flag == 9
+        val isMedicineDispensedByPharmacist = effectivePharmacistFlag == 9
         pAdapter = PrescriptionAdapter(
 //            tempDBVal,
 //            tempList,

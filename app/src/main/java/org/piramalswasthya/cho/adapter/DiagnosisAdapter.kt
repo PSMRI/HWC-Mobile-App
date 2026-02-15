@@ -107,8 +107,12 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         itemChangeListener.onItemChanged()
     }
 
-    // Always show row; disable when case is read-only or row was pre-filled from DB (already saved)
-    val isRowReadOnly = (isVisitDetail == true && isFollowupVisit == false) || itemData.isPreFilled
+    // When already filled (read-only): only show rows that have data; when editable show all rows
+    val isCaseReadOnly = isVisitDetail == true && isFollowupVisit == false
+    val isRowReadOnly = isCaseReadOnly || itemData.isPreFilled
+    val hasData = itemData.diagnosis.isNotBlank()
+    holder.itemView.visibility = if (isCaseReadOnly && !hasData) View.GONE else View.VISIBLE
+
     if (isRowReadOnly) {
         holder.resetButton.isVisible = false
         holder.cancelButton.isVisible = false
