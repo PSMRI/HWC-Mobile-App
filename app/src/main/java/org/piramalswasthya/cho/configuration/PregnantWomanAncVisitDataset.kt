@@ -1670,56 +1670,66 @@ class PregnantWomanAncVisitDataset(
     }
 
     private fun updateRegistrationForTdX() {
-        var updated = false
-        // Save each field individually. Explicitly handle nulls to allow clearing.
-        
-        // Td1
+        var updated = updateTd1()
+        if (updateTd2()) updated = true
+        if (updateBooster()) updated = true
+
+        if (updated) {
+            updateRegistrationMetadata()
+        }
+    }
+
+    private fun updateTd1(): Boolean {
         if (dateOfTTOrTd1.inputType == InputType.DATE_PICKER || dateOfTTOrTd1.inputType == InputType.TEXT_VIEW) {
             val newVal = dateOfTTOrTd1.value?.let { getLongFromDate(it) }
             if (regis.tt1 != newVal) {
                 regis.tt1 = newVal
-                updated = true
+                return true
             }
         }
+        return false
+    }
 
-        // Td2
+    private fun updateTd2(): Boolean {
         // Only update if the field is visible/relevant (not completely hidden/irrelevant)
         // But since we use TEXT_VIEW for disabled, we should update.
         if (dateOfTTOrTd2.inputType == InputType.DATE_PICKER || dateOfTTOrTd2.inputType == InputType.TEXT_VIEW) {
-             val newVal = dateOfTTOrTd2.value?.let { getLongFromDate(it) }
-             if (regis.tt2 != newVal) {
-                 regis.tt2 = newVal
-                 updated = true
-             }
+            val newVal = dateOfTTOrTd2.value?.let { getLongFromDate(it) }
+            if (regis.tt2 != newVal) {
+                regis.tt2 = newVal
+                return true
+            }
         } else if (dateOfTTOrTd1.value == null) {
             // Logic: If Td1 is null, Td2 must be null (strict sequence)
             if (regis.tt2 != null) {
                 regis.tt2 = null
-                updated = true
+                return true
             }
         }
+        return false
+    }
 
-        // Booster
+    private fun updateBooster(): Boolean {
         if (dateOfTTOrTdBooster.inputType == InputType.DATE_PICKER || dateOfTTOrTdBooster.inputType == InputType.TEXT_VIEW) {
-             val newVal = dateOfTTOrTdBooster.value?.let { getLongFromDate(it) }
-             if (regis.ttBooster != newVal) {
-                 regis.ttBooster = newVal
-                 updated = true
-             }
+            val newVal = dateOfTTOrTdBooster.value?.let { getLongFromDate(it) }
+            if (regis.ttBooster != newVal) {
+                regis.ttBooster = newVal
+                return true
+            }
         } else if (dateOfTTOrTd2.value == null) {
-             // Logic: If Td2 is null, Booster must be null
-             if (regis.ttBooster != null) {
-                 regis.ttBooster = null
-                 updated = true
-             }
+            // Logic: If Td2 is null, Booster must be null
+            if (regis.ttBooster != null) {
+                regis.ttBooster = null
+                return true
+            }
         }
-        
-        // Mark as updated if any change
-        if (updated) {
-            regis.updatedDate = System.currentTimeMillis()
-            if (regis.processed != "N") regis.processed = "U"
-            regis.syncState = SyncState.UNSYNCED
-        }
+        return false
+    }
+
+    private fun updateRegistrationMetadata() {
+        regis.updatedDate = System.currentTimeMillis()
+        if (regis.processed != "N") regis.processed = "U"
+        regis.syncState = SyncState.UNSYNCED
     }
 
     fun getWeeksOfPregnancy(): Int = getIndexById(weekOfPregnancy.id)
