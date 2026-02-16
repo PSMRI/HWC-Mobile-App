@@ -613,16 +613,8 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_124_125 = object : Migration(124, 125) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add new columns to PREGNANCY_ANC table
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN pregnancyTestAtFacility INTEGER")
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResult TEXT")
-                database.execSQL("ALTER TABLE PREGNANCY_ANC ADD COLUMN uptResultId INTEGER DEFAULT -1")
-            }
-        }
 
-        val MIGRATION_125_126 = object : Migration(125, 126) {
+        val MIGRATION_124_125 = object : Migration(124, 125) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Create NEONATAL_OUTCOME table for tracking detailed newborn health information
                 db.execSQL("""
@@ -669,7 +661,7 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
-        val MIGRATION_126_127 = object : Migration(126, 127) {
+        val MIGRATION_125_126 = object : Migration(125, 126) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Add BRD Neonatal Outcome fields to INFANT_REG table
                 db.execSQL("ALTER TABLE INFANT_REG ADD COLUMN outcomeAtBirth TEXT")
@@ -717,8 +709,7 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_122_123,
                             MIGRATION_123_124,
                             MIGRATION_124_125,
-                            MIGRATION_125_126,
-                            MIGRATION_126_127
+                            MIGRATION_125_126
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

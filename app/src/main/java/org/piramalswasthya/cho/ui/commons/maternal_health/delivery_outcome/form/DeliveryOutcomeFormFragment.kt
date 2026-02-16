@@ -191,7 +191,8 @@ class DeliveryOutcomeFormFragment : Fragment() {
                 val action = DeliveryOutcomeFormFragmentDirections
                     .actionDeliveryOutcomeFormFragmentToNeonatalOutcomeFormFragment(
                         deliveryOutcomeId = deliveryOutcomeId,
-                        patientID = patientID
+                        patientID = patientID,
+                        babyIndex = 1  // First baby
                     )
                 findNavController().navigate(action)
             } catch (e: Exception) {

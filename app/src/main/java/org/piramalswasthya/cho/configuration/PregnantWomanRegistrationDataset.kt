@@ -99,24 +99,24 @@ class PregnantWomanRegistrationDataset(
         etMaxLength = 12
     )
 
-    // Pregnancy Test Flow
-    private val pregnancyTestAtFacility = FormElement(
-        id = 3,
-        inputType = InputType.RADIO,
-        title = "Is the pregnancy test conducted at facility?",
-        entries = arrayOf("Yes", "No"),
-        required = true,
-        hasDependants = true
-    )
-
-    private val uptResult = FormElement(
-        id = 4,
-        inputType = InputType.RADIO,
-        title = "Result of UPT",
-        entries = arrayOf("Positive", "Negative"),
-        required = false,
-        hasDependants = true
-    )
+//    // Pregnancy Test Flow
+//    private val pregnancyTestAtFacility = FormElement(
+//        id = 3,
+//        inputType = InputType.RADIO,
+//        title = "Is the pregnancy test conducted at facility?",
+//        entries = arrayOf("Yes", "No"),
+//        required = true,
+//        hasDependants = true
+//    )
+//
+//    private val uptResult = FormElement(
+//        id = 4,
+//        inputType = InputType.RADIO,
+//        title = "Result of UPT",
+//        entries = arrayOf("Positive", "Negative"),
+//        required = false,
+//        hasDependants = true
+//    )
 
     // Pregnancy Details
     private val lmp = FormElement(
@@ -244,7 +244,7 @@ class PregnantWomanRegistrationDataset(
         id = 15,
         inputType = InputType.EDIT_TEXT,
         title = "Height (cm)",
-        required = true,
+        required = false,
         min = 100,
         max = 220,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER,
@@ -256,7 +256,7 @@ class PregnantWomanRegistrationDataset(
         id = 16,
         inputType = InputType.EDIT_TEXT,
         title = "Weight (Kgs)",
-        required = true,
+        required = false,
         min = 30,
         max = 150,
         minDecimal = 30.0,
@@ -313,7 +313,7 @@ class PregnantWomanRegistrationDataset(
         inputType = InputType.DROPDOWN,
         title = "VDRL/RPR Test result",
         entries = arrayOf(TEST_RESULT_REACTIVE, TEST_RESULT_NON_REACTIVE, TEST_RESULT_TEST_NOT_DONE),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
@@ -332,7 +332,7 @@ class PregnantWomanRegistrationDataset(
         inputType = InputType.DROPDOWN,
         title = "HIV Test result",
         entries = arrayOf(TEST_RESULT_REACTIVE, TEST_RESULT_NON_REACTIVE, TEST_RESULT_TEST_NOT_DONE),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
@@ -350,7 +350,7 @@ class PregnantWomanRegistrationDataset(
         inputType = InputType.DROPDOWN,
         title = "HBsAg Test result",
         entries = arrayOf(TEST_RESULT_POSITIVE, TEST_RESULT_NEGATIVE, TEST_RESULT_TEST_NOT_DONE),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
@@ -412,8 +412,8 @@ class PregnantWomanRegistrationDataset(
         populateFormFromCache(cache)
 
         // Add all main fields in consistent order
-        list.add(pregnancyTestAtFacility)
-        list.add(uptResult)
+//        list.add(pregnancyTestAtFacility)
+//        list.add(uptResult)
         
         list.addAll(getPregnancyBasicFields())
 
@@ -437,34 +437,39 @@ class PregnantWomanRegistrationDataset(
         savedRecord: PregnantWomanRegistrationCache?,
         list: MutableList<FormElement>
     ) {
-        list.add(pregnancyTestAtFacility)
+//        list.add(pregnancyTestAtFacility)
 
         if (savedRecord == null) {
             rchId.value = "0"
+            // Default to showing registration fields
+            list.addAll(getPregnancyBasicFields())
+            list.addAll(getPhysicalFields())
+            addLabFieldsCombined(list)
+            list.add(isHighRiskPregnancy)
         }
 
         savedRecord?.let { cache ->
             populateFormFromCache(cache)
-            val hasLmpDate = cache.lmpDate > 0
+//            val hasLmpDate = cache.lmpDate > 0
 
-            if (hasLmpDate) {
-                list.add(uptResult)
-                list.addAll(getPregnancyBasicFields())
-                
-                // Add history fields after Para
-                addHistoryFieldsIfNeeded(cache, list)
-                
-                // Add physical fields
-                list.addAll(getPhysicalFields())
-                
-                // Add lab fields combined (results and dates)
-                addLabFieldsCombined(list)
-                
-                // Finally add High Risk status
-                list.add(isHighRiskPregnancy)
-            } else {
-                list.add(uptResult)
-            }
+//            if (hasLmpDate) {
+//                list.add(uptResult)
+            list.addAll(getPregnancyBasicFields())
+
+            // Add history fields after Para
+            addHistoryFieldsIfNeeded(cache, list)
+
+            // Add physical fields
+            list.addAll(getPhysicalFields())
+
+            // Add lab fields combined (results and dates)
+            addLabFieldsCombined(list)
+
+            // Finally add High Risk status
+            list.add(isHighRiskPregnancy)
+//            } else {
+//                list.add(uptResult)
+//            }
         }
     }
 
@@ -591,8 +596,8 @@ class PregnantWomanRegistrationDataset(
     private fun populateBasicFields(cache: PregnantWomanRegistrationCache) {
         dateOfReg.value = getDateFromLong(cache.dateOfRegistration)
         rchId.value = (cache.rchId ?: 0L).toString()
-        pregnancyTestAtFacility.value = cache.pregnancyTestAtFacility
-        uptResult.value = cache.uptResult
+//        pregnancyTestAtFacility.value = cache.pregnancyTestAtFacility
+//        uptResult.value = cache.uptResult
 
         if (cache.lmpDate > 0) {
             lmp.value = getDateFromLong(cache.lmpDate)
@@ -690,8 +695,8 @@ class PregnantWomanRegistrationDataset(
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
             dateOfReg.id -> handleDateOfRegChange()
-            pregnancyTestAtFacility.id -> handlePregnancyTestFlow(index)
-            uptResult.id -> handleUPTResultFlow(index)
+//            pregnancyTestAtFacility.id -> handlePregnancyTestFlow(index)
+//            uptResult.id -> handleUPTResultFlow(index)
             lmp.id -> handleLmpChange()
             historyOfAbortions.id -> handleHistoryOfAbortionsChange(index)
             gravida.id -> handleGravidaChange()
@@ -739,82 +744,82 @@ class PregnantWomanRegistrationDataset(
         return -1
     }
 
-    private fun handlePregnancyTestFlow(index: Int): Int {
-        return if (index == 0) { // "Yes" selected
-            triggerDependants(
-                source = pregnancyTestAtFacility,
-                addItems = listOf(uptResult),
-                removeItems = emptyList()
-            )
-        } else { // "No" selected
-            onShowAlert?.invoke("Please conduct UPT (Urine Pregnancy Test)")
-            triggerDependants(
-                source = pregnancyTestAtFacility,
-                addItems = listOf(uptResult),
-                removeItems = emptyList()
-            )
-        }
-    }
-
-    private fun handleUPTResultFlow(index: Int): Int {
-        val baseRegistrationFields = listOf(
-            lmp, edd, gestationalAge, trimester, bloodGroup,
-            gravida, para, height, weight, bmi,
-            preExistingConditions, vdrlRprResult, hivResult, hbsAgResult,
-            isHighRiskPregnancy
-        )
-
-        return (if (index == 0) { // Positive
-            // Get current gravida value to decide if history fields should be included
-            val gravidaValue = gravida.value?.toIntOrNull() ?: 1
-
-            val registrationFields = mutableListOf<FormElement>().apply {
-                addAll(getPregnancyBasicFields())
-                
-                // Only add history fields if gravida > 1
-                if (gravidaValue > 1) {
-                    add(historyOfAbortions)
-                    add(previousLSCS)
-                    add(complicationsInPreviousPregnancy)
-                }
-                
-                addAll(getPhysicalFields())
-                addLabFieldsCombined(this)
-                add(isHighRiskPregnancy)
-            }
-
-            triggerDependants(
-                source = uptResult,
-                addItems = registrationFields,
-                removeItems = emptyList()
-            )
-        } else { // Negative - Redirect to Eligible Couple Tracking Form
-            val allFieldsToRemove = mutableListOf<FormElement>().apply {
-                addAll(getPregnancyBasicFields())
-                addAll(getPhysicalFields())
-                add(vdrlRprResult)
-                add(hivResult)
-                add(hbsAgResult)
-                add(isHighRiskPregnancy)
-                add(historyOfAbortions)
-                add(previousLSCS)
-                add(complicationsInPreviousPregnancy)
-                add(vdrlRprDate)
-                add(hivTestDate)
-                add(hbsAgTestDate)
-            }
-            
-            triggerDependants(
-                source = uptResult,
-                addItems = emptyList(),
-                removeItems = allFieldsToRemove
-            )
-        })
-    }
+//    private fun handlePregnancyTestFlow(index: Int): Int {
+//        return if (index == 0) { // "Yes" selected
+//            triggerDependants(
+//                source = pregnancyTestAtFacility,
+//                addItems = listOf(uptResult),
+//                removeItems = emptyList()
+//            )
+//        } else { // "No" selected
+//            onShowAlert?.invoke("Please conduct UPT (Urine Pregnancy Test)")
+//            triggerDependants(
+//                source = pregnancyTestAtFacility,
+//                addItems = listOf(uptResult),
+//                removeItems = emptyList()
+//            )
+//        }
+//    }
+//
+//    private fun handleUPTResultFlow(index: Int): Int {
+//        val baseRegistrationFields = listOf(
+//            lmp, edd, gestationalAge, trimester, bloodGroup,
+//            gravida, para, height, weight, bmi,
+//            preExistingConditions, vdrlRprResult, hivResult, hbsAgResult,
+//            isHighRiskPregnancy
+//        )
+//
+//        return (if (index == 0) { // Positive
+//            // Get current gravida value to decide if history fields should be included
+//            val gravidaValue = gravida.value?.toIntOrNull() ?: 1
+//
+//            val registrationFields = mutableListOf<FormElement>().apply {
+//                addAll(getPregnancyBasicFields())
+//                
+//                // Only add history fields if gravida > 1
+//                if (gravidaValue > 1) {
+//                    add(historyOfAbortions)
+//                    add(previousLSCS)
+//                    add(complicationsInPreviousPregnancy)
+//                }
+//                
+//                addAll(getPhysicalFields())
+//                addLabFieldsCombined(this)
+//                add(isHighRiskPregnancy)
+//            }
+//
+//            triggerDependants(
+//                source = uptResult,
+//                addItems = registrationFields,
+//                removeItems = emptyList()
+//            )
+//        } else { // Negative - Redirect to Eligible Couple Tracking Form
+//            val allFieldsToRemove = mutableListOf<FormElement>().apply {
+//                addAll(getPregnancyBasicFields())
+//                addAll(getPhysicalFields())
+//                add(vdrlRprResult)
+//                add(hivResult)
+//                add(hbsAgResult)
+//                add(isHighRiskPregnancy)
+//                add(historyOfAbortions)
+//                add(previousLSCS)
+//                add(complicationsInPreviousPregnancy)
+//                add(vdrlRprDate)
+//                add(hivTestDate)
+//                add(hbsAgTestDate)
+//            }
+//            
+//            triggerDependants(
+//                source = uptResult,
+//                addItems = emptyList(),
+//                removeItems = allFieldsToRemove
+//            )
+//        })
+//    }
 
     fun shouldNavigateToEligibleCouple(): Boolean {
    
-        return uptResult.value == "Negative"
+        return false // uptResult.value == "Negative"
     }
 
     private fun handleLmpChange(): Int {
@@ -1357,8 +1362,8 @@ class PregnantWomanRegistrationDataset(
             // Map RCH ID
             cache.rchId = rchId.value?.toLongOrNull()
             
-            cache.pregnancyTestAtFacility = pregnancyTestAtFacility.value
-            cache.uptResult = uptResult.value
+//            cache.pregnancyTestAtFacility = pregnancyTestAtFacility.value
+//            cache.uptResult = uptResult.value
 
             // Map pregnancy details
             cache.lmpDate = lmp.value?.let { getLongFromDate(it) } ?: 0L

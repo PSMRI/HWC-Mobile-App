@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentPregnancyRegistrationFormBinding
 import org.piramalswasthya.cho.repositories.UserRepo
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.model.InputType
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -86,6 +87,9 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             binding.tvAgeGender.text = ageGender ?: ""
         }
 
+        binding.tvCaseId.text = viewModel.patientID ?: ""
+        binding.llCaseIdRow.visibility = View.VISIBLE
+
         binding.btnSubmit.setOnClickListener {
             submitRegistrationForm()
         }
@@ -101,6 +105,9 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
 
     private fun setupForm() {
         viewModel.recordExists.observe(viewLifecycleOwner) { exists ->
+            // Skip UI updates if we are in process of saving/navigating to prevent flickering
+            if (viewModel.state.value == PregnancyRegistrationFormViewModel.State.SAVING) return@observe
+            
             val isReadOnly = viewModel.isReadOnly.value ?: false
             val title = if (exists) {
                 getString(R.string.title_view_pregnancy_registration)
@@ -123,15 +130,26 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             binding.form.rvInputForm.adapter = adapter
 
             lifecycleScope.launch {
-                viewModel.formList.collect {
-                    if (it.isNotEmpty()) adapter.submitList(it)
+                viewModel.formList.collect { list ->
+                    if (list.isNotEmpty()) {
+                        val processedList = if (exists) {
+                            list.map { item ->
+                                if (item.inputType == InputType.CHECKBOXES) {
+                                    item.copy(inputType = InputType.TEXT_VIEW)
+                                } else item
+                            }
+                        } else list
+                        adapter.submitList(processedList)
+                    }
                 }
             }
         }
         
         viewModel.isReadOnly.observe(viewLifecycleOwner) { isReadOnly ->
-             val exists = viewModel.recordExists.value ?: false
-             binding.fabEdit.visibility = if (exists && !isReadOnly) View.VISIBLE else View.GONE
+            if (viewModel.state.value == PregnancyRegistrationFormViewModel.State.SAVING) return@observe
+            
+            val exists = viewModel.recordExists.value ?: false
+            binding.fabEdit.visibility = if (exists && !isReadOnly) View.VISIBLE else View.GONE
         }
     }
 
@@ -148,7 +166,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             14 -> handleComplicationsFieldChange(adapter)
             15, 16 -> handleAnthropometryFieldChange(adapter)
             18 -> handlePreExistingConditionsFieldChange(adapter)
-            3, 4, 19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
+            19, 21, 23 -> handleTestResultFieldChange(formId, adapter, layoutManager, firstVisiblePosition, offset)
             5 -> handleLmpFieldChange(adapter)
             10 -> handleGravidaFieldChange(adapter)
         }
@@ -250,6 +268,9 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                 PregnancyRegistrationFormViewModel.State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
+                    
+                    // Immediately update activity title to Vitals for faster feedback
+                    requireActivity().findViewById<android.widget.TextView>(R.id.header_text_register_patient)?.text = getString(R.string.vitals_text)
                 }
 
                 PregnancyRegistrationFormViewModel.State.SAVE_SUCCESS -> {
@@ -291,6 +312,9 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             event?.let { navigationEvent ->
                 when (navigationEvent) {
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToEligibleCouple -> {
+                        if (navigationEvent.showSuccessToast) {
+                            Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
+                        }
                         val action = PregnantWomanRegistrationFragmentDirections
                             .actionPregnantWomanRegistrationFragmentToEligibleCoupleTrackingFormFragment(
                                 patientID = navigationEvent.patientID,
@@ -308,14 +332,39 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsActivity -> {
-                        val intent = android.content.Intent(
-                            requireActivity(),
-                            org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
-                        )
-                        intent.putExtra("benVisitInfo", navigationEvent.benVisitInfo)
-                        intent.putExtra("navigateTo", "VITALS")
-                        startActivity(intent)
-                        requireActivity().finish()
+                        // Force content to be hidden during navigation to prevent flickering
+                        binding.llContent.visibility = View.GONE
+                        binding.pbForm.visibility = View.VISIBLE
+                        
+                        if (navigationEvent.showSuccessToast) {
+                            Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
+                        }
+                        
+                        val activity = requireActivity()
+                        if (activity is org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity) {
+                            // If already in EditPatientDetailsActivity, just navigate to the Vitals fragment
+                            val masterDb = org.piramalswasthya.cho.model.MasterDb(navigationEvent.benVisitInfo.patient.patientID).apply {
+                                visitMasterDb.category = "RMNCH"
+                                visitMasterDb.subCategory = org.piramalswasthya.cho.ui.commons.DropdownConst.careAndPreg
+                                visitMasterDb.reason = org.piramalswasthya.cho.ui.commons.DropdownConst.anc
+                            }
+                            findNavController().navigate(
+                                R.id.customVitalsFragment,
+                                Bundle().apply {
+                                    putSerializable("MasterDb", masterDb)
+                                }
+                            )
+                        } else {
+                            // Otherwise start the activity
+                            val intent = android.content.Intent(
+                                activity,
+                                org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java
+                            )
+                            intent.putExtra("benVisitInfo", navigationEvent.benVisitInfo)
+                            intent.putExtra("navigateTo", "VITALS")
+                            startActivity(intent)
+                            activity.finish()
+                        }
                         viewModel.clearNavigation()
                     }
                 }
@@ -360,17 +409,35 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
+        val fromVisitDetails = arguments?.getBoolean("fromVisitDetails", false) ?: false
+        if (fromVisitDetails) {
+            try {
+                findNavController().popBackStack(R.id.fhirVisitDetailsFragment, false)
+            } catch (e: Exception) {
+                Timber.e(e, "Navigation back to Visit Details failed")
+                if (!findNavController().navigateUp()) {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+            }
+            return
+        }
+
         arguments?.getBoolean("fromECT", false)?.let { fromECT ->
             if (fromECT) {
-                requireActivity().finish()
+                try {
+                    findNavController().popBackStack(R.id.fhirVisitDetailsFragment, false)
+                } catch (e: Exception) {
+                    Timber.e(e, "Navigation to Visit Details failed")
+                    if (!findNavController().navigateUp()) {
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
                 return
             }
         }
 
         if (!findNavController().navigateUp()) {
-            onBackPressedCallback.isEnabled = false
-            requireActivity().onBackPressed()
-            onBackPressedCallback.isEnabled = true
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 

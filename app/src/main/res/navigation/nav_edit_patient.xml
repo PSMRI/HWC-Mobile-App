@@ -203,6 +203,18 @@
         <argument
             android:name="createdDate"
             app:argType="long" />
+        <argument
+            android:name="fromVisitDetails"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_pregnantWomanRegistrationFragment"
+            app:destination="@id/pregnantWomanRegistrationFragment" />
     </fragment>
     <fragment
         android:id="@+id/pregnantWomanRegistrationFragment"
@@ -216,6 +228,11 @@
         <argument
             android:name="benId"
             app:argType="string" />
+
+        <argument
+            android:name="fromVisitDetails"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_pregnantWomanRegistrationFragment_to_customVitalsFragment"
             app:destination="@id/customVitalsFragment" />
@@ -227,6 +244,11 @@
         <action
             android:id="@+id/action_pregnantWomanRegistrationFragment_to_eligibleCoupleTrackingFormFragment"
             app:destination="@id/eligibleCoupleTrackingFormFragment" />
+        <action
+            android:id="@+id/action_pregnantWomanRegistrationFragment_to_fhirVisitDetailsFragment"
+            app:destination="@id/fhirVisitDetailsFragment"
+            app:popUpTo="@id/fhirVisitDetailsFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
 
@@ -261,6 +283,9 @@
         <argument
             android:name="patientID"
             app:argType="string" />
+        <argument
+            android:name="babyIndex"
+            app:argType="integer" />
         <action
             android:id="@+id/action_neonatalOutcomeFormFragment_to_customVitalsFragment"
             app:destination="@id/customVitalsFragment" />

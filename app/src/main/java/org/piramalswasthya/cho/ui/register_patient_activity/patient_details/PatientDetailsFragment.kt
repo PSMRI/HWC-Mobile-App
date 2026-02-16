@@ -900,8 +900,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                     binding.spouseNameText.visibility = View.VISIBLE
 
                     // Update hint based on gender
-                    val hintRes = if (genderId == 2) R.string.husband_name else if (genderId == 1) R.string.wife_name else R.string.spouse_name
-                    binding.spouseNameText.hint = getString(hintRes)
+                    val hintRes = if (genderId == 2) R.string.husband_s_name else if (genderId == 1) R.string.wife_s_name else R.string.spouse_name
+                    binding.spouseNameText.hint = getText(hintRes)
 
                     binding.spouseName.isEnabled = !isReadOnly
                     binding.spouseNameText.isEndIconVisible = binding.spouseName.isEnabled
@@ -1819,7 +1819,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         val statusOfWoman = viewModel.selectedStatusOfWoman?.statusName?.lowercase()
 
         if (statusOfWoman == "adolescent" || mStatus == "unmarried") {
-            binding.fatherNameText.hint = getString(R.string.father_s_name) + " *"
+            binding.fatherNameText.hint = getText(R.string.father_s_name)
             val isFatherNameFilled = binding.fatherNameEditText.text?.isNotEmpty() == true &&
                     isValidName(binding.fatherNameEditText.text.toString())
             viewModel.setFatherName(isFatherNameFilled)

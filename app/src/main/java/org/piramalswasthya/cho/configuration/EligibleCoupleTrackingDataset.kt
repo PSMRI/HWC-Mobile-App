@@ -61,18 +61,18 @@ class EligibleCoupleTrackingDataset(
 
     private val month = FormElement(
         id = 3,
-        inputType = InputType.DROPDOWN,
+        inputType = InputType.TEXT_VIEW,
         title = "Month",
         arrayId = R.array.visit_months,
         entries = resources.getStringArray(R.array.visit_months),
-        required = true
+        required = false,
     )
 
     private val lmpDate = FormElement(
         id = 4,
         inputType = InputType.DATE_PICKER,
         title = resources.getString(R.string.lmp_date),
-        required = false,
+        required = true,
         max = System.currentTimeMillis(),
         min = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, -LMP_BACKDATE_LIMIT_DAYS)
@@ -84,7 +84,7 @@ class EligibleCoupleTrackingDataset(
         inputType = InputType.RADIO,
         title = resources.getString(R.string.is_pregnancy_test_done),
         entries = arrayOf("Yes", "No"),
-        required = true,
+        required = false,
         hasDependants = true
     )
 
