@@ -287,6 +287,7 @@ class CaseRecordViewModel @Inject constructor(
             existingPatientVisitInfoSync.createNewBenFlow = patientVisitInfoSync.createNewBenFlow
             existingPatientVisitInfoSync.nurseFlag = 9
             existingPatientVisitInfoSync.doctorFlag = patientVisitInfoSync.doctorFlag
+            existingPatientVisitInfoSync.pharmacist_flag = patientVisitInfoSync.pharmacist_flag
             existingPatientVisitInfoSync.visitDate = patientVisitInfoSync.visitDate
             existingPatientVisitInfoSync.visitCategory = "General OPD"
             patientVisitInfoSyncRepo.insertPatientVisitInfoSync(existingPatientVisitInfoSync)
@@ -309,7 +310,7 @@ class CaseRecordViewModel @Inject constructor(
 //            labtechFlag = benVisitInfo.labtechFlag,
 //            pharmacist_flag = benVisitInfo.pharmacist_flag,
 //        )
-        var labtechFlag = benVisitInfo.labtechFlag!!
+        var labtechFlag = benVisitInfo.labtechFlag ?: 0
         if(benVisitInfo.doctorFlag == 3){
             labtechFlag = 1
         }
@@ -326,14 +327,25 @@ class CaseRecordViewModel @Inject constructor(
                        prescriptionList: List<PrescriptionCaseRecord>, benVisitInfo: PatientDisplayWithVisitInfo, doctorFlag: Int){
         viewModelScope.launch {
             try {
-                diagnosisList.forEach {
-                    saveDiagnosisToCache(it)
+                withContext(Dispatchers.IO) {
+                    diagnosisList.forEach {
+                        saveDiagnosisToCache(it)
+                    }
+                    saveInvestigationToCache(investigation)
+                    prescriptionList.forEach {
+                        savePrescriptionToCache(it)
+                    }
+                    updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
+                    // When doctor has prescribed medicines (with or without test), move card to pharmacist module.
+                    // Called after updateDoctorDataSubmitted so pharmacist_flag and visitCategory are set last and
+                    // card shows in pharmacist list even when both test and prescription are selected together.
+                    if (prescriptionList.isNotEmpty()) {
+                        patientVisitInfoSyncRepo.updatePharmacistFlagToPending(
+                            benVisitInfo.patient.patientID,
+                            benVisitInfo.benVisitNo!!
+                        )
+                    }
                 }
-                saveInvestigationToCache(investigation)
-                prescriptionList.forEach {
-                    savePrescriptionToCache(it)
-                }
-                updateDoctorDataSubmitted(benVisitInfo, doctorFlag)
                 _isDataSaved.value = true
             } catch (e: Exception){
                 _isDataSaved.value = false
@@ -359,6 +371,13 @@ class CaseRecordViewModel @Inject constructor(
                     savePrescriptionToCache(it)
                 }
                 savePatientVisitInfoSync(patientVisitInfoSync)
+                // When medicines are prescribed, ensure card moves to pharmacist module (for test+medicine or medicine-only)
+                if (prescriptionList.isNotEmpty()) {
+                    patientVisitInfoSyncRepo.updatePharmacistFlagToPending(
+                        patientVisitInfoSync.patientID,
+                        patientVisitInfoSync.benVisitNo
+                    )
+                }
                 _isDataSaved.value = true
             } catch (e: Exception){
                 _isDataSaved.value = false
@@ -376,6 +395,10 @@ class CaseRecordViewModel @Inject constructor(
 
     suspend fun getSinglePatientDoctorDataNotSubmitted(patientId : String) : PatientVisitInfoSync?{
         return patientVisitInfoSyncRepo.getSinglePatientDoctorDataNotSubmitted(patientId);
+    }
+
+    suspend fun getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID: String, benVisitNo: Int): PatientVisitInfoSync? {
+        return patientVisitInfoSyncRepo.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(patientID, benVisitNo)
     }
 
    suspend fun getTestNameTypeMap(): Map<Int, String> {

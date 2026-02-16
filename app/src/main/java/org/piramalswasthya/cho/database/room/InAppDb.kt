@@ -301,11 +301,6 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
-    abstract val statusOfWomanDao: StatusOfWomanDao
-
-    fun runSeedLabProcedureMaster() {
-        LabProcedureMasterSeed.runSeed(openHelper.writableDatabase)
-    }
 
     companion object {
         @Volatile
@@ -337,7 +332,7 @@ abstract class InAppDb : RoomDatabase() {
 
         val MIGRATION_110_111 = object : Migration(110, 111) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                LabProcedureMasterSeed.runSeed(database)
+                // Lab procedure master seed is now applied via ProcedureRepo.ensureLabProcedureMasterSeed() (DAO) when user opens lab technician
             }
         }
 

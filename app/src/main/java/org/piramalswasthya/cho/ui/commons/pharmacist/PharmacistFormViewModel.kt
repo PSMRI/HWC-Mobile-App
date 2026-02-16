@@ -153,11 +153,16 @@ class PharmacistFormViewModel @Inject constructor(
 
     suspend fun getPrescription(benVisitInfo : PatientDisplayWithVisitInfo) {
         withContext(Dispatchers.IO) {
-            val listPrescription = patientRepo.getPrescriptions(benVisitInfo)
-            Log.d("MyPrescription", "Prescription ${listPrescription}")
-            if(listPrescription!=null && listPrescription.size>0){
-                Log.d("MyPrescription", "inside")
-                _prescriptions.postValue(listPrescription.get(0) ?: null)
+            var listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            // When doctor submitted medicine locally, data is in Prescription_Cases_Recorde only.
+            // Copy to Prescription table so pharmacist can see the medicines.
+            if (listPrescription.isNullOrEmpty()) {
+                benFlowRepo.copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo)
+                listPrescription = patientRepo.getPrescriptions(benVisitInfo)
+            }
+            Log.d("MyPrescription", "Prescription $listPrescription")
+            if (listPrescription != null && listPrescription.isNotEmpty()) {
+                _prescriptions.postValue(listPrescription[0])
             }
         }
     }

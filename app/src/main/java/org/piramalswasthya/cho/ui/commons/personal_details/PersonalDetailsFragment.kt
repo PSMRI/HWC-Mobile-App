@@ -322,6 +322,25 @@ class PersonalDetailsFragment : Fragment() {
                                         requireActivity().finish()
                                     }
 
+                                    // Lab + pharmacist done: open in view mode so case record shows correct UI (only Close, no plus, no refer)
+                                    benVisitInfo.nurseFlag == 9 && benVisitInfo.pharmacist_flag == 9 && preferenceDao.isDoctorSelected() -> {
+
+                                        var modifiedInfo = benVisitInfo
+                                        if (preferenceDao.isNurseSelected()) {
+                                            modifiedInfo = PatientDisplayWithVisitInfo(benVisitInfo)
+                                        }
+
+                                        val intent = Intent(
+                                            context, EditPatientDetailsActivity::class.java
+                                        ).apply {
+                                            putExtra("benVisitInfo", modifiedInfo)
+                                            putExtra("viewRecord", true)
+                                            putExtra("isFlowComplete", true)
+                                        }
+                                        startActivity(intent)
+                                        requireActivity().finish()
+                                    }
+
                                     else -> {
 
                                         var modifiedInfo = benVisitInfo
