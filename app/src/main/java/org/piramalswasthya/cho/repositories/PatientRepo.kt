@@ -607,7 +607,7 @@ class PatientRepo @Inject constructor(
                                     patientDao.updatePatient(patient)  // Update the matched patient with the new data
                                 }else {
                                     // check if patient is present or not
-                                    if (patientDao.getCountByBenId(patient.patientID!!.toLong()) > 0) {
+                                    if (patientDao.getCountByBenId(beneficiary.benId!!.toLong()) > 0) {
                                         patientDao.updatePatient(patient)
                                     } else {
                                         patientDao.insertPatient(patient)
