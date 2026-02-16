@@ -97,11 +97,13 @@ class EligibleCoupleRegistrationActivity : AppCompatActivity() {
                         // Filter criteria:
                         // 1. Female gender (genderID = 2)
                         // 2. Age between 15-49 years (reproductive age)
+                        // 3. Status not Permanently Sterilized (statusID != 6)
                         val isFemale = patient.patient.genderID == 2
                         val age = patient.patient.age ?: 0
                         val isReproductiveAge = age in 15..49
+                        val isSterilized = patient.patient.statusOfWomanID == 6
 
-                        isFemale && isReproductiveAge
+                        isFemale && isReproductiveAge && !isSterilized
                     }
                     .sortedByDescending { it.patient.registrationDate }
 

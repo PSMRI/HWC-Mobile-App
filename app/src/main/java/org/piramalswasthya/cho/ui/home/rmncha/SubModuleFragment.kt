@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +22,7 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PWR_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ANC_VISITS_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_DELIVERY_OUTCOME_KEY
+import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_NEONATAL_OUTCOME_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_PNC_MOTHER_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ABORTION_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
@@ -91,6 +93,7 @@ class SubModuleFragment : Fragment() {
                     val showPWR = navDirections.arguments.getBoolean(SHOW_PWR_KEY, false)
                     val showANCVisits = navDirections.arguments.getBoolean(SHOW_ANC_VISITS_KEY, false)
                     val showDeliveryOutcome = navDirections.arguments.getBoolean(SHOW_DELIVERY_OUTCOME_KEY, false)
+                    val showNeonatalOutcome = navDirections.arguments.getBoolean(SHOW_NEONATAL_OUTCOME_KEY, false)
                     val showPNCMotherList = navDirections.arguments.getBoolean(SHOW_PNC_MOTHER_LIST_KEY, false)
                     val showAbortionList = navDirections.arguments.getBoolean(SHOW_ABORTION_LIST_KEY, false)
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
@@ -100,14 +103,20 @@ class SubModuleFragment : Fragment() {
                     
                     when {
                         showECTracking -> {
-                            // Navigate to Eligible Couple Tracking List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Eligible Couple Tracking List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.eligible_couple.EligibleCoupleTrackingFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showPWR -> {
-                            // Navigate to Pregnant Women Registration List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PregnantWomenRegistrationActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Maternal Health Nav Host (which uses nav_maternal_health.xml)
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.MaternalHealthNavHostFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showANCVisits -> {
                             // Navigate to ANC Visits List
@@ -115,14 +124,28 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showDeliveryOutcome -> {
-                            // Navigate to Delivery Outcome List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Delivery Outcome List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.DeliveryOutcomeFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
+                        }
+                        showNeonatalOutcome -> {
+                            // Navigate to Neonatal Outcome List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.NeonatalOutcomeFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showPNCMotherList -> {
-                            // Navigate to PNC Mother List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to PNC Mother List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.maternal_health.PNCMotherListFragment()
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
                         showAbortionList -> {
                             // Navigate to Abortion List
@@ -130,24 +153,36 @@ class SubModuleFragment : Fragment() {
                             startActivity(intent)
                         }
                         showInfantList -> {
-                            // Navigate to Infant List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.InfantListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Infant List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.InfantListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showChildList -> {
-                            // Navigate to Child List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Child List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showAdolescentList -> {
-                            // Navigate to Adolescent List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Adolescent List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.AdolescentListFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         showChildrenUnderFiveList -> {
-                            // Navigate to Children under 5 Years List
-                            val intent = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildrenUnderFiveYearsActivity.getIntent(requireContext())
-                            startActivity(intent)
+                            // Navigate to Children under 5 Years List Fragment
+                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildrenUnderFiveYearsFragment()
+                            requireActivity().supportFragmentManager.commit {
+                                replace(R.id.fragment_container, fragment)
+                                addToBackStack(null)
+                            }
                         }
                         else -> {
                             // Other sub-modules - placeholder
@@ -176,6 +211,19 @@ class SubModuleFragment : Fragment() {
         }
         
         rvAdapter.submitList(iconList)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val titleRes = when (moduleType) {
+            MODULE_MATERNAL_HEALTH -> R.string.maternal_health
+            MODULE_CHILD_CARE -> R.string.child_care
+            MODULE_ELIGIBLE_COUPLE -> R.string.eligible_couple_list
+            else -> null
+        }
+        titleRes?.let {
+            (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = getString(it)
+        }
     }
 
     override fun onDestroyView() {

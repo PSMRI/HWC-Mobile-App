@@ -22,6 +22,7 @@ import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.databinding.FragmentNewFormBinding
 import org.piramalswasthya.cho.model.ChiefComplaintDB
+import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
 import org.piramalswasthya.cho.model.PatientVisitInfoSync
 import org.piramalswasthya.cho.model.PatientVitalsModel
@@ -54,7 +55,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     val viewModel: PwAncFormViewModel by viewModels()
 
-    private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
+    private var benVisitInfo: PatientDisplayWithVisitInfo? = null
 
     val CPHCviewModel: OtherCPHCServicesViewModel by viewModels()
 
@@ -62,6 +63,8 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
 
     val jsonFile = "patient-visit-details-paginated.json"
 
+    private var ancFormAdapter: FormInputAdapter? = null
+    private var latestFormList: List<FormElement> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -73,67 +76,94 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as PatientDisplayWithVisitInfo
+        benVisitInfo = requireActivity().intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo
 
+        setupFormAdapter()
+        setupOldVisitObserver()
+        setupPatientDetailsObservers()
+        setupButtonListeners()
+        setupStateObserver()
+    }
+
+    private fun setupFormAdapter() {
         viewModel.recordExists.observe(viewLifecycleOwner) { notIt ->
             notIt?.let { recordExists ->
-                binding.fabEdit.visibility = /*if (recordExists) View.VISIBLE else */View.GONE
-                if(recordExists){
+                val formEditable = !(viewModel.isOldVisit.value ?: true)
+                binding.fabEdit.visibility = View.GONE
+                binding.btnSubmit.visibility = View.GONE
+                
+                if (viewModel.isOldVisit.value == true) {
                     val btnSubmit = activity?.findViewById<Button>(R.id.btnSubmit)
                     btnSubmit?.visibility = View.GONE
                 }
-                binding.btnSubmit.visibility = if (recordExists) View.GONE else View.VISIBLE
-                val adapter = FormInputAdapter(
+                
+                ancFormAdapter = FormInputAdapter(
                     formValueListener = FormInputAdapter.FormValueListener { formId, index ->
                         viewModel.updateListOnValueChanged(formId, index)
                         hardCodedListUpdate(formId)
-                    }, isEnabled = !recordExists
+                    }, isEnabled = formEditable
                 )
-                binding.form.rvInputForm.adapter = adapter
+                binding.form.rvInputForm.adapter = ancFormAdapter
+                
                 lifecycleScope.launch {
                     viewModel.formList.collect {
-                        if (it.isNotEmpty())
-
-                            adapter.submitList(it)
-
+                        latestFormList = it
+                        if (it.isNotEmpty()) ancFormAdapter?.submitList(it)
                     }
                 }
             }
         }
+    }
+
+    private fun setupOldVisitObserver() {
+        viewModel.isOldVisit.observe(viewLifecycleOwner) { isOld ->
+            val formEditable = !isOld
+            activity?.findViewById<Button>(R.id.btnSubmit)?.visibility = if (formEditable) View.VISIBLE else View.GONE
+            
+            ancFormAdapter = FormInputAdapter(
+                formValueListener = FormInputAdapter.FormValueListener { formId, index ->
+                    viewModel.updateListOnValueChanged(formId, index)
+                    hardCodedListUpdate(formId)
+                }, isEnabled = formEditable
+            )
+            binding.form.rvInputForm.adapter = ancFormAdapter
+            if (latestFormList.isNotEmpty()) ancFormAdapter?.submitList(latestFormList)
+        }
+    }
+
+    private fun setupPatientDetailsObservers() {
         viewModel.benName.observe(viewLifecycleOwner) {
             binding.tvBenName.text = it
         }
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
+    }
+
+    private fun setupButtonListeners() {
         binding.btnSubmit.setOnClickListener {
             submitAncForm()
         }
         binding.fabEdit.setOnClickListener {
             viewModel.setRecordExist(false)
         }
+    }
+
+    private fun setupStateObserver() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state!!) {
                 State.IDLE -> {
+                    // No action needed
                 }
-
                 State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
                 }
-
                 State.SAVE_SUCCESS -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
-                    saveNurseData()
+                    handleSaveSuccess()
                 }
-
                 State.SAVE_FAILED -> {
-                    Toast.makeText(
-
-                        context, "Something wend wong! Contact testing!", Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(context, "Something went wrong! Contact testing!", Toast.LENGTH_LONG).show()
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                 }
@@ -141,11 +171,25 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         }
     }
 
+    private fun handleSaveSuccess() {
+        binding.llContent.visibility = View.VISIBLE
+        binding.pbForm.visibility = View.GONE
+        Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
+        WorkerUtils.triggerAmritSyncWorker(requireContext())
+        
+        try {
+            findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
+        } catch (e: Exception) {
+            requireActivity().finish()
+        }
+    }
+
     private fun saveNurseData(){
         CoroutineScope(Dispatchers.Main).launch {
             var benVisitNo = 0;
             var createNewBenflow = false;
-            CPHCviewModel.getLastVisitInfoSync(benVisitInfo.patient.patientID).let {
+            val patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID()
+            CPHCviewModel.getLastVisitInfoSync(patientID).let {
                 if(it == null){
                     benVisitNo = 1;
                 }
@@ -166,8 +210,6 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                 when(it!!){
                     true ->{
                         WorkerUtils.triggerAmritSyncWorker(requireContext())
-                        val intent = Intent(context, HomeActivity::class.java)
-                        startActivity(intent)
                         requireActivity().finish()
                     }
                     else ->{
@@ -186,19 +228,19 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
             category = "ANC",
             reasonForVisit = "New Chief Complaint",
             subCategory = "ANC",
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
             benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
             createdBy = user?.userName
         )
 
         val patientVitals = PatientVitalsModel(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
         )
 
         val patientVisitInfoSync = PatientVisitInfoSync(
-            patientID = benVisitInfo.patient.patientID,
+            patientID = benVisitInfo?.patient?.patientID ?: viewModel.getPatientID(),
             benVisitNo = benVisitNo,
             createNewBenFlow = false,
             nurseDataSynced = SyncState.SYNCED,
@@ -270,7 +312,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        requireActivity().finish()
     }
 
     override fun onDestroy() {

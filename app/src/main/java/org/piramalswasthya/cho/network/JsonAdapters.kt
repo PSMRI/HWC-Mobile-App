@@ -761,9 +761,18 @@ data class LabProceduresDataRequest(
     val visitCode: Long,
 )
 
+
 fun getLongFromDate(dateString: String?): Long {
     val f = SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.ENGLISH)
     val date = dateString?.let { f.parse(it) }
     return date?.time ?: 0L
+}
+
+fun getDateFromLong(dateLong: Long): String? {
+    if (dateLong == 0L) return null
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = dateLong
+    val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+    return f.format(cal.time)
 }
 

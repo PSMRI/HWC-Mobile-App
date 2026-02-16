@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/register_nav"
+    app:startDestination="@id/patientDetailsFragment">
+
+    <fragment
+        android:id="@+id/fragmentLocation"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.location_details.LocationFragment"
+        android:label="fragment_location"
+        tools:layout="@layout/fragment_location" >
+<!--        <action-->
+<!--            android:id="@+id/action_fhirAddPatientFragment_to_fhirLocationFragment"-->
+<!--            app:destination="@id/fhirLocationFragment" />-->
+        <!--            <argument-->
+        <!--                android:name="patientDetails"-->
+        <!--                android:defaultValue="null" />-->
+        <!--        </action>-->
+        <action
+            android:id="@+id/action_fragmentLocation_to_otherInformationsFragment"
+            app:destination="@id/otherInformationsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherInformationsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.other_informations.OtherInformationsFragment"
+        android:label="fragment_other_informations"
+        tools:layout="@layout/fragment_other_informations" >
+        <action
+            android:id="@+id/action_otherInformationsFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.register_patient_activity.patient_details.PatientDetailsFragment"
+        android:label="fragment_patient_details"
+        tools:layout="@layout/fragment_patient_details" >
+        <action
+            android:id="@+id/action_patientDetailsFragment_to_fragmentLocation"
+            app:destination="@id/fragmentLocation" />
+        <action
+            android:id="@+id/action_patientDetailsFragment_to_beneficiaryCardFragment"
+            app:destination="@id/beneficiaryCardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/beneficiaryCardFragment"
+        android:name="org.piramalswasthya.cho.ui.beneficiary_card.BeneficiaryCardFragment"
+        android:label="BeneficiaryCardFragment"
+        tools:layout="@layout/fragment_beneficiary_card">
+        <argument
+            android:name="patientInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+        <action
+            android:id="@+id/action_beneficiaryCardFragment_to_editBeneficiaryDetailsFragment"
+            app:destination="@id/editBeneficiaryDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editBeneficiaryDetailsFragment"
+        android:name="org.piramalswasthya.cho.ui.beneficiary_card.edit.EditBeneficiaryDetailsFragment"
+        android:label="EditBeneficiaryDetailsFragment"
+        tools:layout="@layout/fragment_edit_beneficiary_details">
+        <argument
+            android:name="patientInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+    </fragment>
+</navigation>

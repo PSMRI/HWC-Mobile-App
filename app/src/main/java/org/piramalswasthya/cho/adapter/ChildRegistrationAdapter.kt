@@ -44,8 +44,8 @@ class ChildRegistrationAdapter(
             item: ChildRegDomain,
             clickListener: ClickListener?
         ) {
-            binding.item = item
-            binding.clickListener = clickListener
+            // Set infant name
+            binding.tvBabyName.text = item.customName
 
             // Set button text and color based on child registration status
             val isChildRegistered = item.isChildRegistered()

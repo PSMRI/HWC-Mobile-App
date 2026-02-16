@@ -24,7 +24,7 @@ interface PncDao {
     suspend fun getLastSavedRecord(patientID: String): PNCVisitCache?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(pncCache: PNCVisitCache)
+    suspend fun insert(pncCache: PNCVisitCache): Long
 
     @Query("SELECT * FROM pnc_visit WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPncVisits(): List<PNCVisitCache>
@@ -39,13 +39,19 @@ interface PncDao {
     suspend fun getAllPNCsByPatId(patientID: String): List<PNCVisitCache>
 
     /**
-     * Get patientIDs of women eligible for PNC (have delivered and within 42 days or not completed all visits)
-     * Excludes patients who have completed the 42-day PNC visit
+     * Get patientIDs of women eligible for PNC
+     * Filters for:
+     * - Have delivered (dateOfDelivery IS NOT NULL)
+     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
+     * - Marital Status = Married (maritalStatusID = 2)
+     * - Excludes patients who have completed the 42-day PNC visit
      */
     @Query("""
         SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
+        AND p.maritalStatusID = 2
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit pnc
             WHERE pnc.patientID = do.patientID
@@ -58,12 +64,18 @@ interface PncDao {
 
     /**
      * Get count of PNC mothers
-     * Excludes patients who have completed the 42-day PNC visit
+     * Filters for:
+     * - Have delivered (dateOfDelivery IS NOT NULL)
+     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
+     * - Marital Status = Married (maritalStatusID = 2)
+     * - Excludes patients who have completed the 42-day PNC visit
      */
     @Query("""
         SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
+        INNER JOIN PATIENT p ON do.patientID = p.patientID
         WHERE do.isActive = 1
         AND do.dateOfDelivery IS NOT NULL
+        AND p.maritalStatusID = 2
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit p
             WHERE p.patientID = do.patientID
@@ -82,7 +94,13 @@ interface PncDao {
 
     /**
      * Get all PNC mothers with their delivery outcome and PNC data in a single query
-     * Filters for females (genderID=2) aged 15-49 who have delivered and are eligible for PNC
+     * Filters for:
+     * - Females (genderID=2) aged 15-49
+     * - Have delivered (dateOfDelivery IS NOT NULL)
+     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
+     * - Marital Status = Married (maritalStatusID = 2)
+     * - Status of Woman = Post Natal Mother (inferred from having active delivery outcome)
+     * - Eligible for PNC (within 42 days or not completed all visits)
      */
     @Transaction
     @Query("""
@@ -92,6 +110,7 @@ interface PncDao {
         AND do.dateOfDelivery IS NOT NULL
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
+        AND p.maritalStatusID = 2
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit pnc
             WHERE pnc.patientID = p.patientID
