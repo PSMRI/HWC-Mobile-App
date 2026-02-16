@@ -309,6 +309,8 @@ abstract class InAppDb : RoomDatabase() {
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
 
+    abstract val statusOfWomanDao: StatusOfWomanDao
+
     companion object {
         @Volatile
         private var INSTANCE: InAppDb? = null
