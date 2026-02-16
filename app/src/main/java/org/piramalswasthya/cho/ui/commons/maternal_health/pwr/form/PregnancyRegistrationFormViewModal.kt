@@ -43,12 +43,15 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
     val navigateTo: LiveData<NavigationEvent?> get() = _navigateTo
 
     sealed class NavigationEvent {
-        data class ToEligibleCouple(val patientID: String) : NavigationEvent()
+        data class ToEligibleCouple(val patientID: String, val showSuccessToast: Boolean = false) : NavigationEvent()
         object ToVitalsAndPrescription : NavigationEvent()
-        data class ToVitalsActivity(val benVisitInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo) : NavigationEvent()
+        data class ToVitalsActivity(
+            val benVisitInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo,
+            val showSuccessToast: Boolean = false
+        ) : NavigationEvent()
     }
 
-    private val patientID: String? = savedStateHandle["patientID"]
+    val patientID: String? = savedStateHandle["patientID"]
 
     private val _state = MutableLiveData(State.IDLE)
     val state: LiveData<State>
@@ -174,7 +177,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
         // Setup navigation callbacks
         dataset.onNavigateToEligibleCouple = {
             patientID?.let { id ->
-                _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id))
+                _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id, showSuccessToast = true))
             }
         }
 
@@ -213,7 +216,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                 // Check for UPT Negative Flow first
                 if (dataset.shouldNavigateToEligibleCouple()) {
                     patientID?.let { id ->
-                        _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id))
+                        _navigateTo.postValue(NavigationEvent.ToEligibleCouple(patientID = id, showSuccessToast = true))
                     }
                     _state.postValue(State.IDLE) 
                     return@launch
@@ -238,18 +241,17 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
                 // Save to repository
                 maternalHealthRepo.persistRegisterRecord(registrationCache)
 
-                // Update record exists state
-                _recordExists.postValue(true)
-
                 Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
 
                 // Check if we should navigate to vitals after save
                 if (dataset.shouldNavigateToVitals()) {
                     val benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(registrationCache.patientID!!)
-                    _navigateTo.postValue(NavigationEvent.ToVitalsActivity(benVisitInfo))
+                    _navigateTo.postValue(NavigationEvent.ToVitalsActivity(benVisitInfo, showSuccessToast = true))
+                } else {
+                    // Update record exists state only if not navigating, to prevent UI flicker
+                    _recordExists.postValue(true)
+                    _state.postValue(State.SAVE_SUCCESS)
                 }
-
-                _state.postValue(State.SAVE_SUCCESS)
             } catch (e: Exception) {
                 Timber.e(e, "Saving pregnancy registration data failed!!")
                 _state.postValue(State.SAVE_FAILED)

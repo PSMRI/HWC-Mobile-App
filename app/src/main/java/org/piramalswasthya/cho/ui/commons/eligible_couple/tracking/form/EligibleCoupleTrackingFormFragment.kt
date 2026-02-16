@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -87,6 +88,14 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         setupClickListeners()
         observeViewModelState()
         observeAlerts()
+        
+        // Handle Back Press
+        val fromVisitDetails = arguments?.getBoolean("fromVisitDetails", false) ?: false
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : androidx.activity.OnBackPressedCallback(fromVisitDetails) {
+            override fun handleOnBackPressed() {
+                navigateBackToList()
+            }
+        })
     }
 
     private fun loadBeneficiaryInfo() {
@@ -136,6 +145,8 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         viewModel.benAgeGender.observe(viewLifecycleOwner) {
             binding.tvAgeGender.text = it
         }
+        binding.tvCaseId.text = viewModel.patientID
+        binding.llCaseIdRow.visibility = View.VISIBLE
     }
 
     private fun setupAntraTableObserver() {
@@ -239,36 +250,67 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             putBoolean("fromECT", true)
         }
         
-        try {
-            // Attempt standard navigation
-            findNavController().navigate(R.id.pregnancyRegistrationFormFragment, bundle)
-        } catch (e: Exception) {
-            Timber.e(e, "Standard navigation failed, falling back to dynamic detection")
-            
-            // Fallback: Navigate by checking for available destinations in the graph
+        // Attempt standard navigation first
+        val navController = try { findNavController() } catch (e: Exception) { null }
+        
+        if (navController != null) {
             try {
-                val navController = findNavController()
-                val destId = when {
-                    navController.graph.findNode(R.id.pregnantWomanRegistrationFragment) != null -> R.id.pregnantWomanRegistrationFragment
-                    navController.graph.findNode(R.id.pregnancyRegistrationFormFragment) != null -> R.id.pregnancyRegistrationFormFragment
-                    else -> throw Exception("No registration destination found in nav graph")
-                }
-                navController.navigate(destId, bundle)
-            } catch (ex: Exception) {
-                Timber.e(ex, "All navigation attempts failed")
-                Toast.makeText(requireContext(), "Unable to open registration form", Toast.LENGTH_SHORT).show()
-                navigateBackToList()
+                navController.navigate(R.id.action_eligibleCoupleTrackingFormFragment_to_pregnantWomanRegistrationFragment, bundle)
+                return
+            } catch (e: Exception) {
+                Timber.e(e, "Standard navigation via NavController failed")
             }
+        }
+        
+        // Fallback: Use manual fragment transaction if NavController is not available or failed
+        Timber.i("Performing manual fragment transaction for pregnancy registration")
+        try {
+            val fragment = org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment().apply {
+                arguments = bundle
+            }
+            
+            requireActivity().supportFragmentManager.commit {
+                replace(R.id.fragment_container, fragment)
+                addToBackStack(null)
+            }
+        } catch (ex: Exception) {
+            Timber.e(ex, "Manual navigation fallback failed")
+            Toast.makeText(requireContext(), "Unable to open registration form", Toast.LENGTH_SHORT).show()
+            navigateBackToList()
         }
     }
 
     private fun navigateBackToList() {
         if (!isAdded || isRemoving) return
 
+        val fromVisitDetails = arguments?.getBoolean("fromVisitDetails", false) ?: false
+        Timber.d("Navigating back. fromVisitDetails: $fromVisitDetails")
+        
+        if (fromVisitDetails) {
+            if (benVisitInfo == null) {
+                Toast.makeText(requireContext(), "Loading patient data, please wait...", Toast.LENGTH_SHORT).show()
+                return
+            }
+            try {
+                // Toast.makeText(requireContext(), "Navigating to Visit Details", Toast.LENGTH_SHORT).show()
+                val bundle = Bundle().apply {
+                    putSerializable("benVisitInfo", benVisitInfo)
+                }
+                findNavController().navigate(R.id.action_eligibleCoupleTrackingFormFragment_to_fhirVisitDetailsFragment, bundle)
+                return
+            } catch (e: Exception) {
+                Timber.e(e, "NavController navigate to Visit Details failed")
+                Toast.makeText(requireContext(), "Nav Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+
         try {
+            // Try NavController if available
+            Timber.d("Navigating Up")
             findNavController().navigateUp()
         } catch (e: Exception) {
             Timber.e(e, "NavController navigateUp failed, falling back to activity back press")
+            // Fallback to activity back press
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
@@ -434,7 +476,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
-        findNavController().navigateUp()
+        navigateBackToList()
     }
 
     override fun onResume() {

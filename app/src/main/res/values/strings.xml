@@ -303,6 +303,8 @@
     <string name="marital_status">Marital Status <font color="#FF0000">*</font></string>
     <string name="spouse_name">Spouse Name <font color="#FF0000">*</font></string>
     <string name="wife_name">Wife Name <font color="#FF0000">*</font></string>
+    <string name="husband_s_name">Husband\'s Name <font color="#FF0000">*</font></string>
+    <string name="wife_s_name">Wife\'s Name <font color="#FF0000">*</font></string>
     <string name="age_at_marriage">Age at Marriage <font color="#FF0000">*</font></string>
 
     <string name="revisit_date">Revisit Date</string>

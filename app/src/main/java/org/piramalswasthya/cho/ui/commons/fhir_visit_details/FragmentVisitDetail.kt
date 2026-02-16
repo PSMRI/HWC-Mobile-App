@@ -814,7 +814,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             ECTrackingAdapter(ECTrackingAdapter.ECTrackViewClickListener { benId, createdDate ->
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        patientID = benId, createdDate = createdDate
+                        patientID = benId, createdDate = createdDate, fromVisitDetails = true
                     )
                 )
             })
@@ -1397,7 +1397,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
                         benVisitInfo.patient.patientID,
-                        benVisitInfo.patient.beneficiaryID.toString()
+                        benVisitInfo.patient.beneficiaryID.toString(),
+                        fromVisitDetails = true
                     )
                 )
             }
@@ -1466,16 +1467,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if (reasonForVisit == DropdownConst.pwr) {
-                val navController = findNavController()
-                val navOptions = androidx.navigation.NavOptions.Builder()
-                    .setPopUpTo(navController.graph.startDestinationId, true)
-                    .build()
-                navController.navigate(
+                findNavController().navigate(
                     FragmentVisitDetailDirections
                         .actionFhirVisitDetailsFragmentToPregnantWomanRegistrationFragment(
                             patientID = benVisitInfo.patient.patientID,
-                            benId = benVisitInfo.patient.beneficiaryID.toString()
-                        ), navOptions
+                            benId = benVisitInfo.patient.beneficiaryID.toString(),
+                            fromVisitDetails = true
+                        )
                 )
             }
 
@@ -1672,14 +1670,11 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             else{
                 isNavigationInProgress = false
                 binding.btnSubmit.isEnabled = true
-                val navController = findNavController()
-                val navOptions = androidx.navigation.NavOptions.Builder()
-                    .setPopUpTo(navController.graph.startDestinationId, true)
-                    .build()
-                navController.navigate(
+                // Navigate to ECT form without clearing back stack
+                findNavController().navigate(
                     FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEligibleCoupleTrackingFormFragment(
-                        benVisitInfo.patient.patientID, 0L
-                    ), navOptions
+                        benVisitInfo.patient.patientID, 0L, true
+                    )
                 )
             }
         }
