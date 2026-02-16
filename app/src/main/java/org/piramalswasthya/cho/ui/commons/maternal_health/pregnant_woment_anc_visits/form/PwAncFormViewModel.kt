@@ -253,14 +253,34 @@ class PwAncFormViewModel @Inject constructor(
                     }
                     
                     maternalHealthRepo.persistAncRecord(ancCache)
-                    if (ancCache.anyHighRisk == true) {
-                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
-                            it.isHrp = true
-                            if (it.processed != "N") it.processed = "U"
-                            it.syncState = SyncState.UNSYNCED
-                            it.updatedDate = System.currentTimeMillis()
-                            maternalHealthRepo.persistRegisterRecord(it)
+                    
+                    // PER-163: Ensure Registration Record is updated and persisted
+                    if (::registerRecord.isInitialized) {
+                        // Apply HRP update
+                        if (ancCache.anyHighRisk == true) {
+                            registerRecord.isHrp = true
+                            if (registerRecord.processed != "N") registerRecord.processed = "U"
+                            registerRecord.syncState = SyncState.UNSYNCED
+                            registerRecord.updatedDate = System.currentTimeMillis()
                         }
+                        
+                        maternalHealthRepo.persistRegisterRecord(registerRecord)
+                    } else {
+                        // Fallback if not initialized (though it should be)
+                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            var changed = false
+                            if (it.syncState == SyncState.UNSYNCED) changed = true
+                            
+                            if (ancCache.anyHighRisk == true) {
+                                it.isHrp = true
+                                if (it.processed != "N") it.processed = "U"
+                                it.syncState = SyncState.UNSYNCED
+                                it.updatedDate = System.currentTimeMillis()
+                                changed = true
+                            }
+                            
+                            if (changed) maternalHealthRepo.persistRegisterRecord(it)
+                         }
                     }
                     
                     // Set isFirstAncSubmitted to true if this is the 1st ANC visit and it's being completed
