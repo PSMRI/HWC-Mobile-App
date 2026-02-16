@@ -309,6 +309,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
 
+
     // This comment is for Github glitch
     abstract val statusOfWomanDao: StatusOfWomanDao
 
