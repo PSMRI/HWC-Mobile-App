@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
@@ -49,9 +50,21 @@ class PersonalDetailsViewModel @Inject constructor(
     var patientListForLab : Flow<List<PatientDisplayWithVisitInfo>>? = patientVisitInfoSyncRepo.getPatientDisplayListForLab().combine(filter){
             list, filter -> filterBenList(list, filter)
     }
-    var patientListForPharmacist : Flow<List<PatientDisplayWithVisitInfo>>? =patientVisitInfoSyncRepo.getPatientListFlowForPharmacist().combine(filter){
-            list, filter -> filterBenList(list, filter)
-    }
+    // One card per patient/beneficiary (latest visit only); no duplicate cards with same name/beneficiary ID
+    var patientListForPharmacist : Flow<List<PatientDisplayWithVisitInfo>>? =
+        patientVisitInfoSyncRepo.getPatientListFlowForPharmacist()
+            .map { list ->
+                val key: (PatientDisplayWithVisitInfo) -> String = { info ->
+                    info.patient.beneficiaryRegID?.toString() ?: info.patient.patientID
+                }
+                val latestFirst = compareByDescending<PatientDisplayWithVisitInfo> { it.visitDate?.time ?: 0L }.thenByDescending { it.benVisitNo ?: 0 }
+                list
+                    .groupBy(key)
+                    .values
+                    .map { visits -> visits.sortedWith(latestFirst).first() }
+                    .sortedWith(latestFirst)
+            }
+            .combine(filter) { list, f -> filterBenList(list, f) }
 
     var count : Int = 0
     private val _abha = MutableLiveData<String?>()

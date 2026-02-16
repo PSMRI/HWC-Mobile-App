@@ -885,4 +885,38 @@ class BenFlowRepo @Inject constructor(
             false
         }
     }
+
+    /**
+     * When doctor has submitted prescription locally (saved in Prescription_Cases_Recorde) but API
+     * has not synced yet, copy that data to the Prescription table so pharmacist module can show medicines.
+     */
+    suspend fun copyPrescriptionFromCaseRecordToPharmacistTable(benVisitInfo: PatientDisplayWithVisitInfo): Boolean {
+        return try {
+            val prescriptionCaseRecordVal = caseRecordeDao.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+                benVisitInfo.patient.patientID,
+                benVisitInfo.benVisitNo!!
+            )
+            if (prescriptionCaseRecordVal.isNullOrEmpty()) return false
+            val sync = patientVisitInfoSyncDao.getPatientVisitInfoSyncByPatientIdAndBenVisitNo(
+                benVisitInfo.patient.patientID,
+                benVisitInfo.benVisitNo!!
+            ) ?: return false
+            val facilityID = userDao.getLoggedInUserFacilityID()
+            val bundle = PatientDoctorBundle(
+                patient = benVisitInfo.patient,
+                patientVisitInfoSync = sync,
+                prescriptionCaseRecordVal = prescriptionCaseRecordVal
+            )
+            savePrescriptionListForPharmacist(
+                patient = benVisitInfo.patient,
+                facilityID = facilityID,
+                patientDoctorBundle = bundle,
+                patientVisitInfoSync = sync
+            )
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "copyPrescriptionFromCaseRecordToPharmacistTable")
+            false
+        }
+    }
 }

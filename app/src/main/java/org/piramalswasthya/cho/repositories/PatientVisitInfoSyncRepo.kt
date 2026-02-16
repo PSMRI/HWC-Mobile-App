@@ -39,6 +39,10 @@ class PatientVisitInfoSyncRepo  @Inject constructor(
         patientVisitInfoSyncDao.updatePharmacistFlag(patientID, benVisitNo)
     }
 
+    suspend fun updatePharmacistFlagToPending(patientID: String, benVisitNo: Int) {
+        patientVisitInfoSyncDao.updatePharmacistFlagToPending(patientID, benVisitNo)
+    }
+
     suspend fun updateOnlyDoctorDataSubmitted(nurseFlag : Int, doctorFlag : Int, labtechFlag : Int, patientID: String, benVisitNo: Int){
         patientVisitInfoSyncDao.updateOnlyDoctorDataSubmitted(nurseFlag, doctorFlag, labtechFlag, patientID, benVisitNo)
     }
