@@ -165,13 +165,11 @@ class PatientItemAdapter(
                 binding.btnAbha.isEnabled = false
                 //   binding.ivSyncState.visibility = View.GONE
             }
-            /*   Commented as prescription button should not display to user*/
-
-            if(item.doctorFlag == 9){
-                binding.prescriptionDownloadBtn.visibility = View.VISIBLE
-            }else{
-                binding.prescriptionDownloadBtn.visibility = View.GONE
-            }
+            // Show prescription download when doctor has submitted (medicine prescribed) or pharmacist has submitted
+            // doctorFlag 2 = submitted with test pending, 3 = post-lab, 9 = submitted without test
+            val showPrescriptionDownload = item.pharmacist_flag == 9 ||
+                    item.doctorFlag == 2 || item.doctorFlag == 3 || item.doctorFlag == 9
+            binding.prescriptionDownloadBtn.visibility = if (showPrescriptionDownload) View.VISIBLE else View.GONE
 
             if (item.referTo != null) {
                 binding.referToLl.visibility = View.VISIBLE
@@ -198,12 +196,12 @@ class PatientItemAdapter(
     }
 
     class BenClickListener(
-        private val clickedBen: (PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedABHA: (PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedEsanjeevani: (PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedDownloadPrescription: (PatientDisplayWithVisitInfo) -> Unit,
-        private val syncIconButton: (PatientDisplayWithVisitInfo) -> Unit,
-        private val clickedEdit: (PatientDisplayWithVisitInfo) -> Unit
+        private val clickedBen: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedABHA: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedEdit: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
