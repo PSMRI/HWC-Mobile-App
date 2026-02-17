@@ -30,22 +30,27 @@ android {
 
     splits {
         abi {
-            enable true
+            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains('debug') } ? false : true
             reset()
             include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-            universalApk true
+            universalApk false
         }
     }
 
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-//        debug{
-//            debuggable true
-//        }
+        debug {
+            debuggable true
+            // Limit to arm64 for faster debug builds (skip x86/x86_64/armeabi-v7a)
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+        }
     }
 
     flavorDimensions "default"
@@ -78,9 +83,6 @@ android {
         jvmTarget = '1.8'
     }
     dataBinding{
-        enabled = true
-    }
-    viewBinding{
         enabled = true
     }
     buildFeatures {
@@ -124,26 +126,24 @@ dependencies {
 //    implementation("com.google.android.fhir:data-capture:1.0.0")
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.activity:activity-compose:1.5.1'
+
+    // Compose BOM — single declaration for all compose dependencies
     implementation platform('androidx.compose:compose-bom:2022.10.00')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
-    implementation 'androidx.fragment:fragment:1.6.0'
-    implementation platform('androidx.compose:compose-bom:2022.10.00')
-    implementation 'androidx.camera:camera-core:1.0.2'
-    implementation platform('androidx.compose:compose-bom:2022.10.00')
-    androidTestImplementation platform('androidx.compose:compose-bom:2022.10.00')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
-    androidTestImplementation platform('androidx.compose:compose-bom:2022.10.00')
-    androidTestImplementation platform('androidx.compose:compose-bom:2022.10.00')
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    implementation 'androidx.fragment:fragment:1.6.0'
+    implementation 'androidx.camera:camera-core:1.0.2'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
     //tensorflow and mediapipe.
-    implementation 'com.google.mediapipe:tasks-vision:latest.release'
+    implementation 'com.google.mediapipe:tasks-vision:0.10.32'
     implementation ("org.tensorflow:tensorflow-lite:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.11.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu-api:2.11.0")
@@ -166,9 +166,7 @@ dependencies {
     def gson_version = "2.9.0"
 
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
@@ -187,7 +185,7 @@ dependencies {
     //Lifecycle
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    // coroutines-core already declared below with version variable
 
     //Coroutine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
@@ -213,7 +211,7 @@ dependencies {
 
     //Gson
     implementation "com.google.code.gson:gson:$gson_version"
-    implementation "com.squareup.retrofit2:converter-gson:$gson_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     //okHttp
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
