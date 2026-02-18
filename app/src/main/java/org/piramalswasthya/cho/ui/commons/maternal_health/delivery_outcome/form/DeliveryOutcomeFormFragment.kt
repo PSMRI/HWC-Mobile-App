@@ -115,7 +115,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     viewModel.resetState()
-                    navigateToVitals()
+                    findNavController().navigateUp()
                 }
                 State.SAVE_FAILED -> {
                     binding.llContent.visibility = View.VISIBLE
@@ -178,51 +178,6 @@ class DeliveryOutcomeFormFragment : Fragment() {
             viewModel.saveForm()
         } else {
             invalidIndex.let { binding.form.rvInputForm.scrollToPosition(it) }
-        }
-    }
-
-    private fun navigateToVitals() {
-        // Navigate to neonatal outcome form first
-        val deliveryOutcomeId = viewModel.deliveryOutcome.id
-        val patientID = viewModel.patientID
-        
-        if (deliveryOutcomeId > 0) {
-            try {
-                val action = DeliveryOutcomeFormFragmentDirections
-                    .actionDeliveryOutcomeFormFragmentToNeonatalOutcomeFormFragment(
-                        deliveryOutcomeId = deliveryOutcomeId,
-                        patientID = patientID,
-                        babyIndex = 1  // First baby
-                    )
-                findNavController().navigate(action)
-            } catch (e: Exception) {
-                Timber.e(e, "Navigation to neonatal outcome failed")
-                // Fallback: navigate to vitals
-                fallbackToVitals()
-            }
-        } else {
-            fallbackToVitals()
-        }
-    }
-    
-    private fun fallbackToVitals() {
-        val benVisitInfo = (activity?.intent?.getSerializableExtra("benVisitInfo") as? PatientDisplayWithVisitInfo)
-        if (benVisitInfo != null) {
-            try {
-                val bundle = Bundle().apply { putSerializable("benVisitInfo", benVisitInfo) }
-                findNavController().navigate(
-                    R.id.action_deliveryOutcomeFormFragment_to_customVitalsFragment,
-                    bundle
-                )
-            } catch (e: IllegalStateException) {
-                requireActivity().supportFragmentManager.popBackStack()
-            }
-        } else {
-            try {
-                findNavController().navigateUp()
-            } catch (e: IllegalStateException) {
-                requireActivity().supportFragmentManager.popBackStack()
-            }
         }
     }
 

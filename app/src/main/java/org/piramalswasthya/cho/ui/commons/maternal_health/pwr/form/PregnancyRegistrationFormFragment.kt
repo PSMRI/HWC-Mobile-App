@@ -315,19 +315,12 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                         if (navigationEvent.showSuccessToast) {
                             Toast.makeText(context, "Registration Successful", Toast.LENGTH_LONG).show()
                         }
-                        val action = PregnantWomanRegistrationFragmentDirections
-                            .actionPregnantWomanRegistrationFragmentToEligibleCoupleTrackingFormFragment(
-                                patientID = navigationEvent.patientID,
-                                createdDate = 0L
-                            )
-                        findNavController().navigate(action)
+                        findNavController().navigateUp()
                         viewModel.clearNavigation()
                     }
 
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsAndPrescription -> {
-                        val action =
-                            PregnantWomanRegistrationFragmentDirections.actionPregnantWomanRegistrationFragmentToCustomVitalsFragment()
-                        findNavController().navigate(action)
+                        findNavController().navigateUp()
                         viewModel.clearNavigation()
                     }
 

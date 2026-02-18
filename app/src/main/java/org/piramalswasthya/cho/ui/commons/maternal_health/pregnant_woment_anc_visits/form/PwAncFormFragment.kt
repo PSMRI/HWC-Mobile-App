@@ -178,7 +178,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         WorkerUtils.triggerAmritSyncWorker(requireContext())
         
         try {
-            findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
+            findNavController().navigateUp()
         } catch (e: Exception) {
             requireActivity().finish()
         }
