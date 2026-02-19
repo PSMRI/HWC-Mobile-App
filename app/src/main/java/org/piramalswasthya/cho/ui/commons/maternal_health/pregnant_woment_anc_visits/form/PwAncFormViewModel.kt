@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.PregnantWomanAncVisitDataset
 import org.piramalswasthya.cho.database.room.SyncState
 import org.piramalswasthya.cho.database.shared_preferences.PreferenceDao
+import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
@@ -44,8 +45,10 @@ class PwAncFormViewModel @Inject constructor(
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
     private val visitNumber =
         PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
-    val isOldVisit =
-        PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).isOldVisit
+    private val initialIsOldVisit = PwAncFormFragmentArgs.fromSavedStateHandle(savedStateHandle).isOldVisit
+
+    private val _isOldVisit = MutableLiveData(initialIsOldVisit)
+    val isOldVisit: LiveData<Boolean> = _isOldVisit
 
 
     private val _state = MutableLiveData(State.IDLE)
@@ -70,14 +73,23 @@ class PwAncFormViewModel @Inject constructor(
 
     private lateinit var ancCache: PregnantWomanAncCache
     private lateinit var registerRecord: PregnantWomanRegistrationCache
+    private var ben: PatientDisplay? = null
+    private var lastAncVisitNumber: Int = 0
+    private var currentVisitNumber: Int = visitNumber
 
     init {
         viewModelScope.launch {
-            val asha = userRepo.getLoggedInUser()!!
-            val ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
+            val asha = userRepo.getLoggedInUser()
+            if (asha == null) {
+                Timber.e("No logged in user found")
+                // Handle error state appropriately
+                return@launch
+            }
+            ben = patientRepo.getPatientDisplay(patientID)?.also { ben ->
                 _benName.value =
                     "${ben.patient.firstName} ${ben.patient.lastName ?: ""}"
-                _benAgeGender.value = "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
+                _benAgeGender.value =
+                    "${ben.patient.age} ${ben.ageUnit?.name} | ${ben.gender?.genderName}"
                 ancCache = PregnantWomanAncCache(
                     patientID = patientID,
                     visitNumber = visitNumber,
@@ -86,32 +98,141 @@ class PwAncFormViewModel @Inject constructor(
                     updatedBy = asha.userName
                 )
             }
-            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID)!!
-            maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
-                ancCache = it
-                _recordExists.value = true
-            } ?: run {
-                _recordExists.value = false
+            registerRecord = maternalHealthRepo.getSavedRegistrationRecord(patientID) ?: run {
+                Timber.e("No registration record found for $patientID")
+                return@launch
             }
-            val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+            
+            // Get or create ANC record for this visit
+            var savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            
+            // CRITICAL FIX: If savedAnc is null (e.g., HRP visit 5+), create it on-demand
+            if (savedAnc == null) {
+                Timber.d("Creating new ANC record for visit $visitNumber (likely HRP > 4)")
+                val newAncRecord = PregnantWomanAncCache(
+                    patientID = patientID,
+                    visitNumber = visitNumber,
+                    ancDate = System.currentTimeMillis(), // Current date
+                    isActive = true,
+                    createdBy = asha.userName,
+                    updatedBy = asha.userName,
+                    syncState = SyncState.UNSYNCED
+                )
+                maternalHealthRepo.persistAncRecord(newAncRecord)
+                savedAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)
+            }
+            
+            // Per Jira MHWC-197: Previous forms become read-only when a NEWER visit is started (completed).
+            // Schedule pre-creates all 4 visit records (no weight); so lock only when a later visit has weight.
+            val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
+            val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
+            val isOldVisit = visitNumber < maxCompletedVisitNumber
+            
+            savedAnc?.let {
+                val registerRecordOrNull = maternalHealthRepo.getSavedRegistrationRecord(patientID)
+                if (registerRecordOrNull == null) {
+                    Timber.e("No registration record for patient $patientID; cannot load ANC form")
+                    _state.postValue(State.SAVE_FAILED)
+                    return@launch
+                }
+                registerRecord = registerRecordOrNull
+                lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
+                val recordExists =
+                    maternalHealthRepo.getSavedAncRecord(patientID, visitNumber)?.let {
+                        ancCache = it
+                        _recordExists.value = (it.weight != null)
+                        true
+                    } ?: run {
+                        _recordExists.value = false
+                        false
+                    }
+                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+                
+                // Set isOldVisit based on whether a newer visit exists
+                _isOldVisit.value = isOldVisit
 
-            dataset.setUpPage(
-                visitNumber,
-                ben,
-                registerRecord,
-                lastAnc,
-                if (recordExists.value == true) ancCache else null
-            )
-
-
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    registerRecord,
+                    lastAnc,
+                    if (recordExists) ancCache else null
+                )
+            } ?: run {
+                // Even if savedAnc is null, we MUST still set up the form
+                _isOldVisit.value = isOldVisit
+                lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
+                _recordExists.value = false
+                val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, visitNumber - 1)
+                
+                // CRITICAL: Set up the form even for new visits
+                dataset.setUpPage(
+                    visitNumber,
+                    ben,
+                    registerRecord,
+                    lastAnc,
+                    null  // No existing data for new visit
+                )
+            }
         }
     }
+
+    private val ancPeriodFormId = 3
+
+    private fun switchToVisit(selectedVisit: Int) {
+        if (selectedVisit == currentVisitNumber) return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    if (!::registerRecord.isInitialized) {
+                        Timber.w("switchToVisit: registerRecord not initialized yet")
+                        _state.postValue(State.SAVE_FAILED)
+                        return@withContext
+                    }
+                    val saved = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit)
+                    val lastAnc = maternalHealthRepo.getSavedAncRecord(patientID, selectedVisit - 1)
+                    val asha = userRepo.getLoggedInUser() ?: return@withContext
+                    ancCache = saved ?: PregnantWomanAncCache(
+                        patientID = patientID,
+                        visitNumber = selectedVisit,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha.userName,
+                        updatedBy = asha.userName
+                    )
+                    currentVisitNumber = selectedVisit
+                    _recordExists.postValue(saved != null)
+                    
+                    // Per Jira MHWC-197: Lock when a newer visit is completed (weight set). Schedule pre-creates all visits.
+                    val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
+                    val maxCompletedVisitNumber = allAncRecords.filter { it.weight != null }.maxOfOrNull { it.visitNumber } ?: 0
+                    val isOld = selectedVisit < maxCompletedVisitNumber
+                    lastAncVisitNumber = allAncRecords.maxOfOrNull { it.visitNumber } ?: 0
+                    _isOldVisit.postValue(isOld)
+                    dataset.setUpPage(
+                        selectedVisit,
+                        ben,
+                        registerRecord,
+                        lastAnc,
+                        if (saved != null) ancCache else null
+                    )
+                } catch (e: Exception) {
+                    Timber.e(e, "switchToVisit failed")
+                    _state.postValue(State.SAVE_FAILED)
+                }
+            }
+        }
+    }
+
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
+            if (formId == ancPeriodFormId) {
+                dataset.getAncVisitNumber()?.let { newVisit ->
+                    if (newVisit != currentVisitNumber) switchToVisit(newVisit)
+                }
+            }
         }
-
     }
 
 
@@ -120,8 +241,59 @@ class PwAncFormViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 try {
                     _state.postValue(State.SAVING)
+                    val wasCompletedBefore = ancCache.weight != null
                     dataset.mapValues(ancCache, 1)
+                    ancCache.updatedDate = System.currentTimeMillis()
+                    val isCompletedNow = ancCache.weight != null
+                    
+                    // Per Jira MHWC-196: Log when patient moves from due list to completed list
+                    if (!wasCompletedBefore && isCompletedNow) {
+                        Timber.d("ANC Visit Completed: Patient $patientID, ANC Visit ${ancCache.visitNumber} completed. " +
+                                "Moving from ANC ${ancCache.visitNumber} due list to completed list.")
+                    }
+                    
                     maternalHealthRepo.persistAncRecord(ancCache)
+                    
+                    // PER-163: Ensure Registration Record is updated and persisted
+                    if (::registerRecord.isInitialized) {
+                        // Apply HRP update
+                        if (ancCache.anyHighRisk == true) {
+                            registerRecord.isHrp = true
+                            if (registerRecord.processed != "N") registerRecord.processed = "U"
+                            registerRecord.syncState = SyncState.UNSYNCED
+                            registerRecord.updatedDate = System.currentTimeMillis()
+                        }
+                        
+                        maternalHealthRepo.persistRegisterRecord(registerRecord)
+                    } else {
+                        // Fallback if not initialized (though it should be)
+                         maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            var changed = false
+                            if (it.syncState == SyncState.UNSYNCED) changed = true
+                            
+                            if (ancCache.anyHighRisk == true) {
+                                it.isHrp = true
+                                if (it.processed != "N") it.processed = "U"
+                                it.syncState = SyncState.UNSYNCED
+                                it.updatedDate = System.currentTimeMillis()
+                                changed = true
+                            }
+                            
+                            if (changed) maternalHealthRepo.persistRegisterRecord(it)
+                         }
+                    }
+                    
+                    // Set isFirstAncSubmitted to true if this is the 1st ANC visit and it's being completed
+                    if (ancCache.visitNumber == 1 && isCompletedNow) {
+                        maternalHealthRepo.getSavedRegistrationRecord(patientID)?.let {
+                            it.isFirstAncSubmitted = true
+                            if (it.processed != "N") it.processed = "U"
+                            it.syncState = SyncState.UNSYNCED
+                            it.updatedDate = System.currentTimeMillis()
+                            maternalHealthRepo.persistRegisterRecord(it)
+                            Timber.d("Setting isFirstAncSubmitted to true for patient $patientID")
+                        }
+                    }
                     if (ancCache.pregnantWomanDelivered == true) {
 
                     } else if (ancCache.isAborted) {
@@ -177,6 +349,8 @@ class PwAncFormViewModel @Inject constructor(
     fun getIndexOfTT1(): Int = dataset.getIndexOfTd1()
     fun getIndexOfTT2(): Int = dataset.getIndexOfTd2()
     fun getIndexOfTTBooster(): Int = dataset.getIndexOfTdBooster()
+    
+    fun getPatientID(): String = patientID
 
 
 }

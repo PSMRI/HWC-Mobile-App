@@ -40,6 +40,7 @@ import org.piramalswasthya.cho.databinding.RvItemFormRadioV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTextViewV2Binding
 import org.piramalswasthya.cho.databinding.RvItemFormTimepickerV2Binding
 import org.piramalswasthya.cho.helpers.Konstants
+import org.piramalswasthya.cho.configuration.Dataset
 import org.piramalswasthya.cho.helpers.getDateString
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.utils.KeyboardUtils
@@ -75,8 +76,9 @@ class FormInputAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: FormElement, newItem: FormElement): Boolean {
-            Timber.d("${oldItem.id}   ${oldItem.errorText} ${newItem.errorText}")
-            return oldItem.errorText == newItem.errorText
+            val contentsSame = oldItem.errorText == newItem.errorText && oldItem.value == newItem.value
+            Timber.d("${oldItem.id} errorText: ${oldItem.errorText}==${newItem.errorText}, value: '${oldItem.value}'=='${newItem.value}', same=$contentsSame")
+            return contentsSame
         }
     }
 
@@ -121,8 +123,14 @@ class FormInputAdapter(
                 binding.tilEditText.setEndIconOnClickListener(null)
             }
 
+            if (!binding.et.hasFocus()) {
+                val currentText = binding.et.text?.toString() ?: ""
+                val itemValue = item.value ?: ""
+                if (currentText != itemValue) {
+                    binding.et.setText(itemValue)
+                }
+            }
 
-            //binding.et.setText(item.value.value)
             val textWatcher = object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence?, start: Int, count: Int, after: Int
@@ -133,19 +141,16 @@ class FormInputAdapter(
                 }
 
                 override fun afterTextChanged(editable: Editable?) {
-//                    editable?.length?.let {
-//                        if (it > item.etMaxLength) {
-////                            editable.delete(item.etMaxLength + 1, it)
-//                            "This field cannot have more than ${item.etMaxLength} characters".let {
-//                                item.errorText = it
-//                                binding.tilEditText.error = it
-//                            }
-//                            return
-//                        } else
-//                            item.errorText = null
-//                    }
-                    item.value = editable?.toString()
-                    Timber.d("editable : $editable Current value : ${item.value}  isNull: ${item.value == null} isEmpty: ${item.value == ""}")
+                    val textValue = editable?.toString() ?: ""
+                    item.value = textValue
+
+                    val trimmedValue = textValue.trim()
+                    if (trimmedValue.isNotBlank() && item.errorText != null) {
+                        item.errorText = null
+                        binding.tilEditText.isErrorEnabled = false
+                        binding.tilEditText.error = null
+                    }
+
                     formValueListener?.onValueChanged(item, -1)
                     if (item.errorText != binding.tilEditText.error) {
                         binding.tilEditText.isErrorEnabled = item.errorText != null
@@ -304,7 +309,7 @@ class FormInputAdapter(
             }
 
             binding.actvRvDropdown.setupDropdownKeyboardHandling()
-            
+
             binding.actvRvDropdown.setOnItemClickListener { _, _, index, _ ->
                 item.value = item.entries?.get(index)
                 Timber.d("Item DD : $item")
@@ -348,15 +353,16 @@ class FormInputAdapter(
                 item.entries?.let { items ->
                     orientation = item.orientation ?: LinearLayout.HORIZONTAL
                     weightSum = items.size.toFloat()
+                    val isHorizontal = orientation == LinearLayout.HORIZONTAL
                     items.forEach {
                         val rdBtn = RadioButton(this.context)
                         rdBtn.layoutParams = RadioGroup.LayoutParams(
-                            RadioGroup.LayoutParams.WRAP_CONTENT,
+                            if (isHorizontal) 0 else RadioGroup.LayoutParams.MATCH_PARENT,
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         ).apply {
-                            gravity = Gravity.CENTER_HORIZONTAL
-                        }
+                        gravity = Gravity.CENTER_HORIZONTAL
+                    }
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(
@@ -495,14 +501,14 @@ class FormInputAdapter(
                         else cbx.setTextAppearance(android.R.style.TextAppearance_Material_Subhead)
                         cbx.text = it
                         addView(cbx)
-                        if (item.value?.contains(it) == true) cbx.isChecked = true
+                        if (item.value?.split(",")?.any { s -> s.trim() == it } == true) cbx.isChecked = true
                         cbx.setOnClickListener {
                             KeyboardUtils.hideKeyboard(binding.root)
                             KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
                         }
                         cbx.setOnCheckedChangeListener { _, b ->
                             if (b) {
-                                if (item.value != null) item.value = item.value + it
+                                if (item.value != null && item.value!!.isNotEmpty()) item.value = item.value + "," + it
                                 else item.value = it
                                 if (item.hasDependants || item.hasAlertError) {
                                     Timber.d(
@@ -518,7 +524,7 @@ class FormInputAdapter(
                                 }
                             } else {
                                 if (item.value?.contains(it) == true) {
-                                    item.value = item.value?.replace(it, "")
+                                    item.value = item.value!!.split(",").filter { s -> s.trim() != it }.joinToString(",").trim().takeIf { str -> str.isNotEmpty() } ?: null
                                 }
                             }
                             formValueListener?.onValueChanged(
@@ -573,11 +579,17 @@ class FormInputAdapter(
             binding.et.setOnClickListener {
                 KeyboardUtils.hideKeyboard(binding.et)
                 KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
-                
+
                 item.value?.let { value ->
-                    thisYear = value.substring(6).toInt()
-                    thisMonth = value.substring(3, 5).trim().toInt() - 1
-                    thisDay = value.substring(0, 2).trim().toInt()
+                    val parts = value.split("[-/]".toRegex())
+                    if (parts.size >= 3) {
+                        thisDay = parts[0].trim().toIntOrNull() ?: thisDay
+                        thisMonth = (parts[1].trim().toIntOrNull() ?: (thisMonth + 1)) - 1
+                        thisYear = parts[2].trim().toIntOrNull() ?: thisYear
+                    }
+                }
+                val formatDate: (Long) -> String? = { millis ->
+                    item.dateFormat?.let { Dataset.getDateFromLong(millis, it) } ?: getDateString(millis)
                 }
                 val datePickerDialog = DatePickerDialog(
                     it.context, { _, year, month, day ->
@@ -586,13 +598,11 @@ class FormInputAdapter(
                             set(Calendar.MONTH, month)
                             set(Calendar.DAY_OF_MONTH, day)
                         }.timeInMillis
-                        if (item.min != null && millis < item.min!!) {
-                            item.value = getDateString(item.min)
-                        } else if (item.max != null && millis > item.max!!)
-                            item.value = getDateString(item.max)
-                        else
-                            item.value = getDateString(millis)
-//                            "${if (day > 9) day else "0$day"}-${if (month > 8) month + 1 else "0${month + 1}"}-$year"
+                        item.value = when {
+                            item.min != null && millis < item.min!! -> formatDate(item.min!!)
+                            item.max != null && millis > item.max!! -> formatDate(item.max!!)
+                            else -> formatDate(millis)
+                        }
                         binding.invalidateAll()
                         if (item.hasDependants) formValueListener?.onValueChanged(item, -1)
                     }, thisYear, thisMonth, thisDay
@@ -628,23 +638,67 @@ class FormInputAdapter(
             binding.et.setOnClickListener {
                 KeyboardUtils.hideKeyboard(binding.et)
                 KeyboardUtils.hideKeyboardFromActivity(binding.root.context)
-                
+
                 val hour: Int
+                val hourOfDay: Int  // 24-hour format (0-23) for TimePickerDialog
                 val minute: Int
                 if (item.value == null) {
                     val currentTime = Calendar.getInstance()
-                    hour = currentTime.get(Calendar.HOUR_OF_DAY)
+                    hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
                     minute = currentTime.get(Calendar.MINUTE)
                 } else {
-                    hour = item.value!!.substringBefore(":").toInt()
-                    minute = item.value!!.substringAfter(":").toInt()
-                    Timber.d("Time picker hour min : $hour $minute")
+                    // Parse existing time value (handle both 12-hour with AM/PM and 24-hour formats)
+                    val timeValue = item.value!!
+                    val timeParts = timeValue.split(":")
+                    if (timeParts.size >= 2) {
+                        val hourStr = timeParts[0].trim()
+                        val minuteAndAmPm = timeParts[1].trim()
+                        val minuteStr = minuteAndAmPm.substringBefore(" ").trim()
+
+                        val parsedHour = hourStr.toIntOrNull() ?: 0
+                        val hasAmPm = timeValue.contains("AM", ignoreCase = true) ||
+                                     timeValue.contains("PM", ignoreCase = true) ||
+                                     timeValue.contains("am", ignoreCase = true) ||
+                                     timeValue.contains("pm", ignoreCase = true)
+
+                        if (hasAmPm) {
+                            // Already in 12-hour format with AM/PM - convert to 24-hour format
+                            val isPM = timeValue.contains("PM", ignoreCase = true) ||
+                                       timeValue.contains("pm", ignoreCase = true)
+                            hourOfDay = when {
+                                parsedHour == 12 && !isPM -> 0   // 12 AM = 0:00
+                                parsedHour == 12 && isPM -> 12   // 12 PM = 12:00
+                                isPM -> parsedHour + 12            // PM: add 12
+                                else -> parsedHour                // AM: keep as is (except 12 AM handled above)
+                            }
+                        } else {
+                            // Already in 24-hour format
+                            hourOfDay = parsedHour
+                        }
+                        minute = minuteStr.toIntOrNull() ?: 0
+                        Timber.d("Time picker parsed hourOfDay: $hourOfDay, minute: $minute from value: $timeValue")
+                    } else {
+                        // Fallback to current time if parsing fails
+                        val currentTime = Calendar.getInstance()
+                        hourOfDay = currentTime.get(Calendar.HOUR_OF_DAY)
+                        minute = currentTime.get(Calendar.MINUTE)
+                    }
                 }
-                val mTimePicker = TimePickerDialog(it.context, { _, hourOfDay, minuteOfHour ->
-                    item.value = "$hourOfDay:$minuteOfHour"
+
+                val mTimePicker = TimePickerDialog(it.context, { _, selectedHourOfDay, selectedMinute ->
+                    // Format time in 12-hour format with AM/PM
+                    // selectedHourOfDay is in 24-hour format (0-23) even when dialog is in 12-hour mode
+                    val amPm = if (selectedHourOfDay < 12) "AM" else "PM"
+                    val displayHour = when {
+                        selectedHourOfDay == 0 -> 12
+                        selectedHourOfDay > 12 -> selectedHourOfDay - 12
+                        else -> selectedHourOfDay
+                    }
+                    val formattedMinute = String.format("%02d", selectedMinute)
+                    item.value = "$displayHour:$formattedMinute $amPm"
                     binding.invalidateAll()
 
-                }, hour, minute, false)
+                }, hourOfDay, minute, false)
                 mTimePicker.setTitle("Select Time")
                 mTimePicker.show()
             }
@@ -825,33 +879,73 @@ class FormInputAdapter(
     /**
      * Validation Result : -1 -> all good
      * else index of element creating trouble
+     * @param recyclerView Optional RecyclerView to sync EditText values before validation
      */
-    fun validateInput(resources: Resources): Int {
-        var retVal = -1
-        if (!isEnabled) return retVal
-        currentList.forEachIndexed { index, it ->
-            Timber.d("Error text for ${it.title} ${it.errorText}")
-            if (it.inputType != TEXT_VIEW && it.errorText != null) {
-                retVal = index
-                return@forEachIndexed
-            }
-        }
-        Timber.d("Validation : $retVal")
-        if (retVal != -1) return retVal
+    fun validateInput(resources: Resources, recyclerView: androidx.recyclerview.widget.RecyclerView? = null): Int {
+        if (!isEnabled) return -1
+
+        recyclerView?.let { syncAllEditTextValues(it) }
+
+        clearErrorsForValidFields()
+
+        val firstErrorIndex = findFirstFieldWithError()
+        if (firstErrorIndex != -1) return firstErrorIndex
+
+        return validateRequiredFields(resources)
+    }
+
+    private fun clearErrorsForValidFields() {
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
-                if (it.value.isNullOrBlank()) {
-                    Timber.d("validateInput called for item $it, with index ${index}")
+                val trimmedValue = it.value?.trim()
+                if (!trimmedValue.isNullOrBlank() && it.errorText != null) {
+                    it.errorText = null
+                    notifyItemChanged(index)
+                }
+            }
+        }
+    }
+
+    private fun findFirstFieldWithError(): Int {
+        currentList.forEachIndexed { index, it ->
+            if (it.inputType != TEXT_VIEW && it.errorText != null) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun validateRequiredFields(resources: Resources): Int {
+        var retVal = -1
+        currentList.forEachIndexed { index, it ->
+            if (it.inputType != TEXT_VIEW && it.required) {
+                val trimmedValue = it.value?.trim()
+                if (trimmedValue.isNullOrBlank()) {
                     it.errorText = resources.getString(R.string.form_input_empty_error)
                     notifyItemChanged(index)
                     if (retVal == -1) retVal = index
                 }
             }
-            /*            if(it.regex!=null){
-                            Timber.d("Regex not null")
-                            retVal= false
-                        }*/
         }
         return retVal
+    }
+
+    fun syncAllEditTextValues(recyclerView: androidx.recyclerview.widget.RecyclerView) {
+        for (i in 0 until recyclerView.childCount) {
+            val child = recyclerView.getChildAt(i)
+            val position = recyclerView.getChildAdapterPosition(child)
+            if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                val formElement = getItem(position)
+                if (formElement.inputType == EDIT_TEXT) {
+                    val editText = child.findViewById<android.widget.EditText>(R.id.et)
+                    if (editText != null) {
+                        val currentText = editText.text?.toString() ?: ""
+                        if (currentText != formElement.value) {
+                            formElement.value = currentText
+                        }
+                    }
+                }
+            }
+        }
     }
 }

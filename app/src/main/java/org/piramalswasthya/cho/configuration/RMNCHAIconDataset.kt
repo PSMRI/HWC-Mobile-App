@@ -17,6 +17,7 @@ class RMNCHAIconDataset @Inject constructor() {
         const val SHOW_PWR_KEY = "show_pwr"
         const val SHOW_ANC_VISITS_KEY = "show_anc_visits"
         const val SHOW_DELIVERY_OUTCOME_KEY = "show_delivery_outcome"
+        const val SHOW_NEONATAL_OUTCOME_KEY = "show_neonatal_outcome"
         const val SHOW_PNC_MOTHER_LIST_KEY = "show_pnc_mother_list"
         const val SHOW_ABORTION_LIST_KEY = "show_abortion_list"
         const val SHOW_INFANT_LIST_KEY = "show_infant_list"
@@ -34,6 +35,7 @@ class RMNCHAIconDataset @Inject constructor() {
         private const val ACTION_ANC_VISITS = 1006 // Action for ANC Visits list
         private const val ACTION_DELIVERY_OUTCOME = 1007 // Action for Delivery Outcome list
         private const val ACTION_PNC_MOTHER_LIST = 1008 // Action for PNC Mother List
+        private const val ACTION_NEONATAL_OUTCOME = 1009 // Action for Neonatal Outcome List
         private const val ACTION_ABORTION_LIST = 1011 // Action for Abortion List
         private const val ACTION_INFANT_LIST = 1013 // Action for Infant List
         private const val ACTION_CHILD_LIST = 1014 // Action for Child List
@@ -80,6 +82,14 @@ class RMNCHAIconDataset @Inject constructor() {
         override val actionId: Int = ACTION_DELIVERY_OUTCOME
         override val arguments = Bundle().apply {
             putBoolean(SHOW_DELIVERY_OUTCOME_KEY, true)
+        }
+    }
+
+    // NavDirections for showing Neonatal Outcome list
+    private val showNeonatalOutcomeAction = object : NavDirections {
+        override val actionId: Int = ACTION_NEONATAL_OUTCOME
+        override val arguments = Bundle().apply {
+            putBoolean(SHOW_NEONATAL_OUTCOME_KEY, true)
         }
     }
 
@@ -150,12 +160,12 @@ class RMNCHAIconDataset @Inject constructor() {
                 null,
                 createNavAction(MODULE_MATERNAL_HEALTH)
             ),
-//            Icon(
-//                R.drawable.ic__child_care,
-//                resources.getString(R.string.child_care),
-//                null,
-//                createNavAction(MODULE_CHILD_CARE)
-//            ) // Hide as per BRD
+            Icon(
+                R.drawable.ic__child_care,
+                resources.getString(R.string.child_care),
+                null,
+                createNavAction(MODULE_CHILD_CARE)
+            )
         ).mapIndexed { index, icon ->
             icon.copy(colorPrimary = index % 2 == 0)
         }
@@ -189,6 +199,18 @@ class RMNCHAIconDataset @Inject constructor() {
                 resources.getString(R.string.pnc_mother_list),
                 null,
                 showPNCMotherListAction
+            ),
+            Icon(
+                R.drawable.ic__infant_registration,
+                resources.getString(R.string.infant_registration),
+                null,
+                showInfantListAction
+            ),
+            Icon(
+                R.drawable.ic__child_registration,
+                resources.getString(R.string.child_registration),
+                null,
+                showChildListAction
             ),
             Icon(
                 R.drawable.ic__child_registration,

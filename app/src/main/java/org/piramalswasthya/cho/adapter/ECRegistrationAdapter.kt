@@ -46,23 +46,16 @@ class ECRegistrationAdapter(
             binding.patientWithEcr = item
             binding.clickListener = clickListener
 
-            // Handle ECR status display
+            // Handle ECR status display and Last Visit Date
             if (item.ecr == null) {
-                // Not registered yet
+                // Not registered yet - hide LMP, Status, and Last Visit Date
                 binding.llLmpDate.visibility = View.INVISIBLE
                 binding.llBenStatus.visibility = View.INVISIBLE
-                binding.btnFormEc1.text = binding.root.context.getString(R.string.register)
-                binding.btnFormEc1.setBackgroundColor(
-                    binding.root.resources.getColor(android.R.color.holo_red_dark, null)
-                )
+                binding.llLastVisitDate.visibility = View.INVISIBLE
             } else {
-                // Already registered
+                // Already registered - show LMP and Status
                 binding.llLmpDate.visibility = View.VISIBLE
                 binding.llBenStatus.visibility = View.VISIBLE
-                binding.btnFormEc1.text = binding.root.context.getString(R.string.view)
-                binding.btnFormEc1.setBackgroundColor(
-                    binding.root.resources.getColor(android.R.color.holo_green_dark, null)
-                )
 
                 // LMP date and status text are bound via patientWithEcr.getFormattedLMPDate() and getECStatus()
                 val lmpDate = item.ecr.lmpDate
@@ -78,6 +71,13 @@ class ECRegistrationAdapter(
                 }
             }
 
+            // Show Last Visit Date if available
+            binding.llLastVisitDate.visibility = if (item.lastVisitDate != null && item.lastVisitDate!! > 0L) {
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
+
             binding.executePendingBindings()
         }
     }
@@ -90,9 +90,13 @@ class ECRegistrationAdapter(
     }
 
     class ClickListener(
-        private val clickedForm: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null
+        private val onAddVisit: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null,
+        private val onViewVisit: ((patientWithEcr: PatientWithEcrDomain) -> Unit)? = null
     ) {
-        fun onClickForm(item: PatientWithEcrDomain) =
-            clickedForm?.let { it(item) }
+        fun onAddVisit(item: PatientWithEcrDomain) =
+            onAddVisit?.let { it(item) }
+        
+        fun onViewVisit(item: PatientWithEcrDomain) =
+            onViewVisit?.let { it(item) }
     }
 }

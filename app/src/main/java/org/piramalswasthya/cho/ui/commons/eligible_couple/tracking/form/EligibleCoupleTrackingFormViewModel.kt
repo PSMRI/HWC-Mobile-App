@@ -81,13 +81,19 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     val statusUpdatedToSterilization: LiveData<Boolean>
         get() = _statusUpdatedToSterilization
 
+    private val _allEctRecords = MutableLiveData<List<EligibleCoupleTrackingCache>?>()
+    val allEctRecords: LiveData<List<EligibleCoupleTrackingCache>?>
+        get() = _allEctRecords
+
     private val dataset =
         EligibleCoupleTrackingDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
     var isPregnant: Boolean = false
     var isSterilized: Boolean = false
-    var isAntraSelected: Boolean = false
+    var isAntraSelectedAfterSave: Boolean = false
+
+    fun isAntraSelected() = dataset.isAntraSelected()
 
     private lateinit var eligibleCoupleTracking: EligibleCoupleTrackingCache
 
@@ -107,9 +113,12 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             }
 
             val pastTrack = ecrRepo.getLatestEctByBenId(patientID)
+            val ecr = ecrRepo.getSavedECR(patientID)
 
             Log.d("patient Id is ", patientID)
             Log.d("createdDate is ", createdDate.toString())
+
+            _allEctRecords.value = ecrRepo.getAllECT(patientID)
 
             ecrRepo.getEct(patientID, createdDate)?.let {
                 eligibleCoupleTracking = it
@@ -119,6 +128,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
             }
 
 
+            dataset.setNumberOfChildren(ecr?.noOfChildren ?: 0)
             dataset.setUpPage(
                 ben,
                 pastTrack?.visitDate ?: 0,
@@ -134,8 +144,18 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun updateListOnValueChanged(formId: Int, index: Int) {
         viewModelScope.launch {
             dataset.updateList(formId, index)
+            
+            // Trigger alerts immediately on selection (Requirement Phase 2)
+            if (formId == dataset.getContraceptionMethodId()) {
+                if (dataset.isAntraSelected()) {
+                    _showAlert.value = AlertType.ANTRA_INCENTIVE
+                } else if (dataset.isSterilizationSelected()) {
+                    _showAlert.value = AlertType.STERILIZATION_INCENTIVE
+                } else {
+                    _showAlert.value = AlertType.NONE
+                }
+            }
         }
-
     }
 
 
@@ -143,16 +163,28 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
     fun saveForm() {
         viewModelScope.launch {
             try {
+                // Ensure eligibleCoupleTracking is initialized
+                if (!::eligibleCoupleTracking.isInitialized) {
+                    val asha = userRepo.getLoggedInUser()
+                    eligibleCoupleTracking = EligibleCoupleTrackingCache(
+                        patientID = patientID,
+                        syncState = SyncState.UNSYNCED,
+                        createdBy = asha?.userName ?: "",
+                        updatedBy = asha?.userName ?: "",
+                    )
+                }
+
                 _state.value = State.SAVING
 
                 withContext(dispatcherProvider.io) {
                     dataset.mapValues(eligibleCoupleTracking, 1)
                     ecrRepo.saveEct(eligibleCoupleTracking)
+                    Timber.d("ECT data saved successfully for patient: $patientID")
 
                     // Check statuses in background
                     isPregnant = dataset.isPregnancyPositive()
                     isSterilized = dataset.isSterilizationSelected()
-                    isAntraSelected = dataset.isAntraSelected()
+                    isAntraSelectedAfterSave = dataset.isAntraSelected()
                 }
 
                 // Update patient status if pregnant
@@ -165,7 +197,7 @@ class EligibleCoupleTrackingFormViewModel @Inject constructor(
                     updatePatientStatusToSterilized()
                     _statusUpdatedToSterilization.value = true
                     _showAlert.value = AlertType.STERILIZATION_INCENTIVE
-                } else if (isAntraSelected) {
+                } else if (isAntraSelectedAfterSave) {
                     _showAlert.value = AlertType.ANTRA_INCENTIVE
                 } else {
                     // Explicitly clear alert if neither selected

@@ -4,25 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/default_button"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:titleTextColor="@color/white" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    android:fitsSystemWindows="true"
+    tools:context=".ui.home.rmncha.eligible_couple.EligibleCoupleTrackingFragment">
 
     <!-- Search Bar -->
     <LinearLayout
@@ -34,7 +17,7 @@
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/searchView"
@@ -74,9 +57,9 @@
         app:layout_constraintTop_toBottomOf="@+id/searchLayout"
         tools:text="42 Results" />
 
-    <!-- RecyclerView for Children under 5 Years List -->
+    <!-- RecyclerView for Eligible Couples Tracking List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChildrenUnderFiveList"
+        android:id="@+id/rvEligibleCouples"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -86,7 +69,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvCount"
         tools:itemCount="5"
-        tools:listitem="@layout/rv_item_children_under_five_years" />
+        tools:listitem="@layout/rv_item_patient_ec_with_form" />
 
     <!-- Empty State -->
     <FrameLayout
@@ -112,14 +95,14 @@
                 android:layout_height="120dp"
                 android:alpha="0.3"
                 android:contentDescription="@string/no_data"
-                android:src="@drawable/ic_child"
+                android:src="@drawable/ic_female"
                 app:tint="@color/grey" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/no_children_found"
+                android:text="@string/no_registered_couples_found"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="@color/grey" />
 
@@ -128,4 +111,3 @@
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

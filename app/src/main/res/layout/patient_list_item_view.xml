@@ -108,15 +108,15 @@
 
 
                     <!--                                        <ImageButton-->
-<!--                        android:id="@+id/iv_sync_state"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:background="@color/default_button"-->
-<!--                        android:onClick="@{() -> clickListener.onClickSync(benVisitInfo)}"-->
-<!--                        android:src="@drawable/ic_synced"-->
-<!--                        app:layout_constraintEnd_toEndOf="parent"-->
-<!--                        app:layout_constraintTop_toTopOf="parent"-->
-<!--                        app:layout_constraintVertical_bias="0" />-->
+                    <!--                        android:id="@+id/iv_sync_state"-->
+                    <!--                        android:layout_width="wrap_content"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:background="@color/default_button"-->
+                    <!--                        android:onClick="@{() -> clickListener.onClickSync(benVisitInfo)}"-->
+                    <!--                        android:src="@drawable/ic_synced"-->
+                    <!--                        app:layout_constraintEnd_toEndOf="parent"-->
+                    <!--                        app:layout_constraintTop_toTopOf="parent"-->
+                    <!--                        app:layout_constraintVertical_bias="0" />-->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -525,6 +525,7 @@
                         android:weightSum="3">
 
                         <LinearLayout
+                            android:id="@+id/ll_abha_button"
                             showLayout="@{showAbha? !hasAbha : showAbha}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -547,6 +548,18 @@
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent" />
                         </LinearLayout>
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/fab_edit"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="16dp"
+                            android:contentDescription="Edit"
+                            android:onClick="@{() -> clickListener.onClickEdit(benVisitInfo)}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:srcCompat="@drawable/ic_edit" />
+
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_eSanjeevani"

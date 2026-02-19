@@ -94,6 +94,8 @@ data class PregnantWomanRegistrationCache(
     val id: Long = 0,
     val patientID: String,
     var dateOfRegistration: Long = System.currentTimeMillis(),
+    var pregnancyTestAtFacility: String? = null,
+    var uptResult: String? = null,
     var mcpCardNumber: Long? = 0,
     var rchId: Long? = 0,
     var lmpDate: Long = 0,
@@ -107,6 +109,8 @@ data class PregnantWomanRegistrationCache(
     var vdrlRprTestResult: String? = null,
     var vdrlRprTestResultId: Int = 0,
     var dateOfVdrlRprTest: Long? = null,
+    var historyOfAbortions: Boolean? = null,
+    var previousLSCS: Boolean? = null,
 
     var hivTestResult: String? = null,
     var hivTestResultId: Int = 0,
@@ -120,6 +124,7 @@ data class PregnantWomanRegistrationCache(
     var otherPastIllness: String? = null,
     var is1st: Boolean = true,
     var numPrevPregnancy: Int? = null,
+    var para: Int? = null,
     var complicationPrevPregnancy: String? = null,
     var complicationPrevPregnancyId: Int? = null,
     var otherComplication: String? = null,
@@ -135,6 +140,7 @@ data class PregnantWomanRegistrationCache(
     var createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
+    var isFirstAncSubmitted: Boolean = false,
     var syncState: SyncState
 ) : FormDataModel {
 
@@ -580,6 +586,30 @@ data class PregnantWomanAncCache(
     var visitNumber: Int,
     var isActive: Boolean = true,
     var ancDate: Long = System.currentTimeMillis(),
+    var lmpDate: Long? = null,
+    var pregnancyTestAtFacility: Boolean? = null,
+    var uptResult: String? = null,
+    var uptResultId: Int = -1,
+
+    var visitDate: Long? = null,
+    var weekOfPregnancy: Int? = null,
+
+    var serialNo: String? = null,
+    var methodOfTermination: String? = null,
+    var methodOfTerminationId: Int? = 0,
+    var terminationDoneBy: String? = null,
+    var terminationDoneById: Int? = 0,
+    var isPaiucdId: Int? = 0,
+    var isYesOrNo: Boolean? = false,
+    var isPaiucd: String? = null,
+    var dateSterilisation: Long? = null,
+    var remarks: String? = null,
+    var abortionImg1: String? = null,
+    var abortionImg2: String? = null,
+    var placeOfDeath: String? = null,
+    var placeOfDeathId: Int? = 0,
+    var otherPlaceOfDeath: String? = null,
+
     var isAborted: Boolean = false,
     var abortionType: String? = null,
     var abortionTypeId: Int = 0,
@@ -587,18 +617,36 @@ data class PregnantWomanAncCache(
     var abortionFacilityId: Int = 0,
     var abortionDate: Long? = null,
     var weight: Int? = null,
+    var height: Int? = null,
+    val gravida: Int? = null,
+    val para: Int? = null,
+    val historyOfAbortions: Boolean? = null,
+    val previousLSCS: Boolean? = null,
+    val complicationsPrevPregnancy: String? = null,
+    val pastIllness: String? = null,
+    val vdrlRprTestResult: String? = null,
+    val vdrlRprTestResultId: Int? = null,
+    val dateOfVdrlRprTest: Long? = null,
+    val hivTestResult: String? = null,
+    val hivTestResultId: Int? = null,
+    val dateOfHivTest: Long? = null,
+    val hbsAgTestResult: String? = null,
+    val hbsAgTestResultId: Int? = null,
+    val dateOfHbsAgTest: Long? = null,
+    var numPrevPregnancy: Int? = null,
+    var otherComplication: String? = null,
     var bpSystolic: Int? = null,
     var bpDiastolic: Int? = null,
     var pulseRate: String? = null,
     var hb: Double? = null,
     var fundalHeight: Int? = null,
+    var anyHighRisk: Boolean? = null,
     var urineAlbumin: String? = null,
     var urineAlbuminId: Int = 0,
     var randomBloodSugarTest: String? = null,
     var randomBloodSugarTestId: Int = 0,
     var numFolicAcidTabGiven: Int = 0,
     var numIfaAcidTabGiven: Int = 0,
-    var anyHighRisk: Boolean? = null,
     var highRisk: String? = null,
     var highRiskId: Int = 0,
     var otherHighRisk: String? = null,
@@ -618,7 +666,22 @@ data class PregnantWomanAncCache(
     val createdDate: Long = System.currentTimeMillis(),
     var updatedBy: String,
     var updatedDate: Long = System.currentTimeMillis(),
-    var syncState: SyncState
+    var isFirstAncSubmitted: Boolean = false,
+    var syncState: SyncState,
+    var frontFilePath : String? = null,
+    var backFilePath : String? = null,
+
+    var bloodSugarFasting: Int? = null,  // Blood Sugar (Fasting) mg/dL
+    var urineSugar: String? = null,  // Urine Sugar dropdown value
+    var urineSugarId: Int = 0,  // Urine Sugar dropdown ID
+    var fetalHeartRate: Double? = null,  // FHR in bpm
+    var calciumGiven: Int = 0,  // Calcium tablets given
+    var dangerSigns: String? = null,  // Danger Signs dropdown value
+    var dangerSignsId: Int = 0,  // Danger Signs dropdown ID
+    var counsellingProvided: Boolean? = null,  // Counselling Yes/No
+    var counsellingTopics: String? = null,  // Counselling Topics value
+    var counsellingTopicsId: Int = 0,  // Counselling Topics ID
+    var nextAncVisitDate: Long? = null  // Next ANC Visit Date
 ) : FormDataModel {
     fun asPostModel(benId: Long): ANCPost {
         return ANCPost(
@@ -631,12 +694,18 @@ data class PregnantWomanAncCache(
             abortionFacility = abortionFacility,
             abortionDate = abortionDate?.let { getDateStringFromLong(it) },
             weightOfPW = weight,
+            pregnancyTestAtFacility = pregnancyTestAtFacility,
+            uptResult = uptResult,
             bpSystolic = bpSystolic,
             bpDiastolic = bpDiastolic,
             pulseRate = pulseRate?.toInt(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbuminPresent = urineAlbumin == "Present",
+            urineAlbuminPresent = when (urineAlbumin) {
+                null, "Negative", "Trace", "Absent" -> false
+                "Present", "+", "++", "+++" -> true
+                else -> null
+            },
             bloodSugarTestDone = randomBloodSugarTest == "Done",
             folicAcidTabs = numFolicAcidTabGiven,
             ifaTabs = numIfaAcidTabGiven,
@@ -655,6 +724,14 @@ data class PregnantWomanAncCache(
             createdBy = createdBy,
             updatedDate = getDateStringFromLong(updatedDate),
             updatedBy = updatedBy
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = nextAncVisitDate?.let { getDateStringFromLong(it) }
         )
     }
 }
@@ -665,6 +742,8 @@ data class ANCPost(
     val ancDate: String? = null,
     val isActive: Boolean,
     val ancVisit: Int,
+    val pregnancyTestAtFacility: Boolean? = null,
+    val uptResult: String? = null,
     val isAborted: Boolean = false,
     val abortionType: String? = null,
     val abortionFacility: String? = null,
@@ -694,7 +773,16 @@ data class ANCPost(
     val createdDate: String? = null,
     val createdBy: String,
     val updatedDate: String? = null,
-    val updatedBy: String
+    val updatedBy: String,
+    // New ANC fields
+//    val bloodSugarFasting: Int? = null,
+//    val urineSugar: String? = null,
+//    val fetalHeartRate: Double? = null,
+//    val calciumGiven: Int? = null,
+//    val dangerSigns: String? = null,
+//    val counsellingProvided: Boolean? = null,
+//    val counsellingTopics: String? = null,
+//    val nextAncVisitDate: String? = null
 ) {
     fun toAncCache(): PregnantWomanAncCache {
         return PregnantWomanAncCache(
@@ -702,11 +790,26 @@ data class ANCPost(
             patientID = "",
             visitNumber = ancVisit,
             ancDate = getLongFromDate(ancDate),
+            pregnancyTestAtFacility = pregnancyTestAtFacility,
+            uptResult = uptResult,
+            uptResultId = when(uptResult) {
+                "Positive" -> 0
+                "Negative" -> 1
+                else -> -1
+            },
             isAborted = isAborted,
             abortionType = abortionType,
-//            abortionTypeId =
+            abortionTypeId = when(abortionType) {
+                "Induced" -> 0
+                "Spontaneous" -> 1
+                else -> -1
+            },
             abortionFacility = abortionFacility,
-//            abortionFacilityId
+            abortionFacilityId = when(abortionFacility) {
+                "Govt. Hospital" -> 0
+                "Pvt. Hospital" -> 1
+                else -> -1
+            },
             abortionDate = getLongFromDate(abortionDate),
             weight = weightOfPW,
             bpSystolic = bpSystolic,
@@ -714,7 +817,11 @@ data class ANCPost(
             pulseRate = pulseRate.toString(),
             hb = hb,
             fundalHeight = fundalHeight,
-            urineAlbumin = if (urineAlbuminPresent == true) "Present" else "Absent",
+            urineAlbumin = when (urineAlbuminPresent) {
+                true -> "+"
+                false -> "Negative"
+                null -> null
+            },
 //            urineAlbuminId
             randomBloodSugarTest = if (bloodSugarTestDone == true) "Done" else "Not Done",
 //            randomBloodSugarTestId
@@ -740,7 +847,16 @@ data class ANCPost(
             createdDate = getLongFromDate(createdDate),
             updatedBy = updatedBy,
             updatedDate = getLongFromDate(updatedDate),
-            syncState = SyncState.SYNCED
+            syncState = SyncState.SYNCED,
+            // Map new ANC fields
+//            bloodSugarFasting = bloodSugarFasting,
+//            urineSugar = urineSugar,
+//            fetalHeartRate = fetalHeartRate,
+//            calciumGiven = calciumGiven ?: 0,
+//            dangerSigns = dangerSigns,
+//            counsellingProvided = counsellingProvided,
+//            counsellingTopics = counsellingTopics,
+//            nextAncVisitDate = getLongFromDate(nextAncVisitDate)
         )
     }
 }
@@ -827,3 +943,39 @@ data class ANCPost(
 //    val showViewAnc: Boolean = anc.isEmpty(),
 //    val syncState: SyncState?
 //)
+
+data class AncDueListItem(
+    val patientID: String,
+    val gestationalAgeWeeks: Int,
+    val ancStage: Int
+)
+
+data class AncCompletedListItem(
+    val patientID: String,
+    val ancStage: Int,
+    val visitNumber: Int
+)
+
+
+@Entity(
+    tableName = "ASHA_DUE_LIST",
+    foreignKeys = [ForeignKey(
+        entity = Patient::class,
+        parentColumns = arrayOf("patientID"),
+        childColumns = arrayOf("patientID"),
+        onUpdate = ForeignKey.CASCADE,
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(name = "ind_asha_due", value = ["patientID", "listType"], unique = true)]
+)
+data class AshaDueListCache(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val patientID: String,
+    val beneficiaryID: Long? = null,
+    val listType: String = "ANC",
+    val addedDate: Long = System.currentTimeMillis(),
+    val ashaId: Int = 0,
+    val createdBy: String,
+    var syncState: SyncState = SyncState.UNSYNCED
+)
