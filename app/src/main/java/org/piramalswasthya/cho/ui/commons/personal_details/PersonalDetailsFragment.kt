@@ -1330,6 +1330,7 @@ class PersonalDetailsFragment : Fragment() {
             dismissNotification(0)
             result.second?.let { uri ->
                 showDownloadCompleteNotification(result.first, uri)
+                Toast.makeText(requireContext(), "Prescription PDF downloaded successfully", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             e.printStackTrace()
