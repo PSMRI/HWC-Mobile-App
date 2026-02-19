@@ -262,11 +262,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             lifecycleScope.launch(dispatcherProvider.io) {
                                 val matchedPatient = compareFacesL2Norm(embeddings!!)
                                 withContext(dispatcherProvider.main) {
-                                    if (matchedPatient != null) {
-                                        showDuplicateFaceDialog(matchedPatient)
-                                    } else {
                                         Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-                                    }
+
                                 }
                             }
                         }
@@ -1561,7 +1558,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         patient.ageUnitID = viewModel.selectedAgeUnit?.id
         patient.parentName = binding.fatherNameEditText.text.toString().trim()
         patient.spouseName = binding.spouseName.text.toString().trim()
-        patient.faceEmbedding = embeddings?.toList()
+        // Only update face embedding if a new photo was captured
+        if (embeddings != null) {
+            patient.faceEmbedding = embeddings?.toList()
+        }
         if (binding.phoneNo.text.toString().isNullOrEmpty()) {
             patient.phoneNo = null
         } else {
@@ -1569,7 +1569,10 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         patient.genderID = viewModel.selectedGenderMaster?.genderID
         patient.registrationDate = Date()
-        patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
+        // Only update benImage if a new photo was actually taken (currentFileName is set)
+        if (currentFileName != null) {
+            patient.benImage = ImgUtils.getEncodedStringForBenImage(requireContext(), currentFileName)
+        }
         patient.statusOfWomanID = viewModel.selectedStatusOfWoman?.statusID
 
     }
@@ -1713,32 +1716,6 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
         }
         return kotlin.math.sqrt(sum)
     }
-
-
-    private fun showDuplicateFaceDialog(matchedPatient: Patient) {
-    MaterialAlertDialogBuilder(requireContext())
-        .setTitle(getString(R.string.duplicate_face_detected))
-        .setMessage(getString(R.string.duplicate_face_message) + "\n\nExisting: ${matchedPatient.firstName} ${matchedPatient.lastName}")
-        .setPositiveButton(getString(R.string.use_existing)) { dialog, _ ->
-            dialog.dismiss()
-            // Navigate to existing patient
-            val intent = Intent(context, EditPatientDetailsActivity::class.java)
-            lifecycleScope.launch {
-                val benVisitInfo = viewModel.patientRepo.getPatientDisplayListForNurseByPatient(matchedPatient.patientID)
-                intent.putExtra("benVisitInfo", benVisitInfo)
-                startActivity(intent)
-                requireActivity().finish()
-            }
-        }
-        .setNegativeButton(getString(R.string.continue_new)) { dialog, _ ->
-            dialog.dismiss()
-            Toast.makeText(requireContext(), "Face Embeddings Generated", Toast.LENGTH_SHORT).show()
-        }
-        .setCancelable(false)
-        .show()
-    }
-
-
 
     private fun enableFullBoxClick(dropdown: AutoCompleteTextView) {
         dropdown.setOnTouchListener { _, event ->
