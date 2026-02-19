@@ -42,6 +42,7 @@ import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
 import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
@@ -112,6 +113,7 @@ import org.piramalswasthya.cho.model.MasterLocation
 import org.piramalswasthya.cho.model.MedicationHistory
 import org.piramalswasthya.cho.model.OtherGovIdEntityMaster
 import org.piramalswasthya.cho.model.OutreachDropdownList
+import org.piramalswasthya.cho.model.OphthalmicVisit
 import org.piramalswasthya.cho.model.PNCVisitCache
 import org.piramalswasthya.cho.model.PastIllnessHistory
 import org.piramalswasthya.cho.model.PastSurgeryHistory
@@ -237,7 +239,8 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         ComponentDetailsMaster::class,
         ComponentOptionsMaster::class,
         AshaDueListCache::class,
-        StatusOfWomanMaster::class
+        StatusOfWomanMaster::class,
+        OphthalmicVisit::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
     version = 127, exportSchema = false
@@ -312,6 +315,7 @@ abstract class InAppDb : RoomDatabase() {
 
     // This comment is for Github glitch
     abstract val statusOfWomanDao: StatusOfWomanDao
+    abstract val ophthalmicDao: OphthalmicDao
 
     companion object {
         @Volatile
@@ -677,6 +681,42 @@ abstract class InAppDb : RoomDatabase() {
             }
         }
 
+        val MIGRATION_126_127 = object : Migration(126, 127) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `ophthalmic_visit` (" +
+                            "`visitId` TEXT NOT NULL, " +
+                            "`patientID` TEXT NOT NULL, " +
+                            "`benVisitNo` INTEGER, " +
+                            "`isDiabetic` INTEGER, " +
+                            "`screeningPerformed` INTEGER, " +
+                            "`visualAcuityChartUsed` TEXT, " +
+                            "`distVARight` TEXT, " +
+                            "`distVALeft` TEXT, " +
+                            "`nearVA` TEXT, " +
+                            "`caseIdConditions` TEXT, " +
+                            "`cataractSymptoms` INTEGER, " +
+                            "`glaucomaSymptoms` INTEGER, " +
+                            "`diabeticRetinopathySymptoms` INTEGER, " +
+                            "`presbyopiaSymptoms` INTEGER, " +
+                            "`trachomaStatus` TEXT, " +
+                            "`cornealDiseaseType` TEXT, " +
+                            "`vitaminADeficiency` INTEGER, " +
+                            "`injuryType` TEXT, " +
+                            "`foreignBodyRemoval` TEXT, " +
+                            "`chemicalExposure` INTEGER, " +
+                            "`createdBy` TEXT NOT NULL, " +
+                            "`createdDate` INTEGER NOT NULL, " +
+                            "`updatedBy` TEXT NOT NULL, " +
+                            "`updatedDate` INTEGER NOT NULL, " +
+                            "`syncState` INTEGER NOT NULL, " +
+                            "PRIMARY KEY(`visitId`), " +
+                            "FOREIGN KEY(`patientID`) REFERENCES `Patient`(`patientID`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `ophthalmic_visit` (`patientID`)")
+            }
+        }
+
         fun getInstance(appContext: Context): InAppDb {
 
             synchronized(this) {
@@ -708,7 +748,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_122_123,
                             MIGRATION_123_124,
                             MIGRATION_124_125,
-                            MIGRATION_125_126
+                            MIGRATION_125_126,
+                            MIGRATION_126_127
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

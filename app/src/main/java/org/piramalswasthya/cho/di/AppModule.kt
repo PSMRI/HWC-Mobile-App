@@ -36,6 +36,7 @@ import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
 import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.database.room.dao.PatientVisitInfoSyncDao
+import org.piramalswasthya.cho.database.room.dao.OphthalmicDao
 import org.piramalswasthya.cho.database.room.dao.PncDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionDao
 import org.piramalswasthya.cho.database.room.dao.PrescriptionTemplateDao
@@ -369,4 +370,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
+
+    @Singleton
+    @Provides
+    fun provideOphthalmicDao(database: InAppDb): OphthalmicDao = database.ophthalmicDao
 }
