@@ -961,17 +961,26 @@ class PersonalDetailsFragment : Fragment() {
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
         val patientName =
             (benVisitInfo.patient.firstName ?: "") + " " + (benVisitInfo.patient.lastName ?: "")
-        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
-        )
-        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
-        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "Prescription_$patientName" + "_${timeStamp}_.pdf"
+        val appContext = requireContext().applicationContext
 
-        val pdfDocument: PdfDocument = PdfDocument()
+        // Show "Downloading" notification immediately so user sees it while PDF is generated
+        showDownloadingNotification(fileName)
+
+        try {
+            val result = withContext(Dispatchers.IO) {
+                val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+                )
+                val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
+                )
+                val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
+                )
+
+                val pdfDocument: PdfDocument = PdfDocument()
 
         val heading: Paint = Paint()
         val content: Paint = Paint()
@@ -994,23 +1003,23 @@ class PersonalDetailsFragment : Fragment() {
         Paint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textSize = 15F
-            color = ContextCompat.getColor(requireContext(), android.R.color.black)
+            color = ContextCompat.getColor(appContext, android.R.color.black)
             textAlign = Paint.Align.LEFT
         }
 
         content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         content.textSize = 15F
-        content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        content.color = ContextCompat.getColor(appContext, android.R.color.black)
         content.textAlign = Paint.Align.CENTER
 
         subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
         subheading.textSize = 16F
-        subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        subheading.color = ContextCompat.getColor(appContext, android.R.color.black)
         subheading.textAlign = Paint.Align.LEFT
 
         heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         heading.textSize = 40F
-        heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        heading.color = ContextCompat.getColor(appContext, android.R.color.black)
         heading.textAlign = Paint.Align.CENTER
 
         val spaceAfterHeading = 20F
@@ -1287,53 +1296,46 @@ class PersonalDetailsFragment : Fragment() {
 
         pdfDocument.finishPage(myPage)
 
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName: String = "Prescription_$patientName" + "_${timeStamp}_.pdf"
+                val outputStream: OutputStream
+                var pdfUri: Uri? = null
+                var file: File? = null
 
-        showDownloadingNotification(fileName)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val streamAndUri = createPdfForApi33(appContext, fileName)
+                    outputStream = streamAndUri.first
+                    pdfUri = streamAndUri.second
+                } else {
+                    val downloadsDirectory: File =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    file = File(downloadsDirectory, fileName)
+                    outputStream = FileOutputStream(file)
+                }
 
-        val outputStream: OutputStream
-        var pdfUri: Uri? = null
-        var file: File? = null
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val result = createPdfForApi33(fileName)
-            outputStream = result.first
-            pdfUri = result.second
-        } else {
-            val downloadsDirectory: File =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            file = File(downloadsDirectory, fileName)
-            outputStream = FileOutputStream(file)
-        }
+                try {
+                    pdfDocument.writeTo(outputStream)
+                    outputStream.close()
 
-        try {
-            pdfDocument.writeTo(outputStream)
-            outputStream.close()
-
-            if (pdfUri == null && file != null) {
-                pdfUri = FileProvider.getUriForFile(
-                    requireContext(),
-                    requireContext().packageName + ".provider",
-                    file
-                )
+                    if (pdfUri == null && file != null) {
+                        pdfUri = FileProvider.getUriForFile(
+                            appContext,
+                            appContext.packageName + ".provider",
+                            file
+                        )
+                    }
+                    Pair(fileName, pdfUri)
+                } finally {
+                    pdfDocument.close()
+                }
             }
-
             dismissNotification(0)
-            pdfUri?.let {
-                showDownloadCompleteNotification(fileName, it)
+            result.second?.let { uri ->
+                showDownloadCompleteNotification(result.first, uri)
             }
-
-//            Toast.makeText(
-//                requireContext(), "PDF file generated for Prescription.", Toast.LENGTH_SHORT
-//            ).show()
         } catch (e: Exception) {
             e.printStackTrace()
             dismissNotification(0)
             Toast.makeText(requireContext(), "Failed to generate PDF file", Toast.LENGTH_SHORT)
                 .show()
-        } finally {
-            pdfDocument.close()
         }
     }
 
@@ -1368,17 +1370,17 @@ class PersonalDetailsFragment : Fragment() {
         return result
     }
 
-    private fun createPdfForApi33(fileName: String): Pair<OutputStream, Uri> {
+    private fun createPdfForApi33(context: Context, fileName: String): Pair<OutputStream, Uri> {
         val contentValues = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)
             put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
 
-        val pdfUri: Uri? = requireContext().contentResolver.insert(
+        val pdfUri: Uri? = context.contentResolver.insert(
             MediaStore.Files.getContentUri("external"), contentValues
         )
-        val outst = pdfUri?.let { requireContext().contentResolver.openOutputStream(it) }!!
+        val outst = pdfUri?.let { context.contentResolver.openOutputStream(it) }!!
         Objects.requireNonNull(outst)
         Objects.requireNonNull(pdfUri)
         return Pair(outst, pdfUri)
