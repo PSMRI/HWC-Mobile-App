@@ -458,6 +458,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
         }
+        else if(subCat == DropdownConst.ent){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                DropdownConst.entReasons
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            changeBtnView()
+        }
         else{
             viewModel.selectedReasonForVisit = ""
             binding.reasonForVisitInput.setText(viewModel.selectedReasonForVisit, false)
@@ -1574,6 +1584,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo,
                             benVisitInfo = benVisitInfo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.ear || reasonForVisit == DropdownConst.nose || reasonForVisit == DropdownConst.throat){
+                saveVisitData {
+                    isNavigationInProgress = false
+                    binding.btnSubmit.isEnabled = true
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
+                            patientID = benVisitInfo.patient.patientID
                         )
                     )
                 }

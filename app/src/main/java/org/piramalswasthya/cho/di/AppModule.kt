@@ -67,6 +67,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -76,12 +77,14 @@ object AppModule {
 
     private const val baseTmcUrl =  "http://assamtmc.piramalswasthya.org:8080/"
 
-    private const val baseAmritUrl = "https://assamuat.piramalswasthya.org/"
-    // "https://uatamrit.piramalswasthya.org/"
+    private const val baseAmritUrl =
+//        "https://assamuat.piramalswasthya.org/"
+     "https://uatamrit.piramalswasthya.org/"
     // "https://amritdemo.piramalswasthya.org/"
 
-    private const val baseFlwUrl = "https://assamuat.piramalswasthya.org/"
-    // "https://uatamrit.piramalswasthya.org/"
+    private const val baseFlwUrl =
+//        "https://assamuat.piramalswasthya.org/"
+     "https://uatamrit.piramalswasthya.org/"
     // "https://amritdemo.piramalswasthya.org/"
 
     private const val baseAbhaUrl = "https://abhasbx.abdm.gov.in/abha/api/"
@@ -374,4 +377,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideOphthalmicDao(database: InAppDb): OphthalmicDao = database.ophthalmicDao
+
+    @Singleton
+    @Provides
+    fun provideEarDiagnosisAssessmentDao(database: InAppDb): EarDiagnosisAssessmentDao = database.earDiagnosisAssessmentDao
 }

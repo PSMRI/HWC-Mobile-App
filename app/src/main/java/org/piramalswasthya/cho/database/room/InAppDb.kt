@@ -63,6 +63,7 @@ import org.piramalswasthya.cho.database.room.dao.VaccinationTypeAndDoseDao
 import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
+import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.AshaDueListCache
@@ -151,6 +152,8 @@ import org.piramalswasthya.cho.model.VisitCategory
 import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
+import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+
 
 @Database(
     entities = [
@@ -240,10 +243,11 @@ import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
         ComponentOptionsMaster::class,
         AshaDueListCache::class,
         StatusOfWomanMaster::class,
-        OphthalmicVisit::class
+        OphthalmicVisit::class,
+        EarDiagnosisAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 127, exportSchema = false
+    version = 128, exportSchema = false
 )
 
 
@@ -316,6 +320,7 @@ abstract class InAppDb : RoomDatabase() {
     // This comment is for Github glitch
     abstract val statusOfWomanDao: StatusOfWomanDao
     abstract val ophthalmicDao: OphthalmicDao
+    abstract val earDiagnosisAssessmentDao: EarDiagnosisAssessmentDao
 
     companion object {
         @Volatile
@@ -716,6 +721,28 @@ abstract class InAppDb : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `OPHTHALMIC_VISIT` (`patientID`)")
             }
         }
+        val MIGRATION_127_128 = object : Migration(127, 128) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS EAR_DIAGNOSIS_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                difficulty_hearing INTEGER,
+                whisper_test_response TEXT,
+                hearing_test_outcome TEXT,
+                ear_pain INTEGER,
+                ear_discharge_present INTEGER,
+                foreign_body_in_ear TEXT,
+                ear_condition_type TEXT,
+                congenital_ear_malformation INTEGER
+            )
+        """.trimIndent()
+                )
+            }
+        }
+
 
         fun getInstance(appContext: Context): InAppDb {
 
@@ -749,7 +776,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_123_124,
                             MIGRATION_124_125,
                             MIGRATION_125_126,
-                            MIGRATION_126_127
+                            MIGRATION_126_127,
+                            MIGRATION_127_128
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

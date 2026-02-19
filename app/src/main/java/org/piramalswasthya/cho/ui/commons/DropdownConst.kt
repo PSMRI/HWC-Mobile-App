@@ -18,12 +18,20 @@ class DropdownConst {
         val immunization: String = "Immunization Services"
         val ophthalmic: String = "Ophthalmic"
         val screening: String = "Screening"
+        val ent: String = "ENT"
+        val ear: String = "EAR"
+        val nose: String = "NOSE"
+        val throat: String = "THROAT"
+        val entReasons: List<String> = listOf(ear, nose, throat)
 
-        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic)
-        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic)
-        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic)
-        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic)
-        val age_0_to_1: List<String> = listOf(neonatalAndInfant)
+
+
+
+        val male_ncd: List<String> = listOf(ncdScreening, ophthalmic, ent)
+        val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent)
+        val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent)
+        val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent)
+        val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent)
 
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
