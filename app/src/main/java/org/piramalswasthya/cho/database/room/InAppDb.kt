@@ -687,7 +687,7 @@ abstract class InAppDb : RoomDatabase() {
                     "CREATE TABLE IF NOT EXISTS `ophthalmic_visit` (" +
                             "`visitId` TEXT NOT NULL, " +
                             "`patientID` TEXT NOT NULL, " +
-                            "`benVisitNo` INTEGER, " +
+                            "`benVisitNo` INTEGER NOT NULL, " +
                             "`isDiabetic` INTEGER, " +
                             "`screeningPerformed` INTEGER, " +
                             "`visualAcuityChartUsed` TEXT, " +

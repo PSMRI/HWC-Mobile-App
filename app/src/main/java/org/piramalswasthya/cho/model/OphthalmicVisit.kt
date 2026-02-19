@@ -28,7 +28,7 @@ data class OphthalmicVisit(
     val patientID: String,
     
     @ColumnInfo(name = "benVisitNo")
-    val benVisitNo: Int?,
+    val benVisitNo: Int,
     
     // Ticket 1: Diabetic Screening
     @ColumnInfo(name = "isDiabetic")

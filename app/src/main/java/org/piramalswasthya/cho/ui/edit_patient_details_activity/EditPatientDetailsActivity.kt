@@ -290,6 +290,8 @@ class EditPatientDetailsActivity: AppCompatActivity() {
                     binding.headerTextRegisterPatient.text =
                         resources.getString(R.string.ophthalmic_screening_title)
                     binding.bottomNavigation.visibility = View.GONE
+                    binding.btnSubmit.text = resources.getString(R.string.submit)
+                    binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
             }
         }

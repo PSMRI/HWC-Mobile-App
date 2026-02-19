@@ -15,9 +15,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
 import org.piramalswasthya.cho.ui.commons.DropdownConst
+import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
-class OphthalmicScreeningFragment : Fragment() {
+class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private val viewModel: OphthalmicScreeningViewModel by viewModels()
     private lateinit var binding: FragmentOphthalmicScreeningBinding
@@ -84,5 +85,29 @@ class OphthalmicScreeningFragment : Fragment() {
     
     private fun setupObservers() {
         // Observe any specific events if needed
+    }
+
+    // --- NavigationAdapter ---
+
+    override fun getFragmentId(): Int = R.id.ophthalmicScreeningFragment
+
+    override fun onSubmitAction() {
+        viewModel.save {
+            Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
+            val benVisitInfo = args.benVisitInfo
+            if (benVisitInfo != null) {
+                findNavController().navigate(
+                    OphthalmicScreeningFragmentDirections.actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(
+                        benVisitInfo
+                    )
+                )
+            } else {
+                Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onCancelAction() {
+        findNavController().popBackStack()
     }
 }

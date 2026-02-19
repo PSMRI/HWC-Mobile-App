@@ -72,7 +72,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Screening for Blindness and Refractive Errors"
+                android:text="@string/ophthalmic_screening_section_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp"/>
@@ -81,7 +81,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Is the patient diabetic? *"
+                android:text="@string/ophthalmic_is_diabetic"
                 android:textColor="#000000"
                 android:layout_marginBottom="8dp"/>
 
@@ -96,7 +96,7 @@
                     android:id="@+id/rb_diabetic_yes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:onClick="@{() -> viewModel.setDiabeticStatus(true)}"
                     android:checked="@{viewModel.isDiabetic == true}"
                     android:layout_marginEnd="16dp"/>
@@ -105,7 +105,7 @@
                     android:id="@+id/rb_diabetic_no"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:onClick="@{() -> viewModel.setDiabeticStatus(false)}"
                     android:checked="@{viewModel.isDiabetic == false}"/>
             </RadioGroup>
@@ -120,7 +120,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Screening Performed for Diabetic Patient *"
+                    android:text="@string/ophthalmic_screening_performed"
                     android:textColor="#000000"
                     android:layout_marginBottom="8dp"/>
 
@@ -135,7 +135,7 @@
                         android:id="@+id/rb_screening_yes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Yes"
+                        android:text="@string/yes"
                         android:onClick="@{() -> viewModel.setScreeningPerformed(true)}"
                         android:checked="@{viewModel.isScreeningPerformed == true}"
                         android:layout_marginEnd="16dp"/>
@@ -144,7 +144,7 @@
                         android:id="@+id/rb_screening_no"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="No"
+                        android:text="@string/no"
                         android:onClick="@{() -> viewModel.setScreeningPerformed(false)}"
                         android:checked="@{viewModel.isScreeningPerformed == false}"/>
                 </RadioGroup>
@@ -168,7 +168,7 @@
                         android:id="@+id/actv_dist_va_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Distance Visual Acuity – Right Eye *"
+                         android:hint="@string/ophthalmic_dist_va_right"
                         android:inputType="none"
                         android:text="@{viewModel.distVARight}"/>
 
@@ -184,7 +184,7 @@
                         android:id="@+id/actv_dist_va_left"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Distance Visual Acuity – Left Eye *"
+                         android:hint="@string/ophthalmic_dist_va_left"
                         android:inputType="none"
                         android:text="@{viewModel.distVALeft}"/>
 
@@ -196,7 +196,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Suspected visual impairment, Case Identification Module enabled"
+                android:text="@string/ophthalmic_visual_impairment_alert"
                 android:textColor="#D32F2F"
                 android:textStyle="bold"
                 android:padding="8dp"
@@ -208,7 +208,7 @@
                 android:id="@+id/btn_next"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Next"
+                android:text="@string/next"
                 android:enabled="@{viewModel.canProceed}"
                 android:layout_marginTop="24dp"/>
 

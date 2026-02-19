@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.model.OphthalmicVisit
 import org.piramalswasthya.cho.repositories.OphthalmicRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -189,7 +191,9 @@ class OphthalmicScreeningViewModel @Inject constructor(
                 }
 
                 ophthalmicRepository.saveOphthalmicVisit(currentVisit)
-                onSuccess()
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Error saving ophthalmic visit")
                 // In a real app we might expose an error state

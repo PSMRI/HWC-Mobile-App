@@ -16,7 +16,7 @@ class DropdownConst {
 
         val neonatalAndInfant: String = "Neonatal & Infant Health"
         val immunization: String = "Immunization Services"
-        val ophthalmic: String = "Ophthalmic "
+        val ophthalmic: String = "Ophthalmic"
         val screening: String = "Screening"
 
         val male_ncd: List<String> = listOf(ncdScreening, ophthalmic)
