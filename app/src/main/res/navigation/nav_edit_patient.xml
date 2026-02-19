@@ -137,9 +137,6 @@
         <argument
             android:name="isOldVisit"
             app:argType="boolean" />
-<!--        <action-->
-<!--            android:id="@+id/action_pwAncFormFragment_to_customVitalsFragment"-->
-<!--            app:destination="@id/customVitalsFragment" />-->
     </fragment>
 
     <fragment
@@ -152,9 +149,6 @@
         <argument
             android:name="visitNumber"
             app:argType="integer" />
-<!--        <action-->
-<!--            android:id="@+id/action_deliveryOutcomeFormFragment_to_customVitalsFragment"-->
-<!--            app:destination="@id/customVitalsFragment" />-->
         <action
             android:id="@+id/action_deliveryOutcomeFormFragment_to_neonatalOutcomeFormFragment"
             app:destination="@id/neonatalOutcomeFormFragment" />
@@ -228,9 +222,6 @@
         <argument
             android:name="babyIndex"
             app:argType="integer" />
-<!--        <action-->
-<!--            android:id="@+id/action_neonatalOutcomeFormFragment_to_customVitalsFragment"-->
-<!--            app:destination="@id/customVitalsFragment" />-->
     </fragment>
 
 </navigation>
