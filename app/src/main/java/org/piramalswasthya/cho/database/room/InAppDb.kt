@@ -684,7 +684,7 @@ abstract class InAppDb : RoomDatabase() {
         val MIGRATION_126_127 = object : Migration(126, 127) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS `ophthalmic_visit` (" +
+                    "CREATE TABLE IF NOT EXISTS `OPHTHALMIC_VISIT` (" +
                             "`visitId` TEXT NOT NULL, " +
                             "`patientID` TEXT NOT NULL, " +
                             "`benVisitNo` INTEGER NOT NULL, " +
@@ -711,9 +711,9 @@ abstract class InAppDb : RoomDatabase() {
                             "`updatedDate` INTEGER NOT NULL, " +
                             "`syncState` INTEGER NOT NULL, " +
                             "PRIMARY KEY(`visitId`), " +
-                            "FOREIGN KEY(`patientID`) REFERENCES `Patient`(`patientID`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+                            "FOREIGN KEY(`patientID`) REFERENCES `PATIENT`(`patientID`) ON UPDATE NO ACTION ON DELETE CASCADE )"
                 )
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `ophthalmic_visit` (`patientID`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ophthalmic_visit_patientID` ON `OPHTHALMIC_VISIT` (`patientID`)")
             }
         }
 

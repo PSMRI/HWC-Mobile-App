@@ -62,21 +62,29 @@ class OphthalmicScreeningViewModel @Inject constructor(
         currentPatientId = patientID
         currentBenVisitNo = benVisitNo
         viewModelScope.launch {
-            val patientDisplay = patientRepo.getPatientDisplay(patientID)
-            _benName.value = "${patientDisplay.patient.firstName ?: ""} ${patientDisplay.patient.lastName ?: ""}".trim()
-            val ageText = patientDisplay.patient.age ?: 0
-            val ageUnit = patientDisplay.ageUnit?.name ?: ""
-            val gender = patientDisplay.gender?.genderName ?: ""
-            _benAgeGender.value = "$ageText $ageUnit | $gender"
+            try {
+                val patientDisplay = patientRepo.getPatientDisplay(patientID)
+                _benName.value = "${patientDisplay.patient.firstName ?: ""} ${patientDisplay.patient.lastName ?: ""}".trim()
+                val ageText = patientDisplay.patient.age ?: 0
+                val ageUnit = patientDisplay.ageUnit?.name ?: ""
+                val gender = patientDisplay.gender?.genderName ?: ""
+                _benAgeGender.value = "$ageText $ageUnit | $gender"
 
-            val visit = ophthalmicRepository.getOphthalmicVisit(patientID, benVisitNo)
-            if (visit != null) {
-                _ophthalmicVisit.value = visit
-                updateStateFromVisit(visit)
-            } else {
-                // Initialize default state
+                val visit = ophthalmicRepository.getOphthalmicVisit(patientID, benVisitNo)
+                if (visit != null) {
+                    _ophthalmicVisit.value = visit
+                    updateStateFromVisit(visit)
+                } else {
+                    // Initialize default state
+                    _isDiabetic.value = null
+                    _isScreeningPerformed.value = null
+                    validate()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error loading ophthalmic visit")
                 _isDiabetic.value = null
                 _isScreeningPerformed.value = null
+                validate()
             }
         }
     }
@@ -166,7 +174,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
             try {
                 val user = userRepo.getLoggedInUser()
                 val patientId = currentPatientId ?: return@launch
-                val benVisitNo = currentBenVisitNo ?: 0
+                val benVisitNo = currentBenVisitNo ?: return@launch
                 
                 // Create or update
                 val currentVisit = _ophthalmicVisit.value ?: OphthalmicVisit(

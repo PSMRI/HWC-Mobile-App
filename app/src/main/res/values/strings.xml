@@ -140,10 +140,10 @@
     <string name="title_activity_web_view">WebViewActivity</string>
     <string name="ophthalmic_screening_title">Ophthalmic Screening</string>
     <string name="ophthalmic_screening_section_title">Screening for Blindness and Refractive Errors</string>
-    <string name="ophthalmic_is_diabetic">Is the patient diabetic? *</string>
-    <string name="ophthalmic_screening_performed">Screening Performed for Diabetic Patient *</string>
-    <string name="ophthalmic_dist_va_right">Distance Visual Acuity \u2013 Right Eye *</string>
-    <string name="ophthalmic_dist_va_left">Distance Visual Acuity \u2013 Left Eye *</string>
+    <string name="ophthalmic_is_diabetic">Is the patient diabetic? <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_screening_performed">Screening Performed for Diabetic Patient <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_right">Distance Visual Acuity \u2013 Right Eye <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_dist_va_left">Distance Visual Acuity \u2013 Left Eye <font color="#FF0000">*</font></string>
     <string name="ophthalmic_visual_impairment_alert">Suspected visual impairment, Case Identification Module enabled</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

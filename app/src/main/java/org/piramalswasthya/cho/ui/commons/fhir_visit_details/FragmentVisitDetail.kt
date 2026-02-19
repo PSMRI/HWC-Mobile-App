@@ -80,6 +80,10 @@ import javax.inject.Inject
 class FragmentVisitDetail : Fragment(), NavigationAdapter,
     EndIconClickListener {
 
+    companion object {
+        private const val DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss"
+    }
+
     var fragmentContainerId = 0
     private lateinit var benVisitInfo: PatientDisplayWithVisitInfo
     private lateinit var patientId: String
@@ -186,7 +190,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         if (dateString.isNullOrEmpty()) {
             return false
         }
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val dateFormat = SimpleDateFormat(DATE_FORMAT_PATTERN)
         try {
             val visitDate = dateFormat.parse(dateString)
 
@@ -1019,7 +1023,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
             subCategory = subCategory.nullIfEmpty(),
             patientID = patientId,
             benVisitNo = benVisitNo,
-            benVisitDate =  SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+            benVisitDate =  SimpleDateFormat(DATE_FORMAT_PATTERN).format(Date()),
             createdBy = user?.userName
         )
 
@@ -1333,7 +1337,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     fun isAnyItemEmpty(): Boolean {
         for (item in itemList) {
-            if (item.chiefComplaint!!.isEmpty() || item.duration!!.isEmpty() || item.durationUnit!!.isEmpty()) {
+            if (item.chiefComplaint.isNullOrEmpty() || item.duration.isNullOrEmpty() || item.durationUnit.isNullOrEmpty()) {
                 return true
             }
         }
@@ -1884,7 +1888,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
                 patientID = masterDb!!.patientId.toString(),
                 benVisitNo = benVisitNo,
-                benVisitDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()),
+                benVisitDate = SimpleDateFormat(DATE_FORMAT_PATTERN).format(Date()),
                 createdBy = user?.userName
             )
 
@@ -1935,13 +1939,14 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
             viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
 
+            viewModel.isDataSaved.value = null
             viewModel.isDataSaved.observe(viewLifecycleOwner) {
                 if (it == true) {
                      viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
                     onSuccess(benVisitNo)
-                } else {
-                     // Handle failure if needed, or just let the user retry
+                } else if (it == false) {
+                     viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
                      isNavigationInProgress = false
                      binding.btnSubmit.isEnabled = true
                 }

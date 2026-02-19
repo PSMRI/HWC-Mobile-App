@@ -9,7 +9,7 @@ import org.piramalswasthya.cho.utils.generateUuid
 import java.io.Serializable
 
 @Entity(
-    tableName = "ophthalmic_visit",
+    tableName = "OPHTHALMIC_VISIT",
     foreignKeys = [
         ForeignKey(
             entity = Patient::class,
