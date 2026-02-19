@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.DeliveryOutcomeDataset
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.model.PregnantWomanAncCache
 import org.piramalswasthya.cho.model.PregnantWomanRegistrationCache
@@ -31,8 +32,13 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     private val deliveryOutcomeRepo: DeliveryOutcomeRepo,
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
-    private val userRepo: UserRepo
+    private val userRepo: UserRepo,
+    private val patientDao: PatientDao
 ) : ViewModel() {
+
+    companion object {
+        const val STATUS_POST_NATAL_MOTHER = 3
+    }
 
     enum class State { IDLE, LOADING, LOAD_FAILED, SAVING, SAVE_SUCCESS, SAVE_FAILED }
 
@@ -180,12 +186,25 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     _state.postValue(State.SAVING)
                     dataset.mapValues(outcome, 1)
                     deliveryOutcomeRepo.saveDeliveryOutcome(outcome)
+                    // Update patient status to Post Natal Mother so PNC list picks her up
+                    updatePatientStatusToPostNatal()
                     _state.postValue(State.SAVE_SUCCESS)
                 } catch (e: Exception) {
                     Timber.e(e, "Error saving delivery outcome")
                     _state.postValue(State.SAVE_FAILED)
                 }
             }
+        }
+    }
+
+    private suspend fun updatePatientStatusToPostNatal() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_POST_NATAL_MOTHER
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update patient status to Post Natal Mother")
         }
     }
 }

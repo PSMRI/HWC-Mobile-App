@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.piramalswasthya.cho.configuration.DeliveryOutcomeDataset
 import org.piramalswasthya.cho.database.room.SyncState
+import org.piramalswasthya.cho.database.room.dao.PatientDao
 import org.piramalswasthya.cho.model.DeliveryOutcomeCache
 import org.piramalswasthya.cho.repositories.DeliveryOutcomeRepo
 import org.piramalswasthya.cho.repositories.MaternalHealthRepo
@@ -32,7 +33,12 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
     private val maternalHealthRepo: MaternalHealthRepo,
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
+    private val patientDao: PatientDao
 ) : ViewModel() {
+
+    companion object {
+        const val STATUS_POST_NATAL_MOTHER = 3
+    }
 
     val patientID: String = DeliveryOutcomeFormFragmentArgs.fromSavedStateHandle(savedStateHandle).patientID
     val visitNumber: Int = DeliveryOutcomeFormFragmentArgs.fromSavedStateHandle(savedStateHandle).visitNumber
@@ -228,6 +234,8 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
                     val savedId = deliveryOutcomeRepo.saveDeliveryOutcome(deliveryOutcome)
                     if(savedId != null){
                         _deliveryOutcomeId.postValue(deliveryOutcome.id)
+                        // Update patient status to Post Natal Mother so PNC list picks her up
+                        updatePatientStatusToPostNatal()
                         _state.postValue(State.SAVE_SUCCESS_NAVIGATE_VITALS)
                     }
                 } catch (e: Exception) {
@@ -240,5 +248,16 @@ class DeliveryOutcomeFormViewModel @Inject constructor(
 
     fun resetState() {
         _state.value = State.IDLE
+    }
+
+    private suspend fun updatePatientStatusToPostNatal() {
+        try {
+            val patient = patientDao.getPatient(patientID)
+            patient.statusOfWomanID = STATUS_POST_NATAL_MOTHER
+            patientDao.updatePatient(patient)
+            Timber.d("Patient status updated to Post Natal Mother for patientID: $patientID")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update patient status to Post Natal Mother")
+        }
     }
 }

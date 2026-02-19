@@ -361,7 +361,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         getString(R.string.patient_edited_successfully_title),
                         Toast.LENGTH_SHORT
                     ).show()
-                    setFormEditable(false)
+                    requireActivity().finish()
                 } else {
                     WorkerUtils.triggerAmritSyncWorker(requireContext())
                     Toast.makeText(
@@ -369,7 +369,7 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                         getString(R.string.patient_registered_successfully_title),
                         Toast.LENGTH_SHORT
                     ).show()
-                    setFormEditable(false)
+                    requireActivity().finish()
                 }
                 viewModel.setIsDataSaved(null)
             }

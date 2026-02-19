@@ -96,28 +96,23 @@ interface PncDao {
      * Get all PNC mothers with their delivery outcome and PNC data in a single query
      * Filters for:
      * - Females (genderID=2) aged 15-49
-     * - Have delivered (dateOfDelivery IS NOT NULL)
-     * - Date of Discharge is entered (dateOfDischarge IS NOT NULL)
      * - Marital Status = Married (maritalStatusID = 2)
-     * - Status of Woman = Post Natal Mother (inferred from having active delivery outcome)
-     * - Eligible for PNC (within 42 days or not completed all visits)
+     * - Status of Woman = Post Natal Mother
+     * - Excludes patients who have completed the 42-day PNC visit
      */
     @Transaction
     @Query("""
-        SELECT DISTINCT p.* FROM PATIENT p
-        INNER JOIN DELIVERY_OUTCOME do ON p.patientID = do.patientID
-        WHERE do.isActive = 1
-        AND do.dateOfDelivery IS NOT NULL
-        AND p.genderID = 2
+        SELECT * FROM PATIENT p
+        WHERE p.genderID = 2
         AND p.age BETWEEN 15 AND 49
         AND p.maritalStatusID = 2
+        AND p.statusOfWomanID = 3
         AND NOT EXISTS (
             SELECT 1 FROM pnc_visit pnc
             WHERE pnc.patientID = p.patientID
             AND pnc.isActive = 1
             AND pnc.pncPeriod = 42
         )
-        ORDER BY do.dateOfDelivery DESC
     """)
     fun getAllPNCMothersWithData(): Flow<List<PatientWithDeliveryOutcomeAndPncCache>>
 
