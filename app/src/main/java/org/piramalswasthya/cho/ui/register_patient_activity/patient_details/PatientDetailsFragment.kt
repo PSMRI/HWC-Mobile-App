@@ -1311,6 +1311,8 @@ class PatientDetailsFragment : Fragment() , NavigationAdapter {
                             viewModel.maritalStatusList.find { it.maritalStatusID == patient.maritalStatusID }
                         viewModel.selectedMaritalStatus?.let { m ->
                             isProgrammaticChange = true
+                            viewModel.maritalStatusId = m.maritalStatusID
+                            viewModel.maritalStatusName = m.status
                             binding.maritalStatusDropdown.setText(m.status, false)
                             setMarriedFieldsVisibility()
                             updateStatusOfWomanVisibility()
