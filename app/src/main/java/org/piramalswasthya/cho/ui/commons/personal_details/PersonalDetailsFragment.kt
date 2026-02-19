@@ -953,17 +953,26 @@ class PersonalDetailsFragment : Fragment() {
     private suspend fun generatePDF(benVisitInfo: PatientDisplayWithVisitInfo) {
         val patientName =
             (benVisitInfo.patient.firstName ?: "") + " " + (benVisitInfo.patient.lastName ?: "")
-        val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
-        )
-        val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
-        val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
-            patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
-        )
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "Prescription_$patientName" + "_${timeStamp}_.pdf"
+        val appContext = requireContext().applicationContext
 
-        val pdfDocument: PdfDocument = PdfDocument()
+        // Show "Downloading" notification immediately so user sees it while PDF is generated
+        showDownloadingNotification(fileName)
+
+        try {
+            val result = withContext(Dispatchers.IO) {
+                val prescriptions = caseRecordeRepo.getPrescriptionCaseRecordeByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo!!
+                )
+                val chiefComplaints = visitReasonsAndCategoriesRepo.getChiefComplaintDBByPatientId(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
+                )
+                val vitals = vitalsRepo.getPatientVitalsByPatientIDAndBenVisitNo(
+                    patientID = benVisitInfo.patient.patientID, benVisitNo = benVisitInfo.benVisitNo
+                )
+
+                val pdfDocument: PdfDocument = PdfDocument()
 
         val heading: Paint = Paint()
         val content: Paint = Paint()
@@ -986,23 +995,23 @@ class PersonalDetailsFragment : Fragment() {
         Paint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textSize = 15F
-            color = ContextCompat.getColor(requireContext(), android.R.color.black)
+            color = ContextCompat.getColor(appContext, android.R.color.black)
             textAlign = Paint.Align.LEFT
         }
 
         content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         content.textSize = 15F
-        content.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        content.color = ContextCompat.getColor(appContext, android.R.color.black)
         content.textAlign = Paint.Align.CENTER
 
         subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
         subheading.textSize = 16F
-        subheading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        subheading.color = ContextCompat.getColor(appContext, android.R.color.black)
         subheading.textAlign = Paint.Align.LEFT
 
         heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
         heading.textSize = 40F
-        heading.color = ContextCompat.getColor(requireContext(), android.R.color.black)
+        heading.color = ContextCompat.getColor(appContext, android.R.color.black)
         heading.textAlign = Paint.Align.CENTER
 
         val spaceAfterHeading = 20F
@@ -1309,17 +1318,26 @@ class PersonalDetailsFragment : Fragment() {
                 pdfDocument.writeTo(stream)
             }
 
-            if (pdfUri == null && file != null) {
-                pdfUri = FileProvider.getUriForFile(
-                    requireContext(),
-                    requireContext().packageName + ".provider",
-                    file
-                )
-            }
+                try {
+                    pdfDocument.writeTo(outputStream)
+                    outputStream.close()
 
+                    if (pdfUri == null && file != null) {
+                        pdfUri = FileProvider.getUriForFile(
+                            appContext,
+                            appContext.packageName + ".provider",
+                            file
+                        )
+                    }
+                    Pair(fileName, pdfUri)
+                } finally {
+                    pdfDocument.close()
+                }
+            }
             dismissNotification(0)
-            pdfUri?.let {
-                showDownloadCompleteNotification(fileName, it)
+            result.second?.let { uri ->
+                showDownloadCompleteNotification(result.first, uri)
+                Toast.makeText(requireContext(), "Prescription PDF downloaded successfully", Toast.LENGTH_SHORT).show()
             }
 
         } catch (e: Exception) {
@@ -1327,8 +1345,6 @@ class PersonalDetailsFragment : Fragment() {
             dismissNotification(0)
             Toast.makeText(requireContext(), "Failed to generate PDF file", Toast.LENGTH_SHORT)
                 .show()
-        } finally {
-            pdfDocument.close()
         }
     }
 
