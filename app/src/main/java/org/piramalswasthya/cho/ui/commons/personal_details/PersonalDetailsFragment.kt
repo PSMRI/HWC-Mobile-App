@@ -201,6 +201,7 @@ class PersonalDetailsFragment : Fragment() {
         return binding.root
     }
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -372,6 +373,13 @@ class PersonalDetailsFragment : Fragment() {
 
                             }, { benVisitInfo ->
                                 openDialog(benVisitInfo)
+                            }, { benVisitInfo ->
+
+                                val intent = Intent(requireContext(), RegisterPatientActivity::class.java).apply {
+                                    putExtra("isEdit", true)
+                                    putExtra("patientInfo", benVisitInfo)
+                                }
+                                startActivity(intent)
                             }),
                             showAbha = true
                         )
@@ -519,7 +527,7 @@ class PersonalDetailsFragment : Fragment() {
                     val existingPatient = withContext(Dispatchers.IO) {
                         patientDao.getBen(beneficiaryID)
                     }
-
+                    
                     if (existingPatient != null) {
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
@@ -531,13 +539,13 @@ class PersonalDetailsFragment : Fragment() {
                         return@launch
                     }
                 }
-
+                
                 var stateID = apiPatient.patient.stateID
                 var districtID = apiPatient.patient.districtID
                 var blockID = apiPatient.patient.blockID
                 var districtBranchID = apiPatient.patient.districtBranchID
                 val villageName = apiPatient.villageName
-
+                
                 if (districtBranchID == null) {
                     val locData = preferenceDao.getUserLocationData()
                     stateID = locData?.stateId
@@ -545,7 +553,7 @@ class PersonalDetailsFragment : Fragment() {
                     blockID = locData?.blockId
                     districtBranchID = viewModelPatientDetails.selectedVillage?.districtBranchID?.toInt()
                 }
-
+                
                 if (districtBranchID != null && blockID != null && districtID != null && stateID != null && !villageName.isNullOrBlank()) {
                     withContext(Dispatchers.IO) {
                         if (stateMasterDao.getStateById(stateID) == null) {
@@ -557,7 +565,7 @@ class PersonalDetailsFragment : Fragment() {
                                 )
                             )
                         }
-
+                        
                         if (districtMasterDao.getDistrictById(districtID) == null) {
                             districtMasterDao.insertDistrict(
                                 DistrictMaster(
@@ -569,7 +577,7 @@ class PersonalDetailsFragment : Fragment() {
                                 )
                             )
                         }
-
+                        
                         if (blockMasterDao.getBlockById(blockID) == null) {
                             blockMasterDao.insertBlock(
                                 BlockMaster(
@@ -581,7 +589,7 @@ class PersonalDetailsFragment : Fragment() {
                                 )
                             )
                         }
-
+                        
                         val existingVillage = villageMasterDao.getVillageById(districtBranchID)
                         if (existingVillage == null || existingVillage.villageName.isNullOrBlank()) {
                             villageMasterDao.insertVillage(
@@ -600,7 +608,7 @@ class PersonalDetailsFragment : Fragment() {
                         }
                     }
                 }
-
+                
                 val patientToSave = Patient(
                     patientID = generateUuid(),
                     firstName = apiPatient.patient.firstName,
@@ -628,7 +636,7 @@ class PersonalDetailsFragment : Fragment() {
                     healthIdDetails = apiPatient.patient.healthIdDetails,
                     faceEmbedding = apiPatient.patient.faceEmbedding
                 )
-
+                
                 var saveSuccess = false
                 try {
                     withContext(Dispatchers.IO) {
@@ -642,7 +650,7 @@ class PersonalDetailsFragment : Fragment() {
                         communityID = null,
                         religionID = null
                     )
-
+                    
                     try {
                         withContext(Dispatchers.IO) {
                             patientRepo.insertPatient(patientWithNullForeignKeys)
@@ -659,7 +667,7 @@ class PersonalDetailsFragment : Fragment() {
                         return@launch
                     }
                 }
-
+                
                 if (saveSuccess) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
@@ -667,11 +675,11 @@ class PersonalDetailsFragment : Fragment() {
                             "Patient saved successfully",
                             Toast.LENGTH_SHORT
                         ).show()
-
+                        
                         viewModel.filterText("")
                     }
                 }
-
+                
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -982,319 +990,319 @@ class PersonalDetailsFragment : Fragment() {
 
                 val pdfDocument: PdfDocument = PdfDocument()
 
-                val heading: Paint = Paint()
-                val content: Paint = Paint()
-                val subheading: Paint = Paint()
+        val heading: Paint = Paint()
+        val content: Paint = Paint()
+        val subheading: Paint = Paint()
 
-                val myPageInfo: PdfDocument.PageInfo? =
-                    PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+        val myPageInfo: PdfDocument.PageInfo? =
+            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
 
-                val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
-                val canvas: Canvas = myPage.canvas
+        val myPage: PdfDocument.Page = pdfDocument.startPage(myPageInfo)
+        val canvas: Canvas = myPage.canvas
 
-                // Set up initial positions for the table
-                val xPosition = 75F
-                var y = 270F // Declare y as a var
-                val rowHeight = 50F
-                val leftSideX = 50F
-                val extraSpace = 10F
+        // Set up initial positions for the table
+        val xPosition = 75F
+        var y = 270F // Declare y as a var
+        val rowHeight = 50F
+        val leftSideX = 50F
+        val extraSpace = 10F
 
-                // Set up Paint for text
-                Paint().apply {
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                    textSize = 15F
-                    color = ContextCompat.getColor(appContext, android.R.color.black)
-                    textAlign = Paint.Align.LEFT
-                }
+        // Set up Paint for text
+        Paint().apply {
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textSize = 15F
+            color = ContextCompat.getColor(appContext, android.R.color.black)
+            textAlign = Paint.Align.LEFT
+        }
 
-                content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
-                content.textSize = 15F
-                content.color = ContextCompat.getColor(appContext, android.R.color.black)
-                content.textAlign = Paint.Align.CENTER
+        content.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        content.textSize = 15F
+        content.color = ContextCompat.getColor(appContext, android.R.color.black)
+        content.textAlign = Paint.Align.CENTER
 
-                subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-                subheading.textSize = 16F
-                subheading.color = ContextCompat.getColor(appContext, android.R.color.black)
-                subheading.textAlign = Paint.Align.LEFT
+        subheading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+        subheading.textSize = 16F
+        subheading.color = ContextCompat.getColor(appContext, android.R.color.black)
+        subheading.textAlign = Paint.Align.LEFT
 
-                heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
-                heading.textSize = 40F
-                heading.color = ContextCompat.getColor(appContext, android.R.color.black)
-                heading.textAlign = Paint.Align.CENTER
+        heading.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        heading.textSize = 40F
+        heading.color = ContextCompat.getColor(appContext, android.R.color.black)
+        heading.textAlign = Paint.Align.CENTER
 
-                val spaceAfterHeading = 20F
-                canvas.drawText("Prescription", 396F, 100F + spaceAfterHeading, heading)
+        val spaceAfterHeading = 20F
+        canvas.drawText("Prescription", 396F, 100F + spaceAfterHeading, heading)
 
-                val leftX = 50F // where labels start
-                var currentY = 180F
-                val lineHeight = 25F
+        val leftX = 50F // where labels start
+        var currentY = 180F
+        val lineHeight = 25F
 
 // Left side labels and values
-                val leftLabels = listOf("Name:", "Age:", "Gender:", "Mobile:")
-                val leftValues = listOf(
-                    patientName,
-                    "${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}",
-                    benVisitInfo.genderName,
-                    benVisitInfo.patient.phoneNo ?: "N/A"
-                )
+        val leftLabels = listOf("Name:", "Age:", "Gender:", "Mobile:")
+        val leftValues = listOf(
+            patientName,
+            "${benVisitInfo.patient.age} ${benVisitInfo.ageUnit}",
+            benVisitInfo.genderName,
+            benVisitInfo.patient.phoneNo ?: "N/A"
+        )
 
-                val leftLabelWidth = leftLabels.maxOf { subheading.measureText(it) }
-                val leftValueX = leftX + leftLabelWidth + 10F // 10F padding
+        val leftLabelWidth = leftLabels.maxOf { subheading.measureText(it) }
+        val leftValueX = leftX + leftLabelWidth + 10F // 10F padding
 
-                for (i in leftLabels.indices) {
-                    canvas.drawText(leftLabels[i], leftX, currentY, subheading)
-                    canvas.drawText("${leftValues[i]}", leftValueX, currentY, subheading)
-                    currentY += lineHeight
-                }
+        for (i in leftLabels.indices) {
+            canvas.drawText(leftLabels[i], leftX, currentY, subheading)
+            canvas.drawText("${leftValues[i]}", leftValueX, currentY, subheading)
+            currentY += lineHeight
+        }
 
-                canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
-                //currentY += lineHeight
+        canvas.drawLine(leftX, currentY, pageWidth - leftX, currentY, subheading)
+        //currentY += lineHeight
 
-                subheading.textAlign = Paint.Align.LEFT
-                val rightX = pageWidth - 300F
-                var rightY = 180F
+        subheading.textAlign = Paint.Align.LEFT
+        val rightX = pageWidth - 300F
+        var rightY = 180F
 
-                val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
-                val rightValues = listOf(
-                    benVisitInfo.visitDate ?: "N/A",
-                    "${benVisitInfo.patient.beneficiaryRegID}",
-                    "${benVisitInfo.benVisitNo}"
-                )
+        val rightLabels = listOf("Date:", "Beneficiary Reg ID:", "Consultation ID:")
+        val rightValues = listOf(
+            benVisitInfo.visitDate ?: "N/A",
+            "${benVisitInfo.patient.beneficiaryRegID}",
+            "${benVisitInfo.benVisitNo}"
+        )
 
-                val rightLabelWidth = rightLabels.maxOf { subheading.measureText(it) }
-                val rightValueX = rightX + rightLabelWidth + 10F // 10F padding
+        val rightLabelWidth = rightLabels.maxOf { subheading.measureText(it) }
+        val rightValueX = rightX + rightLabelWidth + 10F // 10F padding
 
-                for (i in rightLabels.indices) {
-                    canvas.drawText(rightLabels[i], rightX, rightY, subheading)
-                    canvas.drawText("${rightValues[i]}", rightValueX, rightY, subheading)
-                    rightY += lineHeight
-                }
+        for (i in rightLabels.indices) {
+            canvas.drawText(rightLabels[i], rightX, rightY, subheading)
+            canvas.drawText("${rightValues[i]}", rightValueX, rightY, subheading)
+            rightY += lineHeight
+        }
 
-                val spaceAfterLine = 20F
+        val spaceAfterLine = 20F
 
-                // Define fixed column widths
-                val columnWidth = 150F
-                y += spaceAfterLine
-                y += 30
+        // Define fixed column widths
+        val columnWidth = 150F
+        y += spaceAfterLine
+        y += 30
 
-                val chiefComplaintHeader = "Chief Complaints"
-                val chiefComplaintHeaderSize = 25F // Adjust the size as needed
-                val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
-                canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
-                    textSize = chiefComplaintHeaderSize
-                    textAlign = Paint.Align.CENTER
-                })
+        val chiefComplaintHeader = "Chief Complaints"
+        val chiefComplaintHeaderSize = 25F // Adjust the size as needed
+        val chiefComplaintHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        canvas.drawText(chiefComplaintHeader, chiefComplaintHeaderX, y, subheading.apply {
+            textSize = chiefComplaintHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
 
 // Move down to the first row of Chief Complaints
-                y += rowHeight
+        y += rowHeight
 
 // Define fixed column widths for Chief Complaints
-                val chiefComplaintColumnWidth = 150F
+        val chiefComplaintColumnWidth = 150F
 
 // Draw table header for Chief Complaints
-                canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-                canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
-                canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
-                canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
-                canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
+        canvas.drawText("Chief Complaint", xPosition + chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + 2 * chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Duration Unit", xPosition + 3 * chiefComplaintColumnWidth, y, subheading)
+        canvas.drawText("Description", xPosition + 4 * chiefComplaintColumnWidth, y, subheading)
 
 // Move down to the first row
-                y += rowHeight // Reassign y
+        y += rowHeight // Reassign y
 
 // Iterate through the list of Chief Complaints and draw each as a row
-                if (!chiefComplaints.isNullOrEmpty()) {
-                    var chiefComplaintCount: Int = 0
-                    for (chiefComplaint in chiefComplaints) {
-                        // Draw each field with a fixed width
-                        if (chiefComplaint != null) {
-                            chiefComplaintCount++
-                            drawTextWithWrapping(
-                                canvas,
-                                chiefComplaintCount.toString(),
-                                xPosition,
-                                y,
-                                chiefComplaintColumnWidth,
-                                content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                chiefComplaint.chiefComplaint ?: "",
-                                xPosition + chiefComplaintColumnWidth,
-                                y,
-                                chiefComplaintColumnWidth,
-                                content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                chiefComplaint.duration ?: "",
-                                xPosition + 2 * chiefComplaintColumnWidth,
-                                y,
-                                chiefComplaintColumnWidth,
-                                content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                chiefComplaint.durationUnit ?: "",
-                                xPosition + 3 * chiefComplaintColumnWidth,
-                                y,
-                                chiefComplaintColumnWidth,
-                                content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                chiefComplaint.description ?: "",
-                                xPosition + 4 * chiefComplaintColumnWidth,
-                                y,
-                                chiefComplaintColumnWidth,
-                                content
-                            )
-
-                            // Move down to the next row
-                            y += rowHeight // Reassign y
-                        }
-                    }
-                }
-
-                canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
-                y += spaceAfterLine
-                y += 30
-
-                // Add a heading for the Vitals section
-                val vitalsSectionHeader = "Vitals"
-                val vitalsSectionHeaderSize = 25F
-                val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
-                canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
-                    textSize = vitalsSectionHeaderSize
-                    textAlign = Paint.Align.CENTER
-                })
-
-                // Move down to the first row of Vitals
-                y += rowHeight
-
-                // Define fixed column widths for Vitals
-                val vitalsColumnWidth = 200F
-
-                // Draw table header for Vitals
-                canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
-                canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
-
-                // Move down to the first row
-                y += rowHeight
-
-                // Function to draw Vitals Name and Value
-                fun drawVitals(vitalsName: String, vitalsValue: String) {
+        if (!chiefComplaints.isNullOrEmpty()) {
+            var chiefComplaintCount: Int = 0
+            for (chiefComplaint in chiefComplaints) {
+                // Draw each field with a fixed width
+                if (chiefComplaint != null) {
+                    chiefComplaintCount++
                     drawTextWithWrapping(
-                        canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
+                        canvas,
+                        chiefComplaintCount.toString(),
+                        xPosition,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
                     )
                     drawTextWithWrapping(
                         canvas,
-                        vitalsValue,
-                        xPosition + leftSideX + vitalsColumnWidth,
+                        chiefComplaint.chiefComplaint ?: "",
+                        xPosition + chiefComplaintColumnWidth,
                         y,
-                        vitalsColumnWidth,
+                        chiefComplaintColumnWidth,
                         content
                     )
-                    y += rowHeight
-                }
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.duration ?: "",
+                        xPosition + 2 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.durationUnit ?: "",
+                        xPosition + 3 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        chiefComplaint.description ?: "",
+                        xPosition + 4 * chiefComplaintColumnWidth,
+                        y,
+                        chiefComplaintColumnWidth,
+                        content
+                    )
 
-                // Draw Vitals based on the available data
-                with(vitals) {
-                    this?.height?.let { drawVitals("Height", it) }
-                    this?.weight?.let { drawVitals("Weight", it) }
-                    this?.bmi?.let { drawVitals("BMI", it) }
-                    this?.waistCircumference?.let { drawVitals("Waist Circumference", it) }
-                    this?.temperature?.let { drawVitals("Temperature", it) }
-                    this?.pulseRate?.let { drawVitals("Pulse Rate", it) }
-                    this?.spo2?.let { drawVitals("SpO2", it) }
-                    this?.bpSystolic?.let { drawVitals("BP Systolic", it) }
-                    this?.bpDiastolic?.let { drawVitals("BP Diastolic", it) }
-                    this?.respiratoryRate?.let { drawVitals("Respiratory Rate", it) }
-                    this?.rbs?.let { drawVitals("RBS", it) }
+                    // Move down to the next row
+                    y += rowHeight // Reassign y
                 }
+            }
+        }
+
+        canvas.drawLine(leftSideX, y, pageWidth - leftSideX, y, subheading)
+        y += spaceAfterLine
+        y += 30
+
+        // Add a heading for the Vitals section
+        val vitalsSectionHeader = "Vitals"
+        val vitalsSectionHeaderSize = 25F
+        val vitalsSectionHeaderX = (pageWidth / 2).toFloat()
+        canvas.drawText(vitalsSectionHeader, vitalsSectionHeaderX, y, subheading.apply {
+            textSize = vitalsSectionHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
+
+        // Move down to the first row of Vitals
+        y += rowHeight
+
+        // Define fixed column widths for Vitals
+        val vitalsColumnWidth = 200F
+
+        // Draw table header for Vitals
+        canvas.drawText("Vitals Name", xPosition + leftSideX, y, subheading)
+        canvas.drawText("Vitals Value", xPosition + leftSideX + vitalsColumnWidth, y, subheading)
+
+        // Move down to the first row
+        y += rowHeight
+
+        // Function to draw Vitals Name and Value
+        fun drawVitals(vitalsName: String, vitalsValue: String) {
+            drawTextWithWrapping(
+                canvas, vitalsName, xPosition + leftSideX, y, vitalsColumnWidth, content
+            )
+            drawTextWithWrapping(
+                canvas,
+                vitalsValue,
+                xPosition + leftSideX + vitalsColumnWidth,
+                y,
+                vitalsColumnWidth,
+                content
+            )
+            y += rowHeight
+        }
+
+        // Draw Vitals based on the available data
+        with(vitals) {
+            this?.height?.let { drawVitals("Height", it) }
+            this?.weight?.let { drawVitals("Weight", it) }
+            this?.bmi?.let { drawVitals("BMI", it) }
+            this?.waistCircumference?.let { drawVitals("Waist Circumference", it) }
+            this?.temperature?.let { drawVitals("Temperature", it) }
+            this?.pulseRate?.let { drawVitals("Pulse Rate", it) }
+            this?.spo2?.let { drawVitals("SpO2", it) }
+            this?.bpSystolic?.let { drawVitals("BP Systolic", it) }
+            this?.bpDiastolic?.let { drawVitals("BP Diastolic", it) }
+            this?.respiratoryRate?.let { drawVitals("Respiratory Rate", it) }
+            this?.rbs?.let { drawVitals("RBS", it) }
+        }
 
 // Draw heading for the next section
-                val nextSectionHeader = "Prescription" // Replace with your desired heading
-                val nextSectionHeaderSize = 25F // Adjust the size as needed
-                val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
-                canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
-                    textSize = nextSectionHeaderSize
-                    textAlign = Paint.Align.CENTER
-                })
-                y += rowHeight
+        val nextSectionHeader = "Prescription" // Replace with your desired heading
+        val nextSectionHeaderSize = 25F // Adjust the size as needed
+        val nextSectionHeaderX = (pageWidth / 2).toFloat() // Center the heading
+        canvas.drawText(nextSectionHeader, nextSectionHeaderX, y, subheading.apply {
+            textSize = nextSectionHeaderSize
+            textAlign = Paint.Align.CENTER
+        })
+        y += rowHeight
 
 
-                // Draw table header
-                canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
-                canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
-                canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
-                canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
-                canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
+        // Draw table header
+        canvas.drawText("S.No.", xPosition + extraSpace, y, subheading)
+        canvas.drawText("Medication", xPosition + columnWidth, y, subheading)
+        canvas.drawText("Frequency", xPosition + 2 * columnWidth, y, subheading)
+        canvas.drawText("Duration", xPosition + 3 * columnWidth, y, subheading)
+        canvas.drawText("Instructions", xPosition + 4 * columnWidth, y, subheading)
 
-                // Move down to the first row
-                y += rowHeight // Reassign y
+        // Move down to the first row
+        y += rowHeight // Reassign y
 
-                // Iterate through the list of prescriptions and draw each as a row
-                if (!prescriptions.isNullOrEmpty()) {
-                    var count: Int = 0
-                    for (prescription in prescriptions) {
-                        // Draw each field with a fixed width
-                        if (prescription != null) {
-                            count++
-                            drawTextWithWrapping(
-                                canvas, count.toString(), xPosition, y, columnWidth, content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                prescription.itemName,
-                                xPosition + columnWidth,
-                                y,
-                                columnWidth,
-                                content
-                            )
-                            drawTextWithWrapping(
-                                canvas,
-                                prescription.frequency ?: "",
-                                xPosition + 2 * columnWidth,
-                                y,
-                                columnWidth,
-                                content
-                            )
-                            if (prescription.unit.isNullOrEmpty()) {
-                                drawTextWithWrapping(
-                                    canvas,
-                                    (prescription.duration) ?: "",
-                                    xPosition + 3 * columnWidth,
-                                    y,
-                                    columnWidth,
-                                    content
-                                )
-                            } else {
-                                drawTextWithWrapping(
-                                    canvas,
-                                    (prescription.duration + " " + prescription.unit),
-                                    xPosition + 3 * columnWidth,
-                                    y,
-                                    columnWidth,
-                                    content
-                                )
-                            }
-
-                            drawTextWithWrapping(
-                                canvas,
-                                prescription.instructions,
-                                xPosition + 4 * columnWidth,
-                                y,
-                                columnWidth,
-                                content
-                            )
-
-                            // Move down to the next row
-                            y += rowHeight // Reassign y
-                        }
+        // Iterate through the list of prescriptions and draw each as a row
+        if (!prescriptions.isNullOrEmpty()) {
+            var count: Int = 0
+            for (prescription in prescriptions) {
+                // Draw each field with a fixed width
+                if (prescription != null) {
+                    count++
+                    drawTextWithWrapping(
+                        canvas, count.toString(), xPosition, y, columnWidth, content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.itemName,
+                        xPosition + columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.frequency ?: "",
+                        xPosition + 2 * columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+                    if (prescription.unit.isNullOrEmpty()) {
+                        drawTextWithWrapping(
+                            canvas,
+                            (prescription.duration) ?: "",
+                            xPosition + 3 * columnWidth,
+                            y,
+                            columnWidth,
+                            content
+                        )
+                    } else {
+                        drawTextWithWrapping(
+                            canvas,
+                            (prescription.duration + " " + prescription.unit),
+                            xPosition + 3 * columnWidth,
+                            y,
+                            columnWidth,
+                            content
+                        )
                     }
-                }
 
-                pdfDocument.finishPage(myPage)
+                    drawTextWithWrapping(
+                        canvas,
+                        prescription.instructions,
+                        xPosition + 4 * columnWidth,
+                        y,
+                        columnWidth,
+                        content
+                    )
+
+                    // Move down to the next row
+                    y += rowHeight // Reassign y
+                }
+            }
+        }
+
+        pdfDocument.finishPage(myPage)
 
                 val outputStream: OutputStream
                 var pdfUri: Uri? = null
@@ -1831,4 +1839,6 @@ class PersonalDetailsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }

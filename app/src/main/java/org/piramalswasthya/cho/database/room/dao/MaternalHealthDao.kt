@@ -22,14 +22,23 @@ interface MaternalHealthDao {
     @Query("select * from pregnancy_anc where patientID = :patientID order by ancDate desc limit 1")
     suspend fun getLastAnc(patientID: String): PregnantWomanAncCache?
 
+    @Query("select * from pregnancy_anc where patientID = :patientID and weight IS NOT NULL and isActive = 1 order by visitNumber desc limit 1")
+    suspend fun getLastCompletedAnc(patientID: String): PregnantWomanAncCache?
+
     @Query("select visitNumber from pregnancy_anc where patientID = :patientID order by visitNumber desc limit 1")
     suspend fun getLastVisitNumber(patientID: String): Int?
+
+    @Query("select visitNumber from pregnancy_anc where patientID = :patientID and isActive = 1 order by visitNumber desc limit 1")
+    suspend fun getLastActiveVisitNumber(patientID: String): Int?
 
     @Query("select * from pregnancy_anc where patientID = :patientID and visitNumber = :visitNumber limit 1")
     suspend fun getSavedRecord(patientID: String, visitNumber: Int): PregnantWomanAncCache?
 
     @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
     suspend fun getAllActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
+
+    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID and weight IS NOT NULL order by visitNumber")
+    suspend fun getCompletedActiveAncRecords(patientID: String): List<PregnantWomanAncCache>
 
 //    @Query("select * from pregnancy_anc where isActive = 1 and patientID = :patientID")
 //    fun getAllActiveAncRecordsObserve(patientID: String): LiveData<List<PregnantWomanAncCache>>
@@ -43,7 +52,7 @@ interface MaternalHealthDao {
 //    fun getLatestAnc(benId: Long): PregnantWomanAncCache?
 //
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache)
+    suspend fun saveRecord(pregnancyRegistrationForm: PregnantWomanRegistrationCache): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveRecord(ancCache: PregnantWomanAncCache)
@@ -65,6 +74,9 @@ interface MaternalHealthDao {
     @Query("SELECT * FROM pregnancy_register WHERE processed in ('N', 'U')")
     suspend fun getAllUnprocessedPWRs(): List<PregnantWomanRegistrationCache>
 
+    @Query("SELECT * FROM pregnancy_register WHERE active = 1")
+    suspend fun getAllActivePregnancyRegistrations(): List<PregnantWomanRegistrationCache>
+
     @Update
     suspend fun updateANC(vararg it: PregnantWomanAncCache)
 
@@ -82,10 +94,24 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_REGISTER pwr ON p.patientID = pwr.patientID
         WHERE pwr.active = 1
         AND p.genderID = 2
+        AND p.maritalStatusID = 2
+        AND p.statusOfWomanID = 2
         AND p.age BETWEEN 15 AND 49
         ORDER BY pwr.createdDate DESC
     """)
     fun getAllPatientsWithPWR(): Flow<List<PatientWithPwrCache>>
+
+    @Transaction
+    @Query("""
+        SELECT DISTINCT p.* FROM PATIENT p
+        INNER JOIN ELIGIBLE_COUPLE_TRACKING ect ON p.patientID = ect.patientID
+        WHERE ect.pregnancyTestResult = 'Positive'
+        AND p.genderID = 2
+        AND p.age BETWEEN 15 AND 49
+        ORDER BY ect.createdDate DESC
+    """)
+    fun getAllPatientsWithPWRFromEligibleCoupleTracking(): Flow<List<PatientWithPwrCache>>
+
 
     /**
      * Get specific patient with pregnancy registration
@@ -158,8 +184,10 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_ANC anc ON p.patientID = anc.patientID
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
+        AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
-        AND p.age BETWEEN 15 AND 49
+        AND p.age BETWEEN 15 AND 49 
+        AND anc.abortionType = 'Spontaneous'
         ORDER BY anc.abortionDate DESC
     """)
     fun getAllAbortionWomenList(): Flow<List<PatientWithPwrAndAncCache>>
@@ -172,6 +200,7 @@ interface MaternalHealthDao {
         INNER JOIN PREGNANCY_ANC anc ON p.patientID = anc.patientID
         WHERE anc.isAborted = 1
         AND anc.abortionDate IS NOT NULL
+        AND anc.abortionType = 'Spontaneous'
         AND p.genderID = 2
         AND p.age BETWEEN 15 AND 49
     """)
@@ -203,4 +232,27 @@ interface MaternalHealthDao {
         AND p.age BETWEEN 15 AND 49
     """)
     fun getAllRegisteredPmsmaWomenCount(): Flow<Int>
+
+    /**
+     * Get patientIDs of women who have a saved delivery outcome (eligible for neonatal outcome)
+     */
+    @Query("""
+        SELECT DISTINCT do.patientID FROM DELIVERY_OUTCOME do
+        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
+        WHERE pwr.active = 1
+        AND do.isActive = 1
+        ORDER BY do.updatedDate DESC
+    """)
+    fun getNeonatalOutcomeEligibleWomenPatientIDs(): Flow<List<String>>
+
+    /**
+     * Get count of women eligible for neonatal outcome
+     */
+    @Query("""
+        SELECT COUNT(DISTINCT do.patientID) FROM DELIVERY_OUTCOME do
+        INNER JOIN pregnancy_register pwr ON do.patientID = pwr.patientID
+        WHERE pwr.active = 1
+        AND do.isActive = 1
+    """)
+    fun getNeonatalOutcomeEligibleWomenCount(): Flow<Int>
 }

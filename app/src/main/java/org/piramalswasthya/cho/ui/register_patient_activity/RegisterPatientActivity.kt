@@ -1,7 +1,6 @@
 package org.piramalswasthya.cho.ui.register_patient_activity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +18,6 @@ import org.piramalswasthya.cho.facenet.SharedViewModel
 import org.piramalswasthya.cho.helpers.MyContextWrapper
 import org.piramalswasthya.cho.model.PatientDetails
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
-import org.piramalswasthya.cho.ui.home_activity.HomeActivity
 
 @AndroidEntryPoint
 class RegisterPatientActivity : AppCompatActivity() {
@@ -70,9 +68,37 @@ class RegisterPatientActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.patientDetailsFragment -> {
                     binding.headerTextRegisterPatient.text = resources.getString(R.string.personal_information)
+                    binding.bottomNavigation.visibility = android.view.View.VISIBLE
                     binding.btnSubmit.text = resources.getString(R.string.submit_btn_text)
                     binding.btnCancel.text = resources.getString(R.string.cancel)
                 }
+                else -> {
+                    binding.bottomNavigation.visibility = android.view.View.VISIBLE
+                }
+            }
+        }
+
+        if (intent.getBooleanExtra("isEdit", false)) {
+
+            val patientInfo =
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    intent.getSerializableExtra(
+                        "patientInfo",
+                        org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo::class.java
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getSerializableExtra("patientInfo")
+                            as? org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo
+                }
+
+            patientInfo?.let {
+                val graph = navHostFragment.navController.navInflater.inflate(R.navigation.register_nav)
+                val bundle = Bundle().apply {
+                    putSerializable("patientInfo", it)
+                    putBoolean("isEditMode", true)
+                }
+                navHostFragment.navController.setGraph(graph, bundle)
             }
         }
 

@@ -40,7 +40,17 @@ class PncRepo @Inject constructor(
     }
 
     suspend fun getLastVisitNumber(patientID: String): Int? {
-        return pncDao.getLastVisitNumber(patientID)
+        return withContext(Dispatchers.IO) {
+            pncDao.getAllPNCsByPatId(patientID)
+                .maxByOrNull { it.pncPeriod }
+                ?.pncPeriod
+        }
+    }
+
+    suspend fun savePnc(pncCache: PNCVisitCache): Long {
+        return withContext(Dispatchers.IO) {
+            pncDao.insert(pncCache)
+        }
     }
 
     suspend fun persistPncRecord(pncCache: PNCVisitCache) {

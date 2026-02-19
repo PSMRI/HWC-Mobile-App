@@ -1,10 +1,10 @@
 package org.piramalswasthya.cho.ui.home.rmncha.child_care
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,44 +12,43 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.ChildListAdapter
-import org.piramalswasthya.cho.databinding.ActivityChildListBinding
+import org.piramalswasthya.cho.databinding.FragmentChildListBinding
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.utils.filterPatientsByQuery
 import org.piramalswasthya.cho.utils.setupSearchTextWatcher
 import org.piramalswasthya.cho.utils.updateListUI
-import org.piramalswasthya.cho.utils.setupToolbarWithBack
 import javax.inject.Inject
 
 /**
- * Activity to display list of children (age 2-5 years)
+ * Fragment to display list of children (age 2-5 years)
  * Shows all registered children for child care services
  */
 @AndroidEntryPoint
-class ChildListActivity : AppCompatActivity() {
+class ChildListFragment : Fragment() {
 
     @Inject
     lateinit var patientRepo: PatientRepo
 
-    private lateinit var binding: ActivityChildListBinding
+    private var _binding: FragmentChildListBinding? = null
+    private val binding get() = _binding!!
+    
     private lateinit var adapter: ChildListAdapter
     private var allChildren: List<PatientDisplay> = emptyList()
     private var filteredChildren: List<PatientDisplay> = emptyList()
 
-    companion object {
-        fun getIntent(context: Context): Intent {
-            return Intent(context, ChildListActivity::class.java)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChildListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityChildListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Set up toolbar
-        setupToolbarWithBack(binding.toolbar, getString(R.string.child_list))
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
         setupRecyclerView()
         setupSearch()
         observeChildren()
@@ -63,7 +62,7 @@ class ChildListActivity : AppCompatActivity() {
             }
         )
 
-        binding.rvChildList.layoutManager = LinearLayoutManager(this)
+        binding.rvChildList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvChildList.adapter = adapter
     }
 
@@ -100,8 +99,13 @@ class ChildListActivity : AppCompatActivity() {
         )
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onResume() {
+        super.onResume()
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = getString(R.string.child_list)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

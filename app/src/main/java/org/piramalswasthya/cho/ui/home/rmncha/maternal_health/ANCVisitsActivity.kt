@@ -40,9 +40,15 @@ class ANCVisitsActivity : AppCompatActivity() {
     companion object {
         private const val MIN_ANC_WEEKS = 5 // Minimum weeks for ANC eligibility
         private const val MIN_ANC_DAYS = MIN_ANC_WEEKS * 7 // 35 days
+        private const val EXTRA_PATIENT_ID = "patientID"
 
         fun getIntent(context: Context): Intent {
             return Intent(context, ANCVisitsActivity::class.java)
+        }
+
+        fun getIntent(context: Context, patientID: String): Intent {
+            return Intent(context, ANCVisitsActivity::class.java)
+                .putExtra(EXTRA_PATIENT_ID, patientID)
         }
     }
 
@@ -63,18 +69,40 @@ class ANCVisitsActivity : AppCompatActivity() {
         adapter = ANCVisitsAdapter(
             ANCVisitsAdapter.ClickListener(
                 clickedAddANC = { patientWithPwr ->
-                    Toast.makeText(
-                        this,
-                        "Add ANC Visit: ${patientWithPwr.patient.firstName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    lifecycleScope.launch {
+                        val patientID = patientWithPwr.patient.patientID
+                        val allAncRecords = maternalHealthRepo.getAllActiveAncRecords(patientID)
+                        
+                        // Find the highest visit number that is COMPLETED (weight != null)
+                        val maxCompletedVisit = allAncRecords
+                            .filter { it.weight != null }
+                            .maxOfOrNull { it.visitNumber } ?: 0
+                            
+                        val nextVisitNumber = maxCompletedVisit + 1
+                        val isHRP = patientWithPwr.pwr?.isHrp ?: false
+                        
+                        // Ticket 1: HRP allows more than 4 visits. Normal cases cap at 4.
+                        // However, since we are "Adding Next Visit", if 4 are done, we only allow 5th if HRP.
+                        if (maxCompletedVisit < 4 || isHRP) {
+                            val intent = Intent(this@ANCVisitsActivity, org.piramalswasthya.cho.ui.edit_patient_details_activity.EditPatientDetailsActivity::class.java).apply {
+                                putExtra("navigateTo", "ANC")
+                                putExtra("patientID", patientID)
+                                putExtra("visitNumber", nextVisitNumber)
+                                putExtra("isOldVisit", false) 
+                                // We also need to pass benVisitInfo as it might be required by Activity/Fragment (though we use ID for lookup)
+                                // Creating a minimal benVisitInfo or checking if we can skip it. 
+                                // EditPatientDetails usually needs it for PatientHome but we are bypassing to ANC.
+                            }
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(this@ANCVisitsActivity, "All 4 ANC visits completed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
                 clickedANCVisits = { patientWithPwr ->
-                    Toast.makeText(
-                        this,
-                        "View ANC Visits: ${patientWithPwr.patient.firstName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                     // Show bottom sheet with all ANC visits
+                     val bottomSheet = AncBottomSheetFragment.newInstance(patientWithPwr.patient.patientID)
+                     bottomSheet.show(supportFragmentManager, "ANC_VISITS")
                 },
                 clickedAddPMSMA = { patientWithPwr ->
                     Toast.makeText(

@@ -65,14 +65,14 @@ class EligibleCoupleTrackingDataset(
         title = "Month",
         arrayId = R.array.visit_months,
         entries = resources.getStringArray(R.array.visit_months),
-        required = false
+        required = false,
     )
 
     private val lmpDate = FormElement(
         id = 4,
         inputType = InputType.DATE_PICKER,
         title = resources.getString(R.string.lmp_date),
-        required = false,
+        required = true,
         max = System.currentTimeMillis(),
         min = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, -LMP_BACKDATE_LIMIT_DAYS)
@@ -182,6 +182,7 @@ class EligibleCoupleTrackingDataset(
     private var lastAntraDose: String? = null
 
     fun getIndexOfIsPregnant() = getIndexById(isPregnant.id)
+    fun getContraceptionMethodId() = methodOfContraception.id
 
     fun setNumberOfChildren(count: Int) {
         numberOfChildren = count
@@ -222,14 +223,14 @@ class EligibleCoupleTrackingDataset(
         methodOfContraception.entries = allOptions.toTypedArray()
     }
 
-    private fun calculateNextAntraDose(): String {
+    private fun calculateNextAntraDose(visitDate: Long): String {
         if (lastAntraInjectionDate == null || lastAntraDose == null) {
             return resources.getStringArray(R.array.antra_doses)[0] // 1st Dose
         }
 
-        val daysSinceLastInjection = ((System.currentTimeMillis() - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
+        val daysSinceLastInjection = ((visitDate - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
 
-        // If gap > 120 days, restart from Dose 1
+        // If gap is more than 120 days between any 2 doses then restart from "Dose-1"
         if (daysSinceLastInjection > ANTRA_MAX_GAP_DAYS) {
             return resources.getStringArray(R.array.antra_doses)[0]
         }
@@ -240,16 +241,23 @@ class EligibleCoupleTrackingDataset(
         return if (currentDoseIndex >= 0 && currentDoseIndex < doses.size - 1) {
             doses[currentDoseIndex + 1]
         } else {
-            doses[0]
+            // After 10th dose, stay on 10th or loop? Usually stays/repeats.
+            doses.last()
         }
     }
 
-    private fun calculateAntraDueDate(injectionDate: Long): Long {
-        // Due date = Injection Date + 76 days (minimum gap)
-        return Calendar.getInstance().apply {
-            timeInMillis = injectionDate
-            add(Calendar.DAY_OF_YEAR, ANTRA_MIN_GAP_DAYS + 1)
-        }.timeInMillis
+    private fun calculateAntraDueDateRange(injectionDate: Long): String {
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = injectionDate
+        
+        cal.add(Calendar.DAY_OF_YEAR, 76)
+        val startDate = getDateFromLong(cal.timeInMillis)
+        
+        cal.timeInMillis = injectionDate
+        cal.add(Calendar.DAY_OF_YEAR, 120)
+        val endDate = getDateFromLong(cal.timeInMillis)
+        
+        return "$startDate to $endDate"
     }
 
     suspend fun setUpPage(
@@ -266,15 +274,10 @@ class EligibleCoupleTrackingDataset(
             isPregnancyTestDone,
         )
 
+        val now = System.currentTimeMillis()
         if (saved == null) {
-            dateOfVisit.value = getDateFromLong(System.currentTimeMillis())
-            dateOfVisit.value?.let {
-                financialYear.value = getFinancialYear(it)
-                month.value = resources.getStringArray(R.array.visit_months)[getMonth(it)!!]
-            }
-
             // Set minimum date for visit (next month after last visit or registration date)
-            dateOfVisit.min = lastTrack?.let {
+            val minDate = lastTrack?.let {
                 Calendar.getInstance().apply {
                     timeInMillis = it.visitDate
                     val currentMonth = get(Calendar.MONTH)
@@ -288,6 +291,18 @@ class EligibleCoupleTrackingDataset(
                     setToStartOfTheDay()
                 }.timeInMillis
             } ?: dateOfReg
+            
+            dateOfVisit.min = minDate
+            // Ensure max is never less than min to avoid DatePicker crash
+            dateOfVisit.max = if (now < minDate) minDate else now
+            
+            // Set initial value within [min, max] range
+            val initialValue = if (now < minDate) minDate else now
+            dateOfVisit.value = getDateFromLong(initialValue)
+            dateOfVisit.value?.let {
+                financialYear.value = getFinancialYear(it)
+                month.value = resources.getStringArray(R.array.visit_months)[getMonth(it)!!]
+            }
 
             // ANTRA dose restart alert is handled in ViewModel/Fragment level
         } else {
@@ -295,6 +310,9 @@ class EligibleCoupleTrackingDataset(
             dateOfVisit.value = getDateFromLong(saved.visitDate)
             financialYear.value = saved.financialYear ?: getFinancialYear(dateOfVisit.value)
             month.value = saved.visitMonth ?: resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
+            
+            // Still refresh max to avoid stale current time
+            dateOfVisit.max = if (now < (dateOfVisit.min ?: 0L)) dateOfVisit.min else now
 
             saved.lmpDate?.let {
                 lmpDate.value = getDateFromLong(it)
@@ -305,36 +323,39 @@ class EligibleCoupleTrackingDataset(
                 list.add(list.indexOf(isPregnancyTestDone) + 1, pregnancyTestResult)
                 pregnancyTestResult.value = saved.pregnancyTestResult
 
-                if (pregnancyTestResult.value == "Negative") {
+                if (pregnancyTestResult.value == "Positive") {
                     list.add(isPregnant)
-                    isPregnant.value = saved.isPregnant
+                    isPregnant.value = "Yes"
+                    isPregnant.isEnabled = false
                 }
-            } else if (isPregnancyTestDone.value == "No") {
-                list.add(usingFamilyPlanning)
+            }
+
+            if (isPregnancyTestDone.value == "No" || pregnancyTestResult.value == "Negative") {
+                if (!list.contains(usingFamilyPlanning)) {
+                    list.add(usingFamilyPlanning)
+                }
                 saved.usingFamilyPlanning?.let {
                     usingFamilyPlanning.value = if (it) "Yes" else "No"
                 }
 
-                if (saved.usingFamilyPlanning == true) {
+                if (usingFamilyPlanning.value == "Yes") {
                     list.add(methodOfContraception)
                     methodOfContraception.value = saved.methodOfContraception
 
                     // Handle ANTRA fields
-                    if (saved.methodOfContraception == ANTRA_INJECTION) {
+                    if (methodOfContraception.value == ANTRA_INJECTION) {
                         list.add(antraDose)
                         list.add(antraInjectionDate)
                         list.add(antraDueDate)
                         antraDose.value = saved.antraDose
                         saved.antraInjectionDate?.let {
                             antraInjectionDate.value = getDateFromLong(it)
-                        }
-                        saved.antraDueDate?.let {
-                            antraDueDate.value = getDateFromLong(it)
+                            antraDueDate.value = calculateAntraDueDateRange(it)
                         }
                     }
 
                     // Handle Sterilization fields
-                    if (saved.methodOfContraception in listOf(MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL)) {
+                    if (methodOfContraception.value in listOf(MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL)) {
                         list.add(dateOfSterilization)
                         saved.dateOfSterilization?.let {
                             dateOfSterilization.value = getDateFromLong(it)
@@ -342,18 +363,15 @@ class EligibleCoupleTrackingDataset(
                     }
 
                     // Handle Any Other Method
-                    if (saved.methodOfContraception !in resources.getStringArray(R.array.method_of_contraception)) {
-                        methodOfContraception.value = resources.getStringArray(R.array.method_of_contraception).last()
+                    val contraceptionOptions = resources.getStringArray(R.array.method_of_contraception)
+                    if (methodOfContraception.value != null && methodOfContraception.value !in contraceptionOptions && methodOfContraception.value != ANTRA_INJECTION) {
+                        methodOfContraception.value = contraceptionOptions.last()
                         list.add(anyOtherMethod)
                         anyOtherMethod.value = saved.anyOtherMethod ?: saved.methodOfContraception
+                    } else if (methodOfContraception.value == contraceptionOptions.last()) {
+                        list.add(anyOtherMethod)
+                        anyOtherMethod.value = saved.anyOtherMethod
                     }
-                }
-            }
-
-            if (saved.isPregnant == "No" && !list.contains(usingFamilyPlanning)) {
-                list.add(usingFamilyPlanning)
-                saved.usingFamilyPlanning?.let {
-                    usingFamilyPlanning.value = if (it) "Yes" else "No"
                 }
             }
         }
@@ -363,172 +381,260 @@ class EligibleCoupleTrackingDataset(
 
     override suspend fun handleListOnValueChanged(formId: Int, index: Int): Int {
         return when (formId) {
-            dateOfVisit.id -> {
-                financialYear.value = getFinancialYear(dateOfVisit.value)
-                month.value = resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
-                -1
-            }
-
-            isPregnancyTestDone.id -> {
-                when (isPregnancyTestDone.value) {
-                    "Yes" -> {
-                        // Show pregnancy test result, hide family planning
-                        clearFamilyPlanningFields()
-                        triggerDependants(
-                            source = isPregnancyTestDone,
-                            passedIndex = index,
-                            triggerIndex = 0,
-                            target = pregnancyTestResult,
-                            targetSideEffect = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
-                        )
-                    }
-                    "No" -> {
-                        // Hide pregnancy test result and isPregnant, show family planning
-                        clearPregnancyFields()
-                        triggerDependants(
-                            source = isPregnancyTestDone,
-                            removeItems = listOf(pregnancyTestResult, isPregnant),
-                            addItems = listOf(usingFamilyPlanning)
-                        )
-                    }
-                    else -> -1
-                }
-            }
-
-            pregnancyTestResult.id -> {
-                when (pregnancyTestResult.value) {
-                    "Positive" -> {
-                        // Auto-set pregnant = Yes, hide family planning
-                        isPregnant.value = "Yes"
-                        isPregnant.isEnabled = false
-                        clearFamilyPlanningFields()
-                        triggerDependants(
-                            source = pregnancyTestResult,
-                            removeItems = listOf(isPregnant, usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
-                            addItems = emptyList()
-                        )
-                    }
-                    "Negative" -> {
-                        // Clear pregnant, enable it, show isPregnant
-                        isPregnant.value = null
-                        isPregnant.isEnabled = true
-                        clearFamilyPlanningFields()
-                        triggerDependants(
-                            source = pregnancyTestResult,
-                            passedIndex = index,
-                            triggerIndex = 1,
-                            target = isPregnant,
-                            targetSideEffect = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
-                        )
-                    }
-                    else -> -1
-                }
-            }
-
-            isPregnant.id -> {
-                when (isPregnant.value) {
-                    "Yes" -> {
-                        // Hide family planning
-                        clearFamilyPlanningFields()
-                        triggerDependants(
-                            source = isPregnant,
-                            removeItems = listOf(usingFamilyPlanning, methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
-                            addItems = emptyList()
-                        )
-                    }
-                    "No" -> {
-                        // Show family planning
-                        triggerDependants(
-                            source = isPregnant,
-                            passedIndex = index,
-                            triggerIndex = 1,
-                            target = usingFamilyPlanning,
-                            targetSideEffect = listOf(methodOfContraception, anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
-                        )
-                    }
-                    else -> -1
-                }
-            }
-
-            usingFamilyPlanning.id -> {
-                triggerDependants(
-                    source = usingFamilyPlanning,
-                    passedIndex = index,
-                    triggerIndex = 0,
-                    target = methodOfContraception,
-                    targetSideEffect = listOf(anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization)
-                )
-            }
-
-            methodOfContraception.id -> {
-                when (methodOfContraception.value) {
-                    ANTRA_INJECTION -> {
-                        // Show ANTRA fields, remove others
-                        anyOtherMethod.value = null
-                        dateOfSterilization.value = null
-                        antraDose.value = calculateNextAntraDose()
-                        triggerDependants(
-                            source = methodOfContraception,
-                            removeItems = listOf(anyOtherMethod, dateOfSterilization),
-                            addItems = listOf(antraDose, antraInjectionDate, antraDueDate)
-                        )
-                    }
-                    MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL -> {
-                        // Show date of sterilization, remove others
-                        anyOtherMethod.value = null
-                        antraDose.value = null
-                        antraInjectionDate.value = null
-                        antraDueDate.value = null
-                        triggerDependants(
-                            source = methodOfContraception,
-                            removeItems = listOf(anyOtherMethod, antraDose, antraInjectionDate, antraDueDate),
-                            addItems = listOf(dateOfSterilization)
-                        )
-                    }
-                    "Any Other Method" -> {
-                        // Show any other method text field, remove others
-                        antraDose.value = null
-                        antraInjectionDate.value = null
-                        antraDueDate.value = null
-                        dateOfSterilization.value = null
-                        triggerDependants(
-                            source = methodOfContraception,
-                            removeItems = listOf(antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
-                            addItems = listOf(anyOtherMethod)
-                        )
-                    }
-                    else -> {
-                        // Remove all conditional fields
-                        anyOtherMethod.value = null
-                        antraDose.value = null
-                        antraInjectionDate.value = null
-                        antraDueDate.value = null
-                        dateOfSterilization.value = null
-                        triggerDependants(
-                            source = methodOfContraception,
-                            removeItems = listOf(anyOtherMethod, antraDose, antraInjectionDate, antraDueDate, dateOfSterilization),
-                            addItems = emptyList()
-                        )
-                    }
-                }
-            }
-
-            antraInjectionDate.id -> {
-                // Calculate and set due date
-                antraInjectionDate.value?.let {
-                    val injectionDateLong = getLongFromDate(it)
-                    val dueDate = calculateAntraDueDate(injectionDateLong)
-                    antraDueDate.value = getDateFromLong(dueDate)
-                }
-                -1
-            }
-
+            dateOfVisit.id -> handleDateOfVisitChange()
+            isPregnancyTestDone.id -> handleIsPregnancyTestDoneChange()
+            pregnancyTestResult.id -> handlePregnancyTestResultChange()
+            isPregnant.id -> handleIsPregnantChange(index)
+            usingFamilyPlanning.id -> handleUsingFamilyPlanningChange(index)
+            methodOfContraception.id -> handleMethodOfContraceptionChange()
+            antraInjectionDate.id -> handleAntraInjectionDateChange()
             anyOtherMethod.id -> {
                 validateAllAlphabetsSpaceOnEditText(anyOtherMethod)
             }
 
             else -> -1
         }
+    }
+
+    private suspend fun handleDateOfVisitChange(): Int {
+        financialYear.value = getFinancialYear(dateOfVisit.value)
+        month.value =
+            resources.getStringArray(R.array.visit_months)[getMonth(dateOfVisit.value)!!]
+        return triggerDependants(
+            source = dateOfVisit,
+            removeItems = emptyList(),
+            addItems = listOf(financialYear, month)
+        )
+    }
+
+    private suspend fun handleIsPregnancyTestDoneChange(): Int {
+        return when (isPregnancyTestDone.value) {
+            "Yes" -> {
+                clearFamilyPlanningFields()
+                triggerDependants(
+                    source = isPregnancyTestDone,
+                    removeItems = listOf(
+                        usingFamilyPlanning,
+                        methodOfContraception,
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    ),
+                    addItems = listOf(pregnancyTestResult)
+                )
+            }
+
+            "No" -> {
+                clearPregnancyFields()
+                triggerDependants(
+                    source = isPregnancyTestDone,
+                    removeItems = listOf(pregnancyTestResult, isPregnant),
+                    addItems = listOf(usingFamilyPlanning)
+                )
+            }
+
+            else -> -1
+        }
+    }
+
+    private suspend fun handlePregnancyTestResultChange(): Int {
+        return when (pregnancyTestResult.value) {
+            "Positive" -> {
+                isPregnant.value = "Yes"
+                isPregnant.isEnabled = false
+                clearFamilyPlanningFields()
+                triggerDependants(
+                    source = pregnancyTestResult,
+                    removeItems = listOf(
+                        usingFamilyPlanning,
+                        methodOfContraception,
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    ),
+                    addItems = listOf(isPregnant)
+                )
+            }
+
+            "Negative" -> {
+                isPregnant.value = "No"
+                clearFamilyPlanningFields()
+                triggerDependants(
+                    source = pregnancyTestResult,
+                    removeItems = listOf(isPregnant),
+                    addItems = listOf(usingFamilyPlanning)
+                )
+            }
+
+            else -> -1
+        }
+    }
+
+    private suspend fun handleIsPregnantChange(index: Int): Int {
+        return when (isPregnant.value) {
+            "Yes" -> {
+                clearFamilyPlanningFields()
+                triggerDependants(
+                    source = isPregnant,
+                    removeItems = listOf(
+                        usingFamilyPlanning,
+                        methodOfContraception,
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    ),
+                    addItems = emptyList()
+                )
+            }
+
+            "No" -> {
+                triggerDependants(
+                    source = isPregnant,
+                    passedIndex = index,
+                    triggerIndex = 1,
+                    target = usingFamilyPlanning,
+                    targetSideEffect = listOf(
+                        methodOfContraception,
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    )
+                )
+            }
+
+            else -> -1
+        }
+    }
+
+    private suspend fun handleUsingFamilyPlanningChange(index: Int): Int {
+        return triggerDependants(
+            source = usingFamilyPlanning,
+            passedIndex = index,
+            triggerIndex = 0,
+            target = methodOfContraception,
+            targetSideEffect = listOf(
+                anyOtherMethod,
+                antraDose,
+                antraInjectionDate,
+                antraDueDate,
+                dateOfSterilization
+            )
+        )
+    }
+
+    private suspend fun handleMethodOfContraceptionChange(): Int {
+        return when (methodOfContraception.value) {
+            ANTRA_INJECTION -> {
+                anyOtherMethod.value = null
+                dateOfSterilization.value = null
+                antraDose.value = calculateNextAntraDose(getLongFromDate(dateOfVisit.value))
+
+                val now = System.currentTimeMillis()
+                if (antraDose.value == resources.getStringArray(R.array.antra_doses)[0]) {
+                    antraInjectionDate.min = Calendar.getInstance().apply {
+                        add(Calendar.DAY_OF_YEAR, -ANTRA_BACKDATE_LIMIT_DAYS)
+                    }.timeInMillis
+                } else {
+                    antraInjectionDate.min = lastAntraInjectionDate ?: 0L
+                }
+                antraInjectionDate.max =
+                    if (now < (antraInjectionDate.min ?: 0L)) antraInjectionDate.min else now
+
+                triggerDependants(
+                    source = methodOfContraception,
+                    removeItems = listOf(anyOtherMethod, dateOfSterilization),
+                    addItems = listOf(antraDose, antraInjectionDate, antraDueDate)
+                )
+            }
+
+            MALE_STERILIZATION_VAL, FEMALE_STERILIZATION_VAL, MINILAP_VAL -> {
+                anyOtherMethod.value = null
+                antraDose.value = null
+                antraInjectionDate.value = null
+                antraDueDate.value = null
+
+                val now = System.currentTimeMillis()
+                dateOfSterilization.max =
+                    if (now < (dateOfSterilization.min ?: 0L)) dateOfSterilization.min else now
+
+                triggerDependants(
+                    source = methodOfContraception,
+                    removeItems = listOf(
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate
+                    ),
+                    addItems = listOf(dateOfSterilization)
+                )
+            }
+
+            "Any Other Method" -> {
+                antraDose.value = null
+                antraInjectionDate.value = null
+                antraDueDate.value = null
+                dateOfSterilization.value = null
+                triggerDependants(
+                    source = methodOfContraception,
+                    removeItems = listOf(
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    ),
+                    addItems = listOf(anyOtherMethod)
+                )
+            }
+
+            else -> {
+                anyOtherMethod.value = null
+                antraDose.value = null
+                antraInjectionDate.value = null
+                antraDueDate.value = null
+                dateOfSterilization.value = null
+                triggerDependants(
+                    source = methodOfContraception,
+                    removeItems = listOf(
+                        anyOtherMethod,
+                        antraDose,
+                        antraInjectionDate,
+                        antraDueDate,
+                        dateOfSterilization
+                    ),
+                    addItems = emptyList()
+                )
+            }
+        }
+    }
+
+    private suspend fun handleAntraInjectionDateChange(): Int {
+        antraInjectionDate.value?.let {
+            val injectionDateLong = getLongFromDate(it)
+            antraDueDate.value = calculateAntraDueDateRange(injectionDateLong)
+
+            if (antraDose.value != resources.getStringArray(R.array.antra_doses)[0] && lastAntraInjectionDate != null) {
+                val gap =
+                    ((injectionDateLong - lastAntraInjectionDate!!) / (1000 * 60 * 60 * 24)).toInt()
+                if (gap < 75 || gap > 120) {
+                    antraInjectionDate.errorText = "Gap between doses should be 75-120 days"
+                } else {
+                    antraInjectionDate.errorText = null
+                }
+            }
+        }
+        return triggerDependants(
+            source = antraInjectionDate,
+            removeItems = emptyList(),
+            addItems = listOf(antraDueDate)
+        )
     }
 
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
@@ -555,7 +661,11 @@ class EligibleCoupleTrackingDataset(
             if (methodOfContraception.value == ANTRA_INJECTION) {
                 form.antraDose = antraDose.value
                 form.antraInjectionDate = antraInjectionDate.value?.let { getLongFromDate(it) }
-                form.antraDueDate = antraDueDate.value?.let { getLongFromDate(it) }
+                // Save the first date of the range to database
+                form.antraDueDate = antraDueDate.value?.let { 
+                    val firstDateStr = it.split(" to ")[0]
+                    getLongFromDate(firstDateStr)
+                }
             } else {
                 form.antraDose = null
                 form.antraInjectionDate = null

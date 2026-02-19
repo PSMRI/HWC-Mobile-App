@@ -157,8 +157,8 @@ class PatientItemAdapter(
             } else {
                 binding.llBenId.visibility = View.GONE
             }
-            
-            if (item.patient.syncState == SyncState.SYNCED) {
+
+            if (item.patient.syncState == SyncState.SYNCED ) {
                 //  binding.ivSyncState.visibility = View.VISIBLE
                 binding.btnAbha.isEnabled = true
             } else {
@@ -201,6 +201,7 @@ class PatientItemAdapter(
         private val clickedEsanjeevani: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val clickedDownloadPrescription: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
         private val syncIconButton: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit,
+        private val clickedEdit: (benVisitInfo: PatientDisplayWithVisitInfo) -> Unit
     ) {
         fun onClickedBen(item: PatientDisplayWithVisitInfo) = clickedBen(
             item,
@@ -221,6 +222,9 @@ class PatientItemAdapter(
 
         fun onClickSync(item: PatientDisplayWithVisitInfo) {
             syncIconButton(item)
+        }
+        fun onClickEdit(item: PatientDisplayWithVisitInfo) {
+            clickedEdit(item)
         }
     }
 

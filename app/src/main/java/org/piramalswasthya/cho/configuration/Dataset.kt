@@ -40,9 +40,17 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
      * Helper function to get resource instance chosen language.
      */
 
-    protected companion object {
+    companion object {
+        const val DATE_FORMAT_DD_MM_YYYY = "dd/MM/yyyy"
+
         fun getLongFromDate(dateString: String?): Long {
             val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
+            val date = dateString?.let { f.parse(it) }
+            return date?.time ?: 0L
+        }
+
+        fun getLongFromDate(dateString: String?, format: String): Long {
+            val f = SimpleDateFormat(format, Locale.ENGLISH)
             val date = dateString?.let { f.parse(it) }
             return date?.time ?: 0L
         }
@@ -52,9 +60,9 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             val date = dateString?.let { f.parse(it) }
             return date?.let {
                 if (it.month >= 3) {
-                    "" + (it.year + 1900) + " - " + (it.year + 1902)
+                    "" + (it.year + 1900) + " - " + (it.year + 1901)
                 } else {
-                    "" + (it.year + 1899) + " - " + (it.year + 1901)
+                    "" + (it.year + 1899) + " - " + (it.year + 1900)
                 }
             }
         }
@@ -75,8 +83,14 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
             cal.timeInMillis = dateLong
             val f = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH)
             return f.format(cal.time)
+        }
 
-
+        fun getDateFromLong(dateLong: Long, format: String): String? {
+            if (dateLong == 0L) return null
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = dateLong
+            val f = SimpleDateFormat(format, Locale.ENGLISH)
+            return f.format(cal.time)
         }
 
         fun getMinDateOfReg(): Long {
@@ -120,22 +134,34 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
     abstract fun mapValues(cacheModel: FormDataModel, pageNumber: Int = 0)
     protected fun getIndexOfElement(element: FormElement) = list.indexOf(element)
     suspend fun updateList(formId: Int, index: Int) {
-        list.find { it.id == formId }?.let {
+        val formElement = list.find { it.id == formId }
+        val previousErrorText = formElement?.errorText
+        formElement?.let {
             if (it.inputType == InputType.DROPDOWN) {
                 it.errorText = null
             }
         }
         val updateIndex = handleListOnValueChanged(formId, index)
-        if (updateIndex != -1) {
+        val currentErrorText = formElement?.errorText
+        val errorStateChanged = previousErrorText != currentErrorText
+        
+        // Emit list if:
+        // 1. updateIndex != -1 (list structure changed - fields added/removed), OR
+        // 2. Error state changed (for validation feedback)
+        // NOTE: We don't emit when only value changes (not error) to prevent unnecessary rebinds
+        // that could reset EditText fields while user is typing
+        if (updateIndex != -1 || errorStateChanged) {
             val newList = list.toMutableList()
 //            if (updateUIForCurrentElement) {
 //                Timber.d("Updating UI element ...")
 //                newList[updateIndex] = list[updateIndex].cloneForm()
 //                updateUIForCurrentElement = false
 //            }
-            Timber.d("Emitting ${newList}}")
+            Timber.d("Emitting list (updateIndex=$updateIndex, errorChanged=$errorStateChanged)")
 //            _listFlow.emit(emptyList())
             _listFlow.emit(newList)
+        } else {
+            Timber.d("Skipping list emission (only value changed, no structural or error changes)")
         }
     }
 

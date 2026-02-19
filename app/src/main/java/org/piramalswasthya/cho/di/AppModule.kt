@@ -19,6 +19,7 @@ import org.piramalswasthya.cho.database.room.dao.CaseRecordeDao
 import org.piramalswasthya.cho.database.room.dao.CbacDao
 import org.piramalswasthya.cho.database.room.dao.ChiefComplaintMasterDao
 import org.piramalswasthya.cho.database.room.dao.DeliveryOutcomeDao
+import org.piramalswasthya.cho.database.room.dao.NeonatalOutcomeDao
 import org.piramalswasthya.cho.database.room.dao.DistrictMasterDao
 import org.piramalswasthya.cho.database.room.dao.EcrDao
 import org.piramalswasthya.cho.database.room.dao.GovIdEntityMasterDao
@@ -29,6 +30,7 @@ import org.piramalswasthya.cho.database.room.dao.InfantRegDao
 import org.piramalswasthya.cho.database.room.dao.InvestigationDao
 import org.piramalswasthya.cho.database.room.dao.LanguageDao
 import org.piramalswasthya.cho.database.room.dao.LoginSettingsDataDao
+import org.piramalswasthya.cho.database.room.dao.AshaDueListDao
 import org.piramalswasthya.cho.database.room.dao.MaternalHealthDao
 import org.piramalswasthya.cho.database.room.dao.OtherGovIdEntityMasterDao
 import org.piramalswasthya.cho.database.room.dao.OutreachDao
@@ -42,6 +44,7 @@ import org.piramalswasthya.cho.database.room.dao.ProcedureMasterDao
 import org.piramalswasthya.cho.database.room.dao.ReferRevisitDao
 import org.piramalswasthya.cho.database.room.dao.RegistrarMasterDataDao
 import org.piramalswasthya.cho.database.room.dao.StateMasterDao
+import org.piramalswasthya.cho.database.room.dao.StatusOfWomanDao
 import org.piramalswasthya.cho.database.room.dao.SubCatVisitDao
 import org.piramalswasthya.cho.database.room.dao.UserAuthDao
 import org.piramalswasthya.cho.database.room.dao.UserDao
@@ -124,7 +127,7 @@ object AppModule {
             .addInterceptor(TokenESanjeevaniInterceptor())
             .build()
     }
-//
+    //
     @Singleton
     @Provides
     @Named("abhaClient")
@@ -139,20 +142,20 @@ object AppModule {
     }
 
 
-@Singleton
-@Provides
-fun provideESanjeevaniApiService(
-    moshi: Moshi,
-    @Named("eSanjeevaniClient") httpClient: OkHttpClient
-): ESanjeevaniApiService {
-    return Retrofit.Builder()
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
+    @Singleton
+    @Provides
+    fun provideESanjeevaniApiService(
+        moshi: Moshi,
+        @Named("eSanjeevaniClient") httpClient: OkHttpClient
+    ): ESanjeevaniApiService {
+        return Retrofit.Builder()
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
 //            .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl(sanjeevaniApi)
-        .client(httpClient)
-        .build()
-        .create(ESanjeevaniApiService::class.java)
-}
+            .baseUrl(sanjeevaniApi)
+            .client(httpClient)
+            .build()
+            .create(ESanjeevaniApiService::class.java)
+    }
 
     @Singleton
     @Provides
@@ -183,7 +186,7 @@ fun provideESanjeevaniApiService(
             .build()
             .create(FlwApiService::class.java)
     }
-//
+    //
     @Singleton
     @Provides
     fun provideAbhaApiService(
@@ -309,11 +312,19 @@ fun provideESanjeevaniApiService(
 
     @Singleton
     @Provides
+    fun provideAshaDueListDao(database: InAppDb): AshaDueListDao = database.ashaDueListDao
+
+    @Singleton
+    @Provides
     fun provideImmunizationDao(database: InAppDb): ImmunizationDao = database.immunizationDao
 
     @Singleton
     @Provides
     fun provideDeliveryOutcomeDao(database: InAppDb): DeliveryOutcomeDao = database.deliveryOutcomeDao
+
+    @Singleton
+    @Provides
+    fun provideNeonatalOutcomeDao(database: InAppDb): NeonatalOutcomeDao = database.neonatalOutcomeDao
 
     @Singleton
     @Provides
@@ -354,4 +365,8 @@ fun provideESanjeevaniApiService(
     @Singleton
     @Provides
     fun provideCbacDao(database: InAppDb): CbacDao = database.cbacDao
+
+    @Singleton
+    @Provides
+    fun provideStatusOfWomanDao(database: InAppDb): StatusOfWomanDao = database.statusOfWomanDao
 }
