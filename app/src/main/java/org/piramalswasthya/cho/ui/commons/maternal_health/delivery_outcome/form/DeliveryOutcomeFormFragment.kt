@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -54,7 +53,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
             if (recordExists == true) {
                 // Record already filled → show "Back" button, navigate back
                 binding.btnSubmit.text = getString(R.string.back)
-                binding.btnSubmit.setOnClickListener { findNavController().navigateUp() }
+                binding.btnSubmit.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
             } else {
                 // No record yet → show "Register" button, validate & save on click
                 binding.btnSubmit.text = getString(R.string.register)
@@ -115,7 +114,7 @@ class DeliveryOutcomeFormFragment : Fragment() {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     viewModel.resetState()
-                    findNavController().navigateUp()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
                 State.SAVE_FAILED -> {
                     binding.llContent.visibility = View.VISIBLE

@@ -85,7 +85,7 @@ class PNCMotherListFragment : Fragment() {
                 // PNC module opens only after Date of Discharge is entered in Delivery Outcome
                 allPatients = patientsList
                     .map { it.asDomainModel() }
-                    .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: 0L }
+                    .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: it.patient.registrationDate?.time ?: 0L }
 
                 filteredPatients = allPatients
                 updateUI()

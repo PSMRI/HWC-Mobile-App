@@ -118,9 +118,22 @@ class PncFormViewModel @Inject constructor(
             }
             deliveryOutcome = deliveryOutcomeRepo.getDeliveryOutcome(patientID)
             if (deliveryOutcome == null) {
-                Timber.e("Delivery outcome not found for patient $patientID")
-                _state.postValue(State.SAVE_FAILED)
-                return@launch
+                val patientRecord = ben?.patient ?: patientRepo.getPatient(patientID)
+                val fallbackMillis = patientRecord.registrationDate?.time ?: System.currentTimeMillis()
+                Timber.e(
+                    "Delivery outcome not found for patient %s. Using registrationDate=%s for PNC form only",
+                    patientID,
+                    fallbackMillis
+                )
+                deliveryOutcome = DeliveryOutcomeCache(
+                    patientID = patientID,
+                    isActive = true,
+                    dateOfDelivery = fallbackMillis,
+                    dateOfDischarge = fallbackMillis,
+                    createdBy = asha.userName,
+                    updatedBy = asha.userName,
+                    syncState = SyncState.UNSYNCED
+                )
             }
             
             pncRepo.getSavedPncRecord(patientID, visitNumber)?.let {
