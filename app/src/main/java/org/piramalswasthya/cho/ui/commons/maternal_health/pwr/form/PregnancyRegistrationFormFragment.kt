@@ -319,6 +319,11 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
                         viewModel.clearNavigation()
                     }
 
+                    is PregnancyRegistrationFormViewModel.NavigationEvent.NavigateUp -> {
+                        findNavController().navigateUp()
+                        viewModel.clearNavigation()
+                    }
+
                     is PregnancyRegistrationFormViewModel.NavigationEvent.ToVitalsAndPrescription -> {
                         findNavController().navigateUp()
                         viewModel.clearNavigation()
