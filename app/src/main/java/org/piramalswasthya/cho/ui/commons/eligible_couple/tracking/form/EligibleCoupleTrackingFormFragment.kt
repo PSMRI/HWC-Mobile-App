@@ -225,7 +225,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
             ).show()
             saveNurseDataInBackground()
             viewModel.resetState()
-            navigateToPregnancyRegistration()
+            navigateBackToList()
             return
         }
         // If no alert to show, proceed directly
@@ -243,43 +243,6 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         }
         // Alerts will be handled by the observer
     }
-
-    private fun navigateToPregnancyRegistration() {
-        val bundle = Bundle().apply {
-            putString("patientID", viewModel.patientID)
-            putBoolean("fromECT", true)
-        }
-        
-        // Attempt standard navigation first
-        val navController = try { findNavController() } catch (e: Exception) { null }
-        
-        if (navController != null) {
-            try {
-                navController.navigate(R.id.action_eligibleCoupleTrackingFormFragment_to_pregnantWomanRegistrationFragment, bundle)
-                return
-            } catch (e: Exception) {
-                Timber.e(e, "Standard navigation via NavController failed")
-            }
-        }
-        
-        // Fallback: Use manual fragment transaction if NavController is not available or failed
-        Timber.i("Performing manual fragment transaction for pregnancy registration")
-        try {
-            val fragment = org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment().apply {
-                arguments = bundle
-            }
-            
-            requireActivity().supportFragmentManager.commit {
-                replace(R.id.fragment_container, fragment)
-                addToBackStack(null)
-            }
-        } catch (ex: Exception) {
-            Timber.e(ex, "Manual navigation fallback failed")
-            Toast.makeText(requireContext(), "Unable to open registration form", Toast.LENGTH_SHORT).show()
-            navigateBackToList()
-        }
-    }
-
     private fun navigateBackToList() {
         if (!isAdded || isRemoving) return
 
@@ -296,7 +259,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 val bundle = Bundle().apply {
                     putSerializable("benVisitInfo", benVisitInfo)
                 }
-                findNavController().navigate(R.id.action_eligibleCoupleTrackingFormFragment_to_fhirVisitDetailsFragment, bundle)
+//                findNavController().navigate(R.id.action_eligibleCoupleTrackingFormFragment_to_fhirVisitDetailsFragment, bundle)
                 return
             } catch (e: Exception) {
                 Timber.e(e, "NavController navigate to Visit Details failed")

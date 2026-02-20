@@ -100,9 +100,7 @@ class NeonatalOutcomeFormFragment : Fragment() {
     private fun navigateToVitals() {
         try {
             // Navigate to vitals screen
-            val action = NeonatalOutcomeFormFragmentDirections
-                .actionNeonatalOutcomeFormFragmentToCustomVitalsFragment()
-            findNavController().navigate(action)
+            findNavController().navigateUp()
         } catch (e: Exception) {
             Timber.e(e, "Navigation error")
             // Fallback: just go back

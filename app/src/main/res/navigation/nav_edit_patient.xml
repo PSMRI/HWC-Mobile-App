@@ -24,12 +24,8 @@
             android:id="@+id/action_fhirVisitDetailsFragment_to_pwAncFormFragment"
             app:destination="@id/pwAncFormFragment" />
         <action
-            android:id="@+id/action_fhirVisitDetailsFragment_to_deliveryOutcomeFormFragment"
-            app:destination="@id/deliveryOutcomeFormFragment" />
-        <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_pncFormFragment"
             app:destination="@id/pncFormFragment" />
-
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_immunizationFormFragment"
             app:destination="@id/immunizationFormFragment" />
@@ -39,9 +35,6 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_cbacFragment"
             app:destination="@id/cbacFragment" />
-        <action
-            android:id="@+id/action_fhirVisitDetailsFragment_to_pregnantWomanRegistrationFragment"
-            app:destination="@id/pregnantWomanRegistrationFragment" />
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_ophthalmicScreeningFragment"
             app:destination="@id/ophthalmicScreeningFragment" />
@@ -55,9 +48,6 @@
         <action
             android:id="@+id/action_customVitalsFragment_to_caseRecordCustom"
             app:destination="@id/caseRecordCustom" />
-        <action
-            android:id="@+id/action_customVitalsFragment_to_pharmacistFormFragment"
-            app:destination="@id/pharmacistFormFragment" />
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
@@ -150,9 +140,6 @@
         <argument
             android:name="isOldVisit"
             app:argType="boolean" />
-        <action
-            android:id="@+id/action_pwAncFormFragment_to_customVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
     </fragment>
 
     <fragment
@@ -165,9 +152,6 @@
         <argument
             android:name="visitNumber"
             app:argType="integer" />
-        <action
-            android:id="@+id/action_deliveryOutcomeFormFragment_to_customVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
         <action
             android:id="@+id/action_deliveryOutcomeFormFragment_to_neonatalOutcomeFormFragment"
             app:destination="@id/neonatalOutcomeFormFragment" />
@@ -226,55 +210,7 @@
         <argument
             android:name="createdDate"
             app:argType="long" />
-        <argument
-            android:name="fromVisitDetails"
-            app:argType="boolean"
-            android:defaultValue="false" />
-        <action
-            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_fhirVisitDetailsFragment"
-            app:destination="@id/fhirVisitDetailsFragment"
-            app:popUpTo="@id/fhirVisitDetailsFragment"
-            app:popUpToInclusive="false" />
-        <action
-            android:id="@+id/action_eligibleCoupleTrackingFormFragment_to_pregnantWomanRegistrationFragment"
-            app:destination="@id/pregnantWomanRegistrationFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/pregnantWomanRegistrationFragment"
-        android:name="org.piramalswasthya.cho.ui.commons.maternal_health.pregnant_women_registration.form.PregnantWomanRegistrationFragment"
-        android:label="@string/icon_title_pmr">
-
-        <argument
-            android:name="patientID"
-            app:argType="string" />
-
-        <argument
-            android:name="benId"
-            app:argType="string" />
-
-        <argument
-            android:name="fromVisitDetails"
-            app:argType="boolean"
-            android:defaultValue="false" />
-        <action
-            android:id="@+id/action_pregnantWomanRegistrationFragment_to_customVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
-        <action
-            android:id="@+id/action_pregnantWomanRegistrationFragment_to_patientHomeFragment"
-            app:destination="@id/patientHomeFragment"
-            app:popUpTo="@id/patientHomeFragment"
-            app:popUpToInclusive="false" />
-        <action
-            android:id="@+id/action_pregnantWomanRegistrationFragment_to_eligibleCoupleTrackingFormFragment"
-            app:destination="@id/eligibleCoupleTrackingFormFragment" />
-        <action
-            android:id="@+id/action_pregnantWomanRegistrationFragment_to_fhirVisitDetailsFragment"
-            app:destination="@id/fhirVisitDetailsFragment"
-            app:popUpTo="@id/fhirVisitDetailsFragment"
-            app:popUpToInclusive="false" />
-    </fragment>
-
-
     <fragment
         android:id="@+id/cbacFragment"
         android:name="org.piramalswasthya.cho.ui.commons.cbac.CbacFragment"
@@ -309,10 +245,6 @@
         <argument
             android:name="babyIndex"
             app:argType="integer" />
-        <action
-            android:id="@+id/action_neonatalOutcomeFormFragment_to_customVitalsFragment"
-            app:destination="@id/customVitalsFragment" />
     </fragment>
-
 
 </navigation>
