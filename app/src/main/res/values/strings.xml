@@ -145,6 +145,9 @@
     <string name="ophthalmic_dist_va_right">Distance Visual Acuity \u2013 Right Eye <font color="#FF0000">*</font></string>
     <string name="ophthalmic_dist_va_left">Distance Visual Acuity \u2013 Left Eye <font color="#FF0000">*</font></string>
     <string name="ophthalmic_visual_impairment_alert">Suspected visual impairment, Case Identification Module enabled</string>
+    <string name="ophthalmic_va_chart_used">Visual Acuity Chart Used <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_va">Near Visual Acuity <font color="#FF0000">*</font></string>
+    <string name="ophthalmic_near_vision_alert">Reduced near vision detected, Case Identification Module enabled</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

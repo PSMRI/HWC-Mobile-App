@@ -77,7 +77,6 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Question 1: Is patient diabetic? -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -98,7 +97,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/yes"
                     android:onClick="@{() -> viewModel.setDiabeticStatus(true)}"
-                    android:checked="@{viewModel.isDiabetic == true}"
                     android:layout_marginEnd="16dp"/>
 
                 <RadioButton
@@ -106,16 +104,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/no"
-                    android:onClick="@{() -> viewModel.setDiabeticStatus(false)}"
-                    android:checked="@{viewModel.isDiabetic == false}"/>
+                    android:onClick="@{() -> viewModel.setDiabeticStatus(false)}"/>
             </RadioGroup>
 
-            <!-- Question 2: Screening Performed? (Only if Diabetic) -->
             <LinearLayout
+                android:id="@+id/ll_screening_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="@{viewModel.isDiabetic == true ? View.VISIBLE : View.GONE}">
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -151,12 +148,36 @@
 
             </LinearLayout>
 
-            <!-- Question 3: VA Charts (Only if Screening Performed = Yes) -->
+            <LinearLayout
+                android:id="@+id/ll_va_chart_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actv_va_chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/ophthalmic_va_chart_used"
+                        android:inputType="none"
+                        android:text="@{viewModel.visualAcuityChartUsed}"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="@{viewModel.isDiabetic == true &amp;&amp; viewModel.isScreeningPerformed == true ? View.VISIBLE : View.GONE}">
+                android:visibility="@{viewModel.showDistanceVA ? View.VISIBLE : View.GONE}">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -168,7 +189,7 @@
                         android:id="@+id/actv_dist_va_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                         android:hint="@string/ophthalmic_dist_va_right"
+                        android:hint="@string/ophthalmic_dist_va_right"
                         android:inputType="none"
                         android:text="@{viewModel.distVARight}"/>
 
@@ -184,7 +205,7 @@
                         android:id="@+id/actv_dist_va_left"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                         android:hint="@string/ophthalmic_dist_va_left"
+                        android:hint="@string/ophthalmic_dist_va_left"
                         android:inputType="none"
                         android:text="@{viewModel.distVALeft}"/>
 
@@ -192,16 +213,50 @@
 
             </LinearLayout>
 
-            <!-- Alert: Suspected Visual Impairment -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="@{viewModel.showNearVA ? View.VISIBLE : View.GONE}">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actv_near_va"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/ophthalmic_near_va"
+                        android:inputType="none"
+                        android:text="@{viewModel.nearVA}"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ophthalmic_visual_impairment_alert"
-                android:textColor="#D32F2F"
+                android:textColor="@color/alert_text_color"
                 android:textStyle="bold"
                 android:padding="8dp"
-                android:background="#FFEBEE"
+                android:background="@color/alert_background"
                 android:visibility="@{viewModel.showVisualImpairmentAlert ? View.VISIBLE : View.GONE}"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ophthalmic_near_vision_alert"
+                android:textColor="@color/alert_text_color"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:background="@color/alert_background"
+                android:visibility="@{viewModel.showNearVisionAlert ? View.VISIBLE : View.GONE}"
                 android:layout_marginBottom="16dp"/>
 
             <Button

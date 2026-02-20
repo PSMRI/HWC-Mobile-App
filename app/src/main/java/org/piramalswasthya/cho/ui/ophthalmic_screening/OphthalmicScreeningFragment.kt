@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -38,6 +39,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
         setupDropdowns()
         setupClickListeners()
         setupObservers()
@@ -49,12 +51,20 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
 
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCancelAction()
+            }
+        }
+    }
+
     private fun setupDropdowns() {
         val vaValues = DropdownConst.visualAcuityList
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaValues)
+        val vaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaValues)
 
-        binding.actvDistVaRight.setAdapter(adapter)
-        binding.actvDistVaLeft.setAdapter(adapter)
+        binding.actvDistVaRight.setAdapter(vaAdapter)
+        binding.actvDistVaLeft.setAdapter(vaAdapter)
 
         binding.actvDistVaRight.setOnItemClickListener { _, _, position, _ ->
             viewModel.setDistVARight(vaValues[position])
@@ -62,6 +72,26 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
         binding.actvDistVaLeft.setOnItemClickListener { _, _, position, _ ->
             viewModel.setDistVALeft(vaValues[position])
+        }
+
+        // Visual Acuity Chart Used dropdown
+        val chartValues = DropdownConst.visualAcuityChartList
+        val chartAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, chartValues)
+        binding.actvVaChart.setAdapter(chartAdapter)
+        binding.actvVaChart.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setVisualAcuityChart(chartValues[position])
+            // Clear displayed text for downstream dropdowns
+            binding.actvDistVaRight.setText("", false)
+            binding.actvDistVaLeft.setText("", false)
+            binding.actvNearVa.setText("", false)
+        }
+
+        // Near Visual Acuity dropdown
+        val nearValues = DropdownConst.nearVisualAcuityList
+        val nearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nearValues)
+        binding.actvNearVa.setAdapter(nearAdapter)
+        binding.actvNearVa.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setNearVA(nearValues[position])
         }
     }
 
@@ -83,8 +113,39 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
     
+    private var previousDiabeticState: Boolean? = null
+    private var isDiabeticInitialized = false
+
     private fun setupObservers() {
-        // Observe any specific events if needed
+        viewModel.isDiabetic.observe(viewLifecycleOwner) { isDiabetic ->
+            when (isDiabetic) {
+                null -> {
+                    binding.rgIsDiabetic.clearCheck()
+                    binding.llScreeningSection.visibility = View.GONE
+                    binding.llVaChartSection.visibility = View.GONE
+                }
+                true -> {
+                    binding.rgIsDiabetic.check(R.id.rb_diabetic_yes)
+                    binding.llScreeningSection.visibility = View.VISIBLE
+                    binding.llVaChartSection.visibility = View.GONE
+                }
+                false -> {
+                    binding.rgIsDiabetic.check(R.id.rb_diabetic_no)
+                    binding.llScreeningSection.visibility = View.GONE
+                    binding.llVaChartSection.visibility = View.VISIBLE
+                }
+            }
+            // Only clear dropdown text when transitioning from a previous state,
+            // not on the initial emission which would overwrite data-binding values.
+            if (isDiabeticInitialized && previousDiabeticState != isDiabetic) {
+                binding.actvVaChart.setText("", false)
+                binding.actvDistVaRight.setText("", false)
+                binding.actvDistVaLeft.setText("", false)
+                binding.actvNearVa.setText("", false)
+            }
+            previousDiabeticState = isDiabetic
+            isDiabeticInitialized = true
+        }
     }
 
     // --- NavigationAdapter ---
