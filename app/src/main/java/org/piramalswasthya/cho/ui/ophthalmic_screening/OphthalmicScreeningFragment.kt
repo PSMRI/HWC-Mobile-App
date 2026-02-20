@@ -113,6 +113,9 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
     
+    private var previousDiabeticState: Boolean? = null
+    private var isDiabeticInitialized = false
+
     private fun setupObservers() {
         viewModel.isDiabetic.observe(viewLifecycleOwner) { isDiabetic ->
             when (isDiabetic) {
@@ -132,10 +135,16 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
                     binding.llVaChartSection.visibility = View.VISIBLE
                 }
             }
-            binding.actvVaChart.setText("", false)
-            binding.actvDistVaRight.setText("", false)
-            binding.actvDistVaLeft.setText("", false)
-            binding.actvNearVa.setText("", false)
+            // Only clear dropdown text when transitioning from a previous state,
+            // not on the initial emission which would overwrite data-binding values.
+            if (isDiabeticInitialized && previousDiabeticState != isDiabetic) {
+                binding.actvVaChart.setText("", false)
+                binding.actvDistVaRight.setText("", false)
+                binding.actvDistVaLeft.setText("", false)
+                binding.actvNearVa.setText("", false)
+            }
+            previousDiabeticState = isDiabetic
+            isDiabeticInitialized = true
         }
     }
 
