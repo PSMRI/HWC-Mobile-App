@@ -82,15 +82,10 @@ class PNCMotherListFragment : Fragment() {
     private fun observePatients() {
         lifecycleScope.launch {
             pncRepo.getAllPNCMothers().collectLatest { patientsList ->
-                // Filter for PNC-eligible mothers
                 // PNC module opens only after Date of Discharge is entered in Delivery Outcome
                 allPatients = patientsList
                     .map { it.asDomainModel() }
-                    .filter { domain ->
-                        // Additional eligibility check
-                        domain.isEligibleForPNC()
-                    }
-                    .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: 0L }
+                    .sortedByDescending { it.deliveryOutcome?.dateOfDelivery ?: it.patient.registrationDate?.time ?: 0L }
 
                 filteredPatients = allPatients
                 updateUI()
