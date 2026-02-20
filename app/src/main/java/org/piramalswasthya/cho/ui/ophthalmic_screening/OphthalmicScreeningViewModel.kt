@@ -33,7 +33,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _ophthalmicVisit = MutableLiveData<OphthalmicVisit?>()
     val ophthalmicVisit: LiveData<OphthalmicVisit?> = _ophthalmicVisit
 
-    private val _isDiabetic = MutableLiveData<Boolean?>()
+    private val _isDiabetic = MutableLiveData<Boolean?>(null)
     val isDiabetic: LiveData<Boolean?> = _isDiabetic
 
     private val _isScreeningPerformed = MutableLiveData<Boolean?>()
@@ -45,15 +45,31 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _distVALeft = MutableLiveData<String?>()
     val distVALeft: LiveData<String?> = _distVALeft
 
+    private val _visualAcuityChartUsed = MutableLiveData<String?>()
+    val visualAcuityChartUsed: LiveData<String?> = _visualAcuityChartUsed
+
+    private val _nearVA = MutableLiveData<String?>()
+    val nearVA: LiveData<String?> = _nearVA
+
     private val _showVisualImpairmentAlert = MutableLiveData<Boolean>()
     val showVisualImpairmentAlert: LiveData<Boolean> = _showVisualImpairmentAlert
 
+    private val _showNearVisionAlert = MutableLiveData<Boolean>()
+    val showNearVisionAlert: LiveData<Boolean> = _showNearVisionAlert
+
     private val _enableCaseIdentification = MutableLiveData<Boolean>()
     val enableCaseIdentification: LiveData<Boolean> = _enableCaseIdentification
-    
+
     // Validation State
     private val _canProceed = MutableLiveData<Boolean>(false)
     val canProceed: LiveData<Boolean> = _canProceed
+
+    // Visibility State
+    private val _showDistanceVA = MutableLiveData<Boolean>(false)
+    val showDistanceVA: LiveData<Boolean> = _showDistanceVA
+
+    private val _showNearVA = MutableLiveData<Boolean>(false)
+    val showNearVA: LiveData<Boolean> = _showNearVA
 
     private var currentPatientId: String? = null
     private var currentBenVisitNo: Int? = null
@@ -75,7 +91,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     _ophthalmicVisit.value = visit
                     updateStateFromVisit(visit)
                 } else {
-                    // Initialize default state
                     _isDiabetic.value = null
                     _isScreeningPerformed.value = null
                     validate()
@@ -90,16 +105,27 @@ class OphthalmicScreeningViewModel @Inject constructor(
     }
 
     private fun updateStateFromVisit(visit: OphthalmicVisit) {
-        _isDiabetic.value = visit.isDiabetic
+        if (visit.isDiabetic == false && visit.visualAcuityChartUsed == null) {
+             _isDiabetic.value = null
+        } else {
+             _isDiabetic.value = visit.isDiabetic
+        }
         _isScreeningPerformed.value = visit.screeningPerformed
         _distVARight.value = visit.distVARight
         _distVALeft.value = visit.distVALeft
+        _visualAcuityChartUsed.value = visit.visualAcuityChartUsed
+        _nearVA.value = visit.nearVA
         validate()
     }
 
     fun setDiabeticStatus(isDiabetic: Boolean) {
         _isDiabetic.value = isDiabetic
-        if (!isDiabetic) {
+        if (isDiabetic) {
+            _visualAcuityChartUsed.value = null
+            _nearVA.value = null
+            _distVARight.value = null
+            _distVALeft.value = null
+        } else {
             _isScreeningPerformed.value = null
             _distVARight.value = null
             _distVALeft.value = null
@@ -126,55 +152,130 @@ class OphthalmicScreeningViewModel @Inject constructor(
         validate()
     }
 
-// ... (existing code)
+    fun setVisualAcuityChart(value: String) {
+        _visualAcuityChartUsed.value = value
+        _distVARight.value = null
+        _distVALeft.value = null
+        _nearVA.value = null
+        validate()
+    }
+
+    fun setNearVA(value: String) {
+        _nearVA.value = value
+        validate()
+    }
 
     private fun validate() {
         val diabetic = _isDiabetic.value
         val screening = _isScreeningPerformed.value
         val rightVA = _distVARight.value
         val leftVA = _distVALeft.value
+        val chartUsed = _visualAcuityChartUsed.value
+        val nearVA = _nearVA.value
 
-        var alert = false
+        var distanceAlert = false
+        var nearAlert = false
         var enableCaseId = false
         var proceed = false
 
-        if (diabetic == true) {
-            if (screening == true) {
-                if (rightVA != null && leftVA != null) {
-                    proceed = true
-                    if (isVisualImpairment(rightVA) || isVisualImpairment(leftVA)) {
-                        alert = true
-                        enableCaseId = true
-                    }
-                } else {
-                    proceed = false
+        when {
+            diabetic == true -> {
+                proceed = validateDiabeticPath(screening, rightVA, leftVA)
+                if (proceed && screening == true && rightVA != null && leftVA != null) {
+                    distanceAlert = isVisualImpairment(rightVA) || isVisualImpairment(leftVA)
+                    enableCaseId = distanceAlert
                 }
-            } else if (screening == false) {
-                proceed = true
-            } else {
-                proceed = false // Screening not selected
             }
-        } else if (diabetic == false) {
-             proceed = true 
-        } else {
-            proceed = false // Diabetic not selected
+
+            diabetic == false -> {
+                val result = validateNonDiabeticPath(chartUsed, rightVA, leftVA, nearVA)
+                proceed = result.canProceed
+                distanceAlert = result.distanceAlert
+                nearAlert = result.nearAlert
+                enableCaseId = result.enableCaseId
+            }
         }
 
-        _showVisualImpairmentAlert.value = alert
+        _showVisualImpairmentAlert.value = distanceAlert
+        _showNearVisionAlert.value = nearAlert
         _enableCaseIdentification.value = enableCaseId
         _canProceed.value = proceed
+
+        _showDistanceVA.value = (diabetic == true && _isScreeningPerformed.value == true)
+                || (diabetic == false && _visualAcuityChartUsed.value == DropdownConst.SNELLENS_CHART)
+
+        _showNearVA.value = diabetic == false && _visualAcuityChartUsed.value == DropdownConst.NEAR_VISION_CHART
+    }
+
+    private fun validateDiabeticPath(
+        screening: Boolean?,
+        rightVA: String?,
+        leftVA: String?
+    ): Boolean {
+        return when {
+            screening == true -> rightVA != null && leftVA != null
+            screening == false -> true
+            else -> false
+        }
+    }
+
+    private data class NonDiabeticValidationResult(
+        val canProceed: Boolean,
+        val distanceAlert: Boolean,
+        val nearAlert: Boolean,
+        val enableCaseId: Boolean
+    )
+
+    private fun validateNonDiabeticPath(
+        chartUsed: String?,
+        rightVA: String?,
+        leftVA: String?,
+        nearVA: String?
+    ): NonDiabeticValidationResult {
+        if (chartUsed == null) {
+            return NonDiabeticValidationResult(false, false, false, false)
+        }
+        return when (chartUsed) {
+            DropdownConst.SNELLENS_CHART -> {
+                if (rightVA != null && leftVA != null) {
+                    val hasImpairment = isVisualImpairment(rightVA) || isVisualImpairment(leftVA)
+                    NonDiabeticValidationResult(true, hasImpairment, false, hasImpairment)
+                } else {
+                    NonDiabeticValidationResult(false, false, false, false)
+                }
+            }
+            DropdownConst.NEAR_VISION_CHART -> {
+                if (nearVA != null) {
+                    val isReduced = isReducedNearVision(nearVA)
+                    NonDiabeticValidationResult(true, false, isReduced, isReduced)
+                } else {
+                    NonDiabeticValidationResult(false, false, false, false)
+                }
+            }
+            else -> NonDiabeticValidationResult(false, false, false, false)
+        }
     }
 
     private fun isVisualImpairment(va: String): Boolean {
         return DropdownConst.visualImpairmentList.contains(va)
     }
 
+    private fun isReducedNearVision(va: String): Boolean {
+        return DropdownConst.reducedNearVisionList.contains(va)
+    }
+
     fun save(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
                 val user = userRepo.getLoggedInUser()
-                val patientId = currentPatientId ?: return@launch
-                val benVisitNo = currentBenVisitNo ?: return@launch
+                val patientId = currentPatientId ?: run {
+                    Timber.e("Cannot save: patientId is null")
+                    return@launch
+                }
+                val benVisitNo = currentBenVisitNo ?: run {
+                    Timber.e("Cannot save: benVisitNo is null")
+                    return@launch
+                }
                 
                 // Create or update
                 val currentVisit = _ophthalmicVisit.value ?: OphthalmicVisit(
@@ -192,6 +293,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     screeningPerformed = _isScreeningPerformed.value
                     distVARight = _distVARight.value
                     distVALeft = _distVALeft.value
+                    visualAcuityChartUsed = _visualAcuityChartUsed.value
+                    nearVA = _nearVA.value
                     // Update audit fields
                     updatedBy = user?.userName ?: "Unknown"
                     updatedDate = Date().time
