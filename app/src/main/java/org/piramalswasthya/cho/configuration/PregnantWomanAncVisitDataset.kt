@@ -80,7 +80,7 @@ class PregnantWomanAncVisitDataset(
     private val weight = FormElement(
         id = 8,
         inputType = InputType.EDIT_TEXT,
-        title = "Weight of PW (Kg) at time Registration",
+        title = "Weight of PW (Kg)",
         arrayId = -1,
         etInputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_NORMAL,
         etMaxLength = 3,

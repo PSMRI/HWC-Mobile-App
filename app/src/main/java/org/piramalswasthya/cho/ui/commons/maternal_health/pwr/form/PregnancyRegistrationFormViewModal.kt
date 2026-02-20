@@ -49,6 +49,7 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
             val benVisitInfo: org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo,
             val showSuccessToast: Boolean = false
         ) : NavigationEvent()
+        object NavigateUp : NavigationEvent()
     }
 
     val patientID: String? = savedStateHandle["patientID"]
@@ -243,15 +244,9 @@ class PregnancyRegistrationFormViewModel @Inject constructor(
 
                 Timber.d("Pregnancy registration saved successfully for patient: ${registrationCache.patientID}")
 
-                // Check if we should navigate to vitals after save
-                if (dataset.shouldNavigateToVitals()) {
-                    val benVisitInfo = patientRepo.getPatientDisplayListForNurseByPatient(registrationCache.patientID!!)
-                    _navigateTo.postValue(NavigationEvent.ToVitalsActivity(benVisitInfo, showSuccessToast = true))
-                } else {
-                    // Update record exists state only if not navigating, to prevent UI flicker
-                    _recordExists.postValue(true)
-                    _state.postValue(State.SAVE_SUCCESS)
-                }
+                _recordExists.postValue(true)
+                _state.postValue(State.SAVE_SUCCESS)
+                _navigateTo.postValue(NavigationEvent.NavigateUp)
             } catch (e: Exception) {
                 Timber.e(e, "Saving pregnancy registration data failed!!")
                 _state.postValue(State.SAVE_FAILED)
