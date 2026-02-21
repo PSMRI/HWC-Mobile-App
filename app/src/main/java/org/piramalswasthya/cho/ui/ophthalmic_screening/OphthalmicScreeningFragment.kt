@@ -119,20 +119,11 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
 
         viewModel.isDiabetic.observe(viewLifecycleOwner) { isDiabetic ->
-            when (isDiabetic) {
-                true  -> binding.rgIsDiabetic.check(R.id.rb_diabetic_yes)
-                false -> binding.rgIsDiabetic.check(R.id.rb_diabetic_no)
-                null  -> binding.rgIsDiabetic.clearCheck()
-            }
-            binding.llScreeningSection.visibility = if (isDiabetic == true) View.VISIBLE else View.GONE
+            applyIsDiabeticState(isDiabetic)
         }
 
         viewModel.isScreeningPerformed.observe(viewLifecycleOwner) { performed ->
-            when (performed) {
-                true  -> binding.rgScreeningPerformed.check(R.id.rb_screening_yes)
-                false -> binding.rgScreeningPerformed.check(R.id.rb_screening_no)
-                null  -> binding.rgScreeningPerformed.clearCheck()
-            }
+            applyScreeningPerformedState(performed)
         }
 
         viewModel.showChartSection.observe(viewLifecycleOwner) { show ->
@@ -147,7 +138,6 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             binding.llNearVaSection.visibility = if (show) View.VISIBLE else View.GONE
         }
 
-
         viewModel.saveError.observe(viewLifecycleOwner) { failed ->
             if (failed) {
                 binding.btnNext.isEnabled = true
@@ -156,6 +146,22 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
 
+    private fun applyIsDiabeticState(isDiabetic: Boolean?) {
+        when (isDiabetic) {
+            true  -> binding.rgIsDiabetic.check(R.id.rb_diabetic_yes)
+            false -> binding.rgIsDiabetic.check(R.id.rb_diabetic_no)
+            null  -> binding.rgIsDiabetic.clearCheck()
+        }
+        binding.llScreeningSection.visibility = if (isDiabetic == true) View.VISIBLE else View.GONE
+    }
+
+    private fun applyScreeningPerformedState(performed: Boolean?) {
+        when (performed) {
+            true  -> binding.rgScreeningPerformed.check(R.id.rb_screening_yes)
+            false -> binding.rgScreeningPerformed.check(R.id.rb_screening_no)
+            null  -> binding.rgScreeningPerformed.clearCheck()
+        }
+    }
 
     override fun getFragmentId(): Int = R.id.ophthalmicScreeningFragment
 

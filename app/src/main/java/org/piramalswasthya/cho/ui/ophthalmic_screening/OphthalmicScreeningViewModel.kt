@@ -64,7 +64,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _showNearVASection = MutableLiveData<Boolean>(false)
     val showNearVASection: LiveData<Boolean> = _showNearVASection
 
-    private val _showVisualImpairmentAlert = MutableLiveData<Boolean>()
+    private val _showVisualImpairmentAlert = MutableLiveData<Boolean>(false)
     val showVisualImpairmentAlert: LiveData<Boolean> = _showVisualImpairmentAlert
 
     private val _canProceed = MutableLiveData<Boolean>(false)
@@ -190,71 +190,67 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _showNearVASection.value = (diabetic == false && chart == DropdownConst.CHART_NEAR_VISION)
     }
 
+    private data class ValidationResult(
+        val fieldsValid: Boolean,
+        val alert: Boolean,
+        val caseIdByVA: Boolean
+    )
+
     private fun validate() {
         val reason = _reasonForVisit.value
         val diabetic = _isDiabetic.value
-        val screening = _isScreeningPerformed.value
-        val chart = _chartUsed.value
         val rightVA = _distVARight.value
         val leftVA = _distVALeft.value
         val nearVaValue = _nearVA.value
 
-        var alert = false
-        var caseIdByVA = false
-        var fieldsValid = false
-
-        if (reason == DropdownConst.REASON_SYMPTOMATIC) {
-            fieldsValid = true
+        val result = when {
+            reason == DropdownConst.REASON_SYMPTOMATIC ->
+                ValidationResult(fieldsValid = true, alert = false, caseIdByVA = false)
+            reason == DropdownConst.screening && diabetic == true ->
+                validateDiabeticPath(rightVA, leftVA)
+            reason == DropdownConst.screening && diabetic == false ->
+                validateNonDiabeticPath(rightVA, leftVA, nearVaValue)
+            else ->
+                ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
         }
 
-        if (reason == DropdownConst.screening) {
-            if (diabetic == null) {
-                fieldsValid = false
-            } else if (diabetic) {
+        _showVisualImpairmentAlert.value = result.alert
+        _canProceed.value = result.fieldsValid && !result.caseIdByVA
+    }
 
-                if (screening == null) {
-                    fieldsValid = false
-                } else if (screening) {
-                    if (rightVA != null && leftVA != null) {
-                        fieldsValid = true
-                        if (isVisualImpairment(rightVA) || isVisualImpairment(leftVA)) {
-                            alert = true
-                            caseIdByVA = true
-                        }
-                    } else {
-                        fieldsValid = false
-                    }
-                } else {
-                    fieldsValid = true
-                }
-            } else {
-                if (chart == null) {
-                    fieldsValid = false
-                } else if (chart == DropdownConst.CHART_SNELLENS) {
-                    if (rightVA != null && leftVA != null) {
-                        fieldsValid = true
-                        if (isVisualImpairment(rightVA) || isVisualImpairment(leftVA)) {
-                            alert = true
-                            caseIdByVA = true
-                        }
-                    } else {
-                        fieldsValid = false
-                    }
-                } else if (chart == DropdownConst.CHART_NEAR_VISION) {
-                    if (nearVaValue != null) {
-                        fieldsValid = true
-                        if (isNearVAReduced(nearVaValue)) {
-                            caseIdByVA = true
-                        }
-                    } else {
-                        fieldsValid = false
-                    }
-                }
-            }
+    private fun validateDiabeticPath(rightVA: String?, leftVA: String?): ValidationResult {
+        val screening = _isScreeningPerformed.value
+        return when {
+            screening == null -> ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
+            screening -> validateSnellenVA(rightVA, leftVA)
+            else -> ValidationResult(fieldsValid = true, alert = false, caseIdByVA = false)
         }
+    }
 
-        _showVisualImpairmentAlert.value = alert
-        _canProceed.value = fieldsValid && !caseIdByVA
+    private fun validateNonDiabeticPath(rightVA: String?, leftVA: String?, nearVaValue: String?): ValidationResult {
+        val chart = _chartUsed.value
+        return when {
+            chart == null -> ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
+            chart == DropdownConst.CHART_SNELLENS -> validateSnellenVA(rightVA, leftVA)
+            chart == DropdownConst.CHART_NEAR_VISION -> validateNearVA(nearVaValue)
+            else -> ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
+        }
+    }
+
+    private fun validateSnellenVA(rightVA: String?, leftVA: String?): ValidationResult {
+        if (rightVA == null || leftVA == null) {
+            return ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
+        }
+        val impaired = isVisualImpairment(rightVA) || isVisualImpairment(leftVA)
+        return ValidationResult(fieldsValid = true, alert = impaired, caseIdByVA = impaired)
+    }
+
+    private fun validateNearVA(nearVaValue: String?): ValidationResult {
+        if (nearVaValue == null) {
+            return ValidationResult(fieldsValid = false, alert = false, caseIdByVA = false)
+        }
+        val reduced = isNearVAReduced(nearVaValue)
+        return ValidationResult(fieldsValid = true, alert = false, caseIdByVA = reduced)
     }
 
     private fun isVisualImpairment(va: String): Boolean {
@@ -310,4 +306,3 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
     }
 }
-

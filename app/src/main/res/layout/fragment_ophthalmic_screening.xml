@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/ophthalmic_is_diabetic"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:layout_marginBottom="8dp"/>
 
                 <RadioGroup
@@ -124,7 +124,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/ophthalmic_screening_performed"
-                        android:textColor="#000000"
+                        android:textColor="@color/black"
                         android:layout_marginBottom="8dp"/>
 
                     <RadioGroup
