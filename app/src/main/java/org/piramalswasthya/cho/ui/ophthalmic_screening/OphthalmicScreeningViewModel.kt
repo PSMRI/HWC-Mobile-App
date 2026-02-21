@@ -214,7 +214,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
             if (diabetic == null) {
                 fieldsValid = false
             } else if (diabetic) {
-                
+
                 if (screening == null) {
                     fieldsValid = false
                 } else if (screening) {
@@ -275,9 +275,15 @@ class OphthalmicScreeningViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val user = userRepo.getLoggedInUser()
-                val patientId = currentPatientId ?: return@launch
-                val benVisitNo = currentBenVisitNo ?: return@launch
-                
+                val patientId = currentPatientId ?: run {
+                    Timber.e("Cannot save: patientId is null")
+                    return@launch
+                }
+                val benVisitNo = currentBenVisitNo ?: run {
+                    Timber.e("Cannot save: benVisitNo is null")
+                    return@launch
+                }
+
                 val currentVisit = _ophthalmicVisit.value ?: OphthalmicVisit(
                     patientID = patientId,
                     benVisitNo = benVisitNo,
@@ -309,3 +315,4 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
     }
 }
+

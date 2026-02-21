@@ -176,9 +176,15 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
         binding.pbForm.visibility = View.GONE
         Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
         WorkerUtils.triggerAmritSyncWorker(requireContext())
-        
+
+        // When launched directly from ANC listing, there is no patient home to navigate back to.
+        if (benVisitInfo == null) {
+            requireActivity().finish()
+            return
+        }
+
         try {
-            findNavController().navigate(R.id.action_pwAncFormFragment_to_customVitalsFragment)
+            findNavController().navigateUp()
         } catch (e: Exception) {
             requireActivity().finish()
         }

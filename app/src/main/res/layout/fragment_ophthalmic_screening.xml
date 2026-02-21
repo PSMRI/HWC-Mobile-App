@@ -261,6 +261,17 @@
                 android:visibility="@{viewModel.showVisualImpairmentAlert ? View.VISIBLE : View.GONE}"
                 android:layout_marginBottom="16dp"/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ophthalmic_near_vision_alert"
+                android:textColor="@color/alert_text_color"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:background="@color/alert_background"
+                android:visibility="@{viewModel.showNearVisionAlert ? View.VISIBLE : View.GONE}"
+                android:layout_marginBottom="16dp"/>
+
             <Button
                 android:id="@+id/btn_next"
                 android:layout_width="match_parent"

@@ -98,7 +98,7 @@ class PregnantWomenRegistrationFragment : Fragment() {
 
     private fun observePatients() {
         viewLifecycleOwner.lifecycleScope.launch {
-            maternalHealthRepo.getAllPatientsWithPWRFromEligibleCoupleTracking().collectLatest { patientsList ->
+            maternalHealthRepo.getAllPatientsWithPWR().collectLatest { patientsList ->
                 // Filter for women of reproductive age
                 allPatients = patientsList
                     .map { it.asDomainModel() }
