@@ -67,8 +67,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _showVisualImpairmentAlert = MutableLiveData<Boolean>()
     val showVisualImpairmentAlert: LiveData<Boolean> = _showVisualImpairmentAlert
 
-    private val _caseIdCompleted = MutableLiveData<Boolean>(false)
-
     private val _canProceed = MutableLiveData<Boolean>(false)
     val canProceed: LiveData<Boolean> = _canProceed
 
@@ -82,8 +80,8 @@ class OphthalmicScreeningViewModel @Inject constructor(
         currentPatientId = patientID
         currentBenVisitNo = benVisitNo
         _reasonForVisit.value = reasonForVisit
-
         _showScreeningModule.value = (reasonForVisit == DropdownConst.screening)
+        resetFields()
 
         viewModelScope.launch {
             try {
@@ -98,22 +96,23 @@ class OphthalmicScreeningViewModel @Inject constructor(
                 if (visit != null) {
                     _ophthalmicVisit.value = visit
                     updateStateFromVisit(visit)
-                } else {
-                    _isDiabetic.value = null
-                    _isScreeningPerformed.value = null
-                    _chartUsed.value = null
-                    _nearVA.value = null
-                    validate()
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error loading ophthalmic visit")
-                _isDiabetic.value = null
-                _isScreeningPerformed.value = null
-                _chartUsed.value = null
-                _nearVA.value = null
-                validate()
             }
         }
+    }
+
+    fun resetFields() {
+        _isDiabetic.value = null
+        _isScreeningPerformed.value = null
+        _chartUsed.value = null
+        _distVARight.value = null
+        _distVALeft.value = null
+        _nearVA.value = null
+        _ophthalmicVisit.value = null
+        updateSectionVisibility()
+        validate()
     }
 
     private fun updateStateFromVisit(visit: OphthalmicVisit) {
@@ -201,12 +200,10 @@ class OphthalmicScreeningViewModel @Inject constructor(
         val nearVaValue = _nearVA.value
 
         var alert = false
-        var caseIdByReason = false
         var caseIdByVA = false
         var fieldsValid = false
 
         if (reason == DropdownConst.REASON_SYMPTOMATIC) {
-            caseIdByReason = true
             fieldsValid = true
         }
 
@@ -257,9 +254,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showVisualImpairmentAlert.value = alert
-        _caseIdCompleted.value = !caseIdByVA
-
-       _canProceed.value = fieldsValid && !caseIdByVA
+        _canProceed.value = fieldsValid && !caseIdByVA
     }
 
     private fun isVisualImpairment(va: String): Boolean {

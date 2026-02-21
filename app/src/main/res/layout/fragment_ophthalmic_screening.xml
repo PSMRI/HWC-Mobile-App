@@ -103,7 +103,6 @@
                         android:layout_height="wrap_content"
                         android:text="@string/yes"
                         android:onClick="@{() -> viewModel.setDiabeticStatus(true)}"
-                        android:checked="@{viewModel.isDiabetic == true}"
                         android:layout_marginEnd="16dp"/>
 
                     <RadioButton
@@ -111,8 +110,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/no"
-                        android:onClick="@{() -> viewModel.setDiabeticStatus(false)}"
-                        android:checked="@{viewModel.isDiabetic == false}"/>
+                        android:onClick="@{() -> viewModel.setDiabeticStatus(false)}"/>
                 </RadioGroup>
 
                 <LinearLayout
@@ -142,7 +140,6 @@
                             android:layout_height="wrap_content"
                             android:text="@string/yes"
                             android:onClick="@{() -> viewModel.setScreeningPerformed(true)}"
-                            android:checked="@{viewModel.isScreeningPerformed == true}"
                             android:layout_marginEnd="16dp"/>
 
                         <RadioButton
@@ -150,8 +147,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/no"
-                            android:onClick="@{() -> viewModel.setScreeningPerformed(false)}"
-                            android:checked="@{viewModel.isScreeningPerformed == false}"/>
+                            android:onClick="@{() -> viewModel.setScreeningPerformed(false)}"/>
                     </RadioGroup>
 
                 </LinearLayout>
@@ -261,16 +257,6 @@
                 android:visibility="@{viewModel.showVisualImpairmentAlert ? View.VISIBLE : View.GONE}"
                 android:layout_marginBottom="16dp"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/ophthalmic_near_vision_alert"
-                android:textColor="@color/alert_text_color"
-                android:textStyle="bold"
-                android:padding="8dp"
-                android:background="@color/alert_background"
-                android:visibility="@{viewModel.showNearVisionAlert ? View.VISIBLE : View.GONE}"
-                android:layout_marginBottom="16dp"/>
 
             <Button
                 android:id="@+id/btn_next"
