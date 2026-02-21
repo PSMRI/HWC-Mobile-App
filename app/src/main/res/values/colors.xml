@@ -133,4 +133,8 @@
     <color name="gray_light">#E0E0E0</color>
     <color name="colorPrimary">#006496</color>
 
+    <!-- Error state: used for visual impairment alert and Case ID alert in ophthalmic screening -->
+    <color name="color_error_text">#D32F2F</color>
+    <color name="color_error_bg">#FFEBEE</color>
+
 </resources>

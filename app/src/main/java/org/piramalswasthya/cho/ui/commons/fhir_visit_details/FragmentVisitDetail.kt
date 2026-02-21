@@ -453,7 +453,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.screening)
+                DropdownConst.ophthalmicReasonForVisitList
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -1565,7 +1565,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 }
             }
-            else if(reasonForVisit == DropdownConst.screening){
+            else if(reasonForVisit == DropdownConst.screening || reasonForVisit == DropdownConst.REASON_SYMPTOMATIC){
                 saveVisitData(skipChiefComplaintValidation = true) { benVisitNo ->
                     isNavigationInProgress = false
                     binding.btnSubmit.isEnabled = true
@@ -1573,7 +1573,8 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToOphthalmicScreeningFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo,
-                            benVisitInfo = benVisitInfo
+                            benVisitInfo = benVisitInfo,
+                            reasonForVisit = reasonForVisit
                         )
                     )
                 }

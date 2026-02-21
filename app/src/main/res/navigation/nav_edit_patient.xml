@@ -186,6 +186,10 @@
         <argument
                 android:name="benVisitInfo"
                 app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+        <argument
+                android:name="reasonForVisit"
+                app:argType="string"
+                android:defaultValue="Screening" />
         <action
             android:id="@+id/action_ophthalmicScreeningFragment_to_fhirVisitDetailsFragment"
             app:destination="@id/fhirVisitDetailsFragment"
