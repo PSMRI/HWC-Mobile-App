@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="verify_aadhaar_number">আধাৰ নম্বৰ পৰীক্ষা কৰক</string>
+    <string name="verify_aadhaar_otp">আধাৰ OTP পৰীক্ষা কৰক</string>
+    <string name="verify_mobile_number">মোবাইল নম্বৰ পৰীক্ষা কৰক</string>
+    <string name="enter_otp">OTP সন্নিবেশ কৰক</string>
+    <string name="verify_otp">OTP পৰীক্ষা কৰক</string>
+    <string name="resend_otp">OTP পুনৰ পঠাওক</string>
+    <string name="full_name">সম্পূৰ্ণ নাম</string>
+    <string name="male">পুৰুষ</string>
+    <string name="female">মহিলা</string>
+    <string name="district">জিলা</string>
+    <string name="aadhaar">আধাৰ</string>
+    <string name="asha">আশা</string>
+    <string name="ashaname">আশাৰ নাম</string>
+    <string name="gov">চৰকাৰ</string>
+    <string name="enter_aadhaar_number">আধাৰ নম্বৰ সন্নিবেশ কৰক</string>
+    <string name="aadhaar_number">আধাৰ নম্বৰ</string>
+    <string name="verified">পৰীক্ষিত</string>
+    <string name="generate_otp">OTP পঠাওক</string>
+    <string name="send_otp">OTP পঠাওক</string>
+    <string name="select_abha">নাম বাছক</string>
+    <string name="pid">PID</string>
+    <string name="generate_abha">ABHA</string>
+    <string name="_30">30</string>
+    <string name="abha_number_generated_successfully">ABHA নম্বৰ সফলভাৱে সৃষ্টি হ\'ল</string>
+    <string name="abha_id">ABHA ID</string>
+    <string name="linked_toO_beneficiary">লাভান্বিতৰ সৈতে সংযুক্ত</string>
+    <string name="do_you_want_to_download_the_abha_card">আপুনি ABHA কাৰ্ড ডাউনলোড কৰিব বিচাৰে নেকি?</string>
+    <string name="enter_mobile_number">মোবাইল নম্বৰ সন্নিবেশ কৰক</string>
+    <string name="enter_number_for_abha">ABHA পঞ্জীয়নৰ বাবে আধাৰ নম্বৰ</string>
+    <string name="aadhaar_linked_mobile">আধাৰ সংযুক্ত মোবাইল নম্বৰ বা অন্য মোবাইল নম্বৰ</string>
+    <string name="mobile_number">মোবাইল নম্বৰ</string>
+    <string name="check_and_generate_otp">পৰীক্ষা কৰক আৰু OTP সৃষ্টি কৰক</string>
+    <string name="textview">TextView</string>
+    <string name="download_abha_channel_id">ABHA কাৰ্ড ডাউনলোড হৈ আছে</string>
+    <string name="create_abha_number">ABHA নম্বৰ সৃষ্টি কৰক</string>
+    <string name="d_o_b">জন্ম তাৰিখ</string>
+    <string name="check_circle">চেক বৃত্ত</string>
+    <string name="name_">নাম :</string>
+    <string name="abha_number_">ABHA নম্বৰ :</string>
+    <string name="aadhaar_linked_mobile_number_or_other_mobile_number">আধাৰ সংযুক্ত মোবাইল নম্বৰ বা অন্য মোবাইল নম্বৰ</string>
+    <string name="validate_fp">আঙুলিৰ ছাপ পৰীক্ষা কৰক</string>
+    <string name="generating_abha_for">সন্নিবেশ কৰক</string>
+    <string name="otp_sent_to">\"আধাৰ সংযুক্ত মোবাইল নম্বৰলৈ OTP পঠোৱা হৈছে\"</string>
+    <string name="str_create_abha">ABHA সৃষ্টি কৰক</string>
+    <string name="str_search_abha">ABHA সন্ধান কৰক</string>
+    <string name="str_invalid_aadhaar_no">অনুগ্ৰহ কৰি বৈধ আধাৰ নম্বৰ সন্নিবেশ কৰক</string>
+    <string name="str_invalid_mobile_no">অনুগ্ৰহ কৰি বৈধ মোবাইল নম্বৰ সন্নিবেশ কৰক</string>
+    <string name="str_invalid_ben_name">অনুগ্ৰহ কৰি বৈধ লাভান্বিতৰ নাম সন্নিবেশ কৰক</string>
+    <string name="str_here_abha_no">ইয়াত আপোনাৰ ABHA নম্বৰ!</string>
+    <string name="str_abha_already_exist">এই ABHA ইতিমধ্যে আছে!</string>
+    <string name="str_abha_successfully_created">ABHA একাউণ্ট সফলভাৱে সৃষ্টি হ\'ল!</string>
+    <string name="str_abha_card_downloaded">আপুনি ডাউনলোড ফোল্ডাৰত Abha কাৰ্ড চাব পাৰে!!</string>
+
+    <string name="str_abha_otp_note">এই OTP কেৱল ১০ মিনিটৰ বাবে বৈধ</string>
+    <string name="str_enter_otp">OTP সন্নিবেশ কৰক:</string>
+    <string name="str_find_abha">ইতিমধ্যে ABHA আছে?\nএতিয়াই জানক!</string>
+    <string name="str_get_your_abha">মোবাইল নম্বৰ ব্যৱহাৰ কৰি ABHA নম্বৰ পাব।</string>
+    <string name="enter_ben_name">লাভান্বিতৰ নাম সন্নিবেশ কৰক</string>
+    <string name="str_didnt_receive_otp">OTP পোৱা নগ\'ল? অনুগ্ৰহ কৰি অপেক্ষা কৰক </string>
+
+    <string name="str_declaration">মই ইয়াৰ দ্বাৰা ঘোষণা কৰো যে:</string>
+    <string name="str_aadhaar_consent_1">মই ভাৰতীয় অনন্য পৰিচয় প্ৰাধিকৰণ (\"UIDAI\") দ্বাৰা জাৰী কৰা মোৰ আধাৰ নম্বৰ/ভাৰ্চুৱেল ID আৰু জনসংখ্যা সংক্ৰান্ত তথ্য স্বেচ্ছাই ভাগ বতৰা কৰিছো, আয়ুষ্মান ভাৰত স্বাস্থ্য একাউণ্ট নম্বৰ (\"ABHA নম্বৰ\") আৰু আয়ুষ্মান ভাৰত স্বাস্থ্য একাউণ্ট ঠিকনা (\"ABHA ঠিকনা\") সৃষ্টিৰ উদ্দেশ্যে। মই NHA ক আধাৰ (বিত্তীয় আৰু অন্যান্য অনুদান, সুবিধা আৰু সেৱাৰ লক্ষ্যযুক্ত প্ৰদান) আইন, ২০১৬ৰ ধাৰাসমূহ অনুসৰি উক্ত উদ্দেশ্যৰ বাবে UIDAIৰ সৈতে আধাৰ ভিত্তিক প্ৰমাণীকৰণ কৰিবলৈ মোৰ আধাৰ নম্বৰ/ভাৰ্চুৱেল ID ব্যৱহাৰ কৰাৰ অনুমতি দিছো। মই বুজিছো যে সফল প্ৰমাণীকৰণত UIDAI মোৰ e-KYC তথ্য বা \"হয়\"ৰ প্ৰতিক্ৰিয়া NHAৰ সৈতে ভাগ বতৰা কৰিব।</string>
+    <string name="str_aadhaar_consent_2">মই আধাৰৰ বাহিৰে দস্তাবেজ ব্যৱহাৰ কৰি আয়ুষ্মান ভাৰত স্বাস্থ্য একাউণ্ট নম্বৰ (\"ABHA নম্বৰ\") আৰু আয়ুষ্মান ভাৰত স্বাস্থ্য একাউণ্ট ঠিকনা (\"ABHA ঠিকনা\") সৃষ্টি কৰিব বিচাৰো। (আগবাঢ়িবলৈ ইয়াত ক্লিক কৰক)</string>
+    <string name="str_aadhaar_consent_3">মই এই এনকাউণ্টাৰৰ সময়ত মোৰ পুৰণা চৰকাৰী স্বাস্থ্য অভিলেখ আৰু যিবোৰ সৃষ্টি হ\'ব সেইবোৰ লিংক কৰিবলৈ মোৰ ABHA ঠিকনা আৰু ABHA নম্বৰ ব্যৱহাৰৰ সন্মতি দিছো।</string>
+    <string name="str_aadhaar_consent_4">মই এই এনকাউণ্টাৰৰ সময়ত মোক স্বাস্থ্য সেৱা প্ৰদান কৰাৰ উদ্দেশ্যে স্বাস্থ্য সেৱা প্ৰদানকাৰী(সকল)ৰ সৈতে মোৰ সকলো স্বাস্থ্য অভিলেখ ভাগ বতৰা কৰিবলৈ অনুমতি দিছো।</string>
+
+    <string name="str_aadhaar_consent_5">মই ৰাজহুৱা স্বাস্থ্য উদ্দেশ্যৰ বাবে মোৰ চৰকাৰী স্বাস্থ্য অভিলেখৰ বেনামীকৰণ আৰু পৰৱৰ্তী ব্যৱহাৰৰ সন্মতি দিছো।</string>
+    <string name="str_aadhaar_consent_6">মই, @ashaName, নিশ্চিত কৰো যে মই লাভান্বিতক উক্ত উদ্দেশ্যৰ বাবে সন্মতিৰ বিষয়বস্তুৰ বিষয়ে due ভাৱে জনাই আৰু ব্যাখ্যা কৰিছো।</string>
+    <string name="str_aadhaar_consent_7">মই, @beneficiaryName, ক ওপৰত উল্লেখ কৰা সন্মতিৰ বিষয়ে ব্যাখ্যা কৰা হৈছে আৰু মই উক্ত উদ্দেশ্যৰ বাবে মোৰ সন্মতি প্ৰদান কৰিছো।</string>
+    <string name="str_seconds">\" ছেকেণ্ড\"</string>
+    <string name="str_aadhaar_otp_number">\"আধাৰ পঞ্জীভূত মোবাইল নম্বৰলৈ OTP পঠোৱা হৈছে যি @mobileNumber ৰে শেষ হয়\"</string>
+    <string name="str_abha_otp_number">\"ABHA পঞ্জীভূত মোবাইল নম্বৰলৈ OTP পঠোৱা হৈছে যি @mobileNumber ৰে শেষ হয়\"</string>
+    <string name="str_otp_number_message">\"@mobileNumber ৰে শেষ হোৱা মোবাইল নম্বৰলৈ OTP পঠোৱা হৈছে।\"</string>
+
+
+</resources>
