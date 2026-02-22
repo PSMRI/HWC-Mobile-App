@@ -203,12 +203,16 @@ class UsernameFragment() : Fragment() {
         when (prefDao.getCurrentLanguage()) {
             Languages.ENGLISH -> binding.rgLangSelect.check(binding.rbEng.id)
             Languages.KANNADA -> binding.rgLangSelect.check(binding.rbKannada.id)
+            Languages.HINDI -> binding.rgLangSelect.check(binding.rbHindi.id)
+            Languages.ASSAMESE -> binding.rgLangSelect.check(binding.rbAssam.id)
         }
 
         binding.rgLangSelect.setOnCheckedChangeListener { _, i ->
             val currentLanguage = when (i) {
                 binding.rbEng.id -> Languages.ENGLISH
                 binding.rbKannada.id -> Languages.KANNADA
+                binding.rbHindi.id -> Languages.HINDI
+                binding.rbAssam.id -> Languages.ASSAMESE
                 else -> Languages.ENGLISH
             }
             prefDao.saveSetLanguage(currentLanguage)

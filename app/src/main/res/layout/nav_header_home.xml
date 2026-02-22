@@ -16,6 +16,7 @@
         android:layout_centerVertical="true"
         android:background="@drawable/bg_circular"
         android:padding="@dimen/padding_tiny"
+        android:visibility="gone"
         android:contentDescription="@string/nav_header_desc"
         app:srcCompat="@drawable/ic_person" />
 
@@ -35,10 +36,12 @@
 
         <TextView
             android:id="@+id/tv_nav_role"
+            android:visibility="gone"
             style="@style/nav_header_item_tv" />
 
         <TextView
             android:id="@+id/tv_nav_id"
+            android:visibility="gone"
             style="@style/nav_header_item_tv" />
 
     </LinearLayout>

@@ -549,6 +549,21 @@
                                 app:layout_constraintStart_toStartOf="parent" />
                         </LinearLayout>
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/prescription_download_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{()-> clickListener.onClickPrescription(benVisitInfo)}"
+                            android:padding="10dp"
+                            android:text="@string/Prescription"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@color/white"
+                            android:visibility="gone"
+                            app:cornerRadius="@dimen/padding_normal"
+                            app:icon="@drawable/downlaod_icon"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
+
                         <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/fab_edit"
                             android:layout_width="wrap_content"
@@ -557,6 +572,7 @@
                             android:contentDescription="Edit"
                             android:onClick="@{() -> clickListener.onClickEdit(benVisitInfo)}"
                             app:fabSize="mini"
+                            android:visibility="gone"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:srcCompat="@drawable/ic_edit" />
@@ -585,20 +601,20 @@
                         android:baselineAligned="false"
                         android:weightSum="3">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/prescription_download_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:onClick="@{()-> clickListener.onClickPrescription(benVisitInfo)}"
-                            android:padding="10dp"
-                            android:text="@string/Prescription"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
-                            android:visibility="gone"
-                            app:cornerRadius="@dimen/padding_normal"
-                            app:icon="@drawable/downlaod_icon"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent" />
+<!--                        <com.google.android.material.button.MaterialButton-->
+<!--                            android:id="@+id/prescription_download_btn"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:onClick="@{()-> clickListener.onClickPrescription(benVisitInfo)}"-->
+<!--                            android:padding="10dp"-->
+<!--                            android:text="@string/Prescription"-->
+<!--                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:visibility="gone"-->
+<!--                            app:cornerRadius="@dimen/padding_normal"-->
+<!--                            app:icon="@drawable/downlaod_icon"-->
+<!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                            app:layout_constraintEnd_toEndOf="parent" />-->
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </LinearLayout>
 

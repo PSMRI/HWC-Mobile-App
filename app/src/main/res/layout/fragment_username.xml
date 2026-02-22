@@ -80,7 +80,6 @@
                     android:layout_height="wrap_content"
                     android:checkedButton="@id/rb_eng"
                     android:gravity="center"
-                    android:visibility="gone"
                     android:orientation="horizontal"
                     android:paddingStart="@dimen/padding_wide"
                     android:paddingEnd="@dimen/padding_wide"
@@ -95,7 +94,17 @@
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_kannada"
                         style="@style/radio_item_lang"
+                        android:text="@string/kannada_lang" />
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_hindi"
+                        style="@style/radio_item_lang"
                         android:text="@string/hindi_lang" />
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_assam"
+                        style="@style/radio_item_lang"
+                        android:text="@string/assamese" />
 <!--                    android:text="@string/kannada_lang"-->
                 </RadioGroup>
 
