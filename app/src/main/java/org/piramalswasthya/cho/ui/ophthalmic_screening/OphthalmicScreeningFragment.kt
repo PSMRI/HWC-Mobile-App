@@ -1,12 +1,12 @@
 package org.piramalswasthya.cho.ui.ophthalmic_screening
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,32 +25,6 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
     private lateinit var binding: FragmentOphthalmicScreeningBinding
     private val args: OphthalmicScreeningFragmentArgs by navArgs()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_ophthalmic_screening, container, false
-        )
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
-        setupDropdowns()
-        setupClickListeners()
-        setupObservers()
-
-        val patientID = args.patientID // Assuming non-nullable in nav graph
-        val benVisitNo = args.benVisitNo
-        if (patientID != null) {
-            viewModel.loadOphthalmicVisit(patientID, benVisitNo)
-        }
-    }
-
     private val onBackPressedCallback by lazy {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -59,116 +33,139 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_ophthalmic_screening, container, false
+        )
+        binding.lifecycleOwner = viewLifecycleOwner
+        viewModel.resetFields()
+        binding.viewModel = viewModel
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupDropdowns()
+        setupClickListeners()
+        setupObservers()
+        viewModel.loadOphthalmicVisit(args.patientID, args.benVisitNo, args.reasonForVisit)
+
+        val headerTitle = if (args.reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
+            getString(R.string.ophthalmic_symptomatic_title)
+        else
+            getString(R.string.ophthalmic_screening_title)
+        activity?.findViewById<android.widget.TextView>(R.id.header_text_register_patient)?.text = headerTitle
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
+    }
+
     private fun setupDropdowns() {
+        val chartValues = DropdownConst.visualAcuityChartList
+        val chartAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, chartValues)
+        binding.actvChartUsed.setAdapter(chartAdapter)
+        binding.actvChartUsed.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setChartUsed(chartValues[position])
+        }
+
         val vaValues = DropdownConst.visualAcuityList
         val vaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vaValues)
-
         binding.actvDistVaRight.setAdapter(vaAdapter)
         binding.actvDistVaLeft.setAdapter(vaAdapter)
-
         binding.actvDistVaRight.setOnItemClickListener { _, _, position, _ ->
             viewModel.setDistVARight(vaValues[position])
         }
-
         binding.actvDistVaLeft.setOnItemClickListener { _, _, position, _ ->
             viewModel.setDistVALeft(vaValues[position])
         }
 
-        // Visual Acuity Chart Used dropdown
-        val chartValues = DropdownConst.visualAcuityChartList
-        val chartAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, chartValues)
-        binding.actvVaChart.setAdapter(chartAdapter)
-        binding.actvVaChart.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setVisualAcuityChart(chartValues[position])
-            // Clear displayed text for downstream dropdowns
-            binding.actvDistVaRight.setText("", false)
-            binding.actvDistVaLeft.setText("", false)
-            binding.actvNearVa.setText("", false)
-        }
-
-        // Near Visual Acuity dropdown
-        val nearValues = DropdownConst.nearVisualAcuityList
-        val nearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nearValues)
-        binding.actvNearVa.setAdapter(nearAdapter)
+        val nearVaValues = DropdownConst.nearVisualAcuityList
+        val nearVaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nearVaValues)
+        binding.actvNearVa.setAdapter(nearVaAdapter)
         binding.actvNearVa.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setNearVA(nearValues[position])
+            viewModel.setNearVA(nearVaValues[position])
         }
     }
 
     private fun setupClickListeners() {
-        binding.btnNext.setOnClickListener {
-            viewModel.save {
-                Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
-                val benVisitInfo = args.benVisitInfo
-                if (benVisitInfo != null) {
-                    findNavController().navigate(
-                        OphthalmicScreeningFragmentDirections.actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(
-                            benVisitInfo
-                        )
-                    )
-                } else {
-                    Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-    
-    private var previousDiabeticState: Boolean? = null
-    private var isDiabeticInitialized = false
-
-    private fun setupObservers() {
-        viewModel.isDiabetic.observe(viewLifecycleOwner) { isDiabetic ->
-            when (isDiabetic) {
-                null -> {
-                    binding.rgIsDiabetic.clearCheck()
-                    binding.llScreeningSection.visibility = View.GONE
-                    binding.llVaChartSection.visibility = View.GONE
-                }
-                true -> {
-                    binding.rgIsDiabetic.check(R.id.rb_diabetic_yes)
-                    binding.llScreeningSection.visibility = View.VISIBLE
-                    binding.llVaChartSection.visibility = View.GONE
-                }
-                false -> {
-                    binding.rgIsDiabetic.check(R.id.rb_diabetic_no)
-                    binding.llScreeningSection.visibility = View.GONE
-                    binding.llVaChartSection.visibility = View.VISIBLE
-                }
-            }
-            // Only clear dropdown text when transitioning from a previous state,
-            // not on the initial emission which would overwrite data-binding values.
-            if (isDiabeticInitialized && previousDiabeticState != isDiabetic) {
-                binding.actvVaChart.setText("", false)
-                binding.actvDistVaRight.setText("", false)
-                binding.actvDistVaLeft.setText("", false)
-                binding.actvNearVa.setText("", false)
-            }
-            previousDiabeticState = isDiabetic
-            isDiabeticInitialized = true
-        }
+        binding.btnNext.setOnClickListener { navigateAfterSave() }
     }
 
-    // --- NavigationAdapter ---
-
-    override fun getFragmentId(): Int = R.id.ophthalmicScreeningFragment
-
-    override fun onSubmitAction() {
+    private fun navigateAfterSave() {
+        binding.btnNext.isEnabled = false
         viewModel.save {
             Toast.makeText(requireContext(), "Saved successfully", Toast.LENGTH_SHORT).show()
             val benVisitInfo = args.benVisitInfo
             if (benVisitInfo != null) {
                 findNavController().navigate(
-                    OphthalmicScreeningFragmentDirections.actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(
-                        benVisitInfo
-                    )
+                    OphthalmicScreeningFragmentDirections
+                        .actionOphthalmicScreeningFragmentToFhirVisitDetailsFragment(benVisitInfo)
                 )
             } else {
+                binding.btnNext.isEnabled = true
                 Toast.makeText(requireContext(), "Error returning to details", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    override fun onCancelAction() {
-        findNavController().popBackStack()
+    private fun setupObservers() {
+        viewModel.showScreeningModule.observe(viewLifecycleOwner) { show ->
+            binding.llScreeningModule.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.isDiabetic.observe(viewLifecycleOwner) { isDiabetic ->
+            applyIsDiabeticState(isDiabetic)
+        }
+
+        viewModel.isScreeningPerformed.observe(viewLifecycleOwner) { performed ->
+            applyScreeningPerformedState(performed)
+        }
+
+        viewModel.showChartSection.observe(viewLifecycleOwner) { show ->
+            binding.llChartSection.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.showDistVASection.observe(viewLifecycleOwner) { show ->
+            binding.llDistVaSection.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.showNearVASection.observe(viewLifecycleOwner) { show ->
+            binding.llNearVaSection.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        viewModel.saveError.observe(viewLifecycleOwner) { failed ->
+            if (failed) {
+                binding.btnNext.isEnabled = true
+                Toast.makeText(requireContext(), "Save failed. Please retry.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
+
+    private fun applyIsDiabeticState(isDiabetic: Boolean?) {
+        when (isDiabetic) {
+            true  -> binding.rgIsDiabetic.check(R.id.rb_diabetic_yes)
+            false -> binding.rgIsDiabetic.check(R.id.rb_diabetic_no)
+            null  -> binding.rgIsDiabetic.clearCheck()
+        }
+        binding.llScreeningSection.visibility = if (isDiabetic == true) View.VISIBLE else View.GONE
+    }
+
+    private fun applyScreeningPerformedState(performed: Boolean?) {
+        when (performed) {
+            true  -> binding.rgScreeningPerformed.check(R.id.rb_screening_yes)
+            false -> binding.rgScreeningPerformed.check(R.id.rb_screening_no)
+            null  -> binding.rgScreeningPerformed.clearCheck()
+        }
+    }
+
+    override fun getFragmentId(): Int = R.id.ophthalmicScreeningFragment
+
+    override fun onSubmitAction() { navigateAfterSave() }
+
+    override fun onCancelAction() { findNavController().popBackStack() }
 }
