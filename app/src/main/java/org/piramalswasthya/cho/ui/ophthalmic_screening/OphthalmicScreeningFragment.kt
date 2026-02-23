@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.databinding.FragmentOphthalmicScreeningBinding
 import org.piramalswasthya.cho.ui.commons.DropdownConst
+import android.app.AlertDialog
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
@@ -94,6 +95,35 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private fun setupClickListeners() {
         binding.btnNext.setOnClickListener { navigateAfterSave() }
+        
+        binding.tvCaseIdSelection.setOnClickListener {
+            showCaseIdMultiSelectDialog()
+        }
+    }
+
+    private fun showCaseIdMultiSelectDialog() {
+        val options = DropdownConst.caseIdConditionsList.toTypedArray()
+        val currentSelections = viewModel.caseIdConditions.value ?: emptyList()
+        val checkedItems = BooleanArray(options.size) { index ->
+            currentSelections.contains(options[index])
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.ophthalmic_case_id_conditions))
+            .setMultiChoiceItems(options, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
+                val selectedList = mutableListOf<String>()
+                for (i in options.indices) {
+                    if (checkedItems[i]) {
+                        selectedList.add(options[i])
+                    }
+                }
+                viewModel.setCaseIdConditions(selectedList)
+            }
+            .setNegativeButton(getString(android.R.string.cancel), null)
+            .show()
     }
 
     private fun navigateAfterSave() {
@@ -142,6 +172,15 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             if (failed) {
                 binding.btnNext.isEnabled = true
                 Toast.makeText(requireContext(), "Save failed. Please retry.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        viewModel.caseIdConditions.observe(viewLifecycleOwner) { conditions ->
+            if (conditions.isNullOrEmpty()) {
+                binding.tvCaseIdSelection.setText("")
+                binding.tvCaseIdSelection.hint = getString(R.string.select_conditions)
+            } else {
+                binding.tvCaseIdSelection.setText(conditions.joinToString(", "))
             }
         }
     }
