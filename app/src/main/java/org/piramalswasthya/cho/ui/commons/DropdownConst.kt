@@ -37,6 +37,27 @@ class DropdownConst {
         const val REASON_SYMPTOMATIC = "Symptomatic"
         val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC)
 
+        const val CONDITION_CATARACT = "Cataract"
+        const val CONDITION_GLAUCOMA = "Glaucoma"
+        const val CONDITION_DIABETIC_RETINOPATHY = "Diabetic retinopathy"
+        const val CONDITION_PRESBYOPIA = "Presbyopia"
+        const val CONDITION_TRACHOMA = "Trachoma"
+        const val CONDITION_CORNEAL_DISEASE = "Corneal disease"
+        const val CONDITION_CONJUNCTIVITIS = "Conjunctivitis/Acute red eye"
+        const val CONDITION_DRY_EYE = "Dry eye / xerophthalmia"
+        const val CONDITION_EYE_ALLERGY = "Eye allergy"
+
+        val caseIdConditionsList = listOf(
+            CONDITION_CATARACT,
+            CONDITION_GLAUCOMA,
+            CONDITION_DIABETIC_RETINOPATHY,
+            CONDITION_PRESBYOPIA,
+            CONDITION_TRACHOMA,
+            CONDITION_CORNEAL_DISEASE,
+            CONDITION_CONJUNCTIVITIS,
+            CONDITION_DRY_EYE,
+            CONDITION_EYE_ALLERGY
+        )
 
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
         val dangerSignList = mutableListOf("Fast Breathing", "Chest Indrawing", "Stridor", "Grunt", "Respiratory Distress", "Cold and Calm Peripheral Pulses", "Convulsions", "Hypothermia", "Delirium", "Drowsy", "Uncontrolled Bleeding", "Hematemesis", "Refusal of Fits")

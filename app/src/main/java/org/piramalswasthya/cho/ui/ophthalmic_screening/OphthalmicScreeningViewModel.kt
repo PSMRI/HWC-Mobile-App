@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import org.piramalswasthya.cho.model.OphthalmicVisit
 import org.piramalswasthya.cho.repositories.OphthalmicRepository
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -21,6 +24,12 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo
 ) : ViewModel() {
+
+    private val moshiAdapter: JsonAdapter<List<String>> by lazy {
+        Moshi.Builder().build().adapter(
+            Types.newParameterizedType(List::class.java, String::class.java)
+        )
+    }
 
     private val _benName = MutableLiveData<String>()
     val benName: LiveData<String> = _benName
@@ -52,8 +61,18 @@ class OphthalmicScreeningViewModel @Inject constructor(
     private val _nearVA = MutableLiveData<String?>()
     val nearVA: LiveData<String?> = _nearVA
 
+    private val _caseIdConditions = MutableLiveData<List<String>>(emptyList())
+    val caseIdConditions: LiveData<List<String>> = _caseIdConditions
+
     private val _showScreeningModule = MutableLiveData<Boolean>(false)
     val showScreeningModule: LiveData<Boolean> = _showScreeningModule
+
+
+    private val _showCaseIdSection = MutableLiveData<Boolean>(false)
+    val showCaseIdSection: LiveData<Boolean> = _showCaseIdSection
+
+    private val _isCaseIdMandatory = MutableLiveData<Boolean>(false)
+    val isCaseIdMandatory: LiveData<Boolean> = _isCaseIdMandatory
 
     private val _showChartSection = MutableLiveData<Boolean>(false)
     val showChartSection: LiveData<Boolean> = _showChartSection
@@ -81,6 +100,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         currentBenVisitNo = benVisitNo
         _reasonForVisit.value = reasonForVisit
         _showScreeningModule.value = (reasonForVisit == DropdownConst.screening)
+        _showCaseIdSection.value = (reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
         resetFields()
 
         viewModelScope.launch {
@@ -110,6 +130,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _distVARight.value = null
         _distVALeft.value = null
         _nearVA.value = null
+        _caseIdConditions.value = emptyList()
         _ophthalmicVisit.value = null
         updateSectionVisibility()
         validate()
@@ -122,6 +143,19 @@ class OphthalmicScreeningViewModel @Inject constructor(
         _distVARight.value = visit.distVARight
         _distVALeft.value = visit.distVALeft
         _nearVA.value = visit.nearVA
+        
+
+        visit.caseIdConditions?.let { json ->
+            try {
+                _caseIdConditions.value = moshiAdapter.fromJson(json) ?: emptyList()
+            } catch (e: Exception) {
+                Timber.e(e, "Error parsing caseIdConditions")
+                _caseIdConditions.value = emptyList()
+            }
+        } ?: run {
+            _caseIdConditions.value = emptyList()
+        }
+
         updateSectionVisibility()
         validate()
     }
@@ -174,6 +208,14 @@ class OphthalmicScreeningViewModel @Inject constructor(
         validate()
     }
 
+
+    fun setCaseIdConditions(conditions: List<String>) {
+        _caseIdConditions.value = conditions
+
+        updateSectionVisibility()
+        validate()
+    }
+
     private fun updateSectionVisibility() {
         val diabetic = _isDiabetic.value
         val screening = _isScreeningPerformed.value
@@ -202,10 +244,20 @@ class OphthalmicScreeningViewModel @Inject constructor(
         val rightVA = _distVARight.value
         val leftVA = _distVALeft.value
         val nearVaValue = _nearVA.value
+        val caseIds = _caseIdConditions.value ?: emptyList()
+
+        val isMando = reason == DropdownConst.REASON_SYMPTOMATIC && (
+                isVisualImpairment(rightVA ?: "") ||
+                isVisualImpairment(leftVA ?: "") ||
+                isNearVAReduced(nearVaValue)
+        )
+        _isCaseIdMandatory.value = isMando
 
         val result = when {
-            reason == DropdownConst.REASON_SYMPTOMATIC ->
-                ValidationResult(fieldsValid = true, alert = false, caseIdByVA = false)
+            reason == DropdownConst.REASON_SYMPTOMATIC -> {
+                val validCaseId = if (isMando) caseIds.isNotEmpty() else true
+                ValidationResult(fieldsValid = validCaseId, alert = false, caseIdByVA = false)
+            }
             reason == DropdownConst.screening && diabetic == true ->
                 validateDiabeticPath(rightVA, leftVA)
             reason == DropdownConst.screening && diabetic == false ->
@@ -215,6 +267,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showVisualImpairmentAlert.value = result.alert
+        // If screening triggers caseIdByVA flag but reason is not symptomatic, it shouldn't ideally block progress if this isn't handled correctly, keeping existing behavior.
         _canProceed.value = result.fieldsValid && !result.caseIdByVA
     }
 
@@ -284,6 +337,16 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     updatedDate = Date().time,
                     syncState = 0
                 )
+                
+                var conditionsJson: String? = null
+                val conditions = _caseIdConditions.value
+                if (conditions?.isNotEmpty() == true) {
+                    try {
+                        conditionsJson = moshiAdapter.toJson(conditions)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error converting conditions to JSON")
+                    }
+                }
 
                 currentVisit.apply {
                     isDiabetic = _isDiabetic.value
@@ -292,6 +355,7 @@ class OphthalmicScreeningViewModel @Inject constructor(
                     distVARight = _distVARight.value
                     distVALeft = _distVALeft.value
                     nearVA = _nearVA.value
+                    caseIdConditions = conditionsJson
                     updatedBy = user?.userName ?: "Unknown"
                     updatedDate = Date().time
                     syncState = 0

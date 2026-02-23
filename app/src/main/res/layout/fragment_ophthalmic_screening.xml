@@ -257,6 +257,39 @@
                 android:visibility="@{viewModel.showVisualImpairmentAlert ? View.VISIBLE : View.GONE}"
                 android:layout_marginBottom="16dp"/>
 
+            <LinearLayout
+                android:id="@+id/ll_case_id_module"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="@{viewModel.showCaseIdSection ? View.VISIBLE : View.GONE}">
+
+                <TextView
+                    android:id="@+id/tv_case_id_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.isCaseIdMandatory ? @string/ophthalmic_case_id_conditions_mandatory : @string/ophthalmic_case_id_conditions}"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/tv_case_id_selection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/select_conditions"
+                        android:inputType="none"
+                        android:focusable="true"
+                        android:clickable="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
 
             <Button
                 android:id="@+id/btn_next"
