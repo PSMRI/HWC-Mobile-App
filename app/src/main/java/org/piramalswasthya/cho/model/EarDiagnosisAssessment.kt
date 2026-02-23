@@ -31,5 +31,16 @@ data class EarDiagnosisAssessment(
     @ColumnInfo(name = "hearing_test_outcome")
     var hearingTestOutcome: String? = null,
 
+    @ColumnInfo(name = "ear_pain")
+    var earPain: Boolean? = null,
+
+    @ColumnInfo(name = "ear_discharge_present")
+    var earDischargePresent: Boolean? = null,
+
+    @ColumnInfo(name = "foreign_body_in_ear")
+    var foreignBodyInEar: String? = null,
+
+
+
 
 ) : FormDataModel

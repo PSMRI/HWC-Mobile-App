@@ -148,6 +148,14 @@ class EarDiagnosisDataset(
                 }
                 -1
             }
+            foreignBody.id -> {
+                if (foreignBody.value == "Yes (Deep)") {
+                    onShowAlert?.invoke(
+                        "Deep foreign body detected. Refer patient to specialist at secondary level."
+                    )
+                }
+                -1
+            }
 
             else -> -1
         }
@@ -173,12 +181,14 @@ class EarDiagnosisDataset(
 
 
 
+
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as EarDiagnosisAssessment).let {
 
             it.difficultyHearing = difficultyHearing.value == "Yes"
 
             it.whisperTestResponse = whisperTestResponse.value
+            it.hearingTestOutcome = hearingTestOutcome.value
 
         }
     }
