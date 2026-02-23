@@ -230,8 +230,6 @@ class OphthalmicScreeningViewModel @Inject constructor(
         }
 
         _showNearVASection.value = (diabetic == false && chart == DropdownConst.CHART_NEAR_VISION)
-        
-        val showCaseIds = _showCaseIdSection.value ?: false
     }
 
     private data class ValidationResult(
