@@ -699,7 +699,7 @@ class LabTechnicianFormFragment : Fragment(R.layout.fragment_lab_technician_form
                 }
             }
         } else {
-            Toast.makeText(requireContext(), "in valid data entered", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.invalid_data_entered), Toast.LENGTH_SHORT).show()
         }
     }
 

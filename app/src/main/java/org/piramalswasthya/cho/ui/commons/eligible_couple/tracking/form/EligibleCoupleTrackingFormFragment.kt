@@ -251,7 +251,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
         
         if (fromVisitDetails) {
             if (benVisitInfo == null) {
-                Toast.makeText(requireContext(), "Loading patient data, please wait...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.loading_patient_data_please_wait), Toast.LENGTH_SHORT).show()
                 return
             }
             try {
@@ -263,7 +263,7 @@ class EligibleCoupleTrackingFormFragment : Fragment(), NavigationAdapter {
                 return
             } catch (e: Exception) {
                 Timber.e(e, "NavController navigate to Visit Details failed")
-                Toast.makeText(requireContext(), "Nav Error: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.nav_error, e.message.orEmpty()), Toast.LENGTH_LONG).show()
             }
         }
 

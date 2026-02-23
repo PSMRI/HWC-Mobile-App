@@ -531,9 +531,9 @@ class PersonalDetailsFragment : Fragment() {
                     if (existingPatient != null) {
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Patient Already Exists")
-                                .setMessage("A patient with Beneficiary ID $beneficiaryID already exists in the system.")
-                                .setPositiveButton("OK", null)
+                                .setTitle(getString(R.string.patient_already_exists))
+                                .setMessage(getString(R.string.patient_already_exists_message, beneficiaryID))
+                                .setPositiveButton(getString(R.string.ok_button), null)
                                 .show()
                         }
                         return@launch
@@ -659,9 +659,9 @@ class PersonalDetailsFragment : Fragment() {
                     } catch (e2: Exception) {
                         withContext(Dispatchers.Main) {
                             MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Error Saving Patient")
-                                .setMessage("Failed to save patient due to missing data. Please ensure all data is synced.")
-                                .setPositiveButton("OK", null)
+                                .setTitle(getString(R.string.error_saving_patient))
+                                .setMessage(getString(R.string.error_saving_patient_message))
+                                .setPositiveButton(getString(R.string.ok_button), null)
                                 .show()
                         }
                         return@launch
@@ -672,7 +672,7 @@ class PersonalDetailsFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             requireContext(),
-                            "Patient saved successfully",
+                            getString(R.string.patient_successfully_registered),
                             Toast.LENGTH_SHORT
                         ).show()
                         
@@ -1737,8 +1737,8 @@ class PersonalDetailsFragment : Fragment() {
             val dialogView =
                 LayoutInflater.from(context).inflate(R.layout.dialog_esanjeevani_login, null)
             val dialog = context?.let {
-                MaterialAlertDialogBuilder(it).setTitle("eSanjeevani Login").setView(dialogView)
-                    .setNegativeButton("Cancel") { dialog, _ ->
+                MaterialAlertDialogBuilder(it).setTitle(getString(R.string.esanjeevani_login)).setView(dialogView)
+                    .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                         dialog.dismiss()
                     }.create()
             }

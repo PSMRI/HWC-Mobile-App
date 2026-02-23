@@ -292,7 +292,7 @@ class PregnantWomanRegistrationFragment : Fragment(), NavigationAdapter {
             message?.let { alertMessage ->
                 // Show the alert dialog
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Alert")
+                    .setTitle(getString(R.string.alert_popup))
                     .setMessage(alertMessage)
                     .setPositiveButton("OK") { dialog, _ ->
                         dialog.dismiss()

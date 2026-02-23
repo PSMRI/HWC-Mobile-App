@@ -43,22 +43,23 @@ class DashboardFragment : Fragment() {
         get() = _binding!!
     lateinit var viewModel: DashboardViewModel
 
-    val months = listOf(
-        "Today",
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-    )
-    private var selectedPeriod : String = "Today"
+    private val months: List<String>
+        get() = listOf(
+            getString(R.string.today),
+            getString(R.string.month_january),
+            getString(R.string.month_february),
+            getString(R.string.month_march),
+            getString(R.string.month_april),
+            getString(R.string.month_may),
+            getString(R.string.month_june),
+            getString(R.string.month_july),
+            getString(R.string.month_august),
+            getString(R.string.month_september),
+            getString(R.string.month_october),
+            getString(R.string.month_november),
+            getString(R.string.month_december)
+        )
+    private var selectedPeriod: String = ""
     private var periodParam : String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,10 +67,12 @@ class DashboardFragment : Fragment() {
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        val arrayAdapter = ArrayAdapter(requireContext(), R.layout.drop_down,months)
+        selectedPeriod = getString(R.string.today)
+        val monthsList = months
+        val arrayAdapter = ArrayAdapter(requireContext(), R.layout.drop_down, monthsList)
 
         _binding!!.selectPeriod.setAdapter(arrayAdapter)
-        _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false);
+        _binding!!.selectPeriod.setText(arrayAdapter.getItem(0), false)
         periodParam = SimpleDateFormat("yyyy-MM-dd").format(Date())
         lifecycleScope.launch {
             fetchAndDisplayCount()

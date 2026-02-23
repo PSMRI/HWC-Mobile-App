@@ -163,7 +163,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
                     handleSaveSuccess()
                 }
                 State.SAVE_FAILED -> {
-                    Toast.makeText(context, "Something went wrong! Contact testing!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.something_wend_wong_contact_testing), Toast.LENGTH_LONG).show()
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                 }
@@ -174,7 +174,7 @@ class PwAncFormFragment() : Fragment(), NavigationAdapter{
     private fun handleSaveSuccess() {
         binding.llContent.visibility = View.VISIBLE
         binding.pbForm.visibility = View.GONE
-        Toast.makeText(context, "Save Successful", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, getString(R.string.save_successful_toast), Toast.LENGTH_LONG).show()
         WorkerUtils.triggerAmritSyncWorker(requireContext())
 
         // When launched directly from ANC listing, there is no patient home to navigate back to.

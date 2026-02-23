@@ -61,8 +61,8 @@ class ChildrenUnderFiveYearsAdapter(
                 binding.tvAge.text = DateTimeUtil.calculateAgeString(it)
                 binding.tvDob.text = DateTimeUtil.formatDate(it)
             } ?: run {
-                binding.tvAge.text = "NA"
-                binding.tvDob.text = "NA"
+                binding.tvAge.text = binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
+                binding.tvDob.text = binding.root.context.getString(org.piramalswasthya.cho.R.string.na)
             }
 
             // Beneficiary ID
