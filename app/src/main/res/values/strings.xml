@@ -416,6 +416,8 @@
     <string name="dispensed_quantity">Dispensed Quantity:</string>
     <string name="expiry_date">Expiry Date:</string>
     <string name="ben_phone_no">Phone No:</string>
+    <string name="ben_visit_date">Visit Date: </string>
+    <string name="ben_visit_num">Visit No: </string>
     <string name="ben_gender">Gender:</string>
     <string name="abha">ABHA</string>
     <string name="view_batch">View Batch</string>

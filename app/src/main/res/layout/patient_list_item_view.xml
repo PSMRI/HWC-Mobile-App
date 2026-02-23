@@ -345,7 +345,7 @@
                                     android:id="@+id/visit_date_label"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Visit Date:"
+                                    android:text="@string/ben_visit_date"
                                     android:textColor="@color/black"
                                     android:textSize="13sp"
                                     android:textStyle="normal" />

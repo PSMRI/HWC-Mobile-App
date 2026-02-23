@@ -413,8 +413,10 @@
     <string name="dispensed_quantity">বিতৰণ কৰা পৰিমাণ:</string>
     <string name="expiry_date">মেয়াদ শেষৰ তাৰিখ:</string>
     <string name="ben_phone_no">ফোন নম্বৰ:</string>
+    <string name="ben_visit_date">ভ্ৰমণ তাৰিখ:</string>
+    <string name="ben_visit_num">ভ্ৰমণ সংখ্যা:</string>
     <string name="ben_gender">লিংগ:</string>
-    <string name="abha">ABHA</string>
+    <string name="abha">এবিএইচএ</string>
     <string name="view_batch">ব্যাচ চাওক</string>
     <string name="ok_button">ঠিক আছে</string>
     <string name="change_role">ভূমিকা সলনি কৰক</string>
