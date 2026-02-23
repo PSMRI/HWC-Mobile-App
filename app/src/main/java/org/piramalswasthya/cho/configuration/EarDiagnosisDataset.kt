@@ -156,8 +156,15 @@ class EarDiagnosisDataset(
                 }
                 -1
             }
-
-            else -> -1
+            congenitalMalformation.id -> {
+                if (congenitalMalformation.value == "Yes") {
+                    onShowAlert?.invoke(
+                        "Congenital ear malformation detected. Refer patient to specialist at secondary level."
+                    )
+                }
+                -1
+            }
+        else -> -1
         }
     }
 
@@ -177,6 +184,27 @@ class EarDiagnosisDataset(
 
         whisperTestResponse.value = cache.whisperTestResponse
         hearingTestOutcome.value = cache.hearingTestOutcome
+        earPain.value = when (cache.earPain) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        earDischarge.value = when (cache.earDischargePresent) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        foreignBody.value = cache.foreignBodyInEar
+        earConditionType.value = cache.earConditionType
+
+        congenitalMalformation.value = when (cache.congenitalEarMalformation) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
     }
 
 
@@ -189,6 +217,14 @@ class EarDiagnosisDataset(
 
             it.whisperTestResponse = whisperTestResponse.value
             it.hearingTestOutcome = hearingTestOutcome.value
+            it.earPain = earPain.value == "Yes"
+            it.earDischargePresent = earDischarge.value == "Yes"
+
+            it.foreignBodyInEar = foreignBody.value
+            it.earConditionType = earConditionType.value
+
+            it.congenitalEarMalformation =
+                congenitalMalformation.value == "Yes"
 
         }
     }
