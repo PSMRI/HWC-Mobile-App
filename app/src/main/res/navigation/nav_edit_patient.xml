@@ -38,6 +38,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_ophthalmicScreeningFragment"
             app:destination="@id/ophthalmicScreeningFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_earDiagnosisFormFragment"
+            app:destination="@id/earDiagnosisFormFragment" />
     </fragment>
 
     <fragment
@@ -248,6 +251,18 @@
             app:argType="string" />
         <argument
             android:name="babyIndex"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/earDiagnosisFormFragment"
+        android:name="org.piramalswasthya.cho.ui.ENT.EarDiagnosisFormFragment"
+        android:label="Ear Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
             app:argType="integer" />
     </fragment>
 

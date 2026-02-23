@@ -107,6 +107,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
     //    private lateinit var subCatAdapter: SubCategoryAdapter
     private var isFileSelected: Boolean = false
     private var isFileUploaded: Boolean = false
+    private var isNavigationInProgress: Boolean = false
 
     @Inject
     lateinit var preferenceDao: PreferenceDao
@@ -415,6 +416,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.ophthalmicReasonForVisitList
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            changeBtnView()
+        }
+        else if(subCat == DropdownConst.ent){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                DropdownConst.entReasons
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -1355,6 +1366,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun navigateNext() {
+        if (isNavigationInProgress) return
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedCategoryRadioButton =
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
@@ -1451,6 +1463,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 }
             }
+            else if(reasonForVisit == DropdownConst.ear || reasonForVisit == DropdownConst.nose || reasonForVisit == DropdownConst.throat){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
 
         }
         else {
@@ -1470,6 +1494,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                         resources.getString(R.string.toast_cat_select),
                         Toast.LENGTH_SHORT
                     ).show()
+                    isNavigationInProgress = false
                     false
                 } else true
 

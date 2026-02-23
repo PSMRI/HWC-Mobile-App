@@ -1064,6 +1064,8 @@
     <string name="no_error_cause_of_death_required">Please select cause of death</string>
     <string name="no_error_vaccines_required">Please select vaccines given</string>
     <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
+    <!-- Ear Diagnosis Form -->
+    <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
 
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
