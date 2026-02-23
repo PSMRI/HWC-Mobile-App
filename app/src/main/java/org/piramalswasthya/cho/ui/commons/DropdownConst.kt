@@ -35,6 +35,15 @@ class DropdownConst {
 
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
         val visualImpairmentList = listOf("6/18", "6/24", "6/36", "6/60", "<6/60")
+        val nearVisualAcuityList = listOf("N6", "N8", "N10", "N12")
+        val nearVAReducedList = listOf("N8", "N10", "N12")
+
+        const val CHART_SNELLENS = "Snellen's distance chart"
+        const val CHART_NEAR_VISION = "Near vision chart"
+        val visualAcuityChartList = listOf(CHART_SNELLENS, CHART_NEAR_VISION)
+
+        const val REASON_SYMPTOMATIC = "Symptomatic"
+        val ophthalmicReasonForVisitList = listOf(screening, REASON_SYMPTOMATIC)
 
 
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
