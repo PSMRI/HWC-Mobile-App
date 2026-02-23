@@ -1366,6 +1366,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun navigateNext() {
+        if (isNavigationInProgress) return
         val selectedCategoryRadioButtonId = binding.radioGroup.checkedRadioButtonId
         val selectedCategoryRadioButton =
             view?.findViewById<RadioButton>(selectedCategoryRadioButtonId)
@@ -1463,12 +1464,13 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 }
             }
             else if(reasonForVisit == DropdownConst.ear || reasonForVisit == DropdownConst.nose || reasonForVisit == DropdownConst.throat){
-                saveVisitData {
-                    isNavigationInProgress = false
-                    binding.btnSubmit.isEnabled = true
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToEarDiagnosisFormFragment(
-                            patientID = benVisitInfo.patient.patientID
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
                         )
                     )
                 }

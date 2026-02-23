@@ -19,4 +19,8 @@ class EarDiagnosisRepo @Inject constructor(
     suspend fun getAssessmentByPatientId(patientID: String): EarDiagnosisAssessment? {
         return earDiagnosisAssessmentDao.getAssessmentByPatientId(patientID)
     }
+
+    suspend fun getAssessmentByPatientIdAndVisitNo(patientID: String, benVisitNo: Int): EarDiagnosisAssessment? {
+        return earDiagnosisAssessmentDao.getAssessmentByPatientIdAndVisitNo(patientID, benVisitNo)
+    }
 }

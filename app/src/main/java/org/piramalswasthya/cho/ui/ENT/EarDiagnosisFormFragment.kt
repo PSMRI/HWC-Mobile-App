@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentEarDiagnosisFormBinding
-import org.piramalswasthya.cho.ui.ENT.EarDiagnosisFormViewModel
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
@@ -157,6 +156,7 @@ class EarDiagnosisFormFragment : Fragment(), NavigationAdapter {
     }
 
     override fun onCancelAction() {
+        onBackPressedCallback.isEnabled = false
         if (!findNavController().navigateUp()) {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -167,6 +167,7 @@ class EarDiagnosisFormFragment : Fragment(), NavigationAdapter {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
         _binding = null
     }
 }

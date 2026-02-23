@@ -261,6 +261,9 @@
         <argument
             android:name="patientID"
             app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
     </fragment>
 
 </navigation>

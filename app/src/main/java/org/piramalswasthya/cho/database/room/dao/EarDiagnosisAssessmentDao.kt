@@ -25,4 +25,13 @@ interface EarDiagnosisAssessmentDao {
                 "ORDER BY assessment_id DESC LIMIT 1"
     )
     suspend fun getAssessmentByPatientId(patientID: String): EarDiagnosisAssessment?
+
+
+    @Query(
+        "SELECT * FROM EAR_DIAGNOSIS_ASSESSMENT " +
+                "WHERE patient_id = :patientID " +
+                "AND ben_visit_no = :benVisitNo " +
+                "ORDER BY assessment_id DESC LIMIT 1"
+    )
+    suspend fun getAssessmentByPatientIdAndVisitNo(patientID: String, benVisitNo: Int): EarDiagnosisAssessment?
 }
