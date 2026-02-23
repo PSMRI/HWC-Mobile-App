@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">AAM</string>
     <string name="all_td_doses_message"> All TD doses have been given</string>
+    <string name="anc_alert_bradycardia">Bradycardia detected — High Risk Pregnancy</string>
+    <string name="anc_alert_tachycardia">Tachycardia detected — High Risk Pregnancy</string>
+    <string name="anc_alert_blood_sugar_high">Blood Sugar (Fasting) - High Risk Pregnancy</string>
+    <string name="anc_alert_urine_sugar_hrp">Urine Sugar positive — High Risk Pregnancy</string>
+    <string name="anc_alert_urine_albumin_hrp">Urine Albumin positive — High Risk Pregnancy</string>
+    <string name="anc_alert_hb_severe_anemia">Severe Anaemia — High Risk Pregnancy</string>
+    <string name="anc_alert_bp_hrp">Abnormal Blood Pressure detected — High Risk Pregnancy</string>
+    <string name="anc_alert_danger_signs_hrp">Alert: Danger Sign(s) selected — High Risk Pregnancy</string>
     <string name="PREF_NAME" translatable="false">cho-pref-1</string>
     <string name="PREF_D2D_API_KEY" translatable="false">JWT-Token_A</string>
     <string name="PREF_primary_API_KEY" translatable="false">JWT-Token_B</string>

@@ -759,11 +759,11 @@ abstract class Dataset(context: Context, currentLanguage: Languages) {
         else {
             val sys = matchResult.groupValues[1].toInt()
             val dia = matchResult.groupValues[2].toInt()
-            bp.errorText = if (sys < minSys) "Systole should not be less than $minSys"
-            else if (sys > maxSys) "Systole should not be greater than $maxSys"
-            else if (dia < minDia) "Diastole should not be less then $minDia"
-            else if (dia > maxDia) "Diastole should not be greater than $maxDia"
-            else if (dia > sys) "Diastole cannot be greater than systole"
+            bp.errorText = if (sys < minSys) "Systolic should not be less than $minSys"
+            else if (sys > maxSys) "Systolic should not be greater than $maxSys"
+            else if (dia < minDia) "Diastolic should not be less than $minDia"
+            else if (dia > maxDia) "Diastolic should not be greater than $maxDia"
+            else if (dia > sys) "Diastolic cannot be greater than systolic"
             else null
         }
         return -1
