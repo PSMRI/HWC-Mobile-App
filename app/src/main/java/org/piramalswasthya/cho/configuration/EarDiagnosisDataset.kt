@@ -213,18 +213,33 @@ class EarDiagnosisDataset(
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as EarDiagnosisAssessment).let {
 
-            it.difficultyHearing = difficultyHearing.value == "Yes"
+            it.difficultyHearing = when (difficultyHearing.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
 
             it.whisperTestResponse = whisperTestResponse.value
             it.hearingTestOutcome = hearingTestOutcome.value
-            it.earPain = earPain.value == "Yes"
-            it.earDischargePresent = earDischarge.value == "Yes"
+            it.earPain = when (earPain.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.earDischargePresent = when (earDischarge.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
 
             it.foreignBodyInEar = foreignBody.value
             it.earConditionType = earConditionType.value
 
-            it.congenitalEarMalformation =
-                congenitalMalformation.value == "Yes"
+            it.congenitalEarMalformation = when (congenitalMalformation.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
 
         }
     }
