@@ -558,9 +558,9 @@
                             android:text="@string/Prescription"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="@color/white"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             app:cornerRadius="@dimen/padding_normal"
-                            app:icon="@drawable/downlaod_icon"
+                            app:icon="@drawable/prescription_document"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent" />
 
