@@ -24,7 +24,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:backgroundTint="@color/primary"
         android:elevation="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
@@ -38,7 +37,7 @@
                 android:id="@+id/ll_title_abortion_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/default_button"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -49,7 +48,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_female"
-                    app:tint="@color/primary" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_patient_name"
@@ -59,7 +58,7 @@
                     android:padding="8dp"
                     android:text="@{item.patient.firstName + ` ` + (item.patient.lastName ?? ``)}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="SINA DD" />
 
@@ -104,14 +103,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/husband_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.patient.spouseName ?? `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="AN" />
                     </LinearLayout>
 
@@ -127,7 +126,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/age_ben"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_age"
@@ -135,7 +134,7 @@
                             android:layout_height="wrap_content"
                             android:text="@{item.getAgeString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="30 YEARS" />
                     </LinearLayout>
 
@@ -160,14 +159,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/beneficiary_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.patient.beneficiaryID != null ? String.valueOf(item.patient.beneficiaryID) : `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="219097846526" />
                     </LinearLayout>
 
@@ -183,14 +182,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_mob_no_ph"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.patient.phoneNo ?? `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="9957027233" />
                     </LinearLayout>
 
@@ -206,14 +205,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_rch_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.pwr != null &amp;&amp; item.pwr.rchId != null ? String.valueOf(item.pwr.rchId) : context.getString(R.string.not_available)}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="Not Available" />
                     </LinearLayout>
 
@@ -238,14 +237,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/weeks_of_pregnancy"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.getWeeksOfPregnancyString()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="15" />
                     </LinearLayout>
 
@@ -261,14 +260,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/lmp_date"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.getFormattedLMPDate()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="08-10-2025" />
                     </LinearLayout>
 
@@ -284,14 +283,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/edd"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.getFormattedEDD()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="15-07-2026" />
                     </LinearLayout>
 
@@ -316,14 +315,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/abortion_date"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{item.getFormattedAbortionDate()}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="20-11-2025" />
                     </LinearLayout>
 
@@ -342,9 +341,10 @@
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:abortionActionText="@{item}"
+                        android:backgroundTint="@color/green"
                         android:onClick="@{() -> item.isAbortionFormFilled ? clickListener.onClickView(item) : clickListener.onClickAdd(item)}"
                         android:textColor="@color/white"
+                        app:abortionActionText="@{item}"
                         tools:text="@string/view" />
 
                 </LinearLayout>

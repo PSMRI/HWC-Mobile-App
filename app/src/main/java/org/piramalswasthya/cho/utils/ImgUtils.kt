@@ -28,7 +28,24 @@ object ImgUtils {
                 try {
                     val options = BitmapFactory.Options()
                     options.inSampleSize = 4
-                    val bm = BitmapFactory.decodeFile(file.path, options)
+                    var bm = BitmapFactory.decodeFile(file.path, options)
+
+                    // Correct EXIF rotation — camera photos are often saved sideways
+                    val exif = android.media.ExifInterface(file.path)
+                    val orientation = exif.getAttributeInt(
+                        android.media.ExifInterface.TAG_ORIENTATION,
+                        android.media.ExifInterface.ORIENTATION_NORMAL
+                    )
+                    val matrix = android.graphics.Matrix()
+                    when (orientation) {
+                        android.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                        android.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                        android.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                    }
+                    if (!matrix.isIdentity) {
+                        bm = Bitmap.createBitmap(bm, 0, 0, bm.width, bm.height, matrix, true)
+                    }
+
                     val stream = ByteArrayOutputStream()
                     bm.compress(Bitmap.CompressFormat.JPEG, 20, stream)
                     val byteFormat = stream.toByteArray()

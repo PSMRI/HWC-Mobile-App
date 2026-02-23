@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:backgroundTint="@color/md_theme_dark_surfaceTint"
         android:elevation="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
@@ -32,7 +31,7 @@
                 android:id="@+id/ll_title_adolescent_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/md_theme_dark_surfaceVariant"
+                android:background="@color/default_button"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -43,7 +42,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_person"
-                    app:tint="@color/md_theme_dark_surfaceTint" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_adolescent_name"
@@ -52,7 +51,7 @@
                     android:layout_weight="1"
                     android:padding="8dp"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/md_theme_dark_surfaceTint"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="Adolescent Name" />
 
@@ -97,7 +96,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/father_s_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_parent_name"
@@ -105,7 +104,7 @@
                             android:layout_height="wrap_content"
                             android:text="Not Available"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer"
+                            android:textColor="@color/black"
                             tools:text="Parent Name" />
                     </LinearLayout>
 
@@ -121,14 +120,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/age_ben"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer"
+                            android:textColor="@color/black"
                             tools:text="12 Years" />
                     </LinearLayout>
 
@@ -144,14 +143,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/gender"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_gender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer"
+                            android:textColor="@color/black"
                             tools:text="Male" />
                     </LinearLayout>
 
@@ -176,14 +175,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/beneficiary_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_beneficiary_id"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer"
+                            android:textColor="@color/black"
                             tools:text="234287380101" />
                     </LinearLayout>
 
@@ -199,14 +198,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_mob_no_ph"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_phone_no"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/md_theme_light_onPrimaryContainer"
+                            android:textColor="@color/black"
                             tools:text="8526843128" />
                     </LinearLayout>
 
