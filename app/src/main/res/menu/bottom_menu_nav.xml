@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:icon="@drawable/ic_nurse"
         android:contentDescription="Navigate to Nurse section"
-        android:title="Nurse" />
+        android:title="@string/nurse_role" />
 <!--    android:icon="@drawable/nurse"-->
     <item
         android:id="@+id/nav_doctor"
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:icon="@drawable/ic_doctor"
         android:contentDescription="Navigate to Doctor section"
-        android:title="Doctor" />
+        android:title="@string/doctor_role" />
 <!--    android:icon="@drawable/doctor"-->
 
     <item
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:icon="@drawable/ic_lab_tech"
         android:contentDescription="Navigate to Lab Technician section"
-        android:title="Lab Technician" />
+        android:title="@string/lab_technician_role" />
 <!--    android:icon="@drawable/lab"-->
     <item
         android:id="@+id/nav_pharmacist"
@@ -39,6 +39,6 @@
         android:layout_height="wrap_content"
         android:icon="@drawable/ic_pharmacist"
         android:contentDescription="Navigate to Pharmacist section"
-        android:title="Pharmacist" />
+        android:title="@string/pharmacist_role" />
 <!--    android:icon="@drawable/pharma"-->
 </menu>

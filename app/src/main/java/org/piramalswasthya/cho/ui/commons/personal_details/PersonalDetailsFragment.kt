@@ -952,10 +952,10 @@ class PersonalDetailsFragment : Fragment() {
     private val searchPrompt by lazy {
         MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.note_ben_reg))
             .setMessage(getString(R.string.no_patient_found))
-            .setPositiveButton("Search") { dialog, _ ->
+            .setPositiveButton(getString(R.string.search)) { dialog, _ ->
                 dialog.dismiss()
                 HomeViewModel.setSearchBool()
-            }.setNegativeButton("Proceed with Registration") { dialog, _ ->
+            }.setNegativeButton(getString(R.string.proceed_with_registration)) { dialog, _ ->
                 val intent = Intent(context, RegisterPatientActivity::class.java).apply {
                     putExtra("photoUri", photoURI.toString())
                     putExtra("facevector", embeddings)

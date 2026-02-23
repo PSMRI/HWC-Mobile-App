@@ -445,6 +445,8 @@
     <string name="doctor_role">Doctor</string>
     <string name="pharmacist_role">Pharmacist</string>
     <string name="lab_technician_role">Lab Technician</string>
+    <string name="cho_role">CHO</string>
+    <string name="proceed_with_registration">Proceed with Registration</string>
     <string name="patient_successfully_registered">Patient Registered Successfully.</string>
     <string name="tap_to_take_photo">Tap to take photo</string>
     <string name="photo">Photo</string>

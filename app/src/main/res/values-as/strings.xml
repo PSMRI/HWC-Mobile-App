@@ -443,6 +443,8 @@
     <string name="doctor_role">ডাক্টৰ</string>
     <string name="pharmacist_role">ফাৰ্মাচিষ্ট</string>
     <string name="lab_technician_role">লেব টেকনিচিয়ান</string>
+    <string name="cho_role">CHO</string>
+    <string name="proceed_with_registration">নিবন্ধনৰ সৈতে আগবঢ়াওক</string>
 
     <string name="patient_successfully_registered">ৰোগী সফলভাৱে নিবন্ধিত হৈছে।</string>
 
