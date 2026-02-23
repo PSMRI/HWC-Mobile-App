@@ -305,8 +305,8 @@ class HomeActivity : AppCompatActivity() {
         val dashboardBool = intent.extras?.getBoolean("dashboardBool", false)
         // Initializing the ViewPagerAdapter
         homeAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-        tab.addTab(tab.newTab().setText("Home"))
-        tab.addTab(tab.newTab().setText("Dashboard"))
+        tab.addTab(tab.newTab().setText(getString(R.string.menu_home)))
+        tab.addTab(tab.newTab().setText(getString(R.string.tab_dashboard)))
 //        tab.addTab(tab.newTab().setText("RMNCH"))
 
         // Adding the Adapter to the ViewPager
@@ -606,9 +606,9 @@ class HomeActivity : AppCompatActivity() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radio_btns, null)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
-            .setTitle("Choose Application Language")
+            .setTitle(getString(R.string.choose_application_language))
 
-            .setPositiveButton("Apply") { dialog, which ->
+            .setPositiveButton(getString(R.string.applytxt)) { dialog, which ->
                 prefDao.saveSetLanguage(currentLanguage)
                 Locale.setDefault(Locale(currentLanguage.symbol))
 
@@ -619,7 +619,7 @@ class HomeActivity : AppCompatActivity() {
 
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.rg_lang_select_dialog)
