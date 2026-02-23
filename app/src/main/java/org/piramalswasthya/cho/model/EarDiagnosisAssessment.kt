@@ -40,7 +40,9 @@ data class EarDiagnosisAssessment(
     @ColumnInfo(name = "foreign_body_in_ear")
     var foreignBodyInEar: String? = null,
 
+    @ColumnInfo(name = "ear_condition_type")
+    var earConditionType: String? = null,
 
-
-
+    @ColumnInfo(name = "congenital_ear_malformation")
+    var congenitalEarMalformation: Boolean? = null
 ) : FormDataModel

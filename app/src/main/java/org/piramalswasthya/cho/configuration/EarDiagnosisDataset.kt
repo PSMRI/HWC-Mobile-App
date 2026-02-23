@@ -156,8 +156,15 @@ class EarDiagnosisDataset(
                 }
                 -1
             }
-
-            else -> -1
+            congenitalMalformation.id -> {
+                if (congenitalMalformation.value == "Yes") {
+                    onShowAlert?.invoke(
+                        "Congenital ear malformation detected. Refer patient to specialist at secondary level."
+                    )
+                }
+                -1
+            }
+        else -> -1
         }
     }
 
@@ -177,6 +184,27 @@ class EarDiagnosisDataset(
 
         whisperTestResponse.value = cache.whisperTestResponse
         hearingTestOutcome.value = cache.hearingTestOutcome
+        earPain.value = when (cache.earPain) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        earDischarge.value = when (cache.earDischargePresent) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
+        foreignBody.value = cache.foreignBodyInEar
+        earConditionType.value = cache.earConditionType
+
+        congenitalMalformation.value = when (cache.congenitalEarMalformation) {
+            true -> "Yes"
+            false -> "No"
+            else -> null
+        }
+
     }
 
 
@@ -185,10 +213,33 @@ class EarDiagnosisDataset(
     override fun mapValues(cacheModel: FormDataModel, pageNumber: Int) {
         (cacheModel as EarDiagnosisAssessment).let {
 
-            it.difficultyHearing = difficultyHearing.value == "Yes"
+            it.difficultyHearing = when (difficultyHearing.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
 
             it.whisperTestResponse = whisperTestResponse.value
             it.hearingTestOutcome = hearingTestOutcome.value
+            it.earPain = when (earPain.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+            it.earDischargePresent = when (earDischarge.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
+
+            it.foreignBodyInEar = foreignBody.value
+            it.earConditionType = earConditionType.value
+
+            it.congenitalEarMalformation = when (congenitalMalformation.value) {
+                "Yes" -> true
+                "No" -> false
+                else -> null
+            }
 
         }
     }
