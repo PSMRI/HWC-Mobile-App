@@ -434,9 +434,9 @@
     <string name="please_select_your_language">অনুগ্ৰহ কৰি আপোনাৰ ভাষা নিৰ্বাচন কৰক</string>
     <string name="please_select_your_language_kannada">ದಯವಿಟ್ಟು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
 
-    <string name="english_lang">ইংৰাজী</string>
+    <string name="english_lang">English</string>
     <string name="kannada_lang">ಕನ್ನಡ</string>
-    <string name="hindi_lang">হিন্দী</string>
+    <string name="hindi_lang">हिंदी</string>
     <string name="assamese">অসমীয়া</string>
 
     <string name="registrar_role">নিবন্ধক</string>
@@ -1258,6 +1258,8 @@
     <string name="esanjeevani_login">ই-সঞ্জীৱনী লগইন</string>
     <string name="update_ready_to_install">আপডেট ইনষ্টল কৰিবলৈ প্ৰস্তুত।</string>
     <string name="restart">পুনৰ আৰম্ভ কৰক</string>
+    <string name="applytxt">প্ৰয়োগ কৰক</string>
+    <string name="choose_application_language">এপ্লিকেচনৰ ভাষা বাছনি কৰক</string>
     <string name="update_canceled_or_failed">আপডেট বাতিল বা বিফল হৈছে।</string>
     <string name="try_again_btn">পুনৰ চেষ্টা কৰক</string>
     <string name="permission_denied">অনুমতি অস্বীকাৰ কৰা হৈছে</string>
