@@ -1138,6 +1138,17 @@ class PregnantWomanAncVisitDataset(
 
             bp.id -> {
                 validateForBp(bp)
+                // PRD: show HRP alert dialog if systolic < 90 or >= 140, or diastolic < 60 or >= 90
+                if (bp.errorText == null) {
+                    val bpVal = bp.value
+                    if (!bpVal.isNullOrEmpty() && bpVal.contains("/")) {
+                        val sys = bpVal.substringBefore("/").toIntOrNull()
+                        val dia = bpVal.substringAfter("/").toIntOrNull()
+                        if ((sys != null && (sys < 90 || sys >= 140)) || (dia != null && (dia < 60 || dia >= 90))) {
+                            emitAlertErrorMessage(R.string.anc_alert_bp_hrp)
+                        }
+                    }
+                }
                 recomputeHighRiskState()
                 -1
             }
@@ -1147,6 +1158,13 @@ class PregnantWomanAncVisitDataset(
             hb.id -> {
                 validateDoubleUpto1DecimalPlaces(hb)
                 if (hb.errorText == null) validateDoubleMinMax(hb)
+                // PRD: show Severe Anaemia alert dialog if Hb < 7
+                if (hb.errorText == null) {
+                    val hbVal = hb.value?.toDoubleOrNull()
+                    if (hbVal != null && hbVal < 7.0) {
+                        emitAlertErrorMessage(R.string.anc_alert_hb_severe_anemia)
+                    }
+                }
                 recomputeHighRiskState()
                 -1
             }
@@ -1356,11 +1374,23 @@ class PregnantWomanAncVisitDataset(
 
             bloodSugarFasting.id -> {
                 validateIntMinMax(bloodSugarFasting)
+                // PRD: show alert dialog if blood sugar > 95 mg/dL
+                if (bloodSugarFasting.errorText == null) {
+                    val bsVal = bloodSugarFasting.value?.toIntOrNull()
+                    if (bsVal != null && bsVal > 95) {
+                        emitAlertErrorMessage(R.string.anc_alert_blood_sugar_high)
+                    }
+                }
                 recomputeHighRiskState()
                 -1
             }
 
             urineSugar.id -> {
+                // PRD: show HRP alert dialog if urine sugar is + or more
+                val urineSugarRiskLevels = arrayOf("+", "++", "+++")
+                if (urineSugar.value in urineSugarRiskLevels) {
+                    emitAlertErrorMessage(R.string.anc_alert_urine_sugar_hrp)
+                }
                 recomputeHighRiskState()
                 -1
             }
@@ -1368,11 +1398,26 @@ class PregnantWomanAncVisitDataset(
             fetalHeartRate.id -> {
                 validateDoubleUpto1DecimalPlaces(fetalHeartRate)
                 if (fetalHeartRate.errorText == null) validateDoubleMinMax(fetalHeartRate)
+                // PRD: show bradycardia / tachycardia alert dialog
+                if (fetalHeartRate.errorText == null) {
+                    val fhrVal = fetalHeartRate.value?.toDoubleOrNull()
+                    when {
+                        fhrVal != null && fhrVal < 110.0 ->
+                            emitAlertErrorMessage(R.string.anc_alert_bradycardia)
+                        fhrVal != null && fhrVal > 160.0 ->
+                            emitAlertErrorMessage(R.string.anc_alert_tachycardia)
+                    }
+                }
                 recomputeHighRiskState()
                 -1
             }
 
             urineAlbumin.id -> {
+                // PRD: show HRP alert dialog if urine albumin is + or more
+                val albuminRiskLevels = arrayOf("+", "++", "+++")
+                if (urineAlbumin.value in albuminRiskLevels) {
+                    emitAlertErrorMessage(R.string.anc_alert_urine_albumin_hrp)
+                }
                 recomputeHighRiskState()
                 -1
             }
@@ -1381,31 +1426,33 @@ class PregnantWomanAncVisitDataset(
 
             dangerSigns.id -> {
                 // Logic to handle "None" exclusivity
-                val noneStr = dangerSigns.entries?.firstOrNull() ?: "None"
+                val noneStr = "None"
                 val currentVal = dangerSigns.value
-                // index passed from Adapter: 
-                // CheckBox adapter passes index * (1 or -1). 
-                // But for index 0, it is always 0. 
-                // We rely on currentVal state relative to index.
-                
-                if (index == 0) { // Interaction with "None" (Index 0)
-                     if (currentVal?.contains(noneStr) == true) {
-                         // "None" is checked. Clear everything else.
-                         dangerSigns.value = noneStr
-                     }
+                val noneIndex = dangerSigns.entries?.indexOf(noneStr) ?: -1
+
+                if (index == noneIndex) { // Interaction with "None"
+                    if (currentVal?.contains(noneStr) == true) {
+                        // "None" is checked. Clear everything else.
+                        dangerSigns.value = noneStr
+                    }
                 } else { // Interaction with other options
                     if (currentVal?.contains(noneStr) == true && currentVal.length > noneStr.length) {
-                        // "None" is present AND other items are present.
-                        // User checked something else. Remove "None".
-                        // Logic: Remove "None" and cleanup commas
+                        // "None" is present AND other items are present. Remove "None".
                         val pattern = "$noneStr,"
                         val pattern2 = ",$noneStr"
                         var newVal = currentVal.replace(pattern, "").replace(pattern2, "")
-                        if (newVal == noneStr) newVal = "" // Should not happen if length check passed but safety
+                        if (newVal == noneStr) newVal = ""
                         dangerSigns.value = newVal
                     }
                 }
-                
+
+                // PRD: show HRP alert dialog when any danger sign (other than None) selected
+                val updatedVal = dangerSigns.value
+                val hasSignAfterUpdate = !updatedVal.isNullOrEmpty() && !updatedVal.equals(noneStr, ignoreCase = true)
+                if (hasSignAfterUpdate) {
+                    emitAlertErrorMessage(R.string.anc_alert_danger_signs_hrp)
+                }
+
                 recomputeHighRiskState()
                 -1
             }

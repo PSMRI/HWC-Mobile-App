@@ -70,6 +70,7 @@ class PwAncFormViewModel @Inject constructor(
     private val dataset =
         PregnantWomanAncVisitDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
+    val ancAlertMessage = dataset.alertErrorMessageFlow
 
     private lateinit var ancCache: PregnantWomanAncCache
     private lateinit var registerRecord: PregnantWomanRegistrationCache
@@ -352,5 +353,8 @@ class PwAncFormViewModel @Inject constructor(
     
     fun getPatientID(): String = patientID
 
+    fun resetAlertMessage() {
+        viewModelScope.launch { dataset.resetErrorMessageFlow() }
+    }
 
 }

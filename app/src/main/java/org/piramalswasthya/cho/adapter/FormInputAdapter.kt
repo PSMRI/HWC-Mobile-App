@@ -361,8 +361,8 @@ class FormInputAdapter(
                             RadioGroup.LayoutParams.WRAP_CONTENT,
                             1.0F
                         ).apply {
-                        gravity = Gravity.CENTER_HORIZONTAL
-                    }
+                            gravity = Gravity.CENTER_HORIZONTAL
+                        }
                         rdBtn.id = View.generateViewId()
                         val colorStateList = ColorStateList(
                             arrayOf<IntArray>(
@@ -657,14 +657,14 @@ class FormInputAdapter(
 
                         val parsedHour = hourStr.toIntOrNull() ?: 0
                         val hasAmPm = timeValue.contains("AM", ignoreCase = true) ||
-                                     timeValue.contains("PM", ignoreCase = true) ||
-                                     timeValue.contains("am", ignoreCase = true) ||
-                                     timeValue.contains("pm", ignoreCase = true)
+                                timeValue.contains("PM", ignoreCase = true) ||
+                                timeValue.contains("am", ignoreCase = true) ||
+                                timeValue.contains("pm", ignoreCase = true)
 
                         if (hasAmPm) {
                             // Already in 12-hour format with AM/PM - convert to 24-hour format
                             val isPM = timeValue.contains("PM", ignoreCase = true) ||
-                                       timeValue.contains("pm", ignoreCase = true)
+                                    timeValue.contains("pm", ignoreCase = true)
                             hourOfDay = when {
                                 parsedHour == 12 && !isPM -> 0   // 12 AM = 0:00
                                 parsedHour == 12 && isPM -> 12   // 12 PM = 12:00
@@ -886,7 +886,7 @@ class FormInputAdapter(
 
         recyclerView?.let { syncAllEditTextValues(it) }
 
-        clearErrorsForValidFields()
+        clearErrorsForValidFields(resources)
 
         val firstErrorIndex = findFirstFieldWithError()
         if (firstErrorIndex != -1) return firstErrorIndex
@@ -894,11 +894,12 @@ class FormInputAdapter(
         return validateRequiredFields(resources)
     }
 
-    private fun clearErrorsForValidFields() {
+    private fun clearErrorsForValidFields(resources: Resources) {
+        val requiredError = resources.getString(R.string.form_input_empty_error)
         currentList.forEachIndexed { index, it ->
             if (it.inputType != TEXT_VIEW && it.required) {
                 val trimmedValue = it.value?.trim()
-                if (!trimmedValue.isNullOrBlank() && it.errorText != null) {
+                if (!trimmedValue.isNullOrBlank() && it.errorText == requiredError) {
                     it.errorText = null
                     notifyItemChanged(index)
                 }
