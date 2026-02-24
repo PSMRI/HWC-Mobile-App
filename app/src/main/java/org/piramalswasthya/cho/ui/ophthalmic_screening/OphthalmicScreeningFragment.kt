@@ -234,7 +234,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             }
         }
     }
-
+// For conflict
     private fun observeConditionSubFields() {
         observeSubFieldVisibility()
         observeSubFieldAlerts()
