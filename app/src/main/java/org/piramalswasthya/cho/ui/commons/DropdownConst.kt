@@ -73,6 +73,16 @@ class DropdownConst {
             CONDITION_EYE_ALLERGY
         )
 
+        const val TRACHOMA_SUSPECTED_ACTIVE = "Suspected active trachoma"
+        const val TRACHOMA_SUSPECTED_TT = "Suspected TT/TI"
+        const val TRACHOMA_NONE = "No trachoma"
+        val trachomaStatusList = listOf(TRACHOMA_SUSPECTED_ACTIVE, TRACHOMA_SUSPECTED_TT, TRACHOMA_NONE)
+
+        const val CORNEAL_OPACITY = "Corneal opacity"
+        const val CORNEAL_ULCER = "Corneal ulcer suspected"
+        const val CORNEAL_OTHER = "Other corneal pathology"
+        val cornealDiseaseTypeList = listOf(CORNEAL_OPACITY, CORNEAL_ULCER, CORNEAL_OTHER)
+
         val consciousnessList = mutableListOf("Conscious", "Semi Conscious", "Unconscious")
         val dangerSignList = mutableListOf("Fast Breathing", "Chest Indrawing", "Stridor", "Grunt", "Respiratory Distress", "Cold and Calm Peripheral Pulses", "Convulsions", "Hypothermia", "Delirium", "Drowsy", "Uncontrolled Bleeding", "Hematemesis", "Refusal of Fits")
         val lymphNodeList = mutableListOf("Cervical LN", "Axillary LN", "Inguinal LN", "Generalised LN")

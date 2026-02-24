@@ -52,6 +52,7 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         setupDropdowns()
         setupClickListeners()
         setupObservers()
+        observeConditionSubFields()
         viewModel.loadOphthalmicVisit(args.patientID, args.benVisitNo, args.reasonForVisit)
 
         val headerTitle = if (args.reasonForVisit == DropdownConst.REASON_SYMPTOMATIC)
@@ -91,13 +92,62 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
         binding.actvNearVa.setOnItemClickListener { _, _, position, _ ->
             viewModel.setNearVA(nearVaValues[position])
         }
+
+        val trachomaValues = DropdownConst.trachomaStatusList
+        val trachomaAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, trachomaValues)
+        binding.actvTrachomaStatus.setAdapter(trachomaAdapter)
+        binding.actvTrachomaStatus.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setTrachomaStatus(trachomaValues[position])
+        }
+
+        val cornealValues = DropdownConst.cornealDiseaseTypeList
+        val cornealAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cornealValues)
+        binding.actvCornealDiseaseType.setAdapter(cornealAdapter)
+        binding.actvCornealDiseaseType.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setCornealDiseaseType(cornealValues[position])
+        }
     }
 
     private fun setupClickListeners() {
         binding.btnNext.setOnClickListener { navigateAfterSave() }
-        
+
         binding.tvCaseIdSelection.setOnClickListener {
             showCaseIdMultiSelectDialog()
+        }
+
+        binding.rgCataractSymptoms.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_cataract_yes -> viewModel.setCataractSymptoms(true)
+                R.id.rb_cataract_no -> viewModel.setCataractSymptoms(false)
+            }
+        }
+
+        binding.rgGlaucomaSymptoms.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_glaucoma_yes -> viewModel.setGlaucomaSymptoms(true)
+                R.id.rb_glaucoma_no -> viewModel.setGlaucomaSymptoms(false)
+            }
+        }
+
+        binding.rgDrSymptoms.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_dr_yes -> viewModel.setDrSymptoms(true)
+                R.id.rb_dr_no -> viewModel.setDrSymptoms(false)
+            }
+        }
+
+        binding.rgPresbyopiaSymptoms.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_presbyopia_yes -> viewModel.setPresbyopiaSymptoms(true)
+                R.id.rb_presbyopia_no -> viewModel.setPresbyopiaSymptoms(false)
+            }
+        }
+
+        binding.rgVitaminADeficiency.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_vitamin_a_yes -> viewModel.setVitaminADeficiency(true)
+                R.id.rb_vitamin_a_no -> viewModel.setVitaminADeficiency(false)
+            }
         }
     }
 
@@ -182,6 +232,110 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
             } else {
                 binding.tvCaseIdSelection.setText(conditions.joinToString(", "))
             }
+        }
+    }
+    private fun observeConditionSubFields() {
+        observeSubFieldVisibility()
+        observeSubFieldAlerts()
+        observeSubFieldRestoration()
+    }
+
+    private fun observeSubFieldVisibility() {
+        viewModel.showCataractSubField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llCataractSubfield, binding.rgCataractSymptoms)
+        }
+        viewModel.showGlaucomaSubField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llGlaucomaSubfield, binding.rgGlaucomaSymptoms)
+        }
+        viewModel.showDrSubField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llDrSubfield, binding.rgDrSymptoms)
+        }
+        viewModel.showPresbyopiaSubField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llPresbyopiaSubfield, binding.rgPresbyopiaSymptoms)
+        }
+        viewModel.showTrachomaSubField.observe(viewLifecycleOwner) { show ->
+            updateTextViewVisibility(show, binding.llTrachomaSubfield, binding.actvTrachomaStatus)
+        }
+        viewModel.showCornealSubField.observe(viewLifecycleOwner) { show ->
+            updateTextViewVisibility(show, binding.llCornealSubfield, binding.actvCornealDiseaseType)
+        }
+        viewModel.showVitaminASubField.observe(viewLifecycleOwner) { show ->
+            updateRadioGroupVisibility(show, binding.llVitaminASubfield, binding.rgVitaminADeficiency)
+        }
+    }
+
+    private fun updateRadioGroupVisibility(show: Boolean, layout: View, radioGroup: android.widget.RadioGroup) {
+        layout.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) radioGroup.clearCheck()
+    }
+
+    private fun updateTextViewVisibility(show: Boolean, layout: View, textView: android.widget.AutoCompleteTextView) {
+        layout.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) textView.setText("", false)
+    }
+
+    private fun observeSubFieldAlerts() {
+        viewModel.showCataractAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvCataractAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showGlaucomaAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvGlaucomaAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showDrAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvDrAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showPresbyopiaAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvPresbyopiaAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showTrachomaAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvTrachomaAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showCornealAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvCornealAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+        viewModel.showVitaminAAlert.observe(viewLifecycleOwner) { show ->
+            binding.tvVitaminAAlert.visibility = if (show) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun observeSubFieldRestoration() {
+        viewModel.cataractSymptoms.observe(viewLifecycleOwner) { value ->
+            applyRadioState(binding.rgCataractSymptoms, value, R.id.rb_cataract_yes, R.id.rb_cataract_no)
+        }
+        viewModel.glaucomaSymptoms.observe(viewLifecycleOwner) { value ->
+            applyRadioState(binding.rgGlaucomaSymptoms, value, R.id.rb_glaucoma_yes, R.id.rb_glaucoma_no)
+        }
+        viewModel.drSymptoms.observe(viewLifecycleOwner) { value ->
+            applyRadioState(binding.rgDrSymptoms, value, R.id.rb_dr_yes, R.id.rb_dr_no)
+        }
+        viewModel.presbyopiaSymptoms.observe(viewLifecycleOwner) { value ->
+            applyRadioState(binding.rgPresbyopiaSymptoms, value, R.id.rb_presbyopia_yes, R.id.rb_presbyopia_no)
+        }
+        viewModel.vitaminADeficiency.observe(viewLifecycleOwner) { value ->
+            applyRadioState(binding.rgVitaminADeficiency, value, R.id.rb_vitamin_a_yes, R.id.rb_vitamin_a_no)
+        }
+        viewModel.trachomaStatus.observe(viewLifecycleOwner) { value ->
+            if (!value.isNullOrEmpty() && binding.actvTrachomaStatus.text.toString() != value) {
+                binding.actvTrachomaStatus.setText(value, false)
+            }
+        }
+        viewModel.cornealDiseaseType.observe(viewLifecycleOwner) { value ->
+            if (!value.isNullOrEmpty() && binding.actvCornealDiseaseType.text.toString() != value) {
+                binding.actvCornealDiseaseType.setText(value, false)
+            }
+        }
+    }
+
+    private fun applyRadioState(
+        group: android.widget.RadioGroup,
+        value: Boolean?,
+        yesId: Int,
+        noId: Int
+    ) {
+        when (value) {
+            true -> group.check(yesId)
+            false -> group.check(noId)
+            null -> group.clearCheck()
         }
     }
 
