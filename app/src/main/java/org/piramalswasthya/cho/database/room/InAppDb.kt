@@ -65,6 +65,7 @@ import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
 import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PsychosocialCaregiverSupportDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.AshaDueListCache
@@ -155,6 +156,7 @@ import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 import org.piramalswasthya.cho.model.PainAndSymptomAssessment
+import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
 
 
 @Database(
@@ -247,10 +249,11 @@ import org.piramalswasthya.cho.model.PainAndSymptomAssessment
         StatusOfWomanMaster::class,
         OphthalmicVisit::class,
         EarDiagnosisAssessment::class,
-        PainAndSymptomAssessment::class
+        PainAndSymptomAssessment::class,
+        PsychosocialCaregiverSupport::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 129, exportSchema = false
+    version = 130, exportSchema = false
 )
 
 
@@ -319,6 +322,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
     abstract val painAndSymptomAssessmentDao: PainAndSymptomAssessmentDao
+    abstract val psychosocialCaregiverSupportDao: PsychosocialCaregiverSupportDao
 
 
     // This comment is for Github glitch
@@ -764,6 +768,23 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_129_130 = object : Migration(129, 130) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PSYCHOSOCIAL_CAREGIVER_SUPPORT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                psychosocial_counselling_provided INTEGER,
+                caregiver_counselling_provided INTEGER,
+                caregiver_distress_identified INTEGER,
+                counselling_remarks TEXT
+            )
+            """.trimIndent()
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -800,7 +821,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_125_126,
                             MIGRATION_126_127,
                             MIGRATION_127_128,
-                            MIGRATION_128_129
+                            MIGRATION_128_129,
+                            MIGRATION_129_130
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

@@ -465,7 +465,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 requireContext(),
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
-                listOf(DropdownConst.persistentPain)
+                listOf(DropdownConst.persistentPain, DropdownConst.psychosocialCaregiverSupport)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -1521,6 +1521,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     binding.btnSubmit.isEnabled = false
                     findNavController().navigate(
                         FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPainAndSymptomAssessmentFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
+            else if(reasonForVisit == DropdownConst.psychosocialCaregiverSupport){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPsychosocialCaregiverSupportFormFragment(
                             patientID = benVisitInfo.patient.patientID,
                             benVisitNo = benVisitNo
                         )
