@@ -263,21 +263,7 @@ class PatientRepo @Inject constructor(
         return patientDao.getAdolescentListCount()
     }
 
-    /**
-     * Get all children under 5 years (age in days <= 1825).
-     * Single list for child care services; matches DAO day-based range.
-     */
-    fun getChildrenUnderFiveList(): Flow<List<PatientDisplay>> {
-        return patientDao.getAllChildrenUnderFiveList()
-    }
 
-    /**
-     * Get count of children under 5 years (age in days <= 1825).
-     * Matches DAO day-based range.
-     */
-    fun getChildrenUnderFiveListCount(): Flow<Int> {
-        return patientDao.getChildrenUnderFiveListCount()
-    }
 
 //    suspend fun updateFlagsByBenRegId(benFlow: BenFlow) {
 //        val patient = patientDao.getPatientByBenRegId(benFlow.beneficiaryRegID!!)

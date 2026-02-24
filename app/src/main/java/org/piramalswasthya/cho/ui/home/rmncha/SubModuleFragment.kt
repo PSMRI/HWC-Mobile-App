@@ -1,6 +1,5 @@
 package org.piramalswasthya.cho.ui.home.rmncha
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,14 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.IconGridAdapter
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_CHILD_CARE
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_ELIGIBLE_COUPLE
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_MATERNAL_HEALTH
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.MODULE_TYPE_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_EC_TRACKING_KEY
@@ -28,7 +24,6 @@ import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_AB
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_INFANT_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILD_LIST_KEY
 import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_ADOLESCENT_LIST_KEY
-import org.piramalswasthya.cho.configuration.RMNCHAIconDataset.Companion.SHOW_CHILDREN_UNDER_FIVE_LIST_KEY
 import org.piramalswasthya.cho.databinding.RvIconGridBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -99,7 +94,6 @@ class SubModuleFragment : Fragment() {
                     val showInfantList = navDirections.arguments.getBoolean(SHOW_INFANT_LIST_KEY, false)
                     val showChildList = navDirections.arguments.getBoolean(SHOW_CHILD_LIST_KEY, false)
                     val showAdolescentList = navDirections.arguments.getBoolean(SHOW_ADOLESCENT_LIST_KEY, false)
-                    val showChildrenUnderFiveList = navDirections.arguments.getBoolean(SHOW_CHILDREN_UNDER_FIVE_LIST_KEY, false)
                     
                     when {
                         showECTracking -> {
@@ -176,14 +170,6 @@ class SubModuleFragment : Fragment() {
                                 addToBackStack(null)
                             }
                         }
-                        showChildrenUnderFiveList -> {
-                            // Navigate to Children under 5 Years List Fragment
-                            val fragment = org.piramalswasthya.cho.ui.home.rmncha.child_care.ChildrenUnderFiveYearsFragment()
-                            requireActivity().supportFragmentManager.commit {
-                                replace(R.id.fragment_container, fragment)
-                                addToBackStack(null)
-                            }
-                        }
                         else -> {
                             // Other sub-modules - placeholder
                             Toast.makeText(
@@ -205,8 +191,6 @@ class SubModuleFragment : Fragment() {
         // Load appropriate dataset based on module type
         val iconList = when (moduleType) {
             MODULE_MATERNAL_HEALTH -> iconDataset.getMaternalHealthDataset(resources)
-            MODULE_CHILD_CARE -> iconDataset.getChildCareDataset(resources)
-            MODULE_ELIGIBLE_COUPLE -> iconDataset.getEligibleCoupleDataset(resources)
             else -> emptyList()
         }
         
@@ -217,8 +201,6 @@ class SubModuleFragment : Fragment() {
         super.onResume()
         val titleRes = when (moduleType) {
             MODULE_MATERNAL_HEALTH -> R.string.maternal_health
-            MODULE_CHILD_CARE -> R.string.child_care
-            MODULE_ELIGIBLE_COUPLE -> R.string.eligible_couple_list
             else -> null
         }
         titleRes?.let {

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="patientWithPwr"
             type="org.piramalswasthya.cho.model.PatientWithPwrDomain" />
@@ -18,7 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:backgroundTint="@color/primary"
         android:elevation="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
@@ -32,7 +32,7 @@
                 android:id="@+id/ll_title_anc_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/default_button"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -43,7 +43,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_female"
-                    app:tint="@color/primary" />
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_patient_name"
@@ -53,7 +53,7 @@
                     android:padding="8dp"
                     android:text="@{patientWithPwr.patient.firstName + ` ` + (patientWithPwr.patient.lastName ?? ``)}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="MINAKSI FUSS" />
 
@@ -118,14 +118,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/husband_name"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithPwr.patient.spouseName ?? `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="MANDE FUSS" />
                     </LinearLayout>
 
@@ -141,14 +141,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/age_ben"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_age"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             app:ageFromDate="@{patientWithPwr.patient.dob}"
                             tools:text="29 YEARS" />
                     </LinearLayout>
@@ -174,14 +174,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/beneficiary_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithPwr.patient.beneficiaryID != null ? String.valueOf(patientWithPwr.patient.beneficiaryID) : `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="234287380101" />
                     </LinearLayout>
 
@@ -197,14 +197,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_mob_no_ph"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithPwr.patient.phoneNo ?? `NA`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="8526843128" />
                     </LinearLayout>
 
@@ -220,14 +220,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/tv_rch_id"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{patientWithPwr.pwr != null &amp;&amp; patientWithPwr.pwr.rchId != null &amp;&amp; patientWithPwr.pwr.rchId != 0L ? String.valueOf(patientWithPwr.pwr.rchId) : `Not Available`}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="Not Available" />
                     </LinearLayout>
 
@@ -252,14 +252,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/weeks_of_pregnancy"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_weeks_pregnancy"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="28" />
                     </LinearLayout>
 
@@ -275,14 +275,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/lmp_date"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_lmp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="19-12-2024" />
                     </LinearLayout>
 
@@ -298,14 +298,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/edd"
                             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
 
                         <TextView
                             android:id="@+id/tv_edd"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             tools:text="25-09-2025" />
                     </LinearLayout>
 
@@ -323,7 +323,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/last_visit_date"
                         android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/black" />
 
                     <TextView
                         android:id="@+id/tv_last_visit"
@@ -331,25 +331,34 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         tools:text="24-01-2025" />
                 </LinearLayout>
 
                 <!-- Row 5: Action Buttons -->
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="horizontal"
                     android:paddingTop="8dp">
+
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:constraint_referenced_ids="btn_add_anc,btn_anc_visits,btn_add_pmsma"
+                        app:flow_horizontalBias="0.0"
+                        app:flow_horizontalGap="8dp"
+                        app:flow_horizontalStyle="packed"
+                        app:flow_wrapMode="chain"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_add_anc"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:backgroundTint="@android:color/holo_green_dark"
+                        android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickAddANC(patientWithPwr)}"
                         android:text="@string/add_anc_visit"
                         android:textColor="@color/white" />
@@ -359,8 +368,7 @@
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:backgroundTint="@android:color/holo_green_dark"
+                        android:backgroundTint="@color/green"
                         android:onClick="@{() -> clickListener.onClickANCVisits(patientWithPwr)}"
                         android:text="@string/anc_visits"
                         android:textColor="@color/white" />
@@ -375,7 +383,8 @@
                         android:text="@string/add_pmsma"
                         android:textColor="@color/white" />
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             </LinearLayout>
 
