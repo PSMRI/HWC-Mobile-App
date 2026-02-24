@@ -243,33 +243,36 @@ class OphthalmicScreeningFragment : Fragment(), NavigationAdapter {
 
     private fun observeSubFieldVisibility() {
         viewModel.showCataractSubField.observe(viewLifecycleOwner) { show ->
-            binding.llCataractSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.rgCataractSymptoms.clearCheck()
+            updateRadioGroupVisibility(show, binding.llCataractSubfield, binding.rgCataractSymptoms)
         }
         viewModel.showGlaucomaSubField.observe(viewLifecycleOwner) { show ->
-            binding.llGlaucomaSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.rgGlaucomaSymptoms.clearCheck()
+            updateRadioGroupVisibility(show, binding.llGlaucomaSubfield, binding.rgGlaucomaSymptoms)
         }
         viewModel.showDrSubField.observe(viewLifecycleOwner) { show ->
-            binding.llDrSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.rgDrSymptoms.clearCheck()
+            updateRadioGroupVisibility(show, binding.llDrSubfield, binding.rgDrSymptoms)
         }
         viewModel.showPresbyopiaSubField.observe(viewLifecycleOwner) { show ->
-            binding.llPresbyopiaSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.rgPresbyopiaSymptoms.clearCheck()
+            updateRadioGroupVisibility(show, binding.llPresbyopiaSubfield, binding.rgPresbyopiaSymptoms)
         }
         viewModel.showTrachomaSubField.observe(viewLifecycleOwner) { show ->
-            binding.llTrachomaSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.actvTrachomaStatus.setText("")
+            updateTextViewVisibility(show, binding.llTrachomaSubfield, binding.actvTrachomaStatus)
         }
         viewModel.showCornealSubField.observe(viewLifecycleOwner) { show ->
-            binding.llCornealSubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.actvCornealDiseaseType.setText("")
+            updateTextViewVisibility(show, binding.llCornealSubfield, binding.actvCornealDiseaseType)
         }
         viewModel.showVitaminASubField.observe(viewLifecycleOwner) { show ->
-            binding.llVitaminASubfield.visibility = if (show) View.VISIBLE else View.GONE
-            if (!show) binding.rgVitaminADeficiency.clearCheck()
+            updateRadioGroupVisibility(show, binding.llVitaminASubfield, binding.rgVitaminADeficiency)
         }
+    }
+
+    private fun updateRadioGroupVisibility(show: Boolean, layout: View, radioGroup: android.widget.RadioGroup) {
+        layout.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) radioGroup.clearCheck()
+    }
+
+    private fun updateTextViewVisibility(show: Boolean, layout: View, textView: android.widget.AutoCompleteTextView) {
+        layout.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) textView.setText("", false)
     }
 
     private fun observeSubFieldAlerts() {
