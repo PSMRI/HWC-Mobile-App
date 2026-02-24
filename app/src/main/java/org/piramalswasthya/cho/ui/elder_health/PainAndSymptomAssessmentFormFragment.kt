@@ -1,183 +1,61 @@
 package org.piramalswasthya.cho.ui.elder_health
 
-import android.app.AlertDialog
-import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentPainSymptomAssessmentFormBinding
-import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
-import org.piramalswasthya.cho.ui.commons.NavigationAdapter
+import org.piramalswasthya.cho.model.FormElement
+import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import android.os.Bundle
 
 @AndroidEntryPoint
-class PainAndSymptomAssessmentFormFragment : Fragment(), NavigationAdapter {
+class PainAndSymptomAssessmentFormFragment :
+    BaseAssessmentFormFragment<PainAndSymptomAssessmentFormViewModel>() {
 
     private var _binding: FragmentPainSymptomAssessmentFormBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: PainAndSymptomAssessmentFormViewModel by viewModels()
+    override val viewModel: PainAndSymptomAssessmentFormViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    // ── View references ───────────────────────────────────────────────────────
+
+    override val inputFormRecyclerView: RecyclerView get() = binding.form.rvInputForm
+    override val contentLayout: View get() = binding.llContent
+    override val progressBar: View get() = binding.pbForm
+    override val benNameTextView: TextView get() = binding.tvBenName
+    override val ageGenderTextView: TextView get() = binding.tvAgeGender
+    override val submitButton: View get() = binding.btnSubmit
+    override val cancelButton: View get() = binding.btnCancel
+
+    // ── Form-specific values ──────────────────────────────────────────────────
+
+    override fun getFormTitle(): String = getString(R.string.title_pain_symptom_assessment)
+    override fun getSaveSuccessMessage(): String = "Pain & Symptom Assessment Saved"
+    override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
+    override fun onUpdateFormValue(formId: Int, index: Int) =
+        viewModel.updateListOnValueChanged(formId, index)
+    override fun onSaveForm() = viewModel.saveForm()
+    override fun getFragmentId(): Int = R.id.fragment_pain_symptom_assessment_form
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding =
-            FragmentPainSymptomAssessmentFormBinding.inflate(inflater, container, false)
+        _binding = FragmentPainSymptomAssessmentFormBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback
-        )
-
-        setupForm()
-        observeViewModel()
-
-        viewModel.benName.observe(viewLifecycleOwner) {
-            binding.tvBenName.text = it
-        }
-
-        viewModel.benAgeGender.observe(viewLifecycleOwner) {
-            binding.tvAgeGender.text = it
-        }
-
-        binding.btnSubmit.setOnClickListener { submitForm() }
-        binding.btnCancel.setOnClickListener { onCancelAction() }
-    }
-
-    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            onCancelAction()
-        }
-    }
-
-    private fun setupForm() {
-
-        val adapter = FormInputAdapter(
-            formValueListener = FormInputAdapter.FormValueListener { formId, index ->
-                viewModel.updateListOnValueChanged(formId, index)
-            },
-            isEnabled = true
-        )
-
-        binding.form.rvInputForm.layoutManager =
-            LinearLayoutManager(requireContext())
-
-        binding.form.rvInputForm.adapter = adapter
-
-        lifecycleScope.launch {
-            viewModel.formList.collect { list ->
-                if (list.isNotEmpty()) {
-                    adapter.submitList(list)
-                }
-            }
-        }
-
-        (activity as? AppCompatActivity)?.supportActionBar?.title =
-            getString(R.string.title_pain_symptom_assessment)
-
-        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-    }
-
-    private fun observeViewModel() {
-
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                BaseFormViewModel.State.IDLE -> Unit
-
-                BaseFormViewModel.State.SAVING -> {
-                    binding.llContent.visibility = View.GONE
-                    binding.pbForm.visibility = View.VISIBLE
-                }
-
-                BaseFormViewModel.State.SAVE_SUCCESS -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(
-                        context,
-                        "Pain & Symptom Assessment Saved",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    findNavController().navigateUp()
-                }
-
-                BaseFormViewModel.State.SAVE_FAILED -> {
-                    binding.llContent.visibility = View.VISIBLE
-                    binding.pbForm.visibility = View.GONE
-                    Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
-        viewModel.showAlert.observe(viewLifecycleOwner) { message ->
-            message?.let { showAlertDialog(it) }
-        }
-    }
-
-    /** Shows a non-cancelable alert dialog with [message] and resets the ViewModel alert. */
-    private fun showAlertDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Alert")
-            .setMessage(message)
-            .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss()
-                viewModel.clearAlert()
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    private fun submitForm() {
-        val adapter =
-            binding.form.rvInputForm.adapter as? FormInputAdapter ?: return
-
-        val result = adapter.validateInput(resources)
-        if (result == -1) {
-            viewModel.saveForm()
-        } else {
-            binding.form.rvInputForm.scrollToPosition(result)
-        }
-    }
-
-    override fun onSubmitAction() {
-        submitForm()
-    }
-
-    override fun onCancelAction() {
-        onBackPressedCallback.isEnabled = false
-        if (!findNavController().navigateUp()) {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-    }
-
-    override fun getFragmentId(): Int =
-        R.id.fragment_pain_symptom_assessment_form
-
     override fun onDestroyView() {
-        super.onDestroyView()
-        activity?.findViewById<View>(R.id.bottom_navigation)?.visibility = View.VISIBLE
+        super.onDestroyView()  // shows bottom_navigation
         _binding = null
     }
 }
