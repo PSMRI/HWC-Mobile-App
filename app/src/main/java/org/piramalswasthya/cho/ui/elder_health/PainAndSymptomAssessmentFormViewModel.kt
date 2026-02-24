@@ -1,10 +1,7 @@
 package org.piramalswasthya.cho.ui.elder_health
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +12,7 @@ import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 import org.piramalswasthya.cho.repositories.PainAndSymptomAssessmentRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,30 +24,12 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
     private val painAssessmentRepo: PainAndSymptomAssessmentRepo
-) : ViewModel() {
-
-    enum class State {
-        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
-    }
-
-    // ---------------- UI EVENTS ----------------
-
-    private val _showAlert = MutableLiveData<String?>()
-    val showAlert: LiveData<String?> get() = _showAlert
-
-    private val _state = MutableLiveData(State.IDLE)
-    val state: LiveData<State> get() = _state
+) : BaseFormViewModel() {
 
     // ---------------- BEN DETAILS ----------------
 
     val patientID: String? = savedStateHandle["patientID"]
     val benVisitNo: Int? = savedStateHandle["benVisitNo"]
-
-    private val _benName = MutableLiveData<String>()
-    val benName: LiveData<String> get() = _benName
-
-    private val _benAgeGender = MutableLiveData<String>()
-    val benAgeGender: LiveData<String> get() = _benAgeGender
 
     // ---------------- DATASET ----------------
 
@@ -155,9 +135,5 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
                 _state.postValue(State.SAVE_FAILED)
             }
         }
-    }
-
-    fun clearAlert() {
-        _showAlert.value = null
     }
 }

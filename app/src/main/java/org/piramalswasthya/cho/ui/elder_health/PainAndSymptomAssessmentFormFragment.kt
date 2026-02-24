@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.R
 import org.piramalswasthya.cho.adapter.FormInputAdapter
 import org.piramalswasthya.cho.databinding.FragmentPainSymptomAssessmentFormBinding
+import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import org.piramalswasthya.cho.ui.commons.NavigationAdapter
 
 @AndroidEntryPoint
@@ -104,14 +105,14 @@ class PainAndSymptomAssessmentFormFragment : Fragment(), NavigationAdapter {
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
-                PainAndSymptomAssessmentFormViewModel.State.IDLE -> Unit
+                BaseFormViewModel.State.IDLE -> Unit
 
-                PainAndSymptomAssessmentFormViewModel.State.SAVING -> {
+                BaseFormViewModel.State.SAVING -> {
                     binding.llContent.visibility = View.GONE
                     binding.pbForm.visibility = View.VISIBLE
                 }
 
-                PainAndSymptomAssessmentFormViewModel.State.SAVE_SUCCESS -> {
+                BaseFormViewModel.State.SAVE_SUCCESS -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(
@@ -122,7 +123,7 @@ class PainAndSymptomAssessmentFormFragment : Fragment(), NavigationAdapter {
                     findNavController().navigateUp()
                 }
 
-                PainAndSymptomAssessmentFormViewModel.State.SAVE_FAILED -> {
+                BaseFormViewModel.State.SAVE_FAILED -> {
                     binding.llContent.visibility = View.VISIBLE
                     binding.pbForm.visibility = View.GONE
                     Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
@@ -131,18 +132,21 @@ class PainAndSymptomAssessmentFormFragment : Fragment(), NavigationAdapter {
         }
 
         viewModel.showAlert.observe(viewLifecycleOwner) { message ->
-            message?.let {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Alert")
-                    .setMessage(it)
-                    .setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
-                        viewModel.clearAlert()
-                    }
-                    .setCancelable(false)
-                    .show()
-            }
+            message?.let { showAlertDialog(it) }
         }
+    }
+
+    /** Shows a non-cancelable alert dialog with [message] and resets the ViewModel alert. */
+    private fun showAlertDialog(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Alert")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+                viewModel.clearAlert()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun submitForm() {
