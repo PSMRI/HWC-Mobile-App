@@ -1,27 +1,27 @@
-package org.piramalswasthya.cho.ui.ENT
+package org.piramalswasthya.cho.ui.elder_health
 
-import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import org.piramalswasthya.cho.R
-import org.piramalswasthya.cho.databinding.FragmentEarDiagnosisFormBinding
+import org.piramalswasthya.cho.databinding.FragmentPainSymptomAssessmentFormBinding
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.ui.commons.BaseAssessmentFormFragment
+import android.os.Bundle
 
 @AndroidEntryPoint
-class EarDiagnosisFormFragment :
-    BaseAssessmentFormFragment<EarDiagnosisFormViewModel>() {
+class PainAndSymptomAssessmentFormFragment :
+    BaseAssessmentFormFragment<PainAndSymptomAssessmentFormViewModel>() {
 
-    private var _binding: FragmentEarDiagnosisFormBinding? = null
+    private var _binding: FragmentPainSymptomAssessmentFormBinding? = null
     private val binding get() = _binding!!
 
-    override val viewModel: EarDiagnosisFormViewModel by viewModels()
+    override val viewModel: PainAndSymptomAssessmentFormViewModel by viewModels()
 
     // ── View references ───────────────────────────────────────────────────────
 
@@ -35,13 +35,13 @@ class EarDiagnosisFormFragment :
 
     // ── Form-specific values ──────────────────────────────────────────────────
 
-    override fun getFormTitle(): String = getString(R.string.title_ear_diagnosis)
-    override fun getSaveSuccessMessage(): String = getString(R.string.ear_diagnosis_saved)
+    override fun getFormTitle(): String = getString(R.string.title_pain_symptom_assessment)
+    override fun getSaveSuccessMessage(): String = getString(R.string.pain_symptom_assessment_saved)
     override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
     override fun onUpdateFormValue(formId: Int, index: Int) =
         viewModel.updateListOnValueChanged(formId, index)
     override fun onSaveForm() = viewModel.saveForm()
-    override fun getFragmentId(): Int = R.id.fragment_ear_diagnosis_form
+    override fun getFragmentId(): Int = R.id.fragment_pain_symptom_assessment_form
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -50,7 +50,7 @@ class EarDiagnosisFormFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEarDiagnosisFormBinding.inflate(inflater, container, false)
+        _binding = FragmentPainSymptomAssessmentFormBinding.inflate(inflater, container, false)
         return binding.root
     }
 

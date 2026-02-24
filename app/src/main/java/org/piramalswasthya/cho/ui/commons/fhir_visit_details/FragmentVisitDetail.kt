@@ -297,6 +297,17 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         return (ageGap > minAge) && (ageGap <= maxAge)
     }
 
+    fun ageCheckForElderly(dob: Date?): Boolean{
+        if(dob == null){
+            return false
+        }
+
+        val minAge = 365L*60*24*60*60*1000
+        val ageGap = System.currentTimeMillis() - dob.time
+
+        return (ageGap >= minAge)
+    }
+
     private fun setSubCategoryDropdown(){
         viewModel.selectedSubCat = ""
         binding.subCatInput.setText(viewModel.selectedSubCat, false)
@@ -330,6 +341,9 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            binding.subCatInput.setText(viewModel.selectedSubCat, false)
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
+        else if(ageCheckForElderly(benVisitInfo.patient.dob)){
+            setElderlySubCategoryAdapter()
+        }
         else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
             val subCatAdapter = SubCategoryAdapter(
                 requireContext(),
@@ -360,6 +374,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
 
+    }
+
+    private fun setElderlySubCategoryAdapter() {
+        val options = when (benVisitInfo.genderName?.lowercase()) {
+            "male" -> DropdownConst.male_elderly
+            "female" -> DropdownConst.female_elderly
+            else -> return
+        }
+        binding.subCatInput.setAdapter(
+            SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                options
+            )
+        )
     }
 
     private fun setReasonForVisitDropdown(subCat: String){
@@ -426,6 +456,16 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                 R.layout.dropdown_subcategory,
                 R.id.tv_dropdown_item_text,
                 DropdownConst.entReasons
+            )
+            binding.reasonForVisitInput.setAdapter(subCatAdapter)
+            changeBtnView()
+        }
+        else if(subCat == DropdownConst.elderlyAndPalliative){
+            val subCatAdapter = SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                listOf(DropdownConst.persistentPain)
             )
             binding.reasonForVisitInput.setAdapter(subCatAdapter)
             changeBtnView()
@@ -1475,6 +1515,18 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
                     )
                 }
             }
+            else if(reasonForVisit == DropdownConst.persistentPain){
+                saveVisitData { benVisitNo ->
+                    isNavigationInProgress = true
+                    binding.btnSubmit.isEnabled = false
+                    findNavController().navigate(
+                        FragmentVisitDetailDirections.actionFhirVisitDetailsFragmentToPainAndSymptomAssessmentFormFragment(
+                            patientID = benVisitInfo.patient.patientID,
+                            benVisitNo = benVisitNo
+                        )
+                    )
+                }
+            }
 
         }
         else {
@@ -1740,95 +1792,95 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-            var benVisitNo = 0
-            var createNewBenflow = false
-            viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
-                if (it == null) {
-                    benVisitNo = 1
-                } else if (it.nurseFlag == 1) {
-                    benVisitNo = it.benVisitNo
-                } else {
-                    benVisitNo = it.benVisitNo + 1
-                    createNewBenflow = true
+                var benVisitNo = 0
+                var createNewBenflow = false
+                viewModel.getLastVisitInfoSync(masterDb!!.patientId.toString()).let {
+                    if (it == null) {
+                        benVisitNo = 1
+                    } else if (it.nurseFlag == 1) {
+                        benVisitNo = it.benVisitNo
+                    } else {
+                        benVisitNo = it.benVisitNo + 1
+                        createNewBenflow = true
+                    }
                 }
-            }
 
-            val user = viewModel.loggedInUser
+                val user = viewModel.loggedInUser
 
-            val visitDB = VisitDB(
-                visitId = generateUuid(),
-                category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
-                reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty(),
-                subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
-                patientID = masterDb!!.patientId.toString(),
-                benVisitNo = benVisitNo,
-                benVisitDate = SimpleDateFormat(DATE_FORMAT_PATTERN).format(Date()),
-                createdBy = user?.userName
-            )
-
-            var chiefComplaints = mutableListOf<ChiefComplaintDB>()
-            for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
-                val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
-                val chiefC = ChiefComplaintDB(
-                    id = generateUuid(),
-                    chiefComplaintId = chiefComplaintItem.id,
-                    chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
-                    duration = chiefComplaintItem.duration.nullIfEmpty(),
-                    durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
-                    description = chiefComplaintItem.description.nullIfEmpty(),
+                val visitDB = VisitDB(
+                    visitId = generateUuid(),
+                    category = masterDb?.visitMasterDb?.category.nullIfEmpty(),
+                    reasonForVisit = masterDb?.visitMasterDb?.reason.nullIfEmpty(),
+                    subCategory = masterDb?.visitMasterDb?.subCategory.nullIfEmpty(),
                     patientID = masterDb!!.patientId.toString(),
                     benVisitNo = benVisitNo,
-                    benFlowID = null
+                    benVisitDate = SimpleDateFormat(DATE_FORMAT_PATTERN).format(Date()),
+                    createdBy = user?.userName
                 )
-                chiefComplaints.add(chiefC)
-            }
 
-            val patientVitals = PatientVitalsModel(
-                vitalsId = generateUuid(),
-                height = null,
-                weight = null,
-                bmi = null,
-                waistCircumference = null,
-                temperature = null,
-                pulseRate = null,
-                spo2 = null,
-                bpDiastolic = null,
-                bpSystolic = null,
-                respiratoryRate = null,
-                rbs = null,
-                patientID = masterDb!!.patientId.toString(),
-                benVisitNo = benVisitNo,
-            )
-
-            val patientVisitInfoSync = PatientVisitInfoSync(
-                patientID = masterDb!!.patientId.toString(),
-                benVisitNo = benVisitNo,
-                createNewBenFlow = createNewBenflow,
-                nurseDataSynced = SyncState.UNSYNCED,
-                doctorDataSynced = SyncState.SYNCED,
-                nurseFlag = 9,
-                doctorFlag = 1,
-                visitDate = Date(),
-            )
-
-            viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
-
-            viewModel.isDataSaved.value = null
-            viewModel.isDataSaved.observe(viewLifecycleOwner) {
-                if (it == true) {
-                     viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                    WorkerUtils.triggerAmritSyncWorker(requireContext())
-                    onSuccess(benVisitNo)
-                } else if (it == false) {
-                     viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
-                     binding.btnSubmit.isEnabled = true
+                var chiefComplaints = mutableListOf<ChiefComplaintDB>()
+                for (i in 0 until (masterDb?.visitMasterDb?.chiefComplaint?.size ?: 0)) {
+                    val chiefComplaintItem = masterDb!!.visitMasterDb!!.chiefComplaint!![i]
+                    val chiefC = ChiefComplaintDB(
+                        id = generateUuid(),
+                        chiefComplaintId = chiefComplaintItem.id,
+                        chiefComplaint = chiefComplaintItem.chiefComplaint.nullIfEmpty(),
+                        duration = chiefComplaintItem.duration.nullIfEmpty(),
+                        durationUnit = chiefComplaintItem.durationUnit.nullIfEmpty(),
+                        description = chiefComplaintItem.description.nullIfEmpty(),
+                        patientID = masterDb!!.patientId.toString(),
+                        benVisitNo = benVisitNo,
+                        benFlowID = null
+                    )
+                    chiefComplaints.add(chiefC)
                 }
+
+                val patientVitals = PatientVitalsModel(
+                    vitalsId = generateUuid(),
+                    height = null,
+                    weight = null,
+                    bmi = null,
+                    waistCircumference = null,
+                    temperature = null,
+                    pulseRate = null,
+                    spo2 = null,
+                    bpDiastolic = null,
+                    bpSystolic = null,
+                    respiratoryRate = null,
+                    rbs = null,
+                    patientID = masterDb!!.patientId.toString(),
+                    benVisitNo = benVisitNo,
+                )
+
+                val patientVisitInfoSync = PatientVisitInfoSync(
+                    patientID = masterDb!!.patientId.toString(),
+                    benVisitNo = benVisitNo,
+                    createNewBenFlow = createNewBenflow,
+                    nurseDataSynced = SyncState.UNSYNCED,
+                    doctorDataSynced = SyncState.SYNCED,
+                    nurseFlag = 9,
+                    doctorFlag = 1,
+                    visitDate = Date(),
+                )
+
+                viewModel.saveNurseDataToDb(visitDB, chiefComplaints, patientVitals, patientVisitInfoSync)
+
+                viewModel.isDataSaved.value = null
+                viewModel.isDataSaved.observe(viewLifecycleOwner) {
+                    if (it == true) {
+                        viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
+                        WorkerUtils.triggerAmritSyncWorker(requireContext())
+                        onSuccess(benVisitNo)
+                    } else if (it == false) {
+                        viewModel.isDataSaved.removeObservers(viewLifecycleOwner)
+                        binding.btnSubmit.isEnabled = true
+                    }
+                }
+            } catch (e: Exception) {
+                binding.btnSubmit.isEnabled = true
+                Timber.e(e, "Error saving visit data")
+                Toast.makeText(requireContext(), "Error saving data", Toast.LENGTH_SHORT).show()
             }
-        } catch (e: Exception) {
-            binding.btnSubmit.isEnabled = true
-            Timber.e(e, "Error saving visit data")
-            Toast.makeText(requireContext(), "Error saving data", Toast.LENGTH_SHORT).show()
-        }
         }
     }
 

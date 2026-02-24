@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_fhirVisitDetailsFragment_to_earDiagnosisFormFragment"
             app:destination="@id/earDiagnosisFormFragment" />
+        <action
+            android:id="@+id/action_fhirVisitDetailsFragment_to_painAndSymptomAssessmentFormFragment"
+            app:destination="@id/painAndSymptomAssessmentFormFragment" />
     </fragment>
 
     <fragment
@@ -168,15 +171,15 @@
             android:name="patientID"
             app:argType="string"/>
         <argument
-                android:name="benVisitNo"
-                app:argType="integer"/>
+            android:name="benVisitNo"
+            app:argType="integer"/>
         <argument
-                android:name="benVisitInfo"
-                app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
+            android:name="benVisitInfo"
+            app:argType="org.piramalswasthya.cho.model.PatientDisplayWithVisitInfo" />
         <argument
-                android:name="reasonForVisit"
-                app:argType="string"
-                android:defaultValue="Screening" />
+            android:name="reasonForVisit"
+            app:argType="string"
+            android:defaultValue="Screening" />
         <action
             android:id="@+id/action_ophthalmicScreeningFragment_to_fhirVisitDetailsFragment"
             app:destination="@id/fhirVisitDetailsFragment"
@@ -258,6 +261,17 @@
         android:id="@+id/earDiagnosisFormFragment"
         android:name="org.piramalswasthya.cho.ui.ENT.EarDiagnosisFormFragment"
         android:label="Ear Diagnosis" >
+        <argument
+            android:name="patientID"
+            app:argType="string" />
+        <argument
+            android:name="benVisitNo"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/painAndSymptomAssessmentFormFragment"
+        android:name="org.piramalswasthya.cho.ui.elder_health.PainAndSymptomAssessmentFormFragment"
+        android:label="Pain And Symptom Assessment" >
         <argument
             android:name="patientID"
             app:argType="string" />
