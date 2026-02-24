@@ -26,6 +26,8 @@ class DropdownConst {
 
         val elderlyAndPalliative: String = "Elderly & Palliative"
         val persistentPain: String = "Persistent pain"
+        val psychosocialCaregiverSupport: String = "Psychosocial Caregiver Support"
+
 
 
 
