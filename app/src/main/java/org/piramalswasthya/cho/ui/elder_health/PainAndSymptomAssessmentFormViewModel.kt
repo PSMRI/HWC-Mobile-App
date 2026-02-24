@@ -54,7 +54,7 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                bindAlertToDataset(dataset)
+                dataset.onShowAlert = { _showAlert.postValue(it) }
 
                 dataset.setUpPage(savedRecord = existingRecord)
 
@@ -65,27 +65,14 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
     }
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        viewModelScope.launch {
-            try {
-                dataset.updateList(formId, index)
-            } catch (e: Exception) {
-                Timber.e(e, "Error updating Pain & Symptom form")
-            }
-        }
+        launchUpdateList(dataset, formId, index, "Error updating Pain & Symptom form")
     }
 
     fun saveForm() {
-        viewModelScope.launch {
-            try {
-                _state.postValue(State.SAVING)
-                check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
-                dataset.mapValues(assessmentCache, 1)
-                painAssessmentRepo.saveAssessment(assessmentCache)
-                _state.postValue(State.SAVE_SUCCESS)
-            } catch (e: Exception) {
-                Timber.e(e, "Saving Pain & Symptom Assessment failed")
-                _state.postValue(State.SAVE_FAILED)
-            }
+        launchSave("Saving Pain & Symptom Assessment failed") {
+            check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
+            dataset.mapValues(assessmentCache, 1)
+            painAssessmentRepo.saveAssessment(assessmentCache)
         }
     }
 }

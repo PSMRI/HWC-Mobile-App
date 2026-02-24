@@ -3,6 +3,8 @@ package org.piramalswasthya.cho.ui.commons
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.piramalswasthya.cho.configuration.Dataset
 import org.piramalswasthya.cho.model.PatientDisplay
 import org.piramalswasthya.cho.repositories.PatientRepo
@@ -44,7 +46,6 @@ abstract class BaseFormViewModel : ViewModel() {
 
     protected val _benAgeGender = MutableLiveData<String>()
     val benAgeGender: LiveData<String> get() = _benAgeGender
-    var onShowAlert: ((String) -> Unit)? = null
 
     // ── Shared init helper ───────────────────────────────────────────────────
 
@@ -77,15 +78,36 @@ abstract class BaseFormViewModel : ViewModel() {
         return patient
     }
 
-    /**
-     * Wires [dataset].onShowAlert to forward messages into [_showAlert].
-     * Call once during init after the dataset is created.
-     */
 
-    protected fun bindAlertToDataset(dataset: Dataset) {
-        onShowAlert = { message ->
-            Timber.d("Dataset requested alert: $message")
-            _showAlert.postValue(message)
+    // ── Shared coroutine helpers ─────────────────────────────────────────────
+
+    /**
+     * Launches a coroutine that calls [dataset].updateList and logs any error.
+     */
+    protected fun launchUpdateList(dataset: Dataset, formId: Int, index: Int, errorTag: String) {
+        viewModelScope.launch {
+            try {
+                dataset.updateList(formId, index)
+            } catch (e: Exception) {
+                Timber.e(e, errorTag)
+            }
+        }
+    }
+
+    /**
+     * Launches a save coroutine: sets SAVING state, runs [block], then
+     * posts SAVE_SUCCESS or SAVE_FAILED.
+     */
+    protected fun launchSave(errorTag: String, block: suspend () -> Unit) {
+        viewModelScope.launch {
+            try {
+                _state.postValue(State.SAVING)
+                block()
+                _state.postValue(State.SAVE_SUCCESS)
+            } catch (e: Exception) {
+                Timber.e(e, errorTag)
+                _state.postValue(State.SAVE_FAILED)
+            }
         }
     }
 }

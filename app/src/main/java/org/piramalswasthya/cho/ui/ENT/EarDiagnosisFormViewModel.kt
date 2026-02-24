@@ -53,8 +53,6 @@ class EarDiagnosisFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                bindAlertToDataset(dataset)
-
                 dataset.setUpPage(savedRecord = existingRecord)
 
             } catch (e: Exception) {
@@ -64,27 +62,14 @@ class EarDiagnosisFormViewModel @Inject constructor(
     }
 
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        viewModelScope.launch {
-            try {
-                dataset.updateList(formId, index)
-            } catch (e: Exception) {
-                Timber.e(e, "Error updating ear diagnosis form")
-            }
-        }
+        launchUpdateList(dataset, formId, index, "Error updating ear diagnosis form")
     }
 
     fun saveForm() {
-        viewModelScope.launch {
-            try {
-                _state.postValue(State.SAVING)
-                check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
-                dataset.mapValues(assessmentCache, 1)
-                earDiagnosisRepo.saveAssessment(assessmentCache)
-                _state.postValue(State.SAVE_SUCCESS)
-            } catch (e: Exception) {
-                Timber.e(e, "Saving Ear Diagnosis failed")
-                _state.postValue(State.SAVE_FAILED)
-            }
+        launchSave("Saving Ear Diagnosis failed") {
+            check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
+            dataset.mapValues(assessmentCache, 1)
+            earDiagnosisRepo.saveAssessment(assessmentCache)
         }
     }
 }
