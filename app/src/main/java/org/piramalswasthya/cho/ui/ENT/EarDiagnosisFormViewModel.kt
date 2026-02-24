@@ -26,42 +26,19 @@ class EarDiagnosisFormViewModel @Inject constructor(
     private val earDiagnosisRepo: EarDiagnosisRepo
 ) : BaseFormViewModel() {
 
-    /* -------------------- BEN DETAILS -------------------- */
-
     val patientID: String? = savedStateHandle["patientID"]
     val benVisitNo: Int? = savedStateHandle["benVisitNo"]
 
-    /* -------------------- DATASET -------------------- */
-
-    private val dataset =
-        EarDiagnosisDataset(context, preferenceDao.getCurrentLanguage())
-
+    private val dataset = EarDiagnosisDataset(context, preferenceDao.getCurrentLanguage())
     val formList = dataset.listFlow
 
     private lateinit var assessmentCache: EarDiagnosisAssessment
 
-    /* -------------------- INIT -------------------- */
-
     init {
         viewModelScope.launch {
             try {
-                val user = userRepo.getLoggedInUser()
-                if (user == null) {
-                    Timber.e("No logged in user found")
-                    return@launch
-                }
-
-                val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
-                if (patient == null) {
-                    Timber.e("Patient not found for ID: $patientID")
-                    return@launch
-                }
-
-                _benName.value =
-                    "${patient.patient.firstName} ${patient.patient.lastName ?: ""}"
-
-                _benAgeGender.value =
-                    "${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}"
+                val patient = loadPatientDetails(userRepo, patientRepo, patientID)
+                    ?: return@launch
 
                 val existingRecord = if (benVisitNo != null) {
                     earDiagnosisRepo.getAssessmentByPatientIdAndVisitNo(
@@ -76,11 +53,9 @@ class EarDiagnosisFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                setupDatasetCallbacks()
+                bindAlertToDataset(dataset)
 
-                dataset.setUpPage(
-                    savedRecord = existingRecord
-                )
+                dataset.setUpPage(savedRecord = existingRecord)
 
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing EarDiagnosisFormViewModel")
@@ -88,19 +63,7 @@ class EarDiagnosisFormViewModel @Inject constructor(
         }
     }
 
-    /* -------------------- DATASET CALLBACKS -------------------- */
-
-    private fun setupDatasetCallbacks() {
-        dataset.onShowAlert = { message ->
-            Timber.d("Dataset requested alert: $message")
-            _showAlert.postValue(message)
-        }
-    }
-
-    /* -------------------- FORM EVENTS -------------------- */
-
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        Timber.d("updateListOnValueChanged: formId=$formId, index=$index")
         viewModelScope.launch {
             try {
                 dataset.updateList(formId, index)
@@ -114,19 +77,10 @@ class EarDiagnosisFormViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _state.postValue(State.SAVING)
-
-                check(this@EarDiagnosisFormViewModel::assessmentCache.isInitialized) {
-                    "Assessment cache not initialized"
-                }
-
+                check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
                 dataset.mapValues(assessmentCache, 1)
-
                 earDiagnosisRepo.saveAssessment(assessmentCache)
-
-                Timber.d("Ear Diagnosis saved successfully")
-
                 _state.postValue(State.SAVE_SUCCESS)
-
             } catch (e: Exception) {
                 Timber.e(e, "Saving Ear Diagnosis failed")
                 _state.postValue(State.SAVE_FAILED)

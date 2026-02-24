@@ -26,52 +26,27 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
     private val painAssessmentRepo: PainAndSymptomAssessmentRepo
 ) : BaseFormViewModel() {
 
-    // ---------------- BEN DETAILS ----------------
-
     val patientID: String? = savedStateHandle["patientID"]
     val benVisitNo: Int? = savedStateHandle["benVisitNo"]
 
-    // ---------------- DATASET ----------------
-
     private val dataset =
         PainAndSymptomAssessmentDataset(context, preferenceDao.getCurrentLanguage())
-
     val formList = dataset.listFlow
 
     private lateinit var assessmentCache: PainAndSymptomAssessment
 
-    // ---------------- INIT ----------------
-
     init {
         viewModelScope.launch {
             try {
-                val user = userRepo.getLoggedInUser()
-                if (user == null) {
-                    Timber.e("No logged in user found")
-                    return@launch
-                }
-
-                val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
-                if (patient == null) {
-                    Timber.e("Patient not found for ID: $patientID")
-                    return@launch
-                }
-
-                _benName.value =
-                    "${patient.patient.firstName} ${patient.patient.lastName ?: ""}"
-
-                _benAgeGender.value =
-                    "${patient.patient.age} ${patient.ageUnit?.name} | ${patient.gender?.genderName}"
+                val patient = loadPatientDetails(userRepo, patientRepo, patientID)
+                    ?: return@launch
 
                 val existingRecord = if (benVisitNo != null) {
                     painAssessmentRepo.getAssessmentByPatientIdAndVisitNo(
-                        patient.patient.patientID,
-                        benVisitNo
+                        patient.patient.patientID, benVisitNo
                     )
                 } else {
-                    painAssessmentRepo.getAssessmentByPatientId(
-                        patient.patient.patientID
-                    )
+                    painAssessmentRepo.getAssessmentByPatientId(patient.patient.patientID)
                 }
 
                 assessmentCache = existingRecord ?: PainAndSymptomAssessment(
@@ -79,11 +54,9 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
                     benVisitNo = benVisitNo
                 )
 
-                setupDatasetCallbacks()
+                bindAlertToDataset(dataset)
 
-                dataset.setUpPage(
-                    savedRecord = existingRecord
-                )
+                dataset.setUpPage(savedRecord = existingRecord)
 
             } catch (e: Exception) {
                 Timber.e(e, "Error initializing PainAndSymptomAssessmentFormViewModel")
@@ -91,19 +64,7 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
         }
     }
 
-    // ---------------- DATASET CALLBACKS ----------------
-
-    private fun setupDatasetCallbacks() {
-        dataset.onShowAlert = { message ->
-            Timber.d("Dataset requested alert: $message")
-            _showAlert.postValue(message)
-        }
-    }
-
-    // ---------------- FORM EVENTS ----------------
-
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        Timber.d("updateListOnValueChanged: formId=$formId, index=$index")
         viewModelScope.launch {
             try {
                 dataset.updateList(formId, index)
@@ -117,19 +78,10 @@ class PainAndSymptomAssessmentFormViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _state.postValue(State.SAVING)
-
-                check(this@PainAndSymptomAssessmentFormViewModel::assessmentCache.isInitialized) {
-                    "Assessment cache not initialized"
-                }
-
+                check(::assessmentCache.isInitialized) { "Assessment cache not initialized" }
                 dataset.mapValues(assessmentCache, 1)
-
                 painAssessmentRepo.saveAssessment(assessmentCache)
-
-                Timber.d("Pain & Symptom Assessment saved successfully")
-
                 _state.postValue(State.SAVE_SUCCESS)
-
             } catch (e: Exception) {
                 Timber.e(e, "Saving Pain & Symptom Assessment failed")
                 _state.postValue(State.SAVE_FAILED)
