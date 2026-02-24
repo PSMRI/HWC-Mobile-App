@@ -120,26 +120,6 @@
             android:label="@string/abortion_list"
             android:parentActivityName=".ui.home_activity.HomeActivity" />
         <activity
-            android:name=".ui.home.rmncha.child_care.InfantListActivity"
-            android:exported="false"
-            android:label="@string/infant_list"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.child_care.ChildListActivity"
-            android:exported="false"
-            android:label="@string/child_list"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.child_care.AdolescentListActivity"
-            android:exported="false"
-            android:label="@string/adolescent_list"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
-            android:name=".ui.home.rmncha.child_care.ChildrenUnderFiveYearsActivity"
-            android:exported="false"
-            android:label="@string/children_under_5_years"
-            android:parentActivityName=".ui.home_activity.HomeActivity" />
-        <activity
             android:name=".ui.login_activity.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait"
