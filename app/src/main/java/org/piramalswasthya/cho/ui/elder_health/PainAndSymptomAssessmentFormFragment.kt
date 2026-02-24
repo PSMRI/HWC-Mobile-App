@@ -36,7 +36,7 @@ class PainAndSymptomAssessmentFormFragment :
     // ── Form-specific values ──────────────────────────────────────────────────
 
     override fun getFormTitle(): String = getString(R.string.title_pain_symptom_assessment)
-    override fun getSaveSuccessMessage(): String = "Pain & Symptom Assessment Saved"
+    override fun getSaveSuccessMessage(): String = getString(R.string.pain_symptom_assessment_saved)
     override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
     override fun onUpdateFormValue(formId: Int, index: Int) =
         viewModel.updateListOnValueChanged(formId, index)

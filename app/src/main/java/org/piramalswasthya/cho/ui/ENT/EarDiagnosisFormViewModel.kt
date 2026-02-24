@@ -1,10 +1,7 @@
 package org.piramalswasthya.cho.ui.ENT
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +12,7 @@ import org.piramalswasthya.cho.model.EarDiagnosisAssessment
 import org.piramalswasthya.cho.repositories.EarDiagnosisRepo
 import org.piramalswasthya.cho.repositories.PatientRepo
 import org.piramalswasthya.cho.repositories.UserRepo
+import org.piramalswasthya.cho.ui.commons.BaseFormViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,30 +24,14 @@ class EarDiagnosisFormViewModel @Inject constructor(
     private val patientRepo: PatientRepo,
     private val userRepo: UserRepo,
     private val earDiagnosisRepo: EarDiagnosisRepo
-) : ViewModel() {
-
-    enum class State {
-        IDLE, SAVING, SAVE_SUCCESS, SAVE_FAILED
-    }
-
-
-    private val _showAlert = MutableLiveData<String?>()
-    val showAlert: LiveData<String?> get() = _showAlert
-
-    private val _state = MutableLiveData(State.IDLE)
-    val state: LiveData<State> get() = _state
+) : BaseFormViewModel() {
 
     /* -------------------- BEN DETAILS -------------------- */
 
     val patientID: String? = savedStateHandle["patientID"]
     val benVisitNo: Int? = savedStateHandle["benVisitNo"]
 
-    private val _benName = MutableLiveData<String>()
-    val benName: LiveData<String> get() = _benName
-
-    private val _benAgeGender = MutableLiveData<String>()
-    val benAgeGender: LiveData<String> get() = _benAgeGender
-
+    /* -------------------- DATASET -------------------- */
 
     private val dataset =
         EarDiagnosisDataset(context, preferenceDao.getCurrentLanguage())
@@ -58,18 +40,20 @@ class EarDiagnosisFormViewModel @Inject constructor(
 
     private lateinit var assessmentCache: EarDiagnosisAssessment
 
+    /* -------------------- INIT -------------------- */
+
     init {
         viewModelScope.launch {
             try {
                 val user = userRepo.getLoggedInUser()
                 if (user == null) {
-                    Timber.Forest.e("No logged in user found")
+                    Timber.e("No logged in user found")
                     return@launch
                 }
 
                 val patient = patientID?.let { patientRepo.getPatientDisplay(it) }
                 if (patient == null) {
-                    Timber.Forest.e("Patient not found for ID: $patientID")
+                    Timber.e("Patient not found for ID: $patientID")
                     return@launch
                 }
 
@@ -99,25 +83,29 @@ class EarDiagnosisFormViewModel @Inject constructor(
                 )
 
             } catch (e: Exception) {
-                Timber.Forest.e(e, "Error initializing EarDiagnosisFormViewModel")
+                Timber.e(e, "Error initializing EarDiagnosisFormViewModel")
             }
         }
     }
 
+    /* -------------------- DATASET CALLBACKS -------------------- */
+
     private fun setupDatasetCallbacks() {
         dataset.onShowAlert = { message ->
-            Timber.Forest.d("Dataset requested alert: $message")
+            Timber.d("Dataset requested alert: $message")
             _showAlert.postValue(message)
         }
     }
 
+    /* -------------------- FORM EVENTS -------------------- */
+
     fun updateListOnValueChanged(formId: Int, index: Int) {
-        Timber.Forest.d("updateListOnValueChanged: formId=$formId, index=$index")
+        Timber.d("updateListOnValueChanged: formId=$formId, index=$index")
         viewModelScope.launch {
             try {
                 dataset.updateList(formId, index)
             } catch (e: Exception) {
-                Timber.Forest.e(e, "Error updating ear diagnosis form")
+                Timber.e(e, "Error updating ear diagnosis form")
             }
         }
     }
@@ -135,18 +123,14 @@ class EarDiagnosisFormViewModel @Inject constructor(
 
                 earDiagnosisRepo.saveAssessment(assessmentCache)
 
-                Timber.Forest.d("Ear Diagnosis saved successfully")
+                Timber.d("Ear Diagnosis saved successfully")
 
                 _state.postValue(State.SAVE_SUCCESS)
 
             } catch (e: Exception) {
-                Timber.Forest.e(e, "Saving Ear Diagnosis failed")
+                Timber.e(e, "Saving Ear Diagnosis failed")
                 _state.postValue(State.SAVE_FAILED)
             }
         }
-    }
-
-    fun clearAlert() {
-        _showAlert.value = null
     }
 }

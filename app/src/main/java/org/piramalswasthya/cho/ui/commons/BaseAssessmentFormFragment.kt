@@ -106,7 +106,7 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
         inputFormRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         inputFormRecyclerView.adapter = adapter
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             getFormFlow().collect { list ->
                 if (list.isNotEmpty()) adapter.submitList(list)
             }
@@ -131,14 +131,14 @@ abstract class BaseAssessmentFormFragment<VM : BaseFormViewModel> : Fragment(), 
                 BaseFormViewModel.State.SAVE_SUCCESS -> {
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    Toast.makeText(context, getSaveSuccessMessage(), Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getSaveSuccessMessage(), Toast.LENGTH_LONG).show()
                     findNavController().navigateUp()
                 }
 
                 BaseFormViewModel.State.SAVE_FAILED -> {
                     contentLayout.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    Toast.makeText(context, "Save failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Save failed", Toast.LENGTH_LONG).show()
                 }
             }
         }

@@ -1090,8 +1090,9 @@
     <string name="no_error_vitamin_k_required">Please select if Vitamin K was given</string>
     <!-- Ear Diagnosis Form -->
     <string name="title_ear_diagnosis">Ear Diagnosis Form</string>
-    <string name="title_pain_symptom_assessment"> Pain and Symptom Assessment</string>
-
+    <string name="pain_symptom_assessment_saved">Pain &amp; Symptom Assessment Saved</string>
+    <string name="title_pain_symptom_assessment">Pain and Symptom Assessment</string>
+    <string name="ear_diagnosis_saved">Ear Diagnosis Saved</string>
     <string-array name="no_outcome_at_birth_array">
         <item>Live Birth</item>
         <item>Still Birth (Fresh)</item>

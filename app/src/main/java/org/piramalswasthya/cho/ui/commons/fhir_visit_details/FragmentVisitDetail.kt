@@ -305,7 +305,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
         val minAge = 365L*60*24*60*60*1000
         val ageGap = System.currentTimeMillis() - dob.time
 
-        return (ageGap > minAge)
+        return (ageGap >= minAge)
     }
 
     private fun setSubCategoryDropdown(){
@@ -342,21 +342,7 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
         else if(ageCheckForElderly(benVisitInfo.patient.dob)){
-            if (benVisitInfo.genderName?.lowercase() == "male") {
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.male_elderly)
-                binding.subCatInput.setAdapter(subCatAdapter)
-            } else if (benVisitInfo.genderName?.lowercase() == "female") {
-                val subCatAdapter = SubCategoryAdapter(
-                    requireContext(),
-                    R.layout.dropdown_subcategory,
-                    R.id.tv_dropdown_item_text,
-                    DropdownConst.female_elderly)
-                binding.subCatInput.setAdapter(subCatAdapter)
-            }
+            setElderlySubCategoryAdapter()
         }
         else if(benVisitInfo.genderName?.lowercase() == "male" && ageCheckForNCD(benVisitInfo.patient.dob)){
             val subCatAdapter = SubCategoryAdapter(
@@ -388,6 +374,22 @@ class FragmentVisitDetail : Fragment(), NavigationAdapter,
 //            setReasonForVisitDropdown(viewModel.selectedSubCat)
         }
 
+    }
+
+    private fun setElderlySubCategoryAdapter() {
+        val options = when (benVisitInfo.genderName?.lowercase()) {
+            "male" -> DropdownConst.male_elderly
+            "female" -> DropdownConst.female_elderly
+            else -> return
+        }
+        binding.subCatInput.setAdapter(
+            SubCategoryAdapter(
+                requireContext(),
+                R.layout.dropdown_subcategory,
+                R.id.tv_dropdown_item_text,
+                options
+            )
+        )
     }
 
     private fun setReasonForVisitDropdown(subCat: String){

@@ -36,7 +36,7 @@ class EarDiagnosisFormFragment :
     // ── Form-specific values ──────────────────────────────────────────────────
 
     override fun getFormTitle(): String = getString(R.string.title_ear_diagnosis)
-    override fun getSaveSuccessMessage(): String = "Ear Diagnosis Saved"
+    override fun getSaveSuccessMessage(): String = getString(R.string.ear_diagnosis_saved)
     override fun getFormFlow(): Flow<List<FormElement>> = viewModel.formList
     override fun onUpdateFormValue(formId: Int, index: Int) =
         viewModel.updateListOnValueChanged(formId, index)
