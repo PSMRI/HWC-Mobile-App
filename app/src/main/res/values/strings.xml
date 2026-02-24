@@ -169,9 +169,9 @@
     <string name="ophthalmic_select_corneal_disease_type">Select Corneal Disease Type</string>
 
     <!-- Condition sub-field alert texts -->
-    <string name="ophthalmic_alert_ophthalmologist_referral">⚠ Refer to Ophthalmologist at the secondary level.</string>
-    <string name="ophthalmic_alert_presbyopia_management">ℹ Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
-    <string name="ophthalmic_alert_vitamin_a">⚠ Vitamin A prophylaxis to be given. Refer to Ophthalmologist at the secondary level.</string>
+    <string name="ophthalmic_alert_ophthalmologist_referral"> Refer to ophthalmologist at the secondary level.</string>
+    <string name="ophthalmic_alert_presbyopia_management"> Patient may qualify for presbyopia management (e.g., reading glasses) as per CHO service scope.</string>
+    <string name="ophthalmic_alert_vitamin_a"> Vitamin A prophylaxis to be given. Refer to ophthalmologist at the secondary level.</string>
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
 
