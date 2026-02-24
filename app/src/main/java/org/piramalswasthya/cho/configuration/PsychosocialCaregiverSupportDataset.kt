@@ -5,7 +5,6 @@ import org.piramalswasthya.cho.helpers.Languages
 import org.piramalswasthya.cho.model.FormElement
 import org.piramalswasthya.cho.model.InputType
 import org.piramalswasthya.cho.model.PsychosocialCaregiverSupport
-import org.piramalswasthya.cho.configuration.FormDataModel
 
 class PsychosocialCaregiverSupportDataset(
     context: Context,
@@ -56,12 +55,12 @@ class PsychosocialCaregiverSupportDataset(
         cache = savedRecord ?: createDefaultCache()
         populateFromCache(cache)
 
-        val list = mutableListOf<FormElement>().apply {
-            add(psychosocialCounsellingProvided)
-            add(caregiverCounsellingProvided)
-            add(caregiverDistressIdentified)
-            add(counsellingRemarks)
-        }
+        val list = listOf(
+            psychosocialCounsellingProvided,
+            caregiverCounsellingProvided,
+            caregiverDistressIdentified,
+            counsellingRemarks
+        )
 
         setUpPage(list)
     }
