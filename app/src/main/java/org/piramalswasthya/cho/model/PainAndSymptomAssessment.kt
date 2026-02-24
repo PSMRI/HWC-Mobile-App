@@ -20,15 +20,13 @@ data class PainAndSymptomAssessment(
     @ColumnInfo(name = "ben_visit_no")
     val benVisitNo: Int?,
 
-    // ---------------- Pain ----------------
 
     @ColumnInfo(name = "pain_severity")
-    var painSeverity: String? = null,          // Mild / Moderate / Severe
+    var painSeverity: String? = null,
 
     @ColumnInfo(name = "pain_duration")
     var painDuration: String? = null,
 
-    // ---------------- Other Symptoms ----------------
 
     @ColumnInfo(name = "symptoms_present")
     var symptomsPresent: Boolean? = null,
@@ -40,4 +38,4 @@ data class PainAndSymptomAssessment(
 
     @ColumnInfo(name = "immediate_relief_provided")
     var immediateReliefProvided: Boolean? = null
-) : FormDataModelPainAndSymptomAssessment
+) : FormDataModel
