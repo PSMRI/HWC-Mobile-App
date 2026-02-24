@@ -64,6 +64,7 @@ import org.piramalswasthya.cho.database.room.dao.VillageMasterDao
 import org.piramalswasthya.cho.database.room.dao.VisitReasonsAndCategoriesDao
 import org.piramalswasthya.cho.database.room.dao.VitalsDao
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
 import org.piramalswasthya.cho.moddel.OccupationMaster
 import org.piramalswasthya.cho.model.AgeUnit
 import org.piramalswasthya.cho.model.AshaDueListCache
@@ -153,6 +154,7 @@ import org.piramalswasthya.cho.model.VisitDB
 import org.piramalswasthya.cho.model.VisitReason
 import org.piramalswasthya.cho.model.fhir.SelectedOutreachProgram
 import org.piramalswasthya.cho.model.EarDiagnosisAssessment
+import org.piramalswasthya.cho.model.PainAndSymptomAssessment
 
 
 @Database(
@@ -244,10 +246,11 @@ import org.piramalswasthya.cho.model.EarDiagnosisAssessment
         AshaDueListCache::class,
         StatusOfWomanMaster::class,
         OphthalmicVisit::class,
-        EarDiagnosisAssessment::class
+        EarDiagnosisAssessment::class,
+        PainAndSymptomAssessment::class
     ],
     views = [PrescriptionWithItemMasterAndDrugFormMaster::class],
-    version = 128, exportSchema = false
+    version = 129, exportSchema = false
 )
 
 
@@ -315,6 +318,7 @@ abstract class InAppDb : RoomDatabase() {
     abstract val infantRegDao: InfantRegDao
     abstract val cbacDao: CbacDao
     abstract val procedureMasterDao: ProcedureMasterDao
+    abstract val painAndSymptomAssessmentDao: PainAndSymptomAssessmentDao
 
 
     // This comment is for Github glitch
@@ -742,6 +746,24 @@ abstract class InAppDb : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_128_129 = object : Migration(128, 129) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS PAIN_SYMPTOM_ASSESSMENT (
+                assessment_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                patient_id TEXT NOT NULL,
+                ben_visit_no INTEGER,
+                pain_severity TEXT,
+                pain_duration TEXT,
+                symptoms_present INTEGER,
+                other_symptoms_severity TEXT,
+                immediate_relief_provided INTEGER
+            )
+            """.trimIndent()
+                )
+            }
+        }
 
 
         fun getInstance(appContext: Context): InAppDb {
@@ -777,7 +799,8 @@ abstract class InAppDb : RoomDatabase() {
                             MIGRATION_124_125,
                             MIGRATION_125_126,
                             MIGRATION_126_127,
-                            MIGRATION_127_128
+                            MIGRATION_127_128,
+                            MIGRATION_128_129
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(object : RoomDatabase.Callback() {

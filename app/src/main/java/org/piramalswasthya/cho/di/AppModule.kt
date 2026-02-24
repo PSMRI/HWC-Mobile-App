@@ -68,6 +68,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 import org.piramalswasthya.cho.database.room.dao.EarDiagnosisAssessmentDao
+import org.piramalswasthya.cho.database.room.dao.PainAndSymptomAssessmentDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -379,4 +380,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideEarDiagnosisAssessmentDao(database: InAppDb): EarDiagnosisAssessmentDao = database.earDiagnosisAssessmentDao
+
+    @Singleton
+    @Provides
+    fun providePainAndSymptomAssessmentDao(database: InAppDb): PainAndSymptomAssessmentDao = database.painAndSymptomAssessmentDao
 }

@@ -24,6 +24,9 @@ class DropdownConst {
         val throat: String = "THROAT"
         val entReasons: List<String> = listOf(ear, nose, throat)
 
+        val elderlyAndPalliative: String = "Elderly & Palliative"
+        val persistentPain: String = "Persistent pain"
+
 
 
 
@@ -31,6 +34,9 @@ class DropdownConst {
         val female_1_to_59: List<String> = listOf(careAndPreg, fpAndOtherRep, ophthalmic, ent)
         val female_15_to_18: List<String> = listOf(careAndPreg, fpAndOtherRep, immunization, ophthalmic, ent)
         val female_ncd: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent)
+
+        val male_elderly: List<String> = listOf(ncdScreening, ophthalmic, ent, elderlyAndPalliative)
+        val female_elderly: List<String> = listOf(careAndPreg, fpAndOtherRep, ncdScreening, ophthalmic, ent, elderlyAndPalliative)
         val age_0_to_1: List<String> = listOf(neonatalAndInfant, ent)
 
         val visualAcuityList = listOf("6/6", "6/9", "6/12", "6/18", "6/24", "6/36", "6/60", "<6/60")
